@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/RelativeLayout01" 
+	android:gravity="center_vertical"
+	android:layout_height="wrap_content" android:layout_width="fill_parent"> 
+	<LinearLayout 
+		android:layout_height="wrap_content" 
+		android:layout_width="wrap_content"
+		android:paddingLeft="40dip"
+		android:paddingTop="10dip"
+		android:orientation="vertical"
+		android:layout_gravity="center_vertical"
+		android:layout_alignParentLeft="true" 
+		android:layout_toLeftOf="@id/icon">
+		<TextView android:layout_height="wrap_content"
+		style="@style/txt_list_sub" 
+		android:id="@+id/location"
+		android:text="location"
+		android:singleLine="false" 
+        android:layout_below="@+id/username"
+		android:layout_width="fill_parent"
+		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@id/icon" />
+		<TextView android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+        android:layout_below="@+id/location"
+		android:layout_alignParentLeft="true"
+		android:id="@+id/tracks" 
+		android:text="track count"
+		style="@style/txt_list_sub"  />
+	</LinearLayout>
+	
+	<com.soundcloud.utils.RemoteImageView
+		android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:padding="5dip" 
+		android:id="@+id/icon" />
+</RelativeLayout>

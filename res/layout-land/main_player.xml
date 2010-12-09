@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:id="@+id/main_holder"
+		android:orientation="vertical">
+		<include layout="@layout/track_info_player"  android:background="@color/playerControlBackground"/>
+		<FrameLayout android:layout_width="fill_parent" android:layout_weight="1" 
+			android:layout_height="wrap_content">
+			<com.soundcloud.android.WaveformController
+				android:id="@+id/waveform_controller" android:layout_width="fill_parent"
+				android:orientation="horizontal" android:layout_height="wrap_content" />
+			<RelativeLayout android:layout_width="fill_parent"
+				android:layout_height="20dip" android:paddingTop="1dip"
+				android:paddingBottom="1dip" android:orientation="horizontal">
+				<TextView android:id="@+id/currenttime"
+					android:textColor="@android:color/white"
+					android:background="#775a5a5a" android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textSize="12sp" android:textStyle="bold"
+					android:shadowColor="#ff000000" android:shadowDx="0"
+					android:shadowDy="0" android:shadowRadius="3"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentLeft="true" android:layout_gravity="top"
+					android:gravity="left" android:layout_width="45dip"
+					android:paddingRight="2dip" android:paddingLeft="2dip"
+					android:layout_height="20dip" />
+				<TextView android:id="@+id/totaltime" android:background="#775a5a5a"
+					android:textColor="@android:color/white"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentRight="true" android:textSize="12sp"
+					android:textStyle="bold" android:shadowColor="#ff000000"
+					android:shadowDx="0" android:shadowDy="0" android:shadowRadius="3"
+					android:gravity="right" android:paddingRight="2dip"
+					android:paddingLeft="2dip" android:layout_width="45dip"
+					android:layout_height="20dip" />
+			</RelativeLayout>
+			<FrameLayout
+				android:paddingBottom="10dip"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:id="@+id/connecting_holder"
+				android:visibility="gone">
+			</FrameLayout>
+		</FrameLayout>
+		<LinearLayout android:id="@+id/transport_bar" android:background="@color/playerControlBackground"  android:paddingTop="5dip" android:paddingBottom="5dip"
+			 android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent">						
+			<com.soundcloud.android.RepeatingImageButton android:layout_weight="1" android:layout_alignParentLeft="true" android:id="@+id/prev" style="@style/btn_oc_transport" android:src="@drawable/ic_prev_states" />
+			<ImageButton android:layout_weight="1" android:id="@+id/pause" android:layout_toRightOf="@id/prev" style="@style/btn_oc_transport" android:src="@drawable/ic_play_states" />
+			<com.soundcloud.android.RepeatingImageButton android:layout_weight="1" android:layout_toRightOf="@id/pause" android:id="@+id/next" style="@style/btn_oc_transport" android:src="@drawable/ic_next_states" />
+		</LinearLayout>
+	</LinearLayout>
+</LinearLayout>

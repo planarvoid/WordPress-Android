@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical" android:padding="5dip">
+		<TableLayout android:id="@+id/user_details_table"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:stretchColumns="0" android:shrinkColumns="1">
+			<TableRow>
+				<TextView android:padding="3dip" android:text="Full name" />
+				<TextView android:layout_width="wrap_content"
+					android:gravity="right" android:padding="3dip" android:id="@+id/fullname"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow>
+				<TextView android:text="Tracks" android:padding="3dip" />
+				<TextView android:layout_width="wrap_content" android:id="@+id/tracks"
+					android:text="" android:gravity="right" android:padding="3dip"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow>
+				<TextView android:text="Followers" android:padding="3dip" />
+				<TextView android:layout_width="wrap_content" android:id="@+id/followers"
+					android:text="" android:gravity="right" android:padding="3dip"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow android:id="@+id/website_row">
+				<TextView android:text="Website" android:padding="3dip" />
+				<TextView android:layout_width="wrap_content" android:id="@+id/website"
+					android:text="" android:gravity="right" android:padding="3dip"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow android:id="@+id/discogs_row">
+				<TextView android:text="Discogs name" android:padding="3dip" />
+				<TextView android:layout_width="wrap_content" android:id="@+id/discogs_name"
+					android:text="" android:gravity="right" android:padding="3dip"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow android:id="@+id/myspace_row">
+				<TextView android:text="Myspace name" android:padding="3dip" />
+				<TextView android:layout_width="wrap_content" android:id="@+id/myspace_name"
+					android:text="" android:gravity="right" android:padding="3dip"
+					android:layout_height="wrap_content" />
+			</TableRow>
+			<TableRow>
+				<TextView android:layout_span="2" android:layout_width="wrap_content"
+					android:id="@+id/description" android:padding="3dip" android:text="" />
+			</TableRow>
+		</TableLayout>
+</LinearLayout>

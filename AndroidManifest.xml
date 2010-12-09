@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.soundcloud.android"
+      android:versionCode="1"
+      android:versionName="0.1">
+      
+   	<application android:icon="@drawable/launcher" android:label="@string/app_name"
+		android:process="@string/app_name" android:debuggable="true"
+		android:theme="@style/ScLight">
+        <activity android:name=".Main"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="soundcloud" android:host="auth" />
+			</intent-filter>
+			<intent-filter>
+               <action android:name="android.intent.action.SEND"></action>
+               <data android:mimeType="audio/*"></data>
+            	<category android:name="android.intent.category.DEFAULT"/>
+        	</intent-filter>
+        </activity>
+        <activity android:name=".Settings" android:label="Settings" />
+        <activity android:name=".ScPlayer" android:label="Soundcloud Player" />
+        <activity android:name=".ScProfile" android:label="Profile" />
+        		
+		<!--<activity android:name=".OcActivities" android:label="Incoming" />
+		<activity android:name=".OcFavorites" android:label="My Favorites" />
+		<activity android:name=".OcMine" android:label="My Music" />
+		<activity android:name=".OcUsers" android:label="My Users" />
+		<activity android:name=".OcLibrary" android:label="My Downloads" />
+
+		<activity android:name=".TrackBrowser" android:label="Track Browser" />
+		<activity android:name=".PlaylistBrowser" android:label="Playlist Browser" />
+		<activity android:name=".OcSearch" android:label="Search" />
+		<activity android:name=".OcCreate" android:label="Upload" />
+		<activity android:name=".Playlist" android:label="Current Playlist" />
+		--><service android:name="CloudPlaybackService" android:exported="true">
+			<intent-filter>
+				<action android:name="com.soundcloud.android.ICloudPlaybackService" />
+			</intent-filter>
+		</service>
+		<service class=".CloudDownloaderService" android:name="CloudDownloaderService">
+			<intent-filter>
+				<action android:name="com.soundcloud.android.ICloudDownloaderService" />
+			</intent-filter>
+		</service>
+		
+    </application>
+    
+    <supports-screens android:anyDensity="true" />
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="9"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+
+</manifest> 

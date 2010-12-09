@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+	<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:ignoreGravity="@+id/icon">
+		<ImageView android:id="@+id/play_indicator"
+		 	android:gravity="center_vertical"
+		 	android:paddingRight="5dip" 
+		 	android:paddingTop="10dip"
+	        android:layout_alignParentRight="true"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"/> 
+	   	<com.soundcloud.utils.RemoteImageView
+			android:layout_alignParentLeft="true"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:padding="5dip" 
+			android:id="@+id/icon" />
+		<TextView android:layout_height="wrap_content"
+			android:paddingTop="2dip"
+			android:paddingLeft="5dip" 
+			android:paddingRight="5dip" 
+			android:id="@+id/user"
+			android:textSize="12sp"
+			android:text="song"
+			android:singleLine="false" 
+			android:layout_alignWithParentIfMissing="true"
+			android:layout_alignParentTop="true"
+			android:layout_width="fill_parent"
+			android:layout_toRightOf="@id/icon"
+			android:layout_toLeftOf="@id/play_indicator" />
+		<TextView android:layout_width="wrap_content"
+			android:textStyle="bold" 
+			android:layout_height="wrap_content" 
+			android:textSize="12sp"
+			android:paddingLeft="5dip"
+			android:paddingRight="5dip" 
+			android:id="@+id/track"
+			android:layout_alignWithParentIfMissing="true"
+	        android:layout_below="@id/user"
+	        android:layout_toRightOf="@id/icon"
+	        android:layout_toLeftOf="@id/play_indicator"
+			android:text="track" />
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:paddingLeft="5dip"
+			android:paddingRight="5dip" 
+			android:layout_alignWithParentIfMissing="true"
+	        android:layout_below="@id/track"
+	        android:layout_toRightOf="@id/icon"
+	        android:layout_toLeftOf="@id/play_indicator"
+			android:id="@+id/duration" 
+			android:text="duration"
+			android:textSize="12sp" />
+		<ProgressBar android:id="@+id/progress_bar"
+			android:paddingTop="2dip" android:paddingLeft="5dip"
+			android:paddingRight="5dip" android:paddingBottom="2dip"
+			android:layout_toRightOf="@id/icon"
+			android:layout_below="@id/duration" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:indeterminate="false"
+			style="@style/CloudProgressBarSmall" />
+		<TextView android:layout_width="wrap_content"
+			android:paddingTop="2dip" android:paddingRight="5dip"
+			android:paddingBottom="2dip" android:layout_below="@id/progress_bar"
+			android:layout_alignParentBottom="true" android:layout_toRightOf="@id/icon"
+			android:layout_height="wrap_content" android:paddingLeft="5dip"
+			android:id="@+id/status_text" android:text="@string/row_download_pending"
+			android:textSize="12sp" android:layout_alignWithParentIfMissing="true"
+			android:textStyle="bold" />
+	</RelativeLayout>
+</LinearLayout>
+

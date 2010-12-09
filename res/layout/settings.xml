@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+>
+	<ListPreference
+	android:title="@string/pref_page_size"
+	android:summary="@string/pref_page_size_desc"
+	android:key="defaultPageSize"
+	android:defaultValue="10"
+	android:entries="@array/pref_page_size"
+	android:entryValues="@array/pref_page_size_values" />
+		
+	<Preference
+		android:title="@string/pref_revoke_access"
+		android:summary="@string/pref_revoke_desc"
+		android:key="revokeAccess"/>
+	<Preference
+		android:title="@string/pref_clear_cache"
+		android:summary="@string/pref_clear_cache_desc"
+		android:key="clearCache"/>
+	
+	<PreferenceScreen
+		android:key="@null"
+		android:title="@string/wifi_settings"
+		android:summary="@string/wifi_settings_summary">
+		<intent
+			android:action="android.settings.WIRELESS_SETTINGS"
+		/>
+	</PreferenceScreen>
+	
+</PreferenceScreen>

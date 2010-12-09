@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+	
+	
+	<color name="listTxtValue">#FF000000</color>
+	<color name="listTxtSecondary">#FF777777</color>
+	
+	<color name="playerControlBackground">#FFEAEAEA</color>
+	<color name="playerControlAlphaBackground">#AAEAEAEA</color>
+	<color name="playerArtworkBackground">#FF666666</color>
+	
+	<color name="userHeaderBackground">#FFEEEEEE</color>
+
+	<color name="cloudProgressBackgroundStart">#FF666666</color>
+	<color name="cloudProgressBackgroundCenter">#FF949494</color>
+	<color name="cloudProgressBackgroundEnd">#FF666666</color>
+	
+	<color name="cloudProgressSecondaryStart">#333333</color>
+	<color name="cloudProgressSecondaryCenter">#707070</color>
+	<color name="cloudProgressSecondaryEnd">#333333</color>
+	
+	<color name="cloudProgressStart">#e36711</color>
+	<color name="cloudProgressCenter">#e36711</color>
+	<color name="cloudProgressEnd">#e36711</color>
+	
+	<color name="cloudProgressCommentBarBgOff">#AA2EC9FF</color>
+	<color name="cloudProgressCommentBarBgOn">#3D00C1</color>
+
+	<color name="listSeperator">#FF333333</color>
+
+	<color name="menuBackground">#7fff0000</color>
+	<color name="tabFocused">#7fff0000</color>
+	<color name="tabFocusedSelected">#7fff0000</color>
+	<color name="tabUnfocused">#7fff0000</color>
+	<color name="tabUnfocusedSelected">#7fff0000</color>
+	<color name="tabPressed">#7fff0000</color>
+	<color name="dragndrop_background">#7f070000</color>
+	<drawable name="screen_background_light">#ffffffff</drawable>
+
+	<drawable name="screen_background_dark">#ff1a1a1a</drawable>
+	<drawable name="status_bar_closed_default_background">#ff000000</drawable>
+	<drawable name="status_bar_opened_default_background">#ff000000</drawable>
+	<drawable name="search_bar_default_color">#ff000000</drawable>
+	<drawable name="safe_mode_background">#60000000</drawable>
+	<color name="safe_mode_text">#80ffffff</color>
+	<color name="white">#ffffffff</color>
+	<color name="black">#ff000000</color>
+	<color name="transparent">#00000000</color>
+	<color name="background_dark">#ff1a1a1a</color>
+	<color name="bright_foreground_dark">#ffffffff</color>
+	<color name="bright_foreground_dark_disabled">#80ffffff</color>
+	<color name="bright_foreground_dark_inverse">#ff000000</color>
+	<color name="dim_foreground_dark">#bebebe</color>
+	<color name="dim_foreground_dark_disabled">#80bebebe</color>
+	<color name="dim_foreground_dark_inverse">#323232</color>
+	<color name="dim_foreground_dark_inverse_disabled">#80323232</color>
+	<color name="hint_foreground_dark">#808080</color>
+	<color name="background_light">#ffffffff</color>
+	<color name="bright_foreground_light">#ff000000</color>
+	<color name="bright_foreground_light_inverse">#ffffffff</color>
+	<color name="bright_foreground_light_disabled">#80000000</color>
+	<color name="dim_foreground_light">#323232</color>
+	<color name="dim_foreground_light_disabled">#80323232</color>
+	<color name="dim_foreground_light_inverse">#bebebe</color>
+	<color name="dim_foreground_light_inverse_disabled">#80bebebe</color>
+	<color name="hint_foreground_light">#808080</color>
+
+
+	<drawable name="input_method_fullscreen_background">#ffffffff</drawable>
+
+	<!-- For date picker widget -->
+	<drawable name="selected_day_background">#ff0092f4</drawable>
+
+	<!-- For settings framework -->
+	<color name="lighter_gray">#ddd</color>
+	<color name="darker_gray">#aaa</color>
+
+	<!-- For security permissions -->
+	<color name="perms_dangerous_grp_color">#ffd57e</color>
+	<color name="perms_dangerous_perm_color">#ddb66a</color>
+	<color name="perms_normal_grp_color">#eeeeee</color>
+	<color name="perms_normal_perm_color">#c0c0c0</color>
+</resources>

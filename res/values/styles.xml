@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+  	
+  
+  	<style name="txt_list_main">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+	</style>
+	<style name="txt_list_secondary" parent="txt_list_main">
+		<item name="android:textColor">@color/listTxtSecondary</item>
+	</style>
+	<style name="txt_list_sub">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+	</style>
+	<style name="txt_list_sub_secondary" parent="txt_list_sub">
+		<item name="android:paddingLeft">8dip</item>
+		<item name="android:textColor">@color/listTxtSecondary</item>
+	</style>
+	
+	<style name="txt_empty_view">
+		<item name="android:textSize">16sp</item>
+		<item name="android:textStyle">italic</item>
+	</style>
+	
+	<style name="TabWidgetTextAppearance" parent="@android:style/TextAppearance.Widget.TabWidget"> 
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/tab_indicator_text</item>
+    </style> 
+    
+    <style name="txt_record_instructions">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">28sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:paddingTop">20dip</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+	</style>
+  
+  
+ 	<style name="btn_oc">
+		<!--<item name="android:background">@drawable/btn_oc_player_states</item>-->
+		<!--  <item name="android:background">@drawable/oc_button_background</item>-->
+<!--		<item name="android:textColor">@drawable/list_txt</item>-->
+	</style>
+	
+	<style name="btn_oc_transport" parent="btn_oc">
+		<!--<item name="android:background">@drawable/btn_oc_player_states</item>-->
+		<!--  <item name="android:background">@drawable/oc_button_background</item>-->
+        <item name="android:layout_width">60dip</item>
+        <item name="android:layout_height">50dip</item>
+        <item name="android:background">@android:color/transparent</item>
+	</style>
+	
+	<style name="btn_oc_transport_small" parent="btn_oc_transport">
+		<item name="android:layout_width">50dip</item>
+	</style>
+	
+	<style name="btn_oc_comment_reply" parent="btn_oc">
+		<!--<item name="android:background">@drawable/btn_oc_player_states</item>-->
+		<!--  <item name="android:background">@drawable/oc_button_background</item>-->
+		<item name="android:paddingLeft">15dip</item>
+        <item name="android:paddingRight">15dip</item>
+        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">40dip</item>
+	</style>
+	
+	<style name="btn_oc_menu">
+		<item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">3dip</item>
+        <item name="android:paddingRight">3dip</item>
+        <item name="android:paddingTop">3dip</item>
+        <item name="android:paddingBottom">3dip</item>
+        <item name="android:layout_marginTop">3dip</item>
+        <item name="android:layout_marginBottom">3dip</item>
+        <item name="android:layout_marginLeft">3dip</item>
+        <item name="android:layout_marginRight">3dip</item>
+	</style>
+	
+	<style name="btn_oc_track">
+<!--		<item name="android:background">@drawable/btn_oc_track_states</item>-->
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:paddingLeft">3dip</item>
+        <item name="android:paddingRight">3dip</item>
+        <item name="android:layout_height">52dip</item>
+        <item name="android:layout_marginTop">1dip</item>
+        <item name="android:layout_marginBottom">1dip</item>
+        <item name="android:layout_marginLeft">1dip</item>
+        <item name="android:layout_marginRight">1dip</item>
+	</style>
+	
+	
+  	<style name="txt_player_drawer_blue" parent="android:Widget.TextView">
+		<item name="android:textColor">#2EC9FF</item>
+	</style>
+	
+	<style name="txt_main_menu" parent="android:Widget.TextView">
+		<item name="android:textSize">17sp</item>
+	</style>
+  
+  	<style name="txt_details_table_label" parent="android:Widget.TextView">
+		<item name="android:padding">3dip</item>
+	</style>
+	<style name="txt_refresh_bar" parent="android:Widget.TextView">
+		<item name="android:textSize">12sp</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+	<style name="txt_details_table_value" parent="android:Widget.TextView">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:padding">3dip</item>
+		<item name="android:gravity">right</item>
+	</style>
+	<style name="txt_details_table_value_desc" parent="android:Widget.TextView">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:padding">3dip</item>
+		<item name="android:gravity">center</item>
+	</style>
+	
+	<style name="CloudProgressBarSmall">
+		<item name="android:background">@drawable/progress_bar_bg</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:minHeight">20dip</item>
+		<item name="android:maxHeight">20dip</item>
+        <item name="android:minWidth">76dip</item>
+		<item name="android:maxWidth">76dip</item>
+		<item name="android:progressDrawable">@drawable/progress_bar</item>
+		<item name="android:indeterminateDrawable">@drawable/progress_bar_indeterminate</item>
+    </style> 
+    
+   <style name="CloudProgressBar">
+   		<item name="android:background">@drawable/progress_bar_bg</item>
+        <item name="android:indeterminateOnly">false</item>
+		<item name="android:progressDrawable">@drawable/progress_bar</item>
+        <item name="android:minHeight">40dip</item>
+        <item name="android:maxHeight">60dip</item>
+        <item name="android:minWidth">250dip</item>
+        <item name="android:maxWidth">5000dip</item>
+    </style> 
+    
+    <style name="Playlist">
+    	<item name="android:windowBackground">@android:color/black</item>
+	    <item name="android:background">@android:color/black</item>
+	    <item name="android:windowNoTitle">true</item>
+	    <item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_height">fill_parent</item>
+	    <item name="android:layout_marginTop">60dip</item>
+	</style>
+
+	
+	 <style name="FloatingPlayer">
+    	<item name="android:windowBackground">@android:color/transparent</item>
+	    <item name="android:background">@android:color/transparent</item>
+	    <item name="android:windowIsFloating">true</item>
+	    <item name="android:windowNoTitle">true</item>
+	    <item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+	</style>
+
+	<style name="ZoomControls">
+		<item name="android:gravity">bottom</item>
+		<item name="android:paddingLeft">15dip</item>
+		<item name="android:paddingRight">15dip</item>
+	</style>
+	
+		<style name="progress_oc_player_loader"> 
+		<item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_height">300dip</item>
+		<item name="android:indeterminate">true</item>
+        <item name="android:indeterminateOnly">true</item>
+        <item name="android:minHeight">20dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style> 
+	
+</resources>
