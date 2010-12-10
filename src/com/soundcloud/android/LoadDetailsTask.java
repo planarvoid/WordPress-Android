@@ -1,15 +1,10 @@
 package com.soundcloud.android;
 
 import java.io.InputStream;
-import java.util.HashMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 
@@ -18,9 +13,9 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
-public class LoadTasks  {
+public class LoadDetailsTask extends LoadTask {
 	
-	static class LoadDetailsTask extends LoadTask {
+	 
 		private final static String TAG = "LoadDetailsTask";
 		JSONObject returnObject;
 		@Override
@@ -34,7 +29,7 @@ public class LoadTasks  {
 			try {
 		
 				//String jsonRaw = activity.mCloudComm.getContent(mUrl);
-				InputStream is = (InputStream) activity.mCloudComm.getContent(mUrl);
+				InputStream is = activity.mCloudComm.getContent(mUrl);
 				String jsonRaw = CloudCommunicator.formatContent(is);
 				
 				if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){
@@ -95,7 +90,7 @@ public class LoadTasks  {
 		protected void mapDetails(Parcelable update){
 			
 		}
-	}
+	
 	
 	
 	

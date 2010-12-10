@@ -14,7 +14,6 @@ import com.soundcloud.android.CloudUtils;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 
 public class Track extends BaseObj implements Parcelable  {
@@ -234,7 +233,7 @@ public class Track extends BaseObj implements Parcelable  {
 			Track[] trackArray = new Track[tracks.size()];
 			int i = 0;
 			for (Iterator<Track> trackIterator = tracks.iterator(); trackIterator.hasNext();) {  
-			    trackArray[i] = (Track) trackIterator.next(); 
+			    trackArray[i] = trackIterator.next(); 
 			    i++;
 			}  
 			
@@ -270,9 +269,9 @@ public class Track extends BaseObj implements Parcelable  {
 			int duration = Integer.parseInt(data.getString(Track.key_duration));
 			String durationStr = "";
 			if (Math.floor(Math.floor((duration/1000)/60)/60) > 0)
-				durationStr = String.valueOf((int) Math.floor(Math.floor((duration/1000)/60)/60) + "." + (int) Math.floor((duration/1000)/60)%60) + "." + String.format("%02d",(int) (duration/1000)%60);
+				durationStr = String.valueOf((int) Math.floor(Math.floor((duration/1000)/60)/60) + "." + (int) Math.floor((duration/1000)/60)%60) + "." + String.format("%02d",(duration/1000)%60);
 			else
-				durationStr = String.valueOf((int) Math.floor((duration/1000)/60)%60) + "." + String.format("%02d",(int) (duration/1000)%60);
+				durationStr = String.valueOf((int) Math.floor((duration/1000)/60)%60) + "." + String.format("%02d",(duration/1000)%60);
 			data.putString(Track.key_duration_formatted, durationStr);
 		}
 		
@@ -290,6 +289,7 @@ public class Track extends BaseObj implements Parcelable  {
 		return data.containsKey(key);
 	}
 	
+	@Override
 	public String getData(String key){
 		if (data.get(key) != null)
 			return data.getString(key);
@@ -297,6 +297,7 @@ public class Track extends BaseObj implements Parcelable  {
 			return "";
 	}
 	
+	@Override
 	public HashMap<String,String> mapData(){
 		HashMap<String,String> dataMap = new HashMap<String,String>();
 		
@@ -308,10 +309,12 @@ public class Track extends BaseObj implements Parcelable  {
 		return dataMap;
 	}
 	
+	@Override
 	public void putData(String key,String value){
 		data.putString(key,value);
 	}
 	
+	@Override
 	public Parcelable getDataParcelable(String key){
 		if (data.get(key) != null)
 			return data.getParcelable(key);
@@ -326,6 +329,7 @@ public class Track extends BaseObj implements Parcelable  {
 			return null;
 	}
 	
+	@Override
 	public void putDataParcelable(String key, Parcelable value){
 		data.putParcelable(key, value);
 	}
@@ -347,15 +351,18 @@ public class Track extends BaseObj implements Parcelable  {
 	
 	
 
-    public void readFromParcel(Parcel in) {
+    @Override
+	public void readFromParcel(Parcel in) {
     	data = in.readBundle();
     }
 
+	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
 	public void writeToParcel(Parcel out, int arg1) {
 		// TODO Auto-generated method stub
 		out.writeBundle(data);

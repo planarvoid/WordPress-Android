@@ -28,19 +28,7 @@
         <activity android:name=".Settings" android:label="Settings" />
         <activity android:name=".ScPlayer" android:label="Soundcloud Player" />
         <activity android:name=".ScProfile" android:label="Profile" />
-        		
-		<!--<activity android:name=".OcActivities" android:label="Incoming" />
-		<activity android:name=".OcFavorites" android:label="My Favorites" />
-		<activity android:name=".OcMine" android:label="My Music" />
-		<activity android:name=".OcUsers" android:label="My Users" />
-		<activity android:name=".OcLibrary" android:label="My Downloads" />
-
-		<activity android:name=".TrackBrowser" android:label="Track Browser" />
-		<activity android:name=".PlaylistBrowser" android:label="Playlist Browser" />
-		<activity android:name=".OcSearch" android:label="Search" />
-		<activity android:name=".OcCreate" android:label="Upload" />
-		<activity android:name=".Playlist" android:label="Current Playlist" />
-		--><service android:name="CloudPlaybackService" android:exported="true">
+		<service android:name="CloudPlaybackService" android:exported="true">
 			<intent-filter>
 				<action android:name="com.soundcloud.android.ICloudPlaybackService" />
 			</intent-filter>

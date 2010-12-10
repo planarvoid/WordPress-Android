@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.util.Log;
 
 abstract class LoadTask extends AsyncTask<String, Parcelable, Boolean> {
 	private final static String TAG = "LoadTask";

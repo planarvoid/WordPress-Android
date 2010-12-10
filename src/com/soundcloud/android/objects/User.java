@@ -140,6 +140,7 @@ public class User extends BaseObj implements Parcelable  {
 		readFromParcel(in);
 	}
 	
+	@Override
 	public String getData(String key){
 		if (data.get(key) != null)
 			return data.getString(key);
@@ -147,6 +148,7 @@ public class User extends BaseObj implements Parcelable  {
 			return "";
 	}
 	
+	@Override
 	public void putData(String key,String value){
 		data.putString(key,value);
 	}
@@ -164,15 +166,18 @@ public class User extends BaseObj implements Parcelable  {
 	
 	
 
-    public void readFromParcel(Parcel in) {
+    @Override
+	public void readFromParcel(Parcel in) {
     	data = in.readBundle();
     }
 
+	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
 	public void writeToParcel(Parcel out, int arg1) {
 		// TODO Auto-generated method stub
 		out.writeBundle(data);

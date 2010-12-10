@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.LoadTasks.LoadDetailsTask;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.RemoteImageView;
@@ -218,17 +217,12 @@ public class UserBrowser extends ScTabView {
 
 		
 		
-		final ViewFlipper viewFlipper = new ViewFlipper(mActivity);
-		viewFlipper.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-		
-		
-		FrameLayout tabLayout = CloudUtils.createTabLayout(mActivity,viewFlipper);
-		tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+			FrameLayout tabLayout = CloudUtils.createTabLayout(mActivity);
+		tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
 		
 		((LinearLayout) findViewById(R.id.tab_holder)).addView(tabLayout);
-		((LinearLayout) findViewById(R.id.tab_holder)).addView(viewFlipper);
 		
-		((LinearLayout.LayoutParams) viewFlipper.getLayoutParams()).weight = 1;
+		
 		
 		TabHost tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
 		TabWidget tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
@@ -238,7 +232,7 @@ public class UserBrowser extends ScTabView {
 		
 		final ScTabView tracksView = new ScTabView(mActivity,adpWrap);
 		CloudUtils.createTabList(mActivity, tracksView, adpWrap);
-		CloudUtils.createTab(mActivity, tabHost,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView, viewFlipper, false);
+		CloudUtils.createTab(mActivity, tabHost,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView, false);
 		adpWrap.notifyDataSetChanged();
 		Log.i(TAG,"Making a favorites list " + getFavoritesUrl());
 		
@@ -247,12 +241,12 @@ public class UserBrowser extends ScTabView {
 		
 		final ScTabView favoritesView = new ScTabView(mActivity,adpWrap);
 		CloudUtils.createTabList(mActivity, favoritesView, adpWrap);
-		CloudUtils.createTab(mActivity, tabHost,"favorites",mActivity.getString(R.string.tab_favorites),null,favoritesView, viewFlipper,false);
+		CloudUtils.createTab(mActivity, tabHost,"favorites",mActivity.getString(R.string.tab_favorites),null,favoritesView, false);
 		adpWrap.notifyDataSetChanged();
 		
 		final ScTabView detailsView = new ScTabView(mActivity);
 		detailsView.addView(mDetailsView);
-		CloudUtils.createTab(mActivity, tabHost,"details",mActivity.getString(R.string.tab_info),null,detailsView, viewFlipper,false);
+		CloudUtils.createTab(mActivity, tabHost,"details",mActivity.getString(R.string.tab_info),null,detailsView, false);
 		CloudUtils.setTabTextStyle(mActivity, tabWidget);
 		CloudUtils.configureTabs(mActivity, tabWidget, 30);
 		
@@ -296,7 +290,8 @@ public class UserBrowser extends ScTabView {
 		
 		 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
         Thread t = new Thread() {
-            public void run() {
+            @Override
+			public void run() {
             	try {
             		Log.i("FDA","Is Following? " + _isFollowing);
             		if (_isFollowing)
@@ -471,7 +466,7 @@ public class UserBrowser extends ScTabView {
 		
 		Boolean _showTable = false;
 		
-		if (((User) mUserData).hasKey(User.key_full_name))
+		if ((mUserData).hasKey(User.key_full_name))
 		if (mUserData.getData(User.key_full_name) != ""){
 			_showTable = true;
 			mFullName.setText(mUserData.getData(User.key_full_name));
@@ -480,7 +475,7 @@ public class UserBrowser extends ScTabView {
 		}
 				
 		CharSequence styledText;
-		if (((User) mUserData).hasKey(User.key_website))
+		if ((mUserData).hasKey(User.key_website))
 		if (mUserData.getData(User.key_website) != ""){
 			_showTable = true;
 			styledText = Html.fromHtml("<a href='" + mUserData.getData(User.key_website) + "'>" + CloudUtils.stripProtocol(mUserData.getData(User.key_website)) + "</a>");
@@ -491,7 +486,7 @@ public class UserBrowser extends ScTabView {
 			((TableRow) mDetailsView.findViewById(R.id.website_row)).setVisibility(View.GONE);
 		}
 		
-		if (((User) mUserData).hasKey(User.key_discogs_name))
+		if ((mUserData).hasKey(User.key_discogs_name))
 		if (mUserData.getData(User.key_discogs_name) != ""){
 			_showTable = true;
 			styledText = Html.fromHtml("<a href='http://www.discogs.com/artist/" + mUserData.getData(User.key_discogs_name) + "'>" + mUserData.getData(User.key_discogs_name) + "</a>");
@@ -502,10 +497,10 @@ public class UserBrowser extends ScTabView {
 			((TableRow) mDetailsView.findViewById(R.id.discogs_row)).setVisibility(View.GONE);
 		}
 		
-		if (((User) mUserData).hasKey(User.key_myspace_name))
-		if (((User) mUserData).getData(User.key_myspace_name) != ""){
+		if ((mUserData).hasKey(User.key_myspace_name))
+		if ((mUserData).getData(User.key_myspace_name) != ""){
 			_showTable = true;
-			styledText = Html.fromHtml("<a href='http://www.myspace.com/" + ((User) mUserData).getData(User.key_myspace_name) + "'>" + ((User) mUserData).getData(User.key_myspace_name) + "</a>");
+			styledText = Html.fromHtml("<a href='http://www.myspace.com/" + (mUserData).getData(User.key_myspace_name) + "'>" + (mUserData).getData(User.key_myspace_name) + "</a>");
 			mMyspaceName.setText(styledText);	
 			mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
 			((TableRow) mDetailsView.findViewById(R.id.myspace_row)).setVisibility(View.VISIBLE);
@@ -513,10 +508,10 @@ public class UserBrowser extends ScTabView {
 			((TableRow) mDetailsView.findViewById(R.id.myspace_row)).setVisibility(View.GONE);
 		}
 		
-		if (((User) mUserData).hasKey(User.key_description))
-		if (((User) mUserData).getData(User.key_description) != ""){
+		if ((mUserData).hasKey(User.key_description))
+		if ((mUserData).getData(User.key_description) != ""){
 			_showTable = true;
-			styledText = Html.fromHtml(((User) mUserData).getData(User.key_description)); 
+			styledText = Html.fromHtml((mUserData).getData(User.key_description)); 
 			mDescription.setText(styledText);
 			mDescription.setMovementMethod(LinkMovementMethod.getInstance());
 		}

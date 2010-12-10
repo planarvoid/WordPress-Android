@@ -130,7 +130,7 @@
 		<item name="android:gravity">center</item>
 	</style>
 	
-	<style name="CloudProgressBarSmall">
+	<style name="ScProgressBarSmall">
 		<item name="android:background">@drawable/progress_bar_bg</item>
         <item name="android:indeterminateOnly">false</item>
         <item name="android:minHeight">20dip</item>
@@ -141,7 +141,7 @@
 		<item name="android:indeterminateDrawable">@drawable/progress_bar_indeterminate</item>
     </style> 
     
-   <style name="CloudProgressBar">
+   <style name="ScProgressBar">
    		<item name="android:background">@drawable/progress_bar_bg</item>
         <item name="android:indeterminateOnly">false</item>
 		<item name="android:progressDrawable">@drawable/progress_bar</item>

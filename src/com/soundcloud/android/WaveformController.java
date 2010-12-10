@@ -24,10 +24,10 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
@@ -40,7 +40,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private Boolean mPendingComments = false;
 	
 	private ImageView mOverlay;
-	private CloudProgressBar mProgressBar;
+	private ProgressBar mProgressBar;
 	private RelativeLayout mCommentBar;
 	private RelativeLayout mTrackTouchBar;
 	private WaveformHolder mWaveformHolder;
@@ -101,7 +101,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		
 		mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
 		mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
-		mProgressBar = (CloudProgressBar) findViewById(R.id.progress_bar);
+		mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 		mCommentBar = (RelativeLayout) findViewById(R.id.comment_bar);
 		mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
 		
@@ -164,7 +164,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		mLastCommentTimestamp = comment.getData(Comment.key_timestamp);
 		
 		toastText = comment.getData(Comment.key_username) + ": " + comment.getData(Comment.key_body);
-		ArrayList<Parcelable> childComments = (ArrayList<Parcelable>) mCommentsAdapter.getChildData().get(i);
+		ArrayList<Parcelable> childComments = mCommentsAdapter.getChildData().get(i);
 		for (Parcelable childComment : childComments){
 			toastText = toastText + "\n\n   " + ((Comment) childComment).getData(Comment.key_username) + ": " + ((Comment) childComment).getData(Comment.key_body);
 		}
@@ -279,17 +279,17 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		for (Parcelable commentParcelable : mCommentsAdapter.getGroupData()){
 			Comment comment = (Comment) commentParcelable; 
 			
-			int leftMargin = (int) (scale*1800*(Float.parseFloat(((Comment) comment).getData(Comment.key_timestamp))/mDuration));
+			int leftMargin = (int) (scale*1800*(Float.parseFloat((comment).getData(Comment.key_timestamp))/mDuration));
 			
 			CommentMarker cm = new CommentMarker(mContext);
-			cm.setCommentData(((Comment) comment));
+			cm.setCommentData((comment));
 			cm.setLeftMargin(leftMargin);
 			cm.setOnClickListener(this);
 			
 			((LazyActivity) mContext).registerForContextMenu(cm);
 			mWaveformHolder.addView(cm);
 			mCommentMarkers[i] = cm;
-			mCommentTimestamps[i] = Integer.parseInt(((Comment) comment).getData(Comment.key_timestamp));
+			mCommentTimestamps[i] = Integer.parseInt((comment).getData(Comment.key_timestamp));
 			i++;
 		}
 		
@@ -599,7 +599,8 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		 
 		 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
 	        Thread t = new Thread() {
-	            public void run() {
+	            @Override
+				public void run() {
 	            	try {
 	            		if (CloudUtils.isLocalFile(wavePath)){
 	            			mLoadingWaveform = android.graphics.drawable.Drawable.createFromPath(wavePath);	

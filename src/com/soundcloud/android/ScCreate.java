@@ -148,7 +148,7 @@ public class ScCreate extends ScTabView {
 		
     	mRecorder = new SCRecorder(mActivity);
     	mRecorder.setBackgroundColor(0xFFFFFF);
-		mRecorder.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,(int) (50*mActivity.getResources().getDisplayMetrics().density)));
+		mRecorder.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,(int) (50*mActivity.getResources().getDisplayMetrics().density)));
 		mRecorder.setSampleRate(44100);
 		mRecorder.setBlockSize(1024);
 		mGaugeHolder.addView(mRecorder);

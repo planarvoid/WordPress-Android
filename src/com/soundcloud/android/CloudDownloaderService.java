@@ -677,7 +677,7 @@ public class CloudDownloaderService extends Service {
 
 			@SuppressWarnings("unchecked")
 			public void downloadTrack(Track trackdata) throws RemoteException {
-				mService.get().addTrackToDownloadQueue((Track) trackdata);
+				mService.get().addTrackToDownloadQueue(trackdata);
 				
 			}
 

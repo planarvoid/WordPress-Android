@@ -19,7 +19,7 @@ public class ScTabView extends FrameLayout {
         mActivity = (LazyActivity) c;
 
         //this.setBackgroundColor(c.getResources().getColor(R.color.cloudProgressBackgroundCenter));
-        setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+        setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
     }
     
     public ScTabView(Context c, ListAdapter adpWrap) {
@@ -54,7 +54,6 @@ public class ScTabView extends FrameLayout {
     
     public void onRefresh(){
     	if (mAdapter != null){    	
-    		Log.i(TAG,"REFRESH THIS SUCKER " + mAdapter);
     		if (mAdapter instanceof LazyEndlessAdapter){
     			((LazyEndlessAdapter) mAdapter).clear();
     		}

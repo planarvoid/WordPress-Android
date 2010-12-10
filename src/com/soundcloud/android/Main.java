@@ -19,7 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
-import android.widget.ViewFlipper;
+import android.widget.TabHost.OnTabChangeListener;
 
 public class Main extends TabbedTracklist {
 
@@ -29,9 +29,10 @@ public class Main extends TabbedTracklist {
 	
 	
 	
-	
+	protected ScTabView mLastTab;
 	protected int mFavoritesIndex = 1;
 	protected int mSetsIndex = 2;
+	
 	
 	private UserBrowser mUserBrowser;
 	private ScCreate mCreate;
@@ -141,12 +142,9 @@ public class Main extends TabbedTracklist {
 		
 		if (mCloudState == SoundCloudAPI.State.AUTHORIZED){
 			
-			
-			viewFlipper = new ViewFlipper(this);
-			viewFlipper.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-			FrameLayout tabLayout = CloudUtils.createTabLayout(this, viewFlipper);
+			FrameLayout tabLayout = CloudUtils.createTabLayout(this);
+			tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
 			mHolder.addView(tabLayout);
-			mHolder.addView(viewFlipper);
 			
 			//
 			tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
@@ -160,22 +158,12 @@ public class Main extends TabbedTracklist {
 			createYouTab();
 			createRecordTab();
 			createSearchTab();
+			
 			CloudUtils.setTabTextStyle(this, tabWidget);
-			//CloudUtils.configureTabs(this, tabWidget, 30);
-			//if (setTabIndex != 0)
-				//tabHost.setCurrentTab(setTabIndex);
 			
-			/*Intent intent = getIntent();
-			Bundle extras = intent.getExtras();
+
+			 tabHost.setOnTabChangedListener(tabListener);
 			
-			if (extras != null){
-					setTabIndex = extras.getInt("initialTabIndex");
-			}*/
-			
-			//Log.i(TAG,"Set tab host " + tabHost.getChildCount() );
-			//Log.i(TAG,"Set tab host " + tabHost.getChildAt(0) );
-			
-			//tabHost.setCurrentTab(1);
 			
 		} else {
 			
@@ -192,16 +180,30 @@ public class Main extends TabbedTracklist {
 		
 	}
 	
+	private OnTabChangeListener tabListener = new OnTabChangeListener(){
+		 @Override
+		  public void onTabChanged(String arg0) {
+			 if (mLastTab != null){
+				 mLastTab.onStop();
+			 } 
+			 
+			 ((ScTabView) tabHost.getCurrentView()).onStart();
+			 mLastTab = (ScTabView) tabHost.getCurrentView();
+		 }
+	};
+	
 	// Create an anonymous implementation of OnClickListener
 	private OnClickListener mAuthorizeListener = new OnClickListener() {
-	    public void onClick(View v) {
-	    	try {
+
+		@Override
+		public void onClick(View v) {
+			try {
 				startActivity(mCloudComm.getAuthorizationIntent());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    }
+		}
 	};
 	
 	protected void createList(FrameLayout listHolder, LazyEndlessAdapter adpWrap){
@@ -222,7 +224,7 @@ public class Main extends TabbedTracklist {
 		
 		final ScTabView incomingView = new ScTabView(this,adpWrap);
 		CloudUtils.createTabList(this, incomingView, adpWrap);
-		CloudUtils.createTab(this, tabHost,"incoming",getString(R.string.tab_incoming),getResources().getDrawable(R.drawable.ic_tab_incoming),incomingView,viewFlipper, false);
+		CloudUtils.createTab(this, tabHost, "incoming",getString(R.string.tab_incoming),getResources().getDrawable(R.drawable.ic_tab_incoming),incomingView, false);
 		Log.i(TAG,"incoming tab created");
 	}
 	
@@ -233,7 +235,7 @@ public class Main extends TabbedTracklist {
 		
 		final ScTabView favoritesView = new ScTabView(this,adpWrap);
 		CloudUtils.createTabList(this, favoritesView, adpWrap);
-		CloudUtils.createTab(this, tabHost,"exclusive",getString(R.string.tab_exclusive),getResources().getDrawable(R.drawable.ic_tab_incoming),favoritesView,viewFlipper, false);
+		CloudUtils.createTab(this, tabHost, "exclusive",getString(R.string.tab_exclusive),getResources().getDrawable(R.drawable.ic_tab_incoming),favoritesView, false);
 		
 	}
 	
@@ -241,7 +243,7 @@ public class Main extends TabbedTracklist {
 		final UserBrowser youView = mUserBrowser = new UserBrowser(this);
 		youView.loadYou();
 	      
-		CloudUtils.createTab(this, tabHost,"you",getString(R.string.tab_you),getResources().getDrawable(R.drawable.ic_tab_you),youView,viewFlipper,false);
+		CloudUtils.createTab(this, tabHost, "you",getString(R.string.tab_you),getResources().getDrawable(R.drawable.ic_tab_you),youView,false);
 		
 	}
 	
@@ -249,15 +251,15 @@ public class Main extends TabbedTracklist {
 		
 		
 		final ScTabView recordView = new ScCreate(this);
-		CloudUtils.createTab(this, tabHost,"favorites",getString(R.string.tab_record),getResources().getDrawable(R.drawable.ic_tab_record),recordView,viewFlipper,false);
+		CloudUtils.createTab(this, tabHost, "favorites",getString(R.string.tab_record),getResources().getDrawable(R.drawable.ic_tab_record),recordView,false);
 	}
 	
 	protected void createSearchTab(){
 		final ScTabView searchView = new ScTabView(this,null);
-		CloudUtils.createTab(this, tabHost,"favorites",getString(R.string.tab_search),getResources().getDrawable(R.drawable.ic_tab_search),searchView,viewFlipper,false);
+		CloudUtils.createTab(this, tabHost, "favorites",getString(R.string.tab_search),getResources().getDrawable(R.drawable.ic_tab_search),searchView,false);
 	}
 	
-	
+		
 	
 	/*protected void createFavoritesTab(){
 		LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
@@ -281,6 +283,7 @@ public class Main extends TabbedTracklist {
 		
 	}
 	
+	@Override
 	protected void initLoadTasks(){
 		if (mUserBrowser != null) mUserBrowser.initLoadTasks();
 	}
@@ -300,6 +303,7 @@ public class Main extends TabbedTracklist {
 		
 	}
 	
+	@Override
 	protected Parcelable saveParcelable(){
 		if (mUserBrowser != null) 
 			return mUserBrowser.saveParcelable();
@@ -307,6 +311,7 @@ public class Main extends TabbedTracklist {
 		
 	}
 	
+	@Override
 	protected void restoreParcelable(Parcelable p){
 		if (mUserBrowser != null)
 			mUserBrowser.restoreParcelable(p);
@@ -402,7 +407,7 @@ public class Main extends TabbedTracklist {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case CloudUtils.OptionsMenu.REFRESH:
-				((ScTabView) viewFlipper.getCurrentView()).onRefresh();
+				((ScTabView) tabHost.getCurrentTabView()).onRefresh();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -410,6 +415,7 @@ public class Main extends TabbedTracklist {
 	
 	
     
+	@Override
 	public void onSaveInstanceState(Bundle outState) 
     {
         super.onSaveInstanceState(outState); 

@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.ViewFlipper;
@@ -191,6 +190,7 @@ public class TabbedTracklist extends TrackList{
 	}
 	
 	
+	@Override
 	public void onSaveInstanceState(Bundle outState) 
     {
 		if (tabHost != null){

@@ -1,15 +1,11 @@
 package com.soundcloud.android;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.User;
 
@@ -60,10 +56,12 @@ public class UserList extends LazyActivity {
 		startActivity(i);
 	}
 	
+	@Override
 	protected void startActivityForPosition(Class<?> targetCls, HashMap<String, String> info) {
 		
 	}
 
+	@Override
 	public void onNothingSelected(AdapterView<?> arg0) {
 		// TODO Auto-generated method stub
 		

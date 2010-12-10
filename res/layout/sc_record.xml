@@ -24,7 +24,7 @@
     	android:layout_marginRight="10dip"
        android:layout_width="fill_parent"
        android:layout_height="wrap_content"
-       style="@style/CloudProgressBarSmall"
+       style="@style/ScProgressBarSmall"
        android:orientation="horizontal"  />
     <FrameLayout android:id="@+id/gauge_holder" android:layout_weight="1"
 		android:paddingBottom="50dip"

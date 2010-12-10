@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
@@ -45,15 +44,14 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 		_context = context;
 		this.setBackgroundResource(R.drawable.temp_comment_marker_bg);
 		
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.FILL_PARENT);
 		this.setLayoutParams(lp);
 		
-		lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		lp = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		
 		int targetDimension = (int) (CloudUtils.GRAPHIC_DIMENSIONS_SMALL * getContext().getResources().getDisplayMetrics().density);
 		 
-		Log.i("COMMENT","Dimension " + targetDimension);
 		mAvatar = new RemoteImageView(_context, null);
 		mAvatar.setImageSize(targetDimension, targetDimension);
 		mAvatar.setTemporaryDrawable(_context.getResources().getDrawable(R.drawable.artwork_badge));
@@ -127,7 +125,8 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
      *
      * @param outRect The hit rectangle of the view.
      */
-    public void getHitRect(Rect outRect) {
+    @Override
+	public void getHitRect(Rect outRect) {
     	Float tx = ((WaveformHolder) (this.getParent())).getTransformX();
         outRect.set((int) (this.getLeft()*tx), this.getTop(), (int) (this.getRight()*tx), this.getBottom());
     }

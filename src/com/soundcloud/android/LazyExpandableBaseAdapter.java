@@ -25,7 +25,7 @@ public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter impleme
 	@SuppressWarnings("unchecked")
 	public LazyExpandableBaseAdapter(LazyActivity context, List<Parcelable> groupData,ArrayList<ArrayList<Parcelable>> mTrackData) {
 		mGroupData = (ArrayList<Parcelable>) groupData;
-		mChildData = (ArrayList<ArrayList<Parcelable>>) mTrackData;
+		mChildData = mTrackData;
 		mActivity = context;
 		
 	}

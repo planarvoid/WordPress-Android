@@ -3,10 +3,6 @@ package com.soundcloud.android;
 import java.util.ArrayList;
 
 import android.os.Parcelable;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 

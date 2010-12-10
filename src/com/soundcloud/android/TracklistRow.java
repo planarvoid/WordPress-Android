@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.RemoteImageView;
 
 public class TracklistRow extends LazyRow {
@@ -210,7 +209,8 @@ public class TracklistRow extends LazyRow {
 		mContext.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
 	}
 
-	  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+	  @Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 	       
 	        super.onLayout(changed, l, t, r, b);
 	        Log.i(TAG,"SIZE " + mPlayIndicator.getWidth() + " " + mPlayIndicator.getHeight());

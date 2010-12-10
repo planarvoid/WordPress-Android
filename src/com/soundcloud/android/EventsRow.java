@@ -1,16 +1,9 @@
 package com.soundcloud.android;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Parcelable;
-import android.util.Log;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.utils.RemoteImageView;
 
 public class EventsRow extends TracklistRow {
 	

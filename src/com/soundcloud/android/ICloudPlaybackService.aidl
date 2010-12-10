@@ -38,8 +38,5 @@ interface ICloudPlaybackService
     String getDownloadable();
     int removeTracks(int first, int last);
     int removeTrack(String id);
-    void setRepeatMode(int repeatmode);
-    int getRepeatMode();
-    int getMediaMountedCount();
 }
 

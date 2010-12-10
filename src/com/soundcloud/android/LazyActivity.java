@@ -49,6 +49,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.soundcloud.android.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
@@ -285,7 +286,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		AppendTask[] appendTasks = new AppendTask[mLists.size()];
 		for (int i = 0; i < mLists.size(); i++){
-			appendTasks[i] = ((LazyEndlessAdapter) mLists.get(i).getWrapper()).getTask();
+			appendTasks[i] = (mLists.get(i).getWrapper()).getTask();
 		}
 		return appendTasks;
 	}
@@ -297,7 +298,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		int[][] configArrays = new int[mLists.size()][2];
 		for (int i = 0; i < mLists.size(); i++){
-			configArrays[i] = ((LazyEndlessAdapter) mLists.get(i).getWrapper()).savePagingData();
+			configArrays[i] = (mLists.get(i).getWrapper()).savePagingData();
 		}
 		return configArrays;
 	}
@@ -308,7 +309,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		String[] extraArray = new String[mLists.size()];
 		for (int i = 0; i < mLists.size(); i++){
-			extraArray[i] = ((LazyEndlessAdapter) mLists.get(i).getWrapper()).saveExtraData();
+			extraArray[i] = (mLists.get(i).getWrapper()).saveExtraData();
 		}
 		return extraArray;
 	}
@@ -340,7 +341,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		while (mListsIterator.hasNext()){
 			Log.i("START","Activating List");
 			LazyList mList = mListsIterator.next();
-			((LazyEndlessAdapter) mList.getWrapper()).allowLoading();
+			(mList.getWrapper()).allowLoading();
 		}
 		
 	}
@@ -370,7 +371,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		int i = 0;
 		for (AppendTask task : appendTasks){
-			((LazyEndlessAdapter) mLists.get(i).getWrapper()).restoreTask(task);
+			(mLists.get(i).getWrapper()).restoreTask(task);
 			i++;
 		}
 	}
@@ -383,7 +384,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		int i = 0;
 		for (int[] config : configArrays){
-			((LazyEndlessAdapter) mLists.get(i).getWrapper()).restorePagingData(config);
+			(mLists.get(i).getWrapper()).restorePagingData(config);
 			i++;
 		}
 	}
@@ -397,7 +398,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		int i = 0;
 		for (String extra : extraArrays){
-			((LazyEndlessAdapter) mLists.get(i).getWrapper()).restoreExtraData(extra);
+			(mLists.get(i).getWrapper()).restoreExtraData(extra);
 			i++;
 		}
 	}
@@ -546,6 +547,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		//((LazyAdapter) list.getAdapter()).setSelected(-1);
 	}
 
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 	}
@@ -678,6 +680,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	
 	
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
@@ -933,6 +936,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
         } 
 	}; 
 
+	
 	
 	
 	

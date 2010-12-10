@@ -234,12 +234,12 @@ public class CloudUtils {
 		    adpWrap.createListEmptyView(lv);
 		}
 		
-	    protected static FrameLayout createTabLayout(Context c, final ViewFlipper viewFlipper){
-			return createTabLayout(c, viewFlipper, false);
+	    protected static FrameLayout createTabLayout(Context c){
+			return createTabLayout(c, false);
 		}
 		
 		
-		protected static FrameLayout createTabLayout(Context context, final ViewFlipper viewFlipper, Boolean scrolltabs){
+		protected static FrameLayout createTabLayout(Context context, Boolean scrolltabs){
 			FrameLayout tabLayout = new FrameLayout(context);
 			tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
 			
@@ -257,43 +257,8 @@ public class CloudUtils {
 			
 			FrameLayout frameLayout = (FrameLayout) tabLayout.findViewById(android.R.id.tabcontent);
 		    frameLayout.setPadding(0, 0, 0, 0);
-		    
-		    tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-				
-				
-				   @Override
-				  public void onTabChanged(String arg0) {
-					   Log.i("DEBUG","SIZE IS " + tabHost.getTabContentView().getHeight());
-					   
-					   if (tabHost.getCurrentTab() < 0)
-						   return;
-					   
-					   switch (viewFlipper.getDisplayedChild() - tabHost.getCurrentTab()){
-/*					   		case 1 :
-					   			viewFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
-					   			viewFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
-					   			break;
-					   		case -1:
-					   			viewFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
-					   			viewFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
-					   			break;*/
-					   		default:
-					   			viewFlipper.setInAnimation(null);
-					   			viewFlipper.setOutAnimation(null);
-					   			break;
-					   }
-					   
-					   Log.i("REFRESH","ON TAB CHANGED " + viewFlipper.getCurrentView());
-					   if (viewFlipper.getCurrentView() == null)
-						   return;
-					   
-					   ((ScTabView) viewFlipper.getCurrentView()).onStop();
-					   viewFlipper.setDisplayedChild(tabHost.getCurrentTab());
-					   ((ScTabView) viewFlipper.getCurrentView()).onStart();
-				  }     
-			});  
 		   
-		 tabHost.setup();
+		    tabHost.setup();
 		    
 		    return tabLayout;
 		    
@@ -311,7 +276,7 @@ public class CloudUtils {
 		}
 				
 		
-		protected static void createTab(Context context, TabHost tabHost, String tabId, String indicatorText, Drawable indicatorIcon, final ScTabView tabContent, final ViewFlipper vf, Boolean scrolltabs)
+		protected static void createTab(Context context, TabHost tabHost, String tabId, String indicatorText, Drawable indicatorIcon, final ScTabView tabView, Boolean scrolltabs)
 		{
 			TabHost.TabSpec spec;
 		    
@@ -322,14 +287,12 @@ public class CloudUtils {
 		    	spec.setIndicator(indicatorText);
 		    else
 		    	spec.setIndicator(indicatorText, indicatorIcon);
+		   
 		    
-		    vf.addView(tabContent);
 		    spec.setContent(new TabHost.TabContentFactory(){
 		        public View createTabContent(String tag)
 		        { 
-		        	Log.i("DEBUG","RETURNING THIS THING " + tag);
-		        	//tabContent.onVisible();
-		       	 	return vf;
+		       	 	return tabView;
 		       	 	
 		        }
 		    }); 

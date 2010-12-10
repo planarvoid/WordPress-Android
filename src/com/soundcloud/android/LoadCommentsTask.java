@@ -73,7 +73,7 @@ class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 
 				String jsonRaw = "";
 				try {
-					InputStream is = (InputStream) mCloudComm.getContent(mUrl);
+					InputStream is = mCloudComm.getContent(mUrl);
 					jsonRaw = CloudCommunicator.formatContent(is);
 					//jsonRaw = mCloudComm.getContent(mUrl);
 					if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){

@@ -53,7 +53,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
@@ -61,31 +60,26 @@ import com.soundcloud.android.utils.flip3d.DisplayNextView;
 import com.soundcloud.android.utils.flip3d.Flip3dAnimation;
 import com.soundcloud.utils.RemoteImageView;
 
-
 public class ScPlayer extends LazyActivity implements OnTouchListener {
 
-
 	// Debugging tag.
-    @SuppressWarnings("unused")
-    private String TAG = "ScPlayer";
-    
-    // ******************************************************************** //
-    // Private Data.
-    // ******************************************************************** //
-    
+	@SuppressWarnings("unused")
+	private String TAG = "ScPlayer";
+
+	// ******************************************************************** //
+	// Private Data.
+	// ******************************************************************** //
 
 	private boolean _isPlaying = false;
 	private boolean mOneShot = false;
-	private boolean mSeeking = false;
-	private long mStartSeekPos = 0;
 	private long mLastSeekEventTime;
 
-	private RepeatingImageButton mPrevButton;
+	private ImageButton mPrevButton;
 	private ImageButton mPauseButton;
-	private RepeatingImageButton mNextButton;
-	
+	private ImageButton mNextButton;
+
 	protected Boolean mLandscape;
-	
+
 	private RemoteImageView mArtwork;
 
 	private ImageButton mProfileButton;
@@ -93,111 +87,99 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private ImageButton mCommentsButton;
 	private ImageButton mShareButton;
 	private int mTouchSlop;
-	
-	private ExpandableListView comments_lv;
-	private Comment mCurrentAddComment;
 
+	private ExpandableListView comments_lv;
 	private WaveformController mWaveformController;
 
 	private String mCurrentTrackId;
 	private String mPendingArtwork;
-	
+
 	private Track mPlayingTrack;
-	
+
 	private LazyExpandableBaseAdapter mCommentsAdapter;
 	private LinearLayout mCommentListHolder;
 	private LinearLayout mLoadingLayout;
 	private ViewGroup mTransportBar;
 	private FrameLayout mTrackFlipper;
-	
+
 	private Boolean showingComments;
 	protected ArrayList<Parcelable> mThreadData;
 	protected ArrayList<ArrayList<Parcelable>> mCommentData;
 	protected String[] mFrom;
 	protected int[] mTo;
-	
-	
-    
-	
 
-    // ******************************************************************** //
-    // Activity Lifecycle.
-    // ******************************************************************** //
+	// ******************************************************************** //
+	// Activity Lifecycle.
+	// ******************************************************************** //
 
-    /**
-     * Called when the activity is starting.  This is where most
-     * initialisation should go: calling setContentView(int) to inflate
-     * the activity's UI, etc.
-     * 
-     * You can call finish() from within this function, in which case
-     * onDestroy() will be immediately called without any of the rest of
-     * the activity lifecycle executing.
-     * 
-     * Derived classes must call through to the super class's implementation
-     * of this method.  If they do not, an exception will be thrown.
-     * 
-     * @param   icicle          If the activity is being re-initialised
-     *                          after previously being shut down then this
-     *                          Bundle contains the data it most recently
-     *                          supplied@Override
-protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Log.d("test", "In MainLayout.onLayout");
-        int childCount = getChildCount();
-        for (int childIndex = 0; childIndex < childCount; childIndex++) {
-                getChildAt(childIndex).setLayoutParams(new LayoutParams(100, 100, 100, 100));
-        }
-        super.onLayout(changed, l, t, r, b);
-} in onSaveInstanceState(Bundle).
-     *                          Note: Otherwise it is null.
-     */
-    @Override
-    public void onCreate(Bundle icicle) {
-    	
-        super.onCreate(icicle,R.layout.main_player);
-        
-        Log.i(TAG,"ON CREATE!!");
+	/**
+	 * Called when the activity is starting. This is where most initialisation
+	 * should go: calling setContentView(int) to inflate the activity's UI, etc.
+	 * 
+	 * You can call finish() from within this function, in which case
+	 * onDestroy() will be immediately called without any of the rest of the
+	 * activity lifecycle executing.
+	 * 
+	 * Derived classes must call through to the super class's implementation of
+	 * this method. If they do not, an exception will be thrown.
+	 * 
+	 * @param icicle
+	 *            If the activity is being re-initialised after previously being
+	 *            shut down then this Bundle contains the data it most recently
+	 *            supplied@Override protected void onLayout(boolean changed, int
+	 *            l, int t, int r, int b) { Log.d("test",
+	 *            "In MainLayout.onLayout"); int childCount = getChildCount();
+	 *            for (int childIndex = 0; childIndex < childCount;
+	 *            childIndex++) { getChildAt(childIndex).setLayoutParams(new
+	 *            LayoutParams(100, 100, 100, 100)); } super.onLayout(changed,
+	 *            l, t, r, b); } in onSaveInstanceState(Bundle). Note: Otherwise
+	 *            it is null.
+	 */
+	@Override
+	public void onCreate(Bundle icicle) {
 
-		mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
-/*
-		Intent intent = getIntent();
-		Bundle extras = intent.getExtras();
-		
-		if (extras != null){
-			Log.i(TAG,"Setting track id to " + extras.getString("trackId"));
-			mPlayTrackId = extras.getString("trackId");
-		}
-		*/
-		
-	initControls();
-		
+		super.onCreate(icicle, R.layout.main_player);
+
+		Log.i(TAG, "ON CREATE!!");
+
+		mMainHolder = (LinearLayout) findViewById(R.id.main_holder);
+		/*
+		 * Intent intent = getIntent(); Bundle extras = intent.getExtras();
+		 * 
+		 * if (extras != null){ Log.i(TAG,"Setting track id to " +
+		 * extras.getString("trackId")); mPlayTrackId =
+		 * extras.getString("trackId"); }
+		 */
+
+		initControls();
+
 	}
 
 	private void initControls() {
-		
-		Log.i(TAG,"Init Controls " + findViewById(R.id.transport_bar));
+
+		Log.i(TAG, "Init Controls " + findViewById(R.id.transport_bar));
 
 		mTransportBar = (ViewGroup) findViewById(R.id.transport_bar);
-		
-		if (findViewById(R.id.track_flipper) != null){
+
+		if (findViewById(R.id.track_flipper) != null) {
 			mLandscape = false;
 			mTrackFlipper = (FrameLayout) findViewById(R.id.track_flipper);
-			//mTrackFlipper.bringToFront();
+			// mTrackFlipper.bringToFront();
 		} else {
 			mLandscape = true;
 		}
-		
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		showingComments = preferences.getBoolean("showPlayerComments", false);
-		//showingComments = false;
-		
-		
+		// showingComments = false;
+
 		mConnectingHolder = (FrameLayout) findViewById(R.id.connecting_holder);
-		
+
 		mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
 		mWaveformController.setPlayer(this);
 
-		mProgress = (CloudProgressBar) findViewById(R.id.progress_bar);
-		mProgress.setPlayer(this);
+		mProgress = (ProgressBar) findViewById(R.id.progress_bar);
 		mProgress.setMax(1000);
 		mProgress.setInterpolator(new AccelerateDecelerateInterpolator());
 
@@ -206,114 +188,120 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		mUserName = (TextView) findViewById(R.id.user);
 		mTrackName = (TextView) findViewById(R.id.track);
 
-		((ViewGroup) findViewById(R.id.track_info_row)).setBackgroundColor(this.getResources().getColor(R.color.playerControlBackground));
+		((ViewGroup) findViewById(R.id.track_info_row))
+				.setBackgroundColor(getResources().getColor(
+						R.color.playerControlBackground));
 
-		mPrevButton = (RepeatingImageButton) findViewById(R.id.prev);
+		mPrevButton = (ImageButton) findViewById(R.id.prev);
 		mPrevButton.setOnClickListener(mPrevListener);
-		mPrevButton.setRepeatListener(mRewListener, 260);
 		mPauseButton = (ImageButton) findViewById(R.id.pause);
 		mPauseButton.requestFocus();
 		mPauseButton.setOnClickListener(mPauseListener);
-		mNextButton = (RepeatingImageButton) findViewById(R.id.next);
+		mNextButton = (ImageButton) findViewById(R.id.next);
 		mNextButton.setOnClickListener(mNextListener);
-		mNextButton.setRepeatListener(mFfwdListener, 260);
 
 		mCommentsAdapter = createCommentsAdapter();
 		mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
-		
-		if (!mLandscape){
-			mArtwork = (RemoteImageView)(findViewById(R.id.artwork));
+
+		if (!mLandscape) {
+			mArtwork = (RemoteImageView) findViewById(R.id.artwork);
 			mArtwork.setScaleType(ScaleType.CENTER_CROP);
-			mArtwork.setTemporaryDrawable(getResources().getDrawable(R.drawable.artwork_player));
-			
-			mCommentsButton =  (ImageButton) findViewById(R.id.btn_comment);
+			mArtwork.setTemporaryDrawable(getResources().getDrawable(
+					R.drawable.artwork_player));
+
+			mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
 			mCommentsButton.setOnClickListener(mToggleCommentsListener);
 			setCommentButtonImage();
 
 			comments_lv = new ExpandableListView(this);
-			comments_lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+			comments_lv.setLayoutParams(new LayoutParams(
+					android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.FILL_PARENT));
 			comments_lv.setAdapter(mCommentsAdapter);
-			//comments_lv.setSelector(R.drawable.list_selector_background_states);
-			//comments_lv.setFastScrollEnabled(true);
+			// comments_lv.setSelector(R.drawable.list_selector_background_states);
+			// comments_lv.setFastScrollEnabled(true);
 			comments_lv.setTextFilterEnabled(true);
-			//comments_lv.setCacheColorHint(0xFFFFFF);
-			//comments_lv.setGroupIndicator(getResources().getDrawable(R.drawable.ic_list_indicator_states));
+			// comments_lv.setCacheColorHint(0xFFFFFF);
+			// comments_lv.setGroupIndicator(getResources().getDrawable(R.drawable.ic_list_indicator_states));
 			((Activity) this).registerForContextMenu(comments_lv);
-			
-			//comments_lv.setOnCreateContextMenuListener(this);
-			
-			//AnimUtils.setLayoutAnim_slidedownfromtop(comments_lv, this);
-			mCommentListHolder = ((LinearLayout) findViewById(R.id.comment_list_holder));
+
+			// comments_lv.setOnCreateContextMenuListener(this);
+
+			// AnimUtils.setLayoutAnim_slidedownfromtop(comments_lv, this);
+			mCommentListHolder = (LinearLayout) findViewById(R.id.comment_list_holder);
 			mCommentListHolder.addView(comments_lv);
-			
-			
-			mProfileButton =  (ImageButton) findViewById(R.id.btn_profile);
+
+			mProfileButton = (ImageButton) findViewById(R.id.btn_profile);
 			mProfileButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 
-					if (mPlayingTrack == null)
+					if (mPlayingTrack == null) {
 						return;
-					
+					}
+
 					Intent i = new Intent(ScPlayer.this, ScProfile.class);
-					i.putExtra("userPermalink", mPlayingTrack.getData(Track.key_user_permalink));
+					i.putExtra("userPermalink", mPlayingTrack
+							.getData(Track.key_user_permalink));
 					startActivity(i);
 				}
 			});
-			
-			mFavoriteButton =  (ImageButton) findViewById(R.id.btn_favorite);
+
+			mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
 			mFavoriteButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					toggleFavorite();
 				}
 			});
-			
-			mShareButton =  (ImageButton) findViewById(R.id.btn_share);
+
+			mShareButton = (ImageButton) findViewById(R.id.btn_share);
 			mShareButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					Log.i(TAG,"CLICK SHARE");
+					Log.i(TAG, "CLICK SHARE");
 				}
 			});
-			
-			
-			
+
 			TextView tv = new TextView(this);
-			tv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+			tv.setLayoutParams(new LayoutParams(
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 			tv.setText(this.getString(R.string.no_comments_results_title));
-			
+
 			LinearLayout ll = new LinearLayout(this);
-			ll.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+			ll.setLayoutParams(new LayoutParams(
+					android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.FILL_PARENT));
 			ll.setGravity(Gravity.CENTER);
 			ll.addView(tv);
 			ll.setId(android.R.id.empty);
-			
-			ViewGroup vg = ((ViewGroup) comments_lv.getParent());
+
+			ViewGroup vg = (ViewGroup) comments_lv.getParent();
 			vg.addView(ll);
 			comments_lv.setEmptyView(ll);
-			
+
 			ProgressBar pb = new ProgressBar(this);
 			pb.setIndeterminate(true);
-			pb.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+			pb.setLayoutParams(new LayoutParams(
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 			pb.setId(android.R.id.progress);
-			
+
 			mLoadingLayout = new LinearLayout(this);
-			mLoadingLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+			mLoadingLayout.setLayoutParams(new LayoutParams(
+					android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.FILL_PARENT));
 			mLoadingLayout.setGravity(Gravity.CENTER);
 			mLoadingLayout.addView(pb);
-			
-			Log.i("DEBUG","Done with that crap " + comments_lv.getAdapter());
-			
-			if (showingComments){
+
+			Log.i("DEBUG", "Done with that crap " + comments_lv.getAdapter());
+
+			if (showingComments) {
 				mArtwork.setVisibility(View.GONE);
 			} else {
 				mCommentListHolder.setVisibility(View.GONE);
 			}
 		}
 
-
 	}
-	
-
-	
 
 	int mInitialX = -1;
 	int mLastX = -1;
@@ -323,57 +311,47 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 	TextView textViewForContainer(View v) {
 		View vv = v.findViewById(R.id.username);
-		if (vv != null)
+		if (vv != null) {
 			return (TextView) vv;
+		}
 		vv = v.findViewById(R.id.trackname);
-		if (vv != null)
+		if (vv != null) {
 			return (TextView) vv;
+		}
 		return null;
 	}
-	
-
 
 	@Override
-	protected void onServiceBound(){
-		
-		Log.i(TAG,"ON SERVICE BOUND SCPLAYER");
-		
+	protected void onServiceBound() {
+
+		Log.i(TAG, "ON SERVICE BOUND SCPLAYER");
+
 		super.onServiceBound();
-		
-		Log.i(TAG,"ON SERVICE BOUND SCPLAYER");
-		/*Log.i(TAG, "BOUND " + mPlayTrackId);
-		
-		if (mPlayTrackId != null){
-			
-			Boolean skip = false;
-			try {
-				if (mService.getTrackId() != null)
-				if (mService.getTrackId().contentEquals(mPlayTrackId))
-					skip = true;
-			
-			
-			if (!skip){
-				startPlayback(CloudUtils.resolveTrackById(getApplicationContext(), mPlayTrackId, CloudUtils.getCurrentUserId(this)));
-				return;
-			}
-			
-				if (!mService.isPlaying()) {
-					mService.play();
-				}
-				
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-				
-		} 
-		*/
-		
-		
-		
-		
+
+		Log.i(TAG, "ON SERVICE BOUND SCPLAYER");
+		/*
+		 * Log.i(TAG, "BOUND " + mPlayTrackId);
+		 * 
+		 * if (mPlayTrackId != null){
+		 * 
+		 * Boolean skip = false; try { if (mService.getTrackId() != null) if
+		 * (mService.getTrackId().contentEquals(mPlayTrackId)) skip = true;
+		 * 
+		 * 
+		 * if (!skip){
+		 * startPlayback(CloudUtils.resolveTrackById(getApplicationContext(),
+		 * mPlayTrackId, CloudUtils.getCurrentUserId(this))); return; }
+		 * 
+		 * if (!mService.isPlaying()) { mService.play(); }
+		 * 
+		 * } catch (RemoteException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 * 
+		 * }
+		 */
+
 		try {
-			Log.i(TAG,"ON SERVICE BOUND " + mService.getTrack());
+			Log.i(TAG, "ON SERVICE BOUND " + mService.getTrack());
 			if (mService.getTrack() != null) {
 				updateTrackInfo();
 				setPauseButtonImage();
@@ -382,23 +360,14 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 				return;
 			}
 		} catch (RemoteException ex) {
-		}	
-		
-		
-		
-		
-		
-		
-		
-	}
-	
-	@Override
-	protected void onServiceUnbound(){
+		}
 
 	}
-	
-	
-	
+
+	@Override
+	protected void onServiceUnbound() {
+
+	}
 
 	public boolean onTouch(View v, MotionEvent event) {
 		int action = event.getAction();
@@ -492,8 +461,6 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		}
 	};
 
-	
-
 	private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
 		public void onStartTrackingTouch(SeekBar bar) {
 			mLastSeekEventTime = 0;
@@ -502,10 +469,11 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 		public void onProgressChanged(SeekBar bar, int progress,
 				boolean fromuser) {
-			if (!fromuser || (mService == null))
+			if (!fromuser || mService == null) {
 				return;
+			}
 			long now = SystemClock.elapsedRealtime();
-			if ((now - mLastSeekEventTime) > 250) {
+			if (now - mLastSeekEventTime > 250) {
 				mLastSeekEventTime = now;
 				mPosOverride = mDuration * progress / 1000;
 				try {
@@ -535,8 +503,9 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 	private View.OnClickListener mPrevListener = new View.OnClickListener() {
 		public void onClick(View v) {
-			if (mService == null)
+			if (mService == null) {
 				return;
+			}
 			try {
 				if (mService.position() < 2000) {
 					mService.prev();
@@ -551,174 +520,73 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 	private View.OnClickListener mNextListener = new View.OnClickListener() {
 		public void onClick(View v) {
-			if (mService == null)
+			if (mService == null) {
 				return;
+			}
 			try {
 				mService.next();
 			} catch (RemoteException ex) {
 			}
 		}
 	};
-	
-	
+
 	private View.OnClickListener mToggleCommentsListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			toggleComments();
 		}
 	};
-	
-	
-	private void toggleComments(){
 
-		if (showingComments) {      
+	private void toggleComments() {
+
+		if (showingComments) {
 			applyRotation(0, -90);
-		} else {   
+		} else {
 			applyRotation(0, 90);
 		}
-		
+
 		showingComments = !showingComments;
-		
-		//showingComments = !showingComments;
+
+		// showingComments = !showingComments;
 		setCommentButtonImage();
-		
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		preferences.edit().putBoolean("showPlayerComments", showingComments).commit();
+
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		preferences.edit().putBoolean("showPlayerComments", showingComments)
+				.commit();
 	}
-	
 
 	private void applyRotation(float start, float end) {
 		// Find the center of image
-		
-		
+
 		final float centerX;
 		final float centerY;
-		
-		if (showingComments){
+
+		if (showingComments) {
 			centerX = mCommentListHolder.getWidth() / 2.0f;
 			centerY = mCommentListHolder.getHeight() / 2.0f;
 		} else {
 			centerX = mArtwork.getWidth() / 2.0f;
 			centerY = mArtwork.getHeight() / 2.0f;
 		}
-		
-		Log.i("DEBUG","Apply rotation " + centerX);
-		
+
+		Log.i("DEBUG", "Apply rotation " + centerX);
+
 		// Create a new 3D rotation with the supplied parameter
 		// The animation listener is used to trigger the next animation
-		final Flip3dAnimation rotation =
-		       new Flip3dAnimation(start, end, centerX, centerY);
+		final Flip3dAnimation rotation = new Flip3dAnimation(start, end,
+				centerX, centerY);
 		rotation.setDuration(500);
 		rotation.setFillAfter(true);
 		rotation.setInterpolator(new AccelerateInterpolator());
-		rotation.setAnimationListener(new DisplayNextView(!showingComments,mArtwork , mCommentListHolder));
-	
-		if (showingComments)
-		{
+		rotation.setAnimationListener(new DisplayNextView(!showingComments,
+				mArtwork, mCommentListHolder));
+
+		if (showingComments) {
 			mCommentListHolder.startAnimation(rotation);
 		} else {
 			mArtwork.startAnimation(rotation);
 		}
 
-	}
-	
-	
-	
-	private RepeatingImageButton.RepeatListener mRewListener = new RepeatingImageButton.RepeatListener() {
-		public void onRepeat(View v, long howlong, int repcnt) {
-			scanBackward(repcnt, howlong);
-		}
-	};
-
-	private RepeatingImageButton.RepeatListener mFfwdListener = new RepeatingImageButton.RepeatListener() {
-		public void onRepeat(View v, long howlong, int repcnt) {
-			scanForward(repcnt, howlong);
-		}
-	};
-
-	private void scanBackward(int repcnt, long delta) {
-		if (mService == null)
-			return;
-		try {
-			if (repcnt == 0) {
-				mStartSeekPos = mService.position();
-				mLastSeekEventTime = 0;
-				mSeeking = false;
-			} else {
-				mSeeking = true;
-				if (delta < 5000) {
-					// seek at 10x speed for the first 5 seconds
-					delta = delta * 10;
-				} else {
-					// seek at 40x after that
-					delta = 50000 + (delta - 5000) * 40;
-				}
-				long newpos = mStartSeekPos - delta;
-				if (newpos < 0) {
-					// move to previous track
-					mService.prev();
-					long duration = mService.duration();
-					mStartSeekPos += duration;
-					newpos += duration;
-				}
-				if (((delta - mLastSeekEventTime) > 250) || repcnt < 0) {
-					mService.seek(newpos);
-					mLastSeekEventTime = delta;
-				}
-				if (repcnt >= 0) {
-					mPosOverride = newpos;
-				} else {
-					mPosOverride = -1;
-				}
-				refreshNow();
-			}
-		} catch (RemoteException ex) {
-		}
-	}
-
-	private void scanForward(int repcnt, long delta) {
-		if (mService == null)
-			return;
-		
-		
-		
-		try {
-			if (mService.getTrackId() != null)
-				return;
-			
-			if (repcnt == 0) {
-				mStartSeekPos = mService.position();
-				mLastSeekEventTime = 0;
-				mSeeking = false;
-			} else {
-				mSeeking = true;
-				if (delta < 5000) {
-					// seek at 10x speed for the first 5 seconds
-					delta = delta * 10;
-				} else {
-					// seek at 40x after that
-					delta = 50000 + (delta - 5000) * 40;
-				}
-				long newpos = mStartSeekPos + delta;
-				long duration = mService.duration();
-				if (newpos >= duration) {
-					// move to next track
-					mService.next();
-					mStartSeekPos -= duration; // is OK to go negative
-					newpos -= duration;
-				}
-				if (((delta - mLastSeekEventTime) > 250) || repcnt < 0) {
-					mService.seek(newpos);
-					mLastSeekEventTime = delta;
-				}
-				if (repcnt >= 0) {
-					mPosOverride = newpos;
-				} else {
-					mPosOverride = -1;
-				}
-				refreshNow();
-			}
-		} catch (RemoteException ex) {
-		}
 	}
 
 	private void doPauseResume() {
@@ -736,9 +604,6 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		}
 	}
 
-
-	
-
 	private void setPauseButtonImage() {
 		try {
 
@@ -751,15 +616,13 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		} catch (RemoteException ex) {
 		}
 	}
-	
+
 	private void setCommentButtonImage() {
-			/*if (!mLandscape)
-			if (showingComments) {
-				mCommentsButton.setImageResource(R.drawable.ic_comm);
-			} else {
-				mCommentsButton.setImageResource(R.drawable.ic_comment);
-			}
-*/
+		/*
+		 * if (!mLandscape) if (showingComments) {
+		 * mCommentsButton.setImageResource(R.drawable.ic_comm); } else {
+		 * mCommentsButton.setImageResource(R.drawable.ic_comment); }
+		 */
 	}
 
 	private ImageView mAlbum;
@@ -768,9 +631,9 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 	private TextView mUserName;
 
 	private TextView mTrackName;
-	
+
 	private FrameLayout mConnectingHolder;
-	private CloudProgressBar mProgress;
+	private ProgressBar mProgress;
 	private long mPosOverride = -1;
 	private boolean mFromTouch = false;
 	private long mDuration;
@@ -778,7 +641,6 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
 	private static final int REFRESH = 1;
 	private static final int QUIT = 2;
-	private static final int GET_ALBUM_ART = 3;
 	private static final int ALBUM_ART_DECODED = 4;
 
 	private void queueNextRefresh(long delay) {
@@ -790,81 +652,62 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 	}
 
 	private long refreshNow() {
-		
-		
-		if (mService == null)
+
+		if (mService == null) {
 			return 500;
-		
+		}
+
 		try {
-			
-			if (mPendingArtwork != null && mArtwork.getWidth() > 0){
+
+			if (mPendingArtwork != null && mArtwork.getWidth() > 0) {
 				mArtwork.setRemoteURI(mPendingArtwork);
 				mArtwork.loadImage();
 				mPendingArtwork = null;
 			}
-			
-			if (mService.loadPercent() > 0 && !_isPlaying){
+
+			if (mService.loadPercent() > 0 && !_isPlaying) {
 				_isPlaying = true;
-				//mProgress.setIndeterminate(false);
+				// mProgress.setIndeterminate(false);
 			}
 
 			long pos = mPosOverride < 0 ? mService.position() : mPosOverride;
 
-			long remaining = 1000 - (pos % 1000);
-			if ((pos >= 0) && (mDuration > 0)) {
-				mCurrentTime.setText(CloudUtils.makeTimeString(this,
-						pos / 1000));
+			long remaining = 1000 - pos % 1000;
+			if (pos >= 0 && mDuration > 0) {
+				mCurrentTime.setText(CloudUtils
+						.makeTimeString(this, pos / 1000));
 
 				if (mService.isPlaying()) {
 					mCurrentTime.setVisibility(View.VISIBLE);
 				} else {
 					// blink the counter
 					int vis = mCurrentTime.getVisibility();
-					mCurrentTime.setVisibility(vis == View.INVISIBLE ? View.VISIBLE
+					mCurrentTime
+							.setVisibility(vis == View.INVISIBLE ? View.VISIBLE
 									: View.INVISIBLE);
 					remaining = 500;
 				}
 
-				
 				mWaveformController.setProgress(pos);
 			} else {
 				mCurrentTime.setText("--:--");
 
 				mWaveformController.setProgress(0);
 			}
-			
+
 			int loadPercent = mService.loadPercent();
-			
-			mWaveformController.setSecondaryProgress(loadPercent*10);
-			
+
+			mWaveformController.setSecondaryProgress(loadPercent * 10);
+
 			// return the number of milliseconds until the next full second, so
 			// the counter can be updated at just the right time
 			return remaining;
-			
+
 		} catch (RemoteException ex) {
 		}
 
 		return 500;
 	}
-	
-	private void play(){
-		try {
-			
-			if (mService != null)
-				mService.play();
-			
-			long next = refreshNow();
-			queueNextRefresh(next);
-			
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			//finish();
-		}
-	}
-	
-	
-	
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -907,10 +750,9 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			
-			
-			Log.i(TAG,"ON RECEIVE " + action);
-			
+
+			Log.i(TAG, "ON RECEIVE " + action);
+
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
 				resetComments();
 				updateTrackInfo();
@@ -924,18 +766,18 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 				}
 			} else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 				setPauseButtonImage();
-			} else if (action.equals(CloudPlaybackService.ASYNC_OPENING)){
+			} else if (action.equals(CloudPlaybackService.ASYNC_OPENING)) {
 				setAsyncOpeningStart();
-			} else if (action.equals(CloudPlaybackService.ASYNC_OPEN_COMPLETE)){
+			} else if (action.equals(CloudPlaybackService.ASYNC_OPEN_COMPLETE)) {
 				setAsyncOpeningDone();
-			} else if (action.equals(CloudPlaybackService.TRACK_ERROR)){
+			} else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
 				showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
 				mPauseButton.setEnabled(true);
-			} else if (action.equals(CloudPlaybackService.STREAM_DIED)){
+			} else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
 				showToast(getString(R.string.toast_error_stream_died));
-			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)){
+			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
 				updateTrackInfo();
-			} else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)){
+			} else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
 				updateTrackInfo();
 			}
 		}
@@ -946,139 +788,143 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		}
 	};
 
-	private void setAsyncOpeningStart(){
-		mPauseButton.setEnabled(false);	
+	private void setAsyncOpeningStart() {
+		mPauseButton.setEnabled(false);
 		mConnectingHolder.setVisibility(View.VISIBLE);
 	}
-	
-	private void setAsyncOpeningDone(){
+
+	private void setAsyncOpeningDone() {
 		mPauseButton.setEnabled(true);
 		mConnectingHolder.setVisibility(View.GONE);
-		//play();
-		
+		// play();
+
 	}
-	
-	
 
 	public void startPlayback(Track track) {
 
-		if (mService == null)
+		if (mService == null) {
 			return;
-		
-		try {		
+		}
+
+		try {
 			mService.enqueueTrack(track, CloudPlaybackService.NOW);
 			mPlayingTrack = track;
-			Log.i(TAG, "Started playback of " + mPlayingTrack.getData(Track.key_title));
+			Log.i(TAG, "Started playback of "
+					+ mPlayingTrack.getData(Track.key_title));
 		} catch (RemoteException ex) {
 			Log.d("MediaPlaybackActivity", "couldn't start playback: " + ex);
 		}
 
 	}
-	
-
 
 	private void updateTrackInfo() {
-		
-		Log.i(TAG,"UPDATE TRACK INFO " + mService);
+
+		Log.i(TAG, "UPDATE TRACK INFO " + mService);
 
 		String trackName = "";
 		String userName = "";
-		String waveform = "";
-		
-		if (mService != null){
+		if (mService != null) {
 			try {
-				
-				Log.i(TAG,"UPDATE TRACK INFO getting playing track" + mService);
-				
+
+				Log
+						.i(TAG, "UPDATE TRACK INFO getting playing track"
+								+ mService);
+
 				mPlayingTrack = mService.getTrack();
-				Log.i(TAG,"UPDATE TRACK INFO - " + mPlayingTrack);
-				if (mPlayingTrack == null)
+				Log.i(TAG, "UPDATE TRACK INFO - " + mPlayingTrack);
+				if (mPlayingTrack == null) {
 					return;
-				
-				
-				if (mCurrentTrackId != mPlayingTrack.getData(Track.key_id)){
+				}
+
+				if (mCurrentTrackId != mPlayingTrack.getData(Track.key_id)) {
 					trackName = mPlayingTrack.getData(Track.key_title);
 					userName = mPlayingTrack.getData(Track.key_username);
 					setFavoriteStatus();
-					
-					mDuration = Long.parseLong(mPlayingTrack.getData(Track.key_duration));
+
+					mDuration = Long.parseLong(mPlayingTrack
+							.getData(Track.key_duration));
 					mWaveformController.updateTrack(mPlayingTrack);
-					
-					if (!mLandscape){
-						
-						if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_artwork_url))){
-							mPendingArtwork = CloudUtils.formatGraphicsUrl(mPlayingTrack.getData(Track.key_artwork_url), GraphicsSizes.crop);
-							
+
+					if (!mLandscape) {
+
+						if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack
+								.getData(Track.key_artwork_url))) {
+							mPendingArtwork = CloudUtils.formatGraphicsUrl(
+									mPlayingTrack
+											.getData(Track.key_artwork_url),
+									GraphicsSizes.crop);
+
 						} else {
 							mArtwork.setRemoteURI(null);
 							mArtwork.setLocalURI(null);
 							mArtwork.loadImage();
 							mPendingArtwork = null;
 						}
-						
-						if (mArtwork.getWidth() != 0 && mPendingArtwork != null){
+
+						if (mArtwork.getWidth() != 0 && mPendingArtwork != null) {
 							mArtwork.setRemoteURI(mPendingArtwork);
-							mArtwork.setLocalURI(getCacheDir().toString() + "/" + CloudUtils.getCacheFileName(mPendingArtwork));
+							mArtwork.setLocalURI(getCacheDir().toString()
+									+ "/"
+									+ CloudUtils
+											.getCacheFileName(mPendingArtwork));
 							mArtwork.loadImage();
 							mPendingArtwork = null;
 						}
-						
+
 					}
-					
-					
-					mapCurrentComments();	
+
+					mapCurrentComments();
 				}
-				
-				
-				
-				
+
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-		} 
-		
-		
+
+		}
+
 		mTrackName.setText(trackName);
 		mUserName.setText(userName);
-		
+
 		mTotalTime.setText(CloudUtils.makeTimeString(this, mDuration / 1000));
-	
+
 	}
-	
-	
-	
 
 	public void seekTo(float seekPercent) {
-		
-		Log.i(TAG, "Seek To " + seekPercent + " " + mPlayingTrack.getData(Track.key_duration));
-		
-		if (mService == null)
+
+		Log.i(TAG, "Seek To " + seekPercent + " "
+				+ mPlayingTrack.getData(Track.key_duration));
+
+		if (mService == null) {
 			return;
-		
+		}
+
 		try {
-			
-//			if (mService.getDownloadable() != null){
-//			if (mService.getDownloadable().equalsIgnoreCase("true"))
-				if (mPlayingTrack != null)
-					mService.seek((long) (Integer.parseInt(mPlayingTrack.getData(Track.key_duration))*seekPercent));
-//			else
-//				((LazyActivity) this).showDialog(CloudUtils.Dialogs.DIALOG_ERROR_STREAM_NOT_SEEKABLE);
-//			}
+
+			// if (mService.getDownloadable() != null){
+			// if (mService.getDownloadable().equalsIgnoreCase("true"))
+			if (mPlayingTrack != null) {
+				mService.seek((long) (Integer.parseInt(mPlayingTrack
+						.getData(Track.key_duration)) * seekPercent));
+				// else
+				// ((LazyActivity)
+				// this).showDialog(CloudUtils.Dialogs.DIALOG_ERROR_STREAM_NOT_SEEKABLE);
+				// }
+			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void playFromPosition(String trackId, long timestamp) {
-		if (mService == null)
+		if (mService == null) {
 			return;
-		
+		}
+
 		try {
-			if (mPlayingTrack != null){
-				if (mPlayingTrack.getData(Track.key_id).contentEquals(trackId)){
+			if (mPlayingTrack != null) {
+				if (mPlayingTrack.getData(Track.key_id).contentEquals(trackId)) {
 					mService.seek(timestamp);
 				}
 			}
@@ -1088,11 +934,9 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		}
 	}
 
-	
-	
-	public void commentAdded(Comment comment){
-		
-		if (mService != null){
+	public void commentAdded(Comment comment) {
+
+		if (mService != null) {
 			try {
 				mService.addComment(comment);
 			} catch (RemoteException e) {
@@ -1100,145 +944,147 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 				e.printStackTrace();
 			}
 		}
-		
-		if (mPlayingTrack != null){
-			if (mPlayingTrack.getData(Track.key_id).contentEquals(comment.getData(Comment.key_track_id))){
+
+		if (mPlayingTrack != null) {
+			if (mPlayingTrack.getData(Track.key_id).contentEquals(
+					comment.getData(Comment.key_track_id))) {
 				updateTrackInfo();
 			}
 		}
 	}
-	
-	
 
-	
-	
-	
-	private void mapCurrentComments(){
-		if (mPlayingTrack != null){ 
-				mCommentsAdapter.clear();
-				Comment[] comments = mPlayingTrack.comments;
-				if (comments != null){
-					hideCommentsLoading();
-					CloudUtils.mapCommentsToAdapter(comments, mCommentsAdapter,true);
-					mCommentsAdapter.notifyDataSetChanged();
-					if (mLandscape){
-						mWaveformController.mapComments(mCommentsAdapter, Integer.parseInt(mPlayingTrack.getData(Track.key_duration)));
-						mWaveformController.invalidate();	
-					} else {
-						mWaveformController.setDuration(Integer.parseInt(mPlayingTrack.getData(Track.key_duration)));
-					}
-					
-					
+	private void mapCurrentComments() {
+		if (mPlayingTrack != null) {
+			mCommentsAdapter.clear();
+			Comment[] comments = mPlayingTrack.comments;
+			if (comments != null) {
+				hideCommentsLoading();
+				CloudUtils.mapCommentsToAdapter(comments, mCommentsAdapter,
+						true);
+				mCommentsAdapter.notifyDataSetChanged();
+				if (mLandscape) {
+					mWaveformController.mapComments(mCommentsAdapter,
+							Integer.parseInt(mPlayingTrack
+									.getData(Track.key_duration)));
+					mWaveformController.invalidate();
+				} else {
+					mWaveformController
+							.setDuration(Integer.parseInt(mPlayingTrack
+									.getData(Track.key_duration)));
 				}
-				
-						
+
+			}
+
 		}
 	}
-	
-	
-	protected LazyExpandableBaseAdapter createCommentsAdapter(){
+
+	protected LazyExpandableBaseAdapter createCommentsAdapter() {
 		mThreadData = new ArrayList<Parcelable>();
 		mCommentData = new ArrayList<ArrayList<Parcelable>>();
-		return new CommentsAdapter((LazyActivity) this, mThreadData, mCommentData);
+		return new CommentsAdapter(this, mThreadData, mCommentData);
 	}
 
-	
-	public ExpandableListView getCommentsList(){
+	public ExpandableListView getCommentsList() {
 		return comments_lv;
 	}
-	
-	public LazyExpandableBaseAdapter getCommentsAdapter(){
+
+	public LazyExpandableBaseAdapter getCommentsAdapter() {
 		return mCommentsAdapter;
 	}
-	
-	protected void resetComments(){
+
+	protected void resetComments() {
 		showCommentsLoading();
-		
+
 		mCommentsAdapter.clear();
 		mCommentsAdapter.notifyDataSetChanged();
-		
+
 		mWaveformController.mapComments(mCommentsAdapter, 1);
 		mWaveformController.invalidate();
 	}
-	
-	protected void showCommentsLoading(){
-		if (mLandscape) return;
-		
-		mLoadingLayout.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
-		
-		if (mLoadingLayout.getParent() != null)
+
+	protected void showCommentsLoading() {
+		if (mLandscape) {
+			return;
+		}
+
+		mLoadingLayout.findViewById(android.R.id.progress).setVisibility(
+				View.VISIBLE);
+
+		if (mLoadingLayout.getParent() != null) {
 			((ViewGroup) mLoadingLayout.getParent()).removeView(mLoadingLayout);
-		
-		mCommentListHolder.addView(mLoadingLayout,0);
+		}
+
+		mCommentListHolder.addView(mLoadingLayout, 0);
 		comments_lv.setVisibility(View.INVISIBLE);
 	}
-	
-	protected void hideCommentsLoading(){
-		if (mLandscape) return;
-		
-		if (mLoadingLayout.getParent() == mCommentListHolder)
+
+	protected void hideCommentsLoading() {
+		if (mLandscape) {
+			return;
+		}
+
+		if (mLoadingLayout.getParent() == mCommentListHolder) {
 			mCommentListHolder.removeView(mLoadingLayout);
-		
+		}
+
 		comments_lv.setVisibility(View.VISIBLE);
 	}
-    
 
-	public void addCommentPrompt(Comment comment){
+	public void addCommentPrompt(Comment comment) {
 		addComment = comment;
 		showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
 	}
-	
-	public void addComment(String commentBody){
-		
+
+	public void addComment(String commentBody) {
+
 		addComment.putData(Comment.key_body, commentBody);
-		
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+				.newInstance();
 		DocumentBuilder documentBuilder;
-		
+
 		Comment addedComment = null;
-		
+
 		try {
-			
+
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.parse(mCloudComm.putComment(addComment).getContent());
+			Document document = documentBuilder.parse(mCloudComm.putComment(
+					addComment).getContent());
 			NodeList childNodeList = document.getElementsByTagName("comment");
-			
-			if (childNodeList.getLength() == 0){
+
+			if (childNodeList.getLength() == 0) {
 				showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
 			} else {
 				addedComment = new Comment(childNodeList.item(0));
 			}
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 			showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
 		}
-		
-		//add this comment somewhere
-		if (addedComment != null)
-			commentAdded(addedComment);	
-		
-	}
-    
-    
-    
 
-    /**
-     * Called after {@link #onCreate} or {@link #onStop} when the current
-     * activity is now being displayed to the user.  It will
-     * be followed by {@link #onRestart}.
-     */
-    @Override
-    protected void onStart() {
-       
-        
-        super.onStart();
-        
-        paused = false;
-        
-        Log.i(TAG, "On Start");
+		// add this comment somewhere
+		if (addedComment != null) {
+			commentAdded(addedComment);
+		}
+
+	}
+
+	/**
+	 * Called after {@link #onCreate} or {@link #onStop} when the current
+	 * activity is now being displayed to the user. It will be followed by
+	 * {@link #onRestart}.
+	 */
+	@Override
+	protected void onStart() {
+
+		super.onStart();
+
+		paused = false;
+
+		Log.i(TAG, "On Start");
 
 		IntentFilter f = new IntentFilter();
 		f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -1251,330 +1097,370 @@ protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		f.addAction(CloudPlaybackService.COMMENTS_LOADED);
 		f.addAction(CloudPlaybackService.SEEK_COMPLETE);
 		this.registerReceiver(mStatusListener, new IntentFilter(f));
-		
-    }
-    
 
-    /**
-     * Called after onRestoreInstanceState(Bundle), onRestart(), or onPause(),
-     * for your activity to start interacting with the user.  This is a good
-     * place to begin animations, open exclusive-access devices (such as the
-     * camera), etc.
-     * 
-     * Derived classes must call through to the super class's implementation
-     * of this method.  If they do not, an exception will be thrown.
-     */
-    @Override
-    protected void onResume() {
-        Log.i(TAG, "onResume()");
+	}
 
-        super.onResume();
-        
-        updateTrackInfo();
+	/**
+	 * Called after onRestoreInstanceState(Bundle), onRestart(), or onPause(),
+	 * for your activity to start interacting with the user. This is a good
+	 * place to begin animations, open exclusive-access devices (such as the
+	 * camera), etc.
+	 * 
+	 * Derived classes must call through to the super class's implementation of
+	 * this method. If they do not, an exception will be thrown.
+	 */
+	@Override
+	protected void onResume() {
+		Log.i(TAG, "onResume()");
+
+		super.onResume();
+
+		updateTrackInfo();
 		setPauseButtonImage();
-		
+
 		long next = refreshNow();
 		queueNextRefresh(next);
-		
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		if (preferences.getBoolean("showPlayerComments", true) != showingComments){
-			showingComments = preferences.getBoolean("showPlayerComments", false);
-			//showingComments = true;
+
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if (preferences.getBoolean("showPlayerComments", true) != showingComments) {
+			showingComments = preferences.getBoolean("showPlayerComments",
+					false);
+			// showingComments = true;
 		}
-		
+
 		setCommentButtonImage();
 
+	}
 
-    }
+	/**
+	 * Called to retrieve per-instance state from an activity before being
+	 * killed so that the state can be restored in onCreate(Bundle) or
+	 * onRestoreInstanceState(Bundle) (the Bundle populated by this method will
+	 * be passed to both).
+	 * 
+	 * @param outState
+	 *            A Bundle in which to place any state information you wish to
+	 *            save.
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		Log.i(TAG, "onSaveInstanceState()");
+		super.onSaveInstanceState(outState);
+	}
 
+	/**
+	 * Called as part of the activity lifecycle when an activity is going into
+	 * the background, but has not (yet) been killed. The counterpart to
+	 * onResume().
+	 */
+	@Override
+	protected void onPause() {
+		Log.i(TAG, "onPause()");
 
-    /**
-     * Called to retrieve per-instance state from an activity before being
-     * killed so that the state can be restored in onCreate(Bundle) or
-     * onRestoreInstanceState(Bundle) (the Bundle populated by this method
-     * will be passed to both).
-     * 
-     * @param   outState        A Bundle in which to place any state
-     *                          information you wish to save.
-     */
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        Log.i(TAG, "onSaveInstanceState()");
-        super.onSaveInstanceState(outState);
-    }
+		super.onPause();
 
-    
-    /**
-     * Called as part of the activity lifecycle when an activity is going
-     * into the background, but has not (yet) been killed.  The counterpart
-     * to onResume(). 
-     */
-    @Override
-    protected void onPause() {
-        Log.i(TAG, "onPause()");
-        
-        super.onPause();
-        
-        
+	}
 
-    }
+	/**
+	 * Called when you are no longer visible to the user. You will next receive
+	 * either {@link #onStart}, {@link #onDestroy}, or nothing, depending on
+	 * later user activity.
+	 */
+	@Override
+	protected void onStop() {
+		Log.i(TAG, "onStop()");
+		super.onStop();
 
-
-    /**
-     * Called when you are no longer visible to the user.  You will next
-     * receive either {@link #onStart}, {@link #onDestroy}, or nothing,
-     * depending on later user activity.
-     */
-    @Override
-    protected void onStop() {
-        Log.i(TAG, "onStop()");
-        super.onStop();
-        
-        paused = true;
+		paused = true;
 		mHandler.removeMessages(REFRESH);
-		this.unregisterReceiver(mStatusListener);
+		unregisterReceiver(mStatusListener);
 		mService = null;
 
-        
-    }
-    
-    
-    
-    @Override
+	}
+
+	@Override
 	protected Dialog onCreateDialog(int which) {
 		switch (which) {
-			
-			case CloudUtils.Dialogs.DIALOG_ADD_COMMENT:
-				final EditText input = new EditText(this);
-				AlertDialog.Builder alert = new AlertDialog.Builder(this);
-				
-				alert.setTitle(String.format(getString(R.string.add_comment_dialog_title), addComment.getData(Comment.key_timestamp_formatted)));
-				alert.setView(input);
-				alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						addComment(input.getText().toString());
-						removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
-					}
-				});
-				alert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
-					}
-				});
-				
-				return alert.show();
-				
-			case CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR:
-				return new AlertDialog.Builder(this).setTitle(R.string.error_add_comment_error_title).setMessage(R.string.error_add_comment_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
-					}
-				}).create();
-				
-		}  
+
+		case CloudUtils.Dialogs.DIALOG_ADD_COMMENT:
+			final EditText input = new EditText(this);
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+			alert.setTitle(String.format(
+					getString(R.string.add_comment_dialog_title), addComment
+							.getData(Comment.key_timestamp_formatted)));
+			alert.setView(input);
+			alert.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							addComment(input.getText().toString());
+							removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
+						}
+					});
+			alert.setNegativeButton(android.R.string.cancel,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
+						}
+					});
+
+			return alert.show();
+
+		case CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR:
+			return new AlertDialog.Builder(this).setTitle(
+					R.string.error_add_comment_error_title).setMessage(
+					R.string.error_add_comment_error_message)
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
+								}
+							}).create();
+
+		}
 		return super.onCreateDialog(which);
 	}
-    
-    
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		
-		if (v.getClass() == CommentMarker.class){
-			
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+
+		if (v.getClass() == CommentMarker.class) {
+
 			menuParcelable = ((CommentMarker.CommentContextMenuInfo) menuInfo).comment;
-			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0, getString(R.string.context_menu_reply_to_comment));
-		    menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0, getString(R.string.context_menu_view_user));
-		    menu.add(0, CloudUtils.ContextMenu.CLOSE, 0, getString(R.string.context_menu_close));
-		    
-		} else if (v == getCommentsList()){
-			
+			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0,
+					getString(R.string.context_menu_reply_to_comment));
+			menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0,
+					getString(R.string.context_menu_view_user));
+			menu.add(0, CloudUtils.ContextMenu.CLOSE, 0,
+					getString(R.string.context_menu_close));
+
+		} else if (v == getCommentsList()) {
+
 			ExpandableListView.ExpandableListContextMenuInfo info;
 			try {
-			    info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
+				info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
 			} catch (ClassCastException e) {
-			    Log.e(getClass().getSimpleName(), "bad menuInfo", e);
-			    return;
+				Log.e(getClass().getSimpleName(), "bad menuInfo", e);
+				return;
 			}
-			
-			int groupPosition = ExpandableListView.getPackedPositionGroup(info.packedPosition);
-			int childPosition = ExpandableListView.getPackedPositionChild(info.packedPosition);
-			
-			
-			
-			if (childPosition == -1){
-				menuParcelable = (Comment) getCommentsAdapter().getGroup(groupPosition);
+
+			int groupPosition = ExpandableListView
+					.getPackedPositionGroup(info.packedPosition);
+			int childPosition = ExpandableListView
+					.getPackedPositionChild(info.packedPosition);
+
+			if (childPosition == -1) {
+				menuParcelable = (Comment) getCommentsAdapter().getGroup(
+						groupPosition);
 			} else {
-				menuParcelable = (Comment) getCommentsAdapter().getChild(groupPosition, childPosition);
+				menuParcelable = (Comment) getCommentsAdapter().getChild(
+						groupPosition, childPosition);
 			}
-			
-			menu.add(0, CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION, 0, getString(R.string.context_menu_play_from_comment_position));
-			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0, getString(R.string.context_menu_reply_to_comment));
-			menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0, getString(R.string.context_menu_view_user));
-			menu.add(0, CloudUtils.ContextMenu.CLOSE, 0, getString(R.string.context_menu_close));
-		
+
+			menu
+					.add(
+							0,
+							CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION,
+							0,
+							getString(R.string.context_menu_play_from_comment_position));
+			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0,
+					getString(R.string.context_menu_reply_to_comment));
+			menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0,
+					getString(R.string.context_menu_view_user));
+			menu.add(0, CloudUtils.ContextMenu.CLOSE, 0,
+					getString(R.string.context_menu_close));
+
 		}
-		
-		
-	  //  
+
+		//
 	}
-	
-	
-	
-	
+
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		
+
 		switch (item.getItemId()) {
-			case CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION:
-				long tsLong = Long.parseLong(((Comment) menuParcelable).getData(Comment.key_timestamp));
-				if (tsLong < 0) tsLong = 0;
-				String trackId = ((Comment) menuParcelable).getData(Comment.key_track_id);
-				playFromPosition(trackId, tsLong);
-				break;
-		
-			case CloudUtils.ContextMenu.VIEW_COMMENTER:
-				Intent i = new Intent(this, UserBrowser.class);
-				i.putExtra("userLoadPermalink", ((Comment) menuParcelable).getData(Comment.key_user_permalink));
-				startActivity(i);
-				break;
-				
-			case CloudUtils.ContextMenu.REPLY_TO_COMMENT:
-    	 		String ts = ((Comment) menuParcelable).getData(Comment.key_timestamp);
-    	 		
-    	 		Comment mAddComment = new Comment();
-		   		mAddComment.putData(Comment.key_timestamp, ts);
-		   		mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils.formatTimestamp(Integer.parseInt(ts)));
-		   		mAddComment.putData(Comment.key_track_id, ((Comment) menuParcelable).getData(Comment.key_track_id));
-				addCommentPrompt(mAddComment);
-				break;
-				
-			
-				
-			default:
-				return super.onContextItemSelected(item);
+		case CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION:
+			long tsLong = Long.parseLong(((Comment) menuParcelable)
+					.getData(Comment.key_timestamp));
+			if (tsLong < 0) {
+				tsLong = 0;
+			}
+			String trackId = ((Comment) menuParcelable)
+					.getData(Comment.key_track_id);
+			playFromPosition(trackId, tsLong);
+			break;
+
+		case CloudUtils.ContextMenu.VIEW_COMMENTER:
+			Intent i = new Intent(this, UserBrowser.class);
+			i.putExtra("userLoadPermalink", ((Comment) menuParcelable)
+					.getData(Comment.key_user_permalink));
+			startActivity(i);
+			break;
+
+		case CloudUtils.ContextMenu.REPLY_TO_COMMENT:
+			String ts = ((Comment) menuParcelable)
+					.getData(Comment.key_timestamp);
+
+			Comment mAddComment = new Comment();
+			mAddComment.putData(Comment.key_timestamp, ts);
+			mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils
+					.formatTimestamp(Integer.parseInt(ts)));
+			mAddComment.putData(Comment.key_track_id,
+					((Comment) menuParcelable).getData(Comment.key_track_id));
+			addCommentPrompt(mAddComment);
+			break;
+
+		default:
+			return super.onContextItemSelected(item);
 		}
 		return true;
 	}
-	
-	
+
 	private Track mFavoriteTrack;
 	private String mFavoriteResult;
-	
-	private void setFavoriteStatus(){
-		
-		if (mPlayingTrack == null || mFavoriteButton == null)
+
+	private void setFavoriteStatus() {
+
+		if (mPlayingTrack == null || mFavoriteButton == null) {
 			return;
-		
-		if (mPlayingTrack.getData(Track.key_user_favorite).contentEquals("true")){
-			mFavoriteButton.setImageDrawable(getResources().getDrawable(R.drawable.favorited));
+		}
+
+		if (mPlayingTrack.getData(Track.key_user_favorite)
+				.contentEquals("true")) {
+			mFavoriteButton.setImageDrawable(getResources().getDrawable(
+					R.drawable.favorited));
 		} else {
-			mFavoriteButton.setImageDrawable(getResources().getDrawable(R.drawable.favorite));
+			mFavoriteButton.setImageDrawable(getResources().getDrawable(
+					R.drawable.favorite));
 		}
 	}
-	
-	private void toggleFavorite(){
-		
-		 mFavoriteTrack = mPlayingTrack;
-		 mFavoriteButton.setEnabled(false);
-		 
-		if (mFavoriteTrack.getData(Track.key_user_favorite).contentEquals("true")){
+
+	private void toggleFavorite() {
+
+		mFavoriteTrack = mPlayingTrack;
+		mFavoriteButton.setEnabled(false);
+
+		if (mFavoriteTrack.getData(Track.key_user_favorite).contentEquals(
+				"true")) {
 			removeFavorite();
 		} else {
 			addFavorite();
 		}
 	}
-	
-	public void addFavorite(){
-	
-	 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            public void run() {
-            	try {
-            		mFavoriteResult = CloudCommunicator.formatContent(mCloudComm.putContent(CloudCommunicator.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getData(Track.key_id)));
-            	} catch (IOException e) {
-						e.printStackTrace();
-						setException(e);
-						handleException();
+
+	public void addFavorite() {
+
+		// Fire off a thread to do some work that we shouldn't do directly in
+		// the UI thread
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				try {
+					mFavoriteResult = CloudCommunicator
+							.formatContent(mCloudComm
+									.putContent(CloudCommunicator.PATH_MY_FAVORITES
+											+ "/"
+											+ mFavoriteTrack
+													.getData(Track.key_id)));
+				} catch (IOException e) {
+					e.printStackTrace();
+					setException(e);
+					handleException();
 				}
-                mHandler.post(mUpdateAddFavorite);
-            }
-        };
-        t.start();
+				mHandler.post(mUpdateAddFavorite);
+			}
+		};
+		t.start();
 	}
-	
-	 
-	 private void removeFavorite(){
-		 
-		 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-	        Thread t = new Thread() {
-	            public void run() {
-	            	try {
-	            		mFavoriteResult = CloudCommunicator.formatContent(mCloudComm.deleteContent(CloudCommunicator.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getData(Track.key_id)));
-	            		
-					} catch (Exception e) {
-							e.printStackTrace();
-							setException(e);
-							handleException();
-					}
-	                mHandler.post(mUpdateAddFavorite);
-	            }
-	        };
-	        t.start();
-	 }
-	
+
+	private void removeFavorite() {
+
+		// Fire off a thread to do some work that we shouldn't do directly in
+		// the UI thread
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				try {
+					mFavoriteResult = CloudCommunicator
+							.formatContent(mCloudComm
+									.deleteContent(CloudCommunicator.PATH_MY_FAVORITES
+											+ "/"
+											+ mFavoriteTrack
+													.getData(Track.key_id)));
+
+				} catch (Exception e) {
+					e.printStackTrace();
+					setException(e);
+					handleException();
+				}
+				mHandler.post(mUpdateAddFavorite);
+			}
+		};
+		t.start();
+	}
+
 	// Create runnable for posting since we update the following asynchronously
-    final Runnable mUpdateAddFavorite = new Runnable() {
-        public void run() {
-        	updateFavoriteIInUi();
-        }
-    };
-    
-    private void updateFavoriteIInUi() {
-    	
-    	Log.i("ASDF","favorite result " + mFavoriteResult);
-    	
-    	Boolean _success = false;
-		
-    	if (mFavoriteResult != null)
-		if (mFavoriteResult.indexOf("200 - OK") != -1 || mFavoriteResult.indexOf("201 - Created") != -1){
-			_success = true;
-		} else {
-			_success = false;
+	final Runnable mUpdateAddFavorite = new Runnable() {
+		public void run() {
+			updateFavoriteIInUi();
 		}
-		
-		if (_success){
-			
-			if (mFavoriteTrack.getData(Track.key_user_favorite) == "true"){
+	};
+
+	private void updateFavoriteIInUi() {
+
+		Log.i("ASDF", "favorite result " + mFavoriteResult);
+
+		Boolean _success = false;
+
+		if (mFavoriteResult != null) {
+			if (mFavoriteResult.indexOf("200 - OK") != -1
+					|| mFavoriteResult.indexOf("201 - Created") != -1) {
+				_success = true;
+			} else {
+				_success = false;
+			}
+		}
+
+		if (_success) {
+
+			if (mFavoriteTrack.getData(Track.key_user_favorite) == "true") {
 				mFavoriteTrack.putData(Track.key_user_favorite, "");
 				try {
-					mService.setFavoriteStatus(mFavoriteTrack.getData(Track.key_id), "");
+					mService.setFavoriteStatus(mFavoriteTrack
+							.getData(Track.key_id), "");
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				//CloudUtils.removeTrackFavorite(this, mFavoriteTrack.getData(Track.key_id), CloudUtils.getCurrentUserId(getApplicationContext()));
-				//showDialog(CloudUtils.Dialogs.DIALOG_UNFAVORITED);
+
+				// CloudUtils.removeTrackFavorite(this,
+				// mFavoriteTrack.getData(Track.key_id),
+				// CloudUtils.getCurrentUserId(getApplicationContext()));
+				// showDialog(CloudUtils.Dialogs.DIALOG_UNFAVORITED);
 			} else {
 				mFavoriteTrack.putData(Track.key_user_favorite, "true");
 				try {
-					mService.setFavoriteStatus(mFavoriteTrack.getData(Track.key_id), "true");
+					mService.setFavoriteStatus(mFavoriteTrack
+							.getData(Track.key_id), "true");
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				
-				//CloudUtils.resolveTrack(this,mFavoriteTrack,true,CloudUtils.getCurrentUserId(getApplicationContext()));
-				//CloudUtils.addTrackFavorite(this, mFavoriteTrack.getData(Track.key_id), CloudUtils.getCurrentUserId(getApplicationContext()));
-				//showDialog(CloudUtils.Dialogs.DIALOG_FAVORITED);
+
+				// CloudUtils.resolveTrack(this,mFavoriteTrack,true,CloudUtils.getCurrentUserId(getApplicationContext()));
+				// CloudUtils.addTrackFavorite(this,
+				// mFavoriteTrack.getData(Track.key_id),
+				// CloudUtils.getCurrentUserId(getApplicationContext()));
+				// showDialog(CloudUtils.Dialogs.DIALOG_FAVORITED);
 			}
 			setFavoriteStatus();
 			mFavoriteButton.setEnabled(true);
 		} else {
 			showDialog(CloudUtils.Dialogs.DIALOG_ERROR_CHANGE_FAVORITE_STATUS_ERROR);
 		}
-    }
+	}
 
-    
-	
-	
 }

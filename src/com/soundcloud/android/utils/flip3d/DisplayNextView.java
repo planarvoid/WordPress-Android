@@ -4,7 +4,6 @@ package com.soundcloud.android.utils.flip3d;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
-import android.widget.ImageView;
 
 public final class DisplayNextView implements Animation.AnimationListener {
 private boolean mCurrentView;

@@ -2,23 +2,15 @@ package com.soundcloud.android;
 
 import java.io.File;
 
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
-import com.soundcloud.android.objects.Track;
 
 public class Settings extends PreferenceActivity {
 	private static final int MENU_CACHE = Menu.FIRST;

@@ -160,6 +160,7 @@ public class Comment extends BaseObj implements Parcelable  {
 		return data.containsKey(key);
 	}
 	
+	@Override
 	public String getData(String key){
 		if (data.get(key) != null)
 			return data.getString(key);
@@ -167,6 +168,7 @@ public class Comment extends BaseObj implements Parcelable  {
 			return "";
 	}
 	
+	@Override
 	public HashMap<String,String> mapData(){
 		HashMap<String,String> dataMap = new HashMap<String,String>();
 		
@@ -188,10 +190,12 @@ public class Comment extends BaseObj implements Parcelable  {
 	
 	
 	
+	@Override
 	public void putData(String key,String value){
 		data.putString(key,value);
 	}
 	
+	@Override
 	public Parcelable getDataParcelable(String key){
 		if (data.get(key) != null)
 			return data.getParcelable(key);
@@ -199,6 +203,7 @@ public class Comment extends BaseObj implements Parcelable  {
 			return null;
 	}
 	
+	@Override
 	public void putDataParcelable(String key, Parcelable value){
 		data.putParcelable(key, value);
 	}
@@ -216,15 +221,18 @@ public class Comment extends BaseObj implements Parcelable  {
 	
 	
 
-    public void readFromParcel(Parcel in) {
+    @Override
+	public void readFromParcel(Parcel in) {
     	data = in.readBundle();
     }
 
+	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
 	public void writeToParcel(Parcel out, int arg1) {
 		// TODO Auto-generated method stub
 		out.writeBundle(data);

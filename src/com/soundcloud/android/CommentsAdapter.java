@@ -23,6 +23,7 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 		super(context,groupData,childData);
 	}
 
+	@Override
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View row, ViewGroup parent) {
 		CommentRowChild rowView = null;
 		
@@ -38,6 +39,7 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 		return rowView;
 	}
 
+	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View row, ViewGroup parent) {
 		CommentRowGroup rowView = null;
 		

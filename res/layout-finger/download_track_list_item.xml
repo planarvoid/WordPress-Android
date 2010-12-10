@@ -57,7 +57,7 @@
 			android:layout_toRightOf="@id/icon"
 			android:layout_below="@id/duration" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:indeterminate="false"
-			style="@style/CloudProgressBarSmall" />
+			style="@style/ScProgressBarSmall" />
 		<TextView android:layout_width="wrap_content"
 			android:paddingTop="2dip" android:paddingRight="5dip"
 			android:paddingBottom="2dip" android:layout_below="@id/progress_bar"

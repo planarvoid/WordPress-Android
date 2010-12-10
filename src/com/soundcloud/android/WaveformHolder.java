@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.soundcloud.android.CommentMarker.OnCommentClicked;
@@ -15,7 +16,7 @@ public class WaveformHolder extends RelativeLayout {
 
 	private Float initialXScale;
 	private Matrix matrix;
-	private CloudProgressBar mProgressBar;
+	private ProgressBar mProgressBar;
 	private OnCommentClicked commentClickedListener;
 	
 	private CommentMarker[] mCommentMarkers;

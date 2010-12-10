@@ -2,8 +2,8 @@
 <RelativeLayout android:layout_width="1800dip" android:layout_height="80dip"  android:id="@+id/waveform_frame" xmlns:android="http://schemas.android.com/apk/res/android">
 	<com.soundcloud.android.WaveformHolder android:id="@+id/waveform_holder"
 		android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<com.soundcloud.android.CloudProgressBar
-				style="@style/CloudProgressBar" android:id="@+id/progress_bar"
+			<ProgressBar
+				style="@style/ScProgressBar" android:id="@+id/progress_bar"
 				android:layout_alignParentTop="true" 
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent" android:keepScreenOn="true" />

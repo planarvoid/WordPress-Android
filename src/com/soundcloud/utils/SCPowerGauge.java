@@ -22,7 +22,6 @@ package com.soundcloud.utils;
 import org.hermit.android.core.SurfaceRunner;
 import org.hermit.android.instruments.AudioAnalyser;
 import org.hermit.android.instruments.Gauge;
-import org.hermit.android.instruments.PowerGauge;
 import org.hermit.utils.CharFormatter;
 
 import android.graphics.Canvas;
@@ -222,7 +221,7 @@ public class SCPowerGauge
         final float gw = bw / 10f;
         canvas.drawRect(mx, by, mx + bw, by + bh, paint);
         for (int i = 1; i < 10; ++i) {
-            final float x = (float) i * (float) bw / 10f;
+            final float x = i * bw / 10f;
             canvas.drawLine(mx + x, by, mx + x, by + bh, paint);
         }
 
