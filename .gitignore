@@ -1,0 +1,7 @@
+# OS X Finder and svn
+.DS_Store
+.svn
+
+# output foldersr
+bin/
+gen/
