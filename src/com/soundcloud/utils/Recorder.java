@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.hermit.android.core.SurfaceRunner;
 import org.hermit.android.io.AudioReader;
 import org.hermit.dsp.SignalPower;
 

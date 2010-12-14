@@ -82,7 +82,6 @@
 		<item name="android:textSize">10sp</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:gravity">center</item>
-		<item name="android:background">@drawable/player_time_bg</item>
 	</style>
 	<style name="txt_player_time_land" parent="txt_player_time">
 		<item name="android:background">@drawable/player_time_bg_land</item>
