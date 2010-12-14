@@ -9,11 +9,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Node;
 
-import com.soundcloud.android.CloudUtils;
-
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.soundcloud.android.CloudUtils;
 
 
 public class Track extends BaseObj implements Parcelable  {
@@ -131,9 +131,8 @@ public class Track extends BaseObj implements Parcelable  {
 						case user:
 							//User usr = new User(songObject.getJSONObject(key));
 							//data.putParcelable(key, usr);
-							
+							data.putString(key_user_id, songObject.getJSONObject(key_user).getString(User.key_id));							
 							data.putString(key_username, songObject.getJSONObject(key_user).getString(User.key_username));
-							data.putString(key_user_permalink, songObject.getJSONObject(key_user).getString(User.key_permalink));
 							data.putString(key_user_avatar_url, songObject.getJSONObject(key_user).getString(User.key_avatar_url));
 							break;
 						default:

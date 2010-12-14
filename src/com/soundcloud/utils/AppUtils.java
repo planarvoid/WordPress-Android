@@ -1,10 +1,14 @@
 package com.soundcloud.utils;
 
-import android.app.*;
-import android.content.*;
-import android.graphics.*;
-import android.graphics.drawable.*;
-import android.widget.*;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * AppUtils is a helper class that makes it easy to perform frequently used tasks in Android development.

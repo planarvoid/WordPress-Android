@@ -4,12 +4,16 @@
 
   	
   
-  	<style name="txt_list_main">
+  	<style name="txt_list_main" >
 		<item name="android:textColor">@color/listTxtValue</item>
 		<item name="android:textSize">14sp</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:paddingLeft">5dip</item>
 		<item name="android:paddingRight">5dip</item>
+	</style>
+	
+  	<style name="txt_list_main_inactive" parent="txt_list_main">
+		<item name="android:textColor">@color/listTxtValueInactive</item>
 	</style>
 	<style name="txt_list_secondary" parent="txt_list_main">
 		<item name="android:textColor">@color/listTxtSecondary</item>
@@ -44,6 +48,48 @@
 		<item name="android:paddingLeft">5dip</item>
 		<item name="android:paddingRight">5dip</item>
 	</style>
+	
+	<style name="txt_not_streamable">
+		<item name="android:textColor">@color/listTxtSecondary</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+	
+	<style name="txt_record_input">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">20sp</item>
+		<item name="android:padding">10dip</item>
+	</style>
+	
+	<style name="txt_record_rdo">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">20sp</item>
+	</style>
+	
+	<style name="txt_record_artwork_hint">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:textStyle">italic</item>
+	</style>
+	
+	
+	<style name="txt_player_time">
+		<item name="android:layout_width">70dip</item>
+		<item name="android:layout_height">20dip</item>
+		<item name="android:layout_alignParentTop">true</item>
+		<item name="android:textColor">@android:color/black</item>
+		<item name="android:background">@drawable/player_time_bg</item>
+		<item name="android:textSize">10sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:gravity">center</item>
+		<item name="android:background">@drawable/player_time_bg</item>
+	</style>
+	<style name="txt_player_time_land" parent="txt_player_time">
+		<item name="android:background">@drawable/player_time_bg_land</item>
+	</style>
+	
+	
+					
   
   
  	<style name="btn_oc">
@@ -130,15 +176,19 @@
 		<item name="android:gravity">center</item>
 	</style>
 	
-	<style name="ScProgressBarSmall">
-		<item name="android:background">@drawable/progress_bar_bg</item>
+	<style name="ScProgressBarRound">
+		<item name="android:background">@drawable/progress_bar_round_bg</item>
         <item name="android:indeterminateOnly">false</item>
         <item name="android:minHeight">20dip</item>
 		<item name="android:maxHeight">20dip</item>
         <item name="android:minWidth">76dip</item>
 		<item name="android:maxWidth">76dip</item>
-		<item name="android:progressDrawable">@drawable/progress_bar</item>
+		<item name="android:progressDrawable">@drawable/progress_bar_round</item>
 		<item name="android:indeterminateDrawable">@drawable/progress_bar_indeterminate</item>
+    </style> 
+    
+    <style name="ScSeekBarRound" parent="ScProgressBarRound">
+		<item name="android:thumb">@drawable/empty</item>
     </style> 
     
    <style name="ScProgressBar">
@@ -149,6 +199,11 @@
         <item name="android:maxHeight">60dip</item>
         <item name="android:minWidth">250dip</item>
         <item name="android:maxWidth">5000dip</item>
+    </style> 
+     
+   <style name="ScProgressBarLand" parent="ScProgressBar">
+   		<item name="android:background">@drawable/progress_bar_land_bg</item>
+   		<item name="android:drawable">@drawable/progress_bar_land</item>
     </style> 
     
     <style name="Playlist">

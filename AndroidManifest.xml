@@ -7,7 +7,7 @@
    	<application android:icon="@drawable/launcher" android:label="@string/app_name"
 		android:process="@string/app_name" android:debuggable="true"
 		android:theme="@style/ScLight">
-        <activity android:name=".Main"
+        <activity android:name="com.soundcloud.android.activity.Main"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,17 +25,17 @@
             	<category android:name="android.intent.category.DEFAULT"/>
         	</intent-filter>
         </activity>
-        <activity android:name=".Settings" android:label="Settings" />
-        <activity android:name=".ScPlayer" android:label="Soundcloud Player" />
-        <activity android:name=".ScProfile" android:label="Profile" />
-		<service android:name="CloudPlaybackService" android:exported="true">
+        <activity android:name="com.soundcloud.android.activity.Settings" android:label="Settings" />
+        <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player" />
+        <activity android:name="com.soundcloud.android.activity.ScProfile" android:label="Profile" />
+		<service android:name="com.soundcloud.android.service.CloudPlaybackService" android:exported="true">
 			<intent-filter>
-				<action android:name="com.soundcloud.android.ICloudPlaybackService" />
+				<action android:name="com.soundcloud.android.service.ICloudPlaybackService" />
 			</intent-filter>
 		</service>
-		<service class=".CloudDownloaderService" android:name="CloudDownloaderService">
+		<service class="com.soundcloud.android.service.CloudDownloaderService" android:name="CloudDownloaderService">
 			<intent-filter>
-				<action android:name="com.soundcloud.android.ICloudDownloaderService" />
+				<action android:name="com.soundcloud.android.service.ICloudDownloaderService" />
 			</intent-filter>
 		</service>
 		

@@ -33,6 +33,7 @@ public class User extends BaseObj implements Parcelable  {
 	public static final String key_full_name = "full_name";
 	public static final String key_followers_count = "followers_count";
 	public static final String key_followings_count = "followings_count";
+	public static final String key_public_favorites_count = "public_favorites_count";
 	public static final String key_myspace_name = "myspace_name";
 	public static final String key_country = "country";
 	public static final String key_location = "location";

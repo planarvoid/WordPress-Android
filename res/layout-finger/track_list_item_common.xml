@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-	<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
 		<RelativeLayout android:id="@+id/track_info_row" android:layout_width="fill_parent" android:layout_height="wrap_content" 
 		android:gravity="center_vertical" android:ignoreGravity="@+id/icon">
-			<com.soundcloud.utils.RemoteImageView
+			<com.soundcloud.android.view.RemoteImageView 
 				android:layout_alignParentLeft="true"
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"
+				android:layout_width="47dip" 
+				android:layout_height="47dip"
 				android:gravity="center_vertical"
 				android:id="@+id/icon" />
 			<ImageView android:id="@+id/play_indicator"
@@ -16,8 +15,8 @@
 			 	android:scaleType="center"
 			 	android:layout_alignWithParentIfMissing="true"
 			 	android:layout_toRightOf="@id/icon"
-		        android:layout_width="26dip"
-		        android:layout_height="26dip"/>
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"/>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" 
 				style="@style/txt_list_main" 
@@ -28,6 +27,12 @@
 				android:layout_alignWithParentIfMissing="true"
 		        android:layout_toRightOf="@id/play_indicator"
 				android:text="track" />
+			<ImageView android:id="@+id/private_indicator"
+			 	android:src="@drawable/prvt"
+			 	android:scaleType="center"
+			 	android:layout_toRightOf="@id/track"
+		        android:layout_width="46dip"
+		        android:layout_height="14dip" android:layout_alignBottom="@+id/track"/>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" 
 				style="@style/txt_list_sub_secondary"
@@ -47,5 +52,4 @@
 				android:layout_width="fill_parent"
 				android:layout_below="@id/track" />
 		</RelativeLayout>
-	</LinearLayout>
 </merge>

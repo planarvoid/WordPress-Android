@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="1800dip" android:layout_height="fill_parent" android:id="@+id/waveform_frame" xmlns:android="http://schemas.android.com/apk/res/android">
-	<RelativeLayout android:id="@+id/comment_bar" android:background="#66333333"
-			android:layout_gravity="left" android:layout_width="fill_parent"
-			android:layout_height="30dip" android:layout_alignParentBottom="true" />
-	<com.soundcloud.android.WaveformHolder android:id="@+id/waveform_holder"
-		android:layout_gravity="bottom" android:layout_above="@id/comment_bar"
+	<com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
+		android:layout_gravity="bottom"
 		android:layout_width="fill_parent" android:layout_height="fill_parent">
 			<ProgressBar
-				style="@style/ScProgressBar" android:id="@+id/progress_bar"
-				android:layout_below="@id/comment_bar"
+				style="@style/ScProgressBarLand" android:id="@+id/progress_bar"
 				android:layout_alignParentTop="true" android:layout_width="1800dip"
-				android:layout_height="fill_parent" android:keepScreenOn="true" />
+				android:layout_height="fill_parent" />
 			<ImageView android:id="@+id/progress_overlay"
 				android:layout_alignParentTop="true" android:layout_width="1800dip"
 				android:layout_height="fill_parent" android:scaleType="fitXY"/>
@@ -18,5 +14,5 @@
 				 android:background="#00000000"
 				android:layout_gravity="left" android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
-	</com.soundcloud.android.WaveformHolder>
+	</com.soundcloud.android.view.WaveformHolder>
 </RelativeLayout>

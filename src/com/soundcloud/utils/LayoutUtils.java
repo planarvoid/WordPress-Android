@@ -1,8 +1,11 @@
 package com.soundcloud.utils;
 
-import android.view.*;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.*;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
 /**
  * LayoutUtils is a helper class that makes it a lot easier to perform Android layouts in Java code,

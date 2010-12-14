@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,6 +24,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.json.JSONException;
@@ -41,7 +43,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.soundcloud.android.objects.Comment;
-import com.soundcloud.utils.HttpHelper;
 
 public class CloudCommunicator {
 
@@ -74,17 +75,17 @@ public class CloudCommunicator {
 	public static String PATH_MY_FAVORITES = "me/favorites";
 	public static String PATH_MY_FOLLOWERS = "me/followers";
 	public static String PATH_MY_FOLLOWINGS = "me/followings";
-	public static String PATH_USER_DETAILS = "users/{user_permalink}";
-	public static String PATH_USER_FOLLOWINGS = "users/{user_permalink}/followings";
-	public static String PATH_USER_FOLLOWERS = "users/{user_permalink}/followers";
+	public static String PATH_USER_DETAILS = "users/{user_id}";
+	public static String PATH_USER_FOLLOWINGS = "users/{user_id}/followings";
+	public static String PATH_USER_FOLLOWERS = "users/{user_id}/followers";
 	public static String PATH_TRACK_DETAILS = "tracks/{track_id}";
-	public static String PATH_USER_TRACKS = "users/{user_permalink}/tracks";
-	public static String PATH_USER_FAVORITES = "users/{user_permalink}/favorites";
-	public static String PATH_USER_PLAYLISTS = "users/{user_permalink}/playlists";
+	public static String PATH_USER_TRACKS = "users/{user_id}/tracks";
+	public static String PATH_USER_FAVORITES = "users/{user_id}/favorites";
+	public static String PATH_USER_PLAYLISTS = "users/{user_id}/playlists";
 	public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
-	public static SoundCloudOptions sSoundCloudOptions = SoundCloudAPI.USE_SANDBOX;
-
-	// SoundCloudAPI.USE_PRODUCTION;
+	public static SoundCloudOptions sSoundCloudOptions = 
+		//SoundCloudAPI.USE_SANDBOX;
+		SoundCloudAPI.USE_PRODUCTION;
 
 	public static String formatContent(InputStream is) throws IOException {
 		if (is == null) {
@@ -99,7 +100,7 @@ public class CloudCommunicator {
 		}
 		buffer.close();
 
-		Log.i(TAG, "Content formatted: " + builder.toString().trim());
+		//Log.i(TAG, "Content formatted: " + builder.toString().trim());
 
 		return builder.toString().trim();
 	}
@@ -286,6 +287,14 @@ public class CloudCommunicator {
 		HttpResponse response = getHttpClient().execute(req);
 		return response.getEntity().getContent();
 	}
+	
+	public HttpUriRequest getRequest(String path) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+		return getRequest(path, null);
+	}
+	
+	public HttpUriRequest getRequest(String path,List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+		return api.getRequest(path, params);
+	}
 
 	private String getDomain() {
 		if (sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION) {
@@ -421,7 +430,34 @@ public class CloudCommunicator {
 		return null;
 
 	}
+	
+	
+	/* public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
+     {
+             HttpPost post = new HttpPost(urlEncode("tracks", null));  
+             // fix contributed by Bjorn Roche
+             post.getParams().setBooleanParameter( "http.protocol.expect-continue", false );
 
+             MultipartEntity entity = new MultipartEntity();
+             for(NameValuePair pair : params)
+             {
+                     try
+                     {
+                             entity.addPart(pair.getName(), new StringBodyNoHeaders(pair.getValue()));
+                     } catch (UnsupportedEncodingException e)
+                     {
+                     }  
+             }
+             entity.addPart("track[asset_data]", trackBody);  
+             
+             if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);  
+
+             post.setEntity(entity);
+             
+             getHttpClient().execute(post);
+             return api.performRequest(post);  
+     }
+*/
 	
 
 	private String urlEncode(String resource, List<NameValuePair> params) {
@@ -434,6 +470,26 @@ public class CloudCommunicator {
 		}
 		return params == null ? resourceUrl : resourceUrl + "?"
 				+ URLEncodedUtils.format(params, "UTF-8");
+	}
+	
+	
+	
+	class StringBodyNoHeaders extends StringBody
+	{
+	        public StringBodyNoHeaders(String value) throws UnsupportedEncodingException
+	        {
+	                super(value);
+	        }       
+	        
+	        public String getMimeType()
+	        {
+	                return null;
+	        }
+
+	        public String getTransferEncoding()
+	        {
+	                return null;
+	        }       
 	}
 
 

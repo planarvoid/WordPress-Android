@@ -20,7 +20,8 @@ public class DBAdapter
     
     private static final String TAG = "SoundcloudDBAdapter";
     
-    private static final String[] userkeys = {User.key_permalink,
+    private static final String[] userkeys = {User.key_id,
+    	User.key_permalink,
     	User.key_username,
     	User.key_avatar_url,
     	User.key_city,
@@ -72,7 +73,7 @@ public class DBAdapter
 		Track.key_download_url,
 		Track.key_stream_url,
 		Track.key_streamable,
-		Track.key_user_permalink,
+		Track.key_user_id,
 		Track.key_local_play_url,
 		Track.key_local_artwork_url,
 		Track.key_local_waveform_url,
@@ -88,7 +89,7 @@ public class DBAdapter
     private static final String DATABASE_TRACK_TABLE = "Tracks";
     private static final String DATABASE_FOLLOWING_TABLE = "Followings";
     private static final String DATABASE_FAVORITE_TABLE = "Favorites";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_CREATE_1 =
         "create table Tracks (id string primary key, "
@@ -125,7 +126,7 @@ public class DBAdapter
         + "download_url string null, " 
         + "stream_url string null, "
         + "streamable string null, "
-        + "user_permalink string null, "
+        + "user_id string null, "
         + "local_play_url string null, " 
         + "local_artwork_url string null, " 
         + "local_waveform_url string null, "
@@ -135,7 +136,8 @@ public class DBAdapter
 
     
     private static final String DATABASE_CREATE_2 =
-       "create table Users (permalink string primary key, " 
+       "create table Users (id string primary key, "
+    	+ "permalink string null, " 
         + "username string null, " 
         + "avatar_url string null, " 
         + "city string null, "
@@ -194,7 +196,10 @@ public class DBAdapter
             Log.w(TAG, "Upgrading database from version " + oldVersion 
                     + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS titles");
+            db.execSQL("DROP TABLE IF EXISTS Tracks");
+            db.execSQL("DROP TABLE IF EXISTS Users");
+            db.execSQL("DROP TABLE IF EXISTS Followings");
+            db.execSQL("DROP TABLE IF EXISTS Favorites");
             onCreate(db);
         }
     }    
@@ -272,9 +277,10 @@ public class DBAdapter
 
     	ContentValues args = new ContentValues();
     	for (String key : userkeys){
-		 if (user.hasKey(key))
+		 if (user.hasKey(key)){
+			 Log.i(TAG,"Inserting user key:val => "+ key + ":" + user.getData(key));
 			 args.put(key, user.getData(key));
-		 
+		 }
     	}
     	
     	long id = db.insert(DATABASE_USER_TABLE, null, args);
@@ -363,7 +369,7 @@ public class DBAdapter
     		 }
     	 }
     	
-    	return db.update(DATABASE_USER_TABLE, args, User.key_permalink + "='" + user.getData(User.key_permalink) + "'", null);
+    	return db.update(DATABASE_USER_TABLE, args, User.key_id + "='" + user.getData(User.key_id) + "'", null);
     	
   }
   
@@ -375,7 +381,7 @@ public class DBAdapter
     			 args.put(key, userinfo.get(key));
     	 }
     	
-    	return db.update(DATABASE_USER_TABLE, args, User.key_permalink + "='" + userinfo.get(User.key_permalink) + "'", null);
+    	return db.update(DATABASE_USER_TABLE, args, User.key_id + "='" + userinfo.get(User.key_id) + "'", null);
     	
   }
   
@@ -444,6 +450,14 @@ public class DBAdapter
                 null);
     }
     
+    public Cursor getTrackPlayedById(String id, String current_user_id) 
+    {
+    	//return db.rawQuery("SELECT Tracks.*, Favorites.id as user_favorite_id, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM (Tracks INNER JOIN Users ON Tracks.user_permalink = Users.permalink) INNER JOIN Favorites ON Tracks.id = Favorites.favorite_id WHERE Favorites.user_id = '" + user_id + "' ORDER BY Favorites.id asc", null);
+    	Log.i("asdf","raw query " + "SELECT Tracks.user_played from Tracks where Tracks.id = '" + id + "'");
+    	Log.i("asdf","current user id " + current_user_id);
+    	return db.rawQuery("SELECT Tracks.user_played as user_played from Tracks where Tracks.id = '" + id + "'", null);
+    }
+    
    
     public Cursor getUserByPermalink(String permalink, String current_user_id) 
     {
@@ -507,12 +521,12 @@ public class DBAdapter
     
     public Cursor getAllDownloadedTracks() 
     {
-    	return db.rawQuery("SELECT Tracks.*, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM Tracks INNER JOIN Users ON Tracks.user_permalink = Users.permalink WHERE " + Track.key_download_status + " = '"+Track.DOWNLOAD_STATUS_DOWNLOADED+"' ORDER BY Users.username COLLATE NOCASE ASC", null);
+    	return db.rawQuery("SELECT Tracks.*, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM Tracks INNER JOIN Users ON Tracks.user_id = Users.id WHERE " + Track.key_download_status + " = '"+Track.DOWNLOAD_STATUS_DOWNLOADED+"' ORDER BY Users.username COLLATE NOCASE ASC", null);
     }
     
     public Cursor getAllPendingDownloads() 
     {
-    	return db.rawQuery("SELECT Tracks.*, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM Tracks INNER JOIN Users ON Tracks.user_permalink = Users.permalink WHERE " + Track.key_download_status + " = '"+Track.DOWNLOAD_STATUS_PENDING+"' ORDER BY Users.username COLLATE NOCASE ASC", null);
+    	return db.rawQuery("SELECT Tracks.*, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM Tracks INNER JOIN Users ON Tracks.user_id = Users.id WHERE " + Track.key_download_status + " = '"+Track.DOWNLOAD_STATUS_PENDING+"' ORDER BY Users.username COLLATE NOCASE ASC", null);
     }
 
 //    //---retrieves a particular title---

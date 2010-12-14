@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-	<string name="app_name">Soundcloud</string>
+	<string name="app_name">SoundCloud</string>
 	<string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
 	<string name="consumer_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
 	<string name="sandbox_consumer_key">exQKp2vmQkgRPrPgceKJdw</string>
@@ -21,6 +21,10 @@
 	
 	<string name="track_by">by</string>
 	<string name="no_tracks_available">No Tracks Available</string>
+	<string name="no_users_available">No Users Available</string>
+	<string name="no_info_available">No Info Available</string>
+	<string name="no_comments_available">No Comments Available</string>
+	<string name="no_activities_available">No Tracks Available</string>
 	
 	<string name="row_download_error">Error Downloading Track</string>
 	<string name="row_download_status">Downloading: %d\%%%</string>
@@ -50,9 +54,13 @@
         </item>
     </plurals>
     
+
+    
     <string name="chronometer_initial_format">Initial format: <xliff:g id="initial-format">%s</xliff:g></string> 
     
-    <string name="record_instructions">Start recording your world</string>
+    <string name="record_instructions">share your sounds</string>
+    <string name="record_artwork_instructions">Add Image</string>
+    <string name="record_artwork_instructions_added">Hold to remove.</string>
 	
 	
 	<string name="default_icon_url">http://a1.soundcloud.com/images/default_avatar_large.png?a5d5f4</string>
@@ -82,6 +90,26 @@
 	
 	
 	<string name="context_menu_close">Close</string>
+	
+	
+	
+	<!-- dialog strings -->
+	<string name="processing_title">Processing</string>
+	<string name="record_preparing_wav_title">Preparing for encoding</string>
+	<string name="record_encoding_wav_title">Encoding wave</string>
+	
+	<string name="record_encoding_failed_title">Encoding Problem</string>
+	<string name="record_encoding_failed_message">Sorry, there was a problem encoding your recording.</string>
+	
+	<string name="record_uploading_title">Uploading</string>
+	<string name="record_uploading_message">Uploading your file</string>
+	
+	<string name="record_uploading_failed_title">Uploading Problem</string>
+	<string name="record_uploading_failed_message">Sorry, there was a problem encoding your recording. Please make sure you have a working connection.</string>
+	
+	<string name="record_uploading_success_title">Upload successful</string>
+	<string name="record_uploading_success_message">Your sound has been uploaded. It will appear in your tracklist shortly.</string>
+	
 	
 	<!-- basic track functions -->
 	
@@ -375,9 +403,9 @@
     -->
     <skip/>
     <!-- Do not translate. Duration format for duration < 1 hour -->
-    <string translatable="false" name="durationformatshort"><xliff:g id="format">%2$d:%5$02d</xliff:g></string>
+    <string translatable="false" name="durationformatshort"><xliff:g id="format">%2$d.%5$02d</xliff:g></string>
     <!-- Do not translate. Duration format for duration >= 1 hour -->
-    <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d:%3$02d:%5$02d</xliff:g></string>
+    <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d.%3$02d.%5$02d</xliff:g></string>
 
     <!-- Menu item that takes the user back to the top level screen of the music player -->
     <string name="goto_start">Library</string>

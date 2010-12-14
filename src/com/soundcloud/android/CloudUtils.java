@@ -20,7 +20,6 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -47,22 +46,28 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
-import android.widget.TabHost.OnTabChangeListener;
 
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserBrowser;
 
 
 
@@ -79,8 +84,8 @@ public class CloudUtils {
 		public static final int GRAPHIC_DIMENSIONS_CROP = 400;
 		public static final int GRAPHIC_DIMENSIONS_T300 = 300;
 		public static final int GRAPHIC_DIMENSIONS_LARGE = 100;
-		public static final int GRAPHIC_DIMENSIONS_T67 = 500;
-		public static final int GRAPHIC_DIMENSIONS_BADGE = 500;
+		public static final int GRAPHIC_DIMENSIONS_T67 = 67;
+		public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
 		public static final int GRAPHIC_DIMENSIONS_SMALL = 32;
 		public static final int GRAPHIC_DIMENSIONS_TINY_ARTWORKS = 20;
 		public static final int GRAPHIC_DIMENSIONS_TINY_AVATARS = 18;
@@ -95,6 +100,8 @@ public class CloudUtils {
 		public static final String WAVEFORM_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/waveforms";
 		public static final String AVATAR_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/avatars";
 		public static final String CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/.soundcloud-cache/";
+		
+		public static final int GALLERY_IMAGE_PICK_CODE = 9988;
 	    
 		public enum LoadType { 
 			incoming, exclusive, favorites 
@@ -126,6 +133,12 @@ public class CloudUtils {
 	    	public static final int DIALOG_CONFIRM_REMOVE_FAVORITE = 28;
 	    	public static final int DIALOG_CONFIRM_REMOVE_FOLLOWING = 29;
 	    	public static final int DIALOG_CONFIRM_CLEAR_PLAYLIST = 30;
+	    	
+	    	public static final int DIALOG_PROCESSING = 31;
+	    	public static final int DIALOG_RECORD_PROCESSING_FAILED = 32;
+	    	public static final int DIALOG_RECORD_UPLOADING = 33;
+	    	public static final int DIALOG_RECORD_UPLOADING_FAILED = 34;
+	    	public static final int DIALOG_RECORD_UPLOADING_SUCCESS = 35;
 	    }
 
 	    public interface Defs {
@@ -225,16 +238,38 @@ public class CloudUtils {
 	    
 	    
 	    
-	    protected static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
+	    
+	    
+
+		
+		public static LazyList createList(LazyActivity activity){
+			
+			LazyList mList = new LazyList(activity);
+			mList.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+			mList.setOnItemClickListener(activity);
+			mList.setOnItemSelectedListener(activity);
+			mList.setFastScrollEnabled(true);
+			mList.setTextFilterEnabled(true);
+			mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));
+			mList.setDividerHeight(1);
+			activity.registerForContextMenu(mList);
+			
+			
+			return mList;
+		}
+
+		
+	    
+	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
 			 
 			listHolder.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-			LazyList lv = activity.buildList();
+			LazyList lv = createList(activity);
 		    lv.setAdapter(adpWrap);
 		    listHolder.addView(lv);
 		    adpWrap.createListEmptyView(lv);
 		}
 		
-	    protected static FrameLayout createTabLayout(Context c){
+	    public static FrameLayout createTabLayout(Context c){
 			return createTabLayout(c, false);
 		}
 		
@@ -264,7 +299,7 @@ public class CloudUtils {
 		    
 		}
 		
-		protected static void configureTabs(Context context, TabWidget tabWidget, int height){
+		public static void configureTabs(Context context, TabWidget tabWidget, int height){
 			   
 			  // Convert the tabHeight depending on screen density
 		    final float scale = context.getResources().getDisplayMetrics().density;
@@ -273,10 +308,12 @@ public class CloudUtils {
 		    for (int i = 0; i < tabWidget.getChildCount(); i++) {
 		    	tabWidget.getChildAt(i).getLayoutParams().height = height;
 		    }
+		    
+		    tabWidget.getLayoutParams().height = height;
 		}
 				
 		
-		protected static void createTab(Context context, TabHost tabHost, String tabId, String indicatorText, Drawable indicatorIcon, final ScTabView tabView, Boolean scrolltabs)
+		public static void createTab(Context context, TabHost tabHost, String tabId, String indicatorText, Drawable indicatorIcon, final ScTabView tabView, Boolean scrolltabs)
 		{
 			TabHost.TabSpec spec;
 		    
@@ -300,7 +337,11 @@ public class CloudUtils {
 		    tabHost.addTab(spec);
 		}
 		
-		protected static void setTabTextStyle(Context context, TabWidget tabWidget){
+		public static void setTabTextStyle(Context context, TabWidget tabWidget){
+			setTabTextStyle(context,tabWidget,false);
+		}
+		
+		public static void setTabTextStyle(Context context, TabWidget tabWidget, Boolean textOnly){
 			 // a hacky way of setting the font of the indicator texts
 	        for (int i = 0; i < tabWidget.getChildCount(); i++) {
 	                if (tabWidget.getChildAt(i) instanceof RelativeLayout) {
@@ -309,16 +350,58 @@ public class CloudUtils {
 	                        for (int j = 0; j < relativeLayout.getChildCount(); j++) {
 	                                if (relativeLayout.getChildAt(j) instanceof TextView) {
 	                                        ((TextView) relativeLayout.getChildAt(j)).setTextAppearance(context,R.style.TabWidgetTextAppearance);
+	                                        if (textOnly){
+	                                        	 ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().width = LayoutParams.FILL_PARENT;
+	                                        	 ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().height = LayoutParams.FILL_PARENT;
+	                                        	 ((TextView) relativeLayout.getChildAt(j)).setGravity(Gravity.CENTER);
+	                                        }
+	                                        
+	                                }
+	                        }
+	                        if (textOnly){
+	                        	for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+	                                if (!(relativeLayout.getChildAt(j) instanceof TextView)) {
+	                                       relativeLayout.removeViewAt(j);
+	                                }	
+	                        }
+	                        
+                        }
+
+	                }
+	        }
+		}
+		
+		public static void setTabText(TabWidget tabWidget, int index, String newText){
+			 // a hacky way of setting the font of the indicator texts
+	        
+	                if (tabWidget.getChildAt(index) instanceof RelativeLayout) {
+	                        RelativeLayout relativeLayout = (RelativeLayout) tabWidget
+	                                        .getChildAt(index);
+	                        for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+	                                if (relativeLayout.getChildAt(j) instanceof TextView) {
+	                                        ((TextView) relativeLayout.getChildAt(j)).setText(newText);
 	                                }
 	                        }
 
 	                }
-	        }
+	        
 		}
 	    
 	    
 	    
 	    
+		public static Boolean isTrackPlayable(Track track){
+			Log.i("DEBUG","Checking streamable " + track.getData(Track.key_streamable).toString());
+			if (track.getData(Track.key_streamable).toString().equalsIgnoreCase("true")){
+				return true;
+			}
+			return false;
+		}
+		
+		
+		
+		
+		
 		
 	    
 
@@ -592,6 +675,10 @@ public class CloudUtils {
 			resolveUser(context,userinfo, writeToDB, currentUserId);
 	    }
 	    
+	   
+	    
+	  
+	    
 	    public static Track resolveTrackData(Track track){
 	    	track = resolvePlayUrl(track);
 			track = resolveTrackFavorite(track);
@@ -621,7 +708,7 @@ public class CloudUtils {
 				
 				result.close();
 				
-				result = db.getUserByPermalink(track.getData(Track.key_user_permalink), currentUserId);
+				result = db.getUserById(track.getData(Track.key_user_id), currentUserId);
 				
 				if (result.getCount() != 0){
 					result.moveToFirst();
@@ -729,7 +816,7 @@ public class CloudUtils {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
 			
-			Cursor result = db.getUserByPermalink(user.getData(User.key_permalink),currentUserId);
+			Cursor result = db.getUserById(user.getData(User.key_id),currentUserId);
 			if (result.getCount() != 0){
 				result.moveToFirst();
 				user = resolveUserFromCursor(result,user);
@@ -753,8 +840,8 @@ public class CloudUtils {
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
-			Log.i("DEBUG","Getting user from database " + userinfo.get(User.key_permalink));
-			Cursor result = db.getUserByPermalink(userinfo.get(User.key_permalink), currentUserId);
+
+			Cursor result = db.getUserById(userinfo.get(User.key_id), currentUserId);
 			if (result.getCount() != 0){
 				
 				result.moveToFirst();
@@ -774,6 +861,7 @@ public class CloudUtils {
 		
 			return userinfo;
 	    }
+	    
 	    
 	  //---Make sure the database is up to date with this track info---
 	    public static User resolveUserById(Context context, String userId, String currentUserId) 
@@ -795,6 +883,7 @@ public class CloudUtils {
 				user = resolveUserData(user);
 				
 				result.close();
+				db.close();
 				
 				return user;
 			}
@@ -1220,7 +1309,7 @@ public class CloudUtils {
 		
 		
 		
-		static String formatTimestamp(int ts){
+		public static String formatTimestamp(int ts){
 			int milliseconds = ts;
 			int seconds = (int) ((milliseconds / 1000) % 60);
 			int minutes = (int) ((milliseconds / 1000) / 60);
@@ -1234,7 +1323,7 @@ public class CloudUtils {
 		}
 		
 		
-		static void mapCommentsToAdapter(Comment[] comments, LazyExpandableBaseAdapter mExpandableAdapter, Boolean chronological){
+		public static void mapCommentsToAdapter(Comment[] comments, LazyExpandableBaseAdapter mExpandableAdapter, Boolean chronological){
 			
 			if (comments == null || comments.length == 0)
 				return;
@@ -1381,7 +1470,7 @@ public class CloudUtils {
 				return trackinfo.get(Track.key_local_waveform_url);
 		}
 		
-		static String getTrackWaveformPath(Track trackinfo) {
+		public static String getTrackWaveformPath(Track trackinfo) {
 			Log.i("CloudUtils","Checking waveform path " + trackinfo.getData(Track.key_download_error) + " " + trackinfo.getData(Track.key_local_waveform_url));
 			if (!trackinfo.getData(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.getData(Track.key_download_error).contentEquals("true") || trackinfo.getData(Track.key_local_waveform_url).contentEquals(""))
 				return trackinfo.getData(Track.key_waveform_url);
@@ -1389,13 +1478,13 @@ public class CloudUtils {
 				return trackinfo.getData(Track.key_local_waveform_url);
 		}
 		
-		static void gotoTrackUploader(Context context, String userPemalink) {
+		public static void gotoTrackUploader(Context context, String userPemalink) {
 			Intent i = new Intent(context, UserBrowser.class);
 			i.putExtra("userLoadPermalink", userPemalink);
 			context.startActivity(i);
 		}
 		
-		static void gotoTrackDetails(Context context, Track track) {
+		public static void gotoTrackDetails(Context context, Track track) {
 			/*Intent i = new Intent(context, TrackBrowser.class);
 			i.putExtra("track", track);
 			if (track.comments != null)
@@ -1428,30 +1517,25 @@ public class CloudUtils {
 				 f.mkdirs();
 		}
 
-		public static String buildRequestPath(String mUrl, String filter, String order){
-			return buildRequestPath(mUrl,filter,order,false);
+		public static String buildRequestPath(String mUrl, String order){
+			return buildRequestPath(mUrl,order,false);
 		}
 		
-		public static String buildRequestPath(String mUrl, String filter, String order, boolean refresh){
+		public static String buildRequestPath(String mUrl, String order, boolean refresh){
+			
 			
 			String refreshAppend = "";
 			if (refresh)
 				refreshAppend = "&rand=" + Math.round((int)10000*Math.random());
 			
-			if (filter == null && order == null)
+			if (order == null)
 				if (refresh)
 					return mUrl + "?rand=" + ((int)10000*Math.random());
 				else
 					return mUrl;
 			
-			
-			
-			if (filter == null)
 				return String.format(mUrl + "?order=%s", URLEncoder.encode(order) + refreshAppend);
-			else if (order == null)
-				return String.format(mUrl + "?filter=%s", URLEncoder.encode(filter) + refreshAppend);
-			else
-				return String.format(mUrl + "?filter=%s&order=%s", URLEncoder.encode(filter),URLEncoder.encode(order) + refreshAppend);
+			
 		}
 		
 		public static String formatUsername(String username){
@@ -1496,12 +1580,8 @@ public class CloudUtils {
 		
 		public static String formatGraphicsUrl (String url, String targetSize){
 			for (String size : GraphicsSizesLib){
-				Log.i("DEBUG","Replace " + size + " with " +targetSize);
 				url = url.replace(size, targetSize);
-				Log.i("DEBUG","Now its " + url);
 			}
-			
-			Log.i("DEBUG","Returning" + url);
 			return url;
 		}
 		
@@ -1536,23 +1616,6 @@ public class CloudUtils {
 	    }
 
 		
-		
-//		public static void configureTabs(TabWidget tabWidget, Drawable tabBackground, Drawable tabBackground2){
-//			 //Field mBottomLeftStrip; 
-//		     //Field mBottomRightStrip;
-//			
-//			for (int i =0; i < tabWidget.getChildCount(); i++) {
-//	            Log.i("TABS","tabWidget " + tabWidget.getChildAt(i));
-//				View vvv = tabWidget.getChildAt(i);
-//				
-//				//tabWidget.getChildAt(i).getLayoutParams().height = LayoutParams.MATCH_PARENT;
-//	            //tabWidget.getChildAt(i).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
-//				if (!(tabWidget.getChildAt(i) instanceof OcTab))
-//					vvv.setBackgroundDrawable(tabBackground2);
-//			}
-//			
-//			tabWidget.setStripEnabled(false);
-//		}
 
 	}
 

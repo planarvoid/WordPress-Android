@@ -2,38 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical">
-	<LinearLayout android:id="@+id/LinearLayout01" android:background="@color/playerControlBackground" 
+	<LinearLayout android:id="@+id/LinearLayout01"
+		android:background="@color/playerControlBackground"
 		android:layout_height="wrap_content" android:orientation="horizontal"
 		android:layout_width="fill_parent">
-		<com.soundcloud.utils.RemoteImageView
+		<com.soundcloud.android.view.RemoteImageView
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:src="@drawable/artwork_badge"
-			android:id="@+id/user_icon" android:gravity="top" />
+			android:src="@drawable/artwork_badge" android:id="@+id/user_icon"
+			android:gravity="top" />
 		<LinearLayout android:id="@+id/LinearLayout02"
 			android:orientation="vertical" android:layout_width="wrap_content"
 			android:layout_weight="1" android:layout_height="wrap_content">
-			<TextView android:layout_width="wrap_content"
-				style="@style/txt_list_main" 
+			<TextView android:layout_width="wrap_content" style="@style/txt_list_main"
 				android:layout_height="wrap_content" android:textSize="15sp"
 				android:paddingLeft="5dip" android:paddingRight="5dip"
 				android:paddingTop="5dip" android:id="@+id/username" />
-			<TextView android:layout_width="wrap_content"
-				style="@style/txt_list_sub" 
+			<TextView android:layout_width="wrap_content" style="@style/txt_list_sub"
 				android:layout_height="wrap_content" android:paddingLeft="5dip"
 				android:paddingRight="5dip" android:id="@+id/location" />
 		</LinearLayout>
-		<LinearLayout android:id="@+id/LinearLayout02" android:gravity="center"
-			android:orientation="vertical" android:layout_width="wrap_content"
-			android:layout_height="fill_parent" android:paddingRight="5dip">
-			<ImageButton android:id="@+id/btn_favorite" 
-				style="@style/btn_oc_transport"  android:visibility="gone" android:src="@drawable/ic_follow_states"/>
+		<LinearLayout android:id="@+id/LinearLayout02"
+			android:gravity="center" android:orientation="vertical"
+			android:layout_width="wrap_content" android:layout_height="fill_parent"
+			android:paddingRight="5dip">
+			<ImageButton android:id="@+id/btn_favorite"
+				android:background="@android:color/transparent" android:visibility="gone"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:src="@drawable/ic_follow_states" />
 		</LinearLayout>
 	</LinearLayout>
-	<View android:layout_width="fill_parent"
-		android:layout_height="2dip" android:background="@color/dim_foreground_light"
-		android:padding="3dip" />
-    <LinearLayout android:orientation="vertical" 
-        android:id="@+id/tab_holder"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+	<FrameLayout android:orientation="vertical" android:id="@+id/tab_holder"
+		android:layout_width="fill_parent" android:layout_height="fill_parent" />
 </LinearLayout>

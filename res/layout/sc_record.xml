@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:panel="http://schemas.android.com/apk/res/org.miscwidgets"
-	android:background="@color/playerControlBackground" 
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
 	<Chronometer android:id="@+id/chronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="30dip"
+        android:keepScreenOn="true"
         style="@style/txt_record_instructions"
         android:layout_centerHorizontal="true"
         />
@@ -18,33 +18,24 @@
         android:gravity="center"
         style="@style/txt_record_instructions"
         android:text="@string/record_instructions"/>
-    <ProgressBar android:id="@+id/progress_bar"
-    	android:layout_marginTop="40dip"
-    	android:layout_marginLeft="10dip"
-    	android:layout_marginRight="10dip"
-       android:layout_width="fill_parent"
-       android:layout_height="wrap_content"
-       style="@style/ScProgressBarSmall"
-       android:orientation="horizontal"  />
-    <FrameLayout android:id="@+id/gauge_holder" android:layout_weight="1"
-		android:paddingBottom="50dip"
-		android:layout_alignParentBottom="true"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+    <SeekBar android:id="@+id/progress_bar" android:thumb="@drawable/empty"
+    	android:orientation="horizontal" style="@style/ScProgressBarRound" android:layout_marginTop="60dip" android:layout_width="fill_parent" android:layout_height="30dip" android:layout_marginLeft="15dip" android:layout_marginRight="15dip"/>
+    
     <ImageButton android:id="@+id/btn_action" 
     	android:background="@drawable/btn_rec_states" 
     	android:layout_centerInParent="true"
     	android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-   <LinearLayout android:visibility="gone" android:paddingTop="20dip" android:paddingBottom="5dip"
-   		android:layout_below="@+id/btn_action"
-		android:orientation="horizontal" android:id="@+id/file_layout"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"> 
+   <FrameLayout android:layout_height="30dip" android:layout_width="fill_parent" android:id="@+id/gauge_holder" android:layout_marginLeft="15dip" android:layout_marginRight="15dip" android:layout_alignParentBottom="false" android:layout_below="@+id/chronometer" android:layout_marginTop="40dip"></FrameLayout>
+   <LinearLayout android:paddingTop="20dip" android:paddingBottom="5dip"
+   		android:orientation="horizontal" android:id="@+id/file_layout"
+		android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_marginBottom="50dip" android:visibility="gone"> 
 	    <Button android:id="@+id/btn_reset" android:text="Reset" 
-	    	android:padding="10dip" android:layout_weight="1"
-	        android:layout_width="wrap_content" android:layout_height="50dip" />
-	    <Button android:id="@+id/btn_upload" android:text="Upload"
+	    	android:layout_weight="1"
+	        android:layout_width="wrap_content" android:padding="15dip" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:layout_marginRight="10dip"/>
+	    <Button android:id="@+id/btn_save" android:text="Save"
 	    	android:padding="15dip" android:layout_weight="1"
-	        android:layout_width="wrap_content" android:layout_height="wrap_content" />
+	        android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10dip" android:layout_marginRight="10dip"/>
     </LinearLayout>
+
 </RelativeLayout>

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical" android:padding="5dip">
 		<TableLayout android:id="@+id/user_details_table"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:stretchColumns="0" android:shrinkColumns="1">
-			<TableRow>
+			<TableRow android:id="@+id/fullname_row">
 				<TextView android:padding="3dip" android:text="Full name" />
 				<TextView android:layout_width="wrap_content"
 					android:gravity="right" android:padding="3dip" android:id="@+id/fullname"
 					android:layout_height="wrap_content" />
 			</TableRow>
-			<TableRow>
+			<TableRow android:id="@+id/tracks_row">
 				<TextView android:text="Tracks" android:padding="3dip" />
 				<TextView android:layout_width="wrap_content" android:id="@+id/tracks"
 					android:text="" android:gravity="right" android:padding="3dip"
 					android:layout_height="wrap_content" />
 			</TableRow>
-			<TableRow>
+			<TableRow android:id="@+id/followers_row">
 				<TextView android:text="Followers" android:padding="3dip" />
 				<TextView android:layout_width="wrap_content" android:id="@+id/followers"
 					android:text="" android:gravity="right" android:padding="3dip"
@@ -46,4 +46,5 @@
 					android:id="@+id/description" android:padding="3dip" android:text="" />
 			</TableRow>
 		</TableLayout>
-</LinearLayout>
+<TextView android:text="@string/no_info_available" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"></TextView>
+</FrameLayout>

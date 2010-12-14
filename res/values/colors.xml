@@ -5,17 +5,22 @@
 	
 	
 	<color name="listTxtValue">#FF000000</color>
+	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	
-	<color name="playerControlBackground">#FFEAEAEA</color>
-	<color name="playerControlAlphaBackground">#AAEAEAEA</color>
+	
+	
+	<color name="playerControlBackground">#FFE2E2E2</color>
+	<color name="playerControlAlphaBackground">#AAE2E2E2</color>
+	<color name="lightGrayBackground">#FFEEEEEE</color>
+	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
 	<color name="playerArtworkBackground">#FF666666</color>
 	
 	<color name="userHeaderBackground">#FFEEEEEE</color>
 
-	<color name="cloudProgressBackgroundStart">#FF666666</color>
-	<color name="cloudProgressBackgroundCenter">#FF949494</color>
-	<color name="cloudProgressBackgroundEnd">#FF666666</color>
+	<color name="cloudProgressBackgroundStart">#AA666666</color>
+	<color name="cloudProgressBackgroundCenter">#AA949494</color>
+	<color name="cloudProgressBackgroundEnd">#AA666666</color>
 	
 	<color name="cloudProgressSecondaryStart">#333333</color>
 	<color name="cloudProgressSecondaryCenter">#707070</color>
@@ -25,10 +30,30 @@
 	<color name="cloudProgressCenter">#e36711</color>
 	<color name="cloudProgressEnd">#e36711</color>
 	
+	<color name="cloudProgressLandscapeBackgroundStart">#FF666666</color>
+	<color name="cloudProgressLandscapeBackgroundCenter">#FF949494</color>
+	<color name="cloudProgressLandscapeBackgroundEnd">#FF666666</color>
+	
+	<color name="cloudProgressRoundBackgroundStart">#FF222222</color>
+	<color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
+	<color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
+	
+	<color name="cloudProgressRoundSecondaryStart">#00FFFFFF</color>
+	<color name="cloudProgressRoundSecondaryCenter">#00FFFFFF</color>
+	<color name="cloudProgressRoundSecondaryEnd">#00FFFFFF</color>
+	
+	<color name="cloudProgressRoundStart">#ff3010</color>
+	<color name="cloudProgressRoundCenter">#f14f04</color>
+	<color name="cloudProgressRoundEnd">#ff3010</color>
+	
+	<color name="cloudProgressRoundBorder">#4b504c</color>
+	
+	
 	<color name="cloudProgressCommentBarBgOff">#AA2EC9FF</color>
 	<color name="cloudProgressCommentBarBgOn">#3D00C1</color>
 
 	<color name="listSeperator">#FF333333</color>
+	<color name="horizontalRule">#FF777777</color>
 
 	<color name="menuBackground">#7fff0000</color>
 	<color name="tabFocused">#7fff0000</color>

@@ -8,7 +8,7 @@
 	        android:layout_alignParentRight="true"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"/> 
-	   	<com.soundcloud.utils.RemoteImageView
+	   	<com.soundcloud.android.view.RemoteImageView 
 			android:layout_alignParentLeft="true"
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
 			android:layout_toRightOf="@id/icon"
 			android:layout_below="@id/duration" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:indeterminate="false"
-			style="@style/ScProgressBarSmall" />
+			style="@style/ScProgressBarRound" />
 		<TextView android:layout_width="wrap_content"
 			android:paddingTop="2dip" android:paddingRight="5dip"
 			android:paddingBottom="2dip" android:layout_below="@id/progress_bar"

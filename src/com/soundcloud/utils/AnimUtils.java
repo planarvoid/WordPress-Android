@@ -1,9 +1,16 @@
 package com.soundcloud.utils;
 
-import android.app.*;
-import android.content.*;
-import android.view.*;
-import android.view.animation.*;
+import android.app.Activity;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
 
 /**
  * AnimationUtils is a helper class to make it easy to apply certain animation effects to layouts and components.

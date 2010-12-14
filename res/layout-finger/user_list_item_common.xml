@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/RelativeLayout01"
+	android:orientation="vertical" android:layout_width="fill_parent" 
+	android:layout_height="wrap_content" android:gravity="center_vertical">
+	<com.soundcloud.android.view.RemoteImageView 
+		android:layout_alignParentLeft="true"
+		android:layout_width="47dip" 
+		android:layout_height="47dip"
+		android:id="@+id/icon" />
+	<RelativeLayout
+		android:id="@+id/stats" 	
+		android:layout_width="wrap_content" 
+		android:layout_alignParentRight="true" 
+		android:layout_height="fill_parent">
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:id="@+id/tracks" 
+			android:paddingTop="5dip" 
+			android:text="track count"
+			style="@style/txt_list_sub"  />
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+	        android:layout_below="@+id/tracks"
+	        android:paddingTop="2dip" 
+			android:id="@+id/followers" 
+			android:text="follower count"
+			style="@style/txt_list_sub" />
+	</RelativeLayout>
+	<TextView android:layout_height="wrap_content" 
+		android:paddingTop="5dip" 
+		android:paddingLeft="10dip" 
+		android:id="@+id/username"
+		style="@style/txt_list_main" 
+		android:ellipsize="marquee"
+        android:layout_toRightOf="@id/icon"
+		android:text="username" 
+		android:textSize="14sp" android:layout_width="fill_parent" 
+		android:layout_toLeftOf="@id/stats" android:lines="1"/>
+	<TextView android:layout_height="wrap_content"
+		style="@style/txt_list_sub" 
+		android:id="@+id/location"
+		android:paddingLeft="10dip" 
+		android:text="location"
+		android:ellipsize="marquee"
+        android:layout_below="@+id/username"
+		android:layout_width="fill_parent"
+		android:layout_toRightOf="@id/icon"
+		android:layout_toLeftOf="@+id/stats" android:singleLine="false" android:lines="1"/>
+	
+	
+</RelativeLayout>
