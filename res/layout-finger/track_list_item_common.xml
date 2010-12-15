@@ -17,28 +17,33 @@
 			 	android:layout_toRightOf="@id/icon"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"/>
-			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" 
-				style="@style/txt_list_main" 
-				android:singleLine="true"
-            	android:ellipsize="marquee"
-				android:paddingTop="5dip"
-				android:id="@+id/track"
-				android:layout_alignWithParentIfMissing="true"
+		    <LinearLayout android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" 
+		        android:id="@+id/track_layout"
+		        android:paddingTop="5dip"
 		        android:layout_toRightOf="@id/play_indicator"
-				android:text="track" />
-			<ImageView android:id="@+id/private_indicator"
-			 	android:src="@drawable/prvt"
-			 	android:scaleType="center"
-			 	android:layout_toRightOf="@id/track"
-		        android:layout_width="46dip"
-		        android:layout_height="14dip" android:layout_alignBottom="@+id/track"/>
+		        android:orientation="horizontal">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" 
+					style="@style/txt_list_main" 
+					android:singleLine="true"
+	            	android:ellipsize="marquee"
+					android:id="@+id/track"
+					android:text="track" 
+					android:layout_weight="1"/>
+				<ImageView android:id="@+id/private_indicator"
+					android:layout_marginTop="3dip"
+				 	android:src="@drawable/very_private"
+				 	android:scaleType="center"
+			        android:layout_width="46dip"
+			        android:layout_height="14dip" />
+		    </LinearLayout>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" 
 				style="@style/txt_list_sub_secondary"
 				android:layout_alignWithParentIfMissing="true"
 				android:id="@+id/track_by"
-		        android:layout_below="@id/track"
+		        android:layout_below="@id/track_layout"
 		        android:paddingRight="0dip"
 		        android:layout_toRightOf="@id/icon"
 		        android:text="@string/track_by" />
@@ -50,6 +55,6 @@
 				android:singleLine="true"
             	android:ellipsize="marquee" 
 				android:layout_width="fill_parent"
-				android:layout_below="@id/track" />
+				android:layout_below="@id/track_layout" />
 		</RelativeLayout>
 </merge>

@@ -290,8 +290,8 @@ public class Recorder
 	                	if (mDosRec != null){
 	                		mDosRec.write(buffer[idxBuffer] & 0xff);
 	                		mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
-	                		mDosRec.write(buffer[idxBuffer] & 0xff);
-	                		mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
+	                		//mDosRec.write(buffer[idxBuffer] & 0xff);
+	                		//mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
 	                	}
 	                	 
 	                	

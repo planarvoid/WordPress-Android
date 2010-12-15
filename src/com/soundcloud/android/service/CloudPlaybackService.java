@@ -36,6 +36,7 @@ import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.soundcloud.android.CloudCommunicator;
@@ -617,6 +618,9 @@ public class CloudPlaybackService extends Service {
 				return;
 			}
 
+			if (!CloudUtils.isTrackPlayable(track))
+				return;
+			
 			mFileToPlay = track.getData(Track.key_play_url);
 
 			if (!mFileToPlay.contentEquals(track
@@ -635,6 +639,8 @@ public class CloudPlaybackService extends Service {
 			mIsAsyncOpening = true;
 			mPlayer.setDataSourceAsync(mFileToPlay);
 
+			Log.i("MEDIA","Set data source to: " + mFileToPlay);
+			
 			if (track.comments == null) {
 				if (mLoadCommentsTask != null) {
 					mLoadCommentsTask.cancel(true);

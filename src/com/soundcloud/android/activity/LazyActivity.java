@@ -53,7 +53,9 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.service.ICloudUploaderService;
 
 public abstract class LazyActivity extends Activity implements OnItemClickListener, OnItemSelectedListener {
 	private static final String TAG = "LazyActivity";
@@ -80,6 +82,8 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 
 	
 	protected ICloudPlaybackService mService = null;
+	private ICloudUploaderService mUploadService = null;
+	
 	private Exception mException = null;
 	private String mError = null;
 	protected Comment addComment;
@@ -156,14 +160,28 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		restoreState();
 		initLoadTasks(); 
 	}
-	
 	public CloudCommunicator getCloudComm(){
 		return mCloudComm;
+	}
+	
+
+	public ICloudPlaybackService getPlaybackService(){
+		return mService;
+	}
+	
+	
+	public ICloudUploaderService getUploadService(){
+		return mUploadService;
 	}
 	
 	public SharedPreferences getPreferences(){
 		return mPreferences;
 	}
+	
+public void mapDetails(Parcelable p){
+		
+	}
+	
 	
 	public ProgressDialog getProgressDialog() {
 		return mProgressDialog;
@@ -186,6 +204,12 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	protected void onStart() {
     	super.onStart();
     	
+    	Log.i(TAG,"on start, about to bind to service " + CloudUploaderService.class);
+    	
+    	//start it so it is persistent outside this activity, then bind it
+		startService(new Intent(this, CloudUploaderService.class));
+		bindService(new Intent(this, CloudUploaderService.class), uploadOsc,0);
+    	
 		if (false == CloudUtils.bindToService(this, osc)) {
 			// something went wrong
 			//mHandler.sendEmptyMessage(QUIT);
@@ -195,6 +219,8 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	@Override
 	protected void onStop() {
     	super.onStop();
+    	
+    	this.unbindService(uploadOsc);
     	
 		CloudUtils.unbindFromService(this);
 		mService = null;
@@ -289,8 +315,9 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	public void onItemClick(AdapterView<?> list, View row, int position, long id) {
 		
-		Log.i("DEBUG","On item click " + ((LazyBaseAdapter) list.getAdapter()).getData());
-		
+		if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0)
+			return;
+			
 		if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event){
 			this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(),position);	
 		} else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User){
@@ -469,34 +496,34 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	private ServiceConnection osc = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName classname, IBinder obj) {
-			Log.i("ScPlayer", "ON SERVICE BOUND osc");
 			mService = ICloudPlaybackService.Stub.asInterface(obj);
 			onServiceBound();
-			
-			
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName classname) {
-
 			onServiceUnbound();
 			mService = null;
 		}
 
 	};
+	
+	private ServiceConnection uploadOsc = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			mUploadService = (ICloudUploaderService) binder;
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+		}
+
+	};
+    
 
 	
 	
 
 	
 	
-	public ICloudPlaybackService getPlaybackService(){
-		return mService;
-	}
-	
-	public void mapDetails(Parcelable p){
-		
-	}
 	
 
 

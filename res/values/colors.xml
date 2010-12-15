@@ -16,6 +16,9 @@
 	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
 	<color name="playerArtworkBackground">#FF666666</color>
 	
+	<color name="createBackground">#FF333333</color>
+	<color name="progressDarkAlphaBackground">#AA000000</color>
+	
 	<color name="userHeaderBackground">#FFEEEEEE</color>
 
 	<color name="cloudProgressBackgroundStart">#AA666666</color>

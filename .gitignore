@@ -2,6 +2,6 @@
 .DS_Store
 .svn
 
-# output foldersr
+# output folders
 bin/
 gen/

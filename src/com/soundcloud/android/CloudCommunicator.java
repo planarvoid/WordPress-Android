@@ -191,6 +191,8 @@ public class CloudCommunicator {
 	}
 
 	public final Intent getAuthorizationIntent() throws Exception {
+		
+		Log.i(TAG,"Getting auth intent");
 		if (api.getState() == SoundCloudAPI.State.AUTHORIZED) {
 			return null;
 		}

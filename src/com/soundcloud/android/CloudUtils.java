@@ -276,7 +276,7 @@ public class CloudUtils {
 		
 		protected static FrameLayout createTabLayout(Context context, Boolean scrolltabs){
 			FrameLayout tabLayout = new FrameLayout(context);
-			tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+			tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 			
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			if (scrolltabs)
@@ -317,8 +317,6 @@ public class CloudUtils {
 		{
 			TabHost.TabSpec spec;
 		    
-			Log.i("ASDF","Create New Tab with drawable " + indicatorIcon);
-			
 		    spec = tabHost.newTabSpec(tabId);
 		    if (indicatorIcon == null)
 		    	spec.setIndicator(indicatorText);
@@ -391,7 +389,6 @@ public class CloudUtils {
 	    
 	    
 		public static Boolean isTrackPlayable(Track track){
-			Log.i("DEBUG","Checking streamable " + track.getData(Track.key_streamable).toString());
 			if (track.getData(Track.key_streamable).toString().equalsIgnoreCase("true")){
 				return true;
 			}
@@ -641,8 +638,6 @@ public class CloudUtils {
 	    	
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
-			
-			Log.i(TAG,"Resolve Track " + track.getData(Track.key_title) + " listened: " + track.getData(Track.key_user_played));
 			
 			Cursor result = db.getTrackById(track.getData(Track.key_id), currentUserId);
 			if (result.getCount() != 0){
@@ -1463,7 +1458,6 @@ public class CloudUtils {
 		}
 		
 		static String getTrackWaveformPath(HashMap<String, String> trackinfo) {
-			Log.i("CloudUtils","Checking waveform path " + trackinfo.get(Track.key_download_error) + " " + trackinfo.get(Track.key_local_waveform_url));
 			if (!trackinfo.get(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.get(Track.key_download_error).contentEquals("true") || trackinfo.get(Track.key_local_waveform_url).contentEquals(""))
 				return trackinfo.get(Track.key_waveform_url);
 			else
@@ -1471,7 +1465,6 @@ public class CloudUtils {
 		}
 		
 		public static String getTrackWaveformPath(Track trackinfo) {
-			Log.i("CloudUtils","Checking waveform path " + trackinfo.getData(Track.key_download_error) + " " + trackinfo.getData(Track.key_local_waveform_url));
 			if (!trackinfo.getData(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.getData(Track.key_download_error).contentEquals("true") || trackinfo.getData(Track.key_local_waveform_url).contentEquals(""))
 				return trackinfo.getData(Track.key_waveform_url);
 			else
@@ -1574,6 +1567,17 @@ public class CloudUtils {
 			builder.append(CACHE_DIRECTORY);
 			builder.append(url.hashCode()).append(".mp3");
 			return builder.toString();
+		}
+		
+		public static String toTitleCase(String str){
+		
+			str = str.toLowerCase();
+			int intTmp = (int)str.charAt(0) - 32;
+			
+			char[] carray = str.toCharArray();
+			carray[0] = (char)intTmp;
+			
+			return String.valueOf(carray);
 		}
 		
 

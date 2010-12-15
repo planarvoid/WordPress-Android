@@ -50,6 +50,8 @@ public class Main extends LazyTabActivity {
 	private ScCreate mScCreate;
 	private ScSearch mScSearch;
 	
+	private Boolean initialAuth = true;
+	
 	
 	protected interface Tabs {
 		public final static String TAB_INCOMING = "incoming";
@@ -136,6 +138,7 @@ public class Main extends LazyTabActivity {
 		
 		
 		if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED){
+			initialAuth = false;
 			
 			FrameLayout tabLayout = CloudUtils.createTabLayout(this);
 			tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
@@ -401,7 +404,12 @@ public class Main extends LazyTabActivity {
 	    			//((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
 	    		//}
     		} else {
-    			if (CloudUtils.stringNullEmptyCheck(oAuthToken)){
+    			if (CloudUtils.stringNullEmptyCheck(oAuthToken) && !initialAuth){
+    				
+    				
+    				
+    				
+    				
     				try {
     					startActivity(mCloudComm.getAuthorizationIntent());
     				} catch (Exception e) {
@@ -438,16 +446,31 @@ public class Main extends LazyTabActivity {
 	
 	
     
-	@Override
+	
+    @Override
 	public void onSaveInstanceState(Bundle outState) 
     {
+    	Log.i(TAG,"On Save Instance State " + mScCreate);
+		if (mScCreate != null){
+			outState.putString("currentCreateStateIndex", Integer.toString(mScCreate.getCurrentState()));	
+		}
+        
         super.onSaveInstanceState(outState); 
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) 
     {
-        super.onRestoreInstanceState(savedInstanceState);
+    	
+    	Log.i(TAG,"On Restore Instance State " + mScCreate);
+        
+
+		if (mScCreate != null){
+			String currentCreateStateIndex = savedInstanceState.getString("currentCreateStateIndex");  
+			mScCreate.setCurrentState(Integer.parseInt(currentCreateStateIndex));
+		}
+        
+		super.onRestoreInstanceState(savedInstanceState);
     }
 
     

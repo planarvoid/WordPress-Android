@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -120,6 +121,8 @@ public class TracklistRow extends LazyRow {
 			mTitle.setText(mTrack.getData(Track.key_title));
 			mUser.setText(mTrack.getData(Track.key_username));
 			//mDuration.setText(mTrack.getData(Track.key_duration_formatted));\\
+			
+			//Log.i(TAG,"Setting streamable " + mTrack.getData(Track.key_streamable));
 			
 			if (!CloudUtils.isTrackPlayable(mTrack)){
 				mTitle.setTextAppearance(mContext, R.style.txt_list_main_inactive);

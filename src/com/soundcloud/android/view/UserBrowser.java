@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -38,6 +39,7 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.view.ScCreate.CreateState;
 import com.soundcloud.utils.AsyncRequest.Client;
 import com.soundcloud.utils.AsyncRequest.ResponseListener;
 
@@ -209,6 +211,14 @@ public class UserBrowser extends ScTabView {
 		build();
 	}
 	
+	@Override
+	public void onStart() {
+    	super.onStart();
+    	
+    	//initLoadTasks();
+    	
+    }
+	
 
 	public void initLoadTasks(){
 		
@@ -336,6 +346,8 @@ public class UserBrowser extends ScTabView {
 	private void toggleFollowing(){
 
 		mFavorite.setEnabled(false);
+		_isFollowing = !_isFollowing;
+		setFollowingButtonText();
 		
 		 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
         Thread t = new Thread() {
@@ -356,10 +368,10 @@ public class UserBrowser extends ScTabView {
 					if (mFollowResult != null){
 						
 						if (mFollowResult.indexOf("<user>") != -1 || mFollowResult.indexOf("200 - OK") != -1 || mFollowResult.indexOf("201 - Created") != -1){
-							_isFollowing = !_isFollowing;
+							//_isFollowing = !_isFollowing;
 						} 
 					}
-					mActivity.mHandler.post(mUpdateFollowing);
+					//mActivity.mHandler.post(mUpdateFollowing);
             }
         };
         t.start();	

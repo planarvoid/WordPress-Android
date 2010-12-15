@@ -43,7 +43,7 @@ public class Event extends BaseObj implements Parcelable  {
 	public Event(JSONObject eventObject){
 
 		data = new Bundle();
-		Log.i("EVENT","Event obj " + eventObject.toString());
+		//Log.i("EVENT","Event obj " + eventObject.toString());
 		
 		try {
 			

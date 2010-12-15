@@ -1,28 +1,24 @@
 package com.soundcloud.android.view;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.urbanstew.soundcloudapi.ProgressFileBody;
+import java.util.HashMap;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.BitmapFactory;
+import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.os.Environment;
+import android.media.AudioTrack;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
@@ -31,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -38,18 +35,12 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.CloudUtils.Dialogs;
 import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.task.VorbisEncoderTask;
+import com.soundcloud.android.task.PCMPrepareTask;
 import com.soundcloud.utils.AnimUtils;
 import com.soundcloud.utils.PowerGauge;
 import com.soundcloud.utils.Recorder;
 public class ScCreate extends ScTabView {
-
-
-	
-
 
 	// Debugging tag.
     @SuppressWarnings("unused")
@@ -66,6 +57,7 @@ public class ScCreate extends ScTabView {
     private TextView txtInstructions;
     private LinearLayout mFileLayout;
     private FrameLayout mGaugeHolder;
+    private RelativeLayout mProgressFrame;
     private PowerGauge mPowerGauge;
     private SeekBar mProgressBar;
     
@@ -82,23 +74,32 @@ public class ScCreate extends ScTabView {
     private Button btnUpload;
     
     private File mRecordFile;
-    private File mOggFile;
+    private File mWavFile;
     private String mArtworkUri;
     
     private LazyActivity mActivity;
     
     private CreateState mLastState;
     private CreateState mCurrentState;
-    private Chronometer mChronometer;
+    private CreateState mStoredState;
+    
+    private Chronometer mPlayChrono;
+    private Chronometer mRecChrono;
+    private TextView mChronoSep;
     
 	public enum CreateState { idle_record, record, idle_playback, playback, idle_upload, upload }
     
-	MediaPlayer mMediaPlayer;
-	
-	private Boolean isPlayingBack;
+	private Boolean isPlayingBack = false;
 	private Handler mHandler = new Handler();
 	
 	private Thread uploadThread;
+	
+	private int mPlaybackLength;
+	
+	private AudioTrack playbackTrack;
+	private PCMPrepareTask prepareTask;
+	
+
 	
 
     // ******************************************************************** //
@@ -140,10 +141,20 @@ public class ScCreate extends ScTabView {
 		mGaugeHolder = (FrameLayout) findViewById(R.id.gauge_holder);
 		txtInstructions = (TextView) findViewById(R.id.txt_instructions);
 		mProgressBar = (SeekBar) findViewById(R.id.progress_bar);
-		mChronometer = (Chronometer) findViewById(R.id.chronometer);
-		mChronometer.setVisibility(View.GONE);
+		
+		mRecChrono = (Chronometer) findViewById(R.id.recChronometer);
+		mRecChrono.setVisibility(View.GONE);
+		
+		mPlayChrono = (Chronometer) findViewById(R.id.playChronometer);
+		mPlayChrono.setVisibility(View.GONE);
+		
+		mChronoSep = (TextView) findViewById(R.id.txtChronoSeparator);
+		mPlayChrono.setVisibility(View.GONE);
+		
 		mProgressBar.setOnSeekBarChangeListener(mSeekListener);
-
+		
+		mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
+		mProgressFrame.setVisibility(View.GONE);
 		
 		btnAction = (ImageButton) findViewById(R.id.btn_action);
 		btnAction.setOnClickListener(new View.OnClickListener() {
@@ -190,6 +201,9 @@ public class ScCreate extends ScTabView {
 		mWhatText = (EditText) findViewById(R.id.what);
 		mWhereText = (EditText) findViewById(R.id.where);
 		
+		mWhatText.setOnFocusChangeListener(txtFocusListener);
+		mWhereText.setOnFocusChangeListener(txtFocusListener);
+		
 		mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
 		
 		mArtwork.setOnClickListener(new View.OnClickListener() {
@@ -215,44 +229,117 @@ public class ScCreate extends ScTabView {
     	mRecorder.setPowerGauge(mPowerGauge);
     	mGaugeHolder.addView(mPowerGauge);
     	
-    	
-
-    	mMediaPlayer = new MediaPlayer();
-    	try {
-	        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-	        mMediaPlayer.setOnPreparedListener(preparedlistener);
-	    	mMediaPlayer.setOnBufferingUpdateListener(bufferinglistener);
-	    	mMediaPlayer.setOnCompletionListener(completeListener);
-	        
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
 		restoreRecordings();
 	}
+    
+    public int getCurrentState(){
+    	Log.i(TAG,"Get Current State " + mCurrentState);
+    	switch (mCurrentState){
+    	case idle_record:
+    		return 0;
+    	case record:
+    		return 1;
+    	case idle_playback:
+    		return 2;
+    	case playback:
+    		return 3;
+    	case idle_upload:
+    		return 4;
+    	case upload:
+    		return 5;
+    	}
+		return 0;
+    }
+    
+    public void setCurrentState(int state){
+    	Log.i(TAG,"Activate Current State " + state);
+    	switch (state){
+    	case 0:
+    		mCurrentState = CreateState.idle_record;
+    			break;
+    	case 1:
+    		mCurrentState = CreateState.record;
+    			break;
+    	case 2:
+    		mCurrentState = CreateState.idle_playback;
+    			break;
+    	case 3:
+    		mCurrentState = CreateState.playback;
+    			break;
+    	case 4:
+    		mCurrentState = CreateState.idle_upload;
+    			break;
+    	case 5:
+    		mCurrentState = CreateState.upload;
+    			break;
+    	
+    	}
+		activateState();
+    }
+    
     
     @Override
 	public void onStart() {
     	super.onStart();
-    	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     	
-    	if (!mOggFile.exists()){
+    	if (!mWavFile.exists()){
     		  mCurrentState = CreateState.idle_record;
     	} else {
-    		preparePlayback();
+    		//preparePlayback();
     	}
     	
     	activateState();
     	
     }
     
+    /*public void setCurrentState(int state){
+    	Log.i(TAG,"Activate Current State " + state);
+    	switch (state){
+    	case 0:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	case 1:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	case 2:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	case 3:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	case 4:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	case 5:
+    		mStoredState = mCurrentState = CreateState.idle_record;
+    			break;
+    	
+    	}
+		
+    }
+    
+    
+    @Override
+	public void onStart() {
+    	super.onStart();
+    	
+    	Log.i(TAG,"On Start " + mStoredState);
+    	
+    	if (mStoredState != null){
+    		mCurrentState = mStoredState;
+    	} if (!mWavFile.exists()){
+    		  mCurrentState = CreateState.idle_record;
+    	} else {
+    		//preparePlayback();
+    	}
+    	
+    	activateState();
+    	
+    }*/
+    
+    
     @Override
     public void onStop() {
-    	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); 
     }
     
     
@@ -268,17 +355,23 @@ public class ScCreate extends ScTabView {
     	mArtworkInstructions.setText(mActivity.getResources().getString(R.string.record_artwork_instructions));
     }
     
+    public void hideProgressFrame(){
+    	mProgressFrame.setVisibility(View.GONE);
+    }
     
+    public void showProgressFrame(){
+    	mProgressFrame.setVisibility(View.VISIBLE);
+    }
     
     
     private void restoreRecordings(){
-    	mRecordFile = new File(Environment.getExternalStorageDirectory() + "/temp_rec_44100.pcm" );
-	  	mOggFile = new File(Environment.getExternalStorageDirectory() + "/temp_ogg.ogg");
+    	mRecordFile = new File(mActivity.getCacheDir() + "/rec.pcm" );
+    	mWavFile = new File(mActivity.getCacheDir() + "/rec.wav");
 	  	
 	  	//reset the pcm and wav files just in case they are taking up space
 	  	clearSourceFiles();
 	  	
-	  	if (mOggFile.exists()){
+	  	if (mWavFile.exists()){
 	  		
 	  		mCurrentState = CreateState.idle_playback;
 	  		activateState();
@@ -289,7 +382,7 @@ public class ScCreate extends ScTabView {
     
     private void clearRecording(){
     	clearSourceFiles();
-    	if (mOggFile.exists()) mOggFile.delete();
+    	if (mWavFile.exists()) mWavFile.delete();
     }
     
     private void clearSourceFiles(){
@@ -328,6 +421,7 @@ public class ScCreate extends ScTabView {
     	switch (mCurrentState){
 			case idle_record:
 				flipLeft();
+				clearPlaybackTrack();
 				
 				mWhereText.setText("");
 				mWhatText.setText("");
@@ -335,7 +429,11 @@ public class ScCreate extends ScTabView {
 				
 				btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_states));
 				mFileLayout.setVisibility(View.GONE);
-				mChronometer.setVisibility(View.GONE);
+				
+				mRecChrono.setVisibility(View.GONE);
+				mPlayChrono.setVisibility(View.GONE);
+				mChronoSep.setVisibility(View.GONE);
+				
 				mProgressBar.setVisibility(View.GONE);
 				mPowerGauge.setVisibility(View.GONE);
 				txtInstructions.setVisibility(View.VISIBLE);
@@ -347,8 +445,13 @@ public class ScCreate extends ScTabView {
 				flipLeft();
 				btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_stop_states));
 				txtInstructions.setVisibility(View.GONE);
-				mChronometer.setBase(SystemClock.elapsedRealtime());
-				mChronometer.setVisibility(View.VISIBLE);
+				
+				mRecChrono.setBase(SystemClock.elapsedRealtime());
+				mRecChrono.setVisibility(View.VISIBLE);
+				
+				mPlayChrono.setVisibility(View.GONE);
+				mChronoSep.setVisibility(View.GONE);
+				
 				mPowerGauge.setVisibility(View.VISIBLE);
 				
 				if (takeAction)
@@ -358,6 +461,11 @@ public class ScCreate extends ScTabView {
 				
 			case idle_playback:
 				flipLeft();
+				
+				mRecChrono.setVisibility(View.VISIBLE);
+				mPlayChrono.setVisibility(View.GONE);
+				mChronoSep.setVisibility(View.GONE);
+				
 				if (takeAction) {
 					if (mLastState == CreateState.record) stopRecording();
 					if (mLastState == CreateState.playback) pausePlayback();
@@ -365,14 +473,18 @@ public class ScCreate extends ScTabView {
 				btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_play_states));
 				txtInstructions.setVisibility(View.GONE);
 				mFileLayout.setVisibility(View.VISIBLE);
-				mChronometer.setVisibility(View.GONE);
 				mPowerGauge.setVisibility(View.GONE);
 				mProgressBar.setVisibility(View.VISIBLE);
 				break;
 				
 			case playback:
 				flipLeft();
-				btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_pause_states));
+				
+				mRecChrono.setVisibility(View.VISIBLE);
+				
+				
+				btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_stop_states));
+				//btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_pause_states));
 				if (takeAction) 
 					startPlayback();
 				break;
@@ -382,6 +494,7 @@ public class ScCreate extends ScTabView {
 				break;	
 			
 			case upload:
+				clearPlaybackTrack();
 				flipRight();
 				startUpload();
 				break;	
@@ -417,7 +530,7 @@ public class ScCreate extends ScTabView {
     	
     	mRecorder.activate();
 		mRecorder.startRecording(mRecordFile);
-		mChronometer.start();
+		mRecChrono.start();
     }
     
     private void stopRecording(){
@@ -426,124 +539,111 @@ public class ScCreate extends ScTabView {
     	btnAction.setEnabled(false);
     	
 		mRecorder.stopRecording();
-		mChronometer.stop();
-		
+		mRecChrono.stop();
 		mRecorder.deactivate();
+	
 		
-		/*EncodePCMTask processTask = new EncodePCMTask();
-		processTask.activity = mActivity;
-		processTask.createRef = this;
-		processTask.execute(mRecordFile.getAbsolutePath(), mWavFile.getAbsolutePath());*/
 		
-		EncodeVorbisTask processTask = new EncodeVorbisTask();
-		processTask.activity = mActivity;
-		processTask.createRef = this;
-		processTask.waveFileSize = (int) mRecordFile.length();
-		processTask.execute(mRecordFile.getAbsolutePath(), mOggFile.getAbsolutePath());
+		
     }
     
-   
-    private void preparePlayback(){
-    	
-    	
-    	if (mOggFile == null){
-    		// TODO Put in error message
-    		mCurrentState = CreateState.idle_record;
-        	activateState(false);
-    		btnAction.setEnabled(true);
-    		return;
-    	}
-    	
-    	
-    	
-    	mMediaPlayer.reset();
-    	
-    	try {
-        	FileInputStream fis = new FileInputStream(mOggFile);
-			mMediaPlayer.setDataSource(fis.getFD());
-	        mMediaPlayer.prepareAsync();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-    }
+   private void clearPlaybackTrack(){
+	   if (prepareTask != null){
+   		if (!CloudUtils.isTaskFinished(prepareTask))
+   			prepareTask.cancel(true);
+   		}
+	   
+	   if (playbackTrack != null){
+		   playbackTrack.release();
+		   playbackTrack = null;
+	   }
+	   
+   }
     
    private void startPlayback(){
-	   mMediaPlayer.start();
-   	
-   		isPlayingBack = true;
-   		// Start lengthy operation in a background thread
-   		new Thread(new Runnable() {
-           public void run() {
-               while (isPlayingBack) {
-               	if (!mDragging){
-               		playbackPosition = mMediaPlayer.getCurrentPosition();
-               	    // Update the progress bar
-                   mHandler.post(new Runnable() {
-                       public void run() {
-                    	   
-                    	   if (!mDragging && isPlayingBack)
-                           mProgressBar.setProgress(playbackPosition);
-                    	   
-                       }
-                   });
-                   
-                   try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();} 
-               	}
-               }
-           }
-   		}).start();
-   }
-    
-   private void pausePlayback(){
-	   	if (mMediaPlayer.isPlaying())
-				mMediaPlayer.pause();
+	   Log.i("CHRONO","Length : " + mRecordFile.length());
+	   mPlaybackLength = (int) Math.floor(mRecordFile.length()/(44100*2));
+		Log.i("CHRONO","Length : " + mPlaybackLength);
+	   
+	   Log.i(TAG,"Start Playback " + playbackTrack);
+	   if (playbackTrack != null){
+		   clearPlaybackTrack();
+	   } 
+	   
+	   int minSize =AudioTrack.getMinBufferSize( 44100, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );        
+		playbackTrack = new AudioTrack( AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, minSize, AudioTrack.MODE_STREAM);
+		playbackTrack.play();
+		
+	   	prepareTask = new PCMPrepareTask();
+	   	prepareTask.pcmFile = mRecordFile;
+	   	prepareTask.minSize = minSize;
+	   	prepareTask.playbackTrack = playbackTrack;
+	   	prepareTask.execute();
 	   	
-	   	isPlayingBack = false;
+	   	mProgressBar.setMax((int) (mRecordFile.length()/2));
+	   
+	   isPlayingBack = true;
+	   startProgressTracker();
+	   
+	  
+	   mPlayChrono.setBase(SystemClock.elapsedRealtime());
+	   mPlayChrono.start();
+	   mPlayChrono.setVisibility(View.VISIBLE);
+	   mChronoSep.setVisibility(View.VISIBLE);
    }
    
+   private void pausePlayback(){
+	   	playbackTrack.pause();
+	   	isPlayingBack = false;
+	    
+	   	mPlayChrono.stop();
+		
+	   	mProgressBar.setProgress(0);
+  }
+   
+   private void startProgressTracker(){
+	// Start lengthy operation in a background thread
+  		new Thread(new Runnable() {
+          public void run() {
+              while (isPlayingBack) {
+              	if (!mDragging){
+              		
+              		int currentPosition = (int) Math.floor(playbackTrack.getPlaybackHeadPosition()/(44100));
+              	    
+            		// Update the progress bar
+              		mHandler.post(new Runnable() {
+                      public void run() {
+                   	   if (!mDragging && isPlayingBack){
+                          mProgressBar.setProgress(playbackTrack.getPlaybackHeadPosition());
+                   	   }
+                      }
+                  });
+                  
+              		if (playbackTrack.getPlaybackHeadPosition() == mRecordFile.length()/2){
+              			mHandler.post(new Runnable() {
+                            public void run() {
+                         	   playbackComplete();
+                            }
+                        });
+              		}
+              		
+                  try {Thread.sleep(50);} catch (InterruptedException e) {e.printStackTrace();} 
+              	}
+              }
+          }
+  		}).start();
+   }
+   
+   private void playbackComplete(){
+	   Log.i(TAG,"Playback complete");
+	   
+	   isPlayingBack = false;
+	   mProgressBar.setProgress(0);
+	   
+	   mCurrentState = CreateState.idle_playback;
+	   activateState();
+   }
     
-    
-    MediaPlayer.OnPreparedListener preparedlistener = new MediaPlayer.OnPreparedListener() {
-        public void onPrepared(MediaPlayer mp) {
-        	Log.i(TAG,"MEDIA PLAYER PREPARED ");
-        	mProgressBar.setMax(mMediaPlayer.getDuration()); 
-        	mCurrentState = CreateState.idle_playback;
-        	activateState(false);
-        	
-        }
-    };
-    
-    MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
-		public void onBufferingUpdate(MediaPlayer mp, int percent) {
-			Log.i(TAG,"MP On Buffer " + percent);
-			//mLoadPercent = percent;
-		}
-	};
-	
-	MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
-		public void onSeekComplete(MediaPlayer mp) {
-			 Log.i(TAG,"Media player seek complete");
-		}
-	};
-
-
-    MediaPlayer.OnCompletionListener completeListener = new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-        	isPlayingBack = false;
-         	mCurrentState = CreateState.idle_playback;
-    	   	activateState(false);
-    	   	mProgressBar.setProgress(0);
-    	   
-        }
-    };
     
     private int playbackPosition;
 	private long mLastSeekEventTime;
@@ -556,6 +656,11 @@ public class ScCreate extends ScTabView {
 			mLastSeekEventTime = 0;
 			mFromTouch = true;
 			mDragging = true;
+			
+			if (!isPlayingBack) {
+				mCurrentState = CreateState.playback;
+				activateState();
+			}
 		}
 
 		public void onProgressChanged(SeekBar bar, int progress,
@@ -568,7 +673,7 @@ public class ScCreate extends ScTabView {
 			long now = SystemClock.elapsedRealtime();
 			if (now - mLastSeekEventTime > 250) {
 				mLastSeekEventTime = now;
-				mMediaPlayer.seekTo(progress);
+				playbackTrack.setPlaybackHeadPosition(progress);
 			}
 		}
 
@@ -577,9 +682,11 @@ public class ScCreate extends ScTabView {
 			mDragging = false;
 		}
 	};
-    
-    private void startUpload(){
-    	Time time = new Time();
+	
+	
+	private void startUpload(){
+		
+		Time time = new Time();
     	time.setToNow();
        
     	// Calendar header
@@ -587,213 +694,56 @@ public class ScCreate extends ScTabView {
     	
     	String title = "";
     	if (!CloudUtils.stringNullEmptyCheck(mWhatText.getText().toString()) && !CloudUtils.stringNullEmptyCheck(mWhereText.getText().toString()))
-    		title = mWhatText.getText().toString() + " at " + mWhereText.getText().toString() + " on " + dayOfWeek;
+    		title = mWhatText.getText().toString() + " at " + mWhereText.getText().toString();
     	else if (!CloudUtils.stringNullEmptyCheck(mWhatText.getText().toString()))
-    		title = mWhatText.getText().toString() + " on " + dayOfWeek;
+    		title = mWhatText.getText().toString();
     	else if (!CloudUtils.stringNullEmptyCheck(mWhereText.getText().toString()))
-    		title = mWhereText.getText().toString() + " on " + dayOfWeek;
+    		title = mWhereText.getText().toString();
     	else
     		title = "recording on " + dayOfWeek;
     	
+    	 
+    	HashMap<String,String> trackdata = new HashMap<String,String>();
     	
-    	
-    	mActivity.showDialog(Dialogs.DIALOG_RECORD_UPLOADING);
-    	mActivity.getProgressDialog().setMax((int) mOggFile.length());
-    	
-    	/*mActivity.getProgressDialog().setMax((int) mWavFile.length());
-    	
-    	mActivity.getProgressDialog().setOnCancelListener(new OnCancelListener(){
-    		@Override
-			public void onCancel(DialogInterface dialog) {
-				if (uploadThread.isAlive())
-					uploadThread.interrupt();			
-			}
-    		
-    	});*/
-    	
-    	final List<NameValuePair> params = new java.util.ArrayList<NameValuePair>();
-    		
-    	 params.add(new BasicNameValuePair("track[title]", title));
-    	 //params.add(new BasicNameValuePair("track[tag_list]", "soundcloud:android-record"));
+    	 
     	 
     	 if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
-    		 params.add(new BasicNameValuePair("track[sharing]", "private"));
+    		 trackdata.put("track[sharing]", "private");
     	 } else {
-    		 params.add(new BasicNameValuePair("track[sharing]", "public"));
+    		 trackdata.put("track[sharing]", "public");
     	 }
-    	 
-    	 
-    	 final ProgressFileBody trackBody = new ProgressFileBody(mOggFile);
-    	 final ProgressFileBody artBody = mArtworkUri == null ? null : new ProgressFileBody(new File(mArtworkUri));
-    	   
-    	   uploadThread = new Thread(new Runnable()
-    	   {
-    	       public void run()
-    	               {
-    	                       try
-    	                       {
-    	                    	   mActivity.mCloudComm.getApi().upload(trackBody, params);
-    	                    	   
-    	                       } catch (Exception e)
-    	                       {
-    	                               e.printStackTrace();
-    	                       }
-    	               }
-    	       });
-    	   
-    	   uploadThread.start();
-    	   
-    	   
-    	// Start lengthy operation in a background thread
-      		new Thread(new Runnable() {
-              public void run() {
-            	  
-            	  while(uploadThread.isAlive()){
-	           		   
-	           		  //show progress using handler for ui thread
-                      mHandler.post(new Runnable() {
-                          public void run() {
-                        	  //mActivity.getProgressDialog().setProgress(artBody != null ? (int) trackBody.getBytesTransferred(): (int) trackBody.getBytesTransferred() + (int)trackBody.getBytesTransferred());
-                        	  mActivity.getProgressDialog().setProgress((int)trackBody.getBytesTransferred());
-                          }
-                      });
-                      
-                      try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
-	                  	
-	           	   }
-            	  
-            	  //show progress using handler for ui thread
-                  mHandler.post(new Runnable() {
-                      public void run() {
-                    	  mActivity.removeDialog(Dialogs.DIALOG_RECORD_UPLOADING);
-                    	  clearRecording();
-                    	  
-                   	   	  ((Main) mActivity).gotoUserTab(UserBrowser.UserTabs.tracks);
-                   	   	  //((Main) mActivity).showDialog(Dialogs.DIALOG_RECORD_UPLOADING_SUCCESS);
-                      }
-                  });
-                 
-              }
-      		}).start();
-
-    	}
-    
-
-   
-    
-    
-   
-    public void onOggEncodeComlete(Boolean result){
-    	mActivity.dismissDialog(Dialogs.DIALOG_PROCESSING);
-    	
-    	if (result){
-    		
-    		if (mRecordFile.exists())
-    			mRecordFile.delete();
-    		
-    		preparePlayback();
-    	} else {
-    		mActivity.showDialog(Dialogs.DIALOG_RECORD_PROCESSING_FAILED);
-    	}
-    }
-    
-   
-
-   
-    
-    
-    private class EncodeVorbisTask extends VorbisEncoderTask {
-		public LazyActivity activity;
-		public ScCreate createRef;
-		public int waveFileSize;
-
-		@Override
-		protected void onPreExecute() {
-			if (activity != null){
-				activity.showDialog(Dialogs.DIALOG_PROCESSING);
-				activity.getProgressDialog().setIndeterminate(true);
-				activity.getProgressDialog().setMax(100);
-				activity.getProgressDialog().setProgress(0);
-				activity.getProgressDialog().setTitle(activity.getResources().getString(R.string.record_preparing_wav_title));
-			}
+		
+		trackdata.put("pcm_path", mRecordFile.getAbsolutePath());
+		trackdata.put("track[title]", title);
+		
+		try {
+			((LazyActivity) mActivity).getUploadService().uploadTrack(trackdata);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			Log.i(TAG,"On progress update " + activity.getResources().getString(R.string.record_encoding_wav_title));
-			activity.getProgressDialog().setTitle(activity.getResources().getString(R.string.record_encoding_wav_title));
-			activity.getProgressDialog().setIndeterminate(false);
-			activity.getProgressDialog().setMax(progress[1]);
-			activity.getProgressDialog().setProgress(progress[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			if (createRef != null) createRef.onOggEncodeComlete(result);
-		}
+		
+		mCurrentState = CreateState.idle_record;
+		activateState();
 	}
-    
-/*
-    
-     public void onWavEncodeComplete(Boolean result){
-    	if (result){
-    		//if (mRecordFile.exists())
-        		//mRecordFile.delete();
-        	
-    		EncodeVorbisTask processTask = new EncodeVorbisTask();
-    		processTask.activity = mActivity;
-    		processTask.createRef = this;
-    		processTask.waveFileSize = (int) mWavFile.length();
-    		processTask.execute(mRecordFile.getAbsolutePath(), mOggFile.getAbsolutePath());
-    	} else {
-    		mActivity.dismissDialog(Dialogs.DIALOG_PROCESSING);
-    		mActivity.showDialog(Dialogs.DIALOG_RECORD_PROCESSING_FAILED);
-    	}
-    }
-    
-    
-    private class EncodePCMTask extends WavEncoderTask {
-		public LazyActivity activity;
-		public ScCreate createRef;
-
-		@Override
-		protected void onPreExecute() {
-			if (activity != null){
-				activity.showDialog(Dialogs.DIALOG_RECORD_PROCESSING);
-				activity.getProgressDialog().setIndeterminate(true);
-				activity.getProgressDialog().setTitle(activity.getResources().getString(R.string.record_reading_pcm_message));
-			}
-		}
-
-
-		@Override
-		protected void onProgressUpdate(Integer... progress) {
-			Log.i(TAG,"on progress update " + activity);
-			if (activity != null){
-				if (activity.getProgressDialog() != null){
+	
+	
+    private OnFocusChangeListener txtFocusListener = new View.OnFocusChangeListener() {
+		public void onFocusChange(View v, boolean hasFocus) {
+			InputMethodManager mgr = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+			if (hasFocus == false){
+				
+				if (!CloudUtils.stringNullEmptyCheck(((TextView) v).getText().toString()))
+					((TextView) v).setText(CloudUtils.toTitleCase(((TextView) v).getText().toString()));
 					
-					//progress[0] represents what stage the task is in
-					switch (progress[0]){
-						case stages.reading:
-							activity.getProgressDialog().setIndeterminate(false);
-							activity.getProgressDialog().setMax(progress[2]);
-							activity.getProgressDialog().setProgress(progress[1]);
-							break;
-							
-						case stages.writing:
-							activity.getProgressDialog().setIndeterminate(false);
-							activity.getProgressDialog().setMessage(activity.getResources().getString(R.string.record_writing_wav_message));
-							break;
-					}
-				}
+				if (mgr != null) 
+					mgr.hideSoftInputFromWindow(mWhatText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 			}
 		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			if (createRef != null) createRef.onWavEncodeComplete(result);
-		}
-	}*/
+	};
+	
+	
+	
+	
 	
 }

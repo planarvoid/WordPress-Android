@@ -23,7 +23,6 @@ public class HTTPThread extends Thread {
 	private SoftReference<Handler> mHandler;
 
 	public HTTPThread(String url, String local, Handler handler) {
-		Log.e("[THREAD]", "New HTTP Thread " + url);
 		mUrl = url;
 		mLocal = local;
 		mHandler = new SoftReference<Handler>(handler);
@@ -42,7 +41,6 @@ public class HTTPThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			Log.e("[THREAD]", "New Request To " + mUrl);
 			URL request = new URL(mUrl);
 			InputStream is = (InputStream) request.getContent();
 			FileOutputStream fos = new FileOutputStream(mLocal);

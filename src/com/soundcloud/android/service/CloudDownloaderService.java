@@ -252,7 +252,7 @@ public class CloudDownloaderService extends Service {
          i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
          i.setAction(Intent.ACTION_MAIN);
         
-         notificationView = new RemoteViews(getPackageName(), R.layout.status_download);
+         notificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
          
          //CharSequence titleText = getString(R.string.cloud_downloader_event_title_track);
 		 CharSequence trackText = mDownloadingData.getData(User.key_username).toString() + " - " + mDownloadingData.getData(Track.key_title).toString();

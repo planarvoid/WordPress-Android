@@ -11,13 +11,21 @@
 	<string name="cloud_player_service_playing">Soundcloud Player Playing</string>
 	<string name="cloud_player_service_paused">Soundcloud Player Paused</string>
 	
-	<string name="cloud_downloader_notification_ticker">Download Started</string>
-	<string name="cloud_downloader_event_title_track">Soundcloud: downloading track</string>
+	<string name="cloud_downloader_notification_ticker">Upload Started</string>
+	<string name="cloud_downloader_event_title_track">Soundcloud: uploading track</string>
 	<string name="cloud_downloader_event_title_artwork">Soundcloud: downloading artwork</string>
 	<string name="cloud_downloader_event_title_waveform">Soundcloud: downloading waveform</string>
 	<string name="cloud_downloader_event_title_avatar">Soundcloud: downloading user avatar</string>
 	<string name="cloud_downloader_event_download_avatar">Downloading: %d\%%%</string>
 	<string name="percentage_format">%d\%%%</string>
+	
+	<string name="cloud_uploader_notification_ticker">Upload Started</string>
+	<string name="cloud_uploader_event_title_preparing">Preparingi audio</string>
+	<string name="cloud_uploader_event_title_encoding">Encoding audio</string>
+	<string name="cloud_uploader_event_title_uploading">Uploading audio</string>
+	<string name="cloud_uploader_event_preparing">Preparing: %d\%%%</string>
+	<string name="cloud_uploader_event_encoding">Encoding: %d\%%%</string>
+	<string name="cloud_uploader_event_uploading">Uploading: %d\%%%</string>
 	
 	<string name="track_by">by</string>
 	<string name="no_tracks_available">No Tracks Available</string>
@@ -58,7 +66,7 @@
     
     <string name="chronometer_initial_format">Initial format: <xliff:g id="initial-format">%s</xliff:g></string> 
     
-    <string name="record_instructions">share your sounds</string>
+    <string name="record_instructions">Share your Sounds</string>
     <string name="record_artwork_instructions">Add Image</string>
     <string name="record_artwork_instructions_added">Hold to remove.</string>
 	

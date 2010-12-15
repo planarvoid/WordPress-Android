@@ -396,9 +396,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		   
 		   if (v == mCommentBar){
 			   
-			   
-			   
-			// Handle touch events here...
+			   // Handle touch events here...
 			      switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			      case MotionEvent.ACTION_DOWN:
 			    	  if (mAddCommentMarker != null && mAddCommentMarker.getParent() == mWaveformHolder){
@@ -445,6 +443,17 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			   
 		   } else {
 			  
+			   
+			  
+			   switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			      case MotionEvent.ACTION_DOWN:
+			    	  if (mPlayer != null) mPlayer.seekTo(calculateSeek(event.getX()));
+			    	  break;
+			   }
+			   
+			   /*
+			   
+			   
 			   Log.i(TAG,"Handle it event.getX " + event.getX() + "|" + event.getAction());
 			   
 			      // Handle touch events here...
@@ -511,16 +520,16 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			               matrix.postScale(scale, 1, mid.x, 0);
 			            }
 			         }
-			        
+			
 			         
 			         break;
-			      }
+		   }
 			      
-			      matrix = mWaveformHolder.setMatrix(matrix);
-			      
+			     // matrix = mWaveformHolder.setMatrix(matrix);
+			              */
 		   }
 		   
-		   mWaveformHolder.invalidate();
+		   //mWaveformHolder.invalidate();
 
 	      return true; // indicate event was handled
 	   }

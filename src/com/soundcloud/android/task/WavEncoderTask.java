@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.soundcloud.utils.WaveHeader;
 
@@ -45,10 +46,14 @@ public class WavEncoderTask extends AsyncTask<String, Integer, Boolean> {
 		
 		pcmFile = new File(params[0]);
 		wavFile = new File(params[1]);
+		
+		//FileChannel source = null;
+		//FileChannel dest = null;
+		
 
     	  int musicLength = (int)(pcmFile.length());
     	  
-    	  publishProgress(0, musicLength);
+    	  //publishProgress(0, musicLength);
     	  
     	  try {
     		  
@@ -75,7 +80,7 @@ public class WavEncoderTask extends AsyncTask<String, Integer, Boolean> {
 	    	    	if (j == 0){
 	    	    		if (i > 0)
 	    	    			out.write (music);
-	    	    		publishProgress(1,i, musicLength);
+	    	    		publishProgress(i, musicLength*2);
 	    	    	}
 	    	    	
 	    	    	//music[j] = dis.readByte(); 
@@ -87,7 +92,7 @@ public class WavEncoderTask extends AsyncTask<String, Integer, Boolean> {
 	    	      i=i+4;
 	    	    }
 	    	    
-	    	    publishProgress(2,musicLength, musicLength);
+	    	    publishProgress(musicLength*2, musicLength*2);
 	    	    
 	    	    // Close the input streams.
 	    	    dis.close();

@@ -42,11 +42,10 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 	
 	@Override
 	protected String getUrl(){
-		Log.i("DEBUG","Getting url " + mNextEventsParams);
 		if (CloudUtils.stringNullEmptyCheck(mNextEventsParams))
-			return CloudCommunicator.PATH_MY_ACTIVITIES;
+			return super.getUrl();
 		else
-			return CloudCommunicator.PATH_MY_ACTIVITIES + mNextEventsParams;
+			return super.getUrl() + mNextEventsParams;
 	}
 	
 	@Override

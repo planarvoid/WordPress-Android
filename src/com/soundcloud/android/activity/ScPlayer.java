@@ -108,6 +108,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private RelativeLayout mStreamableLayout;
 	private FrameLayout mUnstreamableLayout;
 
+	private Boolean mSeeking = false;
+	
 	private Boolean showingComments;
 	protected ArrayList<Parcelable> mThreadData;
 	protected ArrayList<ArrayList<Parcelable>> mCommentData;
@@ -171,8 +173,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	}
 
 	private void initControls() {
-
-		Log.i(TAG, "Init Controls " + findViewById(R.id.transport_bar));
 
 		mTransportBar = (ViewGroup) findViewById(R.id.transport_bar);
 
@@ -251,7 +251,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 					Log.i(TAG, "CLICK SHARE");
 				}
 			});
-			
+			mShareButton.setVisibility(View.GONE);
 			
 			
 			mArtwork = (RemoteImageView) findViewById(R.id.artwork);
@@ -297,7 +297,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		super.onServiceBound();
 
 		try {
-			Log.i(TAG, "ON SERVICE BOUND " + mService.getTrack());
 			if (mService.getTrack() != null) {
 				
 				if (mService.isAsyncOpening())
@@ -578,7 +577,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		if (mArtwork != null)
 		//Log.i("DEBUG", "artwork dimensions " + mArtwork.getWidth() + " " + mArtwork.getHeight());
 
-			Log.i("DEBUG","RefreshNow 1 " + mService);
+			
 		if (mService == null) {
 			return 500;
 		}
@@ -590,16 +589,19 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				mArtwork.loadImage();
 				mPendingArtwork = null;
 			}
+			
+			if (mService == null)
+				return 500;
 
-			Log.i("DEBUG","RefreshNow 1 " + mService);
 			if (mService.loadPercent() > 0 && !_isPlaying) {
 				_isPlaying = true;
 				// mProgress.setIndeterminate(false);
 			}
+			
 
 			long pos = mPosOverride < 0 ? mService.position() : mPosOverride;
-
 			long remaining = 1000 - pos % 1000;
+			
 			if (pos >= 0 && mDuration > 0) {
 				mCurrentTime.setText(CloudUtils.makeTimeString(this, pos / 1000) + "/" + CloudUtils.makeTimeString(this, mDuration / 1000));
 				mWaveformController.setProgress(pos);
@@ -609,9 +611,14 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				mWaveformController.setProgress(0);
 			}
 
-			int loadPercent = mService.loadPercent();
+			
 
-			mWaveformController.setSecondaryProgress(loadPercent * 10);
+			if (!mSeeking) {
+				
+				int loadPercent = mService.loadPercent();
+				mWaveformController.setSecondaryProgress(loadPercent * 10);
+				
+			}
 
 			// return the number of milliseconds until the next full second, so
 			// the counter can be updated at just the right time
@@ -665,8 +672,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 
-			Log.i(TAG, "ON RECEIVE " + action);
-
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
 				resetComments();
 				updateTrackInfo();
@@ -692,6 +697,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
 				updateTrackInfo();
 			} else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
+				mSeeking = false;
+				mPosOverride = -1;
 				updateTrackInfo();
 			}
 		}
@@ -723,8 +730,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		try {
 			mService.enqueueTrack(track, CloudPlaybackService.NOW);
 			mPlayingTrack = track;
-			Log.i(TAG, "Started playback of "
-					+ mPlayingTrack.getData(Track.key_title));
 		} catch (RemoteException ex) {
 			Log.d("MediaPlaybackActivity", "couldn't start playback: " + ex);
 		}
@@ -807,9 +812,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	public void seekTo(float seekPercent) {
 
-		Log.i(TAG, "Seek To " + seekPercent + " "
-				+ mPlayingTrack.getData(Track.key_duration));
-
 		if (mService == null) {
 			return;
 		}
@@ -821,6 +823,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			if (mPlayingTrack != null) {
 				mService.seek((long) (Integer.parseInt(mPlayingTrack
 						.getData(Track.key_duration)) * seekPercent));
+				
+				mSeeking = true;
+				mPosOverride = (long) (Integer.parseInt(mPlayingTrack
+						.getData(Track.key_duration)) * seekPercent);
 				// else
 				// ((LazyActivity)
 				// this).showDialog(CloudUtils.Dialogs.DIALOG_ERROR_STREAM_NOT_SEEKABLE);
@@ -985,8 +991,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		paused = false;
 
-		Log.i(TAG, "On Start");
-
 		IntentFilter f = new IntentFilter();
 		f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
 		f.addAction(CloudPlaybackService.META_CHANGED);
@@ -1012,8 +1016,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	 */
 	@Override
 	protected void onResume() {
-		Log.i(TAG, "onResume()");
-
 		super.onResume();
 
 		updateTrackInfo();
@@ -1046,7 +1048,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	 */
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		Log.i(TAG, "onSaveInstanceState()");
 		super.onSaveInstanceState(outState);
 	}
 
@@ -1057,8 +1058,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	 */
 	@Override
 	protected void onPause() {
-		Log.i(TAG, "onPause()");
-
 		super.onPause();
 
 	}
@@ -1070,7 +1069,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	 */
 	@Override
 	protected void onStop() {
-		Log.i(TAG, "onStop()");
 		super.onStop();
 
 		paused = true;
@@ -1232,10 +1230,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		if (mPlayingTrack.getData(Track.key_user_favorite)
 				.contentEquals("true")) {
 			mFavoriteButton.setImageDrawable(getResources().getDrawable(
-					R.drawable.favorited));
+					R.drawable.ic_favorited_states));
 		} else {
 			mFavoriteButton.setImageDrawable(getResources().getDrawable(
-					R.drawable.favorite));
+					R.drawable.ic_favorite_states));
 		}
 	}
 
@@ -1311,8 +1309,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	};
 
 	private void updateFavoriteIInUi() {
-
-		Log.i("ASDF", "favorite result " + mFavoriteResult);
 
 		Boolean _success = false;
 

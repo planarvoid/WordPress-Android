@@ -223,6 +223,8 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 			fin.close();
 			fos.close();
 			
+			publishProgress(bytestotal,bytestotal);
+			
 			return true;
 			
 		} catch (Exception e) { System.out.println( "\n" + e ); e.printStackTrace(System.out); }
