@@ -16,8 +16,8 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> {
 	private static final String TAG = "VorbisEncoderTask";
 
 	public Context context;
-	public File trackFile;
-	public File artworkFile;
+	public File trackFile = null;
+	public File artworkFile = null;
 	public List<NameValuePair> trackParams;
 
 	@Override
@@ -36,6 +36,7 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> {
 	protected Boolean doInBackground(String... params) {
 		
 		final ProgressFileBody trackBody = new ProgressFileBody(trackFile);
+		final ProgressFileBody artworkBody = artworkFile == null ? null : new ProgressFileBody(artworkFile);
 		
 		final Thread uploadThread = new Thread(new Runnable()
   	   {
@@ -43,7 +44,10 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> {
                {
                    try
                    {
-                	   CloudCommunicator.getInstance(context).getApi().upload(trackBody, trackParams);
+                	   if (artworkBody == null)
+                		   CloudCommunicator.getInstance(context).upload(trackBody, trackParams);
+                	   else
+                		   CloudCommunicator.getInstance(context).upload(trackBody, artworkBody, trackParams);
                    } catch (Exception e) {
                            e.printStackTrace();
                    }
@@ -51,13 +55,16 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> {
   	       });
   	   
   	   uploadThread.start();
-		 
-
-          	  while(uploadThread.isAlive()){
-          		publishProgress((int) trackBody.getBytesTransferred(), (int) trackBody.getContentLength());
-	           		 try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
-	           	   }
-          	  return true;
+  	   
+  	  while(uploadThread.isAlive()){
+  		  if (artworkBody == null)
+  			  publishProgress((int) trackBody.getBytesTransferred(), (int) trackBody.getContentLength());
+  		  else
+  			  publishProgress((int) trackBody.getBytesTransferred() + (int) artworkBody.getBytesTransferred(), (int) trackBody.getContentLength() + (int) artworkBody.getContentLength());
+  		  
+       		 try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
+      }
+  	  return true;
           	 
 
   	}

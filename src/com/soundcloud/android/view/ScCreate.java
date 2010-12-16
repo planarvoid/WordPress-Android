@@ -201,8 +201,8 @@ public class ScCreate extends ScTabView {
 		mWhatText = (EditText) findViewById(R.id.what);
 		mWhereText = (EditText) findViewById(R.id.where);
 		
-		mWhatText.setOnFocusChangeListener(txtFocusListener);
-		mWhereText.setOnFocusChangeListener(txtFocusListener);
+		//mWhatText.setOnFocusChangeListener(txtFocusListener);
+		//mWhereText.setOnFocusChangeListener(txtFocusListener);
 		
 		mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
 		
@@ -715,6 +715,9 @@ public class ScCreate extends ScTabView {
 		
 		trackdata.put("pcm_path", mRecordFile.getAbsolutePath());
 		trackdata.put("track[title]", title);
+		
+		if (!CloudUtils.stringNullEmptyCheck(mArtworkUri))
+			trackdata.put("artwork_path", mArtworkUri);
 		
 		try {
 			((LazyActivity) mActivity).getUploadService().uploadTrack(trackdata);

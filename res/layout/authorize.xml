@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:panel="http://schemas.android.com/apk/res/org.miscwidgets"
+	android:id="@+id/auth_bg"
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="@color/createBackground" android:paddingTop="20dip" android:gravity="center_horizontal">
+<EditText android:layout_height="wrap_content" android:id="@+id/txt_username" android:background="@drawable/rec_upload_text_bg" android:layout_marginLeft="10dip" android:layout_marginRight="10dip" android:layout_width="fill_parent" android:ellipsize="end" style="@style/txt_record_input" android:gravity="center" android:clickable="true" android:inputType="text" android:fadingEdge="horizontal" android:hint="Username" layout_marginTop="10dip"></EditText>
+<EditText android:layout_height="wrap_content" android:id="@+id/txt_password"  android:background="@drawable/rec_upload_text_bg" android:layout_marginLeft="10dip" android:layout_marginRight="10dip" android:layout_width="fill_parent" android:ellipsize="end" style="@style/txt_record_input" android:gravity="center" android:inputType="text" android:hint="Password" android:layout_below="@+id/txt_username" android:layout_marginTop="10dip"></EditText>
+<Button android:id="@+id/btn_authorize" android:text="Authorize" android:layout_width="200dip" android:layout_height="wrap_content" android:layout_marginTop="30dip" android:layout_below="@id/txt_password" android:layout_centerHorizontal="true"></Button>
+</RelativeLayout>

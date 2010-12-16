@@ -215,14 +215,14 @@ public class UserBrowser extends ScTabView {
 	public void onStart() {
     	super.onStart();
     	
-    	//initLoadTasks();
+    	initLoadTasks();
     	
     }
 	
 
 	public void initLoadTasks(){
 		
-		Log.i(TAG,"Init Load Tasks " + mLoadDetailsTask);
+		Log.i("DB","NEW LOAD TASK " + mLoadDetailsTask);
 		
 		if (mLoadDetailsTask == null){
 			mLoadDetailsTask = newLoadDetailsTask();
@@ -242,6 +242,7 @@ public class UserBrowser extends ScTabView {
 		LoadTask lt = new LoadUserDetailsTask();
 		lt.loadModel = CloudUtils.Model.user;
 		lt.mUrl = getDetailsUrl();
+		Log.i("DB","LOAD DETAILS " + lt.mUrl);
 		lt.setActivity(mActivity);
 		return lt;
 	}

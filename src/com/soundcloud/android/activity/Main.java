@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -76,29 +78,11 @@ public class Main extends LazyTabActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
-		
-
-		// extract the OAUTH access token if it exists
-		Uri uri = this.getIntent().getData();
-		if(uri != null) {
-		  	oAuthToken = uri.getQueryParameter("oauth_verifier");	
-		}
-		
 		super.onCreate(savedInstanceState,R.layout.main_holder);
 
 		mLastCloudState = mCloudComm.getState();
 		
 		mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
-		
-		
-		
-		if (oAuthToken != ""){
-			mCloudComm.updateAuthorizationStatus(oAuthToken);
-			
-			build(); //rebuild with new status
-		}
-		
 		if(getIntent() != null && getIntent().getAction() != null)
         {
                 if(getIntent().getAction().equals(Intent.ACTION_SEND) && getIntent().getExtras().containsKey(Intent.EXTRA_STREAM)){
@@ -109,6 +93,54 @@ public class Main extends LazyTabActivity {
 	}
 	
 	
+
+	@Override
+    public void onResume() {
+    	super.onResume();
+    	
+    	if (_launch){
+    		_launch = false;
+    		CloudUtils.buildCacheDirs();
+    	}
+    	
+    	Uri uri = this.getIntent().getData();
+		if(uri != null) {
+			if (uri.getQueryParameter("oauth_verifier") != ""){
+				Log.i(TAG,"Updating auth state");
+				mCloudComm.updateAuthorizationStatus(uri.getQueryParameter("oauth_verifier"));
+				if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED) {
+					
+				}
+			}
+		}
+    	
+    	
+    	Log.i(TAG,"Building with " + mCloudComm.getState() + " " + mLastCloudState);
+    	
+		if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED) {
+			mHolder.setVisibility(View.VISIBLE);
+			
+    		initLoadTasks();
+    		activateLists();
+    		
+    		//for (LazyList list : mLists){
+    			//((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
+    		//}
+		} else {
+				try {
+					startActivity(mCloudComm.getAuthorizationIntent());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		mLastCloudState = mCloudComm.getState();
+    	
+
+   
+    }
+	
+	
 	public void gotoUserTab(UserBrowser.UserTabs tab){
 		tabHost.setCurrentTab(2);
 		mUserBrowser.setUserTab(tab);
@@ -116,65 +148,49 @@ public class Main extends LazyTabActivity {
 	
 	@Override
 	public void mapDetails(Parcelable p){
-		/*	SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-			String lastUserId = preferences.getString("currentUserId", ""); 
-			if ( lastUserId == "" || lastUserId != ((User) p).getData(User.key_id))
-				preferences.edit()
-				.putString("currentUserId",((User) p).getData(User.key_id))
-				.putString("currentUsername",((User) p).getData(User.key_username))
-				.commit();*/
+		
+		CloudUtils.resolveUser(this, (User) p, true, ((User) p).getData(User.key_id));
+	
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		String lastUserId = preferences.getString("currentUserId", ""); 
+		if ( lastUserId == "" || lastUserId != ((User) p).getData(User.key_id))
+			preferences.edit()
+			.putString("currentUserId",((User) p).getData(User.key_id))
+			.putString("currentUsername",((User) p).getData(User.key_username))
+			.commit();
+		
 			
-			//showRefreshBar(String.format(getString(R.string.message_logged_in_as),((User) p).getData(User.key_username)),false);
-			//mHolder.addView(mList);
 	 }
 	
 	@Override
 	protected void build(){
 		
 		mHolder = (LinearLayout) findViewById(R.id.main_holder);
-		//mHolder.removeAllViews();
+		mHolder.setVisibility(View.GONE);
 		
-		Log.i(TAG,"Building with " + mCloudComm.getState() + " " + oAuthToken);
+		initialAuth = false;
 		
+		FrameLayout tabLayout = CloudUtils.createTabLayout(this);
+		tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
+		mHolder.addView(tabLayout);
 		
-		if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED){
-			initialAuth = false;
-			
-			FrameLayout tabLayout = CloudUtils.createTabLayout(this);
-			tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
-			mHolder.addView(tabLayout);
-			
-			//
-			tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
-			tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
-			
-			// setup must be called if you are not initialising the tabhost from XML
-		   //tabHost.setup();
-		    
-			createIncomingTab();
-			createExclusiveTab();
-			createYouTab();
-			createRecordTab();
-			createSearchTab();
-			
-			CloudUtils.setTabTextStyle(this, tabWidget);
-			
+		//
+		tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
+		tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
+		
+		// setup must be called if you are not initialising the tabhost from XML
+	   //tabHost.setup();
+	    
+		createIncomingTab();
+		createExclusiveTab();
+		createYouTab();
+		createRecordTab();
+		createSearchTab();
+		
+		CloudUtils.setTabTextStyle(this, tabWidget);
+		
 
-			 tabHost.setOnTabChangedListener(tabListener);
-			
-			
-		} else {
-			
-			if (oAuthToken == null || oAuthToken == ""){
-				try {
-					startActivity(mCloudComm.getAuthorizationIntent());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-		}
+		 tabHost.setOnTabChangedListener(tabListener);
 		
 	}
 	
@@ -281,7 +297,7 @@ public class Main extends LazyTabActivity {
 	
 	@Override
 	protected void initLoadTasks(){
-		if (mUserBrowser != null) mUserBrowser.initLoadTasks();
+		//if (mUserBrowser != null) mUserBrowser.initLoadTasks();
 	}
 	
 	
@@ -384,47 +400,6 @@ public class Main extends LazyTabActivity {
         //if (mCreate != null) mCreate.onStop();
     }
     
-	@Override
-    public void onResume() {
-    	super.onResume();
-    	
-    	if (_launch){
-    		_launch = false;
-    		CloudUtils.buildCacheDirs();
-    	}
-    	
-    	Log.i(TAG,"Building with " + mCloudComm.getState() + " " + mLastCloudState);
-    	
-    	if (mCloudComm.getState() != mLastCloudState){
-    		if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED) {
-	    		initLoadTasks();
-	    		activateLists();
-	    		
-	    		//for (LazyList list : mLists){
-	    			//((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
-	    		//}
-    		} else {
-    			if (CloudUtils.stringNullEmptyCheck(oAuthToken) && !initialAuth){
-    				
-    				
-    				
-    				
-    				
-    				try {
-    					startActivity(mCloudComm.getAuthorizationIntent());
-    				} catch (Exception e) {
-    					// TODO Auto-generated catch block
-    					e.printStackTrace();
-    				}
-    			}
-    		}
-    		
-    		mLastCloudState = mCloudComm.getState();;
-    	}
-    	
-
-   
-    }
 	
 	
 	@Override

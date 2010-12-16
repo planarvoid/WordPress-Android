@@ -22,8 +22,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -84,8 +87,10 @@ public class CloudCommunicator {
 	public static String PATH_USER_PLAYLISTS = "users/{user_id}/playlists";
 	public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
 	public static SoundCloudOptions sSoundCloudOptions = 
-		//SoundCloudAPI.USE_SANDBOX;
-		SoundCloudAPI.USE_PRODUCTION;
+		SoundCloudAPI.USE_SANDBOX;
+		//SoundCloudAPI.USE_PRODUCTION;
+	//SoundCloudAPI.USE_SANDBOX.with(OAuthVersion.V2_0);
+	//SoundCloudAPI.USE_PRODUCTION.with(OAuthVersion.V2_0);
 
 	public static String formatContent(InputStream is) throws IOException {
 		if (is == null) {
@@ -433,8 +438,13 @@ public class CloudCommunicator {
 
 	}
 	
+	public HttpResponse upload(ContentBody trackBody,  List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
+    {
+            
+            return upload(trackBody,null,params);
+    }
 	
-	/* public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
+	public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
      {
              HttpPost post = new HttpPost(urlEncode("tracks", null));  
              // fix contributed by Bjorn Roche
@@ -459,7 +469,6 @@ public class CloudCommunicator {
              getHttpClient().execute(post);
              return api.performRequest(post);  
      }
-*/
 	
 
 	private String urlEncode(String resource, List<NameValuePair> params) {

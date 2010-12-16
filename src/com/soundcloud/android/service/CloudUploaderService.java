@@ -25,6 +25,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.soundcloud.android.CloudCommunicator;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LazyActivity;
@@ -280,6 +281,7 @@ public class CloudUploaderService extends Service {
 	    	    mUploadTask = new UploadOggTask();
 	    	    mUploadTask.trackFile = new File(mOggFilePath);
 	    	    mUploadTask.trackParams = params;
+	    	    if (!CloudUtils.stringNullEmptyCheck(mUploadingData.get("artwork_path"))) mUploadTask.artworkFile = new File(mUploadingData.get("artwork_path"));
 	    	    mUploadTask.execute();
 	    		
 	    	} else {

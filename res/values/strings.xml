@@ -102,6 +102,7 @@
 	
 	
 	<!-- dialog strings -->
+	<string name="authenticating_title">Authenticating</string>
 	<string name="processing_title">Processing</string>
 	<string name="record_preparing_wav_title">Preparing for encoding</string>
 	<string name="record_encoding_wav_title">Encoding wave</string>

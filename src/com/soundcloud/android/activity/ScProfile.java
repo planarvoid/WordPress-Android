@@ -20,9 +20,6 @@ public class ScProfile extends LazyActivity  {
     	
         super.onCreate(icicle,R.layout.main_holder);
         
-       
-		
-		
 	}
     
     @Override
