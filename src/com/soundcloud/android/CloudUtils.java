@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,6 +29,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
@@ -57,6 +59,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 
 import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -99,7 +102,8 @@ public class CloudUtils {
 		public static final String ARTWORK_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/artwork";
 		public static final String WAVEFORM_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/waveforms";
 		public static final String AVATAR_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/avatars";
-		public static final String CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/.soundcloud-cache/";
+		public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Android/data/com.soundcloud.android/files";
+		public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud";
 		
 		public static final int GALLERY_IMAGE_PICK_CODE = 9988;
 	    
@@ -135,10 +139,7 @@ public class CloudUtils {
 	    	public static final int DIALOG_CONFIRM_CLEAR_PLAYLIST = 30;
 	    	
 	    	public static final int DIALOG_PROCESSING = 31;
-	    	public static final int DIALOG_RECORD_PROCESSING_FAILED = 32;
-	    	public static final int DIALOG_RECORD_UPLOADING = 33;
-	    	public static final int DIALOG_RECORD_UPLOADING_FAILED = 34;
-	    	public static final int DIALOG_RECORD_UPLOADING_SUCCESS = 35;
+	    	public static final int DIALOG_CANCEL_UPLOAD = 32;
 	    }
 
 	    public interface Defs {
@@ -162,6 +163,7 @@ public class CloudUtils {
 	    	public static final int SETTINGS = 200;
 	    	public static final int VIEW_CURRENT_TRACK = 201;
 	    	public static final int REFRESH = 202;
+	    	public static final int CANCEL_CURRENT_UPLOAD = 203;
 	    }
 	    
 	    public interface ContextMenu {
@@ -237,11 +239,15 @@ public class CloudUtils {
 	    	GraphicsSizes.original};
 	    
 	    
+	    public static String getCacheDirPath(Context c){
+	    	if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+	    		return EXTERNAL_CACHE_DIRECTORY;
+	    	} else {
+	    		return c.getCacheDir().getAbsolutePath();
+	    	}
+	    }
 	    
 	    
-	    
-
-		
 		public static LazyList createList(LazyActivity activity){
 			
 			LazyList mList = new LazyList(activity);
@@ -263,7 +269,7 @@ public class CloudUtils {
 	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
 			 
 			listHolder.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-			LazyList lv = createList(activity);
+			LazyList lv = ((LazyTabActivity) activity).buildList(false);
 		    lv.setAdapter(adpWrap);
 		    listHolder.addView(lv);
 		    adpWrap.createListEmptyView(lv);
@@ -1498,16 +1504,12 @@ public class CloudUtils {
 		}
 		
 		
-		public static void buildCacheDirs(){
+		public static void buildDirs(){
 			
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-				new File(CACHE_DIRECTORY).mkdirs();
+				new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
+				new File(EXTERNAL_CACHE_DIRECTORY).mkdirs();
 			}
-			
-			File f = new File(CACHE_DIRECTORY);
-			
-			if (!f.exists())
-				 f.mkdirs();
 		}
 
 		public static String buildRequestPath(String mUrl, String order){
@@ -1543,31 +1545,10 @@ public class CloudUtils {
 
 
 		public static String getCacheFileName(String url) {
-//			File f = new File(CACHE_DIRECTORY);
-//			if (!f.exists())
-//				f.mkdirs();
-//			
-//			builder.setLength(0);
-//			builder.append(CACHE_DIRECTORY);
-//			builder.append(url.hashCode()).append(".jpg");
 			return url.hashCode() + ".jpg";
 		}
 		
-		public static String getMP3FileName(String title) {
-			StringBuilder builder = new StringBuilder();
-			builder.setLength(0);
-			builder.append(title.hashCode()).append(".mp3");
-			return builder.toString();
-		}
-		
-		
-		public static String getCacheMP3FileName(String url) {
-			StringBuilder builder = new StringBuilder();
-			builder.setLength(0);
-			builder.append(CACHE_DIRECTORY);
-			builder.append(url.hashCode()).append(".mp3");
-			return builder.toString();
-		}
+	
 		
 		public static String toTitleCase(String str){
 		
@@ -1618,8 +1599,51 @@ public class CloudUtils {
 	        }
 	        return id;
 	    }
-
+		
+		public static Double getPCMTime(File file, int sampleRate, int channels, int bitsPerSample){
+			return Double.parseDouble(Long.toString(file.length()))/(sampleRate*channels*bitsPerSample/8);
+		}
+		
+		public static Double getPCMTime(long bytes, int sampleRate, int channels, int bitsPerSample){
+			return Double.parseDouble(Long.toString(bytes))/(sampleRate*channels*bitsPerSample/8);
+		}
+		
 		
 
-	}
+		public static BitmapFactory.Options determineResizeOptions(String imageUri, int targetWidth, int targetHeight, boolean crop) throws IOException{
+			
+			 BitmapFactory.Options options = new BitmapFactory.Options();
+			 options.inJustDecodeBounds = true;
+			 InputStream is = null;
+			 is = new FileInputStream(imageUri);
+			
+			 BitmapFactory.decodeStream(is,null,options);
+			 is.close();
+			 
+			 int height = options.outHeight;
+			 int width = options.outWidth;
+			
+			    Log.i(TAG,"checking image sizes " + width + " " + height);
+			    
+			    if (height > targetHeight || width > targetWidth) {
+			    	Log.i(TAG,"resizing " + targetHeight/height + " " + targetWidth/width);
+			    	 if (targetHeight/height < targetWidth/width) {
+			    		 Log.i(TAG,"resizing by height");
+			    		 options.inSampleSize = Math.round(height / targetHeight);
+			    	 } else {
+			    		 options.inSampleSize = Math.round(width / targetWidth);
+			    	 }
+			    	 
+			    }
+			    
+			    return options;
+		}
+		
+		public static void clearBitmap(Bitmap bmp){
+			bmp.recycle();
+			bmp = null;
+			  System.gc();
+		}
+}
+
 

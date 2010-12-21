@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical" android:padding="5dip">
+	<ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent">
 		<TableLayout android:id="@+id/user_details_table"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:stretchColumns="0" android:shrinkColumns="1">
@@ -46,5 +47,6 @@
 					android:id="@+id/description" android:padding="3dip" android:text="" />
 			</TableRow>
 		</TableLayout>
-<TextView android:text="@string/no_info_available" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"></TextView>
+		</ScrollView>
+		<TextView android:text="@string/no_info_available" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"></TextView>
 </FrameLayout>

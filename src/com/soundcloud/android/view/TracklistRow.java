@@ -194,9 +194,11 @@ public class TracklistRow extends LazyRow {
 		  
 		  
 		  String remoteUrl = "";
-			if (getContext().getResources().getDisplayMetrics().density > 1)
+			if (getContext().getResources().getDisplayMetrics().density > 1){
+				mIcon.getLayoutParams().width = 67;
+				mIcon.getLayoutParams().height = 67;
 				remoteUrl = CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.large); 
-			else
+			} else
 				remoteUrl = CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.badge);
 			
 			//Log.i("asdf","set row icon " + remoteUrl);

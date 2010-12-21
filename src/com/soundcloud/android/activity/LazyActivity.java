@@ -15,8 +15,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -32,7 +34,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
@@ -52,10 +54,10 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.service.ICloudUploaderService;
+import com.soundcloud.android.task.LoadTask;
 
 public abstract class LazyActivity extends Activity implements OnItemClickListener, OnItemSelectedListener {
 	private static final String TAG = "LazyActivity";
@@ -89,6 +91,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	protected Comment addComment;
 	
 	private MenuItem menuCurrentPlayingItem;
+	private MenuItem menuCurrentUploadingItem;
 	protected Parcelable menuParcelable;
 	protected Parcelable dialogParcelable;
 	protected String dialogUsername;
@@ -103,6 +106,8 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	protected int mSearchListIndex;
 	
+	private int mLockedOrientation = -1;
+	
 
 	private static final int SWIPE_MIN_DISTANCE = 120;
 	private static final int SWIPE_MAX_OFF_PATH = 250;
@@ -113,10 +118,17 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	// Need handler for callbacks to the UI thread
     public final Handler mHandler = new Handler();
+    
+    protected GoogleAnalyticsTracker tracker;
 
 	
 	protected void onCreate(Bundle savedInstanceState, int layoutResId) {
 		super.onCreate(savedInstanceState);
+		
+		tracker = GoogleAnalyticsTracker.getInstance();
+
+	    // Start the tracker in manual dispatch mode...
+	    tracker.start("UA-2519404-11", this);
 		
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -128,31 +140,12 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		mCloudComm = CloudCommunicator.getInstance(this);
 		
-
-        // Gesture detection
-           gestureDetector = new GestureDetector(new MyGestureDetector());
-            gestureListener = new View.OnTouchListener() {
-            	
-                public boolean onTouch(View v, MotionEvent event) {
-                	Log.i("TOUCH","On Touch");
-                    if (gestureDetector.onTouchEvent(event)) {
-                    	Log.i("TOUCH","return true");
-                        return true;
-                    }
-                    Log.i("TOUCH","return false");
-                    return false;
-                }
-            };
-            
-           
-            
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(layoutResId);
 	
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		setPageSize(Integer.parseInt(mPreferences.getString("defaultPageSize", "20")));
-		setTrackOrder(mPreferences.getString("defaultTrackSorting", CloudCommunicator.ORDER_HOTNESS));
-		setUserOrder(mPreferences.getString("defaultUserSorting", CloudCommunicator.ORDER_HOTNESS));
+		setTrackOrder(mPreferences.getString("defaultTrackSorting", ""));
+		setUserOrder(mPreferences.getString("defaultUserSorting", ""));
 		
 		build();
 		
@@ -178,8 +171,16 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		return mPreferences;
 	}
 	
-public void mapDetails(Parcelable p){
+	public void mapDetails(Parcelable p){
 		
+	}
+
+	public void lockCurrentOrientaiton(){
+		mLockedOrientation = getResources().getConfiguration().orientation;
+	}
+	
+	public void unlockOrientaiton(){
+		mLockedOrientation = -1;
 	}
 	
 	
@@ -198,6 +199,11 @@ public void mapDetails(Parcelable p){
 	protected void build(){
 		
 	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+	    super.onConfigurationChanged(newConfig);
+	 }
 	
 	
 	@Override
@@ -278,6 +284,31 @@ public void mapDetails(Parcelable p){
 	
 	public void playTrack(List<Parcelable> list, int playPos){
 		
+		Track t = null;
+		
+		 if (list.get(playPos) instanceof Track)
+			t = ((Track) list.get(playPos));
+		 else if (list.get(playPos) instanceof Event)
+				t = (Track) ((Event) list.get(playPos)).getDataParcelable(Event.key_track);
+		 
+		try {
+			if (t != null && mService != null && mService.getTrackId() != null && mService.getTrackId().contentEquals(t.getData(Track.key_id))){
+				//skip the enquing, its already playing
+				 Intent i = new Intent(this, ScPlayer.class);
+				 startActivity(i);
+				 return;
+			}
+			
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		 Intent intent = new Intent(this, ScPlayer.class);
+		 intent.putExtra("track", t);
+		 startActivity(intent);
+		
 		Track[] tl = new Track[list.size()];
 		
 		for (int i = 0; i < list.size(); i++){
@@ -287,12 +318,7 @@ public void mapDetails(Parcelable p){
 				tl[i] = (Track) ((Event) list.get(i)).getDataParcelable(Event.key_track);
 			}
 		}
-		
-		
-		
-		
-		
-		//CloudUtils.resolveTrack(this,track,true,CloudUtils.getCurrentUserId(this));
+
 		try {
 			mService.enqueue(tl, playPos);
 		} catch (RemoteException e) {
@@ -300,14 +326,7 @@ public void mapDetails(Parcelable p){
 			e.printStackTrace();
 		}
 		
-		 Intent i = new Intent(this, ScPlayer.class);
-		 if (list.get(playPos) instanceof Track)
-			 i.putExtra("track", ((Track) list.get(playPos)));
-		 else if (list.get(playPos) instanceof Event){
-				 i.putExtra("track", (Track) ((Event) list.get(playPos)).getDataParcelable(Event.key_track));
-		 }
-
-		 startActivity(i);
+		
 		
 	}
 	
@@ -394,18 +413,29 @@ public void mapDetails(Parcelable p){
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK, menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_info_details);
+		menuCurrentUploadingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(), R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
+		
 		menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings).setIcon(R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-    	
     	if (!CloudUtils.stringNullEmptyCheck(getCurrentTrackId()) && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
     		menuCurrentPlayingItem.setVisible(true);
     	} else {
     		menuCurrentPlayingItem.setVisible(false);
     	}
+    	
+    	try {
+			if (mUploadService.isUploading()){
+				menuCurrentUploadingItem.setVisible(true);
+			} else {
+				menuCurrentUploadingItem.setVisible(false);
+			}
+		} catch (RemoteException e) {
+			menuCurrentUploadingItem.setVisible(false);
+		}
     		
     	return true;	
     }
@@ -419,6 +449,9 @@ public void mapDetails(Parcelable p){
 			case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
 				startActivity(new Intent(this, ScPlayer.class));
 				return true;
+			case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
+				showDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -426,6 +459,10 @@ public void mapDetails(Parcelable p){
 	
 	public String getCurrentUserId() {
 		return CloudUtils.getCurrentUserId(this);
+	}
+	
+	public void showToast(int stringId) {
+		showToast(getResources().getString(stringId));
 	}
 	
 	protected void showToast(String text) {
@@ -473,7 +510,6 @@ public void mapDetails(Parcelable p){
 						try {
 							mService.pause();
 						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
                  }
@@ -483,11 +519,9 @@ public void mapDetails(Parcelable p){
 	
 	
 	protected void onServiceBound(){
-		Log.i("ScPlayer","On Service Bound Lazyyyy");
 	}
 	
 	protected void onServiceUnbound(){
-		
 	}
 	
 	
@@ -740,36 +774,29 @@ public void mapDetails(Parcelable p){
 					
 					return mProgressDialog;
 					
-				case CloudUtils.Dialogs.DIALOG_RECORD_UPLOADING:
-						Log.i("ScCreate","show upload dialog");
-						mProgressDialog = new ProgressDialog(this);
-						mProgressDialog.setTitle(R.string.record_uploading_title);
-						mProgressDialog.setMessage(getString(R.string.record_uploading_message));
-						mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-						mProgressDialog.setIndeterminate(false);
-						mProgressDialog.setCancelable(true);
-					return mProgressDialog;
-					
-				case CloudUtils.Dialogs.DIALOG_RECORD_PROCESSING_FAILED:
-					return new AlertDialog.Builder(this).setTitle(R.string.record_encoding_failed_title).setMessage(R.string.record_encoding_failed_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_RECORD_PROCESSING_FAILED);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_RECORD_UPLOADING_FAILED:
-					return new AlertDialog.Builder(this).setTitle(R.string.record_uploading_failed_title).setMessage(R.string.record_uploading_failed_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_RECORD_UPLOADING_FAILED);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_RECORD_UPLOADING_SUCCESS:
-					return new AlertDialog.Builder(this).setTitle(R.string.record_uploading_success_title).setMessage(R.string.record_uploading_success_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_RECORD_UPLOADING_SUCCESS);
-						}
-					}).create();
+				case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
+					 return new AlertDialog.Builder(this)
+		                .setTitle(R.string.dialog_cancel_upload_title)
+		                .setMessage(R.string.dialog_cancel_upload_message)
+		                .setPositiveButton(getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+		                    public void onClick(DialogInterface dialog, int whichButton) {
+								try {
+									mUploadService.cancelUpload();
+								} catch (Exception e) {
+									setException(e);
+									handleException();
+								}
+								
+								removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+		                       
+		                    }
+		                })
+		                .setNegativeButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
+		                    public void onClick(DialogInterface dialog, int whichButton) {
+		                    	removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+		                    }
+		                })
+		                .create(); 
 					
 					
 			}  
@@ -800,5 +827,7 @@ public void mapDetails(Parcelable p){
 		return mUserOrder;
 	}
 
+	
+	
 	
 }

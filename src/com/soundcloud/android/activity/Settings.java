@@ -13,6 +13,7 @@ import android.preference.PreferenceActivity;
 import android.view.Menu;
 
 import com.soundcloud.android.CloudCommunicator;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 
 public class Settings extends PreferenceActivity {
@@ -118,7 +119,7 @@ public class Settings extends PreferenceActivity {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
-			File folder = new File(activity.getCacheDir().toString());
+			File folder = new File(CloudUtils.getCacheDirPath(activity));
 			File[] files = folder.listFiles();
 			File file;
 			int length = files.length;

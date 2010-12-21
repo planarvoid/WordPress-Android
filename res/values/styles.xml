@@ -71,6 +71,13 @@
 		<item name="android:paddingRight">5dip</item>
 	</style>
 	
+	<style name="txt_record_message">
+		<item name="android:textColor">@color/listTxtSecondary</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+	</style>
+	
 	<style name="txt_not_streamable">
 		<item name="android:textColor">@color/listTxtSecondary</item>
 		<item name="android:textSize">16sp</item>
@@ -96,7 +103,7 @@
 	
 	
 	<style name="txt_player_time">
-		<item name="android:layout_width">70dip</item>
+		<item name="android:layout_width">80dip</item>
 		<item name="android:layout_height">20dip</item>
 		<item name="android:layout_alignParentTop">true</item>
 		<item name="android:textColor">@android:color/black</item>
@@ -109,10 +116,25 @@
 		<item name="android:background">@drawable/player_time_bg_land</item>
 	</style>
 	
+	<style name="txt_player_track_info_stats">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textColor">@color/listTxtValue</item>
+	</style>
 	
-					
-  
-  
+	
+	
+	<style name="txt_player_track_info" >
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:paddingLeft">5dip</item>
+		<item name="android:paddingRight">5dip</item>
+	</style>
+	
+	
  	<style name="btn_oc">
 		<!--<item name="android:background">@drawable/btn_oc_player_states</item>-->
 		<!--  <item name="android:background">@drawable/oc_button_background</item>-->
@@ -125,6 +147,10 @@
         <item name="android:layout_width">60dip</item>
         <item name="android:layout_height">50dip</item>
         <item name="android:background">@android:color/transparent</item>
+	</style>
+	
+	<style name="btn_oc_show_info" parent="btn_oc_transport">
+        <item name="android:layout_width">50dip</item>
 	</style>
 	
 	<style name="btn_oc_transport_small" parent="btn_oc_transport">
@@ -205,7 +231,7 @@
         <item name="android:minWidth">76dip</item>
 		<item name="android:maxWidth">76dip</item>
 		<item name="android:progressDrawable">@drawable/progress_bar_round</item>
-		<item name="android:indeterminateDrawable">@drawable/progress_bar_indeterminate</item>
+		<item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
     </style> 
     
     <style name="ScSeekBarRound" parent="ScProgressBarRound">
@@ -220,6 +246,7 @@
         <item name="android:maxHeight">60dip</item>
         <item name="android:minWidth">250dip</item>
         <item name="android:maxWidth">5000dip</item>
+        <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
     </style> 
      
    <style name="ScProgressBarLand" parent="ScProgressBar">

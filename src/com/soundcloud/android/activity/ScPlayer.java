@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -17,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +26,7 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.Layout;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
@@ -33,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnTouchListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -44,7 +48,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 import android.widget.ImageView.ScaleType;
 
 import com.soundcloud.android.CloudCommunicator;
@@ -60,6 +66,7 @@ import com.soundcloud.android.view.CommentMarker;
 import com.soundcloud.android.view.RemoteImageView;
 import com.soundcloud.android.view.UserBrowser;
 import com.soundcloud.android.view.WaveformController;
+import com.soundcloud.utils.AnimUtils;
 
 public class ScPlayer extends LazyActivity implements OnTouchListener {
 
@@ -87,6 +94,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private ImageButton mFavoriteButton;
 	private ImageButton mCommentsButton;
 	private ImageButton mShareButton;
+	private ImageButton mInfoButton;
 	private int mTouchSlop;
 
 	private ExpandableListView comments_lv;
@@ -102,8 +110,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private LinearLayout mCommentListHolder;
 	private LinearLayout mLoadingLayout;
 	
+	private LinearLayout mTrackInfoBar;
 	private ViewGroup mTransportBar;
-	private FrameLayout mTrackFlipper;
+	private ViewFlipper mTrackFlipper;
+	private RelativeLayout mTrackInfo;
 	
 	private RelativeLayout mStreamableLayout;
 	private FrameLayout mUnstreamableLayout;
@@ -175,14 +185,13 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private void initControls() {
 
 		mTransportBar = (ViewGroup) findViewById(R.id.transport_bar);
+		mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
+		
+		//mLandscape = (this.getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		int width = getWindowManager().getDefaultDisplay().getWidth();
+		int height = getWindowManager().getDefaultDisplay().getHeight(); 
 
-		if (findViewById(R.id.track_flipper) != null) {
-			mLandscape = false;
-			mTrackFlipper = (FrameLayout) findViewById(R.id.track_flipper);
-			// mTrackFlipper.bringToFront();
-		} else {
-			mLandscape = true;
-		}
+		mLandscape =  ( width > height );
 
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -193,7 +202,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
 		mWaveformController.setPlayer(this);
+		mWaveformController.setLandscape(mLandscape);
 
+		
+		
 		mProgress = (ProgressBar) findViewById(R.id.progress_bar);
 		mProgress.setMax(1000);
 		mProgress.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -202,10 +214,16 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		mUserName = (TextView) findViewById(R.id.user);
 		mTrackName = (TextView) findViewById(R.id.track);
 
-		((ViewGroup) findViewById(R.id.track_info_row))
-				.setBackgroundColor(getResources().getColor(
-						R.color.playerControlBackground));
-
+		mTrackInfoBar = ((LinearLayout) findViewById(R.id.track_info_row));
+		mTrackInfoBar.setBackgroundColor(getResources().getColor(R.color.playerControlBackground));
+		
+		mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
+		mInfoButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				onTrackInfoFlip();
+			}
+		});
+		
 		mPrevButton = (ImageButton) findViewById(R.id.prev);
 		mPrevButton.setOnClickListener(mPrevListener);
 		mPauseButton = (ImageButton) findViewById(R.id.pause);
@@ -255,7 +273,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			
 			
 			mArtwork = (RemoteImageView) findViewById(R.id.artwork);
-			mArtwork.setScaleType(ScaleType.FIT_XY);
+			mArtwork.setScaleType(ScaleType.CENTER_CROP);
 			mArtwork.setImageDrawable(getResources().getDrawable(
 					R.drawable.artwork_player));
 			mArtwork.setTemporaryDrawable(getResources().getDrawable(
@@ -521,6 +539,66 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		} catch (RemoteException ex) {
 		}
 	}
+	
+	private void onTrackInfoFlip(){
+		if (mTrackFlipper.getDisplayedChild() == 0){
+			if (mTrackInfo == null){
+				mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
+				fillTrackDetails();
+			}
+			mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
+			mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
+			mTrackFlipper.showNext();
+			mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
+		} else {
+			mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
+			mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
+			mTrackFlipper.showPrevious();
+			mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
+		}
+	}
+	
+	private void fillTrackDetails(){
+		((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(mPlayingTrack.getData(Track.key_playback_count));
+		((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(mPlayingTrack.getData(Track.key_favoritings_count));
+		((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(mPlayingTrack.getData(Track.key_download_count));
+		((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(mPlayingTrack.getData(Track.key_comment_count));
+		
+		((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html.fromHtml(generateTrackInfoString()));
+	}
+	
+	private String generateTrackInfoString(){
+		String str = "";
+		str += "<b>Description</b><br />";
+		str += mPlayingTrack.getData(Track.key_description)+"<br /><br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_tag_list))) str += mPlayingTrack.getData(Track.key_tag_list) + "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_key_signature))) str += mPlayingTrack.getData(Track.key_key_signature) + "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_genre))) str += mPlayingTrack.getData(Track.key_genre) + "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_bpm))) str += mPlayingTrack.getData(Track.key_bpm) + "<br />";
+		str += "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_license)) && !mPlayingTrack.getData(Track.key_license).toLowerCase().contentEquals("all rights reserved")) str += mPlayingTrack.getData(Track.key_license) + "<br /><br />";
+		
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_label_name))){
+			str += "<b>Released By</b><br />";
+			str += mPlayingTrack.getData(Track.key_label_name) + "<br />";
+			if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_bpm))) str += mPlayingTrack.getData(Track.key_release_year) + "<br />";
+			str += "<br />";
+		}
+		
+		
+		/*try {
+			str += "<b>Uploaded " + mPlayingTrack.getData(Track.key_created_at)+"<br />";
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+			Date uploadDate = new Date(sdf.parse(mPlayingTrack.getData(Track.key_created_at).substring(0,mPlayingTrack.getData(Track.key_created_at).indexOf("+")-1)).getTime());
+			str += "<b>Uploaded " + uploadDate.getDate()+"<br />";
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		
+		return str;
+	}
 
 	private void setPauseButtonImage() {
 		try {
@@ -556,6 +634,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	private ProgressBar mProgress;
 	private long mPosOverride = -1;
+	private long mSeekFrom = -1;
 	private boolean mFromTouch = false;
 	private long mDuration;
 	private boolean paused;
@@ -573,10 +652,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	}
 
 	private long refreshNow() {
-		
-		if (mArtwork != null)
-		//Log.i("DEBUG", "artwork dimensions " + mArtwork.getWidth() + " " + mArtwork.getHeight());
-
 			
 		if (mService == null) {
 			return 500;
@@ -598,12 +673,31 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				// mProgress.setIndeterminate(false);
 			}
 			
+			long pos = mService.position();
 
-			long pos = mPosOverride < 0 ? mService.position() : mPosOverride;
+			//handle elegant seeking, cause android doesn't
+			if (mSeekFrom != -1){ //we just seeked, see if we are reporting the new position
+				if (mSeekFrom > mPosOverride){
+					if (mPosOverride < pos  && pos < mSeekFrom){ 
+						//reported position in between old position and seeked position
+						//done seeking
+						mSeekFrom = -1;
+						mPosOverride = -1; 
+					}
+				} else if (pos > mPosOverride){ 
+					//reported position greater than seeked position seeked position
+					//done seeking
+					mSeekFrom = -1;
+					mPosOverride = -1;
+				}
+			}
+			
+			pos = mPosOverride < 0 ? pos : mPosOverride;
+			
 			long remaining = 1000 - pos % 1000;
 			
 			if (pos >= 0 && mDuration > 0) {
-				mCurrentTime.setText(CloudUtils.makeTimeString(this, pos / 1000) + "/" + CloudUtils.makeTimeString(this, mDuration / 1000));
+				mCurrentTime.setText(CloudUtils.makeTimeString(this, pos / 1000) + " / " + CloudUtils.makeTimeString(this, mDuration / 1000));
 				mWaveformController.setProgress(pos);
 			} else {
 				mCurrentTime.setText("--:--/--:--");
@@ -614,10 +708,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			
 
 			if (!mSeeking) {
-				
 				int loadPercent = mService.loadPercent();
 				mWaveformController.setSecondaryProgress(loadPercent * 10);
-				
 			}
 
 			// return the number of milliseconds until the next full second, so
@@ -693,13 +785,20 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
 				mPauseButton.setEnabled(true);
 			} else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
-				showToast(getString(R.string.toast_error_stream_died));
+				//showToast(getString(R.string.toast_error_stream_died));
 			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
 				updateTrackInfo();
 			} else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
 				mSeeking = false;
+				try {
+					mSeekFrom = mService.position();
+					return;
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				mPosOverride = -1;
-				updateTrackInfo();
+				//updateTrackInfo();
 			}
 		}
 
@@ -793,7 +892,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				if (mArtwork.getWidth() != 0 && mPendingArtwork != null) {
 					mArtwork.setRemoteURI(mPendingArtwork);
 					mArtwork.setLocalURI(null);
-					//mArtwork.setLocalURI(getCacheDir().toString() + "/" + CloudUtils .getCacheFileName(mPendingArtwork));
+					//mArtwork.setLocalURI(CloudUtils.getCacheDirPath(this) + "/" + CloudUtils .getCacheFileName(mPendingArtwork));
 					mArtwork.loadImage();
 					mPendingArtwork = null;
 				} 
@@ -818,19 +917,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		try {
 
-			// if (mService.getDownloadable() != null){
-			// if (mService.getDownloadable().equalsIgnoreCase("true"))
 			if (mPlayingTrack != null) {
-				mService.seek((long) (Integer.parseInt(mPlayingTrack
-						.getData(Track.key_duration)) * seekPercent));
+				mService.seek((long) (Integer.parseInt(mPlayingTrack.getData(Track.key_duration)) * seekPercent));
 				
 				mSeeking = true;
-				mPosOverride = (long) (Integer.parseInt(mPlayingTrack
-						.getData(Track.key_duration)) * seekPercent);
-				// else
-				// ((LazyActivity)
-				// this).showDialog(CloudUtils.Dialogs.DIALOG_ERROR_STREAM_NOT_SEEKABLE);
-				// }
+				mPosOverride = (long) (Integer.parseInt(mPlayingTrack.getData(Track.key_duration)) * seekPercent);
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -1016,6 +1107,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	 */
 	@Override
 	protected void onResume() {
+		tracker.trackPageView("/dashboard");
+		
 		super.onResume();
 
 		updateTrackInfo();

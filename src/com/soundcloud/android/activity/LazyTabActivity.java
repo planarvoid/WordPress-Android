@@ -25,10 +25,12 @@ import android.widget.TabHost.OnTabChangeListener;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyList;
 import com.soundcloud.android.view.ScTabView;
@@ -187,6 +189,7 @@ public class LazyTabActivity extends LazyActivity{
 	
 	@Override
 	protected void onServiceBound(){
+		Log.i(TAG,"On Service Bound");
 		try {
 			setPlayingTrack(mService.getTrackId());
 		} catch (RemoteException e) {
@@ -200,16 +203,32 @@ public class LazyTabActivity extends LazyActivity{
 	protected void onStart() {
     	super.onStart();
     	
-    	IntentFilter f = new IntentFilter();
-		f.addAction(CloudPlaybackService.META_CHANGED);
-		f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-		this.registerReceiver(mStatusListener, new IntentFilter(f));
+    	IntentFilter playbackFilter = new IntentFilter();
+    	playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
+    	playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+		this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+		
+		IntentFilter uploadFilter = new IntentFilter();
+		uploadFilter.addAction(CloudUploaderService.UPLOAD_ERROR);
+		uploadFilter.addAction(CloudUploaderService.UPLOAD_CANCELLED);
+		uploadFilter.addAction(CloudUploaderService.UPLOAD_SUCCESS);
+		this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+		
+		if (mService != null)
+			try {
+				Log.i(TAG,"On Resume service track " + mService.getTrackId());
+				setPlayingTrack(mService.getTrackId());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
     }
 	
 	@Override
 	protected void onStop() {
-    	this.unregisterReceiver(mStatusListener);
+    	this.unregisterReceiver(mPlaybackStatusListener);
+    	this.unregisterReceiver(mUploadStatusListener);
     	super.onStop();
     }
 
@@ -220,19 +239,15 @@ public class LazyTabActivity extends LazyActivity{
     protected void onResume() {
     	super.onResume();
     	
-    	if (mService != null)
-			try {
-				setPlayingTrack(mService.getTrackId());
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+    	Log.i(TAG,"On resume " + mService);
+    	
+    	
 
     }
 	
 
 
-	private BroadcastReceiver mStatusListener = new BroadcastReceiver() {
+	private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -249,11 +264,31 @@ public class LazyTabActivity extends LazyActivity{
 		}
 	};
 	
+	private BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (action.equals(CloudUploaderService.UPLOAD_ERROR) || action.equals(CloudUploaderService.UPLOAD_CANCELLED) )
+				onRecordingComplete(false);
+			else if ( action.equals(CloudUploaderService.UPLOAD_SUCCESS)) 
+				onRecordingComplete(true);
+				
+		}
+	};
+	
+	protected void onRecordingComplete(Boolean success){
+		
+	}
+	
 	
 	
 	private void setPlayingTrack(String trackId){
+		Log.i(TAG,"Set Playing Track " + mLists);
+		
 		if (mLists == null || mLists.size() == 0)
 			return;
+		
+		Log.i(TAG,"Set Playing Track size " + mLists.size());
 		
 		mCurrentTrackId = trackId;
 		
@@ -261,9 +296,14 @@ public class LazyTabActivity extends LazyActivity{
 		int i = 0;
 		while (mListsIterator.hasNext()){
 			ListView mList = mListsIterator.next();
-			if (mList.getAdapter() != null)
+			Log.i(TAG,"Checking list " + mList);
+			if (mList.getAdapter() != null){
+				Log.i(TAG,"Checking list adapter " + mList.getAdapter());
 				if (mList.getAdapter() instanceof TracklistAdapter)
 					((TracklistAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
+				else if (mList.getAdapter() instanceof EventsAdapter)
+					((EventsAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
+			}
 		}
 	}
 	
@@ -543,9 +583,7 @@ public class LazyTabActivity extends LazyActivity{
 			restoreListConfigs(saved[4]);
 			restoreListExtras(saved[5]);
 			restoreListAdapters(saved[6]);
-		} else 
-			activateLists();
-		
+		} 
 	}
 	
 	

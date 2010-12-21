@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-	android:layout_width="1800dip" android:layout_height="100dip" android:id="@+id/waveform_frame" >
-	<com.soundcloud.android.view.WaveformHolder android:layout_marginTop="20dip" android:id="@+id/waveform_holder"
+	android:layout_width="fill_parent" android:layout_height="100dip" android:id="@+id/waveform_frame" >
+	<com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
 		android:layout_width="fill_parent" android:layout_height="fill_parent">
 			<ProgressBar
-				style="@style/ScProgressBar" android:id="@+id/progress_bar"
+				style="@style/ScProgressBar" 
+				android:id="@+id/progress_bar"
+				android:layout_marginTop="20dip"
 				android:layout_alignParentTop="true" 
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
-			<ImageView android:id="@+id/progress_overlay"
-				android:layout_alignParentTop="true" android:layout_width="1800dip"
-				android:layout_height="80dip" android:scaleType="fitXY"/>
-			<RelativeLayout android:id="@+id/track_touch_bar"
+			<com.soundcloud.android.view.RemoteImageView 
+				android:layout_marginTop="20dip"
+				android:id="@+id/progress_overlay" android:src="@drawable/player_wave_bg"
+				android:layout_alignParentTop="true" android:layout_width="fill_parent"
+				android:layout_height="80dip" android:scaleType="fitXY" />
+			<RelativeLayout 
+				android:layout_marginTop="20dip" android:id="@+id/track_touch_bar"
 				 android:background="#00000000"
 				android:layout_gravity="top" android:layout_width="fill_parent"
 				android:layout_height="40dip" />

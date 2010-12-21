@@ -21,9 +21,9 @@
 	
 	<color name="userHeaderBackground">#FFEEEEEE</color>
 
-	<color name="cloudProgressBackgroundStart">#AA666666</color>
-	<color name="cloudProgressBackgroundCenter">#AA949494</color>
-	<color name="cloudProgressBackgroundEnd">#AA666666</color>
+	<color name="cloudProgressBackgroundStart">#AA999999</color>
+	<color name="cloudProgressBackgroundCenter">#AACACACA</color>
+	<color name="cloudProgressBackgroundEnd">#AA999999</color>
 	
 	<color name="cloudProgressSecondaryStart">#333333</color>
 	<color name="cloudProgressSecondaryCenter">#707070</color>

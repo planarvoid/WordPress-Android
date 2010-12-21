@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
@@ -64,6 +65,14 @@ public class ScTabView extends FrameLayout {
     		}
     		
     	}
+    }
+    
+	public void onSaveInstanceState(Bundle outState) 
+    {
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) 
+    {
     }
     
   

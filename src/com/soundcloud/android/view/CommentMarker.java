@@ -93,7 +93,7 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 		if (mCommentData.hasKey(Comment.key_user_avatar_url)){
 			String avatarUrl = CloudUtils.formatGraphicsUrl(mCommentData.getData(Comment.key_user_avatar_url),GraphicsSizes.badge);
 			if (CloudUtils.checkIconShouldLoad(avatarUrl)){
-				mAvatar.setLocalURI(_context.getCacheDir().toString() + "/" + CloudUtils.getCacheFileName(avatarUrl));
+				mAvatar.setLocalURI(CloudUtils.EXTERNAL_CACHE_DIRECTORY + "/" + CloudUtils.getCacheFileName(avatarUrl));
 				mAvatar.setRemoteURI(avatarUrl);
 			}
 			mAvatar.loadImage();

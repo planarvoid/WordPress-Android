@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.LinearLayout;
 
 import com.soundcloud.android.CloudUtils;
@@ -10,7 +12,7 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.UserBrowser;
 
 
-public class ScProfile extends LazyActivity  {
+public class ScProfile extends LazyTabActivity  {
 
 
 	private UserBrowser userBrowser;
@@ -21,6 +23,15 @@ public class ScProfile extends LazyActivity  {
         super.onCreate(icicle,R.layout.main_holder);
         
 	}
+    
+    @Override
+	protected void onResume() {
+		tracker.trackPageView("/profile");
+		
+		super.onResume();
+
+	}
+
     
     @Override
 	protected void build(){

@@ -693,7 +693,6 @@ public class CloudPlaybackService extends Service {
 			Intent i = new Intent(this, ScPlayer.class);
 			i.addCategory(Intent.CATEGORY_LAUNCHER);
 			i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			i.setAction(Intent.ACTION_MAIN);
 
 			Notification status = new Notification();
@@ -1266,6 +1265,7 @@ public class CloudPlaybackService extends Service {
 
 		MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
 			public void onBufferingUpdate(MediaPlayer mp, int percent) {
+				//Log.i("CPS","On BUFFERING " + percent);
 				mLoadPercent = percent;
 			}
 		};

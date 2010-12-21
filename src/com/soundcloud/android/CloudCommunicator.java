@@ -46,6 +46,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.utils.http.CountingMultipartRequestEntity;
+import com.soundcloud.utils.http.ProgressListener;
 
 public class CloudCommunicator {
 
@@ -87,8 +89,8 @@ public class CloudCommunicator {
 	public static String PATH_USER_PLAYLISTS = "users/{user_id}/playlists";
 	public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
 	public static SoundCloudOptions sSoundCloudOptions = 
-		SoundCloudAPI.USE_SANDBOX;
-		//SoundCloudAPI.USE_PRODUCTION;
+		//SoundCloudAPI.USE_SANDBOX;
+		SoundCloudAPI.USE_PRODUCTION;
 	//SoundCloudAPI.USE_SANDBOX.with(OAuthVersion.V2_0);
 	//SoundCloudAPI.USE_PRODUCTION.with(OAuthVersion.V2_0);
 
@@ -161,16 +163,41 @@ public class CloudCommunicator {
 
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(_context);
+		
+		
 
+		
+		
 		SoundCloudAPI soundCloud = new SoundCloudAPI(getConsumerKey(),
 				getConsumerSecret(), preferences.getString(
 						"oauth_access_token", ""), preferences.getString(
 						"oauth_access_token_secret", ""), sSoundCloudOptions);
 
+		
+		//make them reauthorize if we are using a different sandbox setting
+		if (soundCloud.getState() == SoundCloudAPI.State.AUTHORIZED){
+			if (sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION){
+				Log.i(TAG,"use production already " + preferences.getString("scUseSandbox",""));
+				if (!preferences.getString("scUseSandbox","").contentEquals("false")){
+					clearSoundCloudAccount(soundCloud);
+					preferences.edit().putString("scUseSandbox", "false").commit();
+				}
+			} else {
+				if (!preferences.getString("scUseSandbox","").contentEquals("true")){
+					clearSoundCloudAccount(soundCloud);
+					preferences.edit().putString("scUseSandbox", "true").commit();
+				}
+			}
+		}
+		
 		return soundCloud;
 	}
 
 	public final void clearSoundCloudAccount() {
+		clearSoundCloudAccount(api);
+	}
+	
+	public final void clearSoundCloudAccount(SoundCloudAPI api) {
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(_context);
 		Log.i("[cloudcomm]", "current access token "
@@ -438,13 +465,13 @@ public class CloudCommunicator {
 
 	}
 	
-	public HttpResponse upload(ContentBody trackBody,  List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
+	public HttpResponse upload(ContentBody trackBody,  List<NameValuePair> params, ProgressListener listener) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
     {
             
-            return upload(trackBody,null,params);
+            return upload(trackBody,null,params, listener);
     }
 	
-	public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
+	public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params, ProgressListener listener) throws OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException, IOException, OAuthCommunicationException
      {
              HttpPost post = new HttpPost(urlEncode("tracks", null));  
              // fix contributed by Bjorn Roche
@@ -464,9 +491,8 @@ public class CloudCommunicator {
              
              if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);  
 
-             post.setEntity(entity);
-             
-             getHttpClient().execute(post);
+             CountingMultipartRequestEntity countingEntity = new CountingMultipartRequestEntity(entity,listener);
+             post.setEntity(countingEntity);
              return api.performRequest(post);  
      }
 	

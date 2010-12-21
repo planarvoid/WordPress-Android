@@ -8,7 +8,6 @@ import org.apache.http.HttpResponse;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -21,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TableLayout;
@@ -39,7 +39,6 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.view.ScCreate.CreateState;
 import com.soundcloud.utils.AsyncRequest.Client;
 import com.soundcloud.utils.AsyncRequest.ResponseListener;
 
@@ -157,6 +156,11 @@ public class UserBrowser extends ScTabView {
 		}
 		
 		
+		((ScTabView) mTabHost.getTabContentView().getChildAt(0)).onRefresh();
+	}
+	
+	@Override
+	public void onRefresh(){
 		((ScTabView) mTabHost.getTabContentView().getChildAt(0)).onRefresh();
 	}
 	
@@ -449,14 +453,22 @@ public class UserBrowser extends ScTabView {
 		else
 			remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.getData(User.key_avatar_url),GraphicsSizes.badge);
 
-		mIcon.setRemoteURI(remoteUrl);
-		if (avatarFile.exists()){
-			mIcon.setLocalURI(localAvatarPath);	
-		} else if (CloudUtils.checkIconShouldLoad(mUserData.getData(User.key_avatar_url))){
-			mIcon.setLocalURI(mActivity.getCacheDir() + "/" + CloudUtils.getCacheFileName(remoteUrl));
+		if (_iconURL != remoteUrl){
+				mIcon.setRemoteURI(remoteUrl);
+				if (avatarFile.exists()){
+					mIcon.setLocalURI(localAvatarPath);	
+				} else if (CloudUtils.checkIconShouldLoad(mUserData.getData(User.key_avatar_url))){
+					mIcon.setLocalURI(CloudUtils.getCacheDirPath(mActivity) + "/" + CloudUtils.getCacheFileName(remoteUrl));
+				}
+				
+				mIcon.loadImage();	
+				
+				_iconURL = remoteUrl;
+				
+				//TODO revisit this
 		}
 		
-		mIcon.loadImage();	
+			
 				
 		Boolean _showTable = false;
 		

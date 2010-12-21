@@ -1,9 +1,9 @@
 package com.soundcloud.android.view;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -23,11 +23,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -45,7 +47,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private Drawable mPendingWaveform;
 	private Boolean mPendingComments = false;
 	
-	private ImageView mOverlay;
+	private RemoteImageView mOverlay;
 	private ProgressBar mProgressBar;
 	private RelativeLayout mCommentBar;
 	private RelativeLayout mTrackTouchBar;
@@ -66,6 +68,9 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private LazyExpandableBaseAdapter mCommentsAdapter;
 	
 	private Float initialWaveScaleX;
+	private Boolean mLandscape = false; 
+	
+	static final int maxWavesStored = 5;
 	
 	
     final Handler mHandler = new Handler();
@@ -89,6 +94,8 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	   static final int DRAG_ZOOM = 3;
 	   int mode = NONE;
 	   
+	   
+	   
 	   SharedPreferences mPrefernces;
 
 	
@@ -108,18 +115,44 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 		//mCommentBar = (RelativeLayout) findViewById(R.id.comment_bar);
 		mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
-		
 		mTrackTouchBar.setOnTouchListener(this);
+		mOverlay = (RemoteImageView) findViewById(R.id.progress_overlay);
 		
 		if (mCommentBar != null){
 			mCommentBar.setOnTouchListener(this);
 			mCommentBar.setOnLongClickListener(this);	
 		}
 		
+		LightingColorFilter lcf = new LightingColorFilter(1,mContext.getResources().getColor(R.color.white));
+		mOverlay.setBackgroundColor(Color.TRANSPARENT);
+		mOverlay.setColorFilter(lcf);
+		mOverlay.setScaleType(ScaleType.FIT_XY);
+		File dirFile = new File(CloudUtils.getCacheDirPath(mContext)+"/waves/");
+		dirFile.mkdirs();
 		
 		
 		// mOverlay.setImageDrawable(context.getResources().getDrawable(R.drawable.wave));
 	}
+	
+	public void setLandscape(boolean isLandscape){
+		mLandscape = isLandscape;
+		
+		if (!mLandscape)
+			this.setStaticTransformationsEnabled(true);
+	}
+	
+	@Override
+	protected boolean getChildStaticTransformation(View child, Transformation t){
+		
+		boolean ret =  super.getChildStaticTransformation(child, t);
+		if (child == mWaveformFrame){
+			t.setAlpha((float) 0.7);
+			return true;
+		}
+		return ret;
+	}
+	
+	
 	
 	public void setProgress(long pos){
 		
@@ -220,11 +253,6 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
 		
-		mOverlay = (ImageView) findViewById(R.id.progress_overlay);
-		
-		if (mPendingWaveform != null){
-			setWaveDrawable();
-		}
 		
 		if (mPendingComments){
 			doCommentMap();
@@ -314,44 +342,37 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		
 		mPlayingTrack = track;
 		mDuration = Integer.parseInt(mPlayingTrack.getData(Track.key_duration));
-		mProgressBar.setVisibility(View.GONE);
 		loadWaveDrawable(CloudUtils.getTrackWaveformPath(track));
 	}
 	
-	private void trySetWaveDrawable(){
-		mProgressBar.setVisibility(View.VISIBLE);
+	public void loadWaveDrawable(final String wavePath){
 		
-		if (mOverlay != null && mPendingWaveform != null)
-			setWaveDrawable();
-		else if (mOverlay != null)
-			resetTransform();
-	}
+		mOverlay.setLocalURI(CloudUtils.getCacheDirPath(mContext)+"/waves/"+CloudUtils.getCacheFileName(wavePath));
+		File local = new File(CloudUtils.getCacheDirPath(mContext)+"/waves/"+CloudUtils.getCacheFileName(wavePath));
+		if (local.exists()){
+			mOverlay.loadImage();
+			return;
+		}
+		
+		File oldestWave = null;
+		File waveDir = new File(CloudUtils.getCacheDirPath(mContext)+"/waves"); 
+		Boolean exists = false;
+		if (waveDir.listFiles().length > maxWavesStored){
+			
+			for (File wave : waveDir.listFiles()){
+				if (CloudUtils.getCacheFileName(wavePath).contentEquals(wave.getName())){
+					exists = true;
+					break;
+				} if (oldestWave == null || wave.lastModified() < oldestWave.lastModified()){
+					oldestWave = wave;
+				}
+			}
+			oldestWave.delete();
+		}
 	
-	private void setWaveDrawable(){
-		LightingColorFilter lcf;
-		int width = ((Activity) mContext).getWindowManager().getDefaultDisplay().getWidth();
-		int height = ((Activity) mContext).getWindowManager().getDefaultDisplay().getHeight(); 
-
-		if ( width > height ) {
-			lcf = new LightingColorFilter(1,mContext.getResources().getColor(R.color.white));
-		}
-		else {
-			lcf = new LightingColorFilter(0,mContext.getResources().getColor(R.color.playerControlAlphaBackground));
-		}
-		
-		
-		mPendingWaveform.setColorFilter(lcf);
-		mProgressBar.setVisibility(View.VISIBLE);
-		mOverlay.setImageDrawable(mPendingWaveform);
-		mPendingWaveform = null;
-		mOverlay.setBackgroundColor(Color.TRANSPARENT);
-		//mOverlay.setVisibility(View.GONE);
-		//LightingColorFilter lcf = new LightingColorFilter(0x00000000,0xff333333);
-		//mOverlay.setColorFilter(lcf);
-		
-		resetTransform();
-		
-		
+		mOverlay.setTemporaryDrawable(mContext.getResources().getDrawable(R.drawable.player_wave_bg));
+		mOverlay.setRemoteURI(wavePath);
+		mOverlay.loadImage();
 	}
 	
 	private void resetTransform(){
@@ -371,10 +392,11 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		float[] values = new float[9];
 		matrix.getValues(values);
 		
-		float visibleWidth = initialWaveScaleX/values[0] * mWaveformHolder.getWidth();
-		float startWidth = -(values[2]/values[0]);
-		float seekPercent = (startWidth + visibleWidth*(touchX/getWidth()))/mWaveformHolder.getWidth();
-		
+		//float visibleWidth = initialWaveScaleX/values[0] * mWaveformHolder.getWidth();
+		//float visibleWidth = mWaveformHolder.getWidth();
+		//float startWidth = -(values[2]/values[0]);
+		//float seekPercent = (startWidth + visibleWidth*(touchX/getWidth()))/mWaveformHolder.getWidth();
+		float seekPercent = touchX/mWaveformHolder.getWidth();
 		return seekPercent;
 	}
 	
@@ -607,35 +629,5 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	
 	
-	public void loadWaveDrawable(final String wavePath){
-		 
-		 // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-	        Thread t = new Thread() {
-	            @Override
-				public void run() {
-	            	try {
-	            		if (CloudUtils.isLocalFile(wavePath)){
-	            			mLoadingWaveform = android.graphics.drawable.Drawable.createFromPath(wavePath);	
-	        			} else {
-	        				java.net.URL url = new java.net.URL(wavePath);
-	        				mLoadingWaveform = android.graphics.drawable.Drawable.createFromStream(url.openStream(), "test");	
-	        			}
-					} catch (IOException e) {
-							e.printStackTrace();
-					}
-	                mHandler.post(mUpdateWaveDrawable);
-	            }
-	        };
-	        t.start();
-		}
-
-	    // Create runnable for posting since we update the following asynchronously
-	    final Runnable mUpdateWaveDrawable = new Runnable() {
-	        public void run() {
-	        	mPendingWaveform = mLoadingWaveform;
-	        	trySetWaveDrawable();
-	        }
-	    };
 	
-
 }

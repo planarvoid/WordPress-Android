@@ -142,7 +142,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 			int lastPercentReported = 0;
 			
 			System.out.print( "Encoding." );
-			while ( !eos ) {
+			while ( !eos  && !isCancelled()) {
 				
 				int i;
 				int bytes = fin.read( readbuffer, 0, READ*4 ); // stereo hardwired here
@@ -211,9 +211,8 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 						}
 					}
 				}
-				System.out.print( "." );
 				
-				if (Math.round(100 * totalbytesRead / bytestotal) != lastPercentReported){
+				if (Math.round(100 * totalbytesRead / bytestotal) > lastPercentReported){
 					lastPercentReported = Math.round(100 * totalbytesRead / bytestotal);
 					publishProgress(totalbytesRead,bytestotal);
 				}
@@ -223,7 +222,8 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 			fin.close();
 			fos.close();
 			
-			publishProgress(bytestotal,bytestotal);
+			//publishProgress(bytestotal,bytestotal);
+			if (isCancelled()) return false;
 			
 			return true;
 			

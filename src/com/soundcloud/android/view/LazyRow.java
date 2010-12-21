@@ -64,7 +64,7 @@ public class LazyRow extends RelativeLayout {
 					riv.setLocalURI(value);
 					riv.setRemoteURI(null);
 				} else {
-					riv.setLocalURI(mContext.getCacheDir().toString() + "/" + CloudUtils.getCacheFileName(value));
+					riv.setLocalURI(CloudUtils.getCacheDirPath(mContext) + "/" + CloudUtils.getCacheFileName(value));
 					riv.setRemoteURI(value);
 				}
 			} else {

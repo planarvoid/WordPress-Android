@@ -49,7 +49,7 @@ public class Recorder
 	 * 
 	 * @param	app			The application context we're running in.
 	 */
-    public Recorder(Activity app) {
+    public Recorder() {
     	audioReader = new AudioReader();
     }
     
@@ -290,8 +290,8 @@ public class Recorder
 	                	if (mDosRec != null){
 	                		mDosRec.write(buffer[idxBuffer] & 0xff);
 	                		mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
-	                		//mDosRec.write(buffer[idxBuffer] & 0xff);
-	                		//mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
+	                		mDosRec.write(buffer[idxBuffer] & 0xff);
+	                		mDosRec.write((buffer[idxBuffer] >> 8 ) & 0xff);
 	                	}
 	                	 
 	                	
@@ -474,7 +474,24 @@ public class Recorder
     // Audio input block size, in samples.
     private int inputBlockSize = 1024;
     
-    // The desired decimation rate for this analyser.  Only 1 in
+    public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public void setSampleRate(int sampleRate) {
+		this.sampleRate = sampleRate;
+	}
+
+	public int getInputBlockSize() {
+		return inputBlockSize;
+	}
+
+	public void setInputBlockSize(int inputBlockSize) {
+		this.inputBlockSize = inputBlockSize;
+	}
+
+
+	// The desired decimation rate for this analyser.  Only 1 in
     // sampleDecimate blocks will actually be processed.
     private int sampleDecimate = 1;
    

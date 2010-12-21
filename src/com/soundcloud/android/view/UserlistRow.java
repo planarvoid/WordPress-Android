@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.soundcloud.android.CloudUtils;
@@ -13,6 +14,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.objects.User;
 
 public class UserlistRow extends LazyRow {
+	
+    private static final String TAG = "UserlistRow";
 
 	protected User mUser;
 	
@@ -22,6 +25,9 @@ public class UserlistRow extends LazyRow {
 	protected TextView mLocation;
 	protected TextView mTracks;
 	protected TextView mFollowers;
+	
+	protected ImageView mTracksIcon;
+	protected ImageView mFollowersIcon;
 	
 	protected Boolean _isFollowing;
 	
@@ -34,6 +40,9 @@ public class UserlistRow extends LazyRow {
 		  mFollowers = (TextView) findViewById(R.id.followers);
 		  
 		  mIcon = (RemoteImageView) findViewById(R.id.icon);
+		  
+		  mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
+		  mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
 		  
 	  }
 	  
@@ -55,6 +64,9 @@ public class UserlistRow extends LazyRow {
 			setLocation();
 			setTrackCount();
 			setFollowerCount();
+			
+			Log.i(TAG,"SIZE 1 " + mTracksIcon.getWidth() + " " + mTracksIcon.getHeight());
+			Log.i(TAG,"SIZE 2 " + mFollowersIcon.getWidth() + " " + mFollowersIcon.getHeight());
 			
 			
 			if (mUser.getData(User.key_user_following).equalsIgnoreCase("true")){

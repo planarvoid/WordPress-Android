@@ -2,17 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:id="@+id/main_holder"
 	android:orientation="vertical" android:layout_height="fill_parent">
-	<include android:id="@+id/track_info" layout="@layout/track_info_player" />
+	<include android:id="@+id/track_info_bar" layout="@layout/track_info_bar" />
+	 <ViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
+	 android:layout_width="fill_parent" android:layout_height="wrap_content">
 	<RelativeLayout android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_weight="1">
-		<FrameLayout android:id="@+id/track_flipper" android:layout_below="@+id/track_menu"
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:layout_weight="1">
-			<com.soundcloud.android.view.RemoteImageView
-				android:layout_alignParentLeft="true" android:layout_width="fill_parent"
-				android:layout_height="fill_parent" android:gravity="top"
-				android:id="@+id/artwork" />
-		</FrameLayout>
+		android:layout_height="fill_parent" >
+		<com.soundcloud.android.view.RemoteImageView 
+			android:layout_alignParentTop="true" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true"
+			android:id="@+id/artwork" />
 		<LinearLayout android:id="@+id/track_menu"
 			android:background="@color/playerControlBackground"
 			android:paddingTop="5dip" android:paddingBottom="5dip"
@@ -47,8 +45,9 @@
 				android:layout_alignParentTop="true" />
 			<RelativeLayout android:layout_marginTop="20dip" android:layout_width="fill_parent"
 				android:layout_height="40dip" android:id="@+id/connecting_bar">
-				<ProgressBar android:indeterminateOnly="true" android:layout_centerInParent="true" 
-						android:layout_width="30dip" android:layout_height="30dip"/>
+				<ProgressBar style="@style/ScProgressBar"
+						android:indeterminateOnly="true" 
+						android:layout_width="fill_parent" android:layout_height="40dip"/>
 			</RelativeLayout>
 		</RelativeLayout>
 		<FrameLayout android:layout_width="fill_parent" android:id="@+id/unstreamable_layout"
@@ -65,6 +64,13 @@
 			android:layout_alignParentBottom="true" android:layout_height="5dip"
 			android:background="@drawable/drop_shadow_up" />
 	</RelativeLayout>
+	<ViewStub
+	 	  android:id="@+id/stub_info"
+	  	  android:inflatedId="@+id/track_info"
+		  android:layout="@layout/track_info"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content" />
+	</ViewFlipper>
 	<LinearLayout android:id="@+id/transport_bar"
 		android:background="@color/playerControlBackground"
 		android:paddingTop="5dip" android:paddingBottom="5dip"
