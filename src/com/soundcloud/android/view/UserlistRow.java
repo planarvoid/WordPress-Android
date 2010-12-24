@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
 public class UserlistRow extends LazyRow {
@@ -75,19 +77,22 @@ public class UserlistRow extends LazyRow {
 				_isFollowing = false;
 			}
 			
-			String localAvatarUrl = CloudUtils.buildLocalAvatarUrl(mUser.getData(User.key_permalink));
-			Log.i("asdf","Looking for avatar at " + localAvatarUrl);
-			File avatarCheck = new File(localAvatarUrl);
-			if (avatarCheck.exists())
-				super.setViewImage(mIcon,localAvatarUrl);
-			else
-				super.setViewImage(mIcon,mUser.getData(User.key_avatar_url));
 			
+		
+				  
+		  String remoteUrl = "";
+			if (getContext().getResources().getDisplayMetrics().density > 1){
+				mIcon.getLayoutParams().width = 67;
+				mIcon.getLayoutParams().height = 67;
+				remoteUrl = CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.large); 
+			} else
+				remoteUrl = CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.badge);
 			
+			//Log.i("asdf","set row icon " + remoteUrl);
+			
+			super.setViewImage(mIcon,remoteUrl);
 			
 			mIcon.loadImage();
-			
-
 		  
 	  }
 	  

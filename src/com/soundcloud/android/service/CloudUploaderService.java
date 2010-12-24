@@ -314,7 +314,7 @@ public class CloudUploaderService extends Service {
 	    	if (result && !mCurrentUploadCancelled){
 	    		
 	    		File pcmFile = new File(mUploadingData.get("pcm_path"));
-	    		pcmFile.renameTo(new File(pcmFile.getAbsoluteFile().toString().replace(CloudUtils.EXTERNAL_STORAGE_DIRECTORY, CloudUtils.getCacheDirPath(this))));
+	    		pcmFile.delete();
 	    		
 	    		
 	    		if (!CloudUtils.stringNullEmptyCheck(mUploadingData.get("artwork_path"))) {
@@ -446,7 +446,7 @@ public class CloudUploaderService extends Service {
 			protected void onProgressUpdate(Integer... progress) {
 				if (isCancelled()) return;
 				notificationView.setProgressBar(R.id.progress_bar, progress[1], Math.min(progress[1], progress[0]), false);
-				notificationView.setTextViewText(R.id.percentage, String.format(eventString, (100*Math.min(1, progress[0])/progress[1])));
+				notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(100,(int) (100*progress[0])/progress[1])));
 				 nm.notify(UPLOAD_NOTIFY_ID, mNotification);
 				
 			}
@@ -478,7 +478,7 @@ public class CloudUploaderService extends Service {
 	    CharSequence tickerText = success ? getString(R.string.cloud_uploader_notification_finished_ticker) : getString(R.string.cloud_uploader_notification_error_ticker);
 	    long when = System.currentTimeMillis();
     	mNotification = new Notification(icon, tickerText, when);	
-    	mNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+    	mNotification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
     	
     	 Intent i = new Intent(this, Main.class);
          i.addCategory(Intent.CATEGORY_LAUNCHER);

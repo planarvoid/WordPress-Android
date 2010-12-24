@@ -4,20 +4,15 @@
 		android:layout_height="fill_parent" android:id="@+id/main_holder"
 		android:orientation="vertical">
 		<include android:id="@+id/track_info_bar" layout="@layout/track_info_bar" />
-		 <ViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
+		 <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
 		 	android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<FrameLayout android:layout_width="fill_parent" android:background="@color/white" android:layout_height="wrap_content">
+			<FrameLayout android:layout_width="fill_parent" android:background="@color/white" android:layout_height="fill_parent">
 				<RelativeLayout android:layout_width="fill_parent" android:id="@+id/streamable_layout" android:layout_height="fill_parent">
 					<com.soundcloud.android.view.WaveformController
 						android:id="@+id/waveform_controller" android:layout_width="fill_parent"
 						android:orientation="horizontal" android:layout_height="wrap_content" />
 					<TextView android:id="@+id/currenttime" style="@style/txt_player_time_land"
 						android:layout_alignParentTop="true" />
-					<RelativeLayout android:layout_width="fill_parent" android:background="@color/playerControlAlphaBackground"
-						android:layout_height="fill_parent" android:id="@+id/connecting_bar">
-						<ProgressBar android:indeterminateOnly="true" android:layout_centerInParent="true" 
-							android:layout_width="40dip" android:layout_height="40dip"/>
-					</RelativeLayout>
 				</RelativeLayout>
 				<FrameLayout android:layout_width="fill_parent" android:id="@+id/unstreamable_layout" 
 					android:layout_height="fill_parent" android:background="@color/playerControlAlphaBackground">
@@ -31,7 +26,7 @@
 			  android:layout="@layout/track_info"
 			  android:layout_width="fill_parent"
 			  android:layout_height="wrap_content" />
-		</ViewFlipper>
+		</com.soundcloud.android.view.SafeViewFlipper>
 		<LinearLayout android:id="@+id/transport_bar" android:background="@color/playerControlBackground"  android:paddingTop="5dip" android:paddingBottom="5dip"
 			 android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent">						
 			<ImageButton android:layout_weight="1" android:layout_alignParentLeft="true" android:id="@+id/prev" style="@style/btn_oc_transport" android:src="@drawable/ic_prev_states" />

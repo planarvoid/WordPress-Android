@@ -239,10 +239,6 @@ public class LazyTabActivity extends LazyActivity{
     protected void onResume() {
     	super.onResume();
     	
-    	Log.i(TAG,"On resume " + mService);
-    	
-    	
-
     }
 	
 
@@ -283,12 +279,9 @@ public class LazyTabActivity extends LazyActivity{
 	
 	
 	private void setPlayingTrack(String trackId){
-		Log.i(TAG,"Set Playing Track " + mLists);
 		
 		if (mLists == null || mLists.size() == 0)
 			return;
-		
-		Log.i(TAG,"Set Playing Track size " + mLists.size());
 		
 		mCurrentTrackId = trackId;
 		
@@ -296,9 +289,7 @@ public class LazyTabActivity extends LazyActivity{
 		int i = 0;
 		while (mListsIterator.hasNext()){
 			ListView mList = mListsIterator.next();
-			Log.i(TAG,"Checking list " + mList);
 			if (mList.getAdapter() != null){
-				Log.i(TAG,"Checking list adapter " + mList.getAdapter());
 				if (mList.getAdapter() instanceof TracklistAdapter)
 					((TracklistAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
 				else if (mList.getAdapter() instanceof EventsAdapter)
@@ -309,7 +300,6 @@ public class LazyTabActivity extends LazyActivity{
 	
 	
 	
-	@Override
 	protected int getCurrentSectionIndex() { 
 		return tabHost.getCurrentTab();
 	}
@@ -457,18 +447,7 @@ public class LazyTabActivity extends LazyActivity{
 		return mAdapterDatas;
 	}
 	
-	protected void activateLists(){
-		if (mLists == null || mLists.size() == 0)
-			return;
-		
-		Iterator<LazyList>  mListsIterator = mLists.iterator();
-		int i = 0;
-		while (mListsIterator.hasNext()){
-			LazyList mList = mListsIterator.next();
-			if (mList.getWrapper() != null) (mList.getWrapper()).allowLoading();
-		}
-		
-	}
+	
 	
 
 	

@@ -27,7 +27,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
 	public View getView(int index, View row, ViewGroup parent)
 	{
 	
-		//Log.i(TAG,"Get View");
 		TracklistRow rowView = null;
 	
 		if (row == null) {
@@ -36,9 +35,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
 			rowView = (TracklistRow) row;
 		}
 	
-		//Log.i(TAG,"DEBUGGING " + mData.get(0));
-		
-		// update the cell renderer, and handle selection state
 		rowView.display(mData.get(index), mSelectedIndex == index, _playingId ==  getTrackAt(index).getData(Track.key_id));
 		
 		

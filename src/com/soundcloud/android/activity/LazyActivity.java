@@ -5,6 +5,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 
+import oauth.signpost.exception.OAuthCommunicationException;
+
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,7 +22,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -59,7 +62,7 @@ import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.service.ICloudUploaderService;
 import com.soundcloud.android.task.LoadTask;
 
-public abstract class LazyActivity extends Activity implements OnItemClickListener, OnItemSelectedListener {
+public abstract class LazyActivity extends Activity implements OnItemClickListener {
 	private static final String TAG = "LazyActivity";
 	protected LinearLayout mHolder;
 
@@ -121,158 +124,136 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
     
     protected GoogleAnalyticsTracker tracker;
 
-	
+	/**
+	 * 
+	 * @param savedInstanceState
+	 * @param layoutResId
+	 */
 	protected void onCreate(Bundle savedInstanceState, int layoutResId) {
 		super.onCreate(savedInstanceState);
 		
+		setContentView(layoutResId);
+		
+		// Get goole tracker instance
 		tracker = GoogleAnalyticsTracker.getInstance();
 
 	    // Start the tracker in manual dispatch mode...
 	    tracker.start("UA-2519404-11", this);
 		
+	    // Volume mode should always be music in this app
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+		// Setup listener for the telephone
 		MyPhoneStateListener phoneListener=new MyPhoneStateListener();
 		TelephonyManager telephonyManager
 		=(TelephonyManager)getSystemService(TELEPHONY_SERVICE);
 		telephonyManager.listen(phoneListener,
 		PhoneStateListener.LISTEN_CALL_STATE);
 		
+		// Get the instance of our communicator
 		mCloudComm = CloudCommunicator.getInstance(this);
 		
-		setContentView(layoutResId);
-	
-		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		setPageSize(Integer.parseInt(mPreferences.getString("defaultPageSize", "20")));
-		setTrackOrder(mPreferences.getString("defaultTrackSorting", ""));
-		setUserOrder(mPreferences.getString("defaultUserSorting", ""));
-		
 		build();
-		
 		
 		restoreState();
 		initLoadTasks(); 
 	}
+	
+	/**
+	 * Get an instance of our communicator
+	 * @return the Cloud Communicator singleton
+	 */
 	public CloudCommunicator getCloudComm(){
 		return mCloudComm;
 	}
 	
-
+	/**
+	 * Get an instance of our playback service
+	 * @return the playback service, or null if it doesn't exist for some reason
+	 */
 	public ICloudPlaybackService getPlaybackService(){
 		return mService;
 	}
 	
-	
+	/**
+	 * Get an instance of our upload service
+	 * @return the upload service, or null if it doesn't exist for some reason
+	 */
 	public ICloudUploaderService getUploadService(){
 		return mUploadService;
 	}
 	
-	public SharedPreferences getPreferences(){
-		return mPreferences;
-	}
-	
+	/**
+	 * A parcelable object has just been retrieved by an async task somewhere, so perform 
+	 * any mapping necessary on that object, for example: {@link com.soundcloud.android.activity.Main}
+	 * @param p
+	 */
 	public void mapDetails(Parcelable p){
 		
 	}
 
-	public void lockCurrentOrientaiton(){
-		mLockedOrientation = getResources().getConfiguration().orientation;
-	}
-	
-	public void unlockOrientaiton(){
-		mLockedOrientation = -1;
-	}
-	
-	
+	/**
+	 * Get a progress dialog that has been created. Used primarily to update dialog as necessary
+	 * @return the current progress dialog, or null if one doesnt exist
+	 */
 	public ProgressDialog getProgressDialog() {
 		return mProgressDialog;
 	}
+	
+	/**
+	 * Set the current progress dialog
+	 * @param progressDialog : the progress dialog that shoudld be set as current
+	 */
 	public void setProgressDialog(ProgressDialog progressDialog) {
 		mProgressDialog = progressDialog;
 	}
 	
-
-	protected int getCurrentSectionIndex() {
-		return 0;
+	/**
+	 * Get the current exception
+	 * @return the exception
+	 */
+	public Exception getException() {
+		return mException;
 	}
 
-	protected void build(){
-		
+	/**
+	 * Get the current error
+	 * @return the error
+	 */
+	public String getError() {
+		return mError;
 	}
 	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-	    super.onConfigurationChanged(newConfig);
-	 }
 	
-	
-	@Override
-	protected void onStart() {
-    	super.onStart();
-    	
-    	Log.i(TAG,"on start, about to bind to service " + CloudUploaderService.class);
-    	
-    	//start it so it is persistent outside this activity, then bind it
-		startService(new Intent(this, CloudUploaderService.class));
-		bindService(new Intent(this, CloudUploaderService.class), uploadOsc,0);
-    	
-		if (false == CloudUtils.bindToService(this, osc)) {
-			// something went wrong
-			//mHandler.sendEmptyMessage(QUIT);
-		}
-    }
-	
-	@Override
-	protected void onStop() {
-    	super.onStop();
-    	
-    	this.unbindService(uploadOsc);
-    	
-		CloudUtils.unbindFromService(this);
-		mService = null;
-    
-    }
-
+	public String getTrackOrder() {
+		return mTrackOrder;
+	}
 
 	
+	public String getUserOrder() {
+		return mUserOrder;
+	}
 	
-	@Override
-    protected void onResume() {
-    	super.onResume();
-    }
-	
-	@Override
-	protected void onDestroy() {
-    	super.onDestroy();
-    }
-	
+	/**
+	 * Initialize any new loading, this will take place after any running loading tasks have been restored
+	 */
 	protected void initLoadTasks(){
 		
 	}
 	
-	protected void setTaskActivity() {
-		mLoadTask.setActivity(this);
-	}
 	
-
-
-	
-	protected void startActivityForPosition(Class<?> targetCls, HashMap<String, String> info) {
-		Intent i = new Intent(this, targetCls);
-		for (String key : info.keySet()) {
-			i.putExtra(key, info.get(key));
-		}
-		startActivity(i);
-	}
-	
-	
-	
-	
+	/**
+	 * Get the id of the track that is currently playing
+	 * @return the track id that is being played
+	 */
 	public String getCurrentTrackId(){
 		return mCurrentTrackId;
 	}
 
-	
+	/**
+	 * A parcelable has just been loaded, so perform any data operations necessary
+	 * @param p : the parcelable that has just been loaded
+	 */
 	public void resolveParcelable(Parcelable p){
 		if (p instanceof Track){
 			CloudUtils.resolveTrack(this, (Track) p, false, CloudUtils.getCurrentUserId(this));
@@ -282,14 +263,20 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		}
 	}
 	
+	/**
+	 * Track has been clicked in a list, enqueu the list of tracks if necessary and send the user to the player
+	 * @param list
+	 * @param playPos
+	 */
 	public void playTrack(List<Parcelable> list, int playPos){
 		
 		Track t = null;
 		
+		// is this a track of a list
 		 if (list.get(playPos) instanceof Track)
 			t = ((Track) list.get(playPos));
 		 else if (list.get(playPos) instanceof Event)
-				t = (Track) ((Event) list.get(playPos)).getDataParcelable(Event.key_track);
+			t = (Track) ((Event) list.get(playPos)).getDataParcelable(Event.key_track);
 		 
 		try {
 			if (t != null && mService != null && mService.getTrackId() != null && mService.getTrackId().contentEquals(t.getData(Track.key_id))){
@@ -331,85 +318,34 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	}
 	
 	
-	
+	/**
+	 * A list item has been clicked
+	 */
 	public void onItemClick(AdapterView<?> list, View row, int position, long id) {
 		
-		if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0)
-			return;
+		if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0 || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
+			return; // bad list item clicked (possibly loading item)
 			
 		if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event){
-			this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(),position);	
+			
+			//track clicked
+			this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(),position);
+			
 		} else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User){
+
+			//user clicked
 			Intent i = new Intent(this, ScProfile.class);
 			i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
 			startActivity(i);
-		}
-		
-		
-	}
-	
-
-	
-	public void onItemSelected(AdapterView<?> list, View row, int position, long id) {
-		//((LazyAdapter) list.getAdapter()).setSelected(position);
-	}
-	
-
-	public void onNothingSelected(AdapterView<?> list) {
-		//((LazyAdapter) list.getAdapter()).setSelected(-1);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		// TODO Auto-generated method stub
-	}
-	
-	
-	public void setDialogUsername(String username){
-		dialogUsername = username;
-	}
-	
-	protected void restoreState() {
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		
-		switch (item.getItemId()) {
 			
-				
-			case CloudUtils.ContextMenu.VIEW_UPLOADER:
-				if (menuParcelable instanceof Comment)
-					CloudUtils.gotoTrackUploader(this, ((Comment) menuParcelable).getData(Comment.key_user_permalink));
-				else if (menuParcelable instanceof Track)
-					CloudUtils.gotoTrackUploader(this, ((Track) menuParcelable).getData(Track.key_user_permalink));
-				break;
-				
-			case CloudUtils.ContextMenu.VIEW_TRACK:
-				CloudUtils.gotoTrackDetails(this, (Track) menuParcelable);
-				break;
-				
-			default:
-				return super.onContextItemSelected(item);
 		}
-		return true;
 	}
 	
 	
 	
-	
+	/**
+	 * Handle common options menu building
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK, menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_info_details);
@@ -419,42 +355,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		return super.onCreateOptionsMenu(menu);
 	}
 	
-    @Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (!CloudUtils.stringNullEmptyCheck(getCurrentTrackId()) && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
-    		menuCurrentPlayingItem.setVisible(true);
-    	} else {
-    		menuCurrentPlayingItem.setVisible(false);
-    	}
-    	
-    	try {
-			if (mUploadService.isUploading()){
-				menuCurrentUploadingItem.setVisible(true);
-			} else {
-				menuCurrentUploadingItem.setVisible(false);
-			}
-		} catch (RemoteException e) {
-			menuCurrentUploadingItem.setVisible(false);
-		}
-    		
-    	return true;	
-    }
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case CloudUtils.OptionsMenu.SETTINGS:
-				startActivity(new Intent(this, Settings.class));
-				return true;
-			case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
-				startActivity(new Intent(this, ScPlayer.class));
-				return true;
-			case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
-				showDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+	
 	
 	
 	public String getCurrentUserId() {
@@ -483,10 +384,16 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 
 
 	public void handleException() {
+		
 		if (getException() != null) {
-			if (getException() instanceof UnknownHostException || getException() instanceof SocketException) {
-				showDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-			} 
+			if (getException() instanceof UnknownHostException 
+					|| getException() instanceof SocketException
+					|| getException() instanceof JSONException
+					|| getException() instanceof OAuthCommunicationException) {
+				//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+			}  else {
+				//showDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
+			}
 		}
 		setException(null);
 	}
@@ -518,11 +425,9 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	}
 	
 	
-	protected void onServiceBound(){
-	}
+	protected void onServiceBound(){}
 	
-	protected void onServiceUnbound(){
-	}
+	protected void onServiceUnbound(){}
 	
 	
 	
@@ -616,7 +521,6 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	protected OnTouchListener swipeListener = new OnTouchListener(){ 
         @Override 
         public boolean onTouch(View v, MotionEvent touchevent) {
-        	Log.i(TAG,"SWIPE");
         	switch (touchevent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
@@ -682,6 +586,13 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 					return new AlertDialog.Builder(this).setTitle(R.string.error_track_download_error_title).setMessage(R.string.error_track_download_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_DOWNLOAD_ERROR);
+						}
+					}).create();
+					
+				case CloudUtils.Dialogs.DIALOG_GENERAL_ERROR:
+					return new AlertDialog.Builder(this).setTitle(R.string.error_general_title).setMessage(R.string.error_general_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							removeDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
 						}
 					}).create();
 					
@@ -791,43 +702,154 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		                       
 		                    }
 		                })
-		                .setNegativeButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
+		                .setNegativeButton(getString(R.string.btn_no), new DialogInterface.OnClickListener() {
 		                    public void onClick(DialogInterface dialog, int whichButton) {
 		                    	removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
 		                    }
 		                })
 		                .create(); 
+				case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY:
+					mProgressDialog = new ProgressDialog(this);
+					mProgressDialog.setTitle(R.string.authentication_retrying_title);
+					mProgressDialog.setMessage(getResources().getString(R.string.authentication_retrying_message));
+					mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					mProgressDialog.setIndeterminate(true);
+					mProgressDialog.setCancelable(false);
+					return mProgressDialog;
+					
+				case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR:
+					return new AlertDialog.Builder(this)
+					.setTitle(R.string.authentication_failed_title)
+					.setMessage(R.string.authentication_failed_message)
+					.setPositiveButton(R.string.btn_retry, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR);
+							try {startActivity(mCloudComm.getAuthorizationIntent()); finish();} 
+							catch (Exception e) {setException(e);handleException();}
+						}
+					}).create();
 					
 					
 			}  
 			return super.onCreateDialog(which);
 		}
 
-	public Exception getException() {
-		return mException;
-	}
+	
+	 /**
+		 * Prepare the options menu based on the current class and current play state
+		 */
+	    @Override
+		public boolean onPrepareOptionsMenu(Menu menu) {
+	    	if (!CloudUtils.stringNullEmptyCheck(getCurrentTrackId()) && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
+	    		menuCurrentPlayingItem.setVisible(true);
+	    	} else {
+	    		menuCurrentPlayingItem.setVisible(false);
+	    	}
+	    	
+	    	try {
+				if (mUploadService.isUploading()){
+					menuCurrentUploadingItem.setVisible(true);
+				} else {
+					menuCurrentUploadingItem.setVisible(false);
+				}
+			} catch (RemoteException e) {
+				menuCurrentUploadingItem.setVisible(false);
+			}
+	    		
+	    	return true;	
+	    }
 
-	public String getError() {
-		return mError;
-	}
-
-	public void setTrackOrder(String mTrackOrder) {
-		this.mTrackOrder = mTrackOrder;
-	}
-
-	public String getTrackOrder() {
-		return mTrackOrder;
-	}
-
-	public void setUserOrder(String mUserOrder) {
-		this.mUserOrder = mUserOrder;
-	}
-
-	public String getUserOrder() {
-		return mUserOrder;
+	    /**
+	     * Handle options menu selections
+	     */
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch (item.getItemId()) {
+				case CloudUtils.OptionsMenu.SETTINGS:
+					startActivity(new Intent(this, Settings.class));
+					return true;
+				case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
+					startActivity(new Intent(this, ScPlayer.class));
+					return true;
+				case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
+					showDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+					return true;
+			}
+			return super.onOptionsItemSelected(item);
+		}
+	
+	
+	/***** State saving/restoring *****/
+	
+	
+	/**
+	 * Restore the state of this activity from a previous state, if one exists
+	 */
+	protected void restoreState() {
+		
 	}
 
 	
+	/***** Build and Lifecycle *****/
 	
+	/**
+	 * Build any components we need to for this activity
+	 */
+	protected void build(){
+		
+	}
+	
+	
+	/**
+	 * Bind our services
+	 */
+	@Override
+	protected void onStart() {
+    	super.onStart();
+    	
+    	//start it so it is persistent outside this activity, then bind it
+		startService(new Intent(this, CloudUploaderService.class));
+		bindService(new Intent(this, CloudUploaderService.class), uploadOsc,0);
+    	
+		if (false == CloudUtils.bindToService(this, osc)) {
+			// something went wrong
+			//mHandler.sendEmptyMessage(QUIT);
+		}
+    }
+	
+	/**
+	 * Unbind our services
+	 */
+	@Override
+	protected void onStop() {
+    	super.onStop();
+    	
+    	this.unbindService(uploadOsc);
+    	
+		CloudUtils.unbindFromService(this);
+		mService = null;
+    
+    }
+
+
+	
+	/**
+	 * 
+	 */
+	@Override
+    protected void onResume() {
+    	super.onResume();
+    	// set our default preferences here, in case they were just changed 
+		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		setPageSize(Integer.parseInt(mPreferences.getString("defaultPageSize", "20")));
+		mTrackOrder = mPreferences.getString("defaultTrackSorting", "");
+		mUserOrder = mPreferences.getString("defaultUserSorting", "");
+		
+    }
+	
+	@Override
+	protected void onDestroy() {
+    	super.onDestroy();
+    }
 	
 }

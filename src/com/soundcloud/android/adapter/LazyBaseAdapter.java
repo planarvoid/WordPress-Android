@@ -46,8 +46,6 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
 
 	public View getView(int index, View row, ViewGroup parent)
 	{
-		Log.i("LAZY","GET VIEW");
-		
 		LazyRow rowView = null;
 	
 		if (row == null) {

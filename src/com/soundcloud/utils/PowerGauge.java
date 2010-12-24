@@ -82,7 +82,7 @@ public class PowerGauge extends View {
 	private Paint mPaint;
 	
 	private int mLastSquareOn;
-	private static final Double POWER_BASE = -70.0;
+	private static final Double POWER_BASE = -60.0;
 	private static final Double POWER_PEAK = 0.0;
 	private static final int SQUARE_HEIGHT = 20;
 	private static final int GUTTER_WIDTH = 3;

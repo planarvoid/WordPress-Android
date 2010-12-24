@@ -26,6 +26,7 @@ import android.widget.TabWidget;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.ImageView.ScaleType;
 
 import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
@@ -126,6 +127,12 @@ public class UserBrowser extends ScTabView {
 		mMyspaceName = (TextView) mDetailsView.findViewById(R.id.myspace_name);
 		mDescription = (TextView) mDetailsView.findViewById(R.id.description);
 		
+		mIcon.setScaleType(ScaleType.CENTER_INSIDE);
+		if (getContext().getResources().getDisplayMetrics().density > 1){
+			mIcon.getLayoutParams().width = 67;
+			mIcon.getLayoutParams().height = 67;
+		} 
+		
 		//mUserTableHolder = (LinearLayout) mDetailsView.findViewById(R.id.user_details_table_holder);
 		//mUserTable = (TableLayout) mDetailsView.findViewById(R.id.user_details_table);
 		//mUserTableHolder.removeView(mUserTable);
@@ -156,12 +163,12 @@ public class UserBrowser extends ScTabView {
 		}
 		
 		
-		((ScTabView) mTabHost.getTabContentView().getChildAt(0)).onRefresh();
+		((ScTabView) mTabHost.getCurrentView()).onRefresh();
 	}
 	
 	@Override
 	public void onRefresh(){
-		((ScTabView) mTabHost.getTabContentView().getChildAt(0)).onRefresh();
+		((ScTabView) mTabHost.getCurrentView()).onRefresh();
 	}
 	
 	public void loadYou(){
@@ -246,7 +253,6 @@ public class UserBrowser extends ScTabView {
 		LoadTask lt = new LoadUserDetailsTask();
 		lt.loadModel = CloudUtils.Model.user;
 		lt.mUrl = getDetailsUrl();
-		Log.i("DB","LOAD DETAILS " + lt.mUrl);
 		lt.setActivity(mActivity);
 		return lt;
 	}
@@ -254,7 +260,7 @@ public class UserBrowser extends ScTabView {
 	protected class LoadUserDetailsTask extends LoadDetailsTask {
 		@Override
 		protected void mapDetails(Parcelable update){
-			Log.i(TAG, "Map My Details");
+			Log.i(TAG, "Map My Details ");
 			
 			mapUser(update);
 		}
@@ -280,7 +286,7 @@ public class UserBrowser extends ScTabView {
 		LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(mActivity,adp,getUserTracksUrl(),CloudUtils.Model.track);
 		
 		final ScTabView tracksView = new ScTabView(mActivity,adpWrap);
-		CloudUtils.createTabList(mActivity, tracksView, adpWrap);
+		CloudUtils.createTabList(mActivity, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
 		CloudUtils.createTab(mActivity, mTabHost,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView, false);
 		adpWrap.notifyDataSetChanged();
 		Log.i(TAG,"Making a favorites list " + getFavoritesUrl());
@@ -289,7 +295,7 @@ public class UserBrowser extends ScTabView {
 		adpWrap = new LazyEndlessAdapter(mActivity,adp,getFavoritesUrl(),CloudUtils.Model.track);
 		
 		final ScTabView favoritesView = new ScTabView(mActivity,adpWrap);
-		CloudUtils.createTabList(mActivity, favoritesView, adpWrap);
+		CloudUtils.createTabList(mActivity, favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES);
 		CloudUtils.createTab(mActivity, mTabHost,"favorites",mActivity.getString(R.string.tab_favorites),null,favoritesView, false);
 		adpWrap.notifyDataSetChanged();
 		
@@ -309,8 +315,16 @@ public class UserBrowser extends ScTabView {
 	
 	protected void setTabTextInfo(){
 		if (mTabWidget != null && mUserData != null){
-			CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(R.string.tab_tracks) + " (" + mUserData.getData(User.key_track_count) + ")");
-			CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(R.string.tab_favorites) + " (" + mUserData.getData(User.key_public_favorites_count) + ")");
+			if (!CloudUtils.stringNullEmptyCheck(mUserData.getData(User.key_track_count)))
+				CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(R.string.tab_tracks) + " (" + mUserData.getData(User.key_track_count) + ")");
+			else
+				CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(R.string.tab_tracks));
+			
+			if (!CloudUtils.stringNullEmptyCheck(mUserData.getData(User.key_public_favorites_count)))
+				CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(R.string.tab_favorites) + " (" + mUserData.getData(User.key_public_favorites_count) + ")");
+			else
+				CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(R.string.tab_favorites));
+			
 		}
 	}
 	
@@ -439,7 +453,7 @@ public class UserBrowser extends ScTabView {
 		
 		mUser.setText(mUserData.getData(User.key_username));
 		mLocation.setText( CloudUtils.getLocationString(mUserData.getData(User.key_city),mUserData.getData(User.key_country)));
-		mIcon.setTemporaryDrawable(getResources().getDrawable(R.drawable.artwork_badge));
+		mIcon.setTemporaryDrawable(getResources().getDrawable(R.drawable.avatar_badge));
 		//mIcon.setUpdateLocal(true);
 		
 		setTabTextInfo();

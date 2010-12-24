@@ -5,7 +5,10 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,6 +55,8 @@ public class ScSearch extends ScTabView {
     private LazyList mList;
     private LazyEndlessAdapter mTrackAdpWrapper;
     private LazyEndlessAdapter mUserAdpWrapper;
+    
+    private int MIN_LENGTH = 2;
 
     // ******************************************************************** //
     // Activity Lifecycle.
@@ -93,6 +98,7 @@ public class ScSearch extends ScTabView {
 		txtQuery = (EditText) findViewById(R.id.query);
 		
 		btnSearch = (Button) findViewById(R.id.search);
+		btnSearch.setEnabled(false);
 		btnSearch.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				doSearch();
@@ -111,7 +117,7 @@ public class ScSearch extends ScTabView {
 		
 		((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
 		mList.setVisibility(View.GONE);
-		mList.setFocusable(false);
+		//mList.setFocusable(false);
 		
 		LazyBaseAdapter adpTrack = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
 		mTrackAdpWrapper = new LazyEndlessAdapter(mActivity,adpTrack,"",CloudUtils.Model.track);
@@ -131,6 +137,31 @@ public class ScSearch extends ScTabView {
 		txtQuery.setOnFocusChangeListener(queryFocusListener);
 		txtQuery.setOnClickListener(queryClickListener);
 		
+		txtQuery.addTextChangedListener(new TextWatcher() {
+			
+			public void afterTextChanged(Editable s) {
+			}
+
+			
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				btnSearch.setEnabled(s != null && s.length() > MIN_LENGTH);
+			}
+		});
+
+		txtQuery.setOnKeyListener(new View.OnKeyListener() {
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && txtQuery.getText().length() > MIN_LENGTH) {
+					doSearch();
+					return true;
+				}
+				return false;
+			}
+		});
+		
 	}
     
     private void doSearch(){
@@ -149,13 +180,11 @@ public class ScSearch extends ScTabView {
     	if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks){
     		mTrackAdpWrapper.setPath(CloudCommunicator.PATH_TRACKS,URLEncoder.encode(txtQuery.getText().toString()));
     		mTrackAdpWrapper.createListEmptyView(mList);
-    		mTrackAdpWrapper.allowLoading();
         	mList.setAdapter(mTrackAdpWrapper);
         		
     	} else {
     		mUserAdpWrapper.setPath(CloudCommunicator.PATH_USERS,URLEncoder.encode(txtQuery.getText().toString()));
     		mUserAdpWrapper.createListEmptyView(mList);
-    		mUserAdpWrapper.allowLoading();
         	mList.setAdapter(mUserAdpWrapper);
         	
     	}

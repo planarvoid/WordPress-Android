@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import java.io.File;
 
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.utils.HTTPQueue;
 import com.soundcloud.utils.HTTPThread;
 
@@ -24,6 +25,7 @@ public class RemoteImageView extends ImageView {
 	private int mImageHeight = 0;
 	private HTTPThread mThread = null;
 	private float scale;
+	private File defaultCacheDir;
 
 	public RemoteImageView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -33,6 +35,8 @@ public class RemoteImageView extends ImageView {
 
 	public RemoteImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);	
+		
+		defaultCacheDir = CloudUtils.getCacheDir(context);
 		scale = context.getResources().getDisplayMetrics().density;
 	}
 	
@@ -59,7 +63,7 @@ public class RemoteImageView extends ImageView {
 	public void loadImage() {
 		if (mRemote != null && !mRemote.contentEquals("")) {
 			if (mLocal == null) {
-				mLocal = Environment.getExternalStorageDirectory() + "/.remote-image-view-cache/" + mRemote.hashCode() + ".jpg";
+				mLocal = defaultCacheDir + "/" + CloudUtils.getCacheFileName(mRemote);
 			}
 			// check for the local file here instead of in the thread because
 			// otherwise previously-cached files wouldn't be loaded until after

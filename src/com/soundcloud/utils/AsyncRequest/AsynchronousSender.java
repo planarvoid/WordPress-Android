@@ -35,9 +35,7 @@ public class AsynchronousSender extends Thread {
 			// process response
 			wrapper.setResponse(response);
 			handler.post(wrapper);
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

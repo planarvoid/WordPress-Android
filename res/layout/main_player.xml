@@ -3,7 +3,7 @@
 	android:layout_width="fill_parent" android:id="@+id/main_holder"
 	android:orientation="vertical" android:layout_height="fill_parent">
 	<include android:id="@+id/track_info_bar" layout="@layout/track_info_bar" />
-	 <ViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
+	 <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
 	 android:layout_width="fill_parent" android:layout_height="wrap_content">
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent" >
@@ -43,12 +43,6 @@
 				android:orientation="horizontal" android:layout_height="80dip" />
 			<TextView android:id="@+id/currenttime" style="@style/txt_player_time"
 				android:layout_alignParentTop="true" />
-			<RelativeLayout android:layout_marginTop="20dip" android:layout_width="fill_parent"
-				android:layout_height="40dip" android:id="@+id/connecting_bar">
-				<ProgressBar style="@style/ScProgressBar"
-						android:indeterminateOnly="true" 
-						android:layout_width="fill_parent" android:layout_height="40dip"/>
-			</RelativeLayout>
 		</RelativeLayout>
 		<FrameLayout android:layout_width="fill_parent" android:id="@+id/unstreamable_layout"
 			android:layout_height="40dip" android:layout_alignParentBottom="true" android:background="@color/playerControlAlphaBackground">
@@ -70,7 +64,7 @@
 		  android:layout="@layout/track_info"
 		  android:layout_width="fill_parent"
 		  android:layout_height="wrap_content" />
-	</ViewFlipper>
+	</com.soundcloud.android.view.SafeViewFlipper>
 	<LinearLayout android:id="@+id/transport_bar"
 		android:background="@color/playerControlBackground"
 		android:paddingTop="5dip" android:paddingBottom="5dip"

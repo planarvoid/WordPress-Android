@@ -48,5 +48,5 @@
 			</TableRow>
 		</TableLayout>
 		</ScrollView>
-		<TextView android:text="@string/no_info_available" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"></TextView>
+		<TextView android:text="@string/info_empty" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"></TextView>
 </FrameLayout>

@@ -99,10 +99,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	private ExpandableListView comments_lv;
 	private WaveformController mWaveformController;
-	private RelativeLayout mConnectingBar;
+	
 
-	private String mCurrentTrackId;
-	private String mPendingArtwork;
+	private String mCurrentTrackId = "";
+	private String mPendingArtwork = "";
 
 	private Track mPlayingTrack;
 
@@ -198,7 +198,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		showingComments = preferences.getBoolean("showPlayerComments", false);
 		// showingComments = false;
 
-		mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
 
 		mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
 		mWaveformController.setPlayer(this);
@@ -659,11 +658,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		try {
 
-			if (mPendingArtwork != null && mArtwork.getWidth() > 0) {
+			/*if (mPendingArtwork != null && mArtwork != null && mArtwork.getWidth() > 0) {
 				mArtwork.setRemoteURI(mPendingArtwork);
 				mArtwork.loadImage();
 				mPendingArtwork = null;
-			}
+			}*/
 			
 			if (mService == null)
 				return 500;
@@ -782,7 +781,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			} else if (action.equals(CloudPlaybackService.ASYNC_OPEN_COMPLETE)) {
 				setAsyncOpeningDone();
 			} else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
-				showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
+				//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
 				mPauseButton.setEnabled(true);
 			} else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
 				//showToast(getString(R.string.toast_error_stream_died));
@@ -810,12 +809,12 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	private void setAsyncOpeningStart() {
 		mPauseButton.setEnabled(false);
-		mConnectingBar.setVisibility(View.VISIBLE);
+		mWaveformController.showConnectingLayout();
 	}
 
 	private void setAsyncOpeningDone() {
 		mPauseButton.setEnabled(true);
-		mConnectingBar.setVisibility(View.GONE);
+		mWaveformController.hideConnectingLayout();
 		// play();
 
 	}
@@ -857,10 +856,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		if (mPlayingTrack == null) {
 			return;
 		}
-
-		if (mCurrentTrackId != mPlayingTrack.getData(Track.key_id)) {
-			trackName = mPlayingTrack.getData(Track.key_title);
-			userName = mPlayingTrack.getData(Track.key_username);
+		
+		if (!mPlayingTrack.getData(Track.key_id).contentEquals(mCurrentTrackId)) {
+			mTrackName.setText(mPlayingTrack.getData(Track.key_title));
+			mUserName.setText(mPlayingTrack.getData(Track.key_username));
 
 			if (CloudUtils.isTrackPlayable(mPlayingTrack)){
 				mStreamableLayout.setVisibility(View.VISIBLE);
@@ -889,10 +888,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				}
 				
 
-				if (mArtwork.getWidth() != 0 && mPendingArtwork != null) {
+				if (mPendingArtwork != null) {
 					mArtwork.setRemoteURI(mPendingArtwork);
-					mArtwork.setLocalURI(null);
-					//mArtwork.setLocalURI(CloudUtils.getCacheDirPath(this) + "/" + CloudUtils .getCacheFileName(mPendingArtwork));
+					//mArtwork.setLocalURI(null);
+					mArtwork.setLocalURI(CloudUtils.getCacheDirPath(this) + "/" + CloudUtils .getCacheFileName(mPendingArtwork));
 					mArtwork.loadImage();
 					mPendingArtwork = null;
 				} 
@@ -903,8 +902,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		}
 
 
-		mTrackName.setText(trackName);
-		mUserName.setText(userName);
+		
 
 
 	}

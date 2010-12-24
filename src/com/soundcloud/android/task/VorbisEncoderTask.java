@@ -15,6 +15,7 @@ import org.xiph.libvorbis.vorbis_info;
 import org.xiph.libvorbis.vorbisenc;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 
@@ -34,7 +35,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 	static vorbis_dsp_state		vd;	// central working state for the packet->PCM decoder
 	static vorbis_block			vb;	// local working space for packet->PCM decode
 	
-	static int READ = 1024;
+	static int READ = 4096;
 	static byte[] readbuffer = new byte[READ*4+44];
 	
 	static int page_count = 0;
@@ -137,8 +138,9 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 			FileInputStream fin = new FileInputStream( inputFile );
 			
 			//for progress tracking
-			int totalbytesRead = 0;
-			int bytestotal = (int) inputFile.length();
+			int blocks = 0;
+			int blocksTotal = (int) inputFile.length()/(READ*4);
+			
 			int lastPercentReported = 0;
 			
 			System.out.print( "Encoding." );
@@ -147,7 +149,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 				int i;
 				int bytes = fin.read( readbuffer, 0, READ*4 ); // stereo hardwired here
 				
-				totalbytesRead += bytes;
+				blocks++;
 				
 				
 				int break_count = 0;
@@ -212,9 +214,11 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 					}
 				}
 				
-				if (Math.round(100 * totalbytesRead / bytestotal) > lastPercentReported){
-					lastPercentReported = Math.round(100 * totalbytesRead / bytestotal);
-					publishProgress(totalbytesRead,bytestotal);
+				//Log.i(TAG,"checking progress crap " + lastPercentReported + " " + Math.round(100 * blocks / blocksTotal));
+				
+				if (Math.round(100 * blocks / blocksTotal) > lastPercentReported){
+					lastPercentReported = Math.round(100 * blocks / blocksTotal);
+					publishProgress((int) blocks,(int) blocksTotal);
 				}
 					
 			}

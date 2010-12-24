@@ -102,7 +102,8 @@ public class CloudUtils {
 		public static final String ARTWORK_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/artwork";
 		public static final String WAVEFORM_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/waveforms";
 		public static final String AVATAR_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/avatars";
-		public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Android/data/com.soundcloud.android/files";
+		public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Android/data/com.soundcloud.android/files/.cache/";
+		public static final String EXTERNAL_CACHE_DIRECTORY_DEPRACATED = Environment.getExternalStorageDirectory() + "/Soundcloud";
 		public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud";
 		
 		public static final int GALLERY_IMAGE_PICK_CODE = 9988;
@@ -116,6 +117,7 @@ public class CloudUtils {
 	    }
 	    
 	    public interface Dialogs {
+	    	public static final int DIALOG_GENERAL_ERROR = 9;
 	    	public static final int DIALOG_ERROR_LOADING = 10;
 	    	public static final int DIALOG_UNAUTHORIZED = 11;
 	    	public static final int DIALOG_ADD_COMMENT = 12;
@@ -140,6 +142,9 @@ public class CloudUtils {
 	    	
 	    	public static final int DIALOG_PROCESSING = 31;
 	    	public static final int DIALOG_CANCEL_UPLOAD = 32;
+	    	
+	    	public static final int DIALOG_AUTHENTICATION_RETRY = 33;
+	    	public static final int DIALOG_AUTHENTICATION_ERROR = 34;
 	    }
 
 	    public interface Defs {
@@ -239,6 +244,22 @@ public class CloudUtils {
 	    	GraphicsSizes.original};
 	    
 	    
+	    public interface ListId {
+			public final static int LIST_INCOMING = 1001;
+			public final static int LIST_EXCLUSIVE = 1002;
+			public final static int LIST_USER_TRACKS = 1003;
+			public final static int LIST_USER_FAVORITES = 1004;
+			public final static int LIST_SEARCH = 1005;
+		}
+	    
+	    public static File getCacheDir(Context c){
+	    	if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+	    		return new File(EXTERNAL_CACHE_DIRECTORY);
+	    	} else {
+	    		return c.getCacheDir();
+	    	}
+	    }
+	    
 	    public static String getCacheDirPath(Context c){
 	    	if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 	    		return EXTERNAL_CACHE_DIRECTORY;
@@ -247,13 +268,58 @@ public class CloudUtils {
 	    	}
 	    }
 	    
+	    public static void trimCache(Context context) {
+	        try {
+	            File dir = context.getCacheDir();
+	            if (dir != null && dir.isDirectory()) {
+	                deleteDir(dir);
+
+	            }
+	        } catch (Exception e) {
+	            // TODO: handle exception
+	        }
+
+	    }
+	    
+	    public static void buildDirs(Context c){
+			
+	    	//clear out old cache and make a new one
+	    	if (!getCacheDir(c).exists()){
+	    		if (getCacheDir(c).getParentFile().exists())
+	    			deleteDir(getCacheDir(c).getParentFile());
+	    	} else {
+	    		//deleteDir(getCacheDir(c));
+	    	}
+	    	
+	    	getCacheDir(c).mkdirs();
+	    	
+	    	//create external storage directory
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
+			}
+		}
+
+	    public static boolean deleteDir(File dir) {
+	        if (dir!=null && dir.isDirectory()) {
+	            String[] children = dir.list();
+	            for (int i = 0; i < children.length; i++) {
+	                boolean success = deleteDir(new File(dir, children[i]));
+	                if (!success) {
+	                    return false;
+	                }
+	            }
+	        }
+
+	        // The directory is now empty so delete it
+	        return dir.delete();
+	    } 
+	    
 	    
 		public static LazyList createList(LazyActivity activity){
 			
 			LazyList mList = new LazyList(activity);
 			mList.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 			mList.setOnItemClickListener(activity);
-			mList.setOnItemSelectedListener(activity);
 			mList.setFastScrollEnabled(true);
 			mList.setTextFilterEnabled(true);
 			mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));
@@ -264,12 +330,15 @@ public class CloudUtils {
 			return mList;
 		}
 
-		
+		public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
+			createTabList(activity,listHolder,adpWrap,-1);
+		}
 	    
-	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
+	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap, int listId){
 			 
 			listHolder.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 			LazyList lv = ((LazyTabActivity) activity).buildList(false);
+			if (listId != -1) lv.setId(listId);
 		    lv.setAdapter(adpWrap);
 		    listHolder.addView(lv);
 		    adpWrap.createListEmptyView(lv);
@@ -299,6 +368,8 @@ public class CloudUtils {
 			FrameLayout frameLayout = (FrameLayout) tabLayout.findViewById(android.R.id.tabcontent);
 		    frameLayout.setPadding(0, 0, 0, 0);
 		   
+		    
+		    
 		    tabHost.setup();
 		    
 		    return tabLayout;
@@ -473,33 +544,7 @@ public class CloudUtils {
      		return preferences.getString("currentUserId", "");
 		}
 	    
-	    public static void trimCache(Context context) {
-	        try {
-	            File dir = context.getCacheDir();
-	            if (dir != null && dir.isDirectory()) {
-	                deleteDir(dir);
-
-	            }
-	        } catch (Exception e) {
-	            // TODO: handle exception
-	        }
-
-	    }
-
-	    public static boolean deleteDir(File dir) {
-	        if (dir!=null && dir.isDirectory()) {
-	            String[] children = dir.list();
-	            for (int i = 0; i < children.length; i++) {
-	                boolean success = deleteDir(new File(dir, children[i]));
-	                if (!success) {
-	                    return false;
-	                }
-	            }
-	        }
-
-	        // The directory is now empty so delete it
-	        return dir.delete();
-	    } 
+	   
 	    
 	    
 	    
@@ -1503,14 +1548,6 @@ public class CloudUtils {
 				}
 		}
 		
-		
-		public static void buildDirs(){
-			
-			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-				new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
-				new File(EXTERNAL_CACHE_DIRECTORY).mkdirs();
-			}
-		}
 
 		public static String buildRequestPath(String mUrl, String order){
 			return buildRequestPath(mUrl,order,false);
@@ -1545,7 +1582,7 @@ public class CloudUtils {
 
 
 		public static String getCacheFileName(String url) {
-			return url.hashCode() + ".jpg";
+			return url.hashCode() + ".png";
 		}
 		
 	

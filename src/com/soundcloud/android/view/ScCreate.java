@@ -129,7 +129,12 @@ public class ScCreate extends ScTabView implements PlaybackListener, RecordListe
 	public static int REC_SAMPLE_RATE = 44100;
 	public static int REC_CHANNELS = 2;
 	public static int REC_BITS_PER_SAMPLE = 16;
-	public static int REC_MAX_FILE_SIZE = 52920000;
+	//public static int REC_MAX_FILE_SIZE = 52920000;
+	//public static int REC_MAX_FILE_SIZE = 105840000;
+	
+	public static int REC_MAX_FILE_SIZE = 158760000;
+	//public static int REC_MAX_FILE_SIZE = 211680000;
+	
 	
 	
 
@@ -378,11 +383,16 @@ public class ScCreate extends ScTabView implements PlaybackListener, RecordListe
     	Log.i(TAG,"On Start 1 ");
     	
     	try {
+    		Log.i(TAG,"asdf");
 			if (mActivity.getUploadService() != null && mActivity.getUploadService().isUploading()){
 				Log.i(TAG,"On Start 2 ");
 				mCurrentState = CreateState.upload;
+			} else if (mCurrentState == CreateState.upload){
+				Log.i(TAG,"On Start 3 ");
+				mCurrentState = CreateState.idle_record;
 			} else if (mCurrentState == null){
-				Log.i(TAG,"On Start 3 " + mRecordFile.exists());
+			
+				Log.i(TAG,"On Start 4 " + mRecordFile.exists());
 	    		if (!mRecordFile.exists()){
 		      		  mCurrentState = CreateState.idle_record;
 		      	} else {
@@ -540,8 +550,8 @@ public class ScCreate extends ScTabView implements PlaybackListener, RecordListe
 				mFileLayout.setVisibility(View.GONE);
 				
 				
-				txtRecordStatus.setText(mActivity.getResources().getString(R.string.cloud_recorder_experimental));
-				txtRecordStatus.setVisibility(View.VISIBLE);
+				//txtRecordStatus.setText(mActivity.getResources().getString(R.string.cloud_recorder_experimental));
+				txtRecordStatus.setVisibility(View.GONE);
 				
 				mChrono.setVisibility(View.GONE);
 				
@@ -729,7 +739,7 @@ public class ScCreate extends ScTabView implements PlaybackListener, RecordListe
     private void updateTimeRemaining() {
     	
         long t = mRemainingTimeCalculator.timeRemaining() + 2; //adding 2 seconds to make up for lag
-        if (t <= 0) {
+        if (t <= 1) {
             mSampleInterrupted = true;
 
             int limit = mRemainingTimeCalculator.currentLowerLimit();

@@ -107,7 +107,6 @@ public class CloudCommunicator {
 		}
 		buffer.close();
 
-		//Log.i(TAG, "Content formatted: " + builder.toString().trim());
 
 		return builder.toString().trim();
 	}
@@ -132,7 +131,6 @@ public class CloudCommunicator {
 	}
 
 	static public CloudCommunicator getInstance(Context context) {
-		Log.i("[CloudComm]", "Get instance " + _instance);
 		if (_instance == null) {
 			_instance = new CloudCommunicator(context);
 		}
@@ -157,7 +155,11 @@ public class CloudCommunicator {
 	}
 	
 	private SoundCloudAPI newSoundCloudRequest() {
-		if (api != null) {
+		return newSoundCloudRequest(false);
+	}
+	
+	private SoundCloudAPI newSoundCloudRequest(Boolean refresh) {
+		if (api != null && !refresh) {
 			return new SoundCloudAPI(api);
 		}
 
@@ -177,7 +179,6 @@ public class CloudCommunicator {
 		//make them reauthorize if we are using a different sandbox setting
 		if (soundCloud.getState() == SoundCloudAPI.State.AUTHORIZED){
 			if (sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION){
-				Log.i(TAG,"use production already " + preferences.getString("scUseSandbox",""));
 				if (!preferences.getString("scUseSandbox","").contentEquals("false")){
 					clearSoundCloudAccount(soundCloud);
 					preferences.edit().putString("scUseSandbox", "false").commit();
@@ -200,16 +201,13 @@ public class CloudCommunicator {
 	public final void clearSoundCloudAccount(SoundCloudAPI api) {
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(_context);
-		Log.i("[cloudcomm]", "current access token "
-				+ preferences.getString("oauth_access_token", "null"));
 		preferences.edit().putString("oauth_access_token", "").putString(
 				"oauth_access_token_secret", "").putString("currentUserId", "")
 				.putString("currentUsername", "").commit();
-		Log.i("[cloudcomm]", "current access token111 "
-				+ preferences.getString("oauth_access_token", "null"));
 		api.unauthorize();
 
-		// api = newSoundCloudRequest();
+		//api = newSoundCloudRequest(true);
+		
 	}
 
 	public InputStream deleteContent(String path) throws IllegalStateException,
@@ -224,7 +222,6 @@ public class CloudCommunicator {
 
 	public final Intent getAuthorizationIntent() throws Exception {
 		
-		Log.i(TAG,"Getting auth intent");
 		if (api.getState() == SoundCloudAPI.State.AUTHORIZED) {
 			return null;
 		}
@@ -234,6 +231,8 @@ public class CloudCommunicator {
 
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		i.addFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 		i.setData(Uri.parse(authorizationUrl));
 		return i;
 	}
@@ -310,11 +309,11 @@ public class CloudCommunicator {
 			OAuthMessageSignerException, OAuthExpectationFailedException,
 			ClientProtocolException, IOException, OAuthCommunicationException {
 
-		Log.i("CLOUDCOMM", "Getting Content "
-				+ api.signStreamUrl(urlEncode(getDomain() + path, null)));
-
-		newSoundCloudRequest();
+		
 		HttpUriRequest req = api.getRequest(path, null);
+		
+		Log.i(TAG,"Soundcloud Request: " + req.getURI());
+		
 		req.getParams().setParameter("consumer_key", getConsumerKey());
 		req.addHeader("Accept", "application/json");
 
@@ -384,7 +383,7 @@ public class CloudCommunicator {
 	
 	public void updateAuthorizationStatus(String verificationCode) {
 		try {
-
+			
 			api.obtainAccessToken(verificationCode);
 
 			SharedPreferences preferences = PreferenceManager
@@ -431,7 +430,6 @@ public class CloudCommunicator {
 	public InputStream putContent(String path) {
 
 		try {
-			Log.i("sending put ", path);
 			return api.put(path).getEntity().getContent();
 
 		} catch (Exception e) {

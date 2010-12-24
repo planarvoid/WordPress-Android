@@ -94,6 +94,10 @@
 		<item name="android:textColor">#ffffffff</item>
 		<item name="android:textSize">20sp</item>
 	</style>
+	<style name="txt_search_rdo">
+		<item name="android:textColor">@color/listTxtValue</item>
+		<item name="android:textSize">20sp</item>
+	</style>
 	
 	<style name="txt_record_artwork_hint">
 		<item name="android:textColor">#ffffffff</item>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+	<string name="authentication_retrying_title">Communication error</string>
+	<string name="authentication_retrying_message">Unable to contact server for account access. Retrying.</string>
+	<string name="authentication_failed_title">Communication error</string>
+	<string name="authentication_failed_message">Authentication failed.\nUnable to contact server.</string>
+
 	<string name="app_name">SoundCloud</string>
 	<string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
 	<string name="consumer_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
@@ -51,11 +56,19 @@
 	<string name="wait_for_upload_to_finish">One upload at a time currently supported</string>
 	
 	<string name="track_by">by</string>
-	<string name="no_tracks_available">No Tracks Available</string>
-	<string name="no_users_available">No Users Available</string>
-	<string name="no_info_available">No Info Available</string>
-	<string name="no_comments_available">No Comments Available</string>
-	<string name="no_activities_available">No Tracks Available</string>
+	
+	<string name="tracklist_error">Unable to get tracks</string>
+	<string name="userlist_error">Unable to get users</string>
+	<string name="commentslist_error">Unable to get comments</string>
+	<string name="activitieslist_error">Unable to get activities</string>
+	
+	<string name="tracklist_empty">No tracks available</string>
+	<string name="userlist_empty">No users available</string>
+	<string name="commentslist_emopty">No comments available</string>
+	<string name="activitieslist_empty">No tracks available</string>
+
+	<string name="info_error">Unable to get info</string>	
+	<string name="info_empty">No info available</string>
 	
 	<string name="row_download_error">Error Downloading Track</string>
 	<string name="row_download_status">Downloading: %d\%%%</string>
@@ -241,6 +254,7 @@
 	<string name="btn_yes">Yes</string>
 	<string name="btn_no">No</string>
 	<string name="btn_ok">Ok</string>
+	<string name="btn_retry">Retry</string>
 	<string name="btn_cancel">Cancel</string>
 	<string name="btn_search">Search</string>
 	<string name="btn_browse">Browse</string>
@@ -305,9 +319,12 @@
 	<string name="error_track_download_error_title">Download error!</string>
 	<string name="error_track_download_error_message">Unable to start download. This could be caused by trying to download a private track you don\'t have access to, a track that reached its playback limit, or a general server error.</string>
 	
-	<string name="error_loading_title">Network error!</string>
-	<string name="error_loading_message">Unable to contact the server. Make sure you have
-		connectivity. </string>
+	<string name="error_general_title">Error</string>
+	<string name="error_general_message">Sorry, something went wrong during your request.</string>
+	
+	<string name="error_loading_title">Network error</string>
+	<string name="error_loading_message">Sorry, there was a problem contacting Soundcloud</string>
+	
 	<string name="error_no_downloads_title">No Downloads</string>
 	<string name="error_no_downloads_message">You haven\'t downloaded any music yet.</string>
 	

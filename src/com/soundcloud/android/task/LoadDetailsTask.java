@@ -32,7 +32,7 @@ public class LoadDetailsTask extends LoadTask {
 				//String jsonRaw = activity.mCloudComm.getContent(mUrl);
 				InputStream is = activity.mCloudComm.getContent(mUrl);
 				String jsonRaw = CloudCommunicator.formatContent(is);
-				
+				Log.i(TAG,"On Details:" + jsonRaw);
 				if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){
 					if (activity != null) activity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));
 					return false;

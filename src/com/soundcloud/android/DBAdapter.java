@@ -235,7 +235,7 @@ public class DBAdapter
     	db.execSQL(DATABASE_CREATE_1);
         db.execSQL(DATABASE_CREATE_2);
         
-        Log.i("WIPE", "Wiping Database");
+        //Log.i("WIPE", "Wiping Database");
     }
     
     
@@ -249,7 +249,7 @@ public class DBAdapter
     	ContentValues args = new ContentValues();
     	for (String key : trackkeys){
 		 if (track.hasKey(key)){
-			 Log.i(TAG,"Inserting track key:val => "+ key + ":" + track.getData(key));
+			 //Log.i(TAG,"Inserting track key:val => "+ key + ":" + track.getData(key));
 			 args.put(key, track.getData(key));
 		 }
 			 
@@ -264,7 +264,7 @@ public class DBAdapter
     	ContentValues args = new ContentValues();
     	for (String key : trackkeys){
 		 if (track.containsKey(key)){
-			 Log.i(TAG,"Inserting track key:val => "+ key + ":" + track.get(key));
+			 //Log.i(TAG,"Inserting track key:val => "+ key + ":" + track.get(key));
 			 args.put(key, track.get(key));
 		 }
     	}
@@ -278,7 +278,7 @@ public class DBAdapter
     	ContentValues args = new ContentValues();
     	for (String key : userkeys){
 		 if (user.hasKey(key)){
-			 Log.i(TAG,"Inserting user key:val => "+ key + ":" + user.getData(key));
+			 //Log.i(TAG,"Inserting user key:val => "+ key + ":" + user.getData(key));
 			 args.put(key, user.getData(key));
 		 }
     	}
@@ -292,11 +292,11 @@ public class DBAdapter
     	args.put("user_id", user_id);
     	args.put("following_id", following_id);
     	
-    	//Log.i("DB INSERT FOLLOWING","insert following |" + following_id + "|" + user_id);
+    	////Log.i("DB INSERT FOLLOWING","insert following |" + following_id + "|" + user_id);
     	
     	long id = db.insert(DATABASE_FOLLOWING_TABLE, null, args);
     	
-    	//Log.i("DB INSERT FOLLOWING","insert following response|" + id);
+    	////Log.i("DB INSERT FOLLOWING","insert following response|" + id);
     }
     
     public int removeFollowing(String user_id, String following_id) 
@@ -348,13 +348,13 @@ public class DBAdapter
     	 ContentValues args = new ContentValues();
     	 for (String key : trackkeys){
     			 if (track.hasKey(key)){
-    				 Log.i(TAG,"Updating track key:val => "+ key + ":" + track.getData(key));
+    				 //Log.i(TAG,"Updating track key:val => "+ key + ":" + track.getData(key));
     				 args.put(key, track.getData(key));
     			 }
     	 }
     	
     	int result = db.update(DATABASE_TRACK_TABLE, args, Track.key_id + "='" + track.getData(Track.key_id) + "'", null); 
-    	Log.i(TAG,"Update Result is " + result);
+    	//Log.i(TAG,"Update Result is " + result);
     	return result; 
     	
   }
@@ -365,7 +365,7 @@ public class DBAdapter
     	 for (String key : userkeys){
     		 if (user.hasKey(key)){
     			 args.put(key, user.getData(key));
-    			 Log.i("updating","updating value " + key + " " + user.getData(key));
+    			 //Log.i("updating","updating value " + key + " " + user.getData(key));
     		 }
     	 }
     	
@@ -453,15 +453,15 @@ public class DBAdapter
     public Cursor getTrackPlayedById(String id, String current_user_id) 
     {
     	//return db.rawQuery("SELECT Tracks.*, Favorites.id as user_favorite_id, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM (Tracks INNER JOIN Users ON Tracks.user_permalink = Users.permalink) INNER JOIN Favorites ON Tracks.id = Favorites.favorite_id WHERE Favorites.user_id = '" + user_id + "' ORDER BY Favorites.id asc", null);
-    	Log.i("asdf","raw query " + "SELECT Tracks.user_played from Tracks where Tracks.id = '" + id + "'");
-    	Log.i("asdf","current user id " + current_user_id);
+    	//Log.i("asdf","raw query " + "SELECT Tracks.user_played from Tracks where Tracks.id = '" + id + "'");
+    	//Log.i("asdf","current user id " + current_user_id);
     	return db.rawQuery("SELECT Tracks.user_played as user_played from Tracks where Tracks.id = '" + id + "'", null);
     }
     
    
     public Cursor getUserByPermalink(String permalink, String current_user_id) 
     {
-    	Log.i("asdffdsa","select user by perma " + "SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND  Followings.user_id = '" + current_user_id + "') WHERE Users.permalink = '" + permalink + "'");
+    	//Log.i("asdffdsa","select user by perma " + "SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND  Followings.user_id = '" + current_user_id + "') WHERE Users.permalink = '" + permalink + "'");
     	
     	if (current_user_id != "")
     		return db.rawQuery("SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND  Followings.user_id = '" + current_user_id + "') WHERE Users.permalink = '" + permalink + "'", null);

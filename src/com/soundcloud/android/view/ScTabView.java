@@ -59,6 +59,7 @@ public class ScTabView extends FrameLayout {
     }
     
     public void onRefresh(){
+    	Log.i("TAB","ON Refrech " + mAdapter);
     	if (mAdapter != null){    	
     		if (mAdapter instanceof LazyEndlessAdapter){
     			((LazyEndlessAdapter) mAdapter).clear();

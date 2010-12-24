@@ -77,7 +77,9 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> implements P
   	  uploadThread.start();
   	  
   	while(uploadThread.isAlive()){
-  		Log.i("TRANSFERRING",transferred + " of " + totalTransfer);
+  		//Log.i("TRANSFERRING",transferred + " of " + totalTransfer);
+  		publishProgress((int) transferred,(int) totalTransfer);
+  		System.gc();
   		try {Thread.sleep(1000);} catch (InterruptedException e) {e.printStackTrace();}
   	}
   	

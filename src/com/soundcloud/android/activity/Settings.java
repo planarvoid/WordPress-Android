@@ -12,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.Menu;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -29,10 +30,17 @@ public class Settings extends PreferenceActivity {
 
 	private ProgressDialog mDeleteDialog;
 	private DeleteCacheTask mDeleteTask;
+	
+	 protected GoogleAnalyticsTracker tracker;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		tracker = GoogleAnalyticsTracker.getInstance();
+	    tracker.start("UA-2519404-11", this);
+	    tracker.trackPageView("/settings");
+		
 		addPreferencesFromResource(R.layout.settings);
 		this.findPreference("revokeAccess").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {

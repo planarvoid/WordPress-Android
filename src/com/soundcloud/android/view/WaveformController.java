@@ -53,6 +53,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private RelativeLayout mTrackTouchBar;
 	private WaveformHolder mWaveformHolder;
 	private RelativeLayout mWaveformFrame;
+	private RelativeLayout mConnectingBar;
 	
 	private CommentMarker mAddCommentMarker;
 	private Float mLastAddCommentTimerX;
@@ -70,7 +71,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private Float initialWaveScaleX;
 	private Boolean mLandscape = false; 
 	
-	static final int maxWavesStored = 5;
+	static final int maxWavesStored = 6;
 	
 	
     final Handler mHandler = new Handler();
@@ -109,7 +110,8 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		LayoutInflater inflater = (LayoutInflater) context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.waveformcontroller, this);
-		
+
+		mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
 		mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
 		mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
 		mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -134,6 +136,14 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		// mOverlay.setImageDrawable(context.getResources().getDrawable(R.drawable.wave));
 	}
 	
+	public void showConnectingLayout(){
+		mConnectingBar.setVisibility(View.VISIBLE);
+	}
+	
+	public void hideConnectingLayout(){
+		mConnectingBar.setVisibility(View.GONE);
+	}
+	
 	public void setLandscape(boolean isLandscape){
 		mLandscape = isLandscape;
 		
@@ -155,6 +165,8 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	
 	public void setProgress(long pos){
+		
+		Log.i(TAG,"Set Progress " + pos + " of " + mDuration);
 		
 		if (mDuration == 0)
 			return;
@@ -341,6 +353,9 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 				return;
 		
 		mPlayingTrack = track;
+		
+		Log.i(TAG,"Update Track " + mPlayingTrack.getData(Track.key_duration) + " " + CloudUtils.getTrackWaveformPath(track));
+		
 		mDuration = Integer.parseInt(mPlayingTrack.getData(Track.key_duration));
 		loadWaveDrawable(CloudUtils.getTrackWaveformPath(track));
 	}
@@ -357,7 +372,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		File oldestWave = null;
 		File waveDir = new File(CloudUtils.getCacheDirPath(mContext)+"/waves"); 
 		Boolean exists = false;
-		if (waveDir.listFiles().length > maxWavesStored){
+		if (waveDir.listFiles().length >= maxWavesStored){
 			
 			for (File wave : waveDir.listFiles()){
 				if (CloudUtils.getCacheFileName(wavePath).contentEquals(wave.getName())){

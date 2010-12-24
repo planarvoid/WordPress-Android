@@ -670,13 +670,14 @@ public class CloudPlaybackService extends Service {
 		if (mPlayer.isInitialized()) {
 
 
+			if (mPlayingData == null)
+				return;
+			
 			mSeekTime = 0;
 
 			mPlayer.start();
 
-			if (mResumeId != null
-					&& mResumeId.contentEquals(mPlayingData
-							.getData(Track.key_id))) {
+			if (mResumeId != null && mPlayingData != null && mResumeId.contentEquals(mPlayingData .getData(Track.key_id))) {
 				mPlayer.seek(mResumeTime);
 				mResumeTime = 0;
 				mResumeId = "";

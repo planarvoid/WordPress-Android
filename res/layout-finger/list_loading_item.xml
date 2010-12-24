@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 	<RelativeLayout android:id="@+id/track_info_row" android:layout_width="fill_parent" android:layout_height="wrap_content" 
-		android:gravity="center_vertical" android:padding="5dip" android:ignoreGravity="@+id/icon">
+		android:padding="5dip" android:ignoreGravity="@+id/icon">
 			<ProgressBar
 				android:id="@+id/list_loading"
 				android:indeterminateOnly="true"
 				android:layout_height="30dip"
 				android:layout_width="30dip"
-				android:minHeight="30dip"
-				android:maxHeight="30dip"></ProgressBar>
-			<TextView
-				android:id="@android:id/text1"
-				android:layout_width="wrap_content"
-				android:layout_centerInParent="true"
-			    android:layout_height="wrap_content"
+				android:layout_margin="20dip"
 				android:gravity="center_vertical"
-				android:text="@string/loading" />
+				android:minHeight="30dip"
+				android:maxHeight="30dip" android:layout_centerVertical="true" android:layout_centerInParent="true"></ProgressBar>
 	</RelativeLayout>
 </merge>
