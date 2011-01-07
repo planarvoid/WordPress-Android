@@ -3,7 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/RelativeLayout01" android:layout_height="wrap_content"
 	android:orientation="vertical" android:layout_width="fill_parent">
-	<com.soundcloud.android.view.RemoteImageView 
+	<ImageView
 		android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
 		android:layout_width="wrap_content" 

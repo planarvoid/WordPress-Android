@@ -1,10 +1,9 @@
 package com.soundcloud.android.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.LinearLayout;
+import android.widget.TabHost;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -19,17 +18,15 @@ public class ScProfile extends LazyTabActivity  {
 	
     @Override
     public void onCreate(Bundle icicle) {
-    	
         super.onCreate(icicle,R.layout.main_holder);
-        
 	}
     
     @Override
 	protected void onResume() {
 		tracker.trackPageView("/profile");
+		tracker.dispatch();
 		
 		super.onResume();
-
 	}
 
     
@@ -62,6 +59,9 @@ public class ScProfile extends LazyTabActivity  {
     	userBrowser.initLoadTasks();
     }
 
+    public void setTabHost(TabHost tabHost){
+    	this.tabHost = tabHost;
+    }
 	
 	
 }

@@ -7,9 +7,12 @@ import android.view.ContextMenu;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
@@ -18,7 +21,7 @@ import com.soundcloud.android.objects.Comment;
 public class CommentMarker extends RelativeLayout implements ContextMenu.ContextMenuInfo {
 
 	private Context _context;
-	private RemoteImageView mAvatar;
+	private ImageView mAvatar;
 	private Paint mPaint;
 	
 	private int mLeftMargin;
@@ -53,16 +56,13 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 		
 		int targetDimension = (int) (CloudUtils.GRAPHIC_DIMENSIONS_SMALL * getContext().getResources().getDisplayMetrics().density);
 		 
-		mAvatar = new RemoteImageView(_context, null);
-		mAvatar.setImageSize(targetDimension, targetDimension);
-		mAvatar.setTemporaryDrawable(_context.getResources().getDrawable(R.drawable.artwork_badge));
+		mAvatar = new ImageView(_context, null);
+		mAvatar.setImageDrawable(_context.getResources().getDrawable(R.drawable.artwork_badge));
 		mAvatar.setScaleType(ScaleType.CENTER_INSIDE);
 		mAvatar.setLayoutParams(lp);
 		mAvatar.getLayoutParams().width = targetDimension;
 		mAvatar.getLayoutParams().height = targetDimension;
-		mAvatar.loadImage();
 		addView(mAvatar);
-		
 	}
 	
 	public void flashOn(){
@@ -93,10 +93,8 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 		if (mCommentData.hasKey(Comment.key_user_avatar_url)){
 			String avatarUrl = CloudUtils.formatGraphicsUrl(mCommentData.getData(Comment.key_user_avatar_url),GraphicsSizes.badge);
 			if (CloudUtils.checkIconShouldLoad(avatarUrl)){
-				mAvatar.setLocalURI(CloudUtils.EXTERNAL_CACHE_DIRECTORY + "/" + CloudUtils.getCacheFileName(avatarUrl));
-				mAvatar.setRemoteURI(avatarUrl);
+				ImageLoader.get(_context).bind(mAvatar, avatarUrl, null);
 			}
-			mAvatar.loadImage();
 		}
 		
 	}

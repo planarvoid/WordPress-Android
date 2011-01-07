@@ -6,11 +6,9 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.mime.content.FileBody;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.soundcloud.android.CloudCommunicator;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.utils.http.ProgressListener;
 
 public class UploadTask extends AsyncTask<String, Integer, Boolean> implements ProgressListener {
@@ -19,7 +17,7 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> implements P
 	
 	private boolean reporting;
 	
-	public Context context;
+	public SoundCloudApplication scApplication;
 	public File trackFile = null;
 	public File artworkFile = null;
 	public List<NameValuePair> trackParams;
@@ -65,9 +63,9 @@ public class UploadTask extends AsyncTask<String, Integer, Boolean> implements P
                    try
                    {
                 	   if (artworkBody == null)
-                		   CloudCommunicator.getInstance(context).upload(trackBody, trackParams, UploadTask.this);
+                		   scApplication.upload(trackBody, trackParams, UploadTask.this);
                 	   else
-                		   CloudCommunicator.getInstance(context).upload(trackBody, artworkBody, trackParams, UploadTask.this);
+                		   scApplication.upload(trackBody, artworkBody, trackParams, UploadTask.this);
                    } catch (Exception e) {
                            e.printStackTrace();
                    }

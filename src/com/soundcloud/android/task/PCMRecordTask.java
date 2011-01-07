@@ -8,21 +8,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioTrack;
-import android.os.AsyncTask;
-import android.widget.RemoteViews;
-import android.widget.TextView;
+import android.os.Handler;
+import android.os.Message;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.utils.PowerGauge;
 import com.soundcloud.utils.Recorder;
 
-public class PCMRecordTask extends AsyncTask<String, Integer, Boolean> {
+public class PCMRecordTask  {
 	private Recorder mRecorder;
 	private File mRecordFile;
-	private Boolean mRecording;
 	
 	private Context mAppContext;
 	private NotificationManager mNotificationManager;
@@ -31,16 +29,12 @@ public class PCMRecordTask extends AsyncTask<String, Integer, Boolean> {
 	private int mNotifyId = R.layout.cloudscrolltabs;
 	
 	private RecordListener listener;
+	private Thread recordThread;
+	private Thread progressThread;
 	
 	public AudioTrack playbackTrack;
 	public int minSize;
-	
-	
-	
-	public interface stages {
-		int reading = 1;
-		int writing = 2;
-	}
+	private boolean interrupted=false;
 	
 	public PCMRecordTask(Context c){
 		mRecorder = new Recorder();
@@ -48,6 +42,57 @@ public class PCMRecordTask extends AsyncTask<String, Integer, Boolean> {
 		mNotificationManager = (NotificationManager) mAppContext.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 	
+	Handler progressHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if (listener != null)
+				listener.onRecProgressUpdate((int) mRecordFile.length());
+			setOngoingNotification((int) Math.floor(CloudUtils.getPCMTime(mRecordFile, ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS, ScCreate.REC_BITS_PER_SAMPLE)));
+		}
+	};
+	
+	public void startRecording(){
+		mRecorder.activate();
+		
+		createNotification(true);
+		setOngoingNotification(0);
+		
+		recordInBackground();
+	}
+		 
+	public void recordInBackground(){
+		recordThread = new Thread() {
+		      public void run() {
+		    	  try {
+		  			mRecorder.startRecording(mRecordFile);
+		  			while (!Thread.interrupted()){
+		  				progressHandler.sendMessage(new Message());
+		  				Thread.sleep(200);
+		  			}
+		  			} catch (Exception e){
+		  				e.printStackTrace();
+		  			}
+		  			mRecorder.stopRecording();
+		    	}
+		    };
+		    recordThread.setPriority(Thread.MAX_PRIORITY);
+		    recordThread.start();
+		}
+		  
+	  public void stopRecording(){
+		    interrupted=true;
+		    if(recordThread!=null && recordThread.isAlive())
+		    	recordThread.interrupt();
+		    
+			mRecorder.deactivate();
+			mNotificationManager.cancel(mNotifyId);
+			
+			//mNotificationManager.cancel(mNotifyId);
+			//showStoppedNotification((int) Math.floor(CloudUtils.getPCMTime(mRecordFile, ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS, ScCreate.REC_BITS_PER_SAMPLE)));
+			
+			if (listener != null)
+				listener.onRecComplete(true);
+	  }
 	
 	
 	public void setRecordListener(RecordListener recordListener){
@@ -63,54 +108,7 @@ public class PCMRecordTask extends AsyncTask<String, Integer, Boolean> {
 		
 	}
 	
-	public void stopRecording(){
-		mRecording = false;
-	}
 
-	@Override
-	protected void onPreExecute() {
-		mRecording = true;
-		mRecorder.activate();
-		
-		createNotification(true);
-		setOngoingNotification(0);
-		
-	}
-	
-	@Override
-	protected void onProgressUpdate(Integer... progress) {
-		if (listener != null)
-			listener.onRecProgressUpdate((int) mRecordFile.length());
-		
-		setOngoingNotification((int) Math.floor(CloudUtils.getPCMTime(mRecordFile, ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS, ScCreate.REC_BITS_PER_SAMPLE)));
-	}
-
-	@Override
-	protected void onPostExecute(Boolean result) {
-		mRecorder.deactivate();
-		mNotificationManager.cancel(mNotifyId);
-		
-		//mNotificationManager.cancel(mNotifyId);
-		//showStoppedNotification((int) Math.floor(CloudUtils.getPCMTime(mRecordFile, ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS, ScCreate.REC_BITS_PER_SAMPLE)));
-		
-		if (listener != null)
-			listener.onRecComplete(result);
-	}
-
-	@Override
-	protected Boolean doInBackground(String... params) {
-		try {
-			mRecorder.startRecording(mRecordFile);
-			while (mRecording){
-				publishProgress();
-				try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
-			}
-			mRecorder.stopRecording();
-    	 return true;
-		} catch (Exception e){
-			return false;
-		}
-	}
 	
 	private void createNotification(Boolean ongoing){
 		
@@ -126,7 +124,7 @@ public class PCMRecordTask extends AsyncTask<String, Integer, Boolean> {
 	    mNotification = new Notification(R.drawable.statusbar, tickerText, System.currentTimeMillis());	
     	if (ongoing) mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
     	
-		 Intent i = new Intent(mAppContext, Main.class);
+		 Intent i = new Intent(mAppContext, Dashboard.class);
 		 i.addCategory(Intent.CATEGORY_LAUNCHER);
 		 i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
 		 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

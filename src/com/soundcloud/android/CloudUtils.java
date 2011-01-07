@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -106,7 +107,11 @@ public class CloudUtils {
 		public static final String EXTERNAL_CACHE_DIRECTORY_DEPRACATED = Environment.getExternalStorageDirectory() + "/Soundcloud";
 		public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud";
 		
-		public static final int GALLERY_IMAGE_PICK_CODE = 9988;
+		public interface RequestCodes {
+			public static final int GALLERY_IMAGE_PICK = 9000;
+			public static final int REUATHORIZE = 9001;	 
+		 }
+		
 	    
 		public enum LoadType { 
 			incoming, exclusive, favorites 
@@ -143,8 +148,11 @@ public class CloudUtils {
 	    	public static final int DIALOG_PROCESSING = 31;
 	    	public static final int DIALOG_CANCEL_UPLOAD = 32;
 	    	
-	    	public static final int DIALOG_AUTHENTICATION_RETRY = 33;
+	    	public static final int DIALOG_ERROR_MAKING_CONNECTION = 36;
+	    	
+	    	public static final int DIALOG_AUTHENTICATION_CONTACTING = 33;
 	    	public static final int DIALOG_AUTHENTICATION_ERROR = 34;
+	    	public static final int DIALOG_AUTHENTICATION_RETRY = 35;
 	    }
 
 	    public interface Defs {
@@ -281,7 +289,7 @@ public class CloudUtils {
 
 	    }
 	    
-	    public static void buildDirs(Context c){
+	    public static void checkDirs(Context c){
 			
 	    	//clear out old cache and make a new one
 	    	if (!getCacheDir(c).exists()){
@@ -297,6 +305,10 @@ public class CloudUtils {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 				new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
 			}
+			
+			
+			//do a check??
+			
 		}
 
 	    public static boolean deleteDir(File dir) {
@@ -462,9 +474,6 @@ public class CloudUtils {
 	        
 		}
 	    
-	    
-	    
-	    
 		public static Boolean isTrackPlayable(Track track){
 			if (track.getData(Track.key_streamable).toString().equalsIgnoreCase("true")){
 				return true;
@@ -472,80 +481,30 @@ public class CloudUtils {
 			return false;
 		}
 		
-		
-		
-		
-		
-		
-	    
-
-//	    public static String makeAlbumsLabel(Context context, int numalbums, int numsongs, boolean isUnknown) {
-//	        // There are two formats for the albums/songs information:
-//	        // "N Song(s)"  - used for unknown artist/album
-//	        // "N Album(s)" - used for known albums
-//	        
-//	        StringBuilder songs_albums = new StringBuilder();
-//
-//	        Resources r = context.getResources();
-//	        if (isUnknown) {
-//	            if (numsongs == 1) {
-//	                songs_albums.append(context.getString(R.string.onesong));
-//	            } else {
-//	                String f = r.getQuantityText(R.plurals.Nsongs, numsongs).toString();
-//	                sFormatBuilder.setLength(0);
-//	                sFormatter.format(f, Integer.valueOf(numsongs));
-//	                songs_albums.append(sFormatBuilder);
-//	            }
-//	        } else {
-//	            String f = r.getQuantityText(R.plurals.Nalbums, numalbums).toString();
-//	            sFormatBuilder.setLength(0);
-//	            sFormatter.format(f, Integer.valueOf(numalbums));
-//	            songs_albums.append(sFormatBuilder);
-//	            songs_albums.append(context.getString(R.string.albumsongseparator));
-//	        }
-//	        return songs_albums.toString();
-//	    }
-
-	    /**
-	     * This is now only used for the query screen
-	     */
-//	    public static String makeAlbumsSongsLabel(Context context, int numalbums, int numsongs, boolean isUnknown) {
-//	        // There are several formats for the albums/songs information:
-//	        // "1 Song"   - used if there is only 1 song
-//	        // "N Songs" - used for the "unknown artist" item
-//	        // "1 Album"/"N Songs" 
-//	        // "N Album"/"M Songs"
-//	        // Depending on locale, these may need to be further subdivided
-//	        
-//	        StringBuilder songs_albums = new StringBuilder();
-//
-//	        if (numsongs == 1) {
-//	            songs_albums.append(context.getString(R.string.onesong));
-//	        } else {
-//	            Resources r = context.getResources();
-//	            if (! isUnknown) {
-//	                String f = r.getQuantityText(R.plurals.Nalbums, numalbums).toString();
-//	                sFormatBuilder.setLength(0);
-//	                sFormatter.format(f, Integer.valueOf(numalbums));
-//	                songs_albums.append(sFormatBuilder);
-//	                songs_albums.append(context.getString(R.string.albumsongseparator));
-//	            }
-//	            String f = r.getQuantityText(R.plurals.Nsongs, numsongs).toString();
-//	            sFormatBuilder.setLength(0);
-//	            sFormatter.format(f, Integer.valueOf(numsongs));
-//	            songs_albums.append(sFormatBuilder);
-//	        }
-//	        return songs_albums.toString();
-//	    }
-	    
-	    
 	    public static String getCurrentUserId(Context context){
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
      		return preferences.getString("currentUserId", "");
 		}
 	    
-	   
-	    
+	    public static String getCurrentTrackId() {
+	        if (sService != null) {
+	            try {
+	                return sService.getTrackId();
+	            } catch (RemoteException ex) {
+	            }
+	        }
+	        return null;
+	    }
+
+	    public static String getCurrentUserPermalink() {
+	        if (CloudUtils.sService != null) {
+	            try {
+	                return sService.getUserPermalink();
+	            } catch (RemoteException ex) {
+	            }
+	        }
+	        return null;
+	    }
 	    
 	    
 	    public static boolean checkIconShouldLoad(String url) {
@@ -590,7 +549,6 @@ public class CloudUtils {
 	        
 	        public void onServiceConnected(ComponentName className, android.os.IBinder service) {
 	            sService = ICloudPlaybackService.Stub.asInterface(service);
-	           
 	            if (mCallback != null) {
 	                mCallback.onServiceConnected(className, service);
 	            }
@@ -603,68 +561,6 @@ public class CloudUtils {
 	            sService = null;
 	        }
 	    }
-	    
-	    public static String getCurrentTrackId() {
-	        if (sService != null) {
-	            try {
-	                return sService.getTrackId();
-	            } catch (RemoteException ex) {
-	            }
-	        }
-	        return null;
-	    }
-
-	    public static String getCurrentUserPermalink() {
-	        if (CloudUtils.sService != null) {
-	            try {
-	                return sService.getUserPermalink();
-	            } catch (RemoteException ex) {
-	            }
-	        }
-	        return null;
-	    }
-
-	    
-	    
-	   
-	    
-	    /*
-	     * Returns true if a file is currently opened for playback (regardless
-	     * of whether it's playing or paused).
-	     */
-	    public static boolean isMusicLoaded() {
-	        if (CloudUtils.sService != null) {
-	            try {
-	                return sService.getPath() != null;
-	            } catch (RemoteException ex) {
-	            }
-	        }
-	        return false;
-	    }
-
-	    private final static long [] sEmptyList = new long[0];
-	    
-	    public static long [] getSongListForCursor(Cursor cursor) {
-	        if (cursor == null) {
-	            return sEmptyList;
-	        }
-	        int len = cursor.getCount();
-	        long [] list = new long[len];
-	        cursor.moveToFirst();
-	        int colidx = -1;
-	        try {
-	            colidx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID);
-	        } catch (IllegalArgumentException ex) {
-	            colidx = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-	        }
-	        for (int i = 0; i < len; i++) {
-	            list[i] = cursor.getLong(colidx);
-	            cursor.moveToNext();
-	        }
-	        return list;
-	    }
-
-	  
 	    
 	    public static Track setDownloadPaths(Track track){
 	    	String userDirectory = track.getData(Track.key_user_permalink);
@@ -1081,13 +977,8 @@ public class CloudUtils {
 			return ""; 
 			 
 	    }
-	    
-	   
-	    static protected Uri getContentURIForPath(String path) {
-	        return Uri.fromFile(new File(path));
-	    }
 
-	    
+
 	    /*  Try to use String.format() as little as possible, because it creates a
 	     *  new Formatter every time you call it, which is very inefficient.
 	     *  Reusing an existing Formatter more than tripled the speed of
@@ -1097,7 +988,6 @@ public class CloudUtils {
 	    private static StringBuilder sFormatBuilder = new StringBuilder();
 	    private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
 	    private static final Object[] sTimeArgs = new Object[5];
-
 	    public static String makeTimeString(Context context, long secs) {
 	        String durationformat = context.getString(
 	                secs < 3600 ? R.string.durationformatshort : R.string.durationformatlong);
@@ -1106,75 +996,13 @@ public class CloudUtils {
 	         * by modifying the xml.
 	         */
 	        sFormatBuilder.setLength(0);
-
 	        final Object[] timeArgs = sTimeArgs;
 	        timeArgs[0] = secs / 3600;
 	        timeArgs[1] = secs / 60;
 	        timeArgs[2] = (secs / 60) % 60;
 	        timeArgs[3] = secs;
 	        timeArgs[4] = secs % 60;
-
 	        return sFormatter.format(durationformat, timeArgs).toString();
-	    }
-	    
-	    public static void shuffleAll(Context context, Cursor cursor) {
-	        playAll(context, cursor, 0, true);
-	    }
-
-	    public static void playAll(Context context, Cursor cursor) {
-	        playAll(context, cursor, 0, false);
-	    }
-	    
-	    public static void playAll(Context context, Cursor cursor, int position) {
-	        playAll(context, cursor, position, false);
-	    }
-	    
-	    public static void playAll(Context context, long [] list, int position) {
-	        playAll(context, list, position, false);
-	    }
-	    
-	    private static void playAll(Context context, Cursor cursor, int position, boolean force_shuffle) {
-	    
-	        long [] list = getSongListForCursor(cursor);
-	        playAll(context, list, position, force_shuffle);
-	    }
-	    
-	    private static void playAll(Context context, long [] list, int position, boolean force_shuffle) {
-	        if (list.length == 0 || sService == null) {
-//	            Log.d("CloudUtils", "attempt to play empty song list");
-//	            // Don't try to play empty playlists. Nothing good will come of it.
-//	            String message = context.getString(R.string.emptyplaylist, list.length);
-//	            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-//	            return;
-//	        }
-//	        try {
-//	            if (force_shuffle) {
-//	                sService.setShuffleMode(CloudPlaybackService.SHUFFLE_NORMAL);
-//	            }
-//	            long curid = sService.getAudioId();
-//	            int curpos = sService.getQueuePosition();
-//	            if (position != -1 && curpos == position && curid == list[position]) {
-//	                // The selected file is the file that's currently playing;
-//	                // figure out if we need to restart with a new playlist,
-//	                // or just launch the playback activity.
-//	                long [] playlist = sService.getQueue();
-//	                if (Arrays.equals(list, playlist)) {
-//	                    // we don't need to set a new list, but we should resume playback if needed
-//	                    sService.play();
-//	                    return; // the 'finally' block will still run
-//	                }
-//	            }
-//	            if (position < 0) {
-//	                position = 0;
-//	            }
-//	            sService.open(list, force_shuffle ? -1 : position);
-//	            sService.play();
-//	        } catch (RemoteException ex) {
-//	        } finally {
-////	            Intent intent = new Intent(context, MediaPlaybackActivity.class)
-////	                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-////	            context.startActivity(intent);
-	        }
 	    }
 	    
 	    public static void clearQueue() {
@@ -1183,33 +1011,6 @@ public class CloudUtils {
 	        } catch (RemoteException ex) {
 	        }
 	    }
-	    
-	    // A really simple BitmapDrawable-like class, that doesn't do
-	    // scaling, dithering or filtering.
-	    private static class FastBitmapDrawable extends Drawable {
-	        private Bitmap mBitmap;
-	        public FastBitmapDrawable(Bitmap b) {
-	            mBitmap = b;
-	        }
-	        @Override
-	        public void draw(Canvas canvas) {
-	            canvas.drawBitmap(mBitmap, 0, 0, null);
-	        }
-	        @Override
-	        public int getOpacity() {
-	            return PixelFormat.OPAQUE;
-	        }
-	        @Override
-	        public void setAlpha(int alpha) {
-	        }
-	        @Override
-	        public void setColorFilter(ColorFilter cf) {
-	        }
-	    }
-	    
-	   
-
-//	   
 	    
 	    public static boolean isLocalFile(String filename) {
 	        if (filename.startsWith("/"))
@@ -1579,7 +1380,9 @@ public class CloudUtils {
 		}
 
 		
-
+		public static File getCacheFile(String url) {
+			return new File(EXTERNAL_CACHE_DIRECTORY + "/" + url.hashCode() + ".png");
+		}
 
 		public static String getCacheFileName(String url) {
 			return url.hashCode() + ".png";
@@ -1601,10 +1404,11 @@ public class CloudUtils {
 
 		
 		public static String formatGraphicsUrl (String url, String targetSize){
-			for (String size : GraphicsSizesLib){
-				url = url.replace(size, targetSize);
-			}
-			return url;
+			//Log.i(TAG,"FOrmat Graphics URL " + url);
+			//for (String size : GraphicsSizesLib){
+				//url = url.replace(size, targetSize);
+			//}
+			return url.replace("large", targetSize);
 		}
 		
 		
@@ -1660,12 +1464,8 @@ public class CloudUtils {
 			 int height = options.outHeight;
 			 int width = options.outWidth;
 			
-			    Log.i(TAG,"checking image sizes " + width + " " + height);
-			    
 			    if (height > targetHeight || width > targetWidth) {
-			    	Log.i(TAG,"resizing " + targetHeight/height + " " + targetWidth/width);
 			    	 if (targetHeight/height < targetWidth/width) {
-			    		 Log.i(TAG,"resizing by height");
 			    		 options.inSampleSize = Math.round(height / targetHeight);
 			    	 } else {
 			    		 options.inSampleSize = Math.round(width / targetWidth);
@@ -1681,6 +1481,45 @@ public class CloudUtils {
 			bmp = null;
 			  System.gc();
 		}
+		
+		public static String formatContent(InputStream is) throws IOException {
+			if (is == null) {
+				return "";
+			}
+
+			StringBuilder builder = new StringBuilder();
+			BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
+			String line = null;
+			while ((line = buffer.readLine()) != null) {
+				builder.append(line).append("\n");
+			}
+			buffer.close();
+
+
+			return builder.toString().trim();
+		}
+
+		public static String getErrorFromJSONResponse(String rawString)
+				throws JSONException {
+			if (rawString.startsWith("[")) {
+				return ""; // arrays do not result from errors
+			} else {
+				JSONObject errorChecker = new JSONObject(rawString);
+				try {
+					if (errorChecker.get("error") != null) {
+						return errorChecker.getString("error");
+					} else {
+						return "";
+					}
+				} catch (Exception e) {
+					return "";
+				}
+
+			}
+		}
+
+		
+		
 }
 
 

@@ -3,13 +3,14 @@ package com.soundcloud.android.adapter;
 import java.util.List;
 
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 
@@ -21,11 +22,13 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
 	
 	protected int mPage = 1;
 	protected Boolean mDone = false;
+	protected ImageLoader mImageLoader;
 	
 	@SuppressWarnings("unchecked")
 	public LazyBaseAdapter(LazyActivity context, List<? extends Parcelable> data) {
 		mData = (List<Parcelable>) data;
 		mActivity = context;
+		mImageLoader = ImageLoader.get(context);
 	}
 
 	public List<Parcelable> getData() {
@@ -57,6 +60,12 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
 		// update the cell renderer, and handle selection state
 		rowView.display(mData.get(index), mSelectedIndex == index);
 		
+		BindResult result = BindResult.ERROR;
+		try{ //put the bind in a try catch to catch any loading error (or the occasional bad url) 
+			result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+		} catch (Exception e){};
+		rowView.setTemporaryDrawable(result); 
+		 
 		return rowView;
 	
 	}

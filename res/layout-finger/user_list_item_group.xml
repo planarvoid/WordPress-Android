@@ -31,7 +31,7 @@
 		style="@style/txt_list_sub"  />
 	</LinearLayout>
 	
-	<com.soundcloud.android.view.RemoteImageView 
+	<ImageView
 		android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
 		android:layout_width="wrap_content" 

@@ -29,12 +29,12 @@ import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
@@ -58,7 +58,6 @@ public class CloudDownloaderService extends Service {
 	private DownloadTask mDownloadTask;
 	private RemoteViews notificationView;
 	private Notification mNotification;
-	protected CloudCommunicator mCloudComm;
 	
 	private Track mDownloadingData;
 	private int mCurrentDownloadPercentage;
@@ -246,7 +245,7 @@ public class CloudDownloaderService extends Service {
 	    long when = System.currentTimeMillis();
     	mNotification = new Notification(icon, tickerText, when);	
     	
-    	 Intent i = new Intent(this, Main.class);
+    	 Intent i = new Intent(this, Dashboard.class);
          i.addCategory(Intent.CATEGORY_LAUNCHER);
          i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
          i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -392,8 +391,6 @@ public class CloudDownloaderService extends Service {
 				publishProgress(R.string.cloud_downloader_event_title_track, 0, -1);
 				final String filename = params[0].get(Track.key_local_play_url);
 				
-				mCloudComm = CloudCommunicator.getInstance(getApplicationContext());
-				
 				try {
 					
 					URL url;
@@ -403,7 +400,7 @@ public class CloudDownloaderService extends Service {
 					
 					HttpClient httpClient = new DefaultHttpClient();
 					
-					String consumerKey = mCloudComm.getConsumerKey();
+					String consumerKey = ((SoundCloudApplication) CloudDownloaderService.this.getApplication()).getConsumerKey();
 					String audio = params[0].get(Track.key_download_url);
 					String waveform = params[0].get(Track.key_waveform_url);
 					String artwork = params[0].get(Track.key_artwork_url);

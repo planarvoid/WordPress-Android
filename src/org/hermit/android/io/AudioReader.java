@@ -103,13 +103,13 @@ public class AudioReader
         synchronized (this) {
             // Calculate the required I/O buffer size.
             int audioBuf = AudioRecord.getMinBufferSize(rate,
-                                         AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                                         AudioFormat.CHANNEL_IN_MONO,
                                          AudioFormat.ENCODING_PCM_16BIT) * 2;
 
             // Set up the audio input.
             audioInput = new AudioRecord(MediaRecorder.AudioSource.MIC,
                                          rate,
-                                         AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                                         AudioFormat.CHANNEL_IN_MONO,
                                          AudioFormat.ENCODING_PCM_16BIT,
                                          audioBuf);
             inputBlockSize = block;

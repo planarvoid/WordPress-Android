@@ -150,7 +150,6 @@ public class Recorder
      */
     private void startRun() {
     
-    	Log.i(TAG,"START RUN");
     	
     	 audioProcessed = audioSequence = 0;
          
@@ -180,7 +179,6 @@ public class Recorder
      */
     private void stopRun() {
     	
-    	Log.i(TAG,"STOP RUN");
     	
         // Kill the thread if it's running, and wait for it to die.
         // This is important when the surface is destroyed, as we can't

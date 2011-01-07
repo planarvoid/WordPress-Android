@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.soundcloud.android.CloudCommunicator;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
@@ -30,11 +30,11 @@ public class LoadDetailsTask extends LoadTask {
 			try {
 		
 				//String jsonRaw = activity.mCloudComm.getContent(mUrl);
-				InputStream is = activity.mCloudComm.getContent(mUrl);
-				String jsonRaw = CloudCommunicator.formatContent(is);
+				InputStream is = activity.getSoundCloudApplication().getContent(mUrl);
+				String jsonRaw = CloudUtils.formatContent(is);
 				Log.i(TAG,"On Details:" + jsonRaw);
-				if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){
-					if (activity != null) activity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));
+				if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
+					if (activity != null) activity.setError(CloudUtils.getErrorFromJSONResponse(jsonRaw));
 					return false;
 				}
 				try {

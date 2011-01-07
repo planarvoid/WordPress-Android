@@ -1,20 +1,21 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 
 public class LazyRow extends RelativeLayout {
-	
+	private static final String TAG = "LazyRow";
 	protected Context mContext;	
+	protected ImageView mIcon;
 
 	  public LazyRow(Context _context) {
 		  super(_context);
@@ -48,31 +49,21 @@ public class LazyRow extends RelativeLayout {
 		  
 	  }
 	  
-	  public void setViewImage(final ImageView image, final String value) {
+	  public ImageView getRowIcon(){
+			return null;
+	  }
+	  
+	  public String getIconRemoteUri(){
+		  	return "";
+	  }
+	  
+	  public void setTemporaryDrawable(BindResult result){
+		  if (mIcon == null)
+			  return;
 		  
-		  SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-			if ( !(image instanceof RemoteImageView) || preferences.getBoolean("hideArtwork", false))
-				return;
-				
-			RemoteImageView riv = (RemoteImageView) image;
-			
-			riv.setImageSize(getIconWidth(), getIconHeight());
-			riv.setTemporaryDrawable(getTemporaryDrawable());
-				
-			if (CloudUtils.checkIconShouldLoad(value)) {
-				if (value.startsWith("/")){
-					riv.setLocalURI(value);
-					riv.setRemoteURI(null);
-				} else {
-					riv.setLocalURI(CloudUtils.getCacheDirPath(mContext) + "/" + CloudUtils.getCacheFileName(value));
-					riv.setRemoteURI(value);
-				}
-			} else {
-				riv.setLocalURI(null);
-				riv.setRemoteURI(null);
-			}
-			
-		}
+		  if (result != BindResult.OK)
+			  mIcon.setImageDrawable(this.getTemporaryDrawable());
+	  }
 	  
 	  
 	  protected int getIconWidth(){

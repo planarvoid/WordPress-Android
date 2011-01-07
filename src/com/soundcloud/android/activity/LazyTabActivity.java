@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,8 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -29,6 +32,8 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.task.LoadTask;
@@ -51,11 +56,11 @@ public class LazyTabActivity extends LazyActivity{
 	protected ViewFlipper viewFlipper;
 	protected ArrayList<LazyList> mLists;
 
+	protected Boolean mIgnorePlaybackStatus = false;
 	
 	protected Integer setTabIndex = 0;
 	protected Boolean mSetTabInstant = false;
 	
-
 	protected LazyBaseAdapter currentAdapter;
 	
 	protected interface Tabs {
@@ -137,7 +142,6 @@ public class LazyTabActivity extends LazyActivity{
 			if (viewFlipper.getCurrentView() == null)
 					   return;
 			   viewFlipper.setDisplayedChild(tabHost.getCurrentTab());
-			   Log.i(TAG,"Setting listener to " + viewFlipper.getCurrentView());
 			   //viewFlipper.getCurrentView().setOnTouchListener(swipeListener);
 	;			   //viewFlipper.getCurrentView().setOnTouchListener(gestureListener);
 			  }     
@@ -189,7 +193,7 @@ public class LazyTabActivity extends LazyActivity{
 	
 	@Override
 	protected void onServiceBound(){
-		Log.i(TAG,"On Service Bound");
+		super.onServiceBound();
 		try {
 			setPlayingTrack(mService.getTrackId());
 		} catch (RemoteException e) {
@@ -216,19 +220,17 @@ public class LazyTabActivity extends LazyActivity{
 		
 		if (mService != null)
 			try {
-				Log.i(TAG,"On Resume service track " + mService.getTrackId());
 				setPlayingTrack(mService.getTrackId());
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		
     }
 	
 	@Override
 	protected void onStop() {
     	this.unregisterReceiver(mPlaybackStatusListener);
     	this.unregisterReceiver(mUploadStatusListener);
+    	mIgnorePlaybackStatus = false;
     	super.onStop();
     }
 
@@ -242,10 +244,18 @@ public class LazyTabActivity extends LazyActivity{
     }
 	
 
+	@Override
+	public void playTrack(final List<Parcelable> list, final int playPos){
+		super.playTrack(list, playPos);
+		mIgnorePlaybackStatus = true;
+	}
 
 	private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			if (mIgnorePlaybackStatus)
+				return;
+			
 			String action = intent.getAction();
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
 				try {
@@ -463,10 +473,17 @@ public class LazyTabActivity extends LazyActivity{
 		
 		int i = 0;
 		for (AppendTask task : appendTasks){
+			
+			configureListToTask(task,i);
+			
 			if (mLists.get(i).getWrapper() != null)
 			(mLists.get(i).getWrapper()).restoreTask(task);
 			i++;
 		}
+	}
+	
+	protected void configureListToTask(AppendTask task, int listIndex){
+		
 	}
 
 	protected void restoreListConfigs(Object configObject){
@@ -510,14 +527,9 @@ public class LazyTabActivity extends LazyActivity{
 			
 			ArrayList<Parcelable> mAdapterData = mAdapterDataIterator.next();
 			
-			Log.i(TAG,"REstoring list adapter " + mAdapterData);
-			if (mAdapterData != null)
-				Log.i(TAG,"REstoring list adapter data size " + mAdapterData.size());
-			
 			configureListToData(mAdapterData,i);
 			
 			if (mAdapterData != null){
-				Log.i(TAG,"Adding all " + mAdapterData.size() + " to " + ((LazyBaseAdapter) mLists.get(i).getAdapter()));
 				((LazyBaseAdapter) mLists.get(i).getAdapter()).getData().addAll(mAdapterData);
 				((LazyBaseAdapter) mLists.get(i).getAdapter()).notifyDataSetChanged();	
 			}
@@ -531,6 +543,22 @@ public class LazyTabActivity extends LazyActivity{
 	}
 	
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(R.drawable.context_refresh);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case CloudUtils.OptionsMenu.REFRESH:
+				((ScTabView) tabHost.getCurrentView()).onRefresh();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 	
 	
 	@Override
@@ -552,8 +580,6 @@ public class LazyTabActivity extends LazyActivity{
 		
 		//restore state
 		Object[] saved = (Object[]) getLastNonConfigurationInstance();
-		
-		Log.i("START","Restore State " + saved);
 		
 		if (saved != null) {
 			restoreLoadTasks((Object[]) saved[1]);

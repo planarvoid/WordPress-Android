@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
@@ -33,6 +34,12 @@ public class UserlistAdapter extends LazyBaseAdapter {
 	
 		// update the cell renderer, and handle selection state
 		rowView.display(mData.get(index), mSelectedIndex == index);
+		
+		BindResult result = BindResult.ERROR;
+		try{ //put the bind in a try catch to catch any loading error (or the occasional bad url) 
+			result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+		} catch (Exception e){};
+		rowView.setTemporaryDrawable(result);
 		
 		return rowView;
 	

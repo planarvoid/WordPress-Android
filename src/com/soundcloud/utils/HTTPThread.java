@@ -1,10 +1,10 @@
 package com.soundcloud.utils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.os.Handler;
@@ -17,15 +17,24 @@ public class HTTPThread extends Thread {
 
 	private boolean mError = false;
 	private Exception mException = null;
+	private int mId = -1;
 	private String mUrl;
 	private String mLocal;
 	private int mStatus = STATUS_PENDING;
 	private SoftReference<Handler> mHandler;
+	
+	private boolean mOverwrite = false;
+	
+	//private ArrayList<SoftReference<Handler>> mHandlers;
 
 	public HTTPThread(String url, String local, Handler handler) {
 		mUrl = url;
 		mLocal = local;
 		mHandler = new SoftReference<Handler>(handler);
+	}
+	
+	public void setOverwrite(Boolean overwrite){
+		this.mOverwrite = overwrite;
 	}
 
 	@Override
@@ -40,29 +49,31 @@ public class HTTPThread extends Thread {
 
 	@Override
 	public void run() {
-		try {
-			URL request = new URL(mUrl);
-			InputStream is = (InputStream) request.getContent();
-			FileOutputStream fos = new FileOutputStream(mLocal);
+		Log.i("THREAD","RUNNING");
+		if (mOverwrite || !(new File(mLocal).exists())){
 			try {
-				byte[] buffer = new byte[4096];
-				int l;
-				while ((l = is.read(buffer)) != -1) {
-					fos.write(buffer, 0, l);
+				Log.i("THREAD","Transferring");
+				URL request = new URL(mUrl);
+				InputStream is = (InputStream) request.getContent();
+				FileOutputStream fos = new FileOutputStream(mLocal);
+				try {
+					byte[] buffer = new byte[4096];
+					int l;
+					while ((l = is.read(buffer)) != -1) {
+						fos.write(buffer, 0, l);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					if (is != null) is.close();
+					if (fos != null) fos.flush();
+					if (fos != null) fos.close();
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				if (is != null) is.close();
-				if (fos != null) fos.flush();
-				if (fos != null) fos.close();
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-
+		}
+		
 		synchronized (this) {
 			mStatus = STATUS_FINISHED;
 		}
@@ -96,9 +107,20 @@ public class HTTPThread extends Thread {
 		}
 		return null;
 	}
+	
+	public String getLocal(){
+		return mLocal;
+	}
 
+	public void setId(int id){
+		mId = id;
+	}
+	
 	@Override
 	public long getId() {
-		return mUrl.hashCode();
+		if (mId == -1)
+			return mUrl.hashCode();
+		else
+			return mId;
 	}
 }

@@ -16,7 +16,7 @@
 				android:singleLine="true" android:ellipsize="marquee"
 				android:paddingTop="5dip" android:id="@+id/track"
 				android:layout_alignWithParentIfMissing="true"
-				android:layout_toRightOf="@id/play_indicator" android:text="track" />
+				android:layout_toRightOf="@id/play_indicator" android:text="" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" style="@style/txt_list_sub_secondary"
 				android:layout_alignWithParentIfMissing="true" android:id="@+id/track_by"
@@ -24,7 +24,7 @@
 				android:layout_toRightOf="@id/icon" android:text="@string/track_by" />
 			<TextView android:layout_height="wrap_content" style="@style/txt_list_sub"
 				android:id="@+id/user" android:layout_toRightOf="@id/track_by"
-				android:text="user" android:singleLine="true" android:ellipsize="marquee"
+				android:text="" android:singleLine="true" android:ellipsize="marquee"
 				android:layout_width="fill_parent" android:layout_below="@id/track" />
 		</RelativeLayout>
 		<ImageButton android:id="@+id/btn_info" style="@style/btn_oc_show_info" android:src="@drawable/ic_info_states" />

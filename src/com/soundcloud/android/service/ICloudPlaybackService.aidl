@@ -11,14 +11,17 @@ interface ICloudPlaybackService
     void enqueue(in Track[] trackData, int playPos);
     void clearQueue();
     int getQueuePosition();
+    boolean isSeekable();
     boolean isPlaying();
     void stop();
     void pause();
     void play();
     void prev();
     void next();
+    void restart();
     long duration();
     long position();
+    long lastSuccessfulSeek();
     int loadPercent();
     long seek(long pos);
     Track getTrack();

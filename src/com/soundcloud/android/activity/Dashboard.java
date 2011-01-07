@@ -25,13 +25,14 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TabHost.OnTabChangeListener;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMRecordTask;
@@ -40,7 +41,7 @@ import com.soundcloud.android.view.ScSearch;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.UserBrowser;
 
-public class Main extends LazyTabActivity {
+public class Dashboard extends LazyTabActivity {
 
     
     private static final String TAG = "Main";
@@ -50,6 +51,8 @@ public class Main extends LazyTabActivity {
 	protected int mSetsIndex = 2;
 	
 	
+	private ScTabView mIncomingView;
+	private ScTabView mExclusiveView;
 	private UserBrowser mUserBrowser;
 	private ScCreate mScCreate;
 	private ScSearch mScSearch;
@@ -72,33 +75,22 @@ public class Main extends LazyTabActivity {
 	    public final static String TAB_FOLLOWERS = "followers";
 	}
 	
-	private int[] mExchangePostDelays = {1000,3000,10000};
-	private int mCurrentExchangeRetries = 0;
-	
-	private SoundCloudAPI.State mLastCloudState;
 	
 	private Boolean _launch = true;
-	
-	
-	
-	
-	
-	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState,R.layout.main_holder);
 
-		// extract the OAUTH access token if it exists
-		Uri uri = this.getIntent().getData();
-		if(uri != null) {
-		  	oAuthToken = uri.getQueryParameter("oauth_verifier");	
-		}
 
 		
-		mLastCloudState = mCloudComm.getState();
+		if (this.getIntent().getExtras() != null)
+		if (this.getIntent().getBooleanExtra("reauthorize", false)){
+			getSoundCloudApplication().clearSoundCloudAccount();
+		}
 		
 		mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
+		mHolder.setVisibility(View.GONE);
 		if(getIntent() != null && getIntent().getAction() != null)
         {
                 if(getIntent().getAction().equals(Intent.ACTION_SEND) && getIntent().getExtras().containsKey(Intent.EXTRA_STREAM)){
@@ -112,61 +104,18 @@ public class Main extends LazyTabActivity {
 
 	@Override
     public void onResume() {
-		 tracker.trackPageView("/dashboard");
+		tracker.trackPageView("/dashboard");
+		tracker.dispatch();
 		
     	super.onResume();
     	
     	if (_launch){
     		_launch = false;
-    		CloudUtils.buildDirs(this);
+    		CloudUtils.checkDirs(this);
     	}
 
-    	if (oAuthToken != ""){
-			mHandler.post(mExchangeToken);
-			return;
-		}
-    	
-    	
-		if (mCloudComm.getState() == SoundCloudAPI.State.AUTHORIZED) {
-			onAuthenticated();
-		} else{
-			try {startActivity(mCloudComm.getAuthorizationIntent()); finish();} 
-			catch (Exception e) {setException(e);handleException();}
-		}
-		
-		mLastCloudState = mCloudComm.getState();
     }
 	
-	private void onAuthenticated(){
-		removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
-		mHolder.setVisibility(View.VISIBLE);
-		initLoadTasks();
-		mLastCloudState = mCloudComm.getState();
-	}
-	
-	
-	private Runnable mExchangeToken = new Runnable() {
-		   public void run() {
-			   
-			   if (mCurrentExchangeRetries == 1)
-				   showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
-			   
-		        if (oAuthToken != "") {
-		            mCloudComm.updateAuthorizationStatus(oAuthToken);
-		            if (mCloudComm.getState() != SoundCloudAPI.State.AUTHORIZED) {
-		                if (mCurrentExchangeRetries < mExchangePostDelays.length) {
-		                    mHandler.postDelayed(mExchangeToken, mExchangePostDelays[mCurrentExchangeRetries]);
-		                    mCurrentExchangeRetries++;		                    
-		                } else {
-		                    showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR);
-		                    removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
-		                }
-		            } else {
-		            	onAuthenticated();
-		            }
-		        }
-		   }
-		};
 
 	
 	
@@ -175,18 +124,7 @@ public class Main extends LazyTabActivity {
 		mUserBrowser.setUserTab(tab);
 	}
 	
-	public void forcePause(){
-		try {
-			if (mService != null){
-				if (mService.isPlaying()){
-						mService.pause();
-				}
-			}
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	
 	@Override
 	protected void onRecordingComplete(Boolean success){
@@ -228,7 +166,6 @@ public class Main extends LazyTabActivity {
 		
 		// setup must be called if you are not initialising the tabhost from XML
 	   //tabHost.setup();
-	    
 		createIncomingTab();
 		createExclusiveTab();
 		createYouTab();
@@ -249,7 +186,7 @@ public class Main extends LazyTabActivity {
 				 mLastTab.onStop();
 			 } 
 			 
-			 ((ScTabView) tabHost.getCurrentView()).onStart();
+			((ScTabView) tabHost.getCurrentView()).onStart();
 			 mLastTab = (ScTabView) tabHost.getCurrentView();
 		 }
 	};
@@ -260,7 +197,7 @@ public class Main extends LazyTabActivity {
 		@Override
 		public void onClick(View v) {
 			try {
-				startActivity(mCloudComm.getAuthorizationIntent());
+				startActivity(getSoundCloudApplication().getAuthorizationIntent()); finish();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -273,22 +210,21 @@ public class Main extends LazyTabActivity {
 	
 	protected void createIncomingTab(){
 		LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-		LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this,adp,CloudCommunicator.PATH_MY_ACTIVITIES,CloudUtils.Model.event,"collection");
+		LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this,adp, SoundCloudApplication.PATH_MY_ACTIVITIES,CloudUtils.Model.event,"collection");
 		
-		final ScTabView incomingView = new ScTabView(this,adpWrap);
+		final ScTabView incomingView = mIncomingView = new ScTabView(this,adpWrap);
 		CloudUtils.createTabList(this, incomingView, adpWrap, CloudUtils.ListId.LIST_INCOMING);
 		CloudUtils.createTab(this, tabHost, "incoming",getString(R.string.tab_incoming),getResources().getDrawable(R.drawable.ic_tab_incoming),incomingView, false);
 	}
 	
 	protected void createExclusiveTab(){
 		LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-		LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this,adp,CloudCommunicator.PATH_MY_EXCLUSIVE_TRACKS,CloudUtils.Model.event,"collection");
+		LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this,adp,SoundCloudApplication.PATH_MY_EXCLUSIVE_TRACKS,CloudUtils.Model.event,"collection");
 		//LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);
 		
-		Log.i(TAG,"Creating exclusive tab " + adpWrap);
-		final ScTabView favoritesView = new ScTabView(this,adpWrap);
-		CloudUtils.createTabList(this, favoritesView, adpWrap, CloudUtils.ListId.LIST_EXCLUSIVE);
-		CloudUtils.createTab(this, tabHost, "exclusive",getString(R.string.tab_exclusive),getResources().getDrawable(R.drawable.ic_tab_incoming),favoritesView, false);
+		final ScTabView exclusiveView = mExclusiveView = new ScTabView(this,adpWrap);
+		CloudUtils.createTabList(this, exclusiveView, adpWrap, CloudUtils.ListId.LIST_EXCLUSIVE);
+		CloudUtils.createTab(this, tabHost, "exclusive",getString(R.string.tab_exclusive),getResources().getDrawable(R.drawable.ic_tab_incoming),exclusiveView, false);
 		
 	}
 	
@@ -325,12 +261,12 @@ public class Main extends LazyTabActivity {
 	
 	
 	protected String getPlaylistsUrl() {
-		mFilter = CloudCommunicator.TYPE_PLAYLIST;
+		mFilter = SoundCloudApplication.TYPE_PLAYLIST;
 		return "";
 	}
 
 	protected String getFavoritesUrl() {
-		return CloudUtils.buildRequestPath(CloudCommunicator.PATH_MY_FAVORITES, getTrackOrder()).toString();
+		return CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_FAVORITES, getTrackOrder()).toString();
 		
 	}
 	
@@ -376,10 +312,19 @@ public class Main extends LazyTabActivity {
 		 * it is then tell the search list to use the user adapter, otherwise use the track
 		 * adapter
 		 */
+		
 		if (mSearchListIndex == listIndex && mAdapterData.size() > 0){
-			if (mAdapterData.get(0) instanceof User){
-				mScSearch.setAdapterType(true);
-			}
+			mScSearch.setAdapterType(mAdapterData.get(0) instanceof User);
+			
+			mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
+			mLists.get(mSearchListIndex).setFocusable(true);
+		}
+	}
+	
+	@Override
+	protected void configureListToTask(AppendTask task, int listIndex){
+		if (mSearchListIndex == listIndex && task != null){
+			mScSearch.setAdapterType(task.loadModel == CloudUtils.Model.user);
 			
 			mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
 			mLists.get(mSearchListIndex).setFocusable(true);
@@ -432,37 +377,10 @@ public class Main extends LazyTabActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        
         ((ScTabView) tabHost.getCurrentView()).onStop();
-        
-        //((ScTabView) tabHost.getTabContentView().getChildAt(0)).onStop();
-
-        //if (mCreate != null) mCreate.onStop();
     }
     
 	
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(R.drawable.context_refresh);
-		return super.onCreateOptionsMenu(menu);
-	}
-	
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case CloudUtils.OptionsMenu.REFRESH:
-				Log.i(TAG,"ON REFRESH " + tabHost.getCurrentTab() + " " + ((ScTabView) tabHost.getCurrentView()));
-				((ScTabView) tabHost.getCurrentView()).onRefresh();
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-	
-	
-    
 	
     @Override
 	public void onSaveInstanceState(Bundle outState) 
@@ -523,24 +441,31 @@ public class Main extends LazyTabActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) { 
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent); 
 
+        Log.i(TAG,"On Activity Result " + requestCode + " " + resultCode);
+        
         switch(requestCode) { 
-        case CloudUtils.GALLERY_IMAGE_PICK_CODE:
-            if(resultCode == RESULT_OK){  
-                Uri selectedImage = imageReturnedIntent.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String filePath = cursor.getString(columnIndex);
-                cursor.close();
-                
-                if (mScCreate != null){
-                	mScCreate.setPickedImage(filePath);
-                }
-                
-            }
+	        case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
+	            if(resultCode == RESULT_OK){  
+	                Uri selectedImage = imageReturnedIntent.getData();
+	                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+	
+	                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+	                cursor.moveToFirst();
+	
+	                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+	                String filePath = cursor.getString(columnIndex);
+	                cursor.close();
+	                
+	                if (mScCreate != null){
+	                	mScCreate.setPickedImage(filePath);
+	                }
+	                
+	            }
+		        break;
+	        
+	    	case CloudUtils.RequestCodes.REUATHORIZE:
+	    		//CloudCommunicator.refreshInstance(this);
+	    		break;
         }
     }
     

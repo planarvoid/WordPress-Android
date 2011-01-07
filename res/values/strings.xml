@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+	<string name="error_making_connection_title">Network error</string>
+	<string name="error_making_connection_message">There was a problem contacting Soundcloud. Please make sure you have a working data connection.</string>
+	
+	<string name="error_loading_title">Network error</string>
+	<string name="error_loading_message">There was a problem contacting Soundcloud.</string>
+
+	<string name="authentication_contacting_title"></string>
+	<string name="authentication_contacting_message">Contacting soundcloud...</string>
 	<string name="authentication_retrying_title">Communication error</string>
-	<string name="authentication_retrying_message">Unable to contact server for account access. Retrying.</string>
+	<string name="authentication_retrying_message">There was a problem contacting Soundcloud for account access. Retrying.</string>
 	<string name="authentication_failed_title">Communication error</string>
 	<string name="authentication_failed_message">Authentication failed.\nUnable to contact server.</string>
 
@@ -11,6 +19,10 @@
 	<string name="consumer_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
 	<string name="sandbox_consumer_key">exQKp2vmQkgRPrPgceKJdw</string>
 	<string name="sandbox_consumer_secret">waXqVeBoj3NZ7nzFdtVX31p96N3YcNW1zWt79N9rk</string>
+	
+	<string name="player_not_streamable">This track is not streamable</string>
+	<string name="player_error">There was a playback error</string>
+	
 
 	<string name="cloud_player_service_label">Soundcloud: Playing</string>
 	<string name="cloud_player_service_playing">Soundcloud Player Playing</string>
@@ -24,7 +36,7 @@
 	<string name="cloud_downloader_event_download_avatar">Downloading: %d\%%%</string>
 	<string name="percentage_format">%d\%%%</string>
 	
-	<string name="cloud_recorder_experimental">Max recording length: 5 min \n This is an experimental feature and may not work on all devices</string>
+	<string name="cloud_recorder_experimental">Max recording length: 15 min \n This is an experimental feature and may not work on all devices</string>
 	
 	<string name="cloud_recorder_notification_ticker">Recording started</string>
 	<string name="cloud_recorder_event_title">Recording in progress</string>
@@ -112,13 +124,25 @@
         </item>
     </plurals>
     
-
+    
+    
+    <string name="crash_notif_ticker_text">Unexpected error, please send a report...</string>
+	<string name="crash_notif_title">SoundCloud has crashed...</string>
+	<string name="crash_notif_text">Please click here to help fix the issue.</string>
+	        
+	<string name="crash_dialog_title">SoundCloud has crashed</string>
+	<string name="crash_dialog_text">An unexpected error occurred forcing SoundCloud
+	        to stop. Please help us fix this by sending us error data,
+	        all you have to do is click \'OK\'.</string>
+	<string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+	<string name="crash_dialog_ok_toast">Thank you!</string>
     
     <string name="chronometer_initial_format">Initial format: <xliff:g id="initial-format">%s</xliff:g></string> 
     
     <string name="record_instructions">Share your Sound</string>
     <string name="record_artwork_instructions">Add Image</string>
     <string name="record_artwork_instructions_added">Hold to remove.</string>
+    <string name="format_counter_mins">%02d</string>
     <string name="format_counter_secs">%02d</string>
     <string name="record_currently_uploading">Your track is being encoded and uploaded. Please check the status bar to see its progress.</string>
     
@@ -322,8 +346,7 @@
 	<string name="error_general_title">Error</string>
 	<string name="error_general_message">Sorry, something went wrong during your request.</string>
 	
-	<string name="error_loading_title">Network error</string>
-	<string name="error_loading_message">Sorry, there was a problem contacting Soundcloud</string>
+	
 	
 	<string name="error_no_downloads_title">No Downloads</string>
 	<string name="error_no_downloads_message">You haven\'t downloaded any music yet.</string>

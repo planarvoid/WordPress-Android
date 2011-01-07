@@ -33,16 +33,15 @@ import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
-import com.soundcloud.android.task.WavEncoderTask;
 
 
 public class CloudUploaderService extends Service {
@@ -70,7 +69,6 @@ public class CloudUploaderService extends Service {
 	
 	private RemoteViews notificationView;
 	private Notification mNotification;
-	protected CloudCommunicator mCloudComm;
 	
 	private HashMap<String,String> mUploadingData;
 	private int _lastuploadPercentage;
@@ -130,8 +128,6 @@ public class CloudUploaderService extends Service {
 	    public boolean onUnbind(Intent intent) {
 	        mServiceInUse = false;
 	        
-	        Log.i(TAG,"ON UNBIND " + isUploading());
-
 	        if (isUploading()) {
 	            // something is currently uploading so don't stop the service now.
 	            return true;
@@ -247,7 +243,7 @@ public class CloudUploaderService extends Service {
 	    long when = System.currentTimeMillis();
     	mNotification = new Notification(icon, tickerText, when);	
     	
-    	 Intent i = new Intent(this, Main.class);
+    	 Intent i = new Intent(this, Dashboard.class);
          i.addCategory(Intent.CATEGORY_LAUNCHER);
          i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
          i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -291,7 +287,7 @@ public class CloudUploaderService extends Service {
 			@Override
 			protected void onProgressUpdate(Integer... progress) {
 				
-				Log.i(TAG, "Progress " + progress[0] + " " + progress[1] + " " + isCancelled());
+				//Log.i(TAG, "Progress " + progress[0] + " " + progress[1] + " " + isCancelled());
 				
 				if (isCancelled()) return;
 				
@@ -322,7 +318,6 @@ public class CloudUploaderService extends Service {
 	    			Options opt;
 	    			try {
 	    				opt = CloudUtils.determineResizeOptions(mUploadingData.get("artwork_path"), 500, 500, true);
-	    				Log.i(TAG,"In Sample Size is " + opt.inSampleSize);
 	    				if (opt.inSampleSize > 1){
 	    					mResizeTask = new ImageResizeTask();
 			    			mResizeTask.execute(opt.inSampleSize);
@@ -415,8 +410,6 @@ public class CloudUploaderService extends Service {
  		Iterator it = mUploadingData.entrySet().iterator();
  	    while (it.hasNext()) {
  	        Map.Entry pairs = (Map.Entry)it.next();
- 	        Log.i("---------", pairs.getKey() + " = " + pairs.getValue());
- 	        
  	        if (!(pairs.getKey().toString().contentEquals("pcm_path") || pairs.getKey().toString().contentEquals("image_path")))
  	        		params.add(new BasicNameValuePair(pairs.getKey().toString(),pairs.getValue().toString()));
  	       
@@ -425,6 +418,7 @@ public class CloudUploaderService extends Service {
  		  mUploadTask = new UploadOggTask();
 	    	    mUploadTask.trackFile = new File(mOggFilePath);
 	    	    mUploadTask.trackParams = params;
+	    	    mUploadTask.scApplication = (SoundCloudApplication) this.getApplication();
 	    	    if (!CloudUtils.stringNullEmptyCheck(mUploadingData.get("artwork_path"))) mUploadTask.artworkFile = new File(mUploadingData.get("artwork_path"));
 	    	    mUploadTask.execute();
 		}
@@ -480,7 +474,7 @@ public class CloudUploaderService extends Service {
     	mNotification = new Notification(icon, tickerText, when);	
     	mNotification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
     	
-    	 Intent i = new Intent(this, Main.class);
+    	 Intent i = new Intent(this, Dashboard.class);
          i.addCategory(Intent.CATEGORY_LAUNCHER);
          i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
          i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -578,18 +572,20 @@ public class CloudUploaderService extends Service {
 
 			@Override
 			public void uploadTrack(Map trackdata) throws RemoteException {
-				mService.get().startUpload(trackdata);
+				if (mService.get() != null) mService.get().startUpload(trackdata);
 			}
 
 
 			@Override
 			public boolean isUploading() throws RemoteException {
-				return mService.get().isUploading();
+				if (mService.get() != null) 
+					return mService.get().isUploading();
+				return false;
 			}
 			
 			@Override
 			public void cancelUpload() throws RemoteException {
-				mService.get().cancelUpload();
+				if (mService.get() != null) mService.get().cancelUpload();
 			}
 	    }
 	    

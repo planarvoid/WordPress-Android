@@ -19,9 +19,9 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LazyTabActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -29,10 +29,6 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 public class ScSearch extends ScTabView {
-
-
-	
-
 
 	// Debugging tag.
     @SuppressWarnings("unused")
@@ -178,12 +174,12 @@ public class ScSearch extends ScTabView {
 		mList.setVisibility(View.VISIBLE);
 		
     	if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks){
-    		mTrackAdpWrapper.setPath(CloudCommunicator.PATH_TRACKS,URLEncoder.encode(txtQuery.getText().toString()));
+    		mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS,URLEncoder.encode(txtQuery.getText().toString()));
     		mTrackAdpWrapper.createListEmptyView(mList);
         	mList.setAdapter(mTrackAdpWrapper);
         		
     	} else {
-    		mUserAdpWrapper.setPath(CloudCommunicator.PATH_USERS,URLEncoder.encode(txtQuery.getText().toString()));
+    		mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS,URLEncoder.encode(txtQuery.getText().toString()));
     		mUserAdpWrapper.createListEmptyView(mList);
         	mList.setAdapter(mUserAdpWrapper);
         	
@@ -191,15 +187,17 @@ public class ScSearch extends ScTabView {
     }
     
     public void setAdapterType(Boolean isUser){
-    	if (isUser)
+    	if (isUser){
     		mList.setAdapter(mUserAdpWrapper);
-    	else
+    		mUserAdpWrapper.createListEmptyView(mList);
+    	} else {
     		mList.setAdapter(mTrackAdpWrapper);
+    		mTrackAdpWrapper.createListEmptyView(mList);
+    	}
     }
     
     private OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
 		public void onFocusChange(View v, boolean hasFocus) {
-			Log.i(TAG,"Query listener " + hasFocus);
 			if (hasFocus){
 				rdoTrack.setVisibility(View.VISIBLE);
 				rdoUser.setVisibility(View.VISIBLE);

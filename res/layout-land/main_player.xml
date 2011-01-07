@@ -7,16 +7,16 @@
 		 <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
 		 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 			<FrameLayout android:layout_width="fill_parent" android:background="@color/white" android:layout_height="fill_parent">
-				<RelativeLayout android:layout_width="fill_parent" android:id="@+id/streamable_layout" android:layout_height="fill_parent">
+				<RelativeLayout android:layout_width="fill_parent" android:id="@+id/playable_layout" android:layout_height="fill_parent">
 					<com.soundcloud.android.view.WaveformController
 						android:id="@+id/waveform_controller" android:layout_width="fill_parent"
 						android:orientation="horizontal" android:layout_height="wrap_content" />
 					<TextView android:id="@+id/currenttime" style="@style/txt_player_time_land"
 						android:layout_alignParentTop="true" />
 				</RelativeLayout>
-				<FrameLayout android:layout_width="fill_parent" android:id="@+id/unstreamable_layout" 
+				<FrameLayout android:layout_width="fill_parent" android:id="@+id/unplayable_layout" android:visibility="gone"
 					android:layout_height="fill_parent" android:background="@color/playerControlAlphaBackground">
-					<TextView android:id="@+id/TextView01" android:layout_height="fill_parent" android:layout_width="fill_parent" android:text="This track is not streamable" android:gravity="center"></TextView>
+					<TextView android:id="@+id/unplayable_txt" android:layout_height="fill_parent" android:layout_width="fill_parent" android:text="" android:gravity="center"></TextView>
 				</FrameLayout>
 				<View android:layout_width="fill_parent" android:layout_height="5dip" android:background="@drawable/drop_shadow_down" />
 			</FrameLayout>

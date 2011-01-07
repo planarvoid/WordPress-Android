@@ -46,7 +46,7 @@ public abstract class LoadTask extends AsyncTask<String, Parcelable, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean result) {
 		
-		activity.handleException();
+		//activity.handleException();
 		activity.setProgressBarIndeterminateVisibility(false);
 		
 		System.gc();

@@ -17,6 +17,7 @@ import org.xiph.libvorbis.vorbisenc;
 import android.os.AsyncTask;
 import android.util.Log;
 
+
 public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 
     private static final String TAG = "VorbisEncoderTask";
@@ -136,7 +137,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 			
 			
 			FileInputStream fin = new FileInputStream( inputFile );
-			
+
 			//for progress tracking
 			int blocks = 0;
 			int blocksTotal = (int) inputFile.length()/(READ*4);

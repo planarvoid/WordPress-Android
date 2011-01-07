@@ -7,7 +7,7 @@
 				style="@style/ScProgressBarLand" android:id="@+id/progress_bar"
 				android:layout_alignParentTop="true" android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
-			<com.soundcloud.android.view.RemoteImageView android:id="@+id/progress_overlay" android:src="@drawable/player_wave_bg"
+			<ImageView android:id="@+id/progress_overlay" android:src="@drawable/player_wave_bg"
 				android:layout_alignParentTop="true" android:layout_width="fill_parent"
 				android:layout_height="fill_parent" android:scaleType="fitXY"/>
 			<RelativeLayout android:id="@+id/track_touch_bar"
@@ -15,7 +15,7 @@
 				android:layout_gravity="left" android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
 			<RelativeLayout android:layout_width="fill_parent" android:background="@color/playerControlAlphaBackground"
-				android:layout_height="fill_parent" android:id="@+id/connecting_bar">
+				android:visibility="gone" android:layout_height="fill_parent" android:id="@+id/connecting_bar">
 				<ProgressBar android:indeterminateOnly="true" android:layout_centerInParent="true" 
 					android:layout_width="40dip" android:layout_height="40dip"/>
 			</RelativeLayout>

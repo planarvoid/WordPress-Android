@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -31,6 +32,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LazyActivity;
@@ -40,14 +43,16 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
 public class WaveformController extends FrameLayout implements OnTouchListener, OnClickListener, OnLongClickListener {
-	private static final String TAG = "Touch" ;
+	private static final String TAG = "WaveformController" ;
 
 	private Track mPlayingTrack;
 	private Drawable mLoadingWaveform;
 	private Drawable mPendingWaveform;
 	private Boolean mPendingComments = false;
 	
-	private RemoteImageView mOverlay;
+	private Boolean mTrackSeeking = false;
+	
+	private ImageView mOverlay;
 	private ProgressBar mProgressBar;
 	private RelativeLayout mCommentBar;
 	private RelativeLayout mTrackTouchBar;
@@ -71,7 +76,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private Float initialWaveScaleX;
 	private Boolean mLandscape = false; 
 	
-	static final int maxWavesStored = 6;
+	private BindResult waveformResult;
 	
 	
     final Handler mHandler = new Handler();
@@ -89,11 +94,9 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	   static final double TOUCH_MOVE_TOLERANCE = 2.0;
 
 	   // We can be in one of these 3 states
-	   static final int NONE = 0;
-	   static final int DRAG = 1;
-	   static final int ZOOM = 2;
-	   static final int DRAG_ZOOM = 3;
-	   int mode = NONE;
+	   static final int SEEK_NONE = 0;
+	   static final int SEEK_DRAG = 1;
+	   int mode = SEEK_NONE;
 	   
 	   
 	   
@@ -118,7 +121,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		//mCommentBar = (RelativeLayout) findViewById(R.id.comment_bar);
 		mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
 		mTrackTouchBar.setOnTouchListener(this);
-		mOverlay = (RemoteImageView) findViewById(R.id.progress_overlay);
+		mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 		
 		if (mCommentBar != null){
 			mCommentBar.setOnTouchListener(this);
@@ -166,7 +169,6 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	public void setProgress(long pos){
 		
-		Log.i(TAG,"Set Progress " + pos + " of " + mDuration);
 		
 		if (mDuration == 0)
 			return;
@@ -273,6 +275,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	}
 	
 	public void mapComments(LazyExpandableBaseAdapter commentsAdapter, int duration){
+		
 		mCommentsAdapter = commentsAdapter;
 		mDuration = duration;
 		
@@ -338,7 +341,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		 
 	    if (target.getClass().getName().contentEquals(CommentMarker.class.getName())){
 	    	Integer ts = ((CommentMarker) target).getTimestamp();
-	    	mPlayer.seekTo(ts.floatValue() / mDuration);
+	    	//mPlayer.seekTo(ts.floatValue() / mDuration);
 	    	mLastCommentTimestamp = "";
 	    }
 	 }
@@ -347,47 +350,26 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	
 	public void updateTrack(Track track) {
-		
-		if (mPlayingTrack != null)
-			if (mPlayingTrack.getData(Track.key_id).contentEquals(track.getData(Track.key_id)))
+		if (mPlayingTrack != null){
+			if (mPlayingTrack.getData(Track.key_id).contentEquals(track.getData(Track.key_id)) && waveformResult != BindResult.ERROR){
 				return;
+			}
+		}
 		
 		mPlayingTrack = track;
-		
-		Log.i(TAG,"Update Track " + mPlayingTrack.getData(Track.key_duration) + " " + CloudUtils.getTrackWaveformPath(track));
-		
 		mDuration = Integer.parseInt(mPlayingTrack.getData(Track.key_duration));
-		loadWaveDrawable(CloudUtils.getTrackWaveformPath(track));
-	}
-	
-	public void loadWaveDrawable(final String wavePath){
 		
-		mOverlay.setLocalURI(CloudUtils.getCacheDirPath(mContext)+"/waves/"+CloudUtils.getCacheFileName(wavePath));
-		File local = new File(CloudUtils.getCacheDirPath(mContext)+"/waves/"+CloudUtils.getCacheFileName(wavePath));
-		if (local.exists()){
-			mOverlay.loadImage();
-			return;
+		if (waveformResult != BindResult.ERROR){ //clear loader errors so we can try to reload
+			 ImageLoader.get(mContext).clearErrors();
 		}
 		
-		File oldestWave = null;
-		File waveDir = new File(CloudUtils.getCacheDirPath(mContext)+"/waves"); 
-		Boolean exists = false;
-		if (waveDir.listFiles().length >= maxWavesStored){
-			
-			for (File wave : waveDir.listFiles()){
-				if (CloudUtils.getCacheFileName(wavePath).contentEquals(wave.getName())){
-					exists = true;
-					break;
-				} if (oldestWave == null || wave.lastModified() < oldestWave.lastModified()){
-					oldestWave = wave;
-				}
-			}
-			oldestWave.delete();
+		Log.i(TAG,"update wave path " +  CloudUtils.getTrackWaveformPath(track));
+		waveformResult = ImageLoader.get(mContext).bind(mOverlay, CloudUtils.getTrackWaveformPath(track), null);
+		Log.i(TAG,"update wave result  " + waveformResult );
+		
+		if (waveformResult != BindResult.OK){ //otherwise, it succesfull pulled it out of memory, so no temp image necessary
+			mOverlay.setImageDrawable(mContext.getResources().getDrawable(R.drawable.player_wave_bg));
 		}
-	
-		mOverlay.setTemporaryDrawable(mContext.getResources().getDrawable(R.drawable.player_wave_bg));
-		mOverlay.setRemoteURI(wavePath);
-		mOverlay.loadImage();
 	}
 	
 	private void resetTransform(){
@@ -480,11 +462,28 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			   
 		   } else {
 			  
-			   
-			  
 			   switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			      case MotionEvent.ACTION_DOWN:
-			    	  if (mPlayer != null) mPlayer.seekTo(calculateSeek(event.getX()));
+			    	  if (mPlayer != null && mPlayer.isSeekable()){
+			    		  mode = SEEK_DRAG;
+				    	  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(calculateSeek(event.getX())));  
+				    	  mWaveformHolder.invalidate();  
+			    	  }
+			    	  break;
+			    	  
+			      case MotionEvent.ACTION_MOVE:
+			    	  if (mPlayer != null && mPlayer.isSeekable()){
+				    	  if (mode == SEEK_DRAG){
+				    		  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(calculateSeek(event.getX())));  
+				    	  }
+				    	  mWaveformHolder.invalidate();
+			    	  }
+			    	  break;
+			      case MotionEvent.ACTION_UP:
+			    	  if (mode == SEEK_DRAG){
+			    		  if (mPlayer != null) mPlayer.sendSeek();  
+			    		  mode = SEEK_NONE;
+			    	  }
 			    	  break;
 			   }
 			   

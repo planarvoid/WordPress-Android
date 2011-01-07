@@ -7,25 +7,23 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 
 public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 	
 	public String track_id;
-	public Context context;
+	public SoundCloudApplication soundcloudApplication;
 	
 	protected boolean mCancelled;
 	protected boolean mFinished;
 	
-	private CloudCommunicator mCloudComm;
 	private ArrayList<Comment> commentsList;
 	private Comment[] comments;
 	
@@ -40,8 +38,6 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 	
 	@Override
 	protected void onPreExecute() {
-		mCloudComm = CloudCommunicator.getInstance(context);
-		
 		commentsList = new ArrayList<Comment>();
 		mCancelled = false;
 		mFinished = false;
@@ -60,7 +56,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 	@Override
 	protected Boolean doInBackground(String... params) {
 		
-		String mBaseUrl = CloudUtils.buildRequestPath(CloudCommunicator.PATH_TRACK_COMMENTS.replace("{track_id}",track_id), null).toString();
+		String mBaseUrl = CloudUtils.buildRequestPath(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}",track_id), null).toString();
 		
 		Log.i("COMMENTS","Load comments task  " + mBaseUrl);
 		
@@ -75,10 +71,10 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 
 				String jsonRaw = "";
 				try {
-					InputStream is = mCloudComm.getContent(mUrl);
-					jsonRaw = CloudCommunicator.formatContent(is);
+					InputStream is = soundcloudApplication.getContent(mUrl);
+					jsonRaw = CloudUtils.formatContent(is);
 					//jsonRaw = mCloudComm.getContent(mUrl);
-					if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){
+					if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
 						//TODO activity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));
 						return false;
 					}	

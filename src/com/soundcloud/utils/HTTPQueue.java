@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class HTTPQueue {
 	public static final int PRIORITY_LOW = 0;
@@ -29,17 +30,37 @@ public class HTTPQueue {
 	public void enqueue(HTTPThread task) {
 		enqueue(task, PRIORITY_LOW);
 	}
+	
+	public HTTPThread getThreadById(Long id){
+		for (int i = 0; i < mQueue.size(); i++){
+			if (mQueue.get(i).getId() == id){
+				return mQueue.get(i);
+			}
+		}
+		return null;
+	}
 
 	public synchronized void enqueue(HTTPThread task, int priority) {
+		Log.i("QUEUE","Enqueue tyask " + task.getId() + " " + mThreads.get(task.getId()));
+		
 		Boolean exists = mThreads.get(task.getId());
-		if (exists == null) {
-			if (mQueue.size() == 0 || priority == PRIORITY_LOW) {
-				mQueue.add(task);
-			} else {
-				mQueue.add(1, task);
+		if (exists == null ) {
+			Log.i("QUEUE","DOESNT EXIST");
+			int addIndex =-1;
+			for (int i = 0; i < mQueue.size(); i++){
+				Log.i("QUEUE","Compaing " + mQueue.get(i).getLocal() + " found " + task.getLocal());
+				if (mQueue.get(i).getLocal().contentEquals(task.getLocal())){
+					addIndex = i + 1;
+				}
 			}
+			if (addIndex > -1 && addIndex < mQueue.size())
+				mQueue.add(addIndex, task);
+			else
+				mQueue.add(task);
+			
 			mThreads.put(task.getId(), true);
-		}
+		} 
+
 		runFirst();
 	}
 

@@ -1,29 +1,20 @@
 package com.soundcloud.android.activity;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.List;
 
-import oauth.signpost.exception.OAuthCommunicationException;
+import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
-import org.json.JSONException;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.media.AudioManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -31,24 +22,19 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.soundcloud.android.CloudCommunicator;
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
@@ -61,14 +47,19 @@ import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.service.ICloudUploaderService;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.utils.net.NetworkConnectivityListener;
 
-public abstract class LazyActivity extends Activity implements OnItemClickListener {
+public abstract class LazyActivity extends ScActivity implements OnItemClickListener {
 	private static final String TAG = "LazyActivity";
 	protected LinearLayout mHolder;
 
 	protected Parcelable mDetailsData;
-	private boolean mMultipage = true;
 	protected String mCurrentTrackId;
+	
+	private int[] mAuthorizePostDelays = {1000,3000,10000};
+	private int mAuthorizeRetries = 0;
+	protected SoundCloudAPI.State mLastCloudState;
+	private Exception mAuthException;
 	
 
 	protected String mFilter = "";
@@ -82,15 +73,12 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	
 	//protected Downloader downloader;
-	public CloudCommunicator mCloudComm;
 	protected String oAuthToken = "";
 
 	
 	protected ICloudPlaybackService mService = null;
 	private ICloudUploaderService mUploadService = null;
 	
-	private Exception mException = null;
-	private String mError = null;
 	protected Comment addComment;
 	
 	private MenuItem menuCurrentPlayingItem;
@@ -105,25 +93,20 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 
 
 	protected LinearLayout mMainHolder;
-	protected LinearLayout mRefreshBar;
 	
 	protected int mSearchListIndex;
 	
-	private int mLockedOrientation = -1;
+	protected NetworkConnectivityListener connectivityListener;
+	protected static final int CONNECTIVITY_MSG = 0;
 	
-
+	
 	private static final int SWIPE_MIN_DISTANCE = 120;
 	private static final int SWIPE_MAX_OFF_PATH = 250;
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 	private GestureDetector gestureDetector;
 	View.OnTouchListener gestureListener;
-
 	
-	// Need handler for callbacks to the UI thread
-    public final Handler mHandler = new Handler();
     
-    protected GoogleAnalyticsTracker tracker;
-
 	/**
 	 * 
 	 * @param savedInstanceState
@@ -134,15 +117,6 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		
 		setContentView(layoutResId);
 		
-		// Get goole tracker instance
-		tracker = GoogleAnalyticsTracker.getInstance();
-
-	    // Start the tracker in manual dispatch mode...
-	    tracker.start("UA-2519404-11", this);
-		
-	    // Volume mode should always be music in this app
-		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
 		// Setup listener for the telephone
 		MyPhoneStateListener phoneListener=new MyPhoneStateListener();
 		TelephonyManager telephonyManager
@@ -150,22 +124,15 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		telephonyManager.listen(phoneListener,
 		PhoneStateListener.LISTEN_CALL_STATE);
 		
-		// Get the instance of our communicator
-		mCloudComm = CloudCommunicator.getInstance(this);
+		connectivityListener = new NetworkConnectivityListener();
+		connectivityListener.registerHandler(connHandler,CONNECTIVITY_MSG);
 		
 		build();
-		
 		restoreState();
-		initLoadTasks(); 
+		initLoadTasks();	
+		 
 	}
 	
-	/**
-	 * Get an instance of our communicator
-	 * @return the Cloud Communicator singleton
-	 */
-	public CloudCommunicator getCloudComm(){
-		return mCloudComm;
-	}
 	
 	/**
 	 * Get an instance of our playback service
@@ -185,7 +152,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	
 	/**
 	 * A parcelable object has just been retrieved by an async task somewhere, so perform 
-	 * any mapping necessary on that object, for example: {@link com.soundcloud.android.activity.Main}
+	 * any mapping necessary on that object, for example: {@link com.soundcloud.android.activity.Dashboard}
 	 * @param p
 	 */
 	public void mapDetails(Parcelable p){
@@ -208,21 +175,6 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		mProgressDialog = progressDialog;
 	}
 	
-	/**
-	 * Get the current exception
-	 * @return the exception
-	 */
-	public Exception getException() {
-		return mException;
-	}
-
-	/**
-	 * Get the current error
-	 * @return the error
-	 */
-	public String getError() {
-		return mError;
-	}
 	
 	
 	public String getTrackOrder() {
@@ -234,6 +186,19 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		return mUserOrder;
 	}
 	
+	
+	public void forcePause(){
+		try {
+			if (mService != null){
+				if (mService.isPlaying()){
+						mService.pause();
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Initialize any new loading, this will take place after any running loading tasks have been restored
 	 */
@@ -268,7 +233,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	 * @param list
 	 * @param playPos
 	 */
-	public void playTrack(List<Parcelable> list, int playPos){
+	public void playTrack(final List<Parcelable> list, final int playPos){
 		
 		Track t = null;
 		
@@ -281,8 +246,8 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		try {
 			if (t != null && mService != null && mService.getTrackId() != null && mService.getTrackId().contentEquals(t.getData(Track.key_id))){
 				//skip the enquing, its already playing
-				 Intent i = new Intent(this, ScPlayer.class);
-				 startActivity(i);
+				 Intent intent = new Intent(this, ScPlayer.class);
+				 startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
 				 return;
 			}
 			
@@ -290,31 +255,21 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		 Intent intent = new Intent(this, ScPlayer.class);
-		 intent.putExtra("track", t);
-		 startActivity(intent);
-		
+		 
 		Track[] tl = new Track[list.size()];
-		
-		for (int i = 0; i < list.size(); i++){
-			if (list.get(i) instanceof Track)
-				tl[i] = (Track) list.get(i);
-			else if (list.get(i) instanceof Event){
-				tl[i] = (Track) ((Event) list.get(i)).getDataParcelable(Event.key_track);
+			
+			for (int i = 0; i < list.size(); i++){
+				if (list.get(i) instanceof Track)
+					tl[i] = (Track) list.get(i);
+				else if (list.get(i) instanceof Event){
+					tl[i] = (Track) ((Event) list.get(i)).getDataParcelable(Event.key_track);
+				}
 			}
-		}
-
-		try {
-			mService.enqueue(tl, playPos);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
+			
+			 Intent intent = new Intent(this, ScPlayer.class);
+			 intent.putExtra("enqueuePosition", playPos);
+			 intent.putExtra("enqueueList", tl);
+			 startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
 	}
 	
 	
@@ -362,50 +317,8 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 		return CloudUtils.getCurrentUserId(this);
 	}
 	
-	public void showToast(int stringId) {
-		showToast(getResources().getString(stringId));
-	}
 	
-	protected void showToast(String text) {
-		Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-		toast.setGravity(Gravity.CENTER, 0, 0);
-		toast.show();
-	}
 	
-	public void setException(Exception e) {
-		if (e != null) Log.i("WARNING", "WE GOT AN EXCEPTION " + e.toString());
-		mException = e;
-	}
-	
-	public void setError(String e) {
-		if (e != null) Log.i("WARNING", "WE GOT AN ERROR " + e.toString());
-		mError = e;
-	}
-
-
-	public void handleException() {
-		
-		if (getException() != null) {
-			if (getException() instanceof UnknownHostException 
-					|| getException() instanceof SocketException
-					|| getException() instanceof JSONException
-					|| getException() instanceof OAuthCommunicationException) {
-				//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-			}  else {
-				//showDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
-			}
-		}
-		setException(null);
-	}
-	
-	protected void handleError() {
-		if (getError() != null) {
-			if (getError().equalsIgnoreCase(CloudCommunicator.ERROR_UNAUTHORIZED)) {
-				showDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
-			} 
-		}
-		setError(null);
-	}
 	
 	public class MyPhoneStateListener extends PhoneStateListener {
         Context context;
@@ -416,7 +329,7 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
                 	 if (mService != null)
 						try {
 							mService.pause();
-						} catch (RemoteException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
                  }
@@ -425,7 +338,11 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	}
 	
 	
-	protected void onServiceBound(){}
+	protected void onServiceBound(){
+		if (getSoundCloudApplication().getState() !=SoundCloudAPI.State.AUTHORIZED){
+			forcePause();
+		}
+	}
 	
 	protected void onServiceUnbound(){}
 	
@@ -444,7 +361,6 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 			onServiceUnbound();
 			mService = null;
 		}
-
 	};
 	
 	private ServiceConnection uploadOsc = new ServiceConnection() {
@@ -457,47 +373,40 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 
 	};
     
-
-	
-	
-
-	
-	
-	
-
-
-	protected void showRefreshBar(String text){
-		showRefreshBar(text,true);
-	}
-	
-	protected void showRefreshBar(String text, Boolean showLoader){
-		if (mRefreshBar == null){
-			mRefreshBar = new LinearLayout(this);
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		    inflater.inflate(R.layout.refresh_bar, mRefreshBar);
-		    mMainHolder.addView(mRefreshBar,0);
+	 /**
+	 * Prepare the options menu based on the current class and current play state
+	 */
+    @Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+    	if (!CloudUtils.stringNullEmptyCheck(getCurrentTrackId()) && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
+    		menuCurrentPlayingItem.setVisible(true);
+    	} else {
+    		menuCurrentPlayingItem.setVisible(false);
+    	}
+    	
+    	try {
+			if (mUploadService.isUploading()){
+				menuCurrentUploadingItem.setVisible(true);
+			} else {
+				menuCurrentUploadingItem.setVisible(false);
+			}
+		} catch (Exception e) {
+			menuCurrentUploadingItem.setVisible(false);
 		}
-		
-		if (showLoader)
-			((ProgressBar) mRefreshBar.findViewById(R.id.refresh_progress_bar)).setVisibility(View.VISIBLE);
-		else
-			((ProgressBar) mRefreshBar.findViewById(R.id.refresh_progress_bar)).setVisibility(View.GONE);
-		
-		((TextView) mRefreshBar.findViewById(R.id.refresh_progress_bar_text)).setText(text);
-	}
+    		
+    	return true;	
+    }
 	
-	protected void hideRefreshBar(){
-		if (mRefreshBar == null)
-			return;
-		
-		if (mRefreshBar.getParent() == mMainHolder)
-			mMainHolder.removeView(mRefreshBar);
-		
-		mRefreshBar = null;
-		
-		System.gc();
+    @Override
+    protected void cancelCurrentUpload(){
+		try {
+			mUploadService.cancelUpload();
+		} catch (RemoteException e) {
+			setException(e);
+			handleException();
+		}
 	}
-	
+	 
 	public void leftSwipe(){
 		Toast.makeText(this, "Left Swipe", Toast.LENGTH_SHORT).show();
 	}
@@ -571,212 +480,6 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	 }
 	 
 	
-	 @Override
-		protected Dialog onCreateDialog(int which) {
-			switch (which) {
-			
-				case CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_track_error_title).setMessage(R.string.error_track_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_ERROR_TRACK_DOWNLOAD_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_track_download_error_title).setMessage(R.string.error_track_download_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_DOWNLOAD_ERROR);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_GENERAL_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_general_title).setMessage(R.string.error_general_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_ERROR_LOADING:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title).setMessage(R.string.error_loading_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-						}
-					}).create();
-				case CloudUtils.Dialogs.DIALOG_ERROR_STREAM_NOT_SEEKABLE:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_stream_not_seekable_title).setMessage(R.string.error_stream_not_seekable_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-						}
-					}).create();
-				case CloudUtils.Dialogs.DIALOG_SC_CONNECT_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_sc_connect_error_title).setMessage(R.string.error_sc_connect_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_SC_CONNECT_ERROR);
-						}
-					}).create();
-				case CloudUtils.Dialogs.DIALOG_ERROR_CHANGE_FAVORITE_STATUS_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_change_favorite_status_error_title).setMessage(R.string.error_change_favorite_status_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_CHANGE_FAVORITE_STATUS_ERROR);
-						}
-					}).create();
-				case CloudUtils.Dialogs.DIALOG_ERROR_CHANGE_FOLLOWING_STATUS_ERROR:
-					return new AlertDialog.Builder(this).setTitle(R.string.error_change_following_status_error_title).setMessage(R.string.error_change_following_status_error_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_CHANGE_FOLLOWING_STATUS_ERROR);
-						}
-					}).create();
-				case CloudUtils.Dialogs.DIALOG_UNAUTHORIZED:
-		            return new AlertDialog.Builder(this)
-		                .setTitle(R.string.error_unauthorized_title)
-		                .setPositiveButton(getString(R.string.btn_ok), new DialogInterface.OnClickListener() {
-		                    public void onClick(DialogInterface dialog, int whichButton) {
-								try {
-									mCloudComm.clearSoundCloudAccount();
-									mCloudComm.launchAuthorization();
-								} catch (Exception e) {
-									setException(e);
-									handleException();
-								}
-								
-								removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
-		                       
-		                    }
-		                })
-		                .setNegativeButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
-		                    public void onClick(DialogInterface dialog, int whichButton) {
-		                    	System.out.println("cancel clicked.");
-		                    	removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
-		                    }
-		                })
-		                .create(); 
-				case CloudUtils.Dialogs.DIALOG_FOLLOWING:
-					String msgString = getString(R.string.alert_following_message).replace("{username}", dialogUsername);
-					return new AlertDialog.Builder(this).setTitle(R.string.alert_following_title).setMessage(msgString).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_FOLLOWING);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_ALREADY_FOLLOWING:
-					msgString = getString(R.string.alert_already_following_message).replace("{username}", dialogUsername);
-					return new AlertDialog.Builder(this).setTitle(R.string.alert_already_following_title).setMessage(msgString).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ALREADY_FOLLOWING);
-						}
-					}).create();
-					
-				case CloudUtils.Dialogs.DIALOG_UNFOLLOWING:
-					msgString = getString(R.string.alert_unfollowing_message).replace("{username}", dialogUsername);
-					return new AlertDialog.Builder(this).setTitle(R.string.alert_unfollowing_title).setMessage(msgString).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_UNFOLLOWING);
-						}
-					}).create();
-					
-					
-				case CloudUtils.Dialogs.DIALOG_PROCESSING:
-					
-						mProgressDialog = new ProgressDialog(this);
-						mProgressDialog.setTitle(R.string.processing_title);
-						mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-						mProgressDialog.setIndeterminate(true);
-						mProgressDialog.setCancelable(false);
-					
-					return mProgressDialog;
-					
-				case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
-					 return new AlertDialog.Builder(this)
-		                .setTitle(R.string.dialog_cancel_upload_title)
-		                .setMessage(R.string.dialog_cancel_upload_message)
-		                .setPositiveButton(getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-		                    public void onClick(DialogInterface dialog, int whichButton) {
-								try {
-									mUploadService.cancelUpload();
-								} catch (Exception e) {
-									setException(e);
-									handleException();
-								}
-								
-								removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-		                       
-		                    }
-		                })
-		                .setNegativeButton(getString(R.string.btn_no), new DialogInterface.OnClickListener() {
-		                    public void onClick(DialogInterface dialog, int whichButton) {
-		                    	removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-		                    }
-		                })
-		                .create(); 
-				case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY:
-					mProgressDialog = new ProgressDialog(this);
-					mProgressDialog.setTitle(R.string.authentication_retrying_title);
-					mProgressDialog.setMessage(getResources().getString(R.string.authentication_retrying_message));
-					mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-					mProgressDialog.setIndeterminate(true);
-					mProgressDialog.setCancelable(false);
-					return mProgressDialog;
-					
-				case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR:
-					return new AlertDialog.Builder(this)
-					.setTitle(R.string.authentication_failed_title)
-					.setMessage(R.string.authentication_failed_message)
-					.setPositiveButton(R.string.btn_retry, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR);
-							try {startActivity(mCloudComm.getAuthorizationIntent()); finish();} 
-							catch (Exception e) {setException(e);handleException();}
-						}
-					}).create();
-					
-					
-			}  
-			return super.onCreateDialog(which);
-		}
-
-	
-	 /**
-		 * Prepare the options menu based on the current class and current play state
-		 */
-	    @Override
-		public boolean onPrepareOptionsMenu(Menu menu) {
-	    	if (!CloudUtils.stringNullEmptyCheck(getCurrentTrackId()) && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
-	    		menuCurrentPlayingItem.setVisible(true);
-	    	} else {
-	    		menuCurrentPlayingItem.setVisible(false);
-	    	}
-	    	
-	    	try {
-				if (mUploadService.isUploading()){
-					menuCurrentUploadingItem.setVisible(true);
-				} else {
-					menuCurrentUploadingItem.setVisible(false);
-				}
-			} catch (RemoteException e) {
-				menuCurrentUploadingItem.setVisible(false);
-			}
-	    		
-	    	return true;	
-	    }
-
-	    /**
-	     * Handle options menu selections
-	     */
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			switch (item.getItemId()) {
-				case CloudUtils.OptionsMenu.SETTINGS:
-					startActivity(new Intent(this, Settings.class));
-					return true;
-				case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
-					startActivity(new Intent(this, ScPlayer.class));
-					return true;
-				case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
-					showDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-					return true;
-			}
-			return super.onOptionsItemSelected(item);
-		}
 	
 	
 	/***** State saving/restoring *****/
@@ -806,16 +509,18 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	@Override
 	protected void onStart() {
     	super.onStart();
+
+    	connectivityListener.startListening(this);
     	
-    	//start it so it is persistent outside this activity, then bind it
+		//start it so it is persistent outside this activity, then bind it
 		startService(new Intent(this, CloudUploaderService.class));
 		bindService(new Intent(this, CloudUploaderService.class), uploadOsc,0);
-    	
+
 		if (false == CloudUtils.bindToService(this, osc)) {
-			// something went wrong
-			//mHandler.sendEmptyMessage(QUIT);
-		}
+			Log.i(TAG,"BIND TO SERVICE FAILED");
+		}	
     }
+	
 	
 	/**
 	 * Unbind our services
@@ -824,10 +529,14 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	protected void onStop() {
     	super.onStop();
     	
-    	this.unbindService(uploadOsc);
+    	connectivityListener.stopListening();
+    	
+    	if (mUploadService != null){
+    		this.unbindService(uploadOsc);
+    		mUploadService = null;
+    	}
     	
 		CloudUtils.unbindFromService(this);
-		mService = null;
     
     }
 
@@ -839,11 +548,22 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	@Override
     protected void onResume() {
     	super.onResume();
+    	
     	// set our default preferences here, in case they were just changed 
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		setPageSize(Integer.parseInt(mPreferences.getString("defaultPageSize", "20")));
 		mTrackOrder = mPreferences.getString("defaultTrackSorting", "");
 		mUserOrder = mPreferences.getString("defaultUserSorting", "");
+		
+		if (getSoundCloudApplication().getState() == SoundCloudAPI.State.AUTHORIZED) {
+			onAuthenticated();
+		} else{
+			if (mHolder != null) mHolder.setVisibility(View.GONE);
+			forcePause();
+			showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+			mHandler.postDelayed(mLaunchIntent, 1000);
+		}
+		
 		
     }
 	
@@ -851,5 +571,77 @@ public abstract class LazyActivity extends Activity implements OnItemClickListen
 	protected void onDestroy() {
     	super.onDestroy();
     }
+	
+	
+	
+	private void launchAuthorizationIntent(){
+		mAuthException = null;
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				try {startActivity(getSoundCloudApplication().getAuthorizationIntent());finish(); } 
+				catch (Exception e) {mAuthException = e;}
+				mHandler.post(mHandleAuthIntent);
+			}
+		};
+		t.start();
+	}
+	
+	// Create runnable for posting so we can handle auth tries from a thread
+	final Runnable mHandleAuthIntent = new Runnable() {
+		public void run() {
+			if (mAuthException != null){
+				if (mAuthorizeRetries < mAuthorizePostDelays.length) {
+                    mHandler.postDelayed(mLaunchIntent, mAuthorizePostDelays[mAuthorizeRetries]);
+                    mAuthorizeRetries++;		                    
+                } else {
+                	removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+                	try{
+                		showDialog(CloudUtils.Dialogs.DIALOG_ERROR_MAKING_CONNECTION);
+                	} catch (BadTokenException e){ e.printStackTrace(); }
+                }
+			} else {
+				removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+			}
+			
+		}
+	};
+	
+	// Create runnable for posting since we want to launch the authorization at intervals
+	final Runnable mLaunchIntent = new Runnable() {
+		public void run() {
+			launchAuthorizationIntent();
+		}
+	};
+	
+
+	
+	private void onAuthenticated(){
+		oAuthToken = "";
+	
+		if (mHolder != null) mHolder.setVisibility(View.VISIBLE);
+		initLoadTasks();
+		mLastCloudState = getSoundCloudApplication().getState();
+	}
+	
+	
+
+	private Handler connHandler = new Handler() {
+	    public void handleMessage(Message msg) {
+	            switch(msg.what) {
+	                case CONNECTIVITY_MSG:
+	                	  
+	                	if (connectivityListener == null) return;
+	                      NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+	                     
+	                      if (networkInfo == null) return;
+	                      if (networkInfo.isConnected()){
+	                    	  //clear image loading errors
+	                    	  ImageLoader.get(LazyActivity.this).clearErrors();
+	                      }
+	                      break;
+	                      }
+	                }
+	};
 	
 }

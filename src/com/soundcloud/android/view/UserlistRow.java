@@ -20,9 +20,6 @@ public class UserlistRow extends LazyRow {
     private static final String TAG = "UserlistRow";
 
 	protected User mUser;
-	
-	protected RemoteImageView mIcon;
-	
 	protected TextView mUsername;
 	protected TextView mLocation;
 	protected TextView mTracks;
@@ -41,7 +38,7 @@ public class UserlistRow extends LazyRow {
 		  mTracks = (TextView) findViewById(R.id.tracks);
 		  mFollowers = (TextView) findViewById(R.id.followers);
 		  
-		  mIcon = (RemoteImageView) findViewById(R.id.icon);
+		  mIcon = (ImageView) findViewById(R.id.icon);
 		  
 		  mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
 		  mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
@@ -67,33 +64,16 @@ public class UserlistRow extends LazyRow {
 			setTrackCount();
 			setFollowerCount();
 			
-			Log.i(TAG,"SIZE 1 " + mTracksIcon.getWidth() + " " + mTracksIcon.getHeight());
-			Log.i(TAG,"SIZE 2 " + mFollowersIcon.getWidth() + " " + mFollowersIcon.getHeight());
-			
-			
 			if (mUser.getData(User.key_user_following).equalsIgnoreCase("true")){
 				_isFollowing = true;
 			} else {
 				_isFollowing = false;
 			}
-			
-			
-		
 				  
-		  String remoteUrl = "";
 			if (getContext().getResources().getDisplayMetrics().density > 1){
 				mIcon.getLayoutParams().width = 67;
 				mIcon.getLayoutParams().height = 67;
-				remoteUrl = CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.large); 
-			} else
-				remoteUrl = CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.badge);
-			
-			//Log.i("asdf","set row icon " + remoteUrl);
-			
-			super.setViewImage(mIcon,remoteUrl);
-			
-			mIcon.loadImage();
-		  
+			}		  
 	  }
 	  
 	  @Override
@@ -101,6 +81,17 @@ public class UserlistRow extends LazyRow {
 		  return mContext.getResources().getDrawable(R.drawable.artwork_badge);
 	  }
 	
+	  public ImageView getRowIcon(){
+			return mIcon;
+	  }
+	  
+	  public String getIconRemoteUri(){
+			if (getContext().getResources().getDisplayMetrics().density > 1){
+				return CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.large); 
+			} else
+				return CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.badge);
+	  }
+	  
 	  
 	  
 	  //**********************

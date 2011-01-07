@@ -8,15 +8,16 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.RemoteImageView;
 
 public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filterable {
 	
@@ -65,7 +66,6 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 	public class CommentRow extends LazyRow {
 		
 		protected Comment mComment;
-		private RemoteImageView mIcon;
 		private TextView mUsername;
 		private TextView mBody;
 		
@@ -74,7 +74,6 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 			  
 			  mUsername = (TextView) findViewById(R.id.username);
 			  mBody = (TextView) findViewById(R.id.body);
-			  mIcon = (RemoteImageView) findViewById(R.id.icon);
 			  
 		  }
 		  
@@ -93,15 +92,31 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 				mComment = (Comment) p;
 				mUsername.setText(getUsernameString());
 				mBody.setText(mComment.getData(Comment.key_body));
-				super.setViewImage(mIcon,mComment.getData(Comment.key_user_avatar_url));
-				mIcon.loadImage();
-			  
 		  }
 		  
 		  @Override
 		  protected Drawable getTemporaryDrawable(){
 			  return mContext.getResources().getDrawable(R.drawable.artwork_badge);
 		  }
+		  
+		  @Override
+		  public ImageView getRowIcon(){
+				if (getContext().getResources().getDisplayMetrics().density > 1){
+					mIcon.getLayoutParams().width = 67;
+					mIcon.getLayoutParams().height = 67;
+				}
+				return mIcon;
+		  }
+		  
+		  @Override
+		  public String getIconRemoteUri(){
+				if (getContext().getResources().getDisplayMetrics().density > 1){
+					return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.large); 
+				} else
+					return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.badge);
+				
+		  }
+		  
 		  
 		  @Override
 		  protected int getIconWidth(){

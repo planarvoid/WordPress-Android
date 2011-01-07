@@ -1,9 +1,12 @@
 package com.soundcloud.android.activity;
 
-import android.app.Activity;
+import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -18,15 +21,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
-import com.soundcloud.android.CloudCommunicator;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 
-public class Authorize extends Activity {
+public class Authorize extends ScActivity {
 	
 	private static final String TAG = "Authorize";
 	
 	private SharedPreferences mPreferences;
-	private CloudCommunicator mCloudComm;
 	
 	private EditText txtUsername;
 	private EditText txtPassword;
@@ -39,15 +42,20 @@ public class Authorize extends Activity {
 	
 	private Handler mHandler = new Handler();
 	
+	private int[] mExchangePostDelays = {1000,3000,10000};
+	private int mCurrentExchangeRetries = 0;
+
+	private String oAuthToken;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.authorize);
+		//setContentView(R.layout.authorize);
+		setContentView(R.layout.main);
 		
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		mCloudComm = CloudCommunicator.getInstance(this);
 		
-		authBg = (RelativeLayout) findViewById(R.id.auth_bg);
+		/*authBg = (RelativeLayout) findViewById(R.id.auth_bg);
 		
 		authBg.setOnFocusChangeListener(keyboardHideFocusListener);
 		authBg.setOnClickListener(keyboardHideClickListener);
@@ -62,6 +70,14 @@ public class Authorize extends Activity {
 				onAuthorize();
 			}
 		});
+		*/
+		// extract the OAUTH access token if it exists
+		Uri uri = this.getIntent().getData();
+		if(uri != null) {
+			Log.i(TAG,"AUTHORIZATION TOKEN " + oAuthToken);
+		  	oAuthToken = uri.getQueryParameter("oauth_verifier");	
+		  	mHandler.post(mExchangeToken);
+		}
 	}
 	
 	private void onAuthorize(){
@@ -71,7 +87,7 @@ public class Authorize extends Activity {
                 {
                         try
                         {
-                          mCloudComm.getApi().obtainAccessToken(txtUsername.getText().toString(), txtPassword.getText().toString());
+                          //mCloudComm.obtainAccessToken(txtUsername.getText().toString(), txtPassword.getText().toString());
                         } catch (Exception e) {
                         	e.printStackTrace();
                         	
@@ -90,7 +106,7 @@ public class Authorize extends Activity {
 	}
 	
 	private void onAuthReturn(){
-		Log.i("AUTH","Auth returned " + mCloudComm.getState());
+		Log.i("AUTH","Auth returned " + ((SoundCloudApplication) getApplication()).getState());
 		removeDialog(DIALOG_AUTHENTICATING);
 	}
 	
@@ -112,7 +128,42 @@ public class Authorize extends Activity {
 	}
 	
 	
+
+	private void onAuthenticated(){
+		Intent intent = new Intent(this, Dashboard.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+		//finish();
+	}
 	
+	
+	
+	private Runnable mExchangeToken = new Runnable() {
+		   public void run() {
+			   
+			   if (mCurrentExchangeRetries == 1)
+				   showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
+			   
+		        if (oAuthToken != "") {
+		        	Log.i(TAG,"Updating TOKEN " + oAuthToken);
+		        	getSoundCloudApplication().updateAuthorizationStatus(oAuthToken);
+		            if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
+		                if (mCurrentExchangeRetries < mExchangePostDelays.length) {
+		                    mHandler.postDelayed(mExchangeToken, mExchangePostDelays[mCurrentExchangeRetries]);
+		                    mCurrentExchangeRetries++;		                    
+		                } else {
+		                	Log.i(TAG," TOKEN update successful ");
+		                	getSoundCloudApplication().clearTokens();
+		                	removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
+		                    showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR);
+		                }
+		            } else {
+		            	onAuthenticated();
+		            }
+		        }
+		   }
+		};
+
 	
 		
 	 private OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {

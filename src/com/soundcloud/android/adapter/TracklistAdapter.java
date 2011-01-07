@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.LazyRow;
@@ -34,10 +35,14 @@ public class TracklistAdapter extends LazyBaseAdapter {
 		} else {
 			rowView = (TracklistRow) row;
 		}
-	
-		rowView.display(mData.get(index), mSelectedIndex == index, _playingId ==  getTrackAt(index).getData(Track.key_id));
+
+		rowView.display(mData.get(index), mSelectedIndex == index,(_playingId != null &&  getTrackAt(index).getData(Track.key_id).contentEquals(_playingId)));
 		
-		
+		BindResult result = BindResult.ERROR;
+		try{ //put the bind in a try catch to catch any loading error (or the occasional bad url) 
+			result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+		} catch (Exception e){};
+		rowView.setTemporaryDrawable(result);
 		return rowView;
 	}
 
@@ -53,15 +58,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 	
 	public void setPlayingId(String playingId){
 		_playingId = playingId;	
-		
 		notifyDataSetChanged();
-		
-		/*for (int i = 0; i < getCount(); i++){
-			if (getTrackAt(i).getData(Track.key_id).contentEquals(_playingId)){
-				notifyDataSetChanged();
-				return;
-			}
-		}*/
 	}
 	
 	public void setPlayingPosition(int position){

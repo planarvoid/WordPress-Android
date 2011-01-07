@@ -10,13 +10,8 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
-import android.os.SystemClock;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.view.ScCreate.CreateState;
+import com.soundcloud.android.view.ScCreate;
 
 public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
 	private File mPCMFile;
@@ -43,10 +38,10 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
 	public void stopPlayback(){
 		mPlaying = false;
 		
-		if (playbackTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING)
+		if (playbackTrack != null && playbackTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING)
 			playbackTrack.pause();
 		
-		if (writeThread.isAlive())
+		if (writeThread != null && writeThread.isAlive())
 			writeThread.interrupt();
 	}
 
@@ -111,7 +106,7 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
 			
 	  		
 			while (mPlaying && playbackTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING){
-				publishProgress(playbackTrack.getPlaybackHeadPosition()*2);
+				publishProgress(playbackTrack.getPlaybackHeadPosition()*2*ScCreate.REC_CHANNELS);
 				try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
 			}
 			

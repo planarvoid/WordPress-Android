@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
@@ -22,7 +23,6 @@ public class TracklistRow extends LazyRow {
 	
 	protected ImageView mPlayIndicator;
 	protected ImageView mPrivateIndicator;
-	protected RemoteImageView mIcon;
 	protected TextView mUser;
 	protected TextView mTitle;
 	protected TextView mDuration;
@@ -52,7 +52,7 @@ public class TracklistRow extends LazyRow {
 		  mTitle = (TextView) findViewById(R.id.track);
 		  mUser = (TextView) findViewById(R.id.user);
 		  mDuration = (TextView) findViewById(R.id.duration);
-		  mIcon = (RemoteImageView) findViewById(R.id.icon);
+		  mIcon = (ImageView) findViewById(R.id.icon);
 		  mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
 		  mPrivateIndicator = (ImageView) findViewById(R.id.private_indicator);
 		 /* mPlayBtn = (ImageButton) findViewById(R.id.btn_play);
@@ -102,6 +102,7 @@ public class TracklistRow extends LazyRow {
 	 
 	 
 	  public void display(Parcelable p, boolean selected, boolean isPlaying) {
+		  
 		  _isPlaying = isPlaying;
 		  display(p,selected);
 	  }
@@ -111,9 +112,6 @@ public class TracklistRow extends LazyRow {
 	  @Override
 	  public void display(Parcelable p, boolean selected) {
 		  	super.display(p, selected);
-		  	
-		  
-
 		  	
 		  	//Log.i(TAG,"SIZE " + mPrivateIndicator.getWidth() + " " + mPrivateIndicator.getHeight());
 		  
@@ -158,55 +156,33 @@ public class TracklistRow extends LazyRow {
 				mPlayIndicator.setVisibility(View.GONE);
 			}
 			
-			
-			setRowIcon();
-			
-			/*if (_isPlaying){
-				mPlayIndicator.setImageResource(R.drawable.ic_play_indicator);
-				mPlayIndicator.setVisibility(View.VISIBLE);
-			} else
-				mPlayIndicator.setVisibility(View.GONE);
-			
-			if (mTrack.getData(Track.key_play_url)== ""){
-				mPlayBtn.setVisibility(View.GONE);
-				mPlaylistBtn.setVisibility(View.GONE);
-			} else {
-				mPlayBtn.setVisibility(View.VISIBLE);
-				mPlaylistBtn.setVisibility(View.VISIBLE);
-			}
-			
-			
-			if (mTrack.getData(Track.key_downloadable).contentEquals("false")){
-				mDownloadBtn.setVisibility(View.GONE);
-			} else {
-				mDownloadBtn.setVisibility(View.VISIBLE);
-			}*/
-			
 			setFavoriteStatus();
 		  
 	  }
+	  
+	  
 	  
 	  protected Track getTrackFromParcelable(Parcelable p){
 		  return (Track) p;
 	  }
 	  
-	  protected void setRowIcon() {
-		  
-		  
-		  String remoteUrl = "";
+	  public ImageView getRowIcon(){
 			if (getContext().getResources().getDisplayMetrics().density > 1){
 				mIcon.getLayoutParams().width = 67;
 				mIcon.getLayoutParams().height = 67;
-				remoteUrl = CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.large); 
-			} else
-				remoteUrl = CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.badge);
-			
-			//Log.i("asdf","set row icon " + remoteUrl);
-			
-			super.setViewImage(mIcon,remoteUrl);
-			
-			mIcon.loadImage();
+			}
+			return mIcon;
 	  }
+	  
+	  public String getIconRemoteUri(){
+			if (getContext().getResources().getDisplayMetrics().density > 1){
+				return CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.large); 
+			} else
+				return CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.badge);
+			
+	  }
+	  
+	
 	  
 	  private void setFavoriteStatus(){
 			if (_isFavorite){

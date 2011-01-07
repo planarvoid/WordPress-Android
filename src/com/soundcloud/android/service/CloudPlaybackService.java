@@ -39,9 +39,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
@@ -57,6 +57,8 @@ import com.soundcloud.android.task.LoadCommentsTask;
  */
 public class CloudPlaybackService extends Service {
 
+	private static final String TAG = "CloudPlaybackService";
+	
 	public static final int NOW = 1;
 	public static final int NEXT = 2;
 	public static final int LAST = 3;
@@ -72,19 +74,21 @@ public class CloudPlaybackService extends Service {
 
 	public static final int MAX_RECONNECT_COUNT = 1;
 
-	public static final String PLAYSTATE_CHANGED = "com.dubmoon.overcast.playstatechanged";
-	public static final String META_CHANGED = "com.dubmoon.overcast.metachanged";
-	public static final String QUEUE_CHANGED = "com.dubmoon.overcast.queuechanged";
-	public static final String PLAYBACK_COMPLETE = "com.dubmoon.overcast.playbackcomplete";
-	public static final String TRACK_ERROR = "com.dubmoon.overcast.trackerror";
-	public static final String STREAM_DIED = "com.dubmoon.overcast.streamdied";
-	public static final String COMMENTS_LOADED = "com.dubmoon.overcast.commentsloaded";
-	public static final String SEEK_COMPLETE = "com.dubmoon.overcast.seekcomplete";
+	public static final String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
+	public static final String META_CHANGED = "com.soundcloud.android.metachanged";
+	public static final String QUEUE_CHANGED = "com.soundcloud.android.queuechanged";
+	public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
+	public static final String TRACK_ERROR = "com.soundcloud.android.trackerror";
+	public static final String STREAM_DIED = "com.soundcloud.android.streamdied";
+	public static final String COMMENTS_LOADED = "com.soundcloud.android.commentsloaded";
+	public static final String FAVORITES_SET = "com.soundcloud.android.favoriteset";
+	public static final String SEEK_START = "com.soundcloud.android.seekstart";
+	public static final String SEEK_COMPLETE = "com.soundcloud.android.seekcomplete";
 
-	public static final String ASYNC_OPENING = "com.dubmoon.overcast.asyncopening";
-	public static final String ASYNC_OPEN_COMPLETE = "com.dubmoon.overcast.asyncopencomplete";
+	public static final String ASYNC_OPENING = "com.soundcloud.android.asyncopening";
+	public static final String ASYNC_OPEN_COMPLETE = "com.soundcloud.android.asyncopencomplete";
 
-	public static final String SERVICECMD = "com.dubmoon.overcast.musicservicecommand";
+	public static final String SERVICECMD = "com.soundcloud.android.musicservicecommand";
 	public static final String CMDNAME = "command";
 	public static final String CMDTOGGLEPAUSE = "togglepause";
 	public static final String CMDSTOP = "stop";
@@ -92,10 +96,10 @@ public class CloudPlaybackService extends Service {
 	public static final String CMDPREVIOUS = "previous";
 	public static final String CMDNEXT = "next";
 
-	public static final String TOGGLEPAUSE_ACTION = "com.dubmoon.overcast.musicservicecommand.togglepause";
-	public static final String PAUSE_ACTION = "com.dubmoon.overcast.musicservicecommand.pause";
-	public static final String PREVIOUS_ACTION = "com.dubmoon.overcast.musicservicecommand.previous";
-	public static final String NEXT_ACTION = "com.dubmoon.overcast.musicservicecommand.next";
+	public static final String TOGGLEPAUSE_ACTION = "com.soundcloud.android.musicservicecommand.togglepause";
+	public static final String PAUSE_ACTION = "com.soundcloud.android.musicservicecommand.pause";
+	public static final String PREVIOUS_ACTION = "com.soundcloud.android.musicservicecommand.previous";
+	public static final String NEXT_ACTION = "com.soundcloud.android.musicservicecommand.next";
 
 	private static final int TRACK_ENDED = 1;
 	private static final int RELEASE_WAKELOCK = 2;
@@ -108,7 +112,7 @@ public class CloudPlaybackService extends Service {
 	private int mLoadPercent = 0;
 	private int mPlayListLen = 0;
 	private boolean mAutoPause = false;
-	private boolean mIsAsyncOpening = false;
+	
 
 	private Track[] mPlayList = new Track[0];
 	private Track mPlayingData;
@@ -119,10 +123,15 @@ public class CloudPlaybackService extends Service {
 
 	private long mResumeTime = 0;
 	private String mResumeId = "";
-	private long mSeekTime = 0;
+	
+	private long mSeekTime = -1;
+	private long mLastSeekTime = -1;
+	private boolean mPlayAfterSeek = false;
 
 	private int mPlayPos = -1;
 	private int mReconnectCount = 0;
+	private boolean mPlayerResetting = false;
+	
 
 	private WakeLock mWakeLock;
 	private int mServiceStartId = -1;
@@ -165,6 +174,8 @@ public class CloudPlaybackService extends Service {
 		mMediaplayerHandler.sendEmptyMessageDelayed(FADEIN, 10);
 	}
 
+	private Handler mAsyncPlaybackHandler = new Handler();
+	
 	private Handler mMediaplayerHandler = new Handler() {
 		float mCurrentVolume = 1.0f;
 
@@ -199,12 +210,9 @@ public class CloudPlaybackService extends Service {
 				}
 				break;
 			case TRACK_EXCEPTION:
+				mIsSupposedToBePlaying = false;
 				notifyChange(TRACK_ERROR);
-				if (mIsSupposedToBePlaying) {
-					next(true);
-				} else {
-					notifyChange(PLAYBACK_COMPLETE);
-				}
+				notifyChange(PLAYBACK_COMPLETE);
 				break;
 			case TRACK_ENDED:
 				next(false);
@@ -307,7 +315,8 @@ public class CloudPlaybackService extends Service {
 					prev();
 				} else {
 					seek(0);
-					play();
+					mPlayAfterSeek = true;
+					//play();
 				}
 			} else if (CMDTOGGLEPAUSE.equals(cmd)
 					|| TOGGLEPAUSE_ACTION.equals(action)) {
@@ -380,7 +389,6 @@ public class CloudPlaybackService extends Service {
 		// stop playback and clean up if the SD card is going to be unmounted.
 		stop(true);
 		notifyChange(QUEUE_CHANGED);
-		notifyChange(META_CHANGED);
 	}
 
 
@@ -390,9 +398,9 @@ public class CloudPlaybackService extends Service {
 	 * - Integer: the database row ID "artist" - String: the name of the artist
 	 * "album" - String: the name of the album "track" - String: the name of the
 	 * track The intent has an action that is one of
-	 * "com.dubmoon.overcast.metachanged" "com.dubmoon.overcast.queuechanged",
-	 * "com.dubmoon.overcast.playbackcomplete"
-	 * "com.dubmoon.overcast.playstatechanged" respectively indicating that a
+	 * "com.soundcloud.android.metachanged" "com.soundcloud.android.queuechanged",
+	 * "com.soundcloud.android.playbackcomplete"
+	 * "com.soundcloud.android.playstatechanged" respectively indicating that a
 	 * new track has started playing, that the playback queue has changed, that
 	 * playback has stopped because the last file in the list has been played,
 	 * or that the play-state changed (paused/resumed).
@@ -494,7 +502,6 @@ public class CloudPlaybackService extends Service {
 				if (action == NOW) {
 					mPlayPos = mPlayListLen - 1;
 					openCurrent();
-					notifyChange(META_CHANGED);
 					return;
 				}
 			}
@@ -502,7 +509,6 @@ public class CloudPlaybackService extends Service {
 			if (mPlayPos < 0) {
 				mPlayPos = 0;
 				openCurrent();
-				notifyChange(META_CHANGED);
 			}
 		}
 	}
@@ -523,7 +529,6 @@ public class CloudPlaybackService extends Service {
 			addToPlayList(list, 0);
 			mPlayPos = playPos;
 			openCurrent();
-			notifyChange(META_CHANGED);
 		}
 	}
 
@@ -599,21 +604,17 @@ public class CloudPlaybackService extends Service {
 
 	private void openCurrent(Boolean autoPause) {
 
-		synchronized (this) {
-
 			if (mPlayListLen == 0) {
 				return;
 			}
 
 			mAutoPause = autoPause;
-
-			stop(false);
 			openAsync(mPlayList[mPlayPos]);
-		}
 	}
 
+	
+	Thread mStopThread = null;
 	public void openAsync(Track track) {
-		synchronized (this) {
 			if (track == null) {
 				return;
 			}
@@ -625,55 +626,68 @@ public class CloudPlaybackService extends Service {
 
 			if (!mFileToPlay.contentEquals(track
 					.getData(Track.key_local_play_url))) {
-				mFileToPlay = CloudCommunicator.getInstance(
-						getApplicationContext())
-						.signStreamUrlNaked(mFileToPlay);
+				mFileToPlay = ((SoundCloudApplication) CloudPlaybackService.this.getApplication()).signStreamUrlNaked(mFileToPlay);
 			}
 
+			
+			
+			boolean metaChanged = true;
+			if (mPlayingData != null && mPlayingData.getData(Track.key_id).contentEquals(track.getData(Track.key_id)))
+				metaChanged = false;
+			
 			mPlayingData = track;
 
 			track.putData(Track.key_user_played, "true");
 			CloudUtils.resolveTrack(getApplicationContext(), track, true,
 					CloudUtils.getCurrentUserId(this));
 
-			mIsAsyncOpening = true;
-			mPlayer.setDataSourceAsync(mFileToPlay);
-
-			Log.i("MEDIA","Set data source to: " + mFileToPlay);
 			
-			if (track.comments == null) {
-				if (mLoadCommentsTask != null) {
-					mLoadCommentsTask.cancel(true);
+			mLoadPercent = 0;
+			
+			if (metaChanged)
+				notifyChange(META_CHANGED);
+
+			//stop in a thread so the resetting (or releasing if we are asyncopening) doesn't holdup the UI
+			if (mStopThread == null){
+				if (mPlayer.isInitialized() || mPlayer.isAsyncOpening() ){
+					mStopThread = new Thread() {
+						@Override
+						public void run() {
+							mPlayer.stop();
+							mAsyncPlaybackHandler.post(mSetCurrentDataSource);
+						}
+					};
+					mStopThread.setPriority(Thread.MAX_PRIORITY);
+					mStopThread.start();
+				} else {
+					mAsyncPlaybackHandler.post(mSetCurrentDataSource);
 				}
-
-				mLoadCommentsTask = new PlayerLoadCommentsTask();
-				mLoadCommentsTask.track_id = track.getData(Track.key_id);
-				mLoadCommentsTask.context = getApplicationContext();
-				mLoadCommentsTask.execute();
 			}
-
-			if (CloudUtils.isLocalFile(mFileToPlay)) {
-				mLoadPercent = 100;
-			} else {
-				mLoadPercent = 0;
-			}
-		}
 	}
+	
+	final Runnable mSetCurrentDataSource = new Runnable() {
+		public void run() {
+			mStopThread = null;
+			mPlayer.setDataSourceAsync(mFileToPlay);
+		}
+	};
+	
+	
 
 
 	/**
 	 * Starts playback of a previously opened file.
 	 */
 	public void play() {
+		Log.i(TAG,"MP PLAY " +mPlayer.isInitialized() );
 
-
-		if (mPlayer.isInitialized()) {
-
+		if (mPlayer.isInitialized()){
+			Log.i(TAG,"MP Is Initialized");
 
 			if (mPlayingData == null)
 				return;
 			
-			mSeekTime = 0;
+			mSeekTime = -1;
 
 			mPlayer.start();
 
@@ -694,6 +708,7 @@ public class CloudPlaybackService extends Service {
 			Intent i = new Intent(this, ScPlayer.class);
 			i.addCategory(Intent.CATEGORY_LAUNCHER);
 			i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+			i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			i.setAction(Intent.ACTION_MAIN);
 
 			Notification status = new Notification();
@@ -708,16 +723,16 @@ public class CloudPlaybackService extends Service {
 				notifyChange(PLAYSTATE_CHANGED);
 			}
 
+		} else {
+			this.restart();
 		}
 	}
 
 	private void stop(boolean remove_status_icon) {
 		if (mPlayer.isInitialized()) {
-
 			mPlayer.stop();
 		}
 		mFileToPlay = null;
-		mPlayingData = null;
 
 		if (remove_status_icon) {
 			gotoIdleState();
@@ -786,18 +801,17 @@ public class CloudPlaybackService extends Service {
 
 	public void prev() {
 		synchronized (this) {
+			
+			if (mPlayPos == 0) 
+					return;
+			
+			mPlayPos--;
 
-			if (mPlayPos > 0) {
-				mPlayPos--;
-			} else {
-				mPlayPos = mPlayListLen - 1;
+			if (mPlayListLen > 1 && !CloudUtils.isTrackPlayable(mPlayList[mPlayPos])){
+				prev();
+				return;
 			}
-
-
-			stop(false);
 			openCurrent();
-			// play();
-			notifyChange(META_CHANGED);
 		}
 	}
 
@@ -806,19 +820,28 @@ public class CloudPlaybackService extends Service {
 
 			if (mPlayPos >= mPlayListLen - 1) {
 				// we're at the end of the list
-				gotoIdleState();
-				notifyChange(PLAYBACK_COMPLETE);
-				mIsSupposedToBePlaying = false;
+				//gotoIdleState();
+				//notifyChange(PLAYBACK_COMPLETE);
+				//mIsSupposedToBePlaying = false;
+
+				//do nothing
 				return;
 
 			} else {
 				mPlayPos++;
+				if (!CloudUtils.isTrackPlayable(mPlayList[mPlayPos])){
+					next(true);
+					return;
+				}
 			}
 
-			stop(false);
 			openCurrent();
-			// play();
-			notifyChange(META_CHANGED);
+		}
+	}
+	
+	public void restart() {
+		synchronized (this) {
+			openCurrent();
 		}
 	}
 
@@ -966,8 +989,6 @@ public class CloudPlaybackService extends Service {
 			stop(false);
 			mPlayPos = pos;
 			openCurrent();
-			// play();
-			notifyChange(META_CHANGED);
 		}
 	}
 
@@ -981,7 +1002,7 @@ public class CloudPlaybackService extends Service {
 				}
 			}
 		}
-		notifyChange(COMMENTS_LOADED);
+		notifyChange(FAVORITES_SET);
 	}
 
 	public void mapCommentsToTrack(Comment[] comments, String trackId) {
@@ -1088,7 +1109,7 @@ public class CloudPlaybackService extends Service {
 	
 	public Boolean isAsyncOpening() {
 		synchronized (this) {
-			return mIsAsyncOpening;
+			return mPlayer.isAsyncOpening();
 		}
 	}
 
@@ -1125,13 +1146,19 @@ public class CloudPlaybackService extends Service {
 	 */
 	public long position() {
 		if (mPlayer.isInitialized()) {
-			if (mSeekTime != 0) {
-				return mSeekTime;
-			} else {
+			
 				return mPlayer.position();
-			}
 		}
 		return -1;
+	}
+
+	
+	
+	/**
+	 * Returns the current playback position in milliseconds
+	 */
+	public long lastSuccessfulSeek() {
+		return mLastSeekTime;
 	}
 
 	/**
@@ -1144,6 +1171,10 @@ public class CloudPlaybackService extends Service {
 		}
 		return 0;
 	}
+	
+	public boolean isSeekable(){
+		return (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening());
+	}
 
 	/**
 	 * Seeks to the position specified.
@@ -1152,8 +1183,10 @@ public class CloudPlaybackService extends Service {
 	 *            The position to seek to, in milliseconds
 	 */
 	public long seek(long pos) {
-		if (mPlayer.isInitialized()) {
-
+		//Log.i(TAG,"Seek: " + mPlayer.isInitialized() + " " + mPlayingData + " " + mPlayer.isAsyncOpening());
+		
+		if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()) {
+			
 			if (pos <= 0) {
 				pos = 0;
 			}
@@ -1161,6 +1194,7 @@ public class CloudPlaybackService extends Service {
 			if (pos > mPlayer.duration()) {
 				pos = mPlayer.duration();
 			}
+			//Log.i(TAG,"SEeking to " + pos);
 			return mPlayer.seek(pos);
 		}
 		return -1;
@@ -1170,63 +1204,86 @@ public class CloudPlaybackService extends Service {
 	 * Provides a unified interface for audio control
 	 */
 	private class MultiPlayer {
-		private MediaPlayer mMediaPlayer = new MediaPlayer();
+		private MediaPlayer mMediaPlayer;
 		private Handler mHandler;
 		private boolean mIsInitialized = false;
+		private boolean mIsAsyncOpening = false;
 
 		public MultiPlayer() {
+			refreshMediaplayer();
+		}
+		
+		private void refreshMediaplayer(){
+			if (mMediaPlayer != null)
+				mMediaPlayer.release();
+			
+			mMediaPlayer = new MediaPlayer();
 			mMediaPlayer.setWakeMode(CloudPlaybackService.this,
 					PowerManager.PARTIAL_WAKE_LOCK);
+			// mMediaPlayer.reset();
+			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mMediaPlayer.setOnPreparedListener(preparedlistener);
+			mMediaPlayer.setOnBufferingUpdateListener(bufferinglistener);
+			mMediaPlayer.setOnSeekCompleteListener(seeklistener);
+			mMediaPlayer.setWakeMode(CloudPlaybackService.this,PowerManager.PARTIAL_WAKE_LOCK);
+			mMediaPlayer.setOnCompletionListener(listener);
+			mMediaPlayer.setOnErrorListener(errorListener);
 		}
 
 		public void setDataSourceAsync(String path) {
+			
+			if (mMediaPlayer == null)
+				refreshMediaplayer();
+			
+			mIsAsyncOpening = true;
+			notifyChange(ASYNC_OPENING);
+			
 			try {
-
-				if (mMediaPlayer != null) {
-					mMediaPlayer.release();
-					mMediaPlayer = null;
-					System.gc();
-				}
-
-				mMediaPlayer = new MediaPlayer();
-				mMediaPlayer.setWakeMode(CloudPlaybackService.this,
-						PowerManager.PARTIAL_WAKE_LOCK);
-				// mMediaPlayer.reset();
 				mMediaPlayer.setDataSource(path);
-				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-				mMediaPlayer.setOnPreparedListener(preparedlistener);
-				mMediaPlayer.setOnBufferingUpdateListener(bufferinglistener);
-				mMediaPlayer.setOnSeekCompleteListener(seeklistener);
-
-				notifyChange(ASYNC_OPENING);
-
 				mMediaPlayer.prepareAsync();
 			} catch (IOException ex) {
-				// TODO: notify the user why the file couldn't be opened
 				mIsInitialized = false;
 				return;
 			} catch (IllegalArgumentException ex) {
-				// TODO: notify the user why the file couldn't be opened
 				mIsInitialized = false;
 				return;
 			}
-			mMediaPlayer.setOnCompletionListener(listener);
-			mMediaPlayer.setOnErrorListener(errorListener);
-
+			
+			
 			mIsInitialized = true;
-
 		}
 
 		public boolean isInitialized() {
 			return mIsInitialized;
 		}
-
+		
+		public boolean isAsyncOpening() {
+			return mIsAsyncOpening;
+		}
+		
 		public void start() {
 			mMediaPlayer.start();
 		}
 
 		public void stop() {
-			mMediaPlayer.reset();
+			if (mMediaPlayer == null)
+				return;
+			
+			if (mMediaPlayer.isPlaying())
+				mMediaPlayer.pause();
+			
+			if (mIsAsyncOpening){
+				mMediaPlayer.release();
+				mMediaPlayer = null;
+			} else {
+				try{
+					mMediaPlayer.reset();
+				} catch (IllegalStateException e){
+					mMediaPlayer.release();
+					mMediaPlayer = null;
+				}
+			}
+			
 			mIsInitialized = false;
 		}
 
@@ -1235,10 +1292,16 @@ public class CloudPlaybackService extends Service {
 		}
 
 		public long position() {
-			return mMediaPlayer.getCurrentPosition();
+			try{
+				return mMediaPlayer.getCurrentPosition();	
+			} catch (Exception e){
+				return 0;
+			}
+			
 		}
 
 		public long seek(long whereto) {
+			Log.i(TAG,"Seeking to " + whereto);
 			mSeekTime = whereto;
 			mMediaPlayer.seekTo((int) whereto);
 			return whereto;
@@ -1253,11 +1316,13 @@ public class CloudPlaybackService extends Service {
 		 */
 		public void release() {
 			stop();
-			mMediaPlayer.release();
+			if (mMediaPlayer != null) {
+				mMediaPlayer.release();
+			}
 		}
 
 		public void pause() {
-			mMediaPlayer.pause();
+				mMediaPlayer.pause();	
 		}
 
 		public void setHandler(Handler handler) {
@@ -1266,37 +1331,57 @@ public class CloudPlaybackService extends Service {
 
 		MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
 			public void onBufferingUpdate(MediaPlayer mp, int percent) {
-				//Log.i("CPS","On BUFFERING " + percent);
 				mLoadPercent = percent;
 			}
 		};
 
 		MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
 			public void onSeekComplete(MediaPlayer mp) {
-				mSeekTime = 0;
-				notifyChange(SEEK_COMPLETE);
+				Log.i(TAG,"SEEK COMPLETE  " + mSeekTime + " " + mLastSeekTime + " " + mp.getCurrentPosition());
+				mLastSeekTime = mSeekTime; //preserve seek time in case connection dies
+				mSeekTime = -1;
+				
 				if (!mMediaPlayer.isPlaying()) {
-					mMediaPlayer.start();
+					play();
 				}
+				notifyChange(SEEK_COMPLETE);
+				
+				//Log.i(TAG,"SEEK COMPLETE new  " + mLastSeekTime);
+				
+				// clear last seek time after delay to see if we can properly
+				// connect to stream after seek
+				mHandler.removeCallbacks(clearLastSeek);
+				mHandler.postDelayed(clearLastSeek, 10000);
 			}
 		};
 
+		
+		private Runnable clearLastSeek = new Runnable() {
+			   public void run() {
+				   //Log.i(TAG,"SEEK COMPLETE clear  " + mLastSeekTime);
+				   mLastSeekTime = -1;
+			   }
+			};
+			
 		MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
 			public void onCompletion(MediaPlayer mp) {
 
+				//Log.i(TAG,"ON COMPLETE " + mLastSeekTime);
+				
 				if (mIsInitialized && !mMediaplayerError
-						&& mReconnectCount < MAX_RECONNECT_COUNT) {
+						&& mReconnectCount < MAX_RECONNECT_COUNT && mPlayingData != null) {
+					//Log.i(TAG,"On complete Listener calling getduration " + mMediaplayerError + " " + mLastSeekTime + " " + mMediaPlayer.getDuration() + " " + mMediaPlayer.getCurrentPosition());
+					
+					if ((mMediaPlayer.getDuration()- mMediaPlayer.getCurrentPosition() > 3000 
+							|| (mLastSeekTime != -1 && mMediaplayerError != null))
+							&& mPlayingData.getData(Track.key_play_url).indexOf("stream") != -1) {
 
-					if (mMediaPlayer.getDuration()
-							- mMediaPlayer.getCurrentPosition() > 3000
-							&& mPlayingData.getData(Track.key_play_url)
-							.indexOf("stream") != -1) {
 						notifyChange(STREAM_DIED);
-						mResumeTime = mSeekTime == 0 ? mMediaPlayer
-								.getCurrentPosition() : mSeekTime;
-								mResumeId = mPlayingData.getData(Track.key_id);
-								openCurrent(false);
-								return;
+						mResumeTime = mLastSeekTime == -1 ? mMediaPlayer.getCurrentPosition() : mLastSeekTime;
+						Log.i(TAG,"Setting resume time to " + mResumeTime);
+						mResumeId = mPlayingData.getData(Track.key_id);
+						openCurrent(false);
+						return;
 					}
 				}
 
@@ -1307,10 +1392,11 @@ public class CloudPlaybackService extends Service {
 				// message is processed, but just in case, put a timeout on it.
 
 				mWakeLock.acquire(30000);
-				mHandler.sendEmptyMessage(TRACK_ENDED);
 				mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+				
+				if (!mMediaplayerError) mHandler.sendEmptyMessage(TRACK_ENDED);
+				
 
-				mPlayingData = null;
 				mMediaplayerError = false;
 			}
 		};
@@ -1318,7 +1404,9 @@ public class CloudPlaybackService extends Service {
 		MediaPlayer.OnPreparedListener preparedlistener = new MediaPlayer.OnPreparedListener() {
 			public void onPrepared(MediaPlayer mp) {
 				mIsAsyncOpening = false;
+				
 				notifyChange(ASYNC_OPEN_COMPLETE);
+				
 				if (!mAutoPause) {
 					play();
 				} else {
@@ -1336,23 +1424,26 @@ public class CloudPlaybackService extends Service {
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				mIsAsyncOpening = false;
 				mMediaplayerError = true;
+				
+				Log.e(TAG,"MP ERROR " + what + " | " + extra);
+				
 				switch (what) {
 
 				case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-					mIsInitialized = false;
-					mMediaPlayer.release();
-					mMediaPlayer = new MediaPlayer();
-					mMediaPlayer.setWakeMode(CloudPlaybackService.this,
-							PowerManager.PARTIAL_WAKE_LOCK);
 					mHandler.sendMessageDelayed(mHandler
 							.obtainMessage(SERVER_DIED), 2000);
-					return true;
+					mIsInitialized = false;
+					mMediaPlayer.reset();
+					break;
+					
 				default:
+					mIsInitialized = false;
+					mMediaPlayer.reset();
 					mHandler.sendMessage(mHandler
 							.obtainMessage(TRACK_EXCEPTION));
-				break;
+					break;
 				}
-				return false;
+				return true;
 			}
 		};
 
@@ -1375,7 +1466,7 @@ public class CloudPlaybackService extends Service {
 		}
 
 		public void open(Track[] list, int position) {
-			mService.get().enqueue(list, position);
+			if (mService.get() != null) mService.get().enqueue(list, position);
 		}
 
 		public int getQueuePosition() {
@@ -1383,31 +1474,39 @@ public class CloudPlaybackService extends Service {
 		}
 
 		public void setQueuePosition(int index) {
-			mService.get().setQueuePosition(index);
+			if (mService.get() != null) mService.get().setQueuePosition(index);
 		}
 
 		public boolean isPlaying() {
 			return mService.get().isPlaying();
 		}
+		
+		public boolean isSeekable() {
+			return mService.get().isSeekable();
+		}
 
 		public void stop() {
-			mService.get().stop();
+			if (mService.get() != null) mService.get().stop();
 		}
 
 		public void pause() {
-			mService.get().pause();
+			if (mService.get() != null) mService.get().pause();
 		}
 
 		public void play() {
-			mService.get().play();
+			if (mService.get() != null) mService.get().play();
 		}
 
 		public void prev() {
-			mService.get().prev();
+			if (mService.get() != null) mService.get().prev();
 		}
 
 		public void next() {
-			mService.get().next(true);
+			if (mService.get() != null) mService.get().next(true);
+		}
+		
+		public void restart() {
+			if (mService.get() != null) mService.get().restart();
 		}
 
 		public String getTrackName() {
@@ -1458,6 +1557,10 @@ public class CloudPlaybackService extends Service {
 		public long position() {
 			return mService.get().position();
 		}
+		
+		public long lastSuccessfulSeek() {
+			return mService.get().lastSuccessfulSeek();
+		}
 
 		public long duration() {
 			return mService.get().duration();
@@ -1485,7 +1588,7 @@ public class CloudPlaybackService extends Service {
 
 		public void setComments(Comment[] commentData, String trackId)
 		throws RemoteException {
-			mService.get().mapCommentsToTrack(commentData, trackId);
+			if (mService.get() != null) mService.get().mapCommentsToTrack(commentData, trackId);
 		}
 
 		public int removeTrack(String id) throws RemoteException {
@@ -1502,12 +1605,12 @@ public class CloudPlaybackService extends Service {
 		}
 
 		public void addComment(Comment commentData) throws RemoteException {
-			mService.get().addComment(commentData);
+			if (mService.get() != null) mService.get().addComment(commentData);
 		}
 
 		public void setFavoriteStatus(String trackId, String favoriteStatus)
 		throws RemoteException {
-			mService.get().setFavoriteStatus(trackId, favoriteStatus);
+			if (mService.get() != null) mService.get().setFavoriteStatus(trackId, favoriteStatus);
 		}
 
 	}

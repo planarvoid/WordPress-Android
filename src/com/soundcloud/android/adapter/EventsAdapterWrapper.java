@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.Model;
 import com.soundcloud.android.activity.LazyActivity;
@@ -50,16 +49,12 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 	
 	@Override
 	public void onDataNode(JSONObject data) {
-		Log.i(TAG,"ON DATA NODE " + data.toString());
-		
 		try {
 			mNextEventsParams = data.getString(Event.key_next_href);
 			mNextEventsParams = mNextEventsParams.substring(mNextEventsParams.indexOf("?"));
 		} catch (JSONException e) {
-			
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.i(TAG,"Error getting next url " + e.toString());
+			//e.printStackTrace();
+			//Log.i(TAG,"Error getting next url " + e.toString());
 		}
 	}
 

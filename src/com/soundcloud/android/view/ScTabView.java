@@ -44,22 +44,26 @@ public class ScTabView extends FrameLayout {
     }
     
     public void onStart(){
-    	Log.i("TAB","ONSTART");
     	if (mAdapter != null){    	
     		if (mAdapter instanceof TracklistAdapter)
     			((TracklistAdapter) mAdapter).setPlayingId(mActivity.getCurrentTrackId());
-    		else if (mAdapter instanceof LazyEndlessAdapter)
+    		else if (mAdapter instanceof LazyEndlessAdapter){
+    			if (((LazyEndlessAdapter) mAdapter).getWrappedAdapter().getCount() > 0)
     				if (((LazyEndlessAdapter) mAdapter).getWrappedAdapter() instanceof TracklistAdapter)
     					((TracklistAdapter) ((LazyEndlessAdapter) mAdapter).getWrappedAdapter()).setPlayingId(mActivity.getCurrentTrackId());
+    		}
     	}
     }
     
     public void onStop(){
-    	Log.i("TAB","ONSTOP");
+    	
     }
     
     public void onRefresh(){
-    	Log.i("TAB","ON Refrech " + mAdapter);
+    	onRefresh(false);
+    }
+    
+    public void onRefresh(Boolean refreshAll){
     	if (mAdapter != null){    	
     		if (mAdapter instanceof LazyEndlessAdapter){
     			((LazyEndlessAdapter) mAdapter).clear();

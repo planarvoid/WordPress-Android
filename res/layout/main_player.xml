@@ -7,7 +7,7 @@
 	 android:layout_width="fill_parent" android:layout_height="wrap_content">
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent" >
-		<com.soundcloud.android.view.RemoteImageView 
+		<ImageView
 			android:layout_alignParentTop="true" android:layout_width="fill_parent"
 			android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true"
 			android:id="@+id/artwork" />
@@ -35,7 +35,7 @@
 				</TableRow>
 			</TableLayout>
 		</LinearLayout>
-		<RelativeLayout android:layout_width="fill_parent" android:id="@+id/streamable_layout"
+		<RelativeLayout android:layout_width="fill_parent" android:id="@+id/playable_layout"
 			android:layout_marginBottom="-40dip" android:layout_height="100dip"
 			android:layout_alignParentBottom="true">
 			<com.soundcloud.android.view.WaveformController
@@ -44,9 +44,9 @@
 			<TextView android:id="@+id/currenttime" style="@style/txt_player_time"
 				android:layout_alignParentTop="true" />
 		</RelativeLayout>
-		<FrameLayout android:layout_width="fill_parent" android:id="@+id/unstreamable_layout"
+		<FrameLayout android:layout_width="fill_parent" android:id="@+id/unplayable_layout" android:visibility="gone"
 			android:layout_height="40dip" android:layout_alignParentBottom="true" android:background="@color/playerControlAlphaBackground">
-			<TextView android:id="@+id/TextView01" android:layout_height="fill_parent" android:layout_width="fill_parent" android:text="This track is not streamable" android:gravity="center"></TextView>
+			<TextView android:id="@+id/unplayable_txt" android:layout_height="fill_parent" android:layout_width="fill_parent" android:text="" android:gravity="center"></TextView>
 		</FrameLayout>
 		<View android:layout_width="fill_parent" android:layout_alignParentTop="true"
 			android:layout_height="1dip" android:layout_marginLeft="10dip"

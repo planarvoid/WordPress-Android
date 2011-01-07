@@ -1,9 +1,18 @@
 package com.soundcloud.android.adapter;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+
+import org.apache.http.Header;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +31,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.CloudCommunicator;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LazyActivity;
@@ -72,8 +80,6 @@ import com.soundcloud.android.view.LazyList;
 		
 		public LazyEndlessAdapter(LazyActivity activity, LazyBaseAdapter wrapped) {
 			super(wrapped);
-			
-			Log.i(TAG,"NEW LIST ADAPTER");
 			
 			mActivity = activity;
 			mCurrentPage = 0;
@@ -128,7 +134,15 @@ import com.soundcloud.android.view.LazyList;
 		 * @param lv
 		 */
 		public void createListEmptyView(LazyList lv) {
+			
 			mListView = lv;
+			
+			if (mEmptyView != null){
+				if (mEmptyView.getParent() != null){
+					((ViewGroup) mEmptyView.getParent()).removeView(mEmptyView);
+				}
+				mEmptyView = null;
+			}
 			
 			TextView emptyView = new TextView(mActivity);
 			emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -146,7 +160,6 @@ import com.soundcloud.android.view.LazyList;
 		 * Set the current text of the adapter, based on if we are currently dealing with an exception
 		 */
 		public void setEmptyviewText(){
-			Log.i(TAG,"EMPTY " + mException);
 			String textToSet = "";
 			switch (getLoadModel()){
 				case track:
@@ -167,8 +180,6 @@ import com.soundcloud.android.view.LazyList;
 		}
 		
 		
-		
-		
 		/**
 		 * Get the wrapped adapter (casted)
 		 */
@@ -183,7 +194,7 @@ import com.soundcloud.android.view.LazyList;
 		 * @param ap
 		 */
 		public void restoreTask(AppendTask ap){
-			if (ap != null && !CloudUtils.isTaskFinished(ap)){
+			if (ap != null){
 				appendTask = ap;
 				ap.setContext(this,mActivity);
 			}
@@ -219,7 +230,6 @@ import com.soundcloud.android.view.LazyList;
 		 */
 		public void restorePagingData(int[] restore)
 		{
-			Log.i(TAG,"Restore paging data " + restore[0] + " " + restore[1] + " " + restore[2]);
 			keepOnAppending.set(restore[0] == 1 ? true : false);
 			mCurrentPage = restore[1];
 			mException = restore[2] == 1 ? true : false;
@@ -289,7 +299,6 @@ import com.soundcloud.android.view.LazyList;
 		 */
 		@Override
 		public int getCount() {
-			Log.i(TAG,"Get Count " + keepOnAppending.get());
 			if (keepOnAppending.get()) {
 				return(super.getCount()+1);		// one more for "pending"
 			}
@@ -319,11 +328,11 @@ import com.soundcloud.android.view.LazyList;
 				if (pendingView==null) {
 					pendingView=getPendingView(parent);
 					pendingPosition=position;
-					
 					if (appendTask == null || CloudUtils.isTaskFinished(appendTask)){
 						appendTask = new AppendTask();
+						appendTask.loadModel = getLoadModel();
 						appendTask.setContext(this,mActivity);
-						appendTask.execute(getUrl(), getQuery());	
+						appendTask.execute(this.buildRequest());	
 					}
 					
 				}
@@ -347,7 +356,6 @@ import com.soundcloud.android.view.LazyList;
 		 */
 		@SuppressWarnings("unchecked")
 		public void onPostTaskExecute(Boolean keepgoing){
-			Log.i(TAG,"On post task execute " + keepgoing);
 			keepOnAppending.set(keepgoing);
 			rebindPendingView(pendingPosition, pendingView);
 			pendingView=null;
@@ -358,8 +366,8 @@ import com.soundcloud.android.view.LazyList;
 			((AdapterView<ListAdapter>) mListView).setEmptyView(mEmptyView);
 			notifyDataSetChanged();
 			
-			if (mActivity != null)
-				mActivity.handleException();
+			//if (mActivity != null)
+				//mActivity.handleException();
 		}
 		
 		
@@ -373,7 +381,6 @@ import com.soundcloud.android.view.LazyList;
 		 * @return
 		 */
 		protected View getPendingView(ViewGroup parent) {
-			Log.i(TAG,"GET PENDING VIEW");
 			
 			ViewGroup row=(this.getWrappedAdapter()).createRow();
 			
@@ -396,7 +403,6 @@ import com.soundcloud.android.view.LazyList;
 		 * @param row
 		 */
 		protected void rebindPendingView(int position, View row) {
-			Log.i("Endless","Rebinding something " + position);
 			if (row == null)
 				return;
 			
@@ -409,7 +415,6 @@ import com.soundcloud.android.view.LazyList;
 			child = row.findViewById(R.id.row_loader);
 			child.setVisibility(View.GONE);
 			
-			Log.i("Endless","REBOUND something " + row.findViewById(R.id.row_holder).getHeight());
 			
 		}
 
@@ -478,6 +483,7 @@ import com.soundcloud.android.view.LazyList;
 		 * @param e : the exception
 		 */
 		public void setException (Exception e){
+			e.printStackTrace();
 			mException = true;
 		}
 		
@@ -487,8 +493,6 @@ import com.soundcloud.android.view.LazyList;
 		@SuppressWarnings("unchecked")
 		public void clear(){
 			
-			Log.i(TAG,"CLEARING LIST");
-			
 			if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
 			if (mListView != null) ((AdapterView<ListAdapter>) mListView).setEmptyView(null);
 			
@@ -497,8 +501,11 @@ import com.soundcloud.android.view.LazyList;
 			
 			getWrappedAdapter().clear();
 			
-			if (appendTask != null && !CloudUtils.isTaskFinished(appendTask)){
-				appendTask.cancel(true);
+			if (appendTask != null ){
+				if (!CloudUtils.isTaskFinished(appendTask)){
+					appendTask.cancel(true);
+				}
+				appendTask = null;
 			}
 			
 			this.notifyDataSetChanged();
@@ -513,6 +520,57 @@ import com.soundcloud.android.view.LazyList;
 			mCurrentPage++;
 		}
 		
+		/**
+		 * Get the current url for this adapter
+		 * @return the url
+		 */
+		private HttpUriRequest buildRequest(){
+			String baseUrl = getUrl();
+			String query = getQuery();
+			
+			//build the querystring
+			Uri u = Uri.parse(baseUrl);
+			Uri.Builder builder = u.buildUpon();
+			
+			if (!query.contentEquals("")) builder.appendQueryParameter("q", query);
+			if (baseUrl.indexOf("limit") == -1) builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
+			
+			builder.appendQueryParameter("rand", String.valueOf(((int) (Math.random()*100000))));
+			builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()*(getCurrentPage())));					
+			builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(R.string.consumer_key));
+			
+			HttpUriRequest req;
+			try {
+				req = mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
+				/*for (Header h : req.getAllHeaders()){
+					Log.i(TAG,"Header " + h.getName() + " : " +  h.getValue());	
+				}*/
+				return req;
+			} catch (OAuthMessageSignerException e) {
+				setException(e);
+				e.printStackTrace();
+			} catch (OAuthExpectationFailedException e) {
+				setException(e);
+				e.printStackTrace();
+			} catch (OAuthCommunicationException e) {
+				setException(e);
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				setException(e);
+				e.printStackTrace();
+			} catch (ClientProtocolException e) {
+				setException(e);
+				e.printStackTrace();
+			} catch (IOException e) {
+				setException(e);
+				e.printStackTrace();
+			}
+			
+			
+			return null;
+			
+		}
+		
 
 		/**
 		 * A background task that will be run when there is a need
@@ -520,12 +578,15 @@ import com.soundcloud.android.view.LazyList;
 		 * subclass, to append the data in the background thread and
 		 * rebind the pending view once that is done.
 		 */
-		public class AppendTask extends AsyncTask<String, Parcelable, Boolean> {
+		public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
 			private static final String TAG = "AppendTask";
-			private LazyEndlessAdapter mAdapter;
-			private LazyActivity mActivity;
+			private WeakReference<LazyEndlessAdapter> mAdapterReference;
+			private WeakReference<LazyActivity> mActivityReference;
+			
 			private Boolean keepGoing = true;
 			private Parcelable newItems[];
+			
+			public CloudUtils.Model loadModel;
 			
 			/**
 			 * Set the activity and adapter that this task now belong to. This will be set as new
@@ -534,8 +595,8 @@ import com.soundcloud.android.view.LazyList;
 			 * @param activity
 			 */
 			public void setContext(LazyEndlessAdapter lazyEndlessAdapter,LazyActivity activity) {
-				mAdapter = lazyEndlessAdapter;
-				mActivity = activity;
+				mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
+				mActivityReference = new WeakReference<LazyActivity>(activity);
 			}
 			
 			/**
@@ -543,7 +604,7 @@ import com.soundcloud.android.view.LazyList;
 			 */
 			@Override
 			protected void onPreExecute() {
-				if (mAdapter != null) mAdapter.onPreTaskExecute();
+				if (mAdapterReference.get() != null)  mAdapterReference.get().onPreTaskExecute();
 			}
 			
 
@@ -552,27 +613,29 @@ import com.soundcloud.android.view.LazyList;
 			 */
 			@Override
 			protected void onPostExecute(Boolean keepGoing) {
-				if (mAdapter != null) {
+				if (mAdapterReference.get() != null) {
 					if (newItems != null && newItems.length > 0){
 						for (Parcelable newitem : newItems){
-							mAdapter.getData().add(newitem);	
+							mAdapterReference.get().getData().add(newitem);	
 						}
 					}
 					
-					mAdapter.onPostTaskExecute(keepGoing);
+					mAdapterReference.get().onPostTaskExecute(keepGoing);
 				}
 			}
+			
+			
+			
 
 			/**
 			 * Perform our background loading
 			 */
 			@Override
-			protected Boolean doInBackground(String... params) {
+			protected Boolean doInBackground(HttpUriRequest... params) {
 
 				//make sure we have a valid url
-				String baseUrl = params[0];
-				String query = params[1];
-				if (baseUrl == null || baseUrl == "")
+				HttpUriRequest req = params[0];
+				if (req == null)
 					return false;
 				
 				Boolean keep_appending = true;
@@ -581,42 +644,31 @@ import com.soundcloud.android.view.LazyList;
 			
 				try {
 					
-					//build the querystring
-					Uri u = Uri.parse(baseUrl);
-					Uri.Builder builder = u.buildUpon();
-					
-					if (!query.contentEquals("")) builder.appendQueryParameter("q", query);
-					if (baseUrl.indexOf("limit") == -1) builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
-					
-					builder.appendQueryParameter("rand", String.valueOf(((int) Math.random()*100000)));
-					builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()*(mAdapter.getCurrentPage())));					
-					builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(R.string.consumer_key));
-					
 					// user the communicator to do the actual content pull and formatting
-					InputStream is = mActivity.getCloudComm().getContent(builder.build().toString());
-					String jsonRaw = CloudCommunicator.formatContent(is);
+					InputStream is = mActivityReference.get().getSoundCloudApplication().executeRequest(req);
+					String jsonRaw = CloudUtils.formatContent(is);
 					
 					//see if we had a problem getting the data and exit if we did
-					if (CloudCommunicator.getErrorFromJSONResponse(jsonRaw) != ""){
-						if (mActivity != null) mActivity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));
+					if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
+						if (mActivityReference.get() != null) mActivityReference.get().setError(CloudUtils.getErrorFromJSONResponse(jsonRaw));
 						return false;
 					}
 					
 					//create the json object array for loading the collection
-					if (mAdapter.getCollectionKey() != ""){
+					if (mAdapterReference.get().getCollectionKey() != ""){
 						collectionHolder = new JSONObject(jsonRaw);
-						collection = collectionHolder.getJSONArray(mAdapter.getCollectionKey());
-						mAdapter.onDataNode(collectionHolder);
+						collection = collectionHolder.getJSONArray(mAdapterReference.get().getCollectionKey());
+						mAdapterReference.get().onDataNode(collectionHolder);
 					} else if (jsonRaw.startsWith("{")){
 						collection = new JSONArray("["+jsonRaw+"]");
 					} else {
 						collection = new JSONArray(jsonRaw);	
 					}
 					
-					Log.i(TAG,"Should we keep appending " + collection.length() + " " + mActivity.getPageSize());
-					
+
 					// we have less than the requested number of items, so we are done grabbing items for this list
-					if (collection.length() < mActivity.getPageSize())
+					if (mActivityReference.get() != null)
+					if (collection.length() < mActivityReference.get().getPageSize())
 						keep_appending = false;
 					
 					// loop through our collection and create a new items array of parcelables based on
@@ -624,25 +676,25 @@ import com.soundcloud.android.view.LazyList;
 					newItems = new Parcelable[collection.length()];
 					for (int i = 0; i < collection.length(); i++) {
 						try {
-							switch (mAdapter.getLoadModel()){
+							switch (mAdapterReference.get().getLoadModel()){
 								case track:
 									Track trk = new Track(collection.getJSONObject(i));
-									mActivity.resolveParcelable(trk);
+									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(trk);
 									newItems[i] = trk;
 									break;
 								case user:
 									User usr = new User(collection.getJSONObject(i));
-									mActivity.resolveParcelable(usr);
+									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(usr);
 									newItems[i] = usr;
 									break;
 								case comment:
 									Comment cmt = new Comment(collection.getJSONObject(i));
-									mActivity.resolveParcelable(cmt);
+									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(cmt);
 									newItems[i] = cmt;	
 									break;
 								case event:
 									Event evt = new Event(collection.getJSONObject(i));
-									mActivity.resolveParcelable(evt);
+									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(evt);
 									newItems[i] = evt;
 									break;
 							}
@@ -654,13 +706,13 @@ import com.soundcloud.android.view.LazyList;
 					}
 					
 					//we were successful, so increment the adapter
-					mAdapter.incrementPage();
+					if (mAdapterReference.get() != null) mAdapterReference.get().incrementPage();
 					
 					return keep_appending;
 					
 				} catch (Exception e) {
-					if (mActivity != null) mActivity.setException(e);
-					if (mAdapter != null) mAdapter.setException(e);
+					//if (mActivity != null) mActivity.setException(e);
+					if (mAdapterReference.get() != null) mAdapterReference.get().setException(e);
 				} 
 				
 				//there was an exception of some kind, return failure
