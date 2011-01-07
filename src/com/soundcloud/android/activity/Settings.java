@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity;
 
-import java.io.File;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -16,7 +14,6 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.CloudCache.DeleteCacheTask;
 
 public class Settings extends PreferenceActivity {
 	private static final int MENU_CACHE = Menu.FIRST;

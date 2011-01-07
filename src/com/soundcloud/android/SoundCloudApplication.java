@@ -18,7 +18,6 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 import org.acra.ACRA;
-import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

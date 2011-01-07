@@ -15,5 +15,8 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/libGoogleAnalytics.jar"/>
+	<classpathentry kind="lib" path="lib/acra-3.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/imageloader.jar"/>
+	<classpathentry kind="lib" path="lib/filecache.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
