@@ -2,20 +2,15 @@ package com.soundcloud.android.activity;
 
 import java.util.ArrayList;
 
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -35,7 +30,6 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.PCMPlaybackTask;
-import com.soundcloud.android.task.PCMRecordTask;
 import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.android.view.ScSearch;
 import com.soundcloud.android.view.ScTabView;
@@ -44,7 +38,7 @@ import com.soundcloud.android.view.UserBrowser;
 public class Dashboard extends LazyTabActivity {
 
     
-    private static final String TAG = "Main";
+    private static final String TAG = "Dashboard";
 	
 	protected ScTabView mLastTab;
 	protected int mFavoritesIndex = 1;
@@ -82,13 +76,6 @@ public class Dashboard extends LazyTabActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState,R.layout.main_holder);
 
-
-		
-		if (this.getIntent().getExtras() != null)
-		if (this.getIntent().getBooleanExtra("reauthorize", false)){
-			getSoundCloudApplication().clearSoundCloudAccount();
-		}
-		
 		mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
 		mHolder.setVisibility(View.GONE);
 		if(getIntent() != null && getIntent().getAction() != null)
@@ -124,10 +111,16 @@ public class Dashboard extends LazyTabActivity {
 		mUserBrowser.setUserTab(tab);
 	}
 	
-	
+	@Override
+	protected void onRecordingError(){
+		//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_RECORDING);
+		
+		if (mScCreate != null)
+			mScCreate.onRecordingError();
+	}
 	
 	@Override
-	protected void onRecordingComplete(Boolean success){
+	protected void onCreateComplete(Boolean success){
 		if (mScCreate != null)
 			mScCreate.unlock(success);
 	}
@@ -135,14 +128,16 @@ public class Dashboard extends LazyTabActivity {
 	@Override
 	public void mapDetails(Parcelable p){
 		
-		CloudUtils.resolveUser(this, (User) p, true, ((User) p).getData(User.key_id));
+		CloudUtils.resolveUser(this, (User) p, true, ((User) p).getId());
 	
+		Log.i(TAG," USER ID " + ((User) p).getId());
+		
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		String lastUserId = preferences.getString("currentUserId", ""); 
-		if ( lastUserId == "" || lastUserId != ((User) p).getData(User.key_id))
+		int lastUserId = Integer.parseInt(preferences.getString("currentUserId", "-1")); 
+		if ( lastUserId == -1 || lastUserId != ((User) p).getId())
 			preferences.edit()
-			.putString("currentUserId",((User) p).getData(User.key_id))
-			.putString("currentUsername",((User) p).getData(User.key_username))
+			.putString("currentUserId",Integer.toString(((User) p).getId()))
+			.putString("currentUsername",((User) p).getUsername())
 			.commit();
 		
 			
@@ -174,8 +169,8 @@ public class Dashboard extends LazyTabActivity {
 		
 		CloudUtils.setTabTextStyle(this, tabWidget);
 		
-
-		 tabHost.setOnTabChangedListener(tabListener);
+		tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this).getInt("lastDashboardIndex",0));
+		tabHost.setOnTabChangedListener(tabListener);
 		
 	}
 	
@@ -188,29 +183,15 @@ public class Dashboard extends LazyTabActivity {
 			 
 			((ScTabView) tabHost.getCurrentView()).onStart();
 			 mLastTab = (ScTabView) tabHost.getCurrentView();
+			 
+			 PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit().putInt("lastDashboardIndex", tabHost.getCurrentTab()).commit();
 		 }
 	};
-	
-	// Create an anonymous implementation of OnClickListener
-	private OnClickListener mAuthorizeListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			try {
-				startActivity(getSoundCloudApplication().getAuthorizationIntent()); finish();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	};
-	
-	
-
 	
 	protected void createIncomingTab(){
 		LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
 		LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this,adp, SoundCloudApplication.PATH_MY_ACTIVITIES,CloudUtils.Model.event,"collection");
+		adpWrap.setEmptyViewText(getResources().getString(R.string.empty_incoming_text));
 		
 		final ScTabView incomingView = mIncomingView = new ScTabView(this,adpWrap);
 		CloudUtils.createTabList(this, incomingView, adpWrap, CloudUtils.ListId.LIST_INCOMING);
@@ -244,30 +225,6 @@ public class Dashboard extends LazyTabActivity {
 	protected void createSearchTab(){
 		final ScTabView searchView = mScSearch = new ScSearch(this);
 		CloudUtils.createTab(this, tabHost, "search",getString(R.string.tab_search),getResources().getDrawable(R.drawable.ic_tab_search),searchView,false);
-	}
-	
-		
-	
-	/*protected void createFavoritesTab(){
-		LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
-		LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);
-		
-		final ScTabView favoritesView = new ScTabView(this,adpWrap, CloudUtils.LoadType.favorites);
-		createList(favoritesView, adpWrap);
-		createTab("favorites",getString(R.string.tab_you),getResources().getDrawable(R.drawable.ic_tab_user),favoritesView,false);
-	}*/
-	
-	
-	
-	
-	protected String getPlaylistsUrl() {
-		mFilter = SoundCloudApplication.TYPE_PLAYLIST;
-		return "";
-	}
-
-	protected String getFavoritesUrl() {
-		return CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_FAVORITES, getTrackOrder()).toString();
-		
 	}
 	
 	@Override
@@ -331,8 +288,8 @@ public class Dashboard extends LazyTabActivity {
 		}
 	}
 	
-	
-	
+
+    
 	
 
     /**
@@ -343,14 +300,7 @@ public class Dashboard extends LazyTabActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        
-        
         ((ScTabView) tabHost.getCurrentView()).onStart();
-        
-        
-        //if (mCreate != null) mCreate.onStart();
-        
-   
 	   
     }
 
@@ -413,7 +363,7 @@ public class Dashboard extends LazyTabActivity {
 				saveListConfigs(),
 				saveListExtras(),
 				saveListAdapters(),
-				mScCreate.getRecordTask(),
+				//mScCreate.getRecordTask(),
 				mScCreate.getPlaybackTask()
 		};
 	}
@@ -424,6 +374,8 @@ public class Dashboard extends LazyTabActivity {
 		//restore state
 		Object[] saved = (Object[]) getLastNonConfigurationInstance();
 		
+		
+		
 		if (saved != null) {
 			restoreLoadTasks((Object[]) saved[1]);
 			restoreParcelable((Parcelable) saved[2]);
@@ -431,8 +383,8 @@ public class Dashboard extends LazyTabActivity {
 			restoreListConfigs(saved[4]);
 			restoreListExtras(saved[5]);
 			restoreListAdapters(saved[6]);
-			mScCreate.setRecordTask((PCMRecordTask) saved[7]);
-			mScCreate.setPlaybackTask((PCMPlaybackTask) saved[8]);
+			//mScCreate.setRecordTask((PCMRecordTask) saved[7]);
+			mScCreate.setPlaybackTask((PCMPlaybackTask) saved[7]);
 		} 
 	}
 	

@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -10,9 +11,11 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.http.Header;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +23,7 @@ import org.json.JSONObject;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -33,9 +37,11 @@ import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.CloudUtils.Model;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyList;
@@ -71,6 +77,7 @@ import com.soundcloud.android.view.LazyList;
 		protected AtomicBoolean keepOnAppending=new AtomicBoolean(true);
 		protected Boolean mException = false;
 		
+		private String mEmptyViewText = "";
 		
 		/**
 		 * Constructors
@@ -156,10 +163,19 @@ import com.soundcloud.android.view.LazyList;
 			
 		}
 		
+		public void setEmptyViewText(String str){
+			mEmptyViewText = str;
+		}
+		
 		/**
 		 * Set the current text of the adapter, based on if we are currently dealing with an exception
 		 */
 		public void setEmptyviewText(){
+			if (!CloudUtils.stringNullEmptyCheck(mEmptyViewText) && !mException){
+				((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
+				return;
+			}
+			
 			String textToSet = "";
 			switch (getLoadModel()){
 				case track:
@@ -370,10 +386,6 @@ import com.soundcloud.android.view.LazyList;
 				//mActivity.handleException();
 		}
 		
-		
-		
-		
-
 		/**
 		 * Create a row for displaying a loading message by getting a row from the wrapped adapter
 		 * and displaying the loading views of that row
@@ -381,14 +393,9 @@ import com.soundcloud.android.view.LazyList;
 		 * @return
 		 */
 		protected View getPendingView(ViewGroup parent) {
-			
 			ViewGroup row=(this.getWrappedAdapter()).createRow();
-			
-			View content=row.findViewById(R.id.row_holder);
-			content.setVisibility(View.GONE);
-			
-			View loader = row.findViewById(R.id.row_loader);
-			loader.setVisibility(View.VISIBLE);
+			row.findViewById(R.id.row_holder).setVisibility(View.GONE);
+			row.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
 			
 			ProgressBar list_loader = (ProgressBar) row.findViewById(R.id.list_loading);
 			list_loader.setVisibility(View.VISIBLE);
@@ -406,14 +413,13 @@ import com.soundcloud.android.view.LazyList;
 			if (row == null)
 				return;
 			
-			View child=row.findViewById(R.id.row_holder);
-			child.setVisibility(View.VISIBLE);
+			row.findViewById(R.id.row_holder).setVisibility(View.VISIBLE);
 			
-			ProgressBar list_loader = (ProgressBar) row.findViewById(R.id.list_loading);
-			list_loader.setVisibility(View.GONE);
+			if (row.findViewById(R.id.list_loading) != null)
+				row.findViewById(R.id.list_loading).setVisibility(View.GONE);
 			
-			child = row.findViewById(R.id.row_loader);
-			child.setVisibility(View.GONE);
+			if (row.findViewById(R.id.row_loader) != null)
+				row.findViewById(R.id.row_loader).setVisibility(View.GONE);
 			
 			
 		}
@@ -584,7 +590,7 @@ import com.soundcloud.android.view.LazyList;
 			private WeakReference<LazyActivity> mActivityReference;
 			
 			private Boolean keepGoing = true;
-			private Parcelable newItems[];
+			private ArrayList<Parcelable> newItems;
 			
 			public CloudUtils.Model loadModel;
 			
@@ -614,13 +620,17 @@ import com.soundcloud.android.view.LazyList;
 			@Override
 			protected void onPostExecute(Boolean keepGoing) {
 				if (mAdapterReference.get() != null) {
-					if (newItems != null && newItems.length > 0){
+					if (newItems != null && newItems.size() > 0){
 						for (Parcelable newitem : newItems){
 							mAdapterReference.get().getData().add(newitem);	
 						}
 					}
 					
 					mAdapterReference.get().onPostTaskExecute(keepGoing);
+				}
+				if (mActivityReference.get() != null){
+					mActivityReference.get().handleError();
+					mActivityReference.get().handleException();
 				}
 			}
 			
@@ -630,6 +640,7 @@ import com.soundcloud.android.view.LazyList;
 			/**
 			 * Perform our background loading
 			 */
+			@SuppressWarnings("unchecked")
 			@Override
 			protected Boolean doInBackground(HttpUriRequest... params) {
 
@@ -639,78 +650,52 @@ import com.soundcloud.android.view.LazyList;
 					return false;
 				
 				Boolean keep_appending = true;
-				JSONObject collectionHolder;
-				JSONArray collection;
 			
 				try {
 					
-					// user the communicator to do the actual content pull and formatting
 					InputStream is = mActivityReference.get().getSoundCloudApplication().executeRequest(req);
-					String jsonRaw = CloudUtils.formatContent(is);
+					ObjectMapper mapper = new ObjectMapper();
 					
-					//see if we had a problem getting the data and exit if we did
-					if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
-						if (mActivityReference.get() != null) mActivityReference.get().setError(CloudUtils.getErrorFromJSONResponse(jsonRaw));
-						return false;
-					}
-					
-					//create the json object array for loading the collection
-					if (mAdapterReference.get().getCollectionKey() != ""){
-						collectionHolder = new JSONObject(jsonRaw);
-						collection = collectionHolder.getJSONArray(mAdapterReference.get().getCollectionKey());
-						mAdapterReference.get().onDataNode(collectionHolder);
-					} else if (jsonRaw.startsWith("{")){
-						collection = new JSONArray("["+jsonRaw+"]");
-					} else {
-						collection = new JSONArray(jsonRaw);	
-					}
-					
-
-					// we have less than the requested number of items, so we are done grabbing items for this list
-					if (mActivityReference.get() != null)
-					if (collection.length() < mActivityReference.get().getPageSize())
-						keep_appending = false;
-					
-					// loop through our collection and create a new items array of parcelables based on
-					// the load model type
-					newItems = new Parcelable[collection.length()];
-					for (int i = 0; i < collection.length(); i++) {
-						try {
-							switch (mAdapterReference.get().getLoadModel()){
-								case track:
-									Track trk = new Track(collection.getJSONObject(i));
-									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(trk);
-									newItems[i] = trk;
-									break;
-								case user:
-									User usr = new User(collection.getJSONObject(i));
-									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(usr);
-									newItems[i] = usr;
-									break;
-								case comment:
-									Comment cmt = new Comment(collection.getJSONObject(i));
-									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(cmt);
-									newItems[i] = cmt;	
-									break;
-								case event:
-									Event evt = new Event(collection.getJSONObject(i));
-									if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(evt);
-									newItems[i] = evt;
-									break;
-							}
-						
-						} catch (JSONException e) {
-							Log.i(TAG,e.toString());
+					if (newItems != null) newItems.clear();
+					switch (mAdapterReference.get().getLoadModel()){
+						case track:
+							newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class, Track.class));
+							break;
+						case user:
+							newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class, User.class));
+							break;
+						/*case comment:
+							newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class, Comment.class));
+							break;*/
+						case event:
+							EventsWrapper evtWrapper = mapper.readValue(is, EventsWrapper.class);
+							newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
+							for (Event evt : evtWrapper.getCollection() )
+								newItems.add(evt);
+							
+							if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) //set the params of the next url
+								((EventsAdapterWrapper) mAdapterReference.get()).onNextEventsParam(evtWrapper.getNext_href());
+							break;
 						}
 					
-					}
+					//resolve data
+					for (Parcelable p : newItems )
+						if (mActivityReference.get() != null) mActivityReference.get().resolveParcelable(p);
 					
+					// we have less than the requested number of items, so we are done grabbing items for this list
+					if (mActivityReference.get() != null)
+					if (newItems == null || newItems.size() < mActivityReference.get().getPageSize())
+						keep_appending = false;
+				
+				
 					//we were successful, so increment the adapter
 					if (mAdapterReference.get() != null) mAdapterReference.get().incrementPage();
 					
 					return keep_appending;
 					
 				} catch (Exception e) {
+					e.printStackTrace();
+					mException = true;
 					//if (mActivity != null) mActivity.setException(e);
 					if (mAdapterReference.get() != null) mAdapterReference.get().setException(e);
 				} 

@@ -6,7 +6,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="fill_parent">
         <HorizontalScrollView android:scrollbars="none" android:fadingEdgeLength="20dip" android:layout_height="wrap_content" android:layout_width="fill_parent">
         <TabWidget
             android:id="@android:id/tabs"

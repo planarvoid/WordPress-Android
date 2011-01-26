@@ -205,7 +205,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		
 		Comment comment = (Comment) mCommentsAdapter.getGroupData().get(i);
 		
-		if (mLastCommentTimestamp.contentEquals(comment.getData(Comment.key_timestamp)))
+		/*if (mLastCommentTimestamp.contentEquals(comment.getData(Comment.key_timestamp)))
 			return;
 		
 		mLastCommentTimestamp = comment.getData(Comment.key_timestamp);
@@ -217,7 +217,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		}
 		
 		Toast toast = Toast.makeText(mContext, toastText, Toast.LENGTH_LONG);
-		toast.show(); 
+		toast.show();*/ 
 		
 //		LayoutInflater inflater = mContext.getLayoutInflater();
 //		View layout = inflater.inflate(R.layout.comments, (ViewGroup) findViewById(R.id.comment_layout_root));
@@ -316,17 +316,17 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 		for (Parcelable commentParcelable : mCommentsAdapter.getGroupData()){
 			Comment comment = (Comment) commentParcelable; 
 			
-			int leftMargin = (int) (scale*1800*(Float.parseFloat((comment).getData(Comment.key_timestamp))/mDuration));
+			//int leftMargin = (int) (scale*1800*(Float.parseFloat((comment).getData(Comment.key_timestamp))/mDuration));
 			
 			CommentMarker cm = new CommentMarker(mContext);
 			cm.setCommentData((comment));
-			cm.setLeftMargin(leftMargin);
+			//cm.setLeftMargin(leftMargin);
 			cm.setOnClickListener(this);
 			
 			((LazyActivity) mContext).registerForContextMenu(cm);
 			mWaveformHolder.addView(cm);
 			mCommentMarkers[i] = cm;
-			mCommentTimestamps[i] = Integer.parseInt((comment).getData(Comment.key_timestamp));
+			//mCommentTimestamps[i] = Integer.parseInt((comment).getData(Comment.key_timestamp));
 			i++;
 		}
 		
@@ -351,20 +351,19 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	public void updateTrack(Track track) {
 		if (mPlayingTrack != null){
-			if (mPlayingTrack.getData(Track.key_id).contentEquals(track.getData(Track.key_id)) && waveformResult != BindResult.ERROR){
+			if (mPlayingTrack.getId() == track.getId() && waveformResult != BindResult.ERROR){
 				return;
 			}
 		}
 		
 		mPlayingTrack = track;
-		mDuration = Integer.parseInt(mPlayingTrack.getData(Track.key_duration));
+		mDuration = mPlayingTrack.getDuration();
 		
 		if (waveformResult != BindResult.ERROR){ //clear loader errors so we can try to reload
 			 ImageLoader.get(mContext).clearErrors();
 		}
 		
-		Log.i(TAG,"update wave path " +  CloudUtils.getTrackWaveformPath(track));
-		waveformResult = ImageLoader.get(mContext).bind(mOverlay, CloudUtils.getTrackWaveformPath(track), null);
+		waveformResult = ImageLoader.get(mContext).bind(mOverlay, track.getWaveformUrl(), null);
 		Log.i(TAG,"update wave result  " + waveformResult );
 		
 		if (waveformResult != BindResult.OK){ //otherwise, it succesfull pulled it out of memory, so no temp image necessary
@@ -472,6 +471,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			    	  break;
 			    	  
 			      case MotionEvent.ACTION_MOVE:
+			    	  
 			    	  if (mPlayer != null && mPlayer.isSeekable()){
 				    	  if (mode == SEEK_DRAG){
 				    		  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(calculateSeek(event.getX())));  
@@ -575,9 +575,9 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 
 	   	public void run() {
 	   		Comment mAddComment = new Comment();
-	   		mAddComment.putData(Comment.key_timestamp, Integer.toString(mAddCommentMarker.getTimestamp()));
-	   		mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils.formatTimestamp(mAddCommentMarker.getTimestamp()));
-	   		mAddComment.putData(Comment.key_track_id, mPlayingTrack.getData(Track.key_id));
+	   		//mAddComment.putData(Comment.key_timestamp, Integer.toString(mAddCommentMarker.getTimestamp()));
+	   		//mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils.formatTimestamp(mAddCommentMarker.getTimestamp()));
+	   		//mAddComment.putData(Comment.key_track_id, mPlayingTrack.getData(Track.key_id));
 			
 			((ScPlayer) mContext).addCommentPrompt(mAddComment);
 	   	}

@@ -3,10 +3,13 @@ package com.soundcloud.android.adapter;
 import java.util.ArrayList;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.LazyRow;
@@ -17,7 +20,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 	public static final String IMAGE = "TracklistAdapter_image";
 	public static final String TAG = "TracklistAdapter";
 	
-	protected String _playingId = "";
+	protected int _playingId = -1;
 	protected int _playingPosition = -1;
 
 	public TracklistAdapter(LazyActivity context, ArrayList<Parcelable> data) {
@@ -36,11 +39,14 @@ public class TracklistAdapter extends LazyBaseAdapter {
 			rowView = (TracklistRow) row;
 		}
 
-		rowView.display(mData.get(index), mSelectedIndex == index,(_playingId != null &&  getTrackAt(index).getData(Track.key_id).contentEquals(_playingId)));
+		rowView.display(mData.get(index), mSelectedIndex == index,(_playingId != -1 &&  getTrackAt(index).getId()== _playingId));
 		
 		BindResult result = BindResult.ERROR;
 		try{ //put the bind in a try catch to catch any loading error (or the occasional bad url) 
-			result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+			if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
+				result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+			else
+				mImageLoader.unbind(rowView.getRowIcon());
 		} catch (Exception e){};
 		rowView.setTemporaryDrawable(result);
 		return rowView;
@@ -56,8 +62,8 @@ public class TracklistAdapter extends LazyBaseAdapter {
 		return (Track) mData.get(index);
 	}
 	
-	public void setPlayingId(String playingId){
-		_playingId = playingId;	
+	public void setPlayingId(int currentTrackId){
+		_playingId = currentTrackId;	
 		notifyDataSetChanged();
 	}
 	

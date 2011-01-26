@@ -43,11 +43,11 @@ public class ScProfile extends LazyTabActivity  {
  			
  			if (extras.getParcelable("user") != null){
  				userBrowser.loadUserByObject((User) extras.getParcelable("user"));
- 			} if (!CloudUtils.stringNullEmptyCheck(extras.getString("userId"))){
- 				userBrowser.loadUserById(extras.getString("userId"));
- 			} else if (!CloudUtils.stringNullEmptyCheck(extras.getString("userPermalink"))){
- 				userBrowser.loadUserByPermalink(extras.getString("userPermalink"));
- 			}
+ 				extras.remove("user");
+ 			} if (extras.containsKey("userId")){
+ 				userBrowser.loadUserById(extras.getInt("userId"));
+ 				extras.remove("serId");
+ 			} 
  			
  		} else {
  			userBrowser.loadYou();

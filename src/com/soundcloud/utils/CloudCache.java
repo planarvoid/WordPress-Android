@@ -26,6 +26,7 @@ public class CloudCache extends FileResponseCache {
 
     private static final String TAG = "CloudCache";
     public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Android/data/com.soundcloud.android/files/.cache/";
+    public static final String EXTERNAL_TRACK_CACHE_DIRECTORY = Environment.getExternalStorageDirectory() + "/Android/data/com.soundcloud.android/files/.s/";
 	
 
     public static void install(Context context) {

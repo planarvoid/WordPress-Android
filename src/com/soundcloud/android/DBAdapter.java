@@ -1,6 +1,7 @@
  package com.soundcloud.android;
 
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import android.content.ContentValues;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -182,11 +184,14 @@ public class DBAdapter
         @Override
         public void onCreate(SQLiteDatabase db) 
         {
-        	
-            db.execSQL(DATABASE_CREATE_1);
-            db.execSQL(DATABASE_CREATE_2);
-            db.execSQL(DATABASE_CREATE_3);
-            db.execSQL(DATABASE_CREATE_4);
+        	try {
+        		db.execSQL(DATABASE_CREATE_1);
+        		db.execSQL(DATABASE_CREATE_2);
+        		db.execSQL(DATABASE_CREATE_3);
+        		db.execSQL(DATABASE_CREATE_4);
+        	} catch (SQLiteException e){
+        		e.printStackTrace();
+        	}
         }
 
         @Override
@@ -239,23 +244,66 @@ public class DBAdapter
     }
     
     
+    private ContentValues buildTrackArgs(Track track){
+    	ContentValues args = new ContentValues();
+    	Method m;
+    	for (String key : trackkeys){
+    		try {
+    			// I was going to search through annotaitons but it was too expensive, so this is way cheaper
+				m =Track.class.getMethod("get"+CloudUtils.toCamelCase(key));
+				if (m != null){
+	    			 
+	    			try {
+						if (m.getReturnType() == String.class)
+							args.put(key, (String) m.invoke(track));
+						else  if (m.getReturnType() == Integer.class)
+							args.put(key, (Integer) m.invoke(track));
+						else if (m.getReturnType() == Boolean.class)
+							args.put(key, (Boolean) m.invoke(track));
+					} catch (Exception e) {e.printStackTrace();} 
+	    		}
+			} catch (SecurityException e1) {
+				e1.printStackTrace();
+			} catch (NoSuchMethodException e1) {
+				//e1.printStackTrace();
+			}
+    		
+    	}
+    	return args;
+    }
     
+    private ContentValues buildUserArgs(User  user){
+    	ContentValues args = new ContentValues();
+    	Method m;
+    	for (String key : userkeys){
+    		try {
+    			// I was going to search through annotaitons but it was too expensive, so this is way cheaper
+				m =User.class.getMethod("get"+CloudUtils.toCamelCase(key));
+				if (m != null){
+	    			 
+	    			try {
+						if (m.getReturnType() == String.class)
+							args.put(key, (String) m.invoke(user));
+						else  if (m.getReturnType() == Integer.class)
+							args.put(key, (Integer) m.invoke(user));
+						else if (m.getReturnType() == Boolean.class)
+							args.put(key, (Boolean) m.invoke(user));
+					} catch (Exception e) {e.printStackTrace();} 
+	    		}
+			} catch (SecurityException e1) {
+				e1.printStackTrace();
+			} catch (NoSuchMethodException e1) {
+				//e1.printStackTrace();
+			}
+    	}
+    	return args;
+    }
     
     
     //---insert a title into the database---
     public void insertTrack(Track track) 
     {
-
-    	ContentValues args = new ContentValues();
-    	for (String key : trackkeys){
-		 if (track.hasKey(key)){
-			 //Log.i(TAG,"Inserting track key:val => "+ key + ":" + track.getData(key));
-			 args.put(key, track.getData(key));
-		 }
-			 
-    	}
-    	
-    	long id = db.insert(DATABASE_TRACK_TABLE, null, args);
+    	long id = db.insert(DATABASE_TRACK_TABLE, null, buildTrackArgs(track));
     }
     
     public void insertTrack(HashMap<String,String> track) 
@@ -274,16 +322,7 @@ public class DBAdapter
     
     public void insertUser(User user) 
     {
-
-    	ContentValues args = new ContentValues();
-    	for (String key : userkeys){
-		 if (user.hasKey(key)){
-			 //Log.i(TAG,"Inserting user key:val => "+ key + ":" + user.getData(key));
-			 args.put(key, user.getData(key));
-		 }
-    	}
-    	
-    	long id = db.insert(DATABASE_USER_TABLE, null, args);
+    	long id = db.insert(DATABASE_USER_TABLE, null, buildUserArgs(user));
     }
     
     public void insertFollowing(String user_id, String following_id) 
@@ -345,31 +384,12 @@ public class DBAdapter
     
   public int updateTrack(Track track) 
   {
-    	 ContentValues args = new ContentValues();
-    	 for (String key : trackkeys){
-    			 if (track.hasKey(key)){
-    				 //Log.i(TAG,"Updating track key:val => "+ key + ":" + track.getData(key));
-    				 args.put(key, track.getData(key));
-    			 }
-    	 }
-    	
-    	int result = db.update(DATABASE_TRACK_TABLE, args, Track.key_id + "='" + track.getData(Track.key_id) + "'", null); 
-    	//Log.i(TAG,"Update Result is " + result);
-    	return result; 
-    	
+    	return db.update(DATABASE_TRACK_TABLE, buildTrackArgs(track), Track.key_id + "='" + track.getId() + "'", null); 
   }
   
   public int updateUser(User user) 
   {
-    	 ContentValues args = new ContentValues();
-    	 for (String key : userkeys){
-    		 if (user.hasKey(key)){
-    			 args.put(key, user.getData(key));
-    			 //Log.i("updating","updating value " + key + " " + user.getData(key));
-    		 }
-    	 }
-    	
-    	return db.update(DATABASE_USER_TABLE, args, User.key_id + "='" + user.getData(User.key_id) + "'", null);
+    	return db.update(DATABASE_USER_TABLE, buildUserArgs(user), User.key_id + "='" + user.getId() + "'", null);
     	
   }
   
@@ -436,14 +456,14 @@ public class DBAdapter
   
   
   //---retrieves all the titles---
-    public Cursor getTrackById(String id, String current_user_id) 
+    public Cursor getTrackById(int i, int currentUserId) 
     {
     	//return db.rawQuery("SELECT Tracks.*, Favorites.id as user_favorite_id, Users.id as user_id, Users.permalink as user_permalink, Users.username, Users.avatar_url, Users.city, Users.country FROM (Tracks INNER JOIN Users ON Tracks.user_permalink = Users.permalink) INNER JOIN Favorites ON Tracks.id = Favorites.favorite_id WHERE Favorites.user_id = '" + user_id + "' ORDER BY Favorites.id asc", null);
-    	if (current_user_id != "")
-    		return db.rawQuery("SELECT Tracks.*, Favorites.id as user_favorite_id FROM Tracks LEFT OUTER JOIN Favorites ON (Tracks.id = Favorites.favorite_id AND Favorites.user_id = '" + current_user_id + "') WHERE Tracks.id = '" + id + "'", null);
+    	if (currentUserId != 0)
+    		return db.rawQuery("SELECT Tracks.*, Favorites.id as user_favorite_id FROM Tracks LEFT OUTER JOIN Favorites ON (Tracks.id = Favorites.favorite_id AND Favorites.user_id = '" + currentUserId + "') WHERE Tracks.id = '" + i + "'", null);
     	else
     		return db.query(DATABASE_TRACK_TABLE, trackkeys, 
-                Track.key_id + "='" + id + "'", 
+                Track.key_id + "='" + i + "'", 
                 null, 
                 null, 
                 null, 
@@ -459,11 +479,11 @@ public class DBAdapter
     }
     
    
-    public Cursor getUserByPermalink(String permalink, String current_user_id) 
+    public Cursor getUserByPermalink(String permalink, int current_user_id) 
     {
     	//Log.i("asdffdsa","select user by perma " + "SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND  Followings.user_id = '" + current_user_id + "') WHERE Users.permalink = '" + permalink + "'");
     	
-    	if (current_user_id != "")
+    	if (current_user_id != -1)
     		return db.rawQuery("SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND  Followings.user_id = '" + current_user_id + "') WHERE Users.permalink = '" + permalink + "'", null);
     	else
     		return db.query(DATABASE_USER_TABLE, userkeys, 
@@ -474,13 +494,13 @@ public class DBAdapter
                 null);
     }
     
-    public Cursor getUserById(String id, String current_user_id) 
+    public Cursor getUserById(int i, int currentUserId) 
     {
-    	if (current_user_id != "")
-    		return db.rawQuery("SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND Followings.user_id = '" + current_user_id + "') WHERE Users.id = '" + id + "'", null);
+    	if (currentUserId != 0)
+    		return db.rawQuery("SELECT Users.*, Followings.id as user_following_id FROM Users LEFT OUTER JOIN Followings ON (Users.id = Followings.following_id AND Followings.user_id = '" + currentUserId + "') WHERE Users.id = '" + i + "'", null);
     	else
     		return db.query(DATABASE_USER_TABLE, userkeys, 
-                User.key_id + "='" + id + "'", 
+                User.key_id + "='" + i + "'", 
                 null, 
                 null, 
                 null, 

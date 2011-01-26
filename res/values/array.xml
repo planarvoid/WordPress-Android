@@ -50,4 +50,13 @@
 		<item>track_count</item>  
 		<item>follower_count</item>   
      </string-array>
+     
+     <string-array name="pref_record_quality">
+		<item>low</item>
+		<item>high</item>   
+     </string-array>
+	<string-array name="pref_record_format_quality">
+		<item>low</item>
+		<item>high</item>   		
+     </string-array>
 </resources>

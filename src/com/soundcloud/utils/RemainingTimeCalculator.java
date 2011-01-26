@@ -82,6 +82,10 @@ public class RemainingTimeCalculator {
             mBlocksChangedTime = now;
             mLastBlocks = blocks;
         }
+        
+        if (mBytesPerSecond == 0){
+        	mBytesPerSecond = 1411200; //just in case, 44100xstereox16 bit
+        }
 
         /* The calculation below always leaves one free block, since free space
            in the block we're currently writing to is not added. This

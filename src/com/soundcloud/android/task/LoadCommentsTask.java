@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -18,7 +19,7 @@ import com.soundcloud.android.objects.Comment;
 
 public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 	
-	public String track_id;
+	public int track_id;
 	public SoundCloudApplication soundcloudApplication;
 	
 	protected boolean mCancelled;
@@ -56,7 +57,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 	@Override
 	protected Boolean doInBackground(String... params) {
 		
-		String mBaseUrl = CloudUtils.buildRequestPath(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}",track_id), null).toString();
+		String mBaseUrl = CloudUtils.buildRequestPath(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}",Integer.toString(track_id)),null);
 		
 		Log.i("COMMENTS","Load comments task  " + mBaseUrl);
 		
@@ -72,7 +73,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 				String jsonRaw = "";
 				try {
 					InputStream is = soundcloudApplication.getContent(mUrl);
-					jsonRaw = CloudUtils.formatContent(is);
+					jsonRaw = IOUtils.toString(is);
 					//jsonRaw = mCloudComm.getContent(mUrl);
 					if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
 						//TODO activity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));
@@ -104,11 +105,11 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 					
 					
 					
-					try {
-						publishProgress(new Comment(collection.getJSONObject(i)));
+				/*	try {
+						//publishProgress(new Comment(collection.getJSONObject(i)));
 					} catch (JSONException e) {
 						Log.i("COMMENTS",e.toString());
-					}
+					}*/
 				}
 				
 			} catch (JSONException e) {
@@ -147,7 +148,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 		
 	}
 	
-	protected void setComments(Comment[] comments, String trackId){
+	protected void setComments(Comment[] comments, int trackId){
 		
 	}
 	

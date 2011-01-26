@@ -56,6 +56,16 @@ public class Settings extends PreferenceActivity {
                 return true;
         }
 		});
+		this.findPreference("wireless").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				try{ //rare phones have no wifi settings
+					startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+				} catch (Exception e){
+				e.printStackTrace();	
+				}
+                return true;
+        }
+		});
 		
 	}
 	
@@ -118,7 +128,7 @@ public class Settings extends PreferenceActivity {
 	private void clearUserData() {
 		((SoundCloudApplication) getApplication()).clearSoundCloudAccount();
 		
-		Intent intent = new Intent( this, Dashboard.class );
+		Intent intent = new Intent( this, Authorize.class );
 		intent.putExtra("reauthorize", true);
 	    intent.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
 	    startActivity( intent );

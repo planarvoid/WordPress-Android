@@ -114,10 +114,16 @@ public class TracklistRow extends LazyRow {
 		  	super.display(p, selected);
 		  	
 		  	//Log.i(TAG,"SIZE " + mPrivateIndicator.getWidth() + " " + mPrivateIndicator.getHeight());
-		  
+		  	
 			mTrack = getTrackFromParcelable(p);
-			mTitle.setText(mTrack.getData(Track.key_title));
-			mUser.setText(mTrack.getData(Track.key_username));
+			if (mTrack == null)
+				return;
+			
+			
+			mTitle.setText(mTrack.getTitle());
+			//Log.i(TAG,"UUUSERNAMEN " + mTrack.getUsername() + " " + mTrack.getUser().getUsername());
+			
+			mUser.setText(mTrack.getUser().getUsername());
 			//mDuration.setText(mTrack.getData(Track.key_duration_formatted));\\
 			
 			//Log.i(TAG,"Setting streamable " + mTrack.getData(Track.key_streamable));
@@ -128,19 +134,16 @@ public class TracklistRow extends LazyRow {
 				mTitle.setTextAppearance(mContext, R.style.txt_list_main);
 			}
 			
-			
-			if (mTrack.getData(Track.key_sharing).contentEquals("public")){
+			if (mTrack.getSharing().contentEquals("public")){
 				mPrivateIndicator.setVisibility(View.GONE);
 			} else {
 				mPrivateIndicator.setVisibility(View.VISIBLE);
 			}
-			
-			if (mTrack.getData(Track.key_user_favorite).equalsIgnoreCase("true")){
+			if (mTrack.getUserFavorite().equalsIgnoreCase("true")){
 				_isFavorite = true;
 			} else {
 				_isFavorite = false;
 			}
-			
 			//Log.i(TAG,"Setting status " + mTrack.getData(Track.key_title) + ":" + _isPlaying +"|"+ mTrack.getData(Track.key_user_favorite) + "|"+mTrack.getData(Track.key_user_played));
 			
 			if (_isPlaying){
@@ -149,13 +152,12 @@ public class TracklistRow extends LazyRow {
 			} else if (_isFavorite){
 				mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(R.drawable.list_favorite));
 				mPlayIndicator.setVisibility(View.VISIBLE);
-			} else if (!mTrack.getData(Track.key_user_played).contentEquals("true")){
+			} else if (!mTrack.getUserPlayed().equalsIgnoreCase("true")){
 				mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(R.drawable.list_unlistened));
 				mPlayIndicator.setVisibility(View.VISIBLE);
 			} else {
 				mPlayIndicator.setVisibility(View.GONE);
 			}
-			
 			setFavoriteStatus();
 		  
 	  }
@@ -176,9 +178,9 @@ public class TracklistRow extends LazyRow {
 	  
 	  public String getIconRemoteUri(){
 			if (getContext().getResources().getDisplayMetrics().density > 1){
-				return CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.large); 
+				return CloudUtils.formatGraphicsUrl(mTrack.getArtworkUrl(),GraphicsSizes.large); 
 			} else
-				return CloudUtils.formatGraphicsUrl(mTrack.getData(Track.key_artwork_url),GraphicsSizes.badge);
+				return CloudUtils.formatGraphicsUrl(mTrack.getArtworkUrl(),GraphicsSizes.badge);
 			
 	  }
 	  
@@ -196,8 +198,8 @@ public class TracklistRow extends LazyRow {
 	  protected void sendTrack() {
 		final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND); 
 		emailIntent .setType("plain/text");
-		emailIntent .putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.getData(Track.key_title) + " [" + mTrack.getData(Track.key_username) + "]");
-		emailIntent .putExtra(android.content.Intent.EXTRA_TEXT, "\n\n" + mTrack.getData(Track.key_permalink_url));
+		emailIntent .putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.getTitle() + " [" + mTrack.getUser().getUsername()+ "]");
+		emailIntent .putExtra(android.content.Intent.EXTRA_TEXT, "\n\n" + mTrack.getPermalinkUrl());
 		mContext.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
 	}
 
@@ -218,8 +220,6 @@ public class TracklistRow extends LazyRow {
 				_isFavorite = !_isFavorite;
 				setFavoriteStatus();
 			}*/
-			
-
 		}
 		
 		public void setFavoriteStatus(Boolean favorited){

@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,10 +31,8 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.CloudUploaderService;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyList;
 import com.soundcloud.android.view.ScTabView;
@@ -213,9 +210,10 @@ public class LazyTabActivity extends LazyActivity{
 		this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 		
 		IntentFilter uploadFilter = new IntentFilter();
-		uploadFilter.addAction(CloudUploaderService.UPLOAD_ERROR);
-		uploadFilter.addAction(CloudUploaderService.UPLOAD_CANCELLED);
-		uploadFilter.addAction(CloudUploaderService.UPLOAD_SUCCESS);
+		uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
 		this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
 		
 		if (mService != null)
@@ -265,7 +263,7 @@ public class LazyTabActivity extends LazyActivity{
 					e.printStackTrace();
 				}
 			} else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
-				if (mService != null) setPlayingTrack("");
+				if (mService != null) setPlayingTrack(-1);
 			}
 		}
 	};
@@ -274,26 +272,31 @@ public class LazyTabActivity extends LazyActivity{
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			if (action.equals(CloudUploaderService.UPLOAD_ERROR) || action.equals(CloudUploaderService.UPLOAD_CANCELLED) )
-				onRecordingComplete(false);
-			else if ( action.equals(CloudUploaderService.UPLOAD_SUCCESS)) 
-				onRecordingComplete(true);
-				
+			if (action.equals(CloudCreateService.UPLOAD_ERROR) || action.equals(CloudCreateService.UPLOAD_CANCELLED) )
+				onCreateComplete(false);
+			else if ( action.equals(CloudCreateService.UPLOAD_SUCCESS)) 
+				onCreateComplete(true);
+			else if ( action.equals(CloudCreateService.RECORD_ERROR)) 
+				onRecordingError();
 		}
 	};
 	
-	protected void onRecordingComplete(Boolean success){
+	protected void onRecordingError(){
+		
+	}
+	
+	protected void onCreateComplete(Boolean success){
 		
 	}
 	
 	
 	
-	private void setPlayingTrack(String trackId){
+	private void setPlayingTrack(int j){
 		
 		if (mLists == null || mLists.size() == 0)
 			return;
 		
-		mCurrentTrackId = trackId;
+		mCurrentTrackId = j;
 		
 		Iterator<LazyList>  mListsIterator = mLists.iterator();
 		int i = 0;
@@ -591,6 +594,13 @@ public class LazyTabActivity extends LazyActivity{
 		} 
 	}
 	
-	
+	@Override
+	protected void onDestroy() {
+    	super.onDestroy();
+    	
+    	for (ListView mList : mLists){
+    		CloudUtils.cleanupList(mList);
+    	}
+    }
 	
 }

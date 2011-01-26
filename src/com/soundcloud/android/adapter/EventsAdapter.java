@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 import java.util.ArrayList;
 
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Event;
@@ -27,12 +28,10 @@ public class EventsAdapter extends TracklistAdapter {
 		return new EventsRow(mActivity);
 	}
 	
-
-	
 	@Override
 	public Track getTrackAt(int index)
 	{
-	  return (Track) ((Event) mData.get(index)).getDataParcelable(Event.key_track);
+	  return (Track) ((Event) mData.get(index)).getTrack();
 	}
 		
 }

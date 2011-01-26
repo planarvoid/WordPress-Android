@@ -1,30 +1,27 @@
 package com.soundcloud.android.objects;
 
-import java.util.HashMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Event extends BaseObj implements Parcelable  {
 
+	private static String TAG = "Event";
+	
 	public static final String MODEL = "overcast.event";
 	
 	public static final String key_id = "id";
 	public static final String key_type = "type";
 	public static final String key_origin = "origin";
 	public static final String key_tags = "tags";
-	
+	public static final String key_label = "label";
 	public static final String key_track = "track";
-	
 	public static final String key_next_href = "next_href";
-	
-	
 	public static final String key_user = "user";
 	public static final String key_user_id = "user_id";
 	public static final String key_username = "username";
@@ -33,6 +30,72 @@ public class Event extends BaseObj implements Parcelable  {
 	
 	private Bundle data;
 	
+	
+	
+	private int id;
+	private String type;
+	private String tags;
+	private String label;
+	private Origin origin;
+	
+	public static class Origin extends Track{
+		private Track sharedTrack;
+		
+		@JsonProperty("track")
+		public Track getSharedTrack() {
+			return sharedTrack;
+		}
+
+		@JsonProperty("track")
+		public void setSharedTrack(@JsonProperty("track") Track sharedTrack) {
+			Log.i(TAG,"SEtting Shared Track ");
+			this.sharedTrack = sharedTrack;
+		}
+	}
+
+	@JsonProperty("id")
+	public int getId() {
+		return id;
+	}
+	@JsonProperty("id")
+	public void setId(int id) {
+		this.id = id;
+	}
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
+	@JsonProperty("type")
+	public void setType(String type) {
+		this.type = type;
+	}
+	@JsonProperty("tags")
+	public String getTags() {
+		return tags;
+	}
+	@JsonProperty("tags")
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
+	
+	@JsonProperty("origin")
+	public void setOrigin(Origin origin) {
+		this.origin = origin;
+	}
+	@JsonProperty("origin")
+	public Origin getOrigin() {
+		return origin;
+	}
+	@JsonProperty("label")
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	@JsonProperty("label")
+	public String getLabel() {
+		return label;
+	}
+
+
 	public enum Parcelables { track, user, comment }
 	public enum ActivityTypes { track, track_sharing, comment }
 	
@@ -40,92 +103,20 @@ public class Event extends BaseObj implements Parcelable  {
 		data = new Bundle();
 	}
 	
-	public Event(JSONObject eventObject){
-
-		data = new Bundle();
-		//Log.i("EVENT","Event obj " + eventObject.toString());
-		
-		try {
-			
-			data.putString(key_type, eventObject.get(key_type).toString());
-			data.putString(key_tags, eventObject.get(key_type).toString());
-			
-			switch (ActivityTypes.valueOf(eventObject.get(key_type).toString().replace("-","_"))){
-				case track:
-					data.putParcelable(key_track, new Track(eventObject.getJSONObject(key_origin)));
-					break;
-				case track_sharing:
-					data.putParcelable(key_track, new Track(eventObject.getJSONObject(key_origin).getJSONObject(key_track)));
-					break;
-				default:
-					break;
-			}
-			
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		resolveData();
-	}
-	
-	
-	
-	public void resolveData() {
-	
-	}
-	
-	
-	
 	public Event(Parcel in){
 		readFromParcel(in);
 	}
 	
-	public Boolean hasKey(String key){
-		return data.containsKey(key);
-	}
-	
-	@Override
-	public String getData(String key){
-		if (data.get(key) != null)
-			return data.getString(key);
-		else
-			return "";
-	}
-	
-	@Override
-	public HashMap<String,String> mapData(){
-		HashMap<String,String> dataMap = new HashMap<String,String>();
+	public Track getTrack(){
+		if (getType().equalsIgnoreCase("track"))
+			return origin;
+		else if (getType().equalsIgnoreCase("track-sharing"))
+			return origin.getSharedTrack();
 		
-		for (String key : data.keySet()){
-			if (data.get(key) instanceof String)
-				dataMap.put(key,data.getString(key));
-		}
-		
-		return dataMap;
+		return null;
 	}
 	
-	
-	
-	@Override
-	public void putData(String key,String value){
-		data.putString(key,value);
-	}
-	
-	@Override
-	public Parcelable getDataParcelable(String key){
-		if (data.get(key) != null)
-			return data.getParcelable(key);
-		else
-			return null;
-	}
-	
-	@Override
-	public void putDataParcelable(String key, Parcelable value){
-		data.putParcelable(key, value);
-	}
+
 	
 	public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
         public Event createFromParcel(Parcel in) {
@@ -137,25 +128,11 @@ public class Event extends BaseObj implements Parcelable  {
         }
     };
 
-	
-	
-
-    @Override
-	public void readFromParcel(Parcel in) {
-    	data = in.readBundle();
-    }
 
 	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	@Override
-	public void writeToParcel(Parcel out, int arg1) {
-		// TODO Auto-generated method stub
-		out.writeBundle(data);
-	}
-
 	
 }

@@ -104,7 +104,7 @@ public class AudioReader
             // Calculate the required I/O buffer size.
             int audioBuf = AudioRecord.getMinBufferSize(rate,
                                          AudioFormat.CHANNEL_IN_MONO,
-                                         AudioFormat.ENCODING_PCM_16BIT) * 2;
+                                         AudioFormat.ENCODING_PCM_16BIT) * 4;
 
             // Set up the audio input.
             audioInput = new AudioRecord(MediaRecorder.AudioSource.MIC,
@@ -122,6 +122,7 @@ public class AudioReader
             readerThread = new Thread(new Runnable() {
                 public void run() { readerRun(); }
             }, "Audio Reader");
+            readerThread.setPriority(Thread.MAX_PRIORITY);
             readerThread.start();
         }
     }
@@ -243,6 +244,13 @@ public class AudioReader
             if (audioInput.getState() == AudioRecord.RECORDSTATE_RECORDING)
                 audioInput.stop();
         }
+    }
+    
+    public void release(){
+    	if (audioInput.getState() == AudioRecord.RECORDSTATE_RECORDING)
+            audioInput.stop();
+    	
+    	audioInput.release();
     }
 
     

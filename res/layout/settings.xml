@@ -6,29 +6,43 @@
     android:layout_height="fill_parent"
 >
 	<ListPreference
-	android:title="@string/pref_page_size"
-	android:summary="@string/pref_page_size_desc"
-	android:key="defaultPageSize"
-	android:defaultValue="10"
-	android:entries="@array/pref_page_size"
-	android:entryValues="@array/pref_page_size_values" />
-		
-	<Preference
-		android:title="@string/pref_revoke_access"
-		android:summary="@string/pref_revoke_desc"
-		android:key="revokeAccess"/>
+		android:title="@string/pref_page_size"
+		android:summary="@string/pref_page_size_desc"
+		android:key="defaultPageSize"
+		android:defaultValue="10"
+		android:entries="@array/pref_page_size"
+		android:entryValues="@array/pref_page_size_values" />
+	
+	<CheckBoxPreference
+		android:title="@string/pref_buffer_during_pause"
+		android:summary="@string/pref_buffer_during_pause_desc"
+		android:key="bufferOnPause"
+		android:defaultValue="true"
+		android:entries="@array/pref_page_size"
+		android:entryValues="@array/pref_page_size_values" />
+	
 	<Preference
 		android:title="@string/pref_clear_cache"
 		android:summary="@string/pref_clear_cache_desc"
 		android:key="clearCache"/>
+			
+	<Preference
+		android:title="@string/pref_revoke_access"
+		android:summary="@string/pref_revoke_desc"
+		android:key="revokeAccess"/>
+	
 	
 	<PreferenceScreen
-		android:key="@null"
+		android:key="wireless"
 		android:title="@string/wifi_settings"
 		android:summary="@string/wifi_settings_summary">
-		<intent
-			android:action="android.settings.WIRELESS_SETTINGS"
-		/>
 	</PreferenceScreen>
+	<!-- <ListPreference
+	android:title="@string/pref_record_quality"
+	android:summary="@string/pref_record_quality_desc"
+	android:key="defaultRecordingQuality"
+	android:defaultValue="low"
+	android:entries="@array/pref_record_quality"
+	android:entryValues="@array/pref_record_quality" /> -->
 	
 </PreferenceScreen>

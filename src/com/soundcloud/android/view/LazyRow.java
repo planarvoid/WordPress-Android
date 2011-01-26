@@ -63,6 +63,9 @@ public class LazyRow extends RelativeLayout {
 		  
 		  if (result != BindResult.OK)
 			  mIcon.setImageDrawable(this.getTemporaryDrawable());
+		  
+		  mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density*getIconWidth());
+		  mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density*getIconHeight());
 	  }
 	  
 	  

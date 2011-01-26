@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
@@ -37,7 +38,10 @@ public class UserlistAdapter extends LazyBaseAdapter {
 		
 		BindResult result = BindResult.ERROR;
 		try{ //put the bind in a try catch to catch any loading error (or the occasional bad url) 
-			result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+			if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
+				result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+			else
+				mImageLoader.unbind(rowView.getRowIcon());
 		} catch (Exception e){};
 		rowView.setTemporaryDrawable(result);
 		

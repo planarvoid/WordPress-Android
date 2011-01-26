@@ -278,8 +278,8 @@ public class Recorder
           final int len = buffer.length;
           
           // If we have a power gauge, display the signal power.
-          if (powerGauge != null)
-        	  powerGauge.update(SignalPower.calculatePowerDb(buffer, 0, len));
+       //   if (powerGauge != null)
+        	  //powerGauge.update(SignalPower.calculatePowerDb(buffer, 0, len));
           
           if (mDosRec != null){
           	try { 

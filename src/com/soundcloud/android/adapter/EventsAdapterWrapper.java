@@ -47,15 +47,8 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 			return super.getUrl() + mNextEventsParams;
 	}
 	
-	@Override
-	public void onDataNode(JSONObject data) {
-		try {
-			mNextEventsParams = data.getString(Event.key_next_href);
-			mNextEventsParams = mNextEventsParams.substring(mNextEventsParams.indexOf("?"));
-		} catch (JSONException e) {
-			//e.printStackTrace();
-			//Log.i(TAG,"Error getting next url " + e.toString());
-		}
+	public void onNextEventsParam(String nextEventsHref) {
+			mNextEventsParams = nextEventsHref.substring(nextEventsHref.indexOf("?"));
 	}
 
 }

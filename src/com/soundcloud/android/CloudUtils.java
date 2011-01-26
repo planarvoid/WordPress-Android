@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,10 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 import org.apache.http.HeaderElement;
@@ -37,23 +34,22 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -147,8 +143,11 @@ public class CloudUtils {
 	    	
 	    	public static final int DIALOG_PROCESSING = 31;
 	    	public static final int DIALOG_CANCEL_UPLOAD = 32;
-	    	
+	    	public static final int DIALOG_ERROR_RECORDING = 37;
 	    	public static final int DIALOG_ERROR_MAKING_CONNECTION = 36;
+	    	
+	    	
+	    	
 	    	
 	    	public static final int DIALOG_AUTHENTICATION_CONTACTING = 33;
 	    	public static final int DIALOG_AUTHENTICATION_ERROR = 34;
@@ -258,6 +257,8 @@ public class CloudUtils {
 			public final static int LIST_USER_TRACKS = 1003;
 			public final static int LIST_USER_FAVORITES = 1004;
 			public final static int LIST_SEARCH = 1005;
+			public final static int LIST_USER_FOLLOWINGS = 1006;
+			public final static int LIST_USER_FOLLOWERS = 1007;
 		}
 	    
 	    public static File getCacheDir(Context c){
@@ -343,15 +344,21 @@ public class CloudUtils {
 		}
 
 		public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap){
-			createTabList(activity,listHolder,adpWrap,-1);
+			createTabList(activity,listHolder,adpWrap,-1, null);
 		}
 	    
-	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap, int listId){
+		public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap, int listId){
+			createTabList(activity,listHolder,adpWrap,listId, null);
+		}
+		
+	    public static void createTabList(LazyActivity activity, FrameLayout listHolder, LazyEndlessAdapter adpWrap, int listId, OnTouchListener touchListener){
 			 
 			listHolder.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 			LazyList lv = ((LazyTabActivity) activity).buildList(false);
 			if (listId != -1) lv.setId(listId);
+			if (touchListener != null) lv.setOnTouchListener(touchListener);
 		    lv.setAdapter(adpWrap);
+		    activity.configureListMenu(lv, CloudUtils.LoadType.incoming);
 		    listHolder.addView(lv);
 		    adpWrap.createListEmptyView(lv);
 		}
@@ -360,8 +367,7 @@ public class CloudUtils {
 			return createTabLayout(c, false);
 		}
 		
-		
-		protected static FrameLayout createTabLayout(Context context, Boolean scrolltabs){
+		public static FrameLayout createTabLayout(Context context, Boolean scrolltabs){
 			FrameLayout tabLayout = new FrameLayout(context);
 			tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 			
@@ -379,8 +385,6 @@ public class CloudUtils {
 			
 			FrameLayout frameLayout = (FrameLayout) tabLayout.findViewById(android.R.id.tabcontent);
 		    frameLayout.setPadding(0, 0, 0, 0);
-		   
-		    
 		    
 		    tabHost.setup();
 		    
@@ -388,7 +392,17 @@ public class CloudUtils {
 		    
 		}
 		
+		
 		public static void configureTabs(Context context, TabWidget tabWidget, int height){
+			configureTabs(context,tabWidget,height,-1,false);
+		}
+		
+		public static void configureTabs(Context context, TabWidget tabWidget, int height, int width){
+			configureTabs(context,tabWidget,height,-1,false);
+		}
+		
+		
+		public static void configureTabs(Context context, TabWidget tabWidget, int height, int width, boolean scrolltabs){
 			   
 			  // Convert the tabHeight depending on screen density
 		    final float scale = context.getResources().getDisplayMetrics().density;
@@ -396,6 +410,10 @@ public class CloudUtils {
 		
 		    for (int i = 0; i < tabWidget.getChildCount(); i++) {
 		    	tabWidget.getChildAt(i).getLayoutParams().height = height;
+		    	if (width > -1) tabWidget.getChildAt(i).getLayoutParams().width = width;
+		    	
+		    	if (scrolltabs)
+		    		tabWidget.getChildAt(i).setPadding(Math.round(30*scale), tabWidget.getChildAt(i).getPaddingTop(), Math.round(30*scale),  tabWidget.getChildAt(i).getPaddingBottom());
 		    }
 		    
 		    tabWidget.getLayoutParams().height = height;
@@ -475,25 +493,22 @@ public class CloudUtils {
 		}
 	    
 		public static Boolean isTrackPlayable(Track track){
-			if (track.getData(Track.key_streamable).toString().equalsIgnoreCase("true")){
-				return true;
-			}
-			return false;
+			return track.getStreamable();
 		}
 		
-	    public static String getCurrentUserId(Context context){
+	    public static int getCurrentUserId(Context context){
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-     		return preferences.getString("currentUserId", "");
+     		return Integer.parseInt(preferences.getString("currentUserId", "-1"));
 		}
 	    
-	    public static String getCurrentTrackId() {
+	    public static int getCurrentTrackId() {
 	        if (sService != null) {
 	            try {
 	                return sService.getTrackId();
 	            } catch (RemoteException ex) {
 	            }
 	        }
-	        return null;
+	        return -1;
 	    }
 
 	    public static String getCurrentUserPermalink() {
@@ -524,16 +539,19 @@ public class CloudUtils {
 	        context.startService(new Intent(context, CloudPlaybackService.class));
 	        ServiceBinder sb = new ServiceBinder(callback);
 	        sConnectionMap.put(context, sb);
+	        Log.i(TAG,"Bindingi service " + sConnectionMap.size());
 	        return context.bindService((new Intent()).setClass(context,
 	        		CloudPlaybackService.class), sb, 0);
 	    }
 	    
 	    public static void unbindFromService(Context context) {
+	    	Log.i(TAG,"Unbind From Service " + context);
 	        ServiceBinder sb = (ServiceBinder) sConnectionMap.remove(context);
 	        if (sb == null) {
 	            return;
 	        }
 	        context.unbindService(sb);
+	        Log.i(TAG,"Connetcion map empty? " + sConnectionMap.isEmpty());
 	        if (sConnectionMap.isEmpty()) {
 	            // presumably there is nobody interested in the service at this point,
 	            // so don't hang on to the ServiceConnection
@@ -563,11 +581,11 @@ public class CloudUtils {
 	    }
 	    
 	    public static Track setDownloadPaths(Track track){
-	    	String userDirectory = track.getData(Track.key_user_permalink);
-	    	String filename = track.getData(Track.key_id);
-			track.putData(Track.key_local_play_url, CloudUtils.MUSIC_DIRECTORY + "/" + userDirectory + "/" + filename + ".mp3");
-			track.putData(Track.key_local_artwork_url, CloudUtils.ARTWORK_DIRECTORY + "/" + userDirectory + "/" +  filename + ".png");
-			track.putData(Track.key_local_waveform_url, CloudUtils.WAVEFORM_DIRECTORY + "/" + userDirectory + "/" +  filename + ".jpg");
+	    	String userDirectory = track.getUser().getPermalink();
+	    	String filename = Integer.toString(track.getId());
+			//track.putData(Track.key_local_play_url, CloudUtils.MUSIC_DIRECTORY + "/" + userDirectory + "/" + filename + ".mp3");
+			//track.putData(Track.key_local_artwork_url, CloudUtils.ARTWORK_DIRECTORY + "/" + userDirectory + "/" +  filename + ".png");
+			//track.putData(Track.key_local_waveform_url, CloudUtils.WAVEFORM_DIRECTORY + "/" + userDirectory + "/" +  filename + ".jpg");
 			return track;
 	    }
 	    
@@ -578,7 +596,7 @@ public class CloudUtils {
 	   
 	    
 	  //---Make sure the database is up to date with this track info---
-	    public static void resolveTrack(Context context, Track track, Boolean writeToDB, String currentUserId) 
+	    public static void resolveTrack(Context context, Track track, Boolean writeToDB, int currentUserId) 
 	    {
 	    	
 	    	track = setDownloadPaths(track);
@@ -586,19 +604,20 @@ public class CloudUtils {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
 			
-			Cursor result = db.getTrackById(track.getData(Track.key_id), currentUserId);
+			Cursor result = db.getTrackById(track.getId(), currentUserId);
 			if (result.getCount() != 0){
 				
 				//add local urls and update database
 				result.moveToFirst();
+				
 				if (result.getColumnIndex(Track.key_user_favorite_id) > -1)
-					track.putData(Track.key_user_favorite_id, result.getString(result.getColumnIndex(Track.key_user_favorite_id)));
+					track.setUserFavoriteId(result.getInt((result.getColumnIndex(Track.key_user_favorite_id))));
 				
 				
-				track.putData(Track.key_user_played, result.getString(result.getColumnIndex(Track.key_user_played)));
+				track.setUserPlayed(result.getString(result.getColumnIndex(Track.key_user_played)));
 				
 				if (writeToDB)
-				db.updateTrack(track);
+					db.updateTrack(track);
 				
 			} else if (writeToDB){
 				db.insertTrack(track);	
@@ -606,29 +625,18 @@ public class CloudUtils {
 			result.close();
 			db.close();
 
-			track = resolveTrackData(track);
-			
-			HashMap<String,String> userinfo = new HashMap<String,String>();
-			userinfo.put(User.key_id,track.getData(Track.key_user_id));
-			userinfo.put(User.key_permalink,track.getData(Track.key_user_permalink));
-			userinfo.put(User.key_username,track.getData(Track.key_username));
-			userinfo.put(User.key_avatar_url,track.getData(Track.key_user_avatar_url));
-			
-			resolveUser(context,userinfo, writeToDB, currentUserId);
+			//track = resolveTrackData(track);
+			resolveUser(context,track.getUser(), writeToDB, currentUserId);
 	    }
 	    
 	   
 	    
 	  
 	    
-	    public static Track resolveTrackData(Track track){
-	    	track = resolvePlayUrl(track);
-			track = resolveTrackFavorite(track);
-			return track;
-	    }
+	  
 	    
 	    //---Make sure the database is up to date with this track info---
-	    public static Track resolveTrackById(Context context, String trackId, String currentUserId) 
+	    public static Track resolveTrackById(Context context, int trackId, int currentUserId) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
@@ -636,26 +644,16 @@ public class CloudUtils {
 			Cursor result = db.getTrackById(trackId, currentUserId);
 			
 			if (result.getCount() != 0){
-				result.moveToFirst();
-				String[] keys = result.getColumnNames();
-				Track track = new Track();
-				for (String key : keys) {
-					//Log.i("asdf","Resolve track put data " + key+ " " + result.getString(result.getColumnIndex(key)));
-					track.putData(key, result.getString(result.getColumnIndex(key)));
-				}
-					
-				
-				track = resolvePlayUrl(track);
-				track = resolveTrackFavorite(track);
+				Track track = new Track(result);
+				//track = resolvePlayUrl(track);
+				//track = resolveTrackFavorite(track);
 				
 				result.close();
-				
-				result = db.getUserById(track.getData(Track.key_user_id), currentUserId);
-				
+				result = db.getUserById(track.getUserId(), currentUserId);
+
 				if (result.getCount() != 0){
-					result.moveToFirst();
-					track.putData(Track.key_username, result.getString(result.getColumnIndex(User.key_username)));
-					track.putData(Track.key_user_permalink, result.getString(result.getColumnIndex(User.key_permalink)));
+					track.setUser(new User(result));
+					track.setUserId(track.getUser().getId());
 				}
 				
 				result.close();
@@ -671,98 +669,17 @@ public class CloudUtils {
 			
 	    }
 	    
-	    public static Track resolvePlayUrl(Track track){
-	    	
-	    	
-	    	//figure out the ideal play URL
-			if (track.getData(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED))
-				track.putData(Track.key_play_url, track.getData(Track.key_local_play_url));
-			else if (!stringNullEmptyCheck(track.getData(Track.key_stream_url)))
-				track.putData(Track.key_play_url, track.getData(Track.key_stream_url));
-			else if (!stringNullEmptyCheck(track.getData(Track.key_download_url))){
-				track.putData(Track.key_play_url, track.getData(Track.key_download_url));
-			}
-			
-			return track;
-	    }
-	    
-	    public static Track resolvePreviousDownload(Track track){
-	    	
-	    	//figure out the ideal play URL
-			if (!stringNullEmptyCheck(track.getData(Track.key_local_play_url))){
-				String userDirectory = track.getData(Track.key_user_permalink);
-		    	String filename = track.getData(Track.key_id);
-		    	File checkFile = new File(CloudUtils.MUSIC_DIRECTORY + "/" + userDirectory + "/" + filename + ".mp3");
-		    	if (checkFile.exists()){
-					track.putData(Track.key_play_url, track.getData(Track.key_local_play_url));
-					track.putData(Track.key_download_status, Track.DOWNLOAD_STATUS_DOWNLOADED);
-				}
-
-			}
-	    				
-			return track;
-	    }
-	    		    
-	    
-	    public static Track resolveTrackFavorite(Track track){
-	    	if (!stringNullEmptyCheck(track.getData(Track.key_user_favorite_id)))
-				track.putData(Track.key_user_favorite, "true");
-	    	
-	    	return track;
-	    }
+	  
 	    
 	    //---Make sure the database is up to date with this track info---
-	    public static void addTrackFavorite(Context context, String trackId, String currentUserId) 
+	    public static User resolveUser(Context context, User user, Boolean writeToDB, int currentUserId) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
 			
-			Cursor result = db.getTrackById(trackId, currentUserId);
-			
+			Cursor result = db.getUserById(user.getId(),currentUserId);
 			if (result.getCount() != 0){
 				result.moveToFirst();
-				if (stringNullEmptyCheck(result.getString(result.getColumnIndex(Track.key_user_favorite_id)))){
-					db.insertFavorite(currentUserId, trackId);
-				}
-				
-			}
-			
-	    	result.close();
-			db.close();
-	    }
-	    
-	    //---Make sure the database is up to date with this track info---
-	    public static void removeTrackFavorite(Context context, String trackId, String currentUserId) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-			
-			Cursor result = db.getTrackById(trackId, currentUserId);
-			
-			if (result.getCount() != 0){
-				result.moveToFirst();
-				if (!stringNullEmptyCheck(result.getString(result.getColumnIndex(Track.key_user_favorite_id)))){
-					db.removeFavorite(currentUserId, trackId);
-				}
-				
-			}
-			
-	    	result.close();
-			db.close();
-	    }
-	 
-	    
-	    //---Make sure the database is up to date with this track info---
-	    public static User resolveUser(Context context, User user, Boolean writeToDB, String currentUserId) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-			
-			Cursor result = db.getUserById(user.getData(User.key_id),currentUserId);
-			if (result.getCount() != 0){
-				result.moveToFirst();
-				user = resolveUserFromCursor(result,user);
-				user = resolveUserData(user);
 				if (writeToDB) db.updateUser(user);
 			} else if (writeToDB){
 				db.insertUser(user);	
@@ -777,36 +694,9 @@ public class CloudUtils {
 	    
 	 
 	    
-	    //---Make sure the database is up to date with this track info---
-	    public static HashMap<String,String> resolveUser(Context context, HashMap<String, String> userinfo, Boolean writeToDB, String currentUserId) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-
-			Cursor result = db.getUserById(userinfo.get(User.key_id), currentUserId);
-			if (result.getCount() != 0){
-				
-				result.moveToFirst();
-				userinfo = resolveUserFromCursor(result,userinfo);
-				userinfo = resolveUserData(userinfo);
-				
-				if (writeToDB)
-					db.updateUser(userinfo);
-				
-			} else if (writeToDB) {
-				db.insertUser(userinfo);
-				userinfo = resolveUserData(userinfo);
-			}
-	    	result.close();
-			db.close();
-			
-		
-			return userinfo;
-	    }
-	    
 	    
 	  //---Make sure the database is up to date with this track info---
-	    public static User resolveUserById(Context context, String userId, String currentUserId) 
+	    public static User resolveUserById(Context context, int userId, int currentUserId) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
@@ -814,16 +704,8 @@ public class CloudUtils {
 			Cursor result = db.getUserById(userId, currentUserId);
 			
 			if (result.getCount() != 0){
-				result.moveToFirst();
-				String[] keys = result.getColumnNames();
-				User user = new User();
-				for (String key : keys) {
-					user.putData(key, result.getString(result.getColumnIndex(key)));
-				}
-					
-				user = resolveUserFromCursor(result,user);
-				user = resolveUserData(user);
 				
+				User user = new User(result);
 				result.close();
 				db.close();
 				
@@ -838,24 +720,15 @@ public class CloudUtils {
 	    }
 	    
 	    //---Make sure the database is up to date with this track info---
-	    public static User resolveUserByPermalink(Context context, String userPermalink, String currentUserId) 
+	    public static User resolveUserByPermalink(Context context, String userPermalink, int current_user_id) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
 			
-			Cursor result = db.getUserByPermalink(userPermalink, currentUserId);
+			Cursor result = db.getUserByPermalink(userPermalink, current_user_id);
 			
 			if (result.getCount() != 0){
-				result.moveToFirst();
-				String[] keys = result.getColumnNames();
-				User user = new User();
-				for (String key : keys) {
-					user.putData(key, result.getString(result.getColumnIndex(key)));
-				}
-					
-				user = resolveUserFromCursor(result,user);
-				user = resolveUserData(user);
-				
+				User user = new User(result);
 				result.close();
 				db.close();
 				return user;
@@ -868,18 +741,7 @@ public class CloudUtils {
 			
 	    }
 	    
-	    public static User resolveUserFromCursor(Cursor result, User user){
-	    	if (result.getColumnIndex(User.key_user_following_id) > -1)
-	    	user.putData(User.key_user_following_id, result.getString(result.getColumnIndex(User.key_user_following_id)));
-	    	return user;
-	    }
 	    
-	    public static User resolveUserData(User user){
-	    	if (user.getData(User.key_user_following_id) != "")
-				user.putData(User.key_user_following, "true");
-	    	
-	    	return user;
-	    }
 	    
 	    public static HashMap<String,String> resolveUserData(HashMap<String,String> userinfo){
 	    	if (userinfo.get(User.key_user_following_id) != "")
@@ -898,47 +760,6 @@ public class CloudUtils {
 	    	
 	    	return userinfo;
 	    }
-	    
-	    
-	    //---Make sure the database is up to date with this track info---
-	    public static void addUserFollowing(Context context, String userId, String currentUserId) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-			
-			Cursor result = db.getUserById(userId, currentUserId);
-			
-			if (result.getCount() != 0){
-				result.moveToFirst();
-				if (stringNullEmptyCheck(result.getString(result.getColumnIndex(User.key_user_following_id)))){
-					db.insertFollowing(currentUserId, userId);
-				}
-			}
-			
-	    	result.close();
-			db.close();
-	    }
-	    
-	    //---Make sure the database is up to date with this track info---
-	    public static void removeUserFollowing(Context context, String userId, String currentUserId) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-			
-			Cursor result = db.getUserById(userId, currentUserId);
-			
-			if (result.getCount() != 0){
-				result.moveToFirst();
-				if (!stringNullEmptyCheck(result.getString(result.getColumnIndex(User.key_user_following_id)))){
-					Log.i("asdffdsa","remove folowing " + db.removeFollowing(currentUserId, userId));
-				}
-				
-			}
-			
-	    	result.close();
-			db.close();
-	    }
-	    
 	    
 	    public static Boolean stringNullEmptyCheck(String s){
 	    	return stringNullEmptyCheck(s,false);
@@ -979,32 +800,7 @@ public class CloudUtils {
 	    }
 
 
-	    /*  Try to use String.format() as little as possible, because it creates a
-	     *  new Formatter every time you call it, which is very inefficient.
-	     *  Reusing an existing Formatter more than tripled the speed of
-	     *  makeTimeString().
-	     *  This Formatter/StringBuilder are also used by makeAlbumSongsLabel()
-	     */
-	    private static StringBuilder sFormatBuilder = new StringBuilder();
-	    private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
-	    private static final Object[] sTimeArgs = new Object[5];
-	    public static String makeTimeString(Context context, long secs) {
-	        String durationformat = context.getString(
-	                secs < 3600 ? R.string.durationformatshort : R.string.durationformatlong);
-	        
-	        /* Provide multiple arguments so the format can be changed easily
-	         * by modifying the xml.
-	         */
-	        sFormatBuilder.setLength(0);
-	        final Object[] timeArgs = sTimeArgs;
-	        timeArgs[0] = secs / 3600;
-	        timeArgs[1] = secs / 60;
-	        timeArgs[2] = (secs / 60) % 60;
-	        timeArgs[3] = secs;
-	        timeArgs[4] = secs % 60;
-	        return sFormatter.format(durationformat, timeArgs).toString();
-	    }
-	    
+	  
 	    public static void clearQueue() {
 	        try {
 	            sService.removeTracks(0, Integer.MAX_VALUE);
@@ -1058,101 +854,6 @@ public class CloudUtils {
 	    }
 	    
 	    
-	    
-	    
-	    static HashMap<String,String> mapUserFromJSON(Context context, JSONObject userObject) throws JSONException {
-			HashMap<String, String> userInfo = new HashMap<String, String>();
-//			
-			 String location = "";
-			 if ((userObject.getString(User.key_city) != "" && userObject.getString(User.key_country) != "") && (!userObject.getString(User.key_city).equalsIgnoreCase("null") && !userObject.getString(User.key_country).equalsIgnoreCase("null"))){
-				 location = userObject.getString(User.key_city) + ", " + userObject.getString(User.key_country);
-			    } else if (userObject.getString(User.key_city) != ""){
-			    	location = userObject.getString(User.key_city);
-			    }else if (userObject.getString(User.key_country) != ""){
-			    	location = userObject.getString(User.key_country);
-			    } else {
-			    	//removeView(_lblLocation);
-			    }
-			
-			 
-		 	Iterator<String> keys = userObject.keys();
-		 	while(keys.hasNext()) {
-		 		String key = (String)keys.next();
-		 		if (userObject.has(key) && userObject.getString(key) != "null"){
-		 			userInfo.put(key, userObject.getString(key));
-		 		}	
-		 	}
-			 
-			userInfo.put(User.key_location, location);
-			userInfo.put(User.key_track_count, userObject.getString(User.key_track_count) + " tracks");
-			userInfo.put(User.key_followers_count, userObject.getString(User.key_followers_count) + " followers");
-			userInfo.put(User.key_avatar_url, userObject.getString(User.key_avatar_url));
-			
-			
-			if (userObject.has(User.key_user_following))
-			if (userObject.get(User.key_user_following) != null)
-				userInfo.put(User.key_user_following, userObject.getString(User.key_user_following));
-
-			return userInfo;
-		}
-	    
-	    
-		static Track mapTrackFromJSON(Context context, JSONObject songObject) throws JSONException {
-			
-			Boolean _isPlaylist = false;
-			Boolean _isFavorite = false;
-			
-			if (songObject.has(Track.key_type)){
-				//is it a playlist
-				if (((String) songObject.get(Track.key_type)).equalsIgnoreCase("playlist")){
-					_isPlaylist = true;
-				}
-				//is it a favorited track
-				if (((String) songObject.get(Track.key_type)).equalsIgnoreCase("favorite")){
-					songObject.put(Track.key_favorited_by, context.getResources().getString(R.string.favorited_by) + " " + songObject.getString(Track.key_favorited_by));
-				} 
-			}
-			
-			if (_isPlaylist){
-				String durationStr = songObject.getJSONArray("tracks").length() + " " + context.getResources().getString(R.string.tracks);
-				songObject.put(Track.key_duration_formatted, durationStr);
-			} else {
-				int duration = Integer.parseInt(songObject.getString(Track.key_duration));
-				String durationStr = String.valueOf((int) Math.floor((duration/1000)/60)) + "." + String.format("%02d",(int) (duration/1000)%60);
-				songObject.put(Track.key_duration_formatted, durationStr);
-				
-				if (songObject.getString(Track.key_streamable).toString().equalsIgnoreCase("true")){
-		    		songObject.put("streamable", "true");
-		    		songObject.put("play_url", songObject.getString(Track.key_stream_url));
-		    		
-		    	} else if (songObject.getString(Track.key_downloadable).toString().equalsIgnoreCase("true")){
-					songObject.put("downloadable", "true");
-					songObject.put("play_url", songObject.getString(Track.key_download_url));
-		    	}
-			}
-			
-			return new Track(songObject);
-		
-		}
-		
-		static HashMap<String, String> mapCommentFromJSON(Context context, JSONObject commentObject) throws JSONException {
-			
-			JSONObject userObject = commentObject.getJSONObject(Comment.key_user);
-			HashMap<String,String> commentInfo = new HashMap<String,String>();
-			
-			commentInfo.put(Comment.key_username, userObject.getString(Comment.key_username));
-			commentInfo.put(Comment.key_user_id, userObject.getString(User.key_id));
-			commentInfo.put(Comment.key_user_permalink, userObject.getString(User.key_permalink));
-			commentInfo.put(Comment.key_body, commentObject.getString(Comment.key_body));
-			
-			if ( commentObject.getString(Comment.key_timestamp) == "null" ||  commentObject.getString(Comment.key_timestamp) == null ||  commentObject.getString(Comment.key_timestamp) == "")
-				commentInfo.put(Comment.key_timestamp, "-1");
-			else
-				commentInfo.put(Comment.key_timestamp, commentObject.getString(Comment.key_timestamp));
-			
-			
-			return commentInfo;
-		}
 		
 		
 		
@@ -1171,7 +872,7 @@ public class CloudUtils {
 		
 		
 		public static void mapCommentsToAdapter(Comment[] comments, LazyExpandableBaseAdapter mExpandableAdapter, Boolean chronological){
-			
+			/*
 			if (comments == null || comments.length == 0)
 				return;
 			
@@ -1200,7 +901,7 @@ public class CloudUtils {
 					}
 				}
 				if (!threadFound){
-					threadData = new Comment(comment.mapData());
+					threadData = new Comment(comment);
 					threadData.putData(Comment.key_timestamp_formatted, ts_formatted);
 					
 					commentData = new ArrayList<Parcelable>();
@@ -1245,6 +946,7 @@ public class CloudUtils {
 			}
 			
 			mExpandableAdapter.notifyDataSetChanged();
+			*/
 		}
 		
 		static String getResponseBody(final HttpEntity entity) throws IOException, ParseException {
@@ -1293,34 +995,6 @@ public class CloudUtils {
 			}
 			return charset;
 
-		}
-		
-		static String getTrackArtworkPath(HashMap<String, String> trackinfo) {
-			if (!trackinfo.get(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.get(Track.key_download_error).contentEquals("true") || trackinfo.get(Track.key_local_artwork_url).contentEquals(""))
-				return trackinfo.get(Track.key_artwork_url);
-			else
-				return trackinfo.get(Track.key_local_artwork_url);
-		}
-		
-		static String getTrackArtworkPath(Track trackinfo) {
-			if (!trackinfo.getData(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.getData(Track.key_download_error).contentEquals("true") || trackinfo.getData(Track.key_local_artwork_url).contentEquals(""))
-				return trackinfo.getData(Track.key_artwork_url);
-			else
-				return trackinfo.getData(Track.key_local_artwork_url);
-		}
-		
-		static String getTrackWaveformPath(HashMap<String, String> trackinfo) {
-			if (!trackinfo.get(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.get(Track.key_download_error).contentEquals("true") || trackinfo.get(Track.key_local_waveform_url).contentEquals(""))
-				return trackinfo.get(Track.key_waveform_url);
-			else
-				return trackinfo.get(Track.key_local_waveform_url);
-		}
-		
-		public static String getTrackWaveformPath(Track trackinfo) {
-			if (!trackinfo.getData(Track.key_download_status).contentEquals(Track.DOWNLOAD_STATUS_DOWNLOADED) || trackinfo.getData(Track.key_download_error).contentEquals("true") || trackinfo.getData(Track.key_local_waveform_url).contentEquals(""))
-				return trackinfo.getData(Track.key_waveform_url);
-			else
-				return trackinfo.getData(Track.key_local_waveform_url);
 		}
 		
 		public static void gotoTrackUploader(Context context, String userPemalink) {
@@ -1441,12 +1115,12 @@ public class CloudUtils {
 	        return id;
 	    }
 		
-		public static Double getPCMTime(File file, int sampleRate, int channels, int bitsPerSample){
-			return Double.parseDouble(Long.toString(file.length()))/(sampleRate*channels*bitsPerSample/8);
+		public static Long getPCMTime(File file, int sampleRate, int channels, int bitsPerSample){
+			return file.length()/(sampleRate*channels*bitsPerSample/8);
 		}
 		
-		public static Double getPCMTime(long bytes, int sampleRate, int channels, int bitsPerSample){
-			return Double.parseDouble(Long.toString(bytes))/(sampleRate*channels*bitsPerSample/8);
+		public static Long getPCMTime(long bytes, int sampleRate, int channels, int bitsPerSample){
+			return bytes/(sampleRate*channels*bitsPerSample/8);
 		}
 		
 		
@@ -1482,22 +1156,58 @@ public class CloudUtils {
 			  System.gc();
 		}
 		
-		public static String formatContent(InputStream is) throws IOException {
-			if (is == null) {
+		
+		  /*  Try to use String.format() as little as possible, because it creates a
+	     *  new Formatter every time you call it, which is very inefficient.
+	     *  Reusing an existing Formatter more than tripled the speed of
+	     *  makeTimeString().
+	     *  This Formatter/StringBuilder are also used by makeAlbumSongsLabel()
+	     */
+	    private static StringBuilder sBuilder = new StringBuilder();
+	    private static Formatter sFormatter = new Formatter(sBuilder, Locale.getDefault());
+	    private static final Object[] sTimeArgs = new Object[5];
+	    
+	    public static String formatString(String stringFormat, Object arg) {
+	        sBuilder.setLength(0);
+	        return sFormatter.format(stringFormat, arg).toString();
+	    }
+	    
+	    public static String formatString(String stringFormat, Object[] args) {
+	        sBuilder.setLength(0);
+	        return sFormatter.format(stringFormat, args).toString();
+	    }
+	    
+	    public static String makeTimeString(String durationformat, long secs) {
+	        /* Provide multiple arguments so the format can be changed easily
+	         * by modifying the xml.
+	         */
+	        sBuilder.setLength(0);
+	        final Object[] timeArgs = sTimeArgs;
+	        timeArgs[0] = secs / 3600;
+	        timeArgs[1] = secs / 60;
+	        timeArgs[2] = (secs / 60) % 60;
+	        timeArgs[3] = secs;
+	        timeArgs[4] = secs % 60;
+	        return sFormatter.format(durationformat, timeArgs).toString();
+	    }
+	    
+		/*public static String formatContent(InputStream is) throws IOException {
+			if (is == null) 
 				return "";
-			}
-
-			StringBuilder builder = new StringBuilder();
+			
+			StringBuilder sBuilder = new StringBuilder();
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 			while ((line = buffer.readLine()) != null) {
-				builder.append(line).append("\n");
+				sBuilder.append(line).append("\n");
 			}
 			buffer.close();
+			buffer = null;
 
-
-			return builder.toString().trim();
+			return sBuilder.toString().trim();
 		}
+		*/
+		
 
 		public static String getErrorFromJSONResponse(String rawString)
 				throws JSONException {
@@ -1518,8 +1228,60 @@ public class CloudUtils {
 			}
 		}
 
+		/**
+		* Reallocates an array with a new size, and copies the contents
+		* of the old array to the new array.
+		* @param oldArray  the old array, to be reallocated.
+		* @param newSize   the new array size.
+		* @return          A new array with the same contents.
+		*/
+		public static Object resizeArray (Object oldArray, int newSize) {
+		   int oldSize = java.lang.reflect.Array.getLength(oldArray);
+		   Class elementType = oldArray.getClass().getComponentType();
+		   Object newArray = java.lang.reflect.Array.newInstance(
+		         elementType,newSize);
+		   int preserveLength = Math.min(oldSize,newSize);
+		   if (preserveLength > 0)
+		      System.arraycopy (oldArray,0,newArray,0,preserveLength);
+		   return newArray; }
 		
 		
+		public static String toCamelCase(String s){
+			   String[] parts = s.split("_");
+			   String camelCaseString = "";
+			   for (String part : parts){
+			      camelCaseString = camelCaseString + toProperCase(part);
+			   }
+			   return camelCaseString;
+			}
+
+			static String toProperCase(String s) {
+			    return s.substring(0, 1).toUpperCase() +
+			               s.substring(1).toLowerCase();
+			}
+			
+			/**
+			 * Check if a thread is alive accounting for nulls
+			 * @return boolean : is the thread alive
+			 */
+			public static Boolean checkThreadAlive(Thread t){
+				return (t == null || !t.isAlive()) ?  false: true;
+			}
+		
+			
+			
+			
+			public static void cleanupList(ListView list){
+				list.setOnItemClickListener(null);
+				list.setOnItemLongClickListener(null);
+				list.setOnCreateContextMenuListener(null);
+				list.setOnScrollListener(null);
+				list.setOnItemSelectedListener(null);
+				
+			}
+			
+			
+			
 }
 
 

@@ -56,20 +56,16 @@ public class UserlistRow extends LazyRow {
 	  @Override
 	  public void display(Parcelable p, boolean selected) {
 		  	super.display(p, selected);
-		  
 			mUser = (User) p;
-			mUsername.setText(mUser.getData(User.key_username));
-			
+			mUsername.setText(mUser.getUsername());
 			setLocation();
 			setTrackCount();
 			setFollowerCount();
-			
-			if (mUser.getData(User.key_user_following).equalsIgnoreCase("true")){
+			if (mUser.getUserFollowing() != null && mUser.getUserFollowing().equalsIgnoreCase("true")){
 				_isFollowing = true;
 			} else {
 				_isFollowing = false;
 			}
-				  
 			if (getContext().getResources().getDisplayMetrics().density > 1){
 				mIcon.getLayoutParams().width = 67;
 				mIcon.getLayoutParams().height = 67;
@@ -87,9 +83,9 @@ public class UserlistRow extends LazyRow {
 	  
 	  public String getIconRemoteUri(){
 			if (getContext().getResources().getDisplayMetrics().density > 1){
-				return CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.large); 
+				return CloudUtils.formatGraphicsUrl(mUser.getAvatarUrl(),GraphicsSizes.large); 
 			} else
-				return CloudUtils.formatGraphicsUrl(mUser.getData(User.key_avatar_url),GraphicsSizes.badge);
+				return CloudUtils.formatGraphicsUrl(mUser.getAvatarUrl(),GraphicsSizes.badge);
 	  }
 	  
 	  
@@ -98,16 +94,16 @@ public class UserlistRow extends LazyRow {
 	  // givent their own functions to be easily overwritten by subclasses who may not use them or use them differently
 	  
 	  protected void setLocation(){
-		 mLocation.setText(mUser.getData(User.key_location));
+		 mLocation.setText(mUser.getLocation());
 	  }
 	  
 	  protected void setTrackCount(){
-		  String trackCount = mContext.getResources().getQuantityString(R.plurals.user_track_count, Integer.parseInt(mUser.getData(User.key_track_count)), Integer.parseInt(mUser.getData(User.key_track_count)));
+		  String trackCount = mContext.getResources().getQuantityString(R.plurals.user_track_count, Integer.parseInt(mUser.getTrackCount()), Integer.parseInt(mUser.getTrackCount()));
 		  mTracks.setText(trackCount);
 	  }
 	  
 	  protected void setFollowerCount(){
-		  String followerCount = mContext.getResources().getQuantityString(R.plurals.user_follower_count, Integer.parseInt(mUser.getData(User.key_followers_count)), Integer.parseInt(mUser.getData(User.key_followers_count)));
+		  String followerCount = mContext.getResources().getQuantityString(R.plurals.user_follower_count, Integer.parseInt(mUser.getFollowersCount()), Integer.parseInt(mUser.getFollowersCount()));
 		  mFollowers.setText(followerCount);
 	  }
 	  

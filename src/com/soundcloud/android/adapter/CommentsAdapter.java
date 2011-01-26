@@ -91,7 +91,7 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 			  
 				mComment = (Comment) p;
 				mUsername.setText(getUsernameString());
-				mBody.setText(mComment.getData(Comment.key_body));
+				//mBody.setText(mComment.getData(Comment.key_body));
 		  }
 		  
 		  @Override
@@ -110,11 +110,11 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 		  
 		  @Override
 		  public String getIconRemoteUri(){
-				if (getContext().getResources().getDisplayMetrics().density > 1){
-					return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.large); 
-				} else
-					return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.badge);
-				
+				//if (getContext().getResources().getDisplayMetrics().density > 1){
+					//return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.large); 
+				//} else
+				//	return CloudUtils.formatGraphicsUrl(mComment.getData(Comment.key_user_avatar_url),GraphicsSizes.badge);
+				return "";
 		  }
 		  
 		  
@@ -130,7 +130,8 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 		  
 		  
 		protected String getUsernameString(){
-		  return mComment.getData(User.key_username) + " @ " + mComment.getData(Comment.key_timestamp_formatted);
+		 // return mComment.getData(User.key_username) + " @ " + mComment.getData(Comment.key_timestamp_formatted);
+			return "";
 		}
 
 	}
@@ -150,7 +151,8 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filter
 		
 		@Override
 		protected String getUsernameString(){
-		  return mComment.getData(User.key_username);
+		  //return mComment.getData(User.key_username);
+			return "";
 		}
 	  
 	}

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -63,6 +64,7 @@ import com.soundcloud.android.adapter.CommentsAdapter;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.view.CommentMarker;
 import com.soundcloud.android.view.UserBrowser;
@@ -99,7 +101,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private WaveformController mWaveformController;
 	
 
-	private String mCurrentTrackId = "";
+	private int mCurrentTrackId = -1;
 	private String mPendingArtwork = "";
 
 	private Track mPlayingTrack;
@@ -118,8 +120,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private RelativeLayout mPlayableLayout;
 	private FrameLayout mUnplayableLayout;
 
-	private Boolean mStreamSeekable = true;
-	private Boolean mSeeking = false;
 	private Boolean mCurrentTrackError = false;
 	private BindResult mCurrentArtBindResult;
 	
@@ -128,6 +128,24 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	protected ArrayList<ArrayList<Parcelable>> mCommentData;
 	protected String[] mFrom;
 	protected int[] mTo;
+	
+	private String mDurationFormatLong;
+	private String mDurationFormatShort;
+	private String mCurrentDurationString;
+	
+	
+	private TextView mCurrentTime;
+	private TextView mUserName;
+	private TextView mTrackName;
+
+	private ProgressBar mProgress;
+	private boolean mFromTouch = false;
+	private long mDuration;
+	private boolean paused;
+
+	private static final int REFRESH = 1;
+	private static final int QUIT = 2;
+	private static final int ALBUM_ART_DECODED = 4;
 	
 
 	// ******************************************************************** //
@@ -173,25 +191,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		initControls();
 		
-		if (Build.VERSION.SDK_INT < 8) //2.1 or earlier, opencore only, no stream seeking
-			mStreamSeekable = false;
-		else if (Build.VERSION.SDK_INT == 8){ // 2.2, check to see if stagefright enabled
-			mStreamSeekable = false;
-			File buildFile = new File("/system/build.prop");
-			if (buildFile.exists()){
-				try {
-					FileInputStream buildIs = new FileInputStream(buildFile);
-					if (CloudUtils.formatContent(buildIs).contains("media.stagefright.enable-player=true"))
-						mStreamSeekable = true;
-				} catch (IOException e) { //problem finding build file
-					e.printStackTrace();
-				}
-			}
-		} else { //greater than 2.2, assume stagefright from here on out
-			mStreamSeekable = true;
-		}
+		mDurationFormatLong = getString(R.string.durationformatlong);
+		mDurationFormatShort = getString(R.string.durationformatshort);
 		
-		  
      	Intent intent = getIntent();
  		Bundle extras = intent.getExtras();
  		
@@ -283,7 +285,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 					}
 
 					Intent intent = new Intent(ScPlayer.this, ScProfile.class);
-					intent.putExtra("userId", mPlayingTrack.getData(Track.key_user_id));
+					intent.putExtra("userId", mPlayingTrack.getUserId());
 					startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
 				}
 			});
@@ -343,21 +345,15 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	@Override
 	protected void onServiceBound() {
-
 		super.onServiceBound();
 		try {
-			
-			if (mEnqueueList != null){
-				
-				mService.enqueue(mEnqueueList, mEnqueuePosition);
-				mEnqueueList =  null;
-				setAsyncOpeningStart();
-				
-			} else if (mService.getTrack() != null) {
-				if (mService.isAsyncOpening()){
-					setAsyncOpeningStart();
+			Log.i(TAG,"On Service Bound 1 " + mService.getTrack());
+			if (mService.getTrack() != null) {
+				Log.i(TAG,"On Service Bound 2 " + mService.getTrack() + " "  + mService.isBuffering());
+				if (mService.isBuffering()){
+					setBufferingStart();
 				}else
-					setAsyncOpeningDone();
+					setBufferingDone();
 				
 				updateTrackInfo();
 				setPauseButtonImage();
@@ -485,11 +481,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				return;
 			}
 			try {
-				clearSeekVars();
-				
-				if ((mPosOverride < 0 && mService.position() < 2000) || (mPosOverride >= 0 && mPosOverride < 2000)) {
+				if (mService.position() < 2000) {
 					mService.prev();
-				} else if (mStreamSeekable){
+				} else if (isSeekable()){
 					mService.seek(0);
 					//mService.play();
 				} else {
@@ -507,7 +501,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				return;
 			}
 			try {
-				clearSeekVars();
 				mService.next();
 			} catch (RemoteException ex) {
 				ex.printStackTrace();
@@ -582,7 +575,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				} else {
 					mService.play();
 				}
-				refreshNow();
+				long next = refreshNow();
+				queueNextRefresh(next);
 				setPauseButtonImage();
 			}
 		} catch (RemoteException ex) {
@@ -612,10 +606,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		if (mPlayingTrack == null)
 			return;
 		
-		((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(mPlayingTrack.getData(Track.key_playback_count));
-		((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(mPlayingTrack.getData(Track.key_favoritings_count));
-		((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(mPlayingTrack.getData(Track.key_download_count));
-		((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(mPlayingTrack.getData(Track.key_comment_count));
+		((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(mPlayingTrack.getPlaybackCount());
+		((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.getFavoritingsCount()));
+		((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer.toString(mPlayingTrack.getDownloadCount()));
+		((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer.toString(mPlayingTrack.getCommentCount()));
 		
 		((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html.fromHtml(generateTrackInfoString()));
 	}
@@ -623,18 +617,18 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	private String generateTrackInfoString(){
 		String str = "";
 		str += "<b>Description</b><br />";
-		str += mPlayingTrack.getData(Track.key_description)+"<br /><br />";
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_tag_list))) str += mPlayingTrack.getData(Track.key_tag_list) + "<br />";
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_key_signature))) str += mPlayingTrack.getData(Track.key_key_signature) + "<br />";
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_genre))) str += mPlayingTrack.getData(Track.key_genre) + "<br />";
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_bpm))) str += mPlayingTrack.getData(Track.key_bpm) + "<br />";
+		str += mPlayingTrack.getDescription()+"<br /><br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getTagList())) str += mPlayingTrack.getTagList()+ "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getKeySignature())) str += mPlayingTrack.getKeySignature() + "<br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getGenre())) str += mPlayingTrack.getGenre() + "<br />";
+		if (!(mPlayingTrack.getBpm() == null)) str += mPlayingTrack.getBpm() + "<br />";
 		str += "<br />";
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_license)) && !mPlayingTrack.getData(Track.key_license).toLowerCase().contentEquals("all rights reserved")) str += mPlayingTrack.getData(Track.key_license) + "<br /><br />";
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getLicense()) && !mPlayingTrack.getLicense().toLowerCase().contentEquals("all rights reserved")) str += mPlayingTrack.getLicense() + "<br /><br />";
 		
-		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_label_name))){
+		if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getLabelName())){
 			str += "<b>Released By</b><br />";
-			str += mPlayingTrack.getData(Track.key_label_name) + "<br />";
-			if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_bpm))) str += mPlayingTrack.getData(Track.key_release_year) + "<br />";
+			str += mPlayingTrack.getLabelName() + "<br />";
+			if (!CloudUtils.stringNullEmptyCheck(mPlayingTrack.getReleaseYear())) str += mPlayingTrack.getReleaseYear() + "<br />";
 			str += "<br />";
 		}
 		
@@ -673,20 +667,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		 */
 	}
 	
-	private TextView mCurrentTime;
-	private TextView mUserName;
-	private TextView mTrackName;
-
-	private ProgressBar mProgress;
-	private long mPosOverride = -1;
-	private long mSeekFrom = -1;
-	private boolean mFromTouch = false;
-	private long mDuration;
-	private boolean paused;
-
-	private static final int REFRESH = 1;
-	private static final int QUIT = 2;
-	private static final int ALBUM_ART_DECODED = 4;
+	
 
 	private void queueNextRefresh(long delay) {
 		if (!paused) {
@@ -698,65 +679,31 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	private long refreshNow() {
 			
-		if (mService == null) {
-			return 500;
-		}
-
 		try {
 
-			/*if (mPendingArtwork != null && mArtwork != null && mArtwork.getWidth() > 0) {
-				mArtwork.setRemoteURI(mPendingArtwork);
-				mArtwork.loadImage();
-				mPendingArtwork = null;
-			}*/
-			
 			if (mService == null)
 				return 500;
 
 			if (mService.loadPercent() > 0 && !_isPlaying) {
 				_isPlaying = true;
-				// mProgress.setIndeterminate(false);
 			}
 			
 			long pos = mService.position();
-
-			//handle elegant seeking, cause android doesn't
-			if (mSeekFrom != -1){ //we just seeked, see if we are reporting the new position
-				if (mSeekFrom > mPosOverride){
-					if (mPosOverride < pos  && pos < mSeekFrom){ 
-						//reported position in between old position and seeked position
-						//done seeking
-						mSeekFrom = -1;
-						mPosOverride = -1; 
-					}
-				} else if (pos > mPosOverride){ 
-					//reported position greater than seeked position seeked position
-					//done seeking
-					mSeekFrom = -1;
-					mPosOverride = -1;
-				}
-			}
-			
-			//Log.i(TAG,"override " + mPosOverride);
-			pos = mPosOverride < 0 ? pos : mPosOverride;
-			
 			long remaining = 1000 - pos % 1000;
 			
 			if (pos >= 0 && mDuration > 0) {
-				mCurrentTime.setText(CloudUtils.makeTimeString(this, pos / 1000) + " / " + CloudUtils.makeTimeString(this, mDuration / 1000));
+				mCurrentTime.setText(CloudUtils.makeTimeString(pos < 3600000 ? mDurationFormatShort : mDurationFormatLong, pos / 1000) + " / " + mCurrentDurationString);
 				mWaveformController.setProgress(pos);
+				mWaveformController.setSecondaryProgress(mService.loadPercent() * 10);
 			} else {
 				mCurrentTime.setText("--:--/--:--");
-
 				mWaveformController.setProgress(0);
+				mWaveformController.setSecondaryProgress(0);
 			}
 
 			
 
-			if (!mSeeking) {
-				int loadPercent = mService.loadPercent();
-				mWaveformController.setSecondaryProgress(loadPercent * 10);
-			}
+			
 
 			// return the number of milliseconds until the next full second, so
 			// the counter can be updated at just the right time
@@ -776,24 +723,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				long next = refreshNow();
 				queueNextRefresh(next);
 				break;
-
-			case QUIT:
-				// This can be moved back to onCreate once the bug that prevents
-				// Dialogs from being started from onCreate/onResume is fixed.
-				// new AlertDialog.Builder(MediaPlaybackActivity.this)
-				// .setTitle(R.string.service_start_error_title)
-				// .setMessage(R.string.service_start_error_msg)
-				// .setPositiveButton(R.string.service_start_error_button,
-				// new DialogInterface.OnClickListener() {
-				// public void onClick(DialogInterface dialog, int whichButton)
-				// {
-				// finish();
-				// }
-				// })
-				// .setCancelable(false)
-				// .show();
-				// break;
-
 			default:
 				break;
 			}
@@ -807,71 +736,41 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			Log.i(TAG,"ScPlayer received action " + action);
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
 				mCurrentTrackError = false;
-				clearSeekVars();
 				resetComments();
 				updateTrackInfo();
 				setPauseButtonImage();
-				setAsyncOpeningStart();
+				setBufferingStart();
 				queueNextRefresh(1);
 			} else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
 				setPauseButtonImage();
 			} else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 				setPauseButtonImage();
-			} else if (action.equals(CloudPlaybackService.ASYNC_OPENING)) {
+			} else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
 				mCurrentTrackError = false;
-				if (mPosOverride != -1){ //just restarted, probably after a failed seek
-					//mHandler.removeCallbacks(clearLastSeek);
-					//mHandler.postDelayed(clearLastSeek, 10000);
-				}
-				
-				//clearSeekVars();
 				hideUnplayable();
-				setAsyncOpeningStart();
-			} else if (action.equals(CloudPlaybackService.ASYNC_OPEN_COMPLETE)) {
+				setBufferingStart();
+			} else if (action.equals(CloudPlaybackService.BUFFERING)) {
+				hideUnplayable();
+				setBufferingStart();
+			} else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
 				//clearSeekVars();
-				setAsyncOpeningDone();
+				setBufferingDone();
 			} else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
 				mCurrentTrackError = true;
 				//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
-				setAsyncOpeningDone();
+				setBufferingDone();
 				showUnplayable();
 			} else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
 				//showToast(getString(R.string.toast_error_stream_died));
 			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
 				updateTrackInfo();
 			} else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
-				mSeeking = false;
 				//setPauseButtonImage();
 				
-				try {
-					mSeekFrom = mService.position();
-					mPosOverride = mService.lastSuccessfulSeek();
-					//mHandler.postDelayed(clearLastSeek, 10000);
-					return;
-				} catch (RemoteException e) {
-					mPosOverride = -1;
-					mSeekFrom = -1;
-				}
 			}
 		}
-
 	};
 	
-	//for clearing seek positioning.
-	//seeks should clear automatically when playback resumes, but in some cases (on Droid phones for example)
-	//seeks will report completed even if they didn't occur, so this will handle those cases
-	private Runnable clearLastSeek = new Runnable() {
-		   public void run() {
-			   mPosOverride = -1;
-		   }
-		};
-		
-	private void clearSeekVars(){
-		mPosOverride = -1;
-		mSeeking = false;
-		
-	}
-
 	private void showUnplayable(){
 		if (mPlayingTrack == null || CloudUtils.isTrackPlayable(mPlayingTrack)){ //playback error
 			((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt)).setText(R.string.player_error);
@@ -889,13 +788,15 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		mUnplayableLayout.setVisibility(View.GONE);
 	}
 	
-	private void setAsyncOpeningStart() {
-		mPauseButton.setEnabled(false);
+	private void setBufferingStart() {
+		Log.i(TAG, "Set Buffering Start");
+		//mPauseButton.setEnabled(false);
 		mWaveformController.showConnectingLayout();
 	}
 
-	private void setAsyncOpeningDone() {
-		mPauseButton.setEnabled(true);
+	private void setBufferingDone() {
+		Log.i(TAG, "Set Buffering Done");
+		//mPauseButton.setEnabled(true);
 		mWaveformController.hideConnectingLayout();
 		// play();
 
@@ -923,28 +824,35 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				if (mService.getTrack() == null) return;
 				mPlayingTrack = mService.getTrack();
 			} catch (RemoteException e) {e.printStackTrace();}
-		} 
+		}
 		
+		Log.i(TAG,"Playing Track " + mPlayingTrack);
 		if (mPlayingTrack == null) 
 			return;
 		
 		mWaveformController.updateTrack(mPlayingTrack);
-		
 		if (!mLandscape)
-		if (CloudUtils.stringNullEmptyCheck(mPlayingTrack.getData(Track.key_artwork_url))) {
+		if (CloudUtils.stringNullEmptyCheck(mPlayingTrack.getArtworkUrl())) {
 			//no artwork
+			ImageLoader.get(this).unbind(mArtwork);
 			mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
 		} else {
 			//load artwork as necessary
-			if (!mPlayingTrack.getData(Track.key_id).contentEquals(mCurrentTrackId) || mCurrentArtBindResult == BindResult.ERROR)
-				if (ImageLoader.get(this).bind(mArtwork, CloudUtils.formatGraphicsUrl(mPlayingTrack.getData(Track.key_artwork_url),GraphicsSizes.crop), null) != BindResult.OK)
+			if (!(mPlayingTrack.getId() == mCurrentTrackId) || mCurrentArtBindResult == BindResult.ERROR)
+				if (ImageLoader.get(this).bind(mArtwork, CloudUtils.formatGraphicsUrl(mPlayingTrack.getArtworkUrl(),GraphicsSizes.crop), null) != BindResult.OK)
 					mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
 		}
 		
-		if (!mPlayingTrack.getData(Track.key_id).contentEquals(mCurrentTrackId)) {
-			mTrackName.setText(mPlayingTrack.getData(Track.key_title));
-			mUserName.setText(mPlayingTrack.getData(Track.key_username));
+		Log.i(TAG,"New track? " + mPlayingTrack.getId() + " " + mCurrentTrackId);
+		if (mPlayingTrack.getId() != mCurrentTrackId) {
+			mTrackName.setText(mPlayingTrack.getTitle());
+			mUserName.setText(mPlayingTrack.getUser().getUsername());
+			
+			if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1){
+				onTrackInfoFlip();
+			}
 
+			Log.i(TAG,"Current track error? " + mCurrentTrackError);
 			if (mCurrentTrackError)
 				return;
 			
@@ -952,11 +860,16 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 					hideUnplayable();
 			} else {
 				showUnplayable();
-				setAsyncOpeningDone();
+				setBufferingDone();
 			}
 
+			if (mTrackInfo != null)
+				fillTrackDetails();
+			
 			setFavoriteStatus();
-			mDuration = Long.parseLong(mPlayingTrack.getData(Track.key_duration));
+			mDuration = Long.parseLong(Integer.toString(mPlayingTrack.getDuration()));
+			mCurrentDurationString = CloudUtils.makeTimeString(mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong, mDuration / 1000);
+			
 			mapCurrentComments();
 		}
 
@@ -965,23 +878,25 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	public Boolean isSeekable() {
 		try {
-			return !(!mStreamSeekable || mService == null || mSeeking ||  !mService.isSeekable());
+			return !(mService == null ||  !mService.isSeekable());
 		} catch (RemoteException e) {
 			return false;
 		}
 	}
 
+	private long mSeekPos = -1;
+	
 	public long setSeekMarker(float seekPercent) {
 		
 		try {
-			if (!mStreamSeekable || mService == null || mSeeking ||  !mService.isSeekable()) {
-				mPosOverride = -1;
+			if (mService == null ||  !mService.isSeekable()) {
+				mSeekPos = -1;
 				return mService.position();
 			}
 
 			if (mPlayingTrack != null) {
-				mPosOverride = (long) (Integer.parseInt(mPlayingTrack.getData(Track.key_duration)) * seekPercent);
-				return mPosOverride;
+				mSeekPos = (long) (mPlayingTrack.getDuration() * seekPercent);
+				return mSeekPos;
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -993,27 +908,26 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	
 	public void sendSeek(){
 		try {
-			if (!mStreamSeekable || mService == null || mSeeking ||  !mService.isSeekable()){
-				mPosOverride = -1;
+			if (mService == null  ||  !mService.isSeekable()){
 				return;
 			}
 			
-			mSeeking = true;
-			mService.seek(mPosOverride);
+			mService.seek(mSeekPos);
+			mSeekPos = -1;
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
 	
-	public void playFromPosition(String trackId, long timestamp) {
+	public void playFromPosition(int trackId, long timestamp) {
 		if (mService == null) {
 			return;
 		}
 
 		try {
 			if (mPlayingTrack != null) {
-				if (mPlayingTrack.getData(Track.key_id).contentEquals(trackId) && mStreamSeekable) {
+				if (mPlayingTrack.getId() == trackId && mService.isSeekable()) {
 					mService.seek(timestamp);
 				}
 			}
@@ -1035,10 +949,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		}
 
 		if (mPlayingTrack != null) {
-			if (mPlayingTrack.getData(Track.key_id).contentEquals(
-					comment.getData(Comment.key_track_id))) {
-				updateTrackInfo();
-			}
+			//if (mPlayingTrack.getId == comment.get.getData(Comment.key_track_id))) {
+				//updateTrackInfo();
+			//}
 		}
 	}
 
@@ -1112,7 +1025,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	public void addComment(String commentBody) {
 
-		addComment.putData(Comment.key_body, commentBody);
+		/*addComment.putData(Comment.key_body, commentBody);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
 				.newInstance();
@@ -1142,7 +1055,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		// add this comment somewhere
 		if (addedComment != null) {
 			commentAdded(addedComment);
-		}
+		}*/
 
 	}
 
@@ -1164,8 +1077,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		f.addAction(CloudPlaybackService.TRACK_ERROR);
 		f.addAction(CloudPlaybackService.STREAM_DIED);
 		f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-		f.addAction(CloudPlaybackService.ASYNC_OPENING);
-		f.addAction(CloudPlaybackService.ASYNC_OPEN_COMPLETE);
+		f.addAction(CloudPlaybackService.BUFFERING);
+		f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
 		f.addAction(CloudPlaybackService.COMMENTS_LOADED);
 		f.addAction(CloudPlaybackService.SEEK_COMPLETE);
 		this.registerReceiver(mStatusListener, new IntentFilter(f));
@@ -1220,10 +1133,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putBoolean("isSeeking", mSeeking);
 		outState.putBoolean("paused", paused);
-		outState.putLong("posOverride", mPosOverride);
-		outState.putLong("seekFrom", mSeekFrom);
 		outState.putBoolean("currentTrackError", mCurrentTrackError);
 		
 		super.onSaveInstanceState(outState); 
@@ -1233,10 +1143,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     public void onRestoreInstanceState(Bundle savedInstanceState) 
     {
     	mCurrentTrackError = savedInstanceState.getBoolean("currentTrackError");
-    	mSeeking = savedInstanceState.getBoolean("isSeeking");
     	paused = savedInstanceState.getBoolean("paused");
-    	mPosOverride = savedInstanceState.getLong("posOverride");
-    	mSeekFrom = savedInstanceState.getLong("seekFrom");
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -1276,7 +1183,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			final EditText input = new EditText(this);
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-			alert.setTitle(String.format(
+			/*alert.setTitle(String.format(
 					getString(R.string.add_comment_dialog_title), addComment
 							.getData(Comment.key_timestamp_formatted)));
 			alert.setView(input);
@@ -1292,7 +1199,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 						public void onClick(DialogInterface dialog, int which) {
 							removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
 						}
-					});
+					});*/
 
 			return alert.show();
 
@@ -1370,7 +1277,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		switch (item.getItemId()) {
+		/*switch (item.getItemId()) {
 		case CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION:
 			long tsLong = Long.parseLong(((Comment) menuParcelable)
 					.getData(Comment.key_timestamp));
@@ -1404,7 +1311,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		default:
 			return super.onContextItemSelected(item);
-		}
+		}*/
 		return true;
 	}
 
@@ -1417,7 +1324,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			return;
 		}
 
-		if (mPlayingTrack.getData(Track.key_user_favorite)
+		if (mPlayingTrack.getUserFavorite()
 				.contentEquals("true")) {
 			mFavoriteButton.setImageDrawable(getResources().getDrawable(
 					R.drawable.ic_favorited_states));
@@ -1435,11 +1342,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		mFavoriteTrack = mPlayingTrack;
 		mFavoriteButton.setEnabled(false);
 
-		if (mFavoriteTrack.getData(Track.key_user_favorite).contentEquals("true")) {
-			mFavoriteTrack.putData(Track.key_user_favorite, "");
+		if (mFavoriteTrack.getUserFavorite().contentEquals("true")) {
+			mFavoriteTrack.setUserFavorite("");
 			removeFavorite();
 		} else {
-			mFavoriteTrack.putData(Track.key_user_favorite, "true");
+			mFavoriteTrack.setUserFavorite("true");
 			addFavorite();
 		}
 		setFavoriteStatus();
@@ -1453,12 +1360,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			@Override
 			public void run() {
 				try {
-					mFavoriteResult = CloudUtils.formatContent(getSoundCloudApplication()
-									.putContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack .getData(Track.key_id)));
+					mFavoriteResult = IOUtils.toString(getSoundCloudApplication()
+									.putContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getId()));
 				} catch (IOException e) {
 					e.printStackTrace();
 					setException(e);
-					handleException();
 				}
 				mHandler.post(mUpdateAddFavorite);
 			}
@@ -1474,13 +1380,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			@Override
 			public void run() {
 				try {
-					mFavoriteResult = CloudUtils.formatContent(getSoundCloudApplication()
-							.deleteContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack .getData(Track.key_id)));
-
+					mFavoriteResult = IOUtils.toString(getSoundCloudApplication()
+							.deleteContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getId()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					setException(e);
-					handleException();
 				}
 				mHandler.post(mUpdateRemoveFavorite);
 			}
@@ -1491,11 +1395,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	// Create runnable for posting since we update the following asynchronously
 	final Runnable mUpdateAddFavorite = new Runnable() {
 		public void run() {
-			Boolean _success = false;
+			handleException();
 			if (mFavoriteResult != null) {
 				if (mFavoriteResult.indexOf("200 - OK") != -1 || mFavoriteResult.indexOf("201 - Created") != -1) {
 					try {
-						mService.setFavoriteStatus(mFavoriteTrack.getData(Track.key_id), "true");
+						mService.setFavoriteStatus(mFavoriteTrack.getId(), "true");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1508,17 +1412,17 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	// Create runnable for posting since we update the following asynchronously
 	final Runnable mUpdateRemoveFavorite = new Runnable() {
 		public void run() {
-			Boolean _success = false;
+			handleException();
 			if (mFavoriteResult != null) {
 				if (mFavoriteResult.indexOf("200 - OK") != -1 || mFavoriteResult.indexOf("201 - Created") != -1) {
 					try {
-						mService.setFavoriteStatus(mFavoriteTrack.getData(Track.key_id), "");
-					} catch (RemoteException e) {
+						mService.setFavoriteStatus(mFavoriteTrack.getId(), "");
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} 
 			}
-			mFavoriteButton.setEnabled(true);
+			if (mFavoriteButton != null) mFavoriteButton.setEnabled(true);
 			
 		}
 	};

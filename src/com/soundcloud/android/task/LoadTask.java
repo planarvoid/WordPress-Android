@@ -1,5 +1,9 @@
 package com.soundcloud.android.task;
 
+import java.lang.ref.WeakReference;
+
+import org.apache.http.client.methods.HttpUriRequest;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -8,15 +12,13 @@ import android.os.Parcelable;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.LazyActivity;
 
-public abstract class LoadTask extends AsyncTask<String, Parcelable, Boolean> {
+public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
 	private final static String TAG = "LoadTask";
 	
-	protected LazyActivity activity;
-	public String mUrl = null;
-	
+	protected WeakReference<LazyActivity> mActivityReference;
+	protected WeakReference<Context> mAppContextReference;
 	public CloudUtils.Model loadModel;
 	
-	protected Context appContext;
 	protected boolean mCancelled;
 
 
@@ -28,14 +30,13 @@ public abstract class LoadTask extends AsyncTask<String, Parcelable, Boolean> {
 		System.gc();
 	}
 	
-	public void setActivity(LazyActivity _activity){
+	public void setActivity(LazyActivity activity){
 		
-		this.activity = _activity;
+		mActivityReference = new WeakReference<LazyActivity>(activity);
 
 		if (activity != null){
-			appContext = activity.getApplicationContext();
+			mAppContextReference = new WeakReference<Context>(activity.getApplicationContext());
 			activity.setException(null);
-			activity.setError("");
 		}
 		
 	}
@@ -47,15 +48,10 @@ public abstract class LoadTask extends AsyncTask<String, Parcelable, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		
 		//activity.handleException();
-		activity.setProgressBarIndeterminateVisibility(false);
+		//activity.handleError());
+		if (mActivityReference.get() != null) mActivityReference.get().setProgressBarIndeterminateVisibility(false);
 		
 		System.gc();
 	}
 
-	public Uri getLoadedURL() {
-		if (mUrl != null) {
-			return Uri.parse(mUrl);
-		}
-		return null;
-	}
 }

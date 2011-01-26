@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity;
 
+import java.util.concurrent.Semaphore;
+
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,175 +19,156 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.utils.SoundCloudAuthorizationClient;
 
-public class Authorize extends ScActivity {
+/**
+ * Adopted from UrbanStew's soundclouddroid authorization process
+ * @http://code.google.com/p/soundclouddroid/
+ *
+ */
+
+public class Authorize extends ScActivity implements SoundCloudAuthorizationClient{
 	
 	private static final String TAG = "Authorize";
 	
 	private SharedPreferences mPreferences;
 	
-	private EditText txtUsername;
-	private EditText txtPassword;
-	private Button btnAuthorize;
+	WebView mWebView;
 	
-	private RelativeLayout authBg;
-	
-	private static final int DIALOG_AUTHENTICATING = 10;
-	private static final int DIALOG_AUTHENTICATION_FAILED = 11;
-	
+	private Exception mAuthorizationException;
+	Semaphore mVerificationCodeAvailable;
 	private Handler mHandler = new Handler();
-	
-	private int[] mExchangePostDelays = {1000,3000,10000};
-	private int mCurrentExchangeRetries = 0;
-
-	private String oAuthToken;
+	private String mVerificationCode;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//setContentView(R.layout.authorize);
-		setContentView(R.layout.main);
-		
-		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		/*authBg = (RelativeLayout) findViewById(R.id.auth_bg);
-		
-		authBg.setOnFocusChangeListener(keyboardHideFocusListener);
-		authBg.setOnClickListener(keyboardHideClickListener);
-		authBg.setOnTouchListener(keyboardHideTouchListener);
-		
-		txtUsername = (EditText) findViewById(R.id.txt_username);
-		txtPassword = (EditText) findViewById(R.id.txt_password);
-		
-		btnAuthorize = (Button) findViewById(R.id.btn_authorize);
-		btnAuthorize.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				onAuthorize();
-			}
-		});
-		*/
-		// extract the OAUTH access token if it exists
-		Uri uri = this.getIntent().getData();
-		if(uri != null) {
-			Log.i(TAG,"AUTHORIZATION TOKEN " + oAuthToken);
-		  	oAuthToken = uri.getQueryParameter("oauth_verifier");	
-		  	mHandler.post(mExchangeToken);
-		}
+		setContentView(R.layout.authorize);
+		mWebView = (WebView) findViewById(R.id.webview);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setBlockNetworkImage(false);
+        mWebView.getSettings().setLoadsImagesAutomatically(true);
+        
+        mWebView.setWebViewClient(
+                new WebViewClient()
+                {
+                        public boolean shouldOverrideUrlLoading(WebView view, String url)
+                        {
+                                if(url.startsWith("soundcloud://auth"))
+                                {
+                                        mVerificationCode = Uri.parse(url).getQueryParameter("oauth_verifier");
+                                        mVerificationCodeAvailable.release();
+                                        return true;
+                                }
+                                        return false;
+                        }
+                });
+                
+        mVerificationCodeAvailable = new Semaphore(0);
+        this.getSoundCloudApplication().authorizeWithoutCallback(this);
+        
+        showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+	    
 	}
-	
-	private void onAuthorize(){
-		Thread thread = new Thread(new Runnable()
+
+		@Override
+		public void authorizationCompleted(final AuthorizationStatus status) {
+			if(status == AuthorizationStatus.CANCELED)
+                return;
+			
+        runOnUiThread(new Runnable()
         {
                 public void run()
                 {
-                        try
+                        if(status == AuthorizationStatus.SUCCESSFUL)
                         {
-                          //mCloudComm.obtainAccessToken(txtUsername.getText().toString(), txtPassword.getText().toString());
-                        } catch (Exception e) {
-                        	e.printStackTrace();
-                        	
-                        } 
-                        
-                        mHandler.post(new Runnable() {
-                            public void run() {
-                         	   onAuthReturn();
-                            }
-                        });
+                        		//showToast("Authorization Successful");
+                                Intent intent = new Intent(Authorize.this, Dashboard.class);
+                    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    			startActivity(intent);
+                    			finish();
+                        }
+                        else
+                        {
+                                String message = "";
+                                if(mAuthorizationException != null)
+                                {
+//                                      if(mAuthorizationException.getCause() != null)
+//                                              message += " (" + mAuthorizationException..getCause() + ")";
+                                        
+                                        if(mAuthorizationException.getLocalizedMessage() != null){
+                                            message += "\n\n" + mAuthorizationException.getLocalizedMessage() + ".";
+                                        } else {
+                                        	message += "Authorization failed with exception " + mAuthorizationException.getClass().getName();                                        	
+                                        }
+                                }
+                                new AlertDialog.Builder(Authorize.this)
+                                        .setTitle("Authorization Failed")
+                                        .setMessage(message)
+                                        .setCancelable(false)
+                                        .setPositiveButton
+                                        (
+                                                "OK",
+                                        new DialogInterface.OnClickListener()
+                                                {
+                                                        public void onClick(DialogInterface dialog, int id)
+                                                        {
+                                                                finish();
+                                                        }
+                                                }
+                                        )
+                                        .create().show();
+                        }       
                 }
         });
-		
-		showDialog(this.DIALOG_AUTHENTICATING);
-		thread.start();
-	}
-	
-	private void onAuthReturn(){
-		Log.i("AUTH","Auth returned " + ((SoundCloudApplication) getApplication()).getState());
-		removeDialog(DIALOG_AUTHENTICATING);
-	}
-	
-	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
 			
-			case DIALOG_AUTHENTICATING:
-				ProgressDialog progressDialog = new ProgressDialog(this);
-				progressDialog.setTitle(R.string.authenticating_title);
-				progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				progressDialog.setIndeterminate(true);
-				progressDialog.setCancelable(false);
 			
-			return progressDialog;
 		}
-		return null;
-	}
-	
-	
 
-	private void onAuthenticated(){
-		Intent intent = new Intent(this, Dashboard.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
-		//finish();
-	}
-	
-	
-	
-	private Runnable mExchangeToken = new Runnable() {
-		   public void run() {
-			   
-			   if (mCurrentExchangeRetries == 1)
-				   showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
-			   
-		        if (oAuthToken != "") {
-		        	Log.i(TAG,"Updating TOKEN " + oAuthToken);
-		        	getSoundCloudApplication().updateAuthorizationStatus(oAuthToken);
-		            if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
-		                if (mCurrentExchangeRetries < mExchangePostDelays.length) {
-		                    mHandler.postDelayed(mExchangeToken, mExchangePostDelays[mCurrentExchangeRetries]);
-		                    mCurrentExchangeRetries++;		                    
-		                } else {
-		                	Log.i(TAG," TOKEN update successful ");
-		                	getSoundCloudApplication().clearTokens();
-		                	removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_RETRY);
-		                    showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_ERROR);
-		                }
-		            } else {
-		            	onAuthenticated();
-		            }
-		        }
-		   }
-		};
+		@Override
+		public void exceptionOccurred(Exception e) {
+			Log.i(TAG,"Exception Occured " + e.toString());
+			e.printStackTrace();
+			mAuthorizationException = e;
+			
+		}
 
-	
+		@Override
+		public String getVerificationCode() {
+			try
+            {
+                    mVerificationCodeAvailable.acquire();
+            } catch (InterruptedException e)
+            {
+                    Log.v(Authorize.class.getSimpleName(), Log.getStackTraceString(e));
+                    return null;
+            }
+            return mVerificationCode;
+		}
+
+		@Override
+		public void openAuthorizationURL(String url) {
+			mHandler.removeCallbacks(mRemoveDialog);
+			mHandler.postDelayed(mRemoveDialog, 2000);
+			mWebView.loadUrl(url);
+		}
 		
-	 private OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
-			public void onFocusChange(View v, boolean hasFocus) {
-				InputMethodManager mgr = (InputMethodManager) getSystemService(Authorize.this.INPUT_METHOD_SERVICE);
-				if (hasFocus == true && mgr != null) mgr.hideSoftInputFromWindow(txtUsername.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-			}
-		};
+		// Stop a call request after some amount of time
+	    private Runnable mRemoveDialog = new Runnable() {
+	        public void run() {
+	        	removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+	        }
+	    };
 		
-		 private OnClickListener keyboardHideClickListener = new View.OnClickListener() {
-			 public void onClick(View v) {
-					InputMethodManager mgr = (InputMethodManager) getSystemService(Authorize.this.INPUT_METHOD_SERVICE);
-					if (mgr != null) mgr.hideSoftInputFromWindow(txtUsername.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-			 }
-		};
 		
-		 private OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				InputMethodManager mgr = (InputMethodManager) getSystemService(Authorize.this.INPUT_METHOD_SERVICE);
-				if (mgr != null) mgr.hideSoftInputFromWindow(txtUsername.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-				return false;
-			}
-		 };
 	
 }

@@ -85,7 +85,7 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 	public void setCommentData(Comment comment){
 		mCommentData = comment;
 
-		if (mCommentData.hasKey(Comment.key_track_id)) mTrackId = mCommentData.getData(Comment.key_track_id);
+		/*if (mCommentData.hasKey(Comment.key_track_id)) mTrackId = mCommentData.getData(Comment.key_track_id);
 		if (mCommentData.hasKey(Comment.key_user_id)) mUserId = mCommentData.getData(Comment.key_user_id);
 		if (mCommentData.hasKey(Comment.key_username)) mUsername = mCommentData.getData(Comment.key_username);
 		if (mCommentData.hasKey(Comment.key_body)) mBody = mCommentData.getData(Comment.key_body);
@@ -95,7 +95,7 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 			if (CloudUtils.checkIconShouldLoad(avatarUrl)){
 				ImageLoader.get(_context).bind(mAvatar, avatarUrl, null);
 			}
-		}
+		}*/
 		
 	}
 	
@@ -104,7 +104,8 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 	}
 	
 	public String getCommentId(){
-		return mCommentData.getData(Comment.key_id);
+		//return mCommentData.getData(Comment.key_id);
+		return "";
 	}
 	
 	public int getTimestamp(){
