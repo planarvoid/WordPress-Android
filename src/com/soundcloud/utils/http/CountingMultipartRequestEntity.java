@@ -1,3 +1,4 @@
+
 package com.soundcloud.utils.http;
 
 import java.io.FilterOutputStream;
@@ -9,78 +10,78 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
 public class CountingMultipartRequestEntity implements HttpEntity {
-		private HttpEntity delegate_;
-		private ProgressListener listener_;
+    private HttpEntity delegate_;
 
-		public CountingMultipartRequestEntity(HttpEntity delegate,
-				ProgressListener listener) {
-			super();
-			delegate_ = delegate;
-			listener_ = listener;
-		}
+    private ProgressListener listener_;
 
-		public void consumeContent() throws IOException {
-			delegate_.consumeContent();
-		}
+    public CountingMultipartRequestEntity(HttpEntity delegate, ProgressListener listener) {
+        super();
+        delegate_ = delegate;
+        listener_ = listener;
+    }
 
-		public InputStream getContent() throws IOException,
-				IllegalStateException {
-			return delegate_.getContent();
-		}
+    public void consumeContent() throws IOException {
+        delegate_.consumeContent();
+    }
 
-		public Header getContentEncoding() {
-			return delegate_.getContentEncoding();
-		}
+    public InputStream getContent() throws IOException, IllegalStateException {
+        return delegate_.getContent();
+    }
 
-		public long getContentLength() {
-			return delegate_.getContentLength();
-		}
+    public Header getContentEncoding() {
+        return delegate_.getContentEncoding();
+    }
 
-		public Header getContentType() {
-			return delegate_.getContentType();
-		}
+    public long getContentLength() {
+        return delegate_.getContentLength();
+    }
 
-		public boolean isChunked() {
-			return delegate_.isChunked();
-		}
+    public Header getContentType() {
+        return delegate_.getContentType();
+    }
 
-		public boolean isRepeatable() {
-			return delegate_.isRepeatable();
-		}
+    public boolean isChunked() {
+        return delegate_.isChunked();
+    }
 
-		public boolean isStreaming() {
-			return delegate_.isStreaming();
-		}
+    public boolean isRepeatable() {
+        return delegate_.isRepeatable();
+    }
 
-		public void writeTo(OutputStream outstream) throws IOException {
-			delegate_.writeTo(new CountingOutputStream(outstream, listener_));
-		}
+    public boolean isStreaming() {
+        return delegate_.isStreaming();
+    }
 
-		private class CountingOutputStream extends FilterOutputStream {
+    public void writeTo(OutputStream outstream) throws IOException {
+        delegate_.writeTo(new CountingOutputStream(outstream, listener_));
+    }
 
-			private final ProgressListener listener;
+    private class CountingOutputStream extends FilterOutputStream {
 
-			private long transferred;
+        private final ProgressListener listener;
 
-			public CountingOutputStream(final OutputStream out,
-					final ProgressListener listener) {
-				super(out);
-				this.listener = listener;
-				this.transferred = 0;
-			}
+        private long transferred;
 
-			public void write(byte[] b, int off, int len) throws IOException {
-				out.write(b, off, len);
-				this.transferred += len;
-				if (listener != null)
-					this.listener.transferred(this.transferred);
-			}
+        public CountingOutputStream(final OutputStream out, final ProgressListener listener) {
+            super(out);
+            this.listener = listener;
+            this.transferred = 0;
+        }
 
-			public void write(int b) throws IOException {
-				out.write(b);
-				this.transferred++;
-				if (listener != null)
-					this.listener.transferred(this.transferred);
-			}
-		}
-	}
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            out.write(b, off, len);
+            this.transferred += len;
+            if (listener != null)
+                this.listener.transferred(this.transferred);
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            out.write(b);
+            this.transferred++;
+            if (listener != null)
+                this.listener.transferred(this.transferred);
+        }
+    }
+}
