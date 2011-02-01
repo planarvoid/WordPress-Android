@@ -3,21 +3,18 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/signpost-commonshttp4-1.2.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/CWAC-AdapterWrapper.jar"/>
 	<classpathentry kind="lib" path="lib/org.urbanstew.soundcloudapi-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/signpost-core-1.2.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/libGoogleAnalytics.jar"/>
 	<classpathentry kind="lib" path="lib/acra-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/imageloader.jar"/>
 	<classpathentry kind="lib" path="lib/filecache.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/vorbis-java-1.0.0-beta.jar"/>
+	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
