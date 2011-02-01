@@ -1,6 +1,7 @@
 # OS X Finder and svn
 .DS_Store
 .svn
+.settings
 
 # output folders
 bin/
