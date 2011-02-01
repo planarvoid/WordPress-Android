@@ -139,7 +139,7 @@ public class TracklistRow extends LazyRow {
 			} else {
 				mPrivateIndicator.setVisibility(View.VISIBLE);
 			}
-			if (mTrack.getUserFavorite().equalsIgnoreCase("true")){
+			if (mTrack.getUserFavorite()){
 				_isFavorite = true;
 			} else {
 				_isFavorite = false;
@@ -152,7 +152,7 @@ public class TracklistRow extends LazyRow {
 			} else if (_isFavorite){
 				mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(R.drawable.list_favorite));
 				mPlayIndicator.setVisibility(View.VISIBLE);
-			} else if (!mTrack.getUserPlayed().equalsIgnoreCase("true")){
+			} else if (mTrack.getUserPlayed() == false){
 				mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(R.drawable.list_unlistened));
 				mPlayIndicator.setVisibility(View.VISIBLE);
 			} else {

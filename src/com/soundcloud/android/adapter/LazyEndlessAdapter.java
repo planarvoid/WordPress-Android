@@ -11,13 +11,10 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
@@ -37,9 +34,7 @@ import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.CloudUtils.Model;
 import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
@@ -541,16 +536,12 @@ import com.soundcloud.android.view.LazyList;
 			if (!query.contentEquals("")) builder.appendQueryParameter("q", query);
 			if (baseUrl.indexOf("limit") == -1) builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
 			
-			builder.appendQueryParameter("rand", String.valueOf(((int) (Math.random()*100000))));
 			builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()*(getCurrentPage())));					
 			builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(R.string.consumer_key));
 			
 			HttpUriRequest req;
 			try {
 				req = mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
-				/*for (Header h : req.getAllHeaders()){
-					Log.i(TAG,"Header " + h.getName() + " : " +  h.getValue());	
-				}*/
 				return req;
 			} catch (OAuthMessageSignerException e) {
 				setException(e);
@@ -654,6 +645,8 @@ import com.soundcloud.android.view.LazyList;
 				try {
 					
 					InputStream is = mActivityReference.get().getSoundCloudApplication().executeRequest(req);
+					
+					
 					ObjectMapper mapper = new ObjectMapper();
 					
 					if (newItems != null) newItems.clear();

@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
       android:versionName="1.1.6"
-      android:installLocation="auto"
        android:versionCode="10">
       
    	<application android:icon="@drawable/launcher" android:label="@string/app_name"
@@ -15,11 +14,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-			<intent-filter>
-               <action android:name="android.intent.action.SEND"></action>
-               <data android:mimeType="audio/*"></data>
-            	<category android:name="android.intent.category.DEFAULT"/>
-        	</intent-filter>
         </activity>
         <activity android:name="com.soundcloud.android.activity.Authorize" android:label="Authorize" android:configChanges="orientation|keyboardHidden">
             <intent-filter>

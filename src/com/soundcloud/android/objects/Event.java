@@ -29,9 +29,6 @@ public class Event extends BaseObj implements Parcelable  {
 	public static final String key_user_avatar_url = "user_avatar_url";
 	
 	private Bundle data;
-	
-	
-	
 	private int id;
 	private String type;
 	private String tags;
@@ -48,7 +45,6 @@ public class Event extends BaseObj implements Parcelable  {
 
 		@JsonProperty("track")
 		public void setSharedTrack(@JsonProperty("track") Track sharedTrack) {
-			Log.i(TAG,"SEtting Shared Track ");
 			this.sharedTrack = sharedTrack;
 		}
 	}

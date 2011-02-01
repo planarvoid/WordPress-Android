@@ -1,48 +1,32 @@
 package com.soundcloud.android.activity;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Layout;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnTouchListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -50,9 +34,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 import android.widget.ImageView.ScaleType;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -60,14 +46,9 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.adapter.CommentsAdapter;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.view.CommentMarker;
-import com.soundcloud.android.view.UserBrowser;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
@@ -99,9 +80,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	private ExpandableListView comments_lv;
 	private WaveformController mWaveformController;
-	
 
-	private int mCurrentTrackId = -1;
+	private Long mCurrentTrackId = null;
 	private String mPendingArtwork = "";
 
 	private Track mPlayingTrack;
@@ -224,18 +204,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 		mTransportBar = (ViewGroup) findViewById(R.id.transport_bar);
 		mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
-		
-		//mLandscape = (this.getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		int width = getWindowManager().getDefaultDisplay().getWidth();
-		int height = getWindowManager().getDefaultDisplay().getHeight(); 
 
 		mLandscape =  ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		showingComments = preferences.getBoolean("showPlayerComments", false);
-		// showingComments = false;
-
 
 		mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
 		mWaveformController.setPlayer(this);
@@ -248,6 +221,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		mCurrentTime = (TextView) findViewById(R.id.currenttime);
 		mUserName = (TextView) findViewById(R.id.user);
 		mTrackName = (TextView) findViewById(R.id.track);
+		
+		View v = (View) mTrackName.getParent();
+		v.setOnTouchListener(this);
 
 		mTrackInfoBar = ((LinearLayout) findViewById(R.id.track_info_row));
 		mTrackInfoBar.setBackgroundColor(getResources().getColor(R.color.playerControlBackground));
@@ -317,9 +293,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			
 			//temp
 			mCommentsButton.setVisibility(View.GONE);
-			
 		}
-
 	}
 	
 	
@@ -331,12 +305,15 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	int mViewWidth = 0;
 	boolean mDraggingLabel = false;
 
+	/**
+	 * Right now, the only draggable textview is the track, but this function
+	 * can be changed to easily add more later.
+	 * 
+	 * @param v
+	 * @return
+	 */
 	TextView textViewForContainer(View v) {
-		View vv = v.findViewById(R.id.username);
-		if (vv != null) {
-			return (TextView) vv;
-		}
-		vv = v.findViewById(R.id.trackname);
+		View vv = v.findViewById(R.id.track);
 		if (vv != null) {
 			return (TextView) vv;
 		}
@@ -347,9 +324,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	protected void onServiceBound() {
 		super.onServiceBound();
 		try {
-			Log.i(TAG,"On Service Bound 1 " + mService.getTrack());
 			if (mService.getTrack() != null) {
-				Log.i(TAG,"On Service Bound 2 " + mService.getTrack() + " "  + mService.isBuffering());
 				if (mService.isBuffering()){
 					setBufferingStart();
 				}else
@@ -374,8 +349,26 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	protected void onServiceUnbound() {
 		super.onServiceUnbound();
 	}
+	
+	protected void onDataConnectionChanged(Boolean isConnected){
+		super.onDataConnectionChanged(isConnected);
+		if (mPlayingTrack == null) 
+			return;
+			
+    	if (mWaveformController.currentWaveformResult() == BindResult.ERROR){
+    		mWaveformController.updateTrack(mPlayingTrack);
+    	}
+    	
+    	if (mCurrentArtBindResult == BindResult.ERROR){
+    		updateArtwork();
+    	}
+    }
 
+	/**
+	 * Handle text dragging for viewing of long track names
+	 */
 	public boolean onTouch(View v, MotionEvent event) {
+		CloudUtils.dumpMotionEvent(event);
 		int action = event.getAction();
 		TextView tv = textViewForContainer(v);
 		if (tv == null) {
@@ -385,9 +378,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			v.setBackgroundColor(0xff606060);
 			mInitialX = mLastX = (int) event.getX();
 			mDraggingLabel = false;
-		} else if (action == MotionEvent.ACTION_UP
-				|| action == MotionEvent.ACTION_CANCEL) {
-			v.setBackgroundColor(0);
+		} else if (action == MotionEvent.ACTION_UP|| action == MotionEvent.ACTION_CANCEL) {
 			if (mDraggingLabel) {
 				Message msg = mLabelScroller.obtainMessage(0, tv);
 				mLabelScroller.sendMessageDelayed(msg, 1000);
@@ -508,64 +499,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		}
 	};
 
-	/*private View.OnClickListener mToggleCommentsListener = new View.OnClickListener() {
-		public void onClick(View v) {
-			toggleComments();
-		}
-	};
-
-	private void toggleComments() {
-
-		if (showingComments) {
-			applyRotation(0, -90);
-		} else {
-			applyRotation(0, 90);
-		}
-
-		showingComments = !showingComments;
-
-		// showingComments = !showingComments;
-		setCommentButtonImage();
-
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		preferences.edit().putBoolean("showPlayerComments", showingComments)
-				.commit();
-	}
-
-	private void applyRotation(float start, float end) {
-		// Find the center of image
-
-		final float centerX;
-		final float centerY;
-
-		if (showingComments) {
-			centerX = mCommentListHolder.getWidth() / 2.0f;
-			centerY = mCommentListHolder.getHeight() / 2.0f;
-		} else {
-			centerX = mArtwork.getWidth() / 2.0f;
-			centerY = mArtwork.getHeight() / 2.0f;
-		}
-
-		Log.i("DEBUG", "Apply rotation " + centerX);
-
-		// Create a new 3D rotation with the supplied parameter
-		// The animation listener is used to trigger the next animation
-		final Flip3dAnimation rotation = new Flip3dAnimation(start, end,
-				centerX, centerY);
-		rotation.setDuration(500);
-		rotation.setFillAfter(true);
-		rotation.setInterpolator(new AccelerateInterpolator());
-		rotation.setAnimationListener(new DisplayNextView(!showingComments,
-				mArtwork, mCommentListHolder));
-
-		if (showingComments) {
-			mCommentListHolder.startAnimation(rotation);
-		} else {
-			mArtwork.startAnimation(rotation);
-		}
-	}*/
-
 	private void doPauseResume() {
 		try {
 			Log.i(TAG,"DO PAUSE RESUME");
@@ -633,7 +566,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		}
 		
 		
-		/*try {
+		/* temporary commenting out timestamp until I figure out how to do the formatting properly
+		 * try {
 			str += "<b>Uploaded " + mPlayingTrack.getData(Track.key_created_at)+"<br />";
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 			Date uploadDate = new Date(sdf.parse(mPlayingTrack.getData(Track.key_created_at).substring(0,mPlayingTrack.getData(Track.key_created_at).indexOf("+")-1)).getTime());
@@ -659,15 +593,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		}
 	}
 
-	private void setCommentButtonImage() {
-		/*
-		 * if (!mLandscape) if (showingComments) {
-		 * mCommentsButton.setImageResource(R.drawable.ic_comm); } else {
-		 * mCommentsButton.setImageResource(R.drawable.ic_comment); }
-		 */
-	}
-	
-	
 
 	private void queueNextRefresh(long delay) {
 		if (!paused) {
@@ -701,10 +626,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				mWaveformController.setSecondaryProgress(0);
 			}
 
-			
-
-			
-
 			// return the number of milliseconds until the next full second, so
 			// the counter can be updated at just the right time
 			return remaining;
@@ -736,7 +657,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			Log.i(TAG,"ScPlayer received action " + action);
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
 				mCurrentTrackError = false;
-				resetComments();
 				updateTrackInfo();
 				setPauseButtonImage();
 				setBufferingStart();
@@ -745,6 +665,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				setPauseButtonImage();
 			} else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 				setPauseButtonImage();
+				if (intent.getBooleanExtra("isPlaying", false)) {
+					hideUnplayable();
+					updateTrackInfo();
+					mCurrentTrackError = false;
+				}
 			} else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
 				mCurrentTrackError = false;
 				hideUnplayable();
@@ -757,10 +682,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 				setBufferingDone();
 			} else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
 				mCurrentTrackError = true;
-				//showDialog(CloudUtils.Dialogs.DIALOG_ERROR_TRACK_ERROR);
 				setBufferingDone();
 				showUnplayable();
 			} else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
+				setBufferingDone();
+				setPauseButtonImage();
 				//showToast(getString(R.string.toast_error_stream_died));
 			} else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
 				updateTrackInfo();
@@ -801,22 +727,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		// play();
 
 	}
-
-	public void startPlayback(Track track) {
-		
-		if (mService == null) {
-			return;
-		}
-
-		try {
-			mService.enqueueTrack(track, CloudPlaybackService.NOW);
-			mPlayingTrack = track;
-		} catch (RemoteException ex) {
-			Log.d("MediaPlaybackActivity", "couldn't start playback: " + ex);
-		}
-
-	}
-
+	
 	private void updateTrackInfo() {
 
 		if (mService != null) {
@@ -831,20 +742,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			return;
 		
 		mWaveformController.updateTrack(mPlayingTrack);
-		if (!mLandscape)
-		if (CloudUtils.stringNullEmptyCheck(mPlayingTrack.getArtworkUrl())) {
-			//no artwork
-			ImageLoader.get(this).unbind(mArtwork);
-			mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
-		} else {
-			//load artwork as necessary
-			if (!(mPlayingTrack.getId() == mCurrentTrackId) || mCurrentArtBindResult == BindResult.ERROR)
-				if (ImageLoader.get(this).bind(mArtwork, CloudUtils.formatGraphicsUrl(mPlayingTrack.getArtworkUrl(),GraphicsSizes.crop), null) != BindResult.OK)
-					mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
-		}
+		updateArtwork();
 		
 		Log.i(TAG,"New track? " + mPlayingTrack.getId() + " " + mCurrentTrackId);
-		if (mPlayingTrack.getId() != mCurrentTrackId) {
+		if (mCurrentTrackId == null || mPlayingTrack.getId().compareTo(mCurrentTrackId) != 0) {
 			mTrackName.setText(mPlayingTrack.getTitle());
 			mUserName.setText(mPlayingTrack.getUser().getUsername());
 			
@@ -869,10 +770,29 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			setFavoriteStatus();
 			mDuration = Long.parseLong(Integer.toString(mPlayingTrack.getDuration()));
 			mCurrentDurationString = CloudUtils.makeTimeString(mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong, mDuration / 1000);
-			
-			mapCurrentComments();
 		}
-
+	}
+	
+	private void updateArtwork(){
+		if (!mLandscape)
+			if (CloudUtils.stringNullEmptyCheck(mPlayingTrack.getArtworkUrl())) {
+				//no artwork
+				ImageLoader.get(this).unbind(mArtwork);
+				mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
+			} else {
+				//load artwork as necessary
+				if (mCurrentTrackId == null || mPlayingTrack.getId().compareTo(mCurrentTrackId)!=0 || mCurrentArtBindResult == BindResult.ERROR)
+					if ((mCurrentArtBindResult = ImageLoader.get(this).bind(mArtwork, CloudUtils.formatGraphicsUrl(mPlayingTrack.getArtworkUrl(),GraphicsSizes.crop), new ImageLoader.Callback(){
+						@Override
+						public void onImageError(ImageView view, String url, Throwable error) {
+							mCurrentArtBindResult = BindResult.ERROR;
+						}
+						@Override
+						public void onImageLoaded(ImageView view, String url) {
+						}
+					})) != BindResult.OK)
+						mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
+			}
 	}
 	
 
@@ -885,9 +805,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 	}
 
 	private long mSeekPos = -1;
-	
+	private long mLastSeekEventTime = -1;
 	public long setSeekMarker(float seekPercent) {
-		
 		try {
 			if (mService == null ||  !mService.isSeekable()) {
 				mSeekPos = -1;
@@ -895,15 +814,24 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			}
 
 			if (mPlayingTrack != null) {
-				mSeekPos = (long) (mPlayingTrack.getDuration() * seekPercent);
+				long now = SystemClock.elapsedRealtime();
+				if ((now - mLastSeekEventTime) > 250) {
+					mLastSeekEventTime = now;
+					try {
+						mSeekPos = mService.seek((long) (mPlayingTrack.getDuration() * seekPercent));
+					} catch (RemoteException ex) {
+					}
+				} else {
+					//where would we be if we had seeked
+					mSeekPos = mService.getSeekResult((long) (mPlayingTrack.getDuration() * seekPercent));
+				}
+				
 				return mSeekPos;
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		
 		return 0;
-		
 	}
 	
 	public void sendSeek(){
@@ -918,147 +846,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			e.printStackTrace();
 		}
 	}
-
 	
-	public void playFromPosition(int trackId, long timestamp) {
-		if (mService == null) {
-			return;
-		}
-
-		try {
-			if (mPlayingTrack != null) {
-				if (mPlayingTrack.getId() == trackId && mService.isSeekable()) {
-					mService.seek(timestamp);
-				}
-			}
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void commentAdded(Comment comment) {
-
-		if (mService != null) {
-			try {
-				mService.addComment(comment);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		if (mPlayingTrack != null) {
-			//if (mPlayingTrack.getId == comment.get.getData(Comment.key_track_id))) {
-				//updateTrackInfo();
-			//}
-		}
-	}
-
-	private void mapCurrentComments() {
-		if (mPlayingTrack != null) {
-			//mCommentsAdapter.clear();
-			//Comment[] comments = mPlayingTrack.comments;
-			//if (comments != null) {
-				//CloudUtils.mapCommentsToAdapter(comments, mCommentsAdapter, true);
-				//mCommentsAdapter.notifyDataSetChanged();
-				/*if (mLandscape) {
-					mWaveformController.mapComments(mCommentsAdapter,
-							Integer.parseInt(mPlayingTrack
-									.getData(Track.key_duration)));
-					mWaveformController.invalidate();
-				} else {
-				mWaveformController.setDuration(Integer.parseInt(mPlayingTrack.getData(Track.key_duration)));
-				//}*/
-
-			//}
-
-		}
-	}
-
-	protected LazyExpandableBaseAdapter createCommentsAdapter() {
-		mThreadData = new ArrayList<Parcelable>();
-		mCommentData = new ArrayList<ArrayList<Parcelable>>();
-		return new CommentsAdapter(this, mThreadData, mCommentData);
-	}
-
-	public ExpandableListView getCommentsList() {
-		return comments_lv;
-	}
-
-	public LazyExpandableBaseAdapter getCommentsAdapter() {
-		return mCommentsAdapter;
-	}
-
-	protected void resetComments() {
-		//showCommentsLoading();
-
-		//mCommentsAdapter.clear();
-		//mCommentsAdapter.notifyDataSetChanged();
-
-		//mWaveformController.mapComments(mCommentsAdapter, 1);
-		//mWaveformController.invalidate();
-	}
-
-	protected void showCommentsLoading() {
-		if (mLandscape) {
-			return;
-		}
-
-		mLoadingLayout.findViewById(android.R.id.progress).setVisibility(
-				View.VISIBLE);
-
-		if (mLoadingLayout.getParent() != null) {
-			((ViewGroup) mLoadingLayout.getParent()).removeView(mLoadingLayout);
-		}
-
-		mCommentListHolder.addView(mLoadingLayout, 0);
-		comments_lv.setVisibility(View.INVISIBLE);
-	}
-
-	
-
-	public void addCommentPrompt(Comment comment) {
-		addComment = comment;
-		showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
-	}
-
-	public void addComment(String commentBody) {
-
-		/*addComment.putData(Comment.key_body, commentBody);
-
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
-				.newInstance();
-		DocumentBuilder documentBuilder;
-
-		Comment addedComment = null;
-
-		try {
-
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.parse(getSoundCloudApplication().putComment(addComment).getContent());
-			NodeList childNodeList = document.getElementsByTagName("comment");
-
-			if (childNodeList.getLength() == 0) {
-				showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
-			} else {
-				addedComment = new Comment(childNodeList.item(0));
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-			showDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
-		}
-
-		// add this comment somewhere
-		if (addedComment != null) {
-			commentAdded(addedComment);
-		}*/
-
-	}
-
 	/**
 	 * Called after {@link #onCreate} or {@link #onStop} when the current
 	 * activity is now being displayed to the user. It will be followed by
@@ -1114,8 +902,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 					false);
 			// showingComments = true;
 		}
-
-		setCommentButtonImage();
 
 	}
 
@@ -1175,145 +961,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int which) {
-		switch (which) {
-
-		case CloudUtils.Dialogs.DIALOG_ADD_COMMENT:
-			final EditText input = new EditText(this);
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-			/*alert.setTitle(String.format(
-					getString(R.string.add_comment_dialog_title), addComment
-							.getData(Comment.key_timestamp_formatted)));
-			alert.setView(input);
-			alert.setPositiveButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							addComment(input.getText().toString());
-							removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
-						}
-					});
-			alert.setNegativeButton(android.R.string.cancel,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT);
-						}
-					});*/
-
-			return alert.show();
-
-		case CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR:
-			return new AlertDialog.Builder(this).setTitle(
-					R.string.error_add_comment_error_title).setMessage(
-					R.string.error_add_comment_error_message)
-					.setPositiveButton(android.R.string.ok,
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
-									removeDialog(CloudUtils.Dialogs.DIALOG_ADD_COMMENT_ERROR);
-								}
-							}).create();
-
-		}
-		return super.onCreateDialog(which);
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-
-		if (v.getClass() == CommentMarker.class) {
-
-			menuParcelable = ((CommentMarker.CommentContextMenuInfo) menuInfo).comment;
-			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0,
-					getString(R.string.context_menu_reply_to_comment));
-			menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0,
-					getString(R.string.context_menu_view_user));
-			menu.add(0, CloudUtils.ContextMenu.CLOSE, 0,
-					getString(R.string.context_menu_close));
-
-		} else if (v == getCommentsList()) {
-
-			ExpandableListView.ExpandableListContextMenuInfo info;
-			try {
-				info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
-			} catch (ClassCastException e) {
-				Log.e(getClass().getSimpleName(), "bad menuInfo", e);
-				return;
-			}
-
-			int groupPosition = ExpandableListView
-					.getPackedPositionGroup(info.packedPosition);
-			int childPosition = ExpandableListView
-					.getPackedPositionChild(info.packedPosition);
-
-			if (childPosition == -1) {
-				menuParcelable = (Comment) getCommentsAdapter().getGroup(
-						groupPosition);
-			} else {
-				menuParcelable = (Comment) getCommentsAdapter().getChild(
-						groupPosition, childPosition);
-			}
-
-			menu
-					.add(
-							0,
-							CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION,
-							0,
-							getString(R.string.context_menu_play_from_comment_position));
-			menu.add(0, CloudUtils.ContextMenu.REPLY_TO_COMMENT, 0,
-					getString(R.string.context_menu_reply_to_comment));
-			menu.add(0, CloudUtils.ContextMenu.VIEW_UPLOADER, 0,
-					getString(R.string.context_menu_view_user));
-			menu.add(0, CloudUtils.ContextMenu.CLOSE, 0,
-					getString(R.string.context_menu_close));
-
-		}
-
-		//
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-
-		/*switch (item.getItemId()) {
-		case CloudUtils.ContextMenu.PLAY_FROM_COMMENT_POSITION:
-			long tsLong = Long.parseLong(((Comment) menuParcelable)
-					.getData(Comment.key_timestamp));
-			if (tsLong < 0) {
-				tsLong = 0;
-			}
-			String trackId = ((Comment) menuParcelable)
-					.getData(Comment.key_track_id);
-			playFromPosition(trackId, tsLong);
-			break;
-
-		case CloudUtils.ContextMenu.VIEW_COMMENTER:
-			Intent i = new Intent(this, UserBrowser.class);
-			i.putExtra("userLoadPermalink", ((Comment) menuParcelable)
-					.getData(Comment.key_user_permalink));
-			startActivity(i);
-			break;
-
-		case CloudUtils.ContextMenu.REPLY_TO_COMMENT:
-			String ts = ((Comment) menuParcelable)
-					.getData(Comment.key_timestamp);
-
-			Comment mAddComment = new Comment();
-			mAddComment.putData(Comment.key_timestamp, ts);
-			mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils
-					.formatTimestamp(Integer.parseInt(ts)));
-			mAddComment.putData(Comment.key_track_id,
-					((Comment) menuParcelable).getData(Comment.key_track_id));
-			addCommentPrompt(mAddComment);
-			break;
-
-		default:
-			return super.onContextItemSelected(item);
-		}*/
-		return true;
-	}
+	
 
 	private Track mFavoriteTrack;
 	private String mFavoriteResult;
@@ -1324,8 +972,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			return;
 		}
 
-		if (mPlayingTrack.getUserFavorite()
-				.contentEquals("true")) {
+		if (mPlayingTrack.getUserFavorite()){
 			mFavoriteButton.setImageDrawable(getResources().getDrawable(
 					R.drawable.ic_favorited_states));
 		} else {
@@ -1342,14 +989,15 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 		mFavoriteTrack = mPlayingTrack;
 		mFavoriteButton.setEnabled(false);
 
-		if (mFavoriteTrack.getUserFavorite().contentEquals("true")) {
-			mFavoriteTrack.setUserFavorite("");
+		if (mPlayingTrack.getUserFavorite()) {
+			mFavoriteTrack.setUserFavorite(false);
 			removeFavorite();
 		} else {
-			mFavoriteTrack.setUserFavorite("true");
+			mFavoriteTrack.setUserFavorite(true);
 			addFavorite();
 		}
 		setFavoriteStatus();
+		
 	}
 
 	public void addFavorite() {
@@ -1360,7 +1008,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			@Override
 			public void run() {
 				try {
-					mFavoriteResult = IOUtils.toString(getSoundCloudApplication()
+					mFavoriteResult = CloudUtils.streamToString(getSoundCloudApplication()
 									.putContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getId()));
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -1380,7 +1028,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			@Override
 			public void run() {
 				try {
-					mFavoriteResult = IOUtils.toString(getSoundCloudApplication()
+					mFavoriteResult = CloudUtils.streamToString(getSoundCloudApplication()
 							.deleteContent(SoundCloudApplication.PATH_MY_FAVORITES + "/" + mFavoriteTrack.getId()));
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1399,7 +1047,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			if (mFavoriteResult != null) {
 				if (mFavoriteResult.indexOf("200 - OK") != -1 || mFavoriteResult.indexOf("201 - Created") != -1) {
 					try {
-						mService.setFavoriteStatus(mFavoriteTrack.getId(), "true");
+						mService.setFavoriteStatus(mFavoriteTrack.getId(), true);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1416,7 +1064,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 			if (mFavoriteResult != null) {
 				if (mFavoriteResult.indexOf("200 - OK") != -1 || mFavoriteResult.indexOf("201 - Created") != -1) {
 					try {
-						mService.setFavoriteStatus(mFavoriteTrack.getId(), "");
+						mService.setFavoriteStatus(mFavoriteTrack.getId(), false);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

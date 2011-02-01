@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -73,7 +72,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 				String jsonRaw = "";
 				try {
 					InputStream is = soundcloudApplication.getContent(mUrl);
-					jsonRaw = IOUtils.toString(is);
+					jsonRaw = CloudUtils.streamToString(is);
 					//jsonRaw = mCloudComm.getContent(mUrl);
 					if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != ""){
 						//TODO activity.setError(CloudCommunicator.getErrorFromJSONResponse(jsonRaw));

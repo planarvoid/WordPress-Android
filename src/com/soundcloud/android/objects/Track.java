@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.soundcloud.android.CloudUtils;
 
@@ -19,7 +20,7 @@ public class Track extends BaseObj implements Parcelable  {
 	public static final String DOWNLOAD_STATUS_PENDING = "pending";
 	public static final String DOWNLOAD_STATUS_DOWNLOADED = "downloaded";
 
-	private Integer id;
+	private Long id;
 	private String artwork_url;
 	private String attachments_uri;
 	private String avatar_url;
@@ -63,12 +64,12 @@ public class Track extends BaseObj implements Parcelable  {
 	private String track_type;
 	private String title;
 	private String uri;
-	private String user_played;
+	private Boolean user_played;
 	private String user_playback_count;
-	private String user_favorite;
+	private Boolean user_favorite;
 	private Integer user_favorite_id;
 	private User user; 
-	private Integer user_id;
+	private Long user_id;
 	private String video_url;
 	private String waveform_url;
 	
@@ -114,11 +115,11 @@ public class Track extends BaseObj implements Parcelable  {
 	
 	
 	@JsonProperty("id")
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 	@JsonProperty("id")
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	@JsonProperty("artwork_url")
@@ -474,11 +475,11 @@ public class Track extends BaseObj implements Parcelable  {
 		this.user_playback_count = user_playback_count;
 	}
 	@JsonProperty("user_favorite")
-	public String getUserFavorite() {
+	public Boolean getUserFavorite() {
 		return user_favorite;
 	}
 	@JsonProperty("user_favorite")
-	public void setUserFavorite(String user_favorite) {
+	public void setUserFavorite(Boolean user_favorite) {
 		this.user_favorite = user_favorite;
 	}
 	@JsonProperty("user")
@@ -490,11 +491,11 @@ public class Track extends BaseObj implements Parcelable  {
 		this.user = user;
 	}
 	@JsonProperty("user_id")
-	public Integer getUserId() {
+	public Long getUserId() {
 		return user_id;
 	}
 	@JsonProperty("user_id")
-	public void setUserId(Integer user_id) {
+	public void setUserId(Long user_id) {
 		this.user_id = user_id;
 	}
 	@JsonProperty("user_favorite_id")
@@ -506,11 +507,11 @@ public class Track extends BaseObj implements Parcelable  {
 		this.user_favorite_id = user_favorite_id;
 	}
 	@JsonProperty("user_played")
-	public String getUserPlayed() {
-		return user_played == null ? "" : user_played;
+	public Boolean getUserPlayed() {
+		return user_played == null ? false : user_played;
 	}
 	@JsonProperty("user_played")
-	public void setUserPlayed(String user_played) {
+	public void setUserPlayed(Boolean user_played) {
 		this.user_played = user_played;
 	}
 	@JsonProperty("video_url")
@@ -528,6 +529,14 @@ public class Track extends BaseObj implements Parcelable  {
 	@JsonProperty("waveform_url")
 	public void setWaveformUrl(String waveform_url) {
 		this.waveform_url = waveform_url;
+	}
+	@JsonProperty("filelength")
+	public Long getFilelength() {
+		return filelength;
+	}
+	@JsonProperty("filelength")
+	public void setFilelength(Long fileLength) {
+		this.filelength = fileLength;
 	}
 
 	public Comment[] getComments() {
@@ -628,7 +637,7 @@ public class Track extends BaseObj implements Parcelable  {
 	private boolean mIsPlaylist = false;
 	
 	private File mCacheFile;
-	private Long mFileLength;
+	private Long filelength;
 	private String mSignedUri;
 	
 	
@@ -676,10 +685,12 @@ public class Track extends BaseObj implements Parcelable  {
 					if (f != null){
 						if (f.getType() == String.class){
 								f.set(this, cursor.getString(cursor.getColumnIndex(key)));
+						}else if (f.getType() == Long.class){
+							f.set(this, cursor.getLong(cursor.getColumnIndex(key)));	
 						}else if (f.getType() == Integer.class){
 							f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
 						}else if (f.getType() == Boolean.class){
-							f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
+							f.set(this, cursor.getInt(cursor.getColumnIndex(key)) == 0 ? false : true);	
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -719,12 +730,7 @@ public class Track extends BaseObj implements Parcelable  {
 	public void setCacheFile(File cacheFile) {
 		mCacheFile = cacheFile;
 	}
-	public Long getFileLength() {
-		return mFileLength;
-	}
-	public void setFileLength(Long fileLength) {
-		mFileLength = fileLength;
-	}
+	
 	public String getSignedUri() {
 		return mSignedUri;
 	}

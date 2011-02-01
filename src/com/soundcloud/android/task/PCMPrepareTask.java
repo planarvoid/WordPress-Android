@@ -14,7 +14,7 @@ import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.soundcloud.utils.WaveHeader;
+import com.soundcloud.utils.record.WaveHeader;
 
 public class PCMPrepareTask extends AsyncTask<String, Integer, Boolean> {
 	public File pcmFile;

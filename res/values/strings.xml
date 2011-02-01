@@ -449,8 +449,8 @@
 	<!-- preference strings -->
 	<string name="pref_page_size">Default page size</string>
 	<string name="pref_page_size_desc">The default number of items returned in a list</string>
-	<string name="pref_buffer_during_pause">Idle buffering</string>
-	<string name="pref_buffer_during_pause_desc">Continue buffering audio even when player is paused.</string>
+	<string name="pref_buffer_during_pause">Idle caching</string>
+	<string name="pref_buffer_during_pause_desc">Continue caching audio even when player is paused.</string>
 	
 	<string name="pref_artwork">Hide artwork</string>
 	<string name="pref_artwork_desc">Hide user icons and track artwork from lists. (may

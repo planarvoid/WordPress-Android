@@ -21,6 +21,7 @@ import android.widget.TabWidget;
 import android.widget.TabHost.OnTabChangeListener;
 
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -29,6 +30,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.android.view.ScSearch;
@@ -44,7 +46,6 @@ public class Dashboard extends LazyTabActivity {
 	protected int mFavoritesIndex = 1;
 	protected int mSetsIndex = 2;
 	
-	
 	private ScTabView mIncomingView;
 	private ScTabView mExclusiveView;
 	private UserBrowser mUserBrowser;
@@ -54,19 +55,14 @@ public class Dashboard extends LazyTabActivity {
 	private Boolean initialAuth = true;
 	
 	
-	protected interface Tabs {
-		public final static String TAB_INCOMING = "incoming";
-		public final static String TAB_EXCLUSIVE = "exclusive";
-		public final static String TAB_MY_TRACKS = "myTracks";
-		public final static String TAB_RECORD = "record";
-		public final static String TAB_SEARCH = "search";
-		
-		public final static String TAB_USER_DETAILS = "userDetails";
-	    public final static String TAB_USER_TRACKS = "userTracks";
-	    public final static String TAB_USER_SETS = "userSets";
-	    public final static String TAB_FAVORITES = "favorites";
-	    public final static String TAB_FOLLOWINGS = "followings";
-	    public final static String TAB_FOLLOWERS = "followers";
+	
+	
+	public interface TabIndexes {
+		public final static int TAB_INCOMING = 0;
+		public final static int TAB_EXCLUSIVE = 1;
+		public final static int TAB_MY_TRACKS = 2;
+		public final static int TAB_RECORD = 3;
+		public final static int TAB_SEARCH = 4;
 	}
 	
 	
@@ -74,36 +70,24 @@ public class Dashboard extends LazyTabActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		CloudUtils.checkState(this);
+		
 		super.onCreate(savedInstanceState,R.layout.main_holder);
 
+		Log.i(TAG,"ON CReATE " + this.getIntent());
+		
 		mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
 		mHolder.setVisibility(View.GONE);
-		if(getIntent() != null && getIntent().getAction() != null)
-        {
-                if(getIntent().getAction().equals(Intent.ACTION_SEND) && getIntent().getExtras().containsKey(Intent.EXTRA_STREAM)){
-                    //setFileUri((Uri)getIntent().getExtras().get(Intent.EXTRA_STREAM));	
-                }
-        }
-		
 	}
 	
-	
-
 	@Override
     public void onResume() {
 		tracker.trackPageView("/dashboard");
 		tracker.dispatch();
-		
     	super.onResume();
-    	
-    	if (_launch){
-    		_launch = false;
-    		CloudUtils.checkDirs(this);
-    	}
-
     }
 	
-
+	
 	
 	
 	public void gotoUserTab(UserBrowser.UserTabs tab){
@@ -128,17 +112,20 @@ public class Dashboard extends LazyTabActivity {
 	@Override
 	public void mapDetails(Parcelable p){
 		
-		CloudUtils.resolveUser(this, (User) p, true, ((User) p).getId());
+		CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).getId());
 	
 		Log.i(TAG," USER ID " + ((User) p).getId());
 		
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		int lastUserId = Integer.parseInt(preferences.getString("currentUserId", "-1")); 
-		if ( lastUserId == -1 || lastUserId != ((User) p).getId())
+		String lastUserId = preferences.getString("currentUserId", null); 
+		Log.i(TAG,"Checking users " + ((User) p).getId() + " " + lastUserId);
+		if ( lastUserId== null || lastUserId != Long.toString(((User) p).getId())){
+			Log.i(TAG,"--------- new user");
 			preferences.edit()
-			.putString("currentUserId",Integer.toString(((User) p).getId()))
+			.putString("currentUserId",Long.toString(((User) p).getId()))
 			.putString("currentUsername",((User) p).getUsername())
 			.commit();
+		}
 		
 			
 	 }

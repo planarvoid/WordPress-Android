@@ -329,6 +329,13 @@ public abstract class ScActivity extends Activity  {
 				handleException();
 			}
 		}
+	    
+	    protected void onDataConnectionChanged(Boolean isConnected){
+	    	if (isConnected){
+	    		//clear image loading errors
+                ImageLoader.get(ScActivity.this).clearErrors();
+	    	}
+	    }
 	 
 	
 	 @Override
@@ -516,10 +523,7 @@ public abstract class ScActivity extends Activity  {
 		                      NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
 		                     
 		                      if (networkInfo == null) return;
-		                      if (networkInfo.isConnected()){
-		                    	  //clear image loading errors
-		                    	  ImageLoader.get(ScActivity.this).clearErrors();
-		                      }
+		                      ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
 		                      break;
 		                      }
 		                }

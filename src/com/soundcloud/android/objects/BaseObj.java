@@ -20,6 +20,8 @@ public class BaseObj implements Parcelable  {
 	
 	public enum Parcelables { track, user, comment }
 	
+	public enum WriteState { none, insert_only, update_only, all}
+	
 	public BaseObj(){
 		data = new Bundle();
 	}
@@ -81,6 +83,8 @@ public class BaseObj implements Parcelable  {
 	    						data.putString(((String) m.getAnnotation(JsonProperty.class).value()),(String) m.invoke(this));
 	    					else  if (m.getReturnType() == Integer.class)
     							data.putInt(((String) m.getAnnotation(JsonProperty.class).value()),(Integer) m.invoke(this));
+	    					else  if (m.getReturnType() == Long.class)
+    							data.putLong(((String) m.getAnnotation(JsonProperty.class).value()),(Long) m.invoke(this));
 	    					else if (m.getReturnType() == Boolean.class)
 	    						data.putBoolean(((String) m.getAnnotation(JsonProperty.class).value()),(Boolean) m.invoke(this));
 	    					else if (Parcelable.class.isAssignableFrom(m.getReturnType())) {

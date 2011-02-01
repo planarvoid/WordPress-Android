@@ -20,8 +20,14 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.google.android.filecache.FileResponseCache;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 
+/**
+ * Local disk caching helper class. Uses FileResponseCache library found at
+ * {@link} http://code.google.com/p/libs-for-android/
+ * 
+ * @author jschmidt
+ *
+ */
 public class CloudCache extends FileResponseCache {
 
     private static final String TAG = "CloudCache";

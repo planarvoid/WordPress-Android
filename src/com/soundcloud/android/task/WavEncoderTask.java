@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.soundcloud.utils.WaveHeader;
+import com.soundcloud.utils.record.WaveHeader;
 
 public class WavEncoderTask extends AsyncTask<String, Integer, Boolean> {
 	public File pcmFile;

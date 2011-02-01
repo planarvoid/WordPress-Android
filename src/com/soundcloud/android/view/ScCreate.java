@@ -48,8 +48,8 @@ import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.utils.AnimUtils;
-import com.soundcloud.utils.PowerGauge;
-import com.soundcloud.utils.RemainingTimeCalculator;
+import com.soundcloud.utils.record.PowerGauge;
+import com.soundcloud.utils.record.RemainingTimeCalculator;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
 
@@ -834,12 +834,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 				mPowerGauge.updateAmplitude(maxAmplitude);
 				mPowerGauge.postInvalidate();
 				onRecProgressUpdate((int) mRecordFile.length());
-				
-				try {
-					((LazyActivity) mActivity).getCreateService().updateRecordTicker();
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
 			}
 		}
 		

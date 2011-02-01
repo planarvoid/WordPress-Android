@@ -1,22 +1,13 @@
 package com.soundcloud.android.task;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Parcelable;
-import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 

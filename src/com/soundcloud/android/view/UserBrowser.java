@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -90,16 +89,12 @@ public class UserBrowser extends ScTabView {
 	protected String _followers;
 	protected String _iconURL;
 	
-	protected int mDetailsIndex = 1;
-	protected int mFollowersIndex = 3;
-	protected int mFollowingsIndex = 4;
-		
 	private ScTabView mTracksView;
 	private ScTabView mFavoritesView;
 	
 	private WorkspaceView mWorkspaceView;
 	
-	protected int mUserLoadId = -1;
+	protected Long mUserLoadId = null;
 	
 	protected Boolean _isFollowing = false;
 	
@@ -115,10 +110,19 @@ public class UserBrowser extends ScTabView {
 	
 	private User mUserData;
 	private Boolean mIsOtherUser;
+	private ImageLoader.BindResult avatarResult;
 	
 	protected DecimalFormat mSecondsFormat = new DecimalFormat("00");
 	
 	public enum UserTabs { tracks , favorites , info }
+	
+	public interface TabIndexes {
+		public final static int TAB_TRACKS = 0;
+		public final static int TAB_FAVORITES = 1;
+		public final static int TAB_INFO = 2;
+		public final static int TAB_FOLLOWINGS = 3;
+		public final static int TAB_FOLLOWERS = 4;
+	}
 
 
 	public UserBrowser(LazyActivity c) {
@@ -182,6 +186,9 @@ public class UserBrowser extends ScTabView {
 	
 	@Override
 	public void onRefresh(Boolean refreshAll){
+		if (avatarResult == BindResult.ERROR)
+			reloadAvatar();
+		
 		if (refreshAll){
 			mTracksView.onRefresh();
 			mFavoritesView.onRefresh();
@@ -193,7 +200,9 @@ public class UserBrowser extends ScTabView {
 				mLoadDetailsTask = null;
 			}
 		} else {
-			
+			if (mWorkspaceView.getDisplayedChild() == TabIndexes.TAB_INFO){
+				this.refreshDetailsTask();
+			}
 			if (mWorkspaceView != null) 
 				((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
 			else
@@ -212,7 +221,7 @@ public class UserBrowser extends ScTabView {
 		User userInfo = null;
 		
 		if (!preferences.getString("currentUserId", "-1").contentEquals("-1"))
-			userInfo = CloudUtils.resolveUserById(mActivity, Integer.parseInt(preferences.getString("currentUserId", "-1")), CloudUtils.getCurrentUserId(mActivity));
+			userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer.parseInt(preferences.getString("currentUserId", "-1")), CloudUtils.getCurrentUserId(mActivity));
 		
 		 if (userInfo != null)
 			 mapUser(userInfo);
@@ -235,10 +244,10 @@ public class UserBrowser extends ScTabView {
 		
 	}*/
 	
-	public void loadUserById(int userId){
+	public void loadUserById(long userId){
 		mIsOtherUser = true;
 		User userInfo = null;
-		userInfo = CloudUtils.resolveUserById(mActivity, userId, CloudUtils.getCurrentUserId(mActivity));
+		userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), userId, CloudUtils.getCurrentUserId(mActivity));
 		mUserLoadId = userId;
 		
         if (userInfo != null)
@@ -249,6 +258,8 @@ public class UserBrowser extends ScTabView {
 	
 	public void loadUserByObject(User userInfo){
 		mIsOtherUser = true;
+		Log.i(TAG,"Load User By Obj " + userInfo);
+		Log.i(TAG,"Load User By Obj " + userInfo.getId());
 		mUserLoadId = userInfo.getId();
 		mapUser(userInfo);
 		
@@ -268,11 +279,15 @@ public class UserBrowser extends ScTabView {
     	// that means the task either failed, or they just revoked access, so clear the details task so it will rerun
     	if (!mIsOtherUser && PreferenceManager.getDefaultSharedPreferences(mActivity).getString("currentUserId", "-1").contentEquals("-1") 
     		&& mLoadDetailsTask != null && !CloudUtils.isTaskPending(mLoadDetailsTask))
-    		mLoadDetailsTask = null;
-    	
-    	initLoadTasks();
+    		refreshDetailsTask();
     	
     }
+	
+	private void refreshDetailsTask(){
+		Log.i(TAG,"REfresh Details Task");
+		mLoadDetailsTask = null;
+    	initLoadTasks();
+	}
 	
 
 	public void initLoadTasks(){
@@ -510,9 +525,9 @@ public class UserBrowser extends ScTabView {
 			public void run() {
             	try {
             		if (_isFollowing)
-						mFollowResult = IOUtils.toString(mActivity.getSoundCloudApplication().putContent(SoundCloudApplication.PATH_MY_USERS + "/" + mUserData.getId()));
+						mFollowResult = CloudUtils.streamToString(mActivity.getSoundCloudApplication().putContent(SoundCloudApplication.PATH_MY_USERS + "/" + mUserData.getId()));
             		else
-						mFollowResult = IOUtils.toString(mActivity.getSoundCloudApplication().deleteContent(SoundCloudApplication.PATH_MY_USERS + "/" + mUserData.getId()));
+						mFollowResult = CloudUtils.streamToString(mActivity.getSoundCloudApplication().deleteContent(SoundCloudApplication.PATH_MY_USERS + "/" + mUserData.getId()));
             		
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -579,13 +594,15 @@ public class UserBrowser extends ScTabView {
 	public void mapUser(Parcelable p) {
 		User mUserInfo = (User) p;
 		
-		
-		//if (!CloudUtils.stringNullEmptyCheck(CloudUtils.getCurrentUserId(mActivity)))
+		//if (CloudUtils.getCurrentUserId(mActivity))
 			//CloudUtils.resolveUser(mActivity, mUserInfo, true, CloudUtils.getCurrentUserId(mActivity));
 		
 		mUserData = mUserInfo; //save to details object for restoring state
 		
-		if (mUserLoadId == -1 && mFollowingChecked == false){
+		if (mUserData.getId() == null)
+			return;
+		
+		if (mUserLoadId == null && mFollowingChecked == false){
 			mUserLoadId = mUserData.getId();
 			checkFollowingStatus();
 		} else {
@@ -611,11 +628,8 @@ public class UserBrowser extends ScTabView {
 			remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.getAvatarUrl(),GraphicsSizes.badge);
 
 		if (_iconURL != remoteUrl){
-			
-				if (!CloudUtils.checkIconShouldLoad(_iconURL) || ImageLoader.get(mActivity).bind(mIcon, remoteUrl, null) != BindResult.OK){
-					mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-				}
 				_iconURL = remoteUrl;
+				reloadAvatar();
 		}
 		
 			
@@ -691,6 +705,15 @@ public class UserBrowser extends ScTabView {
 
 	}
 	
+	private void reloadAvatar(){
+		Log.i(TAG,"Reload Avatar " + _iconURL);
+		if (CloudUtils.checkIconShouldLoad(_iconURL)){ 
+			if ((avatarResult = ImageLoader.get(mActivity).bind(mIcon, _iconURL, null)) != BindResult.OK){
+				mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
+			}
+		}
+	}
+	
 	
 	public Object[] saveLoadTasks(){
 		Object[] ret = {mLoadDetailsTask};
@@ -716,7 +739,7 @@ public class UserBrowser extends ScTabView {
 	
 	protected String getDetailsUrl(){
 		return mIsOtherUser ? 
-				SoundCloudApplication.PATH_USER_DETAILS.replace("{user_id}",Integer.toString(mUserLoadId)):
+				SoundCloudApplication.PATH_USER_DETAILS.replace("{user_id}",Long.toString(mUserLoadId)):
 				SoundCloudApplication.PATH_MY_DETAILS;
 	}
 
@@ -724,31 +747,31 @@ public class UserBrowser extends ScTabView {
 	
 	protected String getUserTracksUrl() {
 		return mIsOtherUser ? 
-				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_TRACKS.replace("{user_id}",Integer.toString(mUserLoadId)), mActivity.getTrackOrder()).toString() :  
+				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_TRACKS.replace("{user_id}",Long.toString(mUserLoadId)), mActivity.getTrackOrder()).toString() :  
 				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_TRACKS,mActivity.getTrackOrder()).toString();
 	}
 
 	protected String getPlaylistsUrl() {
 		return mIsOtherUser ? 
-				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_PLAYLISTS.replace("{user_id}",Integer.toString(mUserLoadId)), mActivity.getTrackOrder()).toString() :  
+				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_PLAYLISTS.replace("{user_id}",Long.toString(mUserLoadId)), mActivity.getTrackOrder()).toString() :  
 				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_PLAYLISTS,mActivity.getTrackOrder()).toString();
 	}
 	
 	protected String getFavoritesUrl() {
 		return mIsOtherUser ? 
-				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FAVORITES.replace("{user_id}",Integer.toString(mUserLoadId)), "favorited_at").toString() :  
+				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FAVORITES.replace("{user_id}",Long.toString(mUserLoadId)), "favorited_at").toString() :  
 				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_FAVORITES,mActivity.getTrackOrder()).toString();
 	}
 
 	protected String getFollowersUrl() {
 		return mIsOtherUser ? 
-				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FOLLOWERS.replace("{user_id}",Integer.toString(mUserLoadId)), mActivity.getUserOrder()).toString() :  
+				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FOLLOWERS.replace("{user_id}",Long.toString(mUserLoadId)), mActivity.getUserOrder()).toString() :  
 				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_FOLLOWERS,mActivity.getTrackOrder()).toString();
 	}
 	
 	protected String getFollowingsUrl() {
 		return mIsOtherUser ? 
-				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FOLLOWINGS.replace("{user_id}",Integer.toString(mUserLoadId)), mActivity.getUserOrder()).toString() :  
+				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_USER_FOLLOWINGS.replace("{user_id}",Long.toString(mUserLoadId)), mActivity.getUserOrder()).toString() :  
 				CloudUtils.buildRequestPath(SoundCloudApplication.PATH_MY_FOLLOWINGS,mActivity.getTrackOrder()).toString();
 	}
 	
@@ -769,9 +792,8 @@ public class UserBrowser extends ScTabView {
 		protected String doInBackground(String... urls) 
 		{
 			 try {
-				return IOUtils.toString(mActivity.getSoundCloudApplication().getSoundCloudAPI().get(urls[0]).getEntity().getContent());
+				return CloudUtils.streamToString(mActivity.getSoundCloudApplication().getSoundCloudAPI().get(urls[0]).getEntity().getContent());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		return "";

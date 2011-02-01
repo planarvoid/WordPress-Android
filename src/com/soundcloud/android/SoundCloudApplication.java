@@ -5,21 +5,16 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -34,22 +29,16 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 import org.urbanstew.soundcloudapi.SoundCloudOptions;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.SoundCloudAuthorizationClient.AuthorizationStatus;
@@ -381,8 +370,21 @@ public class SoundCloudApplication extends Application {
 		        }       
 		}
 		
+		private HashMap<String,String[]> dbColumns = new HashMap<String,String[]>();
+		public void setDBColumns(HashMap<String,String[]> dbColumns){
+			this.dbColumns = dbColumns;
+		}
+		public HashMap<String,String[]> getDBColumns(){
+			return dbColumns;
+		}
 		
 		
+		
+		/**
+		 * Create an instance of the imageloader. Library and examples of cacher and code found at:
+		 * {@link} http://code.google.com/p/libs-for-android/
+		 * 
+		 */
 		  private static ImageLoader createImageLoader(Context context) {
 		        // Install the file cache (if it is not already installed)
 		        CloudCache.install(context);
@@ -418,16 +420,18 @@ public class SoundCloudApplication extends Application {
 		  
 		  
 		 // caches a playlsit to be delivered to the playback service 
-		  private Track[] mPlaylistCache = null;
-		  public void cachePlaylist(Track[] playlistCache){
+		  private ArrayList<Parcelable> mPlaylistCache = null;
+		  public void cachePlaylist(ArrayList<Parcelable> playlistCache){
 			  mPlaylistCache = playlistCache;
 		  }
-		  public Track[] flushCachePlaylist(){
-			  Track[] playlistRef = mPlaylistCache;
+		  public void getPlaylistTrack(){
+			  
+		  }
+		  public ArrayList<Parcelable> flushCachePlaylist(){
+			 ArrayList<Parcelable> playlistRef = mPlaylistCache;
 			  mPlaylistCache = null;
 			  return playlistRef;
 		  }
-		  
 		  
 		  
 		  private RecordListener mRecListener = null;

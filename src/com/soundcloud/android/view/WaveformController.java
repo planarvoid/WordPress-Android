@@ -1,8 +1,6 @@
 package com.soundcloud.android.view;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,18 +8,14 @@ import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Transformation;
@@ -29,20 +23,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
-public class WaveformController extends FrameLayout implements OnTouchListener, OnClickListener, OnLongClickListener {
+public class WaveformController extends FrameLayout implements OnTouchListener, OnLongClickListener {
 	private static final String TAG = "WaveformController" ;
 
 	private Track mPlayingTrack;
@@ -60,13 +51,6 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private RelativeLayout mWaveformFrame;
 	private RelativeLayout mConnectingBar;
 	
-	private CommentMarker mAddCommentMarker;
-	private Float mLastAddCommentTimerX;
-	
-	private CommentMarker[] mCommentMarkers;
-	private int[] mCommentTimestamps;
-	private String mLastCommentTimestamp = "";
-	
 	private ScPlayer mPlayer;
 	private Context mContext;
 	
@@ -76,7 +60,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	private Float initialWaveScaleX;
 	private Boolean mLandscape = false; 
 	
-	private BindResult waveformResult;
+	private ImageLoader.BindResult waveformResult;
 	
 	
     final Handler mHandler = new Handler();
@@ -168,190 +152,23 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 	
 	
 	public void setProgress(long pos){
-		
-		
 		if (mDuration == 0)
 			return;
 		
 		mProgressBar.setProgress((int) (1000 * pos / mDuration));
-		
-		/*if (!mPrefernces.getBoolean("showLiveComments", true))
-			return;
-		
-		if (mCommentTimestamps == null || mCommentTimestamps.length == 0)
-			return;
-		
-		for (int i = 0; i < mCommentTimestamps.length; i++){
-			if (mCommentTimestamps[i] > pos){
-				if (i > 0){
-//					Log.i("COMMENTS", " CHecking " + mCommentTimestamps[i-1] + " " + pos);
-					if (pos - mCommentTimestamps[i-1] < 1100 && mCommentTimestamps[i-1] > 0){
-						showComment(i-1);
-					}
-				}
-				break;
-			}
-		}*/
-		
 	}
 	
 	public void setSecondaryProgress(int percent){
 		mProgressBar.setSecondaryProgress(percent);
 	}
 	
-	public void showComment(int i){
-		
-		CharSequence toastText = "";
-		
-		Comment comment = (Comment) mCommentsAdapter.getGroupData().get(i);
-		
-		/*if (mLastCommentTimestamp.contentEquals(comment.getData(Comment.key_timestamp)))
-			return;
-		
-		mLastCommentTimestamp = comment.getData(Comment.key_timestamp);
-		
-		toastText = comment.getData(Comment.key_username) + ": " + comment.getData(Comment.key_body);
-		ArrayList<Parcelable> childComments = mCommentsAdapter.getChildData().get(i);
-		for (Parcelable childComment : childComments){
-			toastText = toastText + "\n\n   " + ((Comment) childComment).getData(Comment.key_username) + ": " + ((Comment) childComment).getData(Comment.key_body);
-		}
-		
-		Toast toast = Toast.makeText(mContext, toastText, Toast.LENGTH_LONG);
-		toast.show();*/ 
-		
-//		LayoutInflater inflater = mContext.getLayoutInflater();
-//		View layout = inflater.inflate(R.layout.comments, (ViewGroup) findViewById(R.id.comment_layout_root));
-//
-//		TextView text = (TextView) layout.findViewById(R.id.text);
-//		text.setText(toastText);
-//
-//		Toast toast = new Toast(mContext);
-//		toast.setDuration(Toast.LENGTH_LONG);
-//		toast.setView(layout);
-//		
-//		toast.show();
-		
-	}
-	
-	public void flashComment(String timestamp){
-		
-		for (CommentMarker commentMarker : mCommentMarkers){
-			if (commentMarker.getTimestamp() == Integer.parseInt(timestamp))
-				commentMarker.flashOn();
-			 else
-				commentMarker.flashOff();
-		}
-		
-		removeCallbacks(flashTimer);
-		handler.postDelayed(flashTimer, 1000);
-		
-		mWaveformHolder.invalidate();
-	}
-	
-	 
-	 private Runnable flashTimer = new Runnable() {
-	   	public void run() {
-	   		for (CommentMarker commentMarker : mCommentMarkers){
-				commentMarker.flashOff();
-			}
-	   		mWaveformHolder.invalidate();
-	   	}
-
-	   };
-	
 	public void setPlayer(ScPlayer ocPlayer){
 		mPlayer = ocPlayer;
 	}
 	
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		super.onLayout(changed, l, t, r, b);
-		
-		
-		if (mPendingComments){
-			doCommentMap();
-			mPendingComments = false;
-		}
-	}
-	
-	public void mapComments(LazyExpandableBaseAdapter commentsAdapter, int duration){
-		
-		mCommentsAdapter = commentsAdapter;
-		mDuration = duration;
-		
-		
-		
-		//if (mOverlay != null)
-			doCommentMap();
-//		else
-	//		mPendingComments = true;
-	}
-	
-	private void doCommentMap(){
-		if (mCommentMarkers != null){
-			for (CommentMarker marker : mCommentMarkers){
-				mWaveformHolder.removeView(marker);
-				marker = null;
-			}
-		}
-		
-		if (mCommentsAdapter == null){
-			return;
-		}
-		
-		if (mCommentsAdapter.getGroupCount() == 0){
-			mCommentMarkers = null;
-			return;
-		}
-		
-		mCommentMarkers = new CommentMarker[mCommentsAdapter.getGroupCount()];
-		mCommentTimestamps = new int[mCommentsAdapter.getGroupCount()];
-			
-			//Collections.sort(mCommentsAdapter.getGroupData(), commentComparator);
-			//Collections.sort(mCommentsAdapter.getChildData(), commentComparator);
-		
-		final float scale = getContext().getResources().getDisplayMetrics().density;
-			
-		int i = 0;
-		for (Parcelable commentParcelable : mCommentsAdapter.getGroupData()){
-			Comment comment = (Comment) commentParcelable; 
-			
-			//int leftMargin = (int) (scale*1800*(Float.parseFloat((comment).getData(Comment.key_timestamp))/mDuration));
-			
-			CommentMarker cm = new CommentMarker(mContext);
-			cm.setCommentData((comment));
-			//cm.setLeftMargin(leftMargin);
-			cm.setOnClickListener(this);
-			
-			((LazyActivity) mContext).registerForContextMenu(cm);
-			mWaveformHolder.addView(cm);
-			mCommentMarkers[i] = cm;
-			//mCommentTimestamps[i] = Integer.parseInt((comment).getData(Comment.key_timestamp));
-			i++;
-		}
-		
-		
-		
-		this.requestLayout();
-	}
-	
-	 public void onClick(View target) {
-		 if (mPlayer == null)
-			 return;
-		 
-	    if (target.getClass().getName().contentEquals(CommentMarker.class.getName())){
-	    	Integer ts = ((CommentMarker) target).getTimestamp();
-	    	//mPlayer.seekTo(ts.floatValue() / mDuration);
-	    	mLastCommentTimestamp = "";
-	    }
-	 }
-	
-	
-	
-	
 	public void updateTrack(Track track) {
 		if (mPlayingTrack != null){
-			if (mPlayingTrack.getId() == track.getId() && waveformResult != BindResult.ERROR){
+			if (mPlayingTrack.getId().compareTo(track.getId()) == 0 && waveformResult != BindResult.ERROR){
 				return;
 			}
 		}
@@ -363,109 +180,32 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			 ImageLoader.get(mContext).clearErrors();
 		}
 		
-		waveformResult = ImageLoader.get(mContext).bind(mOverlay, track.getWaveformUrl(), null);
-		Log.i(TAG,"update wave result  " + waveformResult );
+		waveformResult = ImageLoader.get(mContext).bind(mOverlay, track.getWaveformUrl(), new ImageLoader.Callback(){
+			@Override
+			public void onImageError(ImageView view, String url, Throwable error) {
+				waveformResult = BindResult.ERROR;
+			}
+			@Override
+			public void onImageLoaded(ImageView view, String url) {
+			}
+		});
+		
 		
 		if (waveformResult != BindResult.OK){ //otherwise, it succesfull pulled it out of memory, so no temp image necessary
 			mOverlay.setImageDrawable(mContext.getResources().getDrawable(R.drawable.player_wave_bg));
 		}
 	}
 	
-	private void resetTransform(){
-		Integer w = getWidth();
-		initialWaveScaleX = w.floatValue()/mOverlay.getWidth();
-		
-		matrix = new Matrix();
-		matrix.setScale(initialWaveScaleX, 1);
-		mWaveformHolder.setInitialXScale(initialWaveScaleX);
-		mWaveformFrame.recomputeViewAttributes(mWaveformHolder);
-		mWaveformHolder.invalidate();
-	}
-	
-
-	
-	private float calculateSeek (Float touchX){
-		float[] values = new float[9];
-		matrix.getValues(values);
-		
-		//float visibleWidth = initialWaveScaleX/values[0] * mWaveformHolder.getWidth();
-		//float visibleWidth = mWaveformHolder.getWidth();
-		//float startWidth = -(values[2]/values[0]);
-		//float seekPercent = (startWidth + visibleWidth*(touchX/getWidth()))/mWaveformHolder.getWidth();
-		float seekPercent = touchX/mWaveformHolder.getWidth();
-		return seekPercent;
-	}
-	
-	
-	
-	private int calculateLeftMargin (Float touchX){
-		float[] values = new float[9];
-		matrix.getValues(values);
-		
-		float visibleWidth = initialWaveScaleX/values[0] * mWaveformHolder.getWidth();
-		float startWidth = -(values[2]/values[0]);
-		return (int) (startWidth + visibleWidth*(touchX/getWidth()));
+	public BindResult currentWaveformResult(){
+		return waveformResult;
 	}
 	
 	   public boolean onTouch(View v, MotionEvent event) {
-	      
-		   // Dump touch event to log
-		      dumpEvent(event);
-		   
-		   if (v == mCommentBar){
-			   
-			   // Handle touch events here...
-			      switch (event.getAction() & MotionEvent.ACTION_MASK) {
-			      case MotionEvent.ACTION_DOWN:
-			    	  if (mAddCommentMarker != null && mAddCommentMarker.getParent() == mWaveformHolder){
-			    		  mWaveformHolder.removeView(mAddCommentMarker);
-			    		  mAddCommentMarker = null;
-			    	  }
-			    	  
-			    	  
-			    	  mAddCommentMarker = new CommentMarker(mContext);
-			    	  mAddCommentMarker.setOnLongClickListener(this);
-			    	  mAddCommentMarker.setLeftMargin(calculateLeftMargin(event.getX()));
-			    	  mAddCommentMarker.setTimestamp((int) (calculateSeek(event.getX())*mDuration));
-			    	  mWaveformHolder.addView(mAddCommentMarker);
-			    	  mAddCommentMarker.requestLayout();
-			    	  
-			    	  mLastAddCommentTimerX = event.getX();
-			    	  
-			    	  handler.removeCallbacks(addCommentTimer);
-			    	  handler.postDelayed(addCommentTimer, 1000);
-			    	  
-			         break;
-			      case MotionEvent.ACTION_UP:
-			    	  if (mAddCommentMarker != null && mAddCommentMarker.getParent() == mWaveformHolder){
-			    		  mWaveformHolder.removeView(mAddCommentMarker);
-			    	  }
-			    	  handler.removeCallbacks(addCommentTimer);
-			    	  mAddCommentMarker = null;
-			         break;
-			      case MotionEvent.ACTION_MOVE:
-			    	  if (mLastAddCommentTimerX != null && Math.abs(mLastAddCommentTimerX - event.getX()) > TOUCH_MOVE_TOLERANCE){
-			    		  mLastAddCommentTimerX = event.getX();
-			    		  
-			    		  if (mAddCommentMarker != null){
-				    		  mAddCommentMarker.setLeftMargin(calculateLeftMargin(event.getX()));
-				    		  mAddCommentMarker.setTimestamp((int) (calculateSeek(event.getX())*mDuration));
-				    	  }
-			    		  
-			    		  handler.removeCallbacks(addCommentTimer);
-				    	  handler.postDelayed(addCommentTimer, 1000);
-			    	  }
-			    	  
-			         break;
-			      }
-			   
-		   } else {
-			  
 			   switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			      case MotionEvent.ACTION_DOWN:
 			    	  if (mPlayer != null && mPlayer.isSeekable()){
 			    		  mode = SEEK_DRAG;
-				    	  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(calculateSeek(event.getX())));  
+				    	  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(event.getX()/mWaveformHolder.getWidth()));  
 				    	  mWaveformHolder.invalidate();  
 			    	  }
 			    	  break;
@@ -474,7 +214,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			    	  
 			    	  if (mPlayer != null && mPlayer.isSeekable()){
 				    	  if (mode == SEEK_DRAG){
-				    		  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(calculateSeek(event.getX())));  
+				    		  if (mPlayer != null) setProgress(mPlayer.setSeekMarker(event.getX()/mWaveformHolder.getWidth()));  
 				    	  }
 				    	  mWaveformHolder.invalidate();
 			    	  }
@@ -486,156 +226,11 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
 			    	  }
 			    	  break;
 			   }
-			   
-			   /*
-			   
-			   
-			   Log.i(TAG,"Handle it event.getX " + event.getX() + "|" + event.getAction());
-			   
-			      // Handle touch events here...
-			      switch (event.getAction() & MotionEvent.ACTION_MASK) {
-			      case MotionEvent.ACTION_DOWN:
-			         savedMatrix.set(matrix);
-			         start.set(event.getX(), event.getY());
-			         mode = DRAG;
-			         break;
-			      case MotionEvent.ACTION_POINTER_DOWN:
-			    	  Log.d(TAG, "ACTIONPOINTERDOWN");
-			         oldDist = spacing(event);
-
-			         if (oldDist > 10f) {
-			           savedMatrix.set(matrix);
-			           midPoint(mid, event);
-			           mode = ZOOM;
-			            Log.d(TAG, "mode=ZOOM");
-			         }
-			         break;
-			      case MotionEvent.ACTION_UP:
-			    	  if (mode == DRAG){
-			    		  if ( Math.abs(event.getX() - start.x) < SEEK_TOLERANCE){
-			    			  if (mPlayer != null)
-			    				  mPlayer.seekTo(calculateSeek(event.getX()));
-			    			  mLastCommentTimestamp = "";
-			    			  //mPlayer.seekTo(calculateSeek(event.getX())); 
-			    		  }
-			    	  }
-			      case MotionEvent.ACTION_POINTER_UP:
-			         mode = NONE;
-			         oldDist = 0;
-			         break;
-			      case MotionEvent.ACTION_MOVE:
-			         if (mode == DRAG) {
-			            matrix.set(savedMatrix);
-			            Log.i("checking","Translate " + event.getX() + " " + start.x);
-			            matrix.postTranslate(event.getX() - start.x,0);
-			            if (!mWaveformHolder.checkMatrix(matrix).equals(matrix) && event.getX() - start.x != 0){
-			            	Log.i("checking","fake zooming");
-			            	//matrix.set(savedMatrix);
-			            	if (oldDist == 0){
-			            		if (event.getX() - start.x > 0)
-			            			fake.set(0,event.getY());
-			            		else
-			            			fake.set(getWidth(),event.getY());
-			            		
-			            		oldDist = spacing(event.getX(),event.getY(),fake.x, fake.y);
-			            	} else {
-			            		float newDist = spacing(event.getX(),event.getY(),fake.x, fake.y);
-			            		if (newDist > 10f){
-			            			float scale =  newDist / oldDist;
-							        matrix.postScale(scale, 1, fake.x, 0);	
-			            		}
-			            			
-			            	}
-			            }
-			         } else if (mode == ZOOM) {
-			            float newDist = spacing(event);
-			            Log.d(TAG, "newDist=" + newDist + "|" + oldDist);
-			            if (newDist > 10f) {
-			               matrix.set(savedMatrix);
-			               float scale = newDist / oldDist;
-			               matrix.postScale(scale, 1, mid.x, 0);
-			            }
-			         }
-			
-			         
-			         break;
-		   }
-			      
-			     // matrix = mWaveformHolder.setMatrix(matrix);
-			              */
-		   }
-		   
-		   //mWaveformHolder.invalidate();
-
 	      return true; // indicate event was handled
 	   }
 	   
 	   private Handler handler = new Handler();
-	   private Runnable addCommentTimer = new Runnable() {
 
-	   	public void run() {
-	   		Comment mAddComment = new Comment();
-	   		//mAddComment.putData(Comment.key_timestamp, Integer.toString(mAddCommentMarker.getTimestamp()));
-	   		//mAddComment.putData(Comment.key_timestamp_formatted, CloudUtils.formatTimestamp(mAddCommentMarker.getTimestamp()));
-	   		//mAddComment.putData(Comment.key_track_id, mPlayingTrack.getData(Track.key_id));
-			
-			((ScPlayer) mContext).addCommentPrompt(mAddComment);
-	   	}
-
-	   };
-	  
-	
-	  
-	  private float spacing(MotionEvent event) {
-		   float x = event.getX(0) - event.getX(1);
-		   float y = event.getY(0) - event.getY(1);
-		   return FloatMath.sqrt(x * x + y * y);
-		}
-	  
-	  private float spacing(float x1,float y1, float x2, float y2) {
-		   float x = x1 - x2;
-		   float y = y1 - y2;
-		   return FloatMath.sqrt(x * x + y * y);
-		}
-	  
-	  private void midPoint(PointF point, MotionEvent event) {
-		   float x = event.getX(0) + event.getX(1);
-		   float y = event.getY(0) + event.getY(1);
-		   point.set(x / 2, y / 2);
-		}
-	  
-	  private void midPoint(PointF point, float x1,float y1, float x2, float y2) {
-		   float x = x1 + x2;
-		   float y = y1 + y2;
-		   point.set(x / 2, y / 2);
-		}
-
-	/** Show an event in the LogCat view, for debugging */
-	private void dumpEvent(MotionEvent event) {
-	   String names[] = { "DOWN" , "UP" , "MOVE" , "CANCEL" , "OUTSIDE" ,
-	      "POINTER_DOWN" , "POINTER_UP" , "7?" , "8?" , "9?" };
-	   StringBuilder sb = new StringBuilder();
-	   int action = event.getAction();
-	   int actionCode = action & MotionEvent.ACTION_MASK;
-	   sb.append("event ACTION_" ).append(names[actionCode]);
-	   if (actionCode == MotionEvent.ACTION_POINTER_DOWN
-	         || actionCode == MotionEvent.ACTION_POINTER_UP) {
-	      sb.append("(pid " ).append(
-	      action >> MotionEvent.ACTION_POINTER_ID_SHIFT);
-	      sb.append(")" );
-	   }
-	   sb.append("[" );
-	   for (int i = 0; i < event.getPointerCount(); i++) {
-	      sb.append("#" ).append(i);
-	      sb.append("(pid " ).append(event.getPointerId(i));
-	      sb.append(")=" ).append((int) event.getX(i));
-	      sb.append("," ).append((int) event.getY(i));
-	      if (i + 1 < event.getPointerCount())
-	         sb.append(";" );
-	   }
-	   sb.append("]" );
-	   Log.d(TAG, sb.toString());
-	}
 
 	public boolean onLongClick(View v) {
 		return true;

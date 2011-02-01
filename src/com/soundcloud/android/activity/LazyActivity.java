@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -36,6 +38,7 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.task.LoadTask;
 
 public abstract class LazyActivity extends ScActivity implements OnItemClickListener {
@@ -43,7 +46,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 	protected LinearLayout mHolder;
 
 	protected Parcelable mDetailsData;
-	protected int mCurrentTrackId = -1;
+	protected long mCurrentTrackId = -1;
 	
 	protected SoundCloudAPI.State mLastCloudState;
 
@@ -179,7 +182,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 	 * Get the id of the track that is currently playing
 	 * @return the track id that is being played
 	 */
-	public int getCurrentTrackId(){
+	public long getCurrentTrackId(){
 		return mCurrentTrackId;
 	}
 
@@ -189,10 +192,13 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 	 */
 	public void resolveParcelable(Parcelable p){
 		if (p instanceof Track){
-			CloudUtils.resolveTrack(this, (Track) p, false, CloudUtils.getCurrentUserId(this));
+			CloudUtils.resolveTrack(getSoundCloudApplication(), (Track) p, WriteState.none, CloudUtils.getCurrentUserId(this));
 		} else if (p instanceof Event){
+			Log.i(TAG,"Resolve parcelable " + getSoundCloudApplication() + " " +(Track) ((Event) p).getTrack()+" "+ CloudUtils.getCurrentUserId(this));
 			if (((Event) p).getTrack() != null)
-				CloudUtils.resolveTrack(this, (Track) ((Event) p).getTrack(), false, CloudUtils.getCurrentUserId(this));
+				CloudUtils.resolveTrack(getSoundCloudApplication(), (Track) ((Event) p).getTrack(), WriteState.none, CloudUtils.getCurrentUserId(this));
+		} else if (p instanceof User){
+			CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.none, CloudUtils.getCurrentUserId(this));
 		}
 	}
 	
@@ -224,22 +230,14 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 			e.printStackTrace();
 		}
 		 
-		//cache a new tracklist
-		Track[] tl = new Track[list.size()];
-		for (int i = 0; i < list.size(); i++){
-			if (list.get(i) instanceof Track)
-				tl[i] = (Track) list.get(i);
-			else if (list.get(i) instanceof Event){
-				tl[i] = (Track) ((Event) list.get(i)).getTrack();
-			}
-		}
-			
 		// pass the tracklist to the application. This is the quckest way to get it to the service
 		// another option would be to pass the parcelables through the intent, but that has the 
 		// unnecessary overhead of unmarshalling/marshallingi them in to bundles. This way
 		// we are just passing pointers
-		this.getSoundCloudApplication().cachePlaylist(tl);
+		this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
+		
 		try {
+			Log.i(TAG,"Play from app cache call");
 			mService.playFromAppCache(playPos);
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -257,7 +255,6 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 			return; // bad list item clicked (possibly loading item)
 			
 		if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event){
-			
 			//track clicked
 			this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(),position);
 			
@@ -288,7 +285,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 	
 	
 	
-	public int getCurrentUserId() {
+	public long getCurrentUserId() {
 		return CloudUtils.getCurrentUserId(this);
 	}
 	
@@ -297,7 +294,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 	 */
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-    	if (getCurrentTrackId() != -1 && !this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
+    	if (!this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")){
     		menuCurrentPlayingItem.setVisible(true);
     	} else {
     		menuCurrentPlayingItem.setVisible(false);

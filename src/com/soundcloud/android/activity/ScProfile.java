@@ -45,7 +45,7 @@ public class ScProfile extends LazyTabActivity  {
  				userBrowser.loadUserByObject((User) extras.getParcelable("user"));
  				extras.remove("user");
  			} if (extras.containsKey("userId")){
- 				userBrowser.loadUserById(extras.getInt("userId"));
+ 				userBrowser.loadUserById(extras.getLong("userId"));
  				extras.remove("serId");
  			} 
  			

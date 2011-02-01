@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -45,6 +48,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
@@ -62,6 +66,7 @@ import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.LoadTask;
@@ -95,6 +100,9 @@ public class CloudUtils {
 		public static final String EXTRA_FILTER = "filter";
 		public static final String EXTRA_TITLE = "title";
 
+		public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast.db";
+		public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
+		
 		public static final String MUSIC_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/music";
 		public static final String ARTWORK_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/artwork";
 		public static final String WAVEFORM_DIRECTORY = Environment.getExternalStorageDirectory() + "/Soundcloud/images/waveforms";
@@ -290,6 +298,17 @@ public class CloudUtils {
 
 	    }
 	    
+	    public static void checkState (Context c){
+	    	checkDirs(c);
+	    	
+	    	File f = new File(DEPRACATED_DB_ABS_PATH);
+	    	if (f.exists()){
+	    		File newDb = new File(NEW_DB_ABS_PATH);
+	    		if (newDb.exists()) newDb.delete();
+	    		f.renameTo(newDb);
+	    	}
+	    }
+	    
 	    public static void checkDirs(Context c){
 			
 	    	//clear out old cache and make a new one
@@ -326,6 +345,26 @@ public class CloudUtils {
 	        // The directory is now empty so delete it
 	        return dir.delete();
 	    } 
+	    
+	    
+	    public static String md5(String s) {
+	        try {
+	            // Create MD5 Hash
+	            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+	            digest.update(s.getBytes());
+	            byte messageDigest[] = digest.digest();
+
+	            // Create Hex String
+	            StringBuffer hexString = new StringBuffer();
+	            for (int i=0; i<messageDigest.length; i++)
+	                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+	            return hexString.toString();
+
+	        } catch (NoSuchAlgorithmException e) {
+	            e.printStackTrace();
+	        }
+	        return "";
+	    }
 	    
 	    
 		public static LazyList createList(LazyActivity activity){
@@ -496,12 +535,12 @@ public class CloudUtils {
 			return track.getStreamable();
 		}
 		
-	    public static int getCurrentUserId(Context context){
+	    public static Long getCurrentUserId(Context context){
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-     		return Integer.parseInt(preferences.getString("currentUserId", "-1"));
+     		return Long.parseLong(preferences.getString("currentUserId", "-1"));
 		}
 	    
-	    public static int getCurrentTrackId() {
+	    public static long getCurrentTrackId() {
 	        if (sService != null) {
 	            try {
 	                return sService.getTrackId();
@@ -582,7 +621,7 @@ public class CloudUtils {
 	    
 	    public static Track setDownloadPaths(Track track){
 	    	String userDirectory = track.getUser().getPermalink();
-	    	String filename = Integer.toString(track.getId());
+	    	String filename = Long.toString(track.getId());
 			//track.putData(Track.key_local_play_url, CloudUtils.MUSIC_DIRECTORY + "/" + userDirectory + "/" + filename + ".mp3");
 			//track.putData(Track.key_local_artwork_url, CloudUtils.ARTWORK_DIRECTORY + "/" + userDirectory + "/" +  filename + ".png");
 			//track.putData(Track.key_local_waveform_url, CloudUtils.WAVEFORM_DIRECTORY + "/" + userDirectory + "/" +  filename + ".jpg");
@@ -593,40 +632,52 @@ public class CloudUtils {
 	    	return CloudUtils.AVATAR_DIRECTORY + "/" + user_permalink + ".jpg";
 	    }
 	    
-	   
+	    public static void resolveTrack(SoundCloudApplication context, Track track, WriteState writeState){
+	    	resolveTrack (context,track,writeState,null,null);
+	    }
+	    
+	    public static void resolveTrack(SoundCloudApplication context, Track track, WriteState writeState, long currentUserId){
+	    	resolveTrack (context,track,writeState,currentUserId,null);
+	    }
 	    
 	  //---Make sure the database is up to date with this track info---
-	    public static void resolveTrack(Context context, Track track, Boolean writeToDB, int currentUserId) 
+	    public static void resolveTrack(SoundCloudApplication context, Track track, WriteState writeState, Long currentUserId, DBAdapter openAdapter) 
 	    {
-	    	
+	    	Log.i(TAG,"RESOLVE TRACK");
 	    	track = setDownloadPaths(track);
 	    	
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
+	    	DBAdapter db;
+	    	if (openAdapter == null){
+	    		db = new DBAdapter(context);
+				db.open();
+	    	} else
+	    		db = openAdapter;
 			
 			Cursor result = db.getTrackById(track.getId(), currentUserId);
 			if (result.getCount() != 0){
-				
 				//add local urls and update database
 				result.moveToFirst();
 				
 				if (result.getColumnIndex(Track.key_user_favorite_id) > -1)
 					track.setUserFavoriteId(result.getInt((result.getColumnIndex(Track.key_user_favorite_id))));
 				
+				track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true : false);
 				
-				track.setUserPlayed(result.getString(result.getColumnIndex(Track.key_user_played)));
-				
-				if (writeToDB)
+				if (writeState == WriteState.update_only || writeState == WriteState.all) 
 					db.updateTrack(track);
 				
-			} else if (writeToDB){
+			} else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
 				db.insertTrack(track);	
 			}
 			result.close();
-			db.close();
+			
+			if (openAdapter == null)
+				db.close();
+			else
+				db = null;
 
-			//track = resolveTrackData(track);
-			resolveUser(context,track.getUser(), writeToDB, currentUserId);
+			// write with insert only because a track will never come in with 
+			resolveUser(context,track.getUser(), WriteState.insert_only, currentUserId, openAdapter);
 	    }
 	    
 	   
@@ -636,13 +687,13 @@ public class CloudUtils {
 	  
 	    
 	    //---Make sure the database is up to date with this track info---
-	    public static Track resolveTrackById(Context context, int trackId, int currentUserId) 
+	    public static Track resolveTrackById(SoundCloudApplication context, long l, long currentUserId) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
 			
-			Cursor result = db.getTrackById(trackId, currentUserId);
-			
+			Cursor result = db.getTrackById(l, currentUserId);
+			Log.i(TAG,"RESOLVE TRACK " + result.getCount());
 			if (result.getCount() != 0){
 				Track track = new Track(result);
 				//track = resolvePlayUrl(track);
@@ -669,34 +720,45 @@ public class CloudUtils {
 			
 	    }
 	    
-	  
+	    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState, Long userId){
+	    	 resolveUser(context,user,writeState,userId,null);
+	    }
 	    
 	    //---Make sure the database is up to date with this track info---
-	    public static User resolveUser(Context context, User user, Boolean writeToDB, int currentUserId) 
+	    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState, Long currentUserId, DBAdapter openAdapter) 
 	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
+	    	DBAdapter db;
+	    	if (openAdapter == null){
+	    		db = new DBAdapter(context);
+				db.open();
+	    	} else
+	    		db = openAdapter;
 			
 			Cursor result = db.getUserById(user.getId(),currentUserId);
 			if (result.getCount() != 0){
-				result.moveToFirst();
-				if (writeToDB) db.updateUser(user);
-			} else if (writeToDB){
-				db.insertUser(user);	
+				
+				user.update(result); //update the parcelable with values from the db
+				
+				if (writeState == WriteState.update_only || writeState == WriteState.all) 
+					db.updateUser(user, currentUserId.compareTo(user.getId()) == 0);
+				
+			} else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+				db.insertUser(user, currentUserId.compareTo(user.getId()) == 0);	
 			}
 	    	result.close();
-			db.close();
-			
-			
-			
-			return user;
+	    	
+	    	if (openAdapter == null)
+	    		db.close();
+	    	else
+	    		db = null;
+
 	    }
 	    
 	 
 	    
 	    
 	  //---Make sure the database is up to date with this track info---
-	    public static User resolveUserById(Context context, int userId, int currentUserId) 
+	    public static User resolveUserById(SoundCloudApplication context, long userId, long currentUserId) 
 	    {
 	    	DBAdapter db = new DBAdapter(context);
 			db.open();
@@ -717,48 +779,6 @@ public class CloudUtils {
 			
 			return null;
 			
-	    }
-	    
-	    //---Make sure the database is up to date with this track info---
-	    public static User resolveUserByPermalink(Context context, String userPermalink, int current_user_id) 
-	    {
-	    	DBAdapter db = new DBAdapter(context);
-			db.open();
-			
-			Cursor result = db.getUserByPermalink(userPermalink, current_user_id);
-			
-			if (result.getCount() != 0){
-				User user = new User(result);
-				result.close();
-				db.close();
-				return user;
-			}
-			
-	    	result.close();
-			db.close();
-			
-			return null;
-			
-	    }
-	    
-	    
-	    
-	    public static HashMap<String,String> resolveUserData(HashMap<String,String> userinfo){
-	    	if (userinfo.get(User.key_user_following_id) != "")
-	    		userinfo.put(User.key_user_following, "true");
-	    	
-	    	return userinfo;
-	    }
-	    
-	    public static HashMap<String,String> resolveUserFromCursor(Cursor result, HashMap<String,String> userinfo){
-	    
-	    	if (result.getColumnIndex(User.key_user_following_id) > -1)
-	    	userinfo.put(User.key_user_following_id, result.getString(result.getColumnIndex(User.key_user_following_id)));
-	    	
-	    	if (userinfo.get(User.key_user_following_id) != "")
-	    		userinfo.put(User.key_user_following, "true");
-	    	
-	    	return userinfo;
 	    }
 	    
 	    public static Boolean stringNullEmptyCheck(String s){
@@ -800,13 +820,6 @@ public class CloudUtils {
 	    }
 
 
-	  
-	    public static void clearQueue() {
-	        try {
-	            sService.removeTracks(0, Integer.MAX_VALUE);
-	        } catch (RemoteException ex) {
-	        }
-	    }
 	    
 	    public static boolean isLocalFile(String filename) {
 	        if (filename.startsWith("/"))
@@ -1012,18 +1025,6 @@ public class CloudUtils {
 			context.startActivity(i);*/
 		}
 		
-		
-		static void addTrackToPlaylist(ICloudPlaybackService service, Track track){
-			if (service != null)
-				try {
-					service.enqueueTrack(track, CloudPlaybackService.LAST);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-		
-
 		public static String buildRequestPath(String mUrl, String order){
 			return buildRequestPath(mUrl,order,false);
 		}
@@ -1267,8 +1268,43 @@ public class CloudUtils {
 			public static Boolean checkThreadAlive(Thread t){
 				return (t == null || !t.isAlive()) ?  false: true;
 			}
-		
 			
+			public static String streamToString(InputStream is) throws IOException{
+				BufferedReader r = new BufferedReader(new InputStreamReader(is));
+				StringBuilder total = new StringBuilder();
+				String line;
+				while ((line = r.readLine()) != null) {
+				    total.append(line);
+				}
+				return total.toString();
+			}
+			
+			/** Show an event in the LogCat view, for debugging */
+			public static  void dumpMotionEvent(MotionEvent event) {
+			   String names[] = { "DOWN" , "UP" , "MOVE" , "CANCEL" , "OUTSIDE" ,
+			      "POINTER_DOWN" , "POINTER_UP" , "7?" , "8?" , "9?" };
+			   StringBuilder sb = new StringBuilder();
+			   int action = event.getAction();
+			   int actionCode = action & MotionEvent.ACTION_MASK;
+			   sb.append("event ACTION_" ).append(names[actionCode]);
+			   if (actionCode == MotionEvent.ACTION_POINTER_DOWN
+			         || actionCode == MotionEvent.ACTION_POINTER_UP) {
+			      sb.append("(pid " ).append(
+			      action >> MotionEvent.ACTION_POINTER_ID_SHIFT);
+			      sb.append(")" );
+			   }
+			   sb.append("[" );
+			   for (int i = 0; i < event.getPointerCount(); i++) {
+			      sb.append("#" ).append(i);
+			      sb.append("(pid " ).append(event.getPointerId(i));
+			      sb.append(")=" ).append((int) event.getX(i));
+			      sb.append("," ).append((int) event.getY(i));
+			      if (i + 1 < event.getPointerCount())
+			         sb.append(";" );
+			   }
+			   sb.append("]" );
+			   Log.d(TAG, sb.toString());
+			}
 			
 			
 			public static void cleanupList(ListView list){

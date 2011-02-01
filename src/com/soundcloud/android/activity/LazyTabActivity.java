@@ -55,9 +55,7 @@ public class LazyTabActivity extends LazyActivity{
 
 	protected Boolean mIgnorePlaybackStatus = false;
 	
-	protected Integer setTabIndex = 0;
-	protected Boolean mSetTabInstant = false;
-	
+	protected Integer setTabIndex = -1;
 	protected LazyBaseAdapter currentAdapter;
 	
 	protected interface Tabs {
@@ -72,8 +70,39 @@ public class LazyTabActivity extends LazyActivity{
 	protected void onCreate(Bundle savedInstanceState, int layoutResId) {
 		mLists = new ArrayList<LazyList>();
 		super.onCreate(savedInstanceState, layoutResId);
+		
+		IntentFilter playbackFilter = new IntentFilter();
+    	playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
+    	playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+		this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+		
+		IntentFilter uploadFilter = new IntentFilter();
+		uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
+		uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+		this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+		
+		handleIntent();
 	}
 	
+	@Override
+	  protected void onNewIntent(Intent intent)
+	  {
+	    setIntent(intent);
+	    handleIntent();
+	    super.onNewIntent(intent);
+	  }
+	
+	private void handleIntent(){
+		if(getIntent() != null && getIntent().getExtras() != null && getIntent().getIntExtra("tabIndex",-1) != -1){
+			if (this.tabHost != null)
+				tabHost.setCurrentTab(getIntent().getIntExtra("tabIndex",0));
+			else
+				setTabIndex = getIntent().getIntExtra("tabIndex",-1);
+			getIntent().getExtras().clear();
+		}
+	}
 	
 	
 	public LazyList buildList(Boolean isSearchList){
@@ -161,7 +190,8 @@ public class LazyTabActivity extends LazyActivity{
 	    // setup must be called if you are not initialising the tabhost from XML
 	    tabHost.setup();
 	    
-	
+	    if (setTabIndex != -1)
+	    	tabHost.setCurrentTab(setTabIndex);
 	    
 	}
 	
@@ -204,17 +234,6 @@ public class LazyTabActivity extends LazyActivity{
 	protected void onStart() {
     	super.onStart();
     	
-    	IntentFilter playbackFilter = new IntentFilter();
-    	playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-    	playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-		this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
-		
-		IntentFilter uploadFilter = new IntentFilter();
-		uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
-		uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
-		uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
-		uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
-		this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
 		
 		if (mService != null)
 			try {
@@ -226,8 +245,6 @@ public class LazyTabActivity extends LazyActivity{
 	
 	@Override
 	protected void onStop() {
-    	this.unregisterReceiver(mPlaybackStatusListener);
-    	this.unregisterReceiver(mUploadStatusListener);
     	mIgnorePlaybackStatus = false;
     	super.onStop();
     }
@@ -256,14 +273,9 @@ public class LazyTabActivity extends LazyActivity{
 			
 			String action = intent.getAction();
 			if (action.equals(CloudPlaybackService.META_CHANGED)) {
-				try {
-					if (mService != null) setPlayingTrack(mService.getTrackId());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					setPlayingTrack(intent.getIntExtra("trackId", -1));
 			} else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
-				if (mService != null) setPlayingTrack(-1);
+					setPlayingTrack(-1);
 			}
 		}
 	};
@@ -291,12 +303,12 @@ public class LazyTabActivity extends LazyActivity{
 	
 	
 	
-	private void setPlayingTrack(int j){
+	private void setPlayingTrack(long l){
 		
 		if (mLists == null || mLists.size() == 0)
 			return;
 		
-		mCurrentTrackId = j;
+		mCurrentTrackId = l;
 		
 		Iterator<LazyList>  mListsIterator = mLists.iterator();
 		int i = 0;
@@ -369,19 +381,16 @@ public class LazyTabActivity extends LazyActivity{
     {
         super.onRestoreInstanceState(savedInstanceState);
         
-    	mSetTabInstant = false;
-    	
-        if (tabHost != null){
-        	String setTabIndexString = savedInstanceState.getString("currentTabIndex");   
-            if (!CloudUtils.stringNullEmptyCheck(setTabIndexString)){
-            	mSetTabInstant = true;
-            	if (tabHost != null){
-            		tabHost.setCurrentTab(Integer.parseInt(setTabIndexString));
-            	} else {
-            		setTabIndex = Integer.parseInt(setTabIndexString);
-            	}
-        }
-        }
+       
+        	if (setTabIndex == -1){
+	        	String setTabIndexString = savedInstanceState.getString("currentTabIndex");   
+	            if (!CloudUtils.stringNullEmptyCheck(setTabIndexString)){
+	            		setTabIndex = Integer.parseInt(setTabIndexString);
+	            } else
+	            	setTabIndex = 0;
+        	}
+        	 if (tabHost != null)
+        		tabHost.setCurrentTab(setTabIndex);
     }
     
     
@@ -597,6 +606,9 @@ public class LazyTabActivity extends LazyActivity{
 	@Override
 	protected void onDestroy() {
     	super.onDestroy();
+    	
+    	this.unregisterReceiver(mUploadStatusListener);
+    	this.unregisterReceiver(mPlaybackStatusListener);
     	
     	for (ListView mList : mLists){
     		CloudUtils.cleanupList(mList);

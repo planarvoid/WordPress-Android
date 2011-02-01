@@ -20,7 +20,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 	public static final String IMAGE = "TracklistAdapter_image";
 	public static final String TAG = "TracklistAdapter";
 	
-	protected int _playingId = -1;
+	protected long _playingId = -1;
 	protected int _playingPosition = -1;
 
 	public TracklistAdapter(LazyActivity context, ArrayList<Parcelable> data) {
@@ -62,8 +62,15 @@ public class TracklistAdapter extends LazyBaseAdapter {
 		return (Track) mData.get(index);
 	}
 	
-	public void setPlayingId(int currentTrackId){
+	public void setPlayingId(long currentTrackId){
 		_playingId = currentTrackId;	
+		
+		for (int i = 0; i < mData.size(); i++){
+			if (getTrackAt(i).getId().compareTo(currentTrackId) == 0){
+				getTrackAt(i).setUserPlayed(true);
+			}
+		}
+		
 		notifyDataSetChanged();
 	}
 	

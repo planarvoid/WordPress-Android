@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.soundcloud.android.CloudUtils;
 
@@ -38,7 +39,7 @@ public class User extends BaseObj implements Parcelable  {
 	public static final String key_user_following = "user_following";
 	public static final String key_user_following_id = "user_following_id";
 	
-	private Integer id;
+	private Long id;
 	private String username;
 	private String track_count;
 	private String discogs_name;
@@ -66,11 +67,12 @@ public class User extends BaseObj implements Parcelable  {
 	
 	
 	@JsonProperty("id")
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 	@JsonProperty("id")
-	public void setId(Integer id) {
+	public void setId(Long id) {
+		Log.i("User","Setting user id " + id);
 		this.id = id;
 	}
 	@JsonProperty("username")
@@ -293,8 +295,38 @@ public class User extends BaseObj implements Parcelable  {
 								f.set(this, cursor.getString(cursor.getColumnIndex(key)));
 						}else if (f.getType() == Integer.class){
 							f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
+						}else if (f.getType() == Long.class){
+							f.set(this, cursor.getLong(cursor.getColumnIndex(key)));	
 						}else if (f.getType() == Boolean.class){
 							f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
+						}
+					}
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}	
+			}
+		}
+	}
+	
+	public void update(Cursor cursor){
+		if (cursor.getCount() != 0){
+			cursor.moveToFirst();
+			
+			String[] keys = cursor.getColumnNames();
+			for (String key : keys) {
+				try {
+					Field f = this.getPrivateField(key);
+					if (f != null){
+						if (f.getType() == String.class){
+							if (f.get(this) == null) f.set(this, cursor.getString(cursor.getColumnIndex(key)));
+						}else if (f.getType() == Integer.class){
+							if (f.get(this) == null) f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
+						}else if (f.getType() == Long.class){
+							f.set(this, cursor.getLong(cursor.getColumnIndex(key)));	
+						}else if (f.getType() == Boolean.class){
+							if (f.get(this) == null) f.set(this, cursor.getInt(cursor.getColumnIndex(key)));	
 						}
 					}
 				} catch (IllegalArgumentException e) {
