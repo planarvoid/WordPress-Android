@@ -720,7 +720,7 @@ public class CloudPlaybackService extends Service {
 				} else // initial buffer measurement
 					mCurrentBuffer = mPlayingData.getCacheFile().length(); 
 						
-				Log.i(TAG,"Buffer: " + mCurrentBuffer + " | " + mPlayingData.getCacheFile().length() + " | " + pausedForBuffering + " | " + initialBuffering);
+				//Log.i(TAG,"Buffer: " + mCurrentBuffer + " | " + mPlayingData.getCacheFile().length() + " | " + pausedForBuffering + " | " + initialBuffering);
 				
 				if (pausedForBuffering){
 					
@@ -893,6 +893,7 @@ public class CloudPlaybackService extends Service {
 		if (mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI ){
 			return true;
 			
+			//Haven't determined if we should base cache size on battery power yet
 			//we are on wifi, figure out our connection state
 			/*
 			Double powerMult = 1.0;
@@ -1392,49 +1393,12 @@ public class CloudPlaybackService extends Service {
 	        	else
 	        		mMediaPlayer.setDataSource(((SoundCloudApplication) CloudPlaybackService.this.getApplication()).signStreamUrlNaked(mPlayingData.getStreamUrl()));
 		         
-		         /*try {
-		                 Thread.sleep(1000);
-		         } catch (InterruptedException e) {
-		                 // TODO Auto-generated catch block
-		                 e.printStackTrace();
-		         }*/
-		         
 		         mMediaPlayer.prepareAsync();
 	            
 	        } catch (Exception e){
 	        	e.printStackTrace();
 	        	   mIsInitialized = false;
 	        }
-			/*
-			
-			 try {
-	                 if(mStreamProxy==null)
-	                 {
-	                	 mStreamProxy = new StreamProxy();
-	                	 mStreamProxy.init(getApplicationContext());
-	                	 mStreamProxy.start();
-	                 }
-				         String proxyUrl = String.format("http://127.0.0.1:%d/%s", mStreamProxy
-			                         .getPort(), mFileToPlay);
-			         
-			         mMediaPlayer.setDataSource(proxyUrl);
-			         //mMediaPlayer.setDataSource(mFileToPlay);
-			         
-			         /*try {
-			                 Thread.sleep(1000);
-			         } catch (InterruptedException e) {
-			                 // TODO Auto-generated catch block
-			                 e.printStackTrace();
-			         }
-			         
-			         mMediaPlayer.prepareAsync();
-			         
-			 } catch (Exception e) {
-			         // TODO Auto-generated catch block
-			         e.printStackTrace();
-			         mIsInitialized = false;
-						return;
-			 }*/
 		}
 
 		public boolean isInitialized() {
@@ -1511,6 +1475,7 @@ public class CloudPlaybackService extends Service {
 				else
 					maxSeek = getDuration()*mPlayingData.getCacheFile().length()/mPlayingData.getFilelength() - PLAYBACK_MARK/(128/8) - 3000;
 				
+				// don't go before the playhead if they are trying to seek beyond, just maintain their current position
 				if (whereto > mPlayer.position() && maxSeek < mPlayer.position())
 					return mPlayer.position();
 				
