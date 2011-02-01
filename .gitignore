@@ -9,3 +9,10 @@ gen/
 
 # keystore
 ks/
+
+# idea
+.idea
+*.iml
+
+# ant
+local.properties
