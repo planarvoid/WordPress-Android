@@ -16,8 +16,6 @@ import com.soundcloud.android.CloudUtils;
 
 public class BaseObj implements Parcelable {
 
-    protected Bundle data;
-
     public enum Parcelables {
         track, user, comment
     }
@@ -27,7 +25,7 @@ public class BaseObj implements Parcelable {
     }
 
     public BaseObj() {
-        data = new Bundle();
+        
     }
 
     public BaseObj(Parcel in) {
@@ -46,7 +44,7 @@ public class BaseObj implements Parcelable {
 
     public void readFromParcel(Parcel in) {
         Method m;
-        data = in.readBundle(this.getClass().getClassLoader());
+        Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
 
             try {
@@ -78,33 +76,33 @@ public class BaseObj implements Parcelable {
 
     public void writeToParcel(Parcel out, int arg1) {
         // data = in.readBundle();
-        data = new Bundle();
+        Bundle data = new Bundle();
         for (Method m : this.getClass().getMethods()) {
             // make sure it is a getter with the right annotation
             if (!m.getReturnType().equals(Void.TYPE)) // do this first because
-                                                      // finding an annotation
-                                                      // is expensive
+                // finding an annotation
+                // is expensive
                 if (m.isAnnotationPresent(JsonProperty.class)) {
                     try {
                         if (m.invoke(this) != null)
                             if (m.getReturnType() == String.class)
-                                data.putString((m.getAnnotation(JsonProperty.class)
-                                        .value()), (String) m.invoke(this));
+                                data.putString((m.getAnnotation(JsonProperty.class).value()),
+                                        (String) m.invoke(this));
                             else if (m.getReturnType() == Integer.class)
                                 data.putInt((m.getAnnotation(JsonProperty.class).value()),
                                         (Integer) m.invoke(this));
                             else if (m.getReturnType() == Long.class)
-                                data.putLong(
-                                        (m.getAnnotation(JsonProperty.class).value()),
+                                data.putLong((m.getAnnotation(JsonProperty.class).value()),
                                         (Long) m.invoke(this));
                             else if (m.getReturnType() == Boolean.class)
-                                data.putBoolean((m.getAnnotation(JsonProperty.class)
-                                        .value()), (Boolean) m.invoke(this));
+                                data.putBoolean((m.getAnnotation(JsonProperty.class).value()),
+                                        (Boolean) m.invoke(this));
                             else if (Parcelable.class.isAssignableFrom(m.getReturnType())) {
 
                                 Parcelable p = (Parcelable) m.invoke(this);
-                                data.putParcelable((m.getAnnotation(JsonProperty.class)
-                                        .value()), p);
+                                data
+                                        .putParcelable(
+                                                (m.getAnnotation(JsonProperty.class).value()), p);
                             } else {
                                 Log.i("BaseObj", "Ignoring " + m.getAnnotation(JsonProperty.class));
                             }

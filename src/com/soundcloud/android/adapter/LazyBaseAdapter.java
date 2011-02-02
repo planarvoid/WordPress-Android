@@ -66,7 +66,7 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
 
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
-              // occasional bad url)
+            // occasional bad url)
             result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
         } catch (Exception e) {
         }

@@ -104,8 +104,6 @@ public class CloudRecorder {
                 return;
 
             cAmplitude = 0;
-            double sum = 0;
-            double sqsum = 0;
             int shortValue;
             float maxAmplitude = 0;
 
@@ -178,7 +176,7 @@ public class CloudRecorder {
                 bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
                 if (bufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig,
                         audioFormat)) { // Check to make sure buffer size is not
-                                        // smaller than the smallest allowed one
+                    // smaller than the smallest allowed one
                     bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
                             audioFormat);
                     // Set frame period and timer interval accordingly
@@ -278,8 +276,8 @@ public class CloudRecorder {
                         fWriter = new RandomAccessFile(fPath, "rw");
 
                         fWriter.setLength(0); // Set file length to 0, to
-                                              // prevent unexpected behavior in
-                                              // case the file already existed
+                        // prevent unexpected behavior in
+                        // case the file already existed
                         /*
                          * fWriter.writeBytes("RIFF"); fWriter.writeInt(0); //
                          * Final file size not known yet, write 0

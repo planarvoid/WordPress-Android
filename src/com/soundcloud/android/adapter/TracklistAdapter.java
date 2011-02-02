@@ -44,7 +44,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
-              // occasional bad url)
+            // occasional bad url)
             if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
                 result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
             else

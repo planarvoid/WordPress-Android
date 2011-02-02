@@ -99,7 +99,7 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     protected void onRecordingError() {
-        // showDialog(CloudUtils.Dialogs.DIALOG_ERROR_RECORDING);
+        // safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_RECORDING);
 
         if (mScCreate != null)
             mScCreate.onRecordingError();
@@ -113,9 +113,8 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     public void mapDetails(Parcelable p) {
-
-        CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p)
-                .getId());
+        Log.i(TAG,"Map Parcelable " + p);
+        CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).getId());
 
         Log.i(TAG, " USER ID " + ((User) p).getId());
 

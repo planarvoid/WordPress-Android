@@ -304,19 +304,25 @@ public abstract class ScActivity extends Activity {
                     || getException() instanceof SocketException
                     || getException() instanceof JSONException
                     || getException() instanceof OAuthCommunicationException) {
-                showDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+                safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
             } else {
                 // don't show general errors :
-                // showDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
+                // safeShowDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
             }
         }
         setException(null);
+    }
+    
+    public void safeShowDialog(int dialogId){
+        if (!isFinishing()){
+            showDialog(dialogId);
+        }
     }
 
     public void handleError() {
         if (mError != null) {
             if (mError.toString().toLowerCase().indexOf("unauthorized") != -1)
-                showDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
+                safeShowDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
 
             mError = null;
         }
@@ -523,15 +529,15 @@ public abstract class ScActivity extends Activity {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.SETTINGS:
                 Intent intent = new Intent(this, Settings.class);
-                startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
+                startActivity(intent);
 
                 return true;
             case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
                 intent = new Intent(this, ScPlayer.class);
-                startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
+                startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
-                showDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
         }
         return super.onOptionsItemSelected(item);

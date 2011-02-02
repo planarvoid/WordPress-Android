@@ -288,17 +288,10 @@ public class SoundCloudApplication extends Application {
 
     }
 
-    public InputStream putContent(String path) {
-
-        try {
-            return mSoundCloudApi.put(path).getEntity().getContent();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
+    public InputStream putContent(String path) throws IllegalStateException,
+            OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException,
+            OAuthCommunicationException, IOException {
+        return mSoundCloudApi.put(path).getEntity().getContent();
     }
 
     public InputStream deleteContent(String path) throws IllegalStateException,

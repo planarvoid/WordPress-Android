@@ -188,8 +188,6 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
             CloudUtils.resolveTrack(getSoundCloudApplication(), (Track) p, WriteState.none,
                     CloudUtils.getCurrentUserId(this));
         } else if (p instanceof Event) {
-            Log.i(TAG, "Resolve parcelable " + getSoundCloudApplication() + " "
-                    + ((Event) p).getTrack() + " " + CloudUtils.getCurrentUserId(this));
             if (((Event) p).getTrack() != null)
                 CloudUtils.resolveTrack(getSoundCloudApplication(), ((Event) p).getTrack(),
                         WriteState.none, CloudUtils.getCurrentUserId(this));
@@ -223,7 +221,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
                     && mService.getTrackId() == (t.getId())) {
                 // skip the enquing, its already playing
                 Intent intent = new Intent(this, ScPlayer.class);
-                startActivityForResult(intent, CloudUtils.RequestCodes.REUATHORIZE);
+                startActivity(intent);
                 return;
             }
         } catch (RemoteException e) {

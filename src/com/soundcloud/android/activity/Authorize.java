@@ -63,7 +63,7 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
         mVerificationCodeAvailable = new Semaphore(0);
         this.getSoundCloudApplication().authorizeWithoutCallback(this);
 
-        showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
+        safeShowDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
 
     }
 

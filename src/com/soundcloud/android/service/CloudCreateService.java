@@ -1,18 +1,17 @@
 
 package com.soundcloud.android.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.DBAdapter;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.task.VorbisEncoderTask;
+import com.soundcloud.android.view.ScCreate;
+import com.soundcloud.utils.record.CloudRecorder;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -34,20 +33,22 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.task.VorbisEncoderTask;
-import com.soundcloud.android.view.ScCreate;
-import com.soundcloud.utils.record.CloudRecorder;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class CloudCreateService extends Service {
 
@@ -298,7 +299,7 @@ public class CloudCreateService extends Service {
     public void onRecordFrameUpdate(float maxAmplitude) {
         ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
         if (frameCount % 10 == 0) // this should happen every second, as the
-                                  // frame updates are every 100 ms
+            // frame updates are every 100 ms
             updateRecordTicker();
         frameCount++;
 
@@ -419,7 +420,7 @@ public class CloudCreateService extends Service {
             File pcmFile = new File(mUploadingData.get("pcm_path"));
             pcmFile.delete();
 
-            if (!CloudUtils.stringNullEmptyCheck(mUploadingData.get("artwork_path"))) {
+            if (!TextUtils.isEmpty(mUploadingData.get("artwork_path"))) {
 
                 Options opt;
                 try {
@@ -528,7 +529,7 @@ public class CloudCreateService extends Service {
         mUploadTask.trackFile = new File(mOggFilePath);
         mUploadTask.trackParams = params;
         mUploadTask.scApplication = (SoundCloudApplication) this.getApplication();
-        if (!CloudUtils.stringNullEmptyCheck(mUploadingData.get("artwork_path")))
+        if (!TextUtils.isEmpty(mUploadingData.get("artwork_path")))
             mUploadTask.artworkFile = new File(mUploadingData.get("artwork_path"));
         mUploadTask.execute();
     }

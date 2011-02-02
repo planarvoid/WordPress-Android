@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -371,7 +372,7 @@ public class LazyTabActivity extends LazyActivity {
 
         if (setTabIndex == -1) {
             String setTabIndexString = savedInstanceState.getString("currentTabIndex");
-            if (!CloudUtils.stringNullEmptyCheck(setTabIndexString)) {
+            if (!TextUtils.isEmpty(setTabIndexString)) {
                 setTabIndex = Integer.parseInt(setTabIndexString);
             } else
                 setTabIndex = 0;
