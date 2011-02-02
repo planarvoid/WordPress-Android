@@ -528,13 +528,16 @@ public class UserBrowser extends ScTabView {
                 mLastTab.onStop();
             }
 
+            if (mWorkspaceView != null)
+                mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(),(Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
+            
             mLastTab = (ScTabView) mTabHost.getCurrentView();
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!mIsOtherUser)
                 PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(
                         "lastProfileIndex", mLastTabIndex).commit();
-            if (mWorkspaceView != null)
-                mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab());
+            
+            
         }
     };
 
