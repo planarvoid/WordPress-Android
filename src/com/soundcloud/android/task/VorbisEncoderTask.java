@@ -23,19 +23,22 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
     static vorbisenc encoder;
 
     static ogg_stream_state os; // take physical pages, weld into a logical
-                                // stream of packets
+
+    // stream of packets
 
     static ogg_page og; // one Ogg bitstream page. Vorbis packets are inside
 
     static ogg_packet op; // one raw packet of data for decode
 
     static vorbis_info vi; // struct that stores all the static vorbis bitstream
-                           // settings
+
+    // settings
 
     static vorbis_comment vc; // struct that stores all the user comments
 
     static vorbis_dsp_state vd; // central working state for the packet->PCM
-                                // decoder
+
+    // decoder
 
     static vorbis_block vb; // local working space for packet->PCM decode
 
@@ -102,7 +105,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
         vb = new vorbis_block(vd);
 
         java.util.Random generator = new java.util.Random(); // need to
-                                                             // randomize seed
+        // randomize seed
         os = new ogg_stream_state(generator.nextInt(256));
 
         System.out.print("Writing header.");
@@ -147,7 +150,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 
                 int i;
                 int bytes = fin.read(readbuffer, 0, READ * 4); // stereo
-                                                               // hardwired here
+                // hardwired here
 
                 blocks++;
 

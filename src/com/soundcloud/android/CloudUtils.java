@@ -45,6 +45,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -237,7 +238,7 @@ public class CloudUtils {
         public final static int QUEUE = 12;
 
         public final static int CHILD_MENU_BASE = 13; // this should be the last
-                                                      // item
+        // item
     }
 
     public interface OptionsMenu {
@@ -706,20 +707,6 @@ public class CloudUtils {
         }
     }
 
-    public static Track setDownloadPaths(Track track) {
-        String userDirectory = track.getUser().getPermalink();
-        String filename = Long.toString(track.getId());
-        // track.putData(Track.key_local_play_url, CloudUtils.MUSIC_DIRECTORY +
-        // "/" + userDirectory + "/" + filename + ".mp3");
-        // track.putData(Track.key_local_artwork_url,
-        // CloudUtils.ARTWORK_DIRECTORY + "/" + userDirectory + "/" + filename +
-        // ".png");
-        // track.putData(Track.key_local_waveform_url,
-        // CloudUtils.WAVEFORM_DIRECTORY + "/" + userDirectory + "/" + filename
-        // + ".jpg");
-        return track;
-    }
-
     public static String buildLocalAvatarUrl(String user_permalink) {
         return CloudUtils.AVATAR_DIRECTORY + "/" + user_permalink + ".jpg";
     }
@@ -737,8 +724,6 @@ public class CloudUtils {
     // ---Make sure the database is up to date with this track info---
     public static void resolveTrack(SoundCloudApplication context, Track track,
             WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
-        Log.i(TAG, "RESOLVE TRACK");
-        track = setDownloadPaths(track);
 
         DBAdapter db;
         if (openAdapter == null) {
@@ -752,12 +737,7 @@ public class CloudUtils {
             // add local urls and update database
             result.moveToFirst();
 
-            if (result.getColumnIndex(Track.key_user_favorite_id) > -1)
-                track.setUserFavoriteId(result.getInt((result
-                        .getColumnIndex(Track.key_user_favorite_id))));
-
-            track
-                    .setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
+            track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
                             : false);
 
             if (writeState == WriteState.update_only || writeState == WriteState.all)
@@ -783,7 +763,6 @@ public class CloudUtils {
         db.open();
 
         Cursor result = db.getTrackById(l, currentUserId);
-        Log.i(TAG, "RESOLVE TRACK " + result.getCount());
         if (result.getCount() != 0) {
             Track track = new Track(result);
             // track = resolvePlayUrl(track);
@@ -829,7 +808,7 @@ public class CloudUtils {
         if (result.getCount() != 0) {
 
             user.update(result); // update the parcelable with values from the
-                                 // db
+            // db
 
             if (writeState == WriteState.update_only || writeState == WriteState.all)
                 db.updateUser(user, currentUserId.compareTo(user.getId()) == 0);
@@ -870,35 +849,12 @@ public class CloudUtils {
 
     }
 
-    public static Boolean stringNullEmptyCheck(String s) {
-        return stringNullEmptyCheck(s, false);
-    }
-
-    public static Boolean stringNullEmptyCheck(String s, Boolean enforceStringNull) {
-        if (s == null)
-            return true;
-
-        if (s.length() == 0)
-            return true;
-
-        if (s.trim().length() == 0)
-            return true;
-
-        if (enforceStringNull)
-            if (s.toLowerCase().contentEquals("null"))
-                return true;
-
-        return false;
-
-    }
-
     public static String getLocationString(String city, String country) {
-
-        if (!stringNullEmptyCheck(city) && !stringNullEmptyCheck(country)) {
+        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
             return city + ", " + country;
-        } else if (!stringNullEmptyCheck(city)) {
+        } else if (!TextUtils.isEmpty(city)) {
             return city;
-        } else if (!stringNullEmptyCheck(country)) {
+        } else if (!TextUtils.isEmpty(country)) {
             return country;
         }
 
@@ -943,11 +899,11 @@ public class CloudUtils {
         paint.setColorFilter(filter);
         Matrix matrix = new Matrix();
         matrix.setTranslate(-bwidth / 2, -bheight / 2); // move bitmap center to
-                                                        // origin
+        // origin
         matrix.postRotate(10);
         matrix.postScale(scale, scale);
         matrix.postTranslate(vwidth / 2, vheight / 2); // Move bitmap center to
-                                                       // view center
+        // view center
         c.drawBitmap(bm, matrix, paint);
         v.setBackgroundDrawable(new BitmapDrawable(bg));
     }

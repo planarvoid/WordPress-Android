@@ -1,9 +1,16 @@
 
 package com.soundcloud.android.view;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.task.PCMPlaybackTask;
+import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
+import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.utils.record.PowerGauge;
+import com.soundcloud.utils.record.RemainingTimeCalculator;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +28,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.text.format.Time;
@@ -41,16 +49,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.task.PCMPlaybackTask;
-import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
-import com.soundcloud.utils.AnimUtils;
-import com.soundcloud.utils.record.PowerGauge;
-import com.soundcloud.utils.record.RemainingTimeCalculator;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
 
@@ -162,7 +163,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     // public static int REC_MAX_FILE_SIZE = 105840000; //10 mins at
     // 44100x16bitx2channels
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at
-                                                     // 44100x16bitx2channels
+
+    // 44100x16bitx2channels
 
     // public static int REC_MAX_FILE_SIZE = 211680000; //20 mins at
     // 44100x16bitx2channels
@@ -194,7 +196,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     boolean mSampleInterrupted = false;
 
     String mErrorUiMessage = null; // Some error messages are displayed in the
-                                   // UI,
+
+    // UI,
 
     // not a dialog. This happens when a recording
     // is interrupted for some reason.
@@ -388,7 +391,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-        if (!CloudUtils.stringNullEmptyCheck(mArtworkUri))
+        if (!TextUtils.isEmpty(mArtworkUri))
             outState.putString("createArtworkPath", mArtworkUri);
         super.onSaveInstanceState(outState);
     }
@@ -403,7 +406,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 || savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
                 : savedInstanceState.getString("createCurrentCreateStateIndex");
         ;
-        if (!CloudUtils.stringNullEmptyCheck(savedInstanceState
+        if (!TextUtils.isEmpty(savedInstanceState
                 .getString("createCurrentCreateStateIndex")))
             setCurrentState(Integer.parseInt(currentCreateStateIndex));
 
@@ -415,7 +418,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         else
             mRdoPublic.setChecked(true);
 
-        if (!CloudUtils.stringNullEmptyCheck(savedInstanceState.getString("createArtworkPath")))
+        if (!TextUtils.isEmpty(savedInstanceState.getString("createArtworkPath")))
             setPickedImage(savedInstanceState.getString("createArtworkPath"));
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -620,7 +623,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                         R.drawable.btn_rec_states));
                 mFileLayout.setVisibility(View.GONE);
 
-                if (CloudUtils.stringNullEmptyCheck(mRecordErrorMessage))
+                if (TextUtils.isEmpty(mRecordErrorMessage))
                     txtRecordStatus.setText(mActivity.getResources().getString(
                             R.string.cloud_recorder_experimental));
                 else
@@ -678,7 +681,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
 
-                // if (CloudUtils.stringNullEmptyCheck(mRecordErrorMessage)){
+                // if (TextUtils.isEmpty(mRecordErrorMessage)){
                 // txtRecordStatus.setText(mActivity.getResources().getString(R.string.cloud_recorder_experimental));
                 // txtRecordStatus.setVisibility(View.VISIBLE);
                 // } else
@@ -820,8 +823,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
         try {
-            (mActivity).getCreateService().startRecording(
-                    mRecordFile.getAbsolutePath());
+            (mActivity).getCreateService().startRecording(mRecordFile.getAbsolutePath());
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -839,9 +841,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private void updateTimeRemaining() {
 
         long t = mRemainingTimeCalculator.timeRemaining() + 2; // adding 2
-                                                               // seconds to
-                                                               // make up for
-                                                               // lag
+        // seconds to
+        // make up for
+        // lag
         if (t <= 1) {
             mSampleInterrupted = true;
 
@@ -972,13 +974,13 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         String title = "";
         String oggFilename = "";
-        if (!CloudUtils.stringNullEmptyCheck(mWhatText.getText().toString())
-                && !CloudUtils.stringNullEmptyCheck(mWhereText.getText().toString()))
+        if (!TextUtils.isEmpty(mWhatText.getText().toString())
+                && !TextUtils.isEmpty(mWhereText.getText().toString()))
             oggFilename = title = mWhatText.getText().toString() + " at "
                     + mWhereText.getText().toString();
-        else if (!CloudUtils.stringNullEmptyCheck(mWhatText.getText().toString()))
+        else if (!TextUtils.isEmpty(mWhatText.getText().toString()))
             oggFilename = title = mWhatText.getText().toString();
-        else if (!CloudUtils.stringNullEmptyCheck(mWhereText.getText().toString()))
+        else if (!TextUtils.isEmpty(mWhereText.getText().toString()))
             oggFilename = title = mWhereText.getText().toString();
         else {
             title = "recording on " + dayOfWeek;
@@ -1002,7 +1004,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         trackdata.put("track[tag_list]", "soundcloud:source=web-record");
         trackdata.put("ogg_filename", oggFilename);
 
-        if (!CloudUtils.stringNullEmptyCheck(mArtworkUri)) {
+        if (!TextUtils.isEmpty(mArtworkUri)) {
             trackdata.put("artwork_path", mArtworkUri);
             trackdata.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
         }
@@ -1025,7 +1027,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
             if (hasFocus == false) {
 
-                if (!CloudUtils.stringNullEmptyCheck(((TextView) v).getText().toString()))
+                if (!TextUtils.isEmpty(((TextView) v).getText().toString()))
                     ((TextView) v).setText(CloudUtils.toTitleCase(((TextView) v).getText()
                             .toString()));
 

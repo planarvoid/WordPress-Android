@@ -191,7 +191,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
         mDuration = mPlayingTrack.getDuration();
 
         if (waveformResult != BindResult.ERROR) { // clear loader errors so we
-                                                  // can try to reload
+            // can try to reload
             ImageLoader.get(mContext).clearErrors();
         }
 
@@ -208,8 +208,8 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
                 });
 
         if (waveformResult != BindResult.OK) { // otherwise, it succesfull
-                                               // pulled it out of memory, so no
-                                               // temp image necessary
+            // pulled it out of memory, so no
+            // temp image necessary
             mOverlay.setImageDrawable(mContext.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
         }

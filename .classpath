@@ -11,10 +11,10 @@
 	<classpathentry kind="lib" path="lib/acra-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/imageloader.jar"/>
 	<classpathentry kind="lib" path="lib/filecache.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-asl-1.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/vorbis-java-1.0.0-beta.jar"/>
 	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.7.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

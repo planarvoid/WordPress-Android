@@ -17,6 +17,7 @@ import android.util.Log;
 /**
  * A wrapper for a broadcast receiver that provides network connectivity state
  * information, independent of network type (mobile, Wi-Fi, etc.). {@hide
+ * 
  * }
  */
 public class NetworkConnectivityListener {

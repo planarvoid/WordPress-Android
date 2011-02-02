@@ -51,7 +51,7 @@ public class Settings extends PreferenceActivity {
         this.findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        showDialog(DIALOG_USER_DELETE_CONFIRM);
+                        safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
                         return true;
                     }
                 });
@@ -77,6 +77,12 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
+    }
+    
+    public void safeShowDialog(int dialogId){
+        if (!isFinishing()){
+            showDialog(dialogId);
+        }
     }
 
     @Override
@@ -147,7 +153,7 @@ public class Settings extends PreferenceActivity {
         @Override
         protected void onPreExecute() {
             if (mActivityRef.get() != null)
-                ((Settings) mActivityRef.get()).showDialog(DIALOG_CACHE_DELETING);
+                ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETING);
         }
 
         @Override
@@ -164,7 +170,7 @@ public class Settings extends PreferenceActivity {
         protected void onPostExecute(Boolean result) {
             if (mActivityRef.get() != null) {
                 ((Settings) mActivityRef.get()).removeDialog(DIALOG_CACHE_DELETING);
-                ((Settings) mActivityRef.get()).showDialog(DIALOG_CACHE_DELETED);
+                ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETED);
                 ((Settings) mActivityRef.get()).setClearCacheTitle();
             }
         }

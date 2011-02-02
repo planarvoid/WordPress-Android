@@ -1,7 +1,8 @@
 
 package com.soundcloud.android.task;
 
-import java.io.InputStream;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -9,8 +10,7 @@ import org.json.JSONObject;
 
 import android.os.Parcelable;
 
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import java.io.InputStream;
 
 public class LoadDetailsTask extends LoadTask {
 
@@ -23,12 +23,13 @@ public class LoadDetailsTask extends LoadTask {
         try {
             InputStream is = mActivityReference.get().getSoundCloudApplication().executeRequest(
                     params[0]);
-            ObjectMapper mapper = new ObjectMapper();
 
             if (isCancelled()) {
                 return false;
             }
 
+            ObjectMapper mapper = new ObjectMapper();
+            
             Parcelable parcelable = null;
             switch (loadModel) {
                 case track:
@@ -39,8 +40,9 @@ public class LoadDetailsTask extends LoadTask {
                     break;
             }
 
-            if (mActivityReference.get() != null)
+            if (mActivityReference.get() != null && parcelable != null)
                 mActivityReference.get().resolveParcelable(parcelable);
+            
             publishProgress(parcelable);
 
             return true;

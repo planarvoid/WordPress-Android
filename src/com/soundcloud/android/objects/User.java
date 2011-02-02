@@ -119,7 +119,6 @@ public class User extends BaseObj implements Parcelable {
 
     @JsonProperty("id")
     public void setId(Long id) {
-        Log.i("User", "Setting user id " + id);
         this.id = id;
     }
 

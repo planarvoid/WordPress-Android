@@ -844,27 +844,6 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public void resolveData() {
-
-        if (!mIsPlaylist) {
-            if (CloudUtils.stringNullEmptyCheck(data.getString(Track.key_duration), true)) {
-                data.putString(Track.key_duration_formatted, "0");
-                return;
-            }
-
-            Integer duration = Integer.parseInt(data.getString(Track.key_duration));
-            String durationStr = "";
-            if (Math.floor(Math.floor((duration / 1000) / 60) / 60) > 0)
-                durationStr = String.valueOf((int) Math
-                        .floor(Math.floor((duration / 1000) / 60) / 60)
-                        + "." + (int) Math.floor((duration / 1000) / 60) % 60)
-                        + "." + String.format("%02d", (duration / 1000) % 60);
-            else
-                durationStr = String.valueOf((int) Math.floor((duration / 1000) / 60) % 60) + "."
-                        + String.format("%02d", (duration / 1000) % 60);
-
-            this.setDurationFormatted(durationStr);
-        }
-
     }
 
     public Track() {

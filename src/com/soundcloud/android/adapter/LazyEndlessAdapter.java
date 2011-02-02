@@ -1,12 +1,15 @@
 
 package com.soundcloud.android.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.EventsWrapper;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.view.LazyList;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -22,6 +25,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,15 +35,12 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.EventsWrapper;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.view.LazyList;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A background task that will be run when there is a need to append more data.
@@ -179,7 +180,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * with an exception
      */
     public void setEmptyviewText() {
-        if (!CloudUtils.stringNullEmptyCheck(mEmptyViewText) && !mException) {
+        if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
             return;
         }
@@ -567,6 +568,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (baseUrl.indexOf("limit") == -1)
             builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
 
+        builder.appendQueryParameter("rand", String.valueOf(((int) (Math.random() * 100000))));
         builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()
                 * (getCurrentPage())));
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
@@ -576,6 +578,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         try {
             req = mActivity.getSoundCloudApplication().getPreparedRequest(
                     builder.build().toString());
+            /*
+             * for (Header h : req.getAllHeaders()){ Log.i(TAG,"Header " +
+             * h.getName() + " : " + h.getValue()); }
+             */
             return req;
         } catch (OAuthMessageSignerException e) {
             setException(e);
@@ -680,7 +686,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
                 InputStream is = mActivityReference.get().getSoundCloudApplication()
                         .executeRequest(req);
-
                 ObjectMapper mapper = new ObjectMapper();
 
                 if (newItems != null)
