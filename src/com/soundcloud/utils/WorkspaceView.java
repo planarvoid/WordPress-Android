@@ -890,8 +890,12 @@ public class WorkspaceView extends ViewGroup {
     }
 
     public void setDisplayedChild(int i) {
+        setDisplayedChild(i, false);
+    }
+    
+    public void setDisplayedChild(int i, boolean immediate) {
         // setCurrentScreen(i);
-        scrollToScreen(i);
+        scrollToScreen(i,immediate);
         getChildAt(i).requestFocus();
     }
 
