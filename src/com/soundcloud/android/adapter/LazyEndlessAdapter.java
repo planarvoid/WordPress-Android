@@ -164,7 +164,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         emptyView.setVisibility(View.GONE);
         emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
-        // emptyView.setBackgroundColor(mActivity.getResources().getColor(R.color.cloudProgressBackgroundCenter));
+        // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
         mEmptyView = emptyView;
 
         ((ViewGroup) mListView.getParent()).addView(emptyView);
@@ -398,8 +398,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         ((AdapterView<ListAdapter>) mListView).setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
-        // if (mActivity != null)
-        // mActivity.handleException();
+        // if (mActivityReference != null)
+        // mActivityReference.handleException();
     }
 
     /**
@@ -574,37 +574,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
 
-        HttpUriRequest req;
-        try {
-            req = mActivity.getSoundCloudApplication().getPreparedRequest(
-                    builder.build().toString());
-            /*
-             * for (Header h : req.getAllHeaders()){ Log.i(TAG,"Header " +
-             * h.getName() + " : " + h.getValue()); }
-             */
-            return req;
-        } catch (OAuthMessageSignerException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            setException(e);
-            e.printStackTrace();
-        }
-
-        return null;
-
+         return mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
     }
 
     /**
@@ -743,7 +713,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
             } catch (Exception e) {
                 e.printStackTrace();
                 mException = true;
-                // if (mActivity != null) mActivity.setException(e);
+                // if (mActivityReference != null) mActivityReference.setException(e);
                 if (mAdapterReference.get() != null)
                     mAdapterReference.get().setException(e);
             }

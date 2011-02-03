@@ -29,7 +29,7 @@ public class LazyRow extends RelativeLayout {
 
         // if (findViewById(R.id.on_selected) != null)
         // AnimUtils.setLayoutAnim_slidedownfromtop((ViewGroup)
-        // findViewById(R.id.on_selected), mContext);
+        // findViewById(R.id.on_selected), mAppContextReference);
     }
 
     protected int getRowResourceId() {

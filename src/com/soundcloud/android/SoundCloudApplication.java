@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.objects.Track;
 import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 
@@ -28,6 +31,8 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 import org.urbanstew.soundcloudapi.SoundCloudOptions;
 
@@ -113,8 +118,9 @@ public class SoundCloudApplication extends Application {
 
     @Override
     public void onCreate() {
-        ACRA.init(this);
         super.onCreate();
+        ACRA.init(this);
+
         mImageLoader = createImageLoader(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -163,15 +169,11 @@ public class SoundCloudApplication extends Application {
                 } catch (Exception e) {
                     client.exceptionOccurred(e);
                 } finally {
-                    final AuthorizationStatus finalStatus = status;
-                    client.authorizationCompleted(finalStatus);
-                    // complete(client, Thread.currentThread());
+                    client.authorizationCompleted(status);
                 }
             }
         });
-
         thread.start();
-        // launch(client, thread);
     }
 
     private void storeAuthorization() {
@@ -202,10 +204,7 @@ public class SoundCloudApplication extends Application {
 
     }
 
-    public HttpUriRequest getPreparedRequest(String path) throws IllegalStateException,
-            OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException,
-            IOException, OAuthCommunicationException {
-
+    public HttpUriRequest getPreparedRequest(String path) {
         HttpUriRequest req = getRequest(path, null);
         req.getParams().setParameter("consumer_key", getConsumerKey());
         req.addHeader("Accept", "application/json");
@@ -213,27 +212,26 @@ public class SoundCloudApplication extends Application {
         return req;
     }
 
-    public HttpUriRequest getRequest(String path) throws OAuthMessageSignerException,
-            OAuthExpectationFailedException, OAuthCommunicationException {
-        return getRequest(path, null);
+
+    public InputStream executeRequest(String req) throws IllegalStateException, IOException {
+        return executeRequest(getRequest(req, null));
     }
 
-    public InputStream executeRequest(HttpUriRequest req) throws IllegalStateException, IOException {
+    public InputStream executeRequest(HttpUriRequest req) throws IOException {
         HttpResponse response = getHttpClient().execute(req);
         return response.getEntity().getContent();
     }
 
-    public InputStream getContent(String path) throws IllegalStateException,
-            OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException,
-            IOException, OAuthCommunicationException {
-
+    public InputStream getContent(String path) throws IOException {
         return executeRequest(getPreparedRequest(path));
     }
 
-    public HttpUriRequest getRequest(String path, List<NameValuePair> params)
-            throws OAuthMessageSignerException, OAuthExpectationFailedException,
-            OAuthCommunicationException {
-        return mSoundCloudApi.getRequest(path, params);
+    public HttpUriRequest getRequest(String path, List<NameValuePair> params) {
+        try {
+            return mSoundCloudApi.getRequest(path, params);
+        } catch (OAuthException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getDomain() {
@@ -289,20 +287,20 @@ public class SoundCloudApplication extends Application {
     }
 
     public InputStream putContent(String path) throws IllegalStateException,
-            OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException,
+            OAuthMessageSignerException, OAuthExpectationFailedException,
             OAuthCommunicationException, IOException {
         return mSoundCloudApi.put(path).getEntity().getContent();
     }
 
     public InputStream deleteContent(String path) throws IllegalStateException,
-            OAuthMessageSignerException, OAuthExpectationFailedException, ClientProtocolException,
+            OAuthMessageSignerException, OAuthExpectationFailedException,
             IOException, OAuthCommunicationException {
         return mSoundCloudApi.delete(path).getEntity().getContent();
     }
 
     public HttpResponse upload(ContentBody trackBody, List<NameValuePair> params,
             ProgressListener listener) throws OAuthMessageSignerException,
-            OAuthExpectationFailedException, ClientProtocolException, IOException,
+            OAuthExpectationFailedException, IOException,
             OAuthCommunicationException {
 
         return upload(trackBody, null, params, listener);
@@ -311,7 +309,7 @@ public class SoundCloudApplication extends Application {
     public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody,
             List<NameValuePair> params, ProgressListener listener)
             throws OAuthMessageSignerException, OAuthExpectationFailedException,
-            ClientProtocolException, IOException, OAuthCommunicationException {
+            IOException, OAuthCommunicationException {
         HttpPost post = new HttpPost(urlEncode("tracks", null));
         // fix contributed by Bjorn Roche
         post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
