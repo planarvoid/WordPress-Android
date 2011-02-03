@@ -31,7 +31,8 @@
 				<action android:name="com.soundcloud.android.service.ICloudPlaybackService" />
 			</intent-filter>
 		</service>
-		<service class="com.soundcloud.android.service.CloudCreateService" android:name=".service.CloudCreateService">
+		<service class="com.soundcloud.android.service.CloudCreateService" android:name=".service.CloudCreateService" 
+			android:exported="true">
 			<intent-filter>
 				<action android:name="com.soundcloud.android.service.ICloudCreateService" />
 			</intent-filter>

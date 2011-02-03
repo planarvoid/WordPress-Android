@@ -527,8 +527,9 @@ public class CloudPlaybackService extends Service {
             mPlayListManager.loadCachedPlaylist(((SoundCloudApplication) this.getApplication())
                     .flushCachePlaylist(), playPos);
             stopStreaming(null);
-            play();
             openCurrent();
+            mIsSupposedToBePlaying = true;
+            setPlayingStatus();
         }
     }
 

@@ -1,9 +1,18 @@
 
 package com.soundcloud.android.activity;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.EventsAdapter;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.utils.AnimUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +24,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,22 +33,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.ViewFlipper;
-import android.widget.TabHost.OnTabChangeListener;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.EventsAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
-import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.utils.AnimUtils;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class LazyTabActivity extends LazyActivity {
 
@@ -542,6 +543,7 @@ public class LazyTabActivity extends LazyActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.REFRESH:
+                Log.i(TAG,"Get Current Tab " + tabHost.getCurrentView());
                 ((ScTabView) tabHost.getCurrentView()).onRefresh();
                 return true;
         }

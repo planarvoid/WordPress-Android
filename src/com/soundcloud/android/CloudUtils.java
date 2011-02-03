@@ -62,6 +62,7 @@ import android.widget.TextView;
 
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -1303,6 +1304,18 @@ public class CloudUtils {
         sb.append("]");
         Log.d(TAG, sb.toString());
     }
+    
+    public static TextView buildEmptyView(Context context, CharSequence emptyText) {
+        TextView emptyView = new TextView(context);
+        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        emptyView.setTextAppearance(context, R.style.txt_empty_view);
+        emptyView.setText(emptyText);
+        emptyView.setId(android.R.id.empty);
+        return emptyView;
+    }
+    
+   
 
     public static void cleanupList(ListView list) {
         list.setOnItemClickListener(null);

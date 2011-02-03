@@ -4,10 +4,11 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -37,15 +38,15 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TabHost.OnTabChangeListener;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -192,7 +193,6 @@ public class UserBrowser extends ScTabView {
         });
 
         mFavorite.setVisibility(View.GONE);
-        mFavorite.setEnabled(false);
         mLastTabIndex = 0;
     }
 
@@ -492,13 +492,12 @@ public class UserBrowser extends ScTabView {
         mTabWidget.invalidate();
 
         setTabTextInfo();
+        
+        if (mActivity instanceof ScProfile){
+            ((ScProfile) mActivity).setTabHost(mTabHost);
+        }
+        
         mTabHost.setOnTabChangedListener(tabListener);
-        // Log.i(TAG,"SETTING");
-        // if (mWorkspaceView != null && !mIsOtherUser)
-        // mWorkspaceView.setDisplayedChild(PreferenceManager.getDefaultSharedPreferences(mActivity).getInt("lastProfileIndex",0));
-
-        // mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(mActivity).getInt("lastProfileIndex",0));
-
     }
 
     protected void setTabTextInfo() {
@@ -584,34 +583,35 @@ public class UserBrowser extends ScTabView {
                     e.printStackTrace();
                     mActivity.setException(e);
                 }
-
-                if (mFollowResult != null) {
-
-                    if (mFollowResult.indexOf("<user>") != -1
-                            || mFollowResult.indexOf("200 - OK") != -1
-                            || mFollowResult.indexOf("201 - Created") != -1) {
-                        // _isFollowing = !_isFollowing;
-                    }
-                }
-                mActivity.mHandler.post(mHandleErrors);
+                mActivity.mHandler.post(mSetFollowingResult);
             }
         };
         t.start();
     }
 
     // Create runnable for posting since we update the following asynchronously
-    final Runnable mHandleErrors = new Runnable() {
+    final Runnable mSetFollowingResult = new Runnable() {
         public void run() {
-            if (mActivity != null)
+            if (mActivity != null){
                 mActivity.handleException();
-            mActivity.handleError();
-        }
-    };
+                mActivity.handleError();
+            }
+            boolean success = false;
+            if (mFollowResult != null) {
 
-    // Create runnable for posting since we update the following asynchronously
-    final Runnable mUpdateFollowing = new Runnable() {
-        public void run() {
-            setFollowingButtonText();
+                if (mFollowResult.contains("<user>")
+                        || mFollowResult.contains("200 - OK")
+                        || mFollowResult.contains("201 - Created")
+                        || mFollowResult.contains("404 - Not Found")) {
+                        success = true;
+                }
+            }
+            
+            if (!success){
+                _isFollowing = !_isFollowing;
+                setFollowingButtonText();
+            }
+            mFavorite.setEnabled(true);
         }
     };
 
@@ -621,10 +621,8 @@ public class UserBrowser extends ScTabView {
 
         if (_isFollowing) {
             mFavorite.setImageResource(R.drawable.ic_unfollow_states);
-            // mFavoriteStatus.setText(R.string.favorited);
         } else {
             mFavorite.setImageResource(R.drawable.ic_follow_states);
-            // mFavoriteStatus.setText(R.string.not_favorited);
         }
 
         if (mUserData != null
@@ -634,15 +632,10 @@ public class UserBrowser extends ScTabView {
         }
 
         mFavorite.setVisibility(View.VISIBLE);
-        mFavorite.setEnabled(true);
     }
 
     public void mapUser(Parcelable p) {
         User mUserInfo = (User) p;
-
-        // if (CloudUtils.getCurrentUserId(mActivity))
-        // CloudUtils.resolveUser(mActivity, mUserInfo, true,
-        // CloudUtils.getCurrentUserId(mActivity));
 
         mUserData = mUserInfo; // save to details object for restoring state
 
@@ -743,8 +736,6 @@ public class UserBrowser extends ScTabView {
             mDescription.setText(styledText);
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
-
-        Log.i(TAG, "SHOW TABLE " + _showTable);
 
         if (_showTable) {
             ((TextView) mDetailsView.findViewById(R.id.txt_empty)).setVisibility(View.GONE);
