@@ -1056,7 +1056,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     
     @Override
     public Object onRetainNonConfigurationInstance() {
-        Log.i(TAG,"Saving Track " + mPlayingTrack + " " + mPlayingTrack.getPlaybackCount());
         return new Object[] {mPlayingTrack, mLoadTrackDetailsTask};
     }
     

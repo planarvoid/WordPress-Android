@@ -354,49 +354,53 @@ public class UserBrowser extends ScTabView {
     }
 
     protected void build() {
-        /*
-         * FrameLayout tabLayout = CloudUtils.createTabLayout(mActivity);
-         * tabLayout.setLayoutParams(new
-         * LayoutParams(android.view.ViewGroup.LayoutParams
-         * .FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
-         * ((FrameLayout) findViewById(R.id.tab_holder)).addView(tabLayout);
-         * mTabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
-         * mTabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
-         * if (mActivity instanceof ScProfile){ ((ScProfile)
-         * mActivity).setTabHost(mTabHost); } LazyBaseAdapter adp = new
-         * TracklistAdapter(mActivity, new ArrayList<Parcelable>());
-         * LazyEndlessAdapter adpWrap = new
-         * LazyEndlessAdapter(mActivity,adp,getUserTracksUrl
-         * (),CloudUtils.Model.track); final ScTabView tracksView = mTracksView
-         * = new ScTabView(mActivity,adpWrap);
-         * CloudUtils.createTabList(mActivity, tracksView, adpWrap,
-         * CloudUtils.ListId.LIST_USER_TRACKS); CloudUtils.createTab(mActivity,
-         * mTabHost
-         * ,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView,
-         * false); adp = new TracklistAdapter(mActivity, new
-         * ArrayList<Parcelable>()); adpWrap = new
-         * LazyEndlessAdapter(mActivity,adp
-         * ,getFavoritesUrl(),CloudUtils.Model.track); final ScTabView
-         * favoritesView = mFavoritesView = new ScTabView(mActivity,adpWrap);
-         * CloudUtils.createTabList(mActivity, favoritesView, adpWrap,
-         * CloudUtils.ListId.LIST_USER_FAVORITES);
-         * CloudUtils.createTab(mActivity,
-         * mTabHost,"favorites",mActivity.getString
-         * (R.string.tab_favorites),null,favoritesView, false); final ScTabView
-         * detailsView = new ScTabView(mActivity);
-         * detailsView.addView(mDetailsView); CloudUtils.createTab(mActivity,
-         * mTabHost
-         * ,"details",mActivity.getString(R.string.tab_info),null,detailsView,
-         * false); CloudUtils.configureTabs(mActivity, mTabWidget, 30);
-         * CloudUtils.setTabTextStyle(mActivity, mTabWidget, true);
-         * mTabWidget.invalidate(); setTabTextInfo(); if (!mIsOtherUser)
-         * mTabHost
-         * .setCurrentTab(PreferenceManager.getDefaultSharedPreferences(
-         * mActivity ).getInt("lastProfileIndex",0));
-         * mTabHost.setOnTabChangedListener(tabListener);
-         */
-
+        
+         FrameLayout tabLayout = CloudUtils.createTabLayout(mActivity);
+         tabLayout.setLayoutParams(new
+         LayoutParams(android.view.ViewGroup.LayoutParams
+         .FILL_PARENT,android.view.ViewGroup.LayoutParams.FILL_PARENT));
+         ((FrameLayout) findViewById(R.id.tab_holder)).addView(tabLayout);
+         mTabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
+         mTabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
+         if (mActivity instanceof ScProfile){ ((ScProfile)
+         mActivity).setTabHost(mTabHost); } LazyBaseAdapter adp = new
+         TracklistAdapter(mActivity, new ArrayList<Parcelable>());
+         LazyEndlessAdapter adpWrap = new
+         LazyEndlessAdapter(mActivity,adp,getUserTracksUrl
+         (),CloudUtils.Model.track); final ScTabView tracksView = mTracksView
+         = new ScTabView(mActivity,adpWrap);
+         CloudUtils.createTabList(mActivity, tracksView, adpWrap,
+         CloudUtils.ListId.LIST_USER_TRACKS); CloudUtils.createTab(mActivity,
+         mTabHost
+         ,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView,
+         false); adp = new TracklistAdapter(mActivity, new
+         ArrayList<Parcelable>()); adpWrap = new
+         LazyEndlessAdapter(mActivity,adp
+         ,getFavoritesUrl(),CloudUtils.Model.track); final ScTabView
+         favoritesView = mFavoritesView = new ScTabView(mActivity,adpWrap);
+         CloudUtils.createTabList(mActivity, favoritesView, adpWrap,
+         CloudUtils.ListId.LIST_USER_FAVORITES);
+         CloudUtils.createTab(mActivity,
+         mTabHost,"favorites",mActivity.getString
+         (R.string.tab_favorites),null,favoritesView, false); final ScTabView
+         detailsView = new ScTabView(mActivity);
+         detailsView.addView(mDetailsView); CloudUtils.createTab(mActivity,
+         mTabHost
+         ,"details",mActivity.getString(R.string.tab_info),null,detailsView,
+         false); CloudUtils.configureTabs(mActivity, mTabWidget, 30);
+         CloudUtils.setTabTextStyle(mActivity, mTabWidget, true);
+         mTabWidget.invalidate(); setTabTextInfo(); if (!mIsOtherUser)
+         mTabHost
+         .setCurrentTab(PreferenceManager.getDefaultSharedPreferences(
+         mActivity ).getInt("lastProfileIndex",0));
+         mTabHost.setOnTabChangedListener(tabListener);
+         
+         if (mActivity instanceof ScProfile){
+             ((ScProfile) mActivity).setTabHost(mTabHost);
+         }
+         
         // this is for the workspace view
+        /*
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         FrameLayout frameLayout = (FrameLayout) findViewById(android.R.id.tabcontent);
         frameLayout.setPadding(0, 0, 0, 0);
@@ -428,13 +432,6 @@ public class UserBrowser extends ScTabView {
         });
         // ((FrameLayout) findViewById(R.id.tab_holder)).addView(tabLayout);
 
-        // ((ScrollView)
-        // mDetailsView.findViewById(R.id.user_details_scrollview)).setOnTouchListener(gestureListener);
-
-        // if (mActivity instanceof ScProfile){
-        // ((ScProfile) mActivity).setTabHost(mTabHost);
-        // }
-
         final ScTabView emptyView = new ScTabView(mActivity);
 
         LazyBaseAdapter adp = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
@@ -442,11 +439,7 @@ public class UserBrowser extends ScTabView {
                 CloudUtils.Model.track);
 
         final ScTabView tracksView = mTracksView = new ScTabView(mActivity, adpWrap);
-        CloudUtils
-                .createTabList(mActivity, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
-        // CloudUtils.createTab(mActivity,
-        // mTabHost,"tracks",mActivity.getString(R.string.tab_tracks),null,tracksView,
-        // true);
+        CloudUtils.createTabList(mActivity, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
         CloudUtils.createTab(mActivity, mTabHost, "tracks", mActivity
                 .getString(R.string.tab_tracks), null, emptyView, true);
         mWorkspaceView.addView(tracksView);
@@ -497,7 +490,7 @@ public class UserBrowser extends ScTabView {
             ((ScProfile) mActivity).setTabHost(mTabHost);
         }
         
-        mTabHost.setOnTabChangedListener(tabListener);
+        mTabHost.setOnTabChangedListener(tabListener);*/
     }
 
     protected void setTabTextInfo() {

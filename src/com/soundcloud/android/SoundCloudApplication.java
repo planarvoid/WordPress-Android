@@ -47,7 +47,7 @@ import com.soundcloud.utils.SoundCloudAuthorizationClient.AuthorizationStatus;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.ProgressListener;
 
-@ReportsCrashes(formKey = "dHBndkdXY1lwUEN4QmtDZkNlQkh2YVE6MQ")
+@ReportsCrashes(formKey = "dC0zSEhYX0xRX1lfYTVYYWpJbWh6NlE6MQ")
 public class SoundCloudApplication extends Application {
 
     public static enum Events {

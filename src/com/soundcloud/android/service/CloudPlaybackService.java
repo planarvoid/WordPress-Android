@@ -648,11 +648,12 @@ public class CloudPlaybackService extends Service {
 
                 configureTrackData(mPlayingData);
 
-                pausedForBuffering = true;
-                initialBuffering = true;
                 notifyChange(INITIAL_BUFFERING);
 
                 if (isStagefright) {
+                    pausedForBuffering = true;
+                    initialBuffering = true;
+                    
                     if (checkNetworkStatus())
                         prepareDownload(mPlayingData);
                     else
