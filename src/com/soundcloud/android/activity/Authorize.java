@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.soundcloud.android.CloudUtils;
@@ -65,6 +66,16 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
 
         safeShowDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
+            mWebView.goBack();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     @Override
