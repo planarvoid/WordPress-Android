@@ -69,15 +69,15 @@ public class TracklistRow extends LazyRow {
          * onClick(View view) { playClicked();
          * //Log.i("PlayButton","Play button done"); } });
          * mPlaylistBtn.setOnClickListener(new View.OnClickListener() { public
-         * void onClick(View view) { ((TrackList) mContext).enqueue(mTrack); }
+         * void onClick(View view) { ((TrackList) mAppContextReference).enqueue(mTrack); }
          * }); mFavoriteBtn.setOnClickListener(new View.OnClickListener() {
          * public void onClick(View view) { toggleFavorite(); } });
          * mDownloadBtn.setOnClickListener(new View.OnClickListener() { public
          * void onClick(View view) { ((TrackList)
-         * mContext).downloadTrack(mTrack); } });
+         * mAppContextReference).downloadTrack(mTrack); } });
          * mDetailsBtn.setOnClickListener(new View.OnClickListener() { public
          * void onClick(View view) { CloudUtils.gotoTrackDetails(((TrackList)
-         * mContext), (Track) mTrack); } });
+         * mAppContextReference), (Track) mTrack); } });
          */
 
     }
@@ -203,8 +203,8 @@ public class TracklistRow extends LazyRow {
 
     private void toggleFavorite() {
         /*
-         * if (_isFavorite){ ((TrackList) mContext).removeFavorite(mTrack,
-         * this); } else { ((TrackList) mContext).addFavorite(mTrack);
+         * if (_isFavorite){ ((TrackList) mAppContextReference).removeFavorite(mTrack,
+         * this); } else { ((TrackList) mAppContextReference).addFavorite(mTrack);
          * _isFavorite = !_isFavorite; setFavoriteStatus(); }
          */
     }

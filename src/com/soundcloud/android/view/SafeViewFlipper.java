@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ViewFlipper;
 
+// Workaround for http://code.google.com/p/android/issues/detail?id=6191
 public class SafeViewFlipper extends ViewFlipper {
     public SafeViewFlipper(Context context) {
         super(context);

@@ -524,8 +524,9 @@ public class CloudPlaybackService extends Service {
 
     public void playFromAppCache(int playPos) {
         synchronized (this) {
-            mPlayListManager.loadCachedPlaylist(((SoundCloudApplication) this.getApplication())
-                    .flushCachePlaylist(), playPos);
+            mPlayListManager.loadCachedPlaylist(
+                    ((SoundCloudApplication) this.getApplication()).flushCachePlaylist(),
+                    playPos);
             stopStreaming(null);
             play();
             openCurrent();

@@ -13,6 +13,8 @@ ks/
 # idea
 .idea
 *.iml
+out
+tmp
 
 # ant
 local.properties

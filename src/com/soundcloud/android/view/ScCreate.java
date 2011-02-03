@@ -682,7 +682,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mChrono.setVisibility(View.VISIBLE);
 
                 // if (TextUtils.isEmpty(mRecordErrorMessage)){
-                // txtRecordStatus.setText(mActivity.getResources().getString(R.string.cloud_recorder_experimental));
+                // txtRecordStatus.setText(mActivityReference.getResources().getString(R.string.cloud_recorder_experimental));
                 // txtRecordStatus.setVisibility(View.VISIBLE);
                 // } else
                 txtRecordStatus.setVisibility(View.GONE);
@@ -701,7 +701,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mChrono.setVisibility(View.VISIBLE);
                 btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(
                         R.drawable.btn_rec_stop_states));
-                // btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(R.drawable.btn_rec_pause_states));
+                // btnAction.setBackgroundDrawable(mActivityReference.getResources().getDrawable(R.drawable.btn_rec_pause_states));
                 if (takeAction)
                     startPlayback();
                 break;
