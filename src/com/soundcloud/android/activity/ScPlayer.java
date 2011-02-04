@@ -600,7 +600,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         }
 
         /*
-         * temporary commenting out timestamp until I figure out how to do the
+         * temporary commenting out created_at until I figure out how to do the
          * formatting properly try { str += "<b>Uploaded " +
          * mPlayingTrack.getData(Track.key_created_at)+"<br />";
          * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");

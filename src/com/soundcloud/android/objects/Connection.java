@@ -1,10 +1,12 @@
 package com.soundcloud.android.objects;
 
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.net.URI;
+import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection {
     enum Type { TWITTER, FACEBOOK, MYSPACE }
 
@@ -17,6 +19,7 @@ public class Connection {
     public boolean postFavorite;
     public URI uri;
 
+    public Date created_at;
 
     @Override
     public String toString() {
@@ -27,6 +30,7 @@ public class Connection {
                 ", postPublish=" + postPublish +
                 ", postFavorite=" + postFavorite +
                 ", uri=" + uri +
+                ", created_at=" + created_at +
                 '}';
     }
 }
