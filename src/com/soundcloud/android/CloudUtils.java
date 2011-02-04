@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -1054,12 +1055,20 @@ public class CloudUtils {
             else
                 return mUrl;
 
-        return String.format(mUrl + "?order=%s", URLEncoder.encode(order) + refreshAppend);
+        return String.format(mUrl + "?order=%s", encode(order) + refreshAppend);
 
     }
 
     public static String formatUsername(String username) {
         return username.replace(" ", "-");
+    }
+
+    public static String encode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String stripProtocol(String url) {
