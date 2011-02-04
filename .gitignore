@@ -18,3 +18,5 @@ tmp
 
 # ant
 local.properties
+
+test

@@ -18,7 +18,7 @@ public class Comment extends BaseObj implements Parcelable {
 
     public static final String key_body = "body";
 
-    public static final String key_timestamp = "timestamp";
+    public static final String key_timestamp = "created_at";
 
     public static final String key_timestamp_formatted = "timestamp_formatted";
 
@@ -68,7 +68,7 @@ public class Comment extends BaseObj implements Parcelable {
     public List<NameValuePair> mapDataToParams() {
         List<NameValuePair> params = new java.util.ArrayList<NameValuePair>();
         // params.add(new BasicNameValuePair("comment[body]", getBody());
-        // params.add(new BasicNameValuePair("comment[timestamp]",
+        // params.add(new BasicNameValuePair("comment[created_at]",
         // getTimestamp());
         // params.add(new BasicNameValuePair("comment[reply_to]", getReplyTo());
         return params;
