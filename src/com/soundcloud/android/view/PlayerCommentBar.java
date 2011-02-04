@@ -88,8 +88,8 @@ public class PlayerCommentBar extends View {
         mDuration = duration;
         mCurrentComments = newItems;
         for (int i = 0; i < newItems.size(); i++){
-            Bitmap bitmap = getBitmap(((Comment) newItems.get(i)).getUser().getAvatarUrl());
-            Throwable error = getError(((Comment) newItems.get(i)).getUser().getAvatarUrl());
+            Bitmap bitmap = getBitmap(((Comment) newItems.get(i)).user.getAvatarUrl());
+            Throwable error = getError(((Comment) newItems.get(i)).user.getAvatarUrl());
             
             //Log.i(TAG,"!!!!!!!!!!!!!!!!! " + bitmap);
             
@@ -97,7 +97,7 @@ public class PlayerCommentBar extends View {
                 ((Comment) newItems.get(i)).avatar = new WeakReference<Bitmap>(bitmap);
             } else {
                 if (error != null) {
-                } else if (CloudUtils.checkIconShouldLoad(((Comment) newItems.get(i)).getUser().getAvatarUrl())){
+                } else if (CloudUtils.checkIconShouldLoad(((Comment) newItems.get(i)).user.getAvatarUrl())){
                     ImageTask task = new ImageTask(((Comment) newItems.get(i)));
                     postTask(task);
                 }
@@ -113,7 +113,7 @@ public class PlayerCommentBar extends View {
             return;
         
         for (int i = 0; i < mCurrentComments.size(); i++){
-            if (((Comment) mCurrentComments.get(i)).getTimestamp() != null){
+            if (((Comment) mCurrentComments.get(i)).timestamp != 0){
                 if (((Comment) mCurrentComments.get(i)).xPos == -1) ((Comment) mCurrentComments.get(i)).calculateXPos(this.getWidth(), mDuration);
                 if (((Comment) mCurrentComments.get(i)).avatar != null && ((Comment) mCurrentComments.get(i)).avatar.get() != null){
                     canvas.drawBitmap(((Comment) mCurrentComments.get(i)).avatar.get(), ((Comment) mCurrentComments.get(i)).xPos, 0, mPaint);
@@ -399,7 +399,7 @@ public class PlayerCommentBar extends View {
 
         private ImageTask(Comment comment) {
             mComment = comment;
-            mUrl = comment.getUser().getAvatarUrl();
+            mUrl = comment.user.getAvatarUrl();
         }
 
         /**

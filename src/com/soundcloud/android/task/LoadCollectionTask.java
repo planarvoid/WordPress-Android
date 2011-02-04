@@ -81,7 +81,7 @@ public class LoadCollectionTask extends AsyncTask<HttpUriRequest, Parcelable, Bo
 
                 InputStream is = mActivityReference.get().getSoundCloudApplication()
                         .executeRequest(req);
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 
                 if (newItems != null)
                     newItems.clear();
@@ -115,6 +115,7 @@ public class LoadCollectionTask extends AsyncTask<HttpUriRequest, Parcelable, Bo
                 return true;
 
             } catch (IOException e) {
+                Log.w(TAG, "error", e);
                 e.printStackTrace();
             }
 
