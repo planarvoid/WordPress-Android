@@ -724,7 +724,8 @@ public class CloudPlaybackService extends Service {
                         trackToCache.getCacheFile().setLastModified(System.currentTimeMillis());
 
                     }
-                };
+                }.start();
+
                 (mDownloadThread = new DownloadThread(this, trackToCache)).start();
             }
         }
