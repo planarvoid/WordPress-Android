@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.soundcloud.android.mapper.CloudDateFormat;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -28,6 +29,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 import org.urbanstew.soundcloudapi.SoundCloudOptions;
 
@@ -49,6 +51,8 @@ import com.soundcloud.utils.http.ProgressListener;
 
 @ReportsCrashes(formKey = "dC0zSEhYX0xRX1lfYTVYYWpJbWh6NlE6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
+    private ObjectMapper mMapper;
+
     public static enum Events {
         track, favorite, playlist
     }
@@ -130,6 +134,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public SoundCloudAPI.State getState() {
         return mSoundCloudApi.getState();
     }
+
 
     public final void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit().remove("oauth_access_token")
@@ -354,6 +359,14 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public String urlEncode(String resource) {
         return urlEncode(resource, null);
+    }
+
+    public ObjectMapper getMapper() {
+        if (this.mMapper == null) {
+            mMapper = new ObjectMapper();
+            mMapper.getDeserializationConfig().setDateFormat(CloudDateFormat.INSTANCE);
+        }
+        return mMapper;
     }
 
     private String urlEncode(String resource, List<NameValuePair> params) {

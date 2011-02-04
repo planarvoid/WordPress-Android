@@ -624,7 +624,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
                 InputStream is = mActivityReference.get().getSoundCloudApplication()
                         .executeRequest(req);
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 
                 if (newItems != null)
                     newItems.clear();
