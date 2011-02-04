@@ -1,23 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.EventsWrapper;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.view.LazyList;
-
-import oauth.signpost.exception.OAuthException;
-
-import org.apache.http.client.methods.HttpUriRequest;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.json.JSONObject;
-
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
@@ -27,10 +10,20 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.EventsWrapper;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.view.LazyList;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -64,7 +57,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private View mEmptyView;
 
-    private View mListView;
+    private LazyList mListView;
 
     private int mCurrentPage;
 
@@ -160,7 +153,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         emptyView.setVisibility(View.GONE);
         emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
-        // emptyView.setBackgroundColor(mActivity.getResources().getColor(R.color.cloudProgressBackgroundCenter));
+        // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
         mEmptyView = emptyView;
 
         ((ViewGroup) mListView.getParent()).addView(emptyView);
@@ -184,22 +177,22 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         String textToSet = "";
         switch (getLoadModel()) {
             case track:
-                textToSet = mException == false ? mActivity.getResources().getString(
+                textToSet = !mException ? mActivity.getResources().getString(
                         R.string.tracklist_empty) : mActivity.getResources().getString(
                         R.string.tracklist_error);
                 break;
             case user:
-                textToSet = mException == false ? mActivity.getResources().getString(
+                textToSet = !mException ? mActivity.getResources().getString(
                         R.string.userlist_empty) : mActivity.getResources().getString(
                         R.string.userlist_error);
                 break;
             case comment:
-                textToSet = mException == false ? mActivity.getResources().getString(
+                textToSet = !mException ? mActivity.getResources().getString(
                         R.string.tracklist_empty) : mActivity.getResources().getString(
                         R.string.commentslist_error);
                 break;
             case event:
-                textToSet = mException == false ? mActivity.getResources().getString(
+                textToSet = !mException ? mActivity.getResources().getString(
                         R.string.tracklist_empty) : mActivity.getResources().getString(
                         R.string.tracklist_error);
                 break;
@@ -217,7 +210,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     /**
-     * Restore a possibily still running task that could have been passed in on
+     * Restore a possibly still running task that could have been passed in on
      * creation
      * 
      * @param ap
@@ -262,13 +255,13 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *         page the adapter is on}
      */
     public void restorePagingData(int[] restore) {
-        keepOnAppending.set(restore[0] == 1 ? true : false);
+        keepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
-        mException = restore[2] == 1 ? true : false;
+        mException = restore[2] == 1;
 
         if (!keepOnAppending.get()) {
             setEmptyviewText();
-            ((AdapterView<ListAdapter>) mListView).setEmptyView(mEmptyView);
+            mListView.setEmptyView(mEmptyView);
         }
 
     }
@@ -392,11 +385,11 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         // configure the empty view depending on possible exceptions
         setEmptyviewText();
-        ((AdapterView<ListAdapter>) mListView).setEmptyView(mEmptyView);
+        mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
-        // if (mActivity != null)
-        // mActivity.handleException();
+        // if (mActivityReference != null)
+        // mActivityReference.handleException();
     }
 
     /**
@@ -435,27 +428,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (row.findViewById(R.id.row_loader) != null)
             row.findViewById(R.id.row_loader).setVisibility(View.GONE);
 
-    }
-
-    /**
-     * We just got the data, so if there is any data that needs to be captured
-     * from it, do so This will be overridden by extending classes as necessary
-     * ({ @link com.soundcloud.android.adapter.EventsAdapter })
-     * 
-     * @param data : the data node that was just retrieved
-     */
-    public void onDataNode(JSONObject data) {
-        // TODO Auto-generated method stub
-        return;
-    }
-
-    /**
-     * Set the url for this adapter
-     * 
-     * @param url : url this adapter will use to get data from
-     */
-    protected void setPath(String url) {
-        setPath(url, "");
     }
 
     /**
@@ -523,7 +495,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
         if (mListView != null)
-            ((AdapterView<ListAdapter>) mListView).setEmptyView(null);
+            mListView.setEmptyView(null);
 
         mCurrentPage = 0;
         keepOnAppending.set(true);
@@ -570,15 +542,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
 
-        try {
-            return mActivity.getSoundCloudApplication().getPreparedRequest(
-                    builder.build().toString());
-        } catch (OAuthException e) {
-            setException(e);
-            e.printStackTrace();
-        } 
-        return null;
-
+       return mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
     }
 
     /**
@@ -662,7 +626,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
                 InputStream is = mActivityReference.get().getSoundCloudApplication()
                         .executeRequest(req);
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 
                 if (newItems != null)
                     newItems.clear();
@@ -719,7 +683,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
             } catch (Exception e) {
                 e.printStackTrace();
                 mException = true;
-                // if (mActivity != null) mActivity.setException(e);
+                // if (mActivityReference != null) mActivityReference.setException(e);
                 if (mAdapterReference.get() != null)
                     mAdapterReference.get().setException(e);
             }

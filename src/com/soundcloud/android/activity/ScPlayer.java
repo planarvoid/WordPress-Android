@@ -654,7 +654,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         }
 
         /*
-         * temporary commenting out timestamp until I figure out how to do the
+         * temporary commenting out created_at until I figure out how to do the
          * formatting properly try { str += "<b>Uploaded " +
          * mPlayingTrack.getData(Track.key_created_at)+"<br />";
          * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
@@ -834,12 +834,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
             mLoadCommentsTask.pageSize = 50;
             mLoadCommentsTask.setContext(this);
-            try {
-                mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
-            } catch (OAuthException e) {
-                e.printStackTrace();
-            }
-           
+            mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
+
             
             mTrackName.setText(mPlayingTrack.getTitle());
             mUserName.setText(mPlayingTrack.getUser().getUsername());

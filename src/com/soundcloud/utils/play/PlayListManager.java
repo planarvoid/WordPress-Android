@@ -21,12 +21,14 @@ public class PlayListManager {
 
     private CloudPlaybackService mPlaybackService;
 
+
     private long[] mPlayList = new long[0];
 
     private int mPlayPos = 0;
 
     private int mPlayListLen = 0;
 
+    // used when tracks get committed to db
     private Track[] mPlayListCache;
 
     public PlayListManager(CloudPlaybackService service) {
@@ -88,6 +90,7 @@ public class PlayListManager {
     public void loadCachedPlaylist(List<Parcelable> playlistCache, int playPos) {
         // cache a new tracklist
         mPlayListCache = new Track[playlistCache.size()];
+
         mPlayList = new long[playlistCache.size()];
 
         for (int i = 0; i < playlistCache.size(); i++) {

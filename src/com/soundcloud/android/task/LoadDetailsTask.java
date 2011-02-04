@@ -28,7 +28,7 @@ public class LoadDetailsTask extends LoadTask {
                 return false;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
             
             Parcelable parcelable = null;
             switch (loadModel) {

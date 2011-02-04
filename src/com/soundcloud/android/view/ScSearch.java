@@ -29,6 +29,8 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 
+import static com.soundcloud.android.CloudUtils.encode;
+
 public class ScSearch extends ScTabView {
 
     // Debugging tag.
@@ -176,13 +178,13 @@ public class ScSearch extends ScTabView {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS, URLEncoder.encode(txtQuery
+            mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS, encode(txtQuery
                     .getText().toString()));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
 
         } else {
-            mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS, URLEncoder.encode(txtQuery
+            mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS, encode(txtQuery
                     .getText().toString()));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);
