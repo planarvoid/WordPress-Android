@@ -11,11 +11,8 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyList;
 
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthException;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
@@ -35,7 +32,6 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -364,6 +360,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 if (appendTask == null || CloudUtils.isTaskFinished(appendTask)) {
                     appendTask = new AppendTask();
                     appendTask.loadModel = getLoadModel();
+                    appendTask.pageSize = mActivity.getPageSize();
                     appendTask.setContext(this, mActivity);
                     appendTask.execute(this.buildRequest());
                 }
@@ -568,41 +565,18 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (baseUrl.indexOf("limit") == -1)
             builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
 
-        builder.appendQueryParameter("rand", String.valueOf(((int) (Math.random() * 100000))));
         builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()
                 * (getCurrentPage())));
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
 
-        HttpUriRequest req;
         try {
-            req = mActivity.getSoundCloudApplication().getPreparedRequest(
+            return mActivity.getSoundCloudApplication().getPreparedRequest(
                     builder.build().toString());
-            /*
-             * for (Header h : req.getAllHeaders()){ Log.i(TAG,"Header " +
-             * h.getName() + " : " + h.getValue()); }
-             */
-            return req;
-        } catch (OAuthMessageSignerException e) {
+        } catch (OAuthException e) {
             setException(e);
             e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            setException(e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            setException(e);
-            e.printStackTrace();
-        }
-
+        } 
         return null;
 
     }
@@ -620,10 +594,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         private WeakReference<LazyActivity> mActivityReference;
 
         private Boolean keepGoing = true;
-
+        
         private ArrayList<Parcelable> newItems;
 
         public CloudUtils.Model loadModel;
+        
+        public int pageSize;
 
         /**
          * Set the activity and adapter that this task now belong to. This will
@@ -731,7 +707,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 // done grabbing items for this list
                 if (mActivityReference.get() != null)
                     if (newItems == null
-                            || newItems.size() < mActivityReference.get().getPageSize())
+                            || newItems.size() < pageSize)
                         keep_appending = false;
 
                 // we were successful, so increment the adapter

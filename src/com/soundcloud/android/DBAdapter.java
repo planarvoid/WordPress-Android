@@ -337,6 +337,7 @@ public class DBAdapter {
     }
 
     public Cursor getUserById(Long userId, Long currentUserId) {
+        if (db == null) return null;
         if (currentUserId != 0)
             return db.rawQuery("SELECT Users.* FROM Users WHERE Users.id = '" + userId + "'", null);
         else

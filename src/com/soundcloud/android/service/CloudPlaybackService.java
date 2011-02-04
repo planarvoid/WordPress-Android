@@ -16,15 +16,18 @@
 
 package com.soundcloud.android.service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.LoadCommentsTask;
+import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.net.NetworkConnectivityListener;
+import com.soundcloud.utils.play.MediaFrameworkChecker;
+import com.soundcloud.utils.play.PlayListManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -39,6 +42,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteException;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -50,27 +54,24 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.StatFs;
-import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.net.NetworkConnectivityListener;
-import com.soundcloud.utils.play.MediaFrameworkChecker;
-import com.soundcloud.utils.play.PlayListManager;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -579,8 +580,12 @@ public class CloudPlaybackService extends Service {
 
         // tell the db we played it
         track.setUserPlayed(true);
-        CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), track,
+        
+        try {
+            CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), track,
                 WriteState.all, CloudUtils.getCurrentUserId(this));
+        } catch (SQLiteException ex){
+        }
 
         // meta has changed
         notifyChange(META_CHANGED);
@@ -636,8 +641,11 @@ public class CloudPlaybackService extends Service {
     }
 
     public void commitTrackToDb(Track t) {
-        CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), t, WriteState.all,
+        try {
+            CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), t, WriteState.all,
                 CloudUtils.getCurrentUserId(this));
+        } catch (SQLiteException ex){
+        }
     }
 
     private void startNextTrack() {

@@ -230,7 +230,7 @@ public class UserBrowser extends ScTabView {
 
                 mLoadDetailsTask = null;
             }
-        } else {
+        } else if (mWorkspaceView != null) {
             if (mWorkspaceView.getDisplayedChild() == TabIndexes.TAB_INFO) {
                 this.refreshDetailsTask();
             }
@@ -251,13 +251,20 @@ public class UserBrowser extends ScTabView {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
         User userInfo = null;
+        if (!(preferences.getString("currentUserId", "-1").contentEquals("-1") || preferences.getString("currentUserId", "-1").contentEquals(""))){
+            try
+            {
+                userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer
+                        .parseInt(preferences.getString("currentUserId", "-1")), CloudUtils
+                        .getCurrentUserId(mActivity));
+            }
+            catch (NumberFormatException nfe)
+            {
+               // bad data - user has a corrupted value, and will be corrected on load
+            }
+        }
 
-        if (!preferences.getString("currentUserId", "-1").contentEquals("-1"))
-            userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer
-                    .parseInt(preferences.getString("currentUserId", "-1")), CloudUtils
-                    .getCurrentUserId(mActivity));
-
-        if (userInfo != null)
+        if (userInfo != null && userInfo.getId() != null)
             mapUser(userInfo);
 
         build();

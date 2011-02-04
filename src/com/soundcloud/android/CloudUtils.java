@@ -726,37 +726,36 @@ public class CloudUtils {
     // ---Make sure the database is up to date with this track info---
     public static void resolveTrack(SoundCloudApplication context, Track track,
             WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
-
-        DBAdapter db;
-        if (openAdapter == null) {
-            db = new DBAdapter(context);
-            db.open();
-        } else
-            db = openAdapter;
-
-        Cursor result = db.getTrackById(track.getId(), currentUserId);
-        if (result.getCount() != 0) {
-            // add local urls and update database
-            result.moveToFirst();
-
-            track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
-                            : false);
-
-            if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateTrack(track);
-
-        } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertTrack(track);
-        }
-        result.close();
-
-        if (openAdapter == null)
-            db.close();
-        else
-            db = null;
-
-        // write with insert only because a track will never come in with
-        resolveUser(context, track.getUser(), WriteState.insert_only, currentUserId, openAdapter);
+            DBAdapter db;
+            if (openAdapter == null) {
+                db = new DBAdapter(context);
+                db.open();
+            } else
+                db = openAdapter;
+    
+            Cursor result = db.getTrackById(track.getId(), currentUserId);
+            if (result.getCount() != 0) {
+                // add local urls and update database
+                result.moveToFirst();
+    
+                track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
+                                : false);
+    
+                if (writeState == WriteState.update_only || writeState == WriteState.all)
+                    db.updateTrack(track);
+    
+            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                db.insertTrack(track);
+            }
+            result.close();
+    
+            if (openAdapter == null)
+                db.close();
+            else
+                db = null;
+    
+            // write with insert only because a track will never come in with
+            resolveUser(context, track.getUser(), WriteState.insert_only, currentUserId, openAdapter);
     }
 
     // ---Make sure the database is up to date with this track info---

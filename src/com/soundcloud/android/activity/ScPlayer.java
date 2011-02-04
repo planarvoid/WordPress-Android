@@ -4,15 +4,22 @@ package com.soundcloud.android.activity;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
+
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+
+import org.apache.http.client.ClientProtocolException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,26 +39,24 @@ import android.text.Layout;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-import android.widget.ImageView.ScaleType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ScPlayer extends LazyActivity implements OnTouchListener {
@@ -88,13 +93,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private int mTouchSlop;
 
-    private ExpandableListView comments_lv;
-
     private WaveformController mWaveformController;
 
     private Long mCurrentTrackId = null;
-
-    private String mPendingArtwork = "";
 
     private Track mPlayingTrack;
 
@@ -102,15 +103,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private int mEnqueuePosition;
 
-    private LazyExpandableBaseAdapter mCommentsAdapter;
-
-    private LinearLayout mCommentListHolder;
-
-    private LinearLayout mLoadingLayout;
-
     private LinearLayout mTrackInfoBar;
-
-    private ViewGroup mTransportBar;
 
     private ViewFlipper mTrackFlipper;
 
@@ -148,19 +141,17 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private ProgressBar mProgress;
 
-    private boolean mFromTouch = false;
-
     private long mDuration;
 
     private boolean paused;
     
     private boolean mTrackDetailsFilled = false;
+    
+    private LoadCollectionTask mLoadCommentsTask;
 
     private static final int REFRESH = 1;
 
     private static final int QUIT = 2;
-
-    private static final int ALBUM_ART_DECODED = 4;
 
     // ******************************************************************** //
     // Activity Lifecycle.
@@ -204,35 +195,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mDurationFormatLong = getString(R.string.durationformatlong);
         mDurationFormatShort = getString(R.string.durationformatshort);
 
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-
-        if (extras != null) {
-            if (extras.containsKey("enqueueList")) {
-
-                // cast parcelables to tracks
-                Parcelable[] tmpParcelables = extras.getParcelableArray("enqueueList");
-                mEnqueueList = new Track[tmpParcelables.length];
-                int i = 0;
-                for (Parcelable tmp : tmpParcelables) {
-                    mEnqueueList[i] = (Track) tmp;
-                    i++;
-                }
-
-                // mEnqueueList = (Track[]) tmpParcelables;
-                mEnqueuePosition = extras.getInt("enqueuePosition");
-                mPlayingTrack = mEnqueueList[mEnqueuePosition];
-                updateTrackInfo();
-
-                getIntent().removeExtra("enqueueList");
-            }
-        }
-
     }
 
     private void initControls() {
 
-        mTransportBar = (ViewGroup) findViewById(R.id.transport_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
@@ -863,6 +829,18 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         updateArtwork();
 
         if (mCurrentTrackId == null || mPlayingTrack.getId().compareTo(mCurrentTrackId) != 0) {
+            
+            //mLoadCommentsTask = new LoadCollectionTask();
+            //mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
+            //mLoadCommentsTask.pageSize = 50;
+            //mLoadCommentsTask.setContext(this);
+            //try {
+              //  mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
+            //} catch (OAuthException e) {
+              //  e.printStackTrace();
+            //}
+           
+            
             mTrackName.setText(mPlayingTrack.getTitle());
             mUserName.setText(mPlayingTrack.getUser().getUsername());
 

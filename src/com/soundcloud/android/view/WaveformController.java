@@ -1,37 +1,56 @@
 
 package com.soundcloud.android.view;
 
-import java.io.File;
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.google.android.imageloader.ImageLoader.Callback;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.utils.LruCache;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Transformation;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.ImageView.ScaleType;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.Track;
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.SoftReference;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.util.Collections;
+import java.util.Map;
 
 public class WaveformController extends FrameLayout implements OnTouchListener, OnLongClickListener {
     private static final String TAG = "WaveformController";
@@ -252,8 +271,6 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
         }
         return true; // indicate event was handled
     }
-
-    private Handler handler = new Handler();
 
     public boolean onLongClick(View v) {
         return true;

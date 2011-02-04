@@ -1,57 +1,93 @@
 
 package com.soundcloud.android.objects;
 
-import java.util.List;
+import org.apache.james.mime4j.field.datetime.DateTime;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-import org.apache.http.NameValuePair;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Comment extends BaseObj implements Parcelable {
+    
+    private Long id;
 
-    public static final String MODEL = "overcast.comment";
+    private DateTime created_at;
+    
+    private Long user_id;
+    
+    private Long track_id;
+    
+    private DateTime timestamp;    
+    
+    private String body;
+    
+    private String uri;
+    
+    private User user;
 
-    public static final String key_id = "id";
-
-    public static final String key_uri = "uri";
-
-    public static final String key_body = "body";
-
-    public static final String key_timestamp = "timestamp";
-
-    public static final String key_timestamp_formatted = "timestamp_formatted";
-
-    public static final String key_track_id = "track_id";
-
-    public static final String key_created_at = "created_at";
-
-    public static final String key_reply_to = "reply_to";
-
-    public static final String key_user = "user";
-
-    public static final String key_user_id = "user_id";
-
-    public static final String key_username = "username";
-
-    public static final String key_user_permalink = "user_permalink";
-
-    public static final String key_user_avatar_url = "user_avatar_url";
-
-    private Bundle data;
-
-    public enum Parcelables {
-        track, user, comment
+    @JsonProperty("id")
+    public Long getId() {
+        return id;
     }
-
-    public void resolveData() {
-        // if ( data.getString(Comment.key_timestamp) == "null" ||
-        // data.getString(Comment.key_timestamp) == null ||
-        // data.getString(Comment.key_timestamp) == "")
-        // data.putString(Comment.key_timestamp, "-1");
-        // else
-        // data.putString(Comment.key_timestamp,
-        // data.getString(Comment.key_timestamp));
+    @JsonProperty("id")
+    public void setId(Long id) {
+        this.id = id;
+    }
+    @JsonProperty("created_at")
+    public DateTime getCreatedAt() {
+        return created_at;
+    }
+    @JsonProperty("created_at")
+    public void setCreatedAt(DateTime created_at) {
+        this.created_at = created_at;
+    }
+    @JsonProperty("user_id")
+    public Long getUserId() {
+        return user_id;
+    }
+    @JsonProperty("user_id")
+    public void setUserId(Long user_id) {
+        this.user_id = user_id;
+    }
+    @JsonProperty("track_id")
+    public Long getTrackId() {
+        return track_id;
+    }
+    @JsonProperty("track_id")
+    public void setTrackId(Long track_id) {
+        this.track_id = track_id;
+    }
+    @JsonProperty("timestamp")
+    public DateTime getTimestamp() {
+        return timestamp;
+    }
+    @JsonProperty("timestamp")
+    public void setTimestamp(DateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+    @JsonProperty("body")
+    public String getBody() {
+        return body;
+    }
+    @JsonProperty("body")
+    public void setBody(String body) {
+        this.body = body;
+    }
+    @JsonProperty("uri")
+    public String getUri() {
+        return uri;
+    }
+    @JsonProperty("uri")
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+    @JsonProperty("user")
+    public User getUser() {
+        return user;
+    }
+    @JsonProperty("user")
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Comment() {
@@ -59,19 +95,6 @@ public class Comment extends BaseObj implements Parcelable {
 
     public Comment(Parcel in) {
         readFromParcel(in);
-    }
-
-    public Comment(Comment comment) {
-        // mappppp
-    }
-
-    public List<NameValuePair> mapDataToParams() {
-        List<NameValuePair> params = new java.util.ArrayList<NameValuePair>();
-        // params.add(new BasicNameValuePair("comment[body]", getBody());
-        // params.add(new BasicNameValuePair("comment[timestamp]",
-        // getTimestamp());
-        // params.add(new BasicNameValuePair("comment[reply_to]", getReplyTo());
-        return params;
     }
 
     public static final Parcelable.Creator<Comment> CREATOR = new Parcelable.Creator<Comment>() {
@@ -83,22 +106,5 @@ public class Comment extends BaseObj implements Parcelable {
             return new Comment[size];
         }
     };
-
-    @Override
-    public void readFromParcel(Parcel in) {
-        data = in.readBundle();
-    }
-
-    @Override
-    public int describeContents() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int arg1) {
-        // TODO Auto-generated method stub
-        out.writeBundle(data);
-    }
 
 }

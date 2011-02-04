@@ -114,9 +114,10 @@ public class Dashboard extends LazyTabActivity {
     @Override
     public void mapDetails(Parcelable p) {
         Log.i(TAG,"Map Parcelable " + p);
+        if (((User) p).getId() == null)
+            return;
+        
         CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).getId());
-
-        Log.i(TAG, " USER ID " + ((User) p).getId());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String lastUserId = preferences.getString("currentUserId", null);
