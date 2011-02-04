@@ -264,7 +264,7 @@ public class WaveformController extends FrameLayout implements OnTouchListener, 
         return true;
     }
     
-    public void setComments(ArrayList<Parcelable> newItems) {
+    public void setComments(ArrayList<Comment> newItems) {
         
         if (mPlayerCommentBar != null)
             mPlayerCommentBar.setTrackData(mDuration, newItems);

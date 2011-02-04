@@ -64,7 +64,7 @@ public class PlayerCommentBar extends View {
     
     private Bitmap mDefaultAvatar;
     private long mDuration;
-    private ArrayList<Parcelable> mCurrentComments;
+    private ArrayList<Comment> mCurrentComments;
     private Paint mPaint;
 
     
@@ -83,13 +83,13 @@ public class PlayerCommentBar extends View {
 
     }
 
-    public void setTrackData(long duration, ArrayList<Parcelable> newItems){
+    public void setTrackData(long duration, ArrayList<Comment> newItems){
         Log.i(TAG,"Set track data " + duration);
         mDuration = duration;
         mCurrentComments = newItems;
         for (int i = 0; i < newItems.size(); i++){
-            Bitmap bitmap = getBitmap(((Comment) newItems.get(i)).user.getAvatarUrl());
-            Throwable error = getError(((Comment) newItems.get(i)).user.getAvatarUrl());
+            Bitmap bitmap = getBitmap(newItems.get(i).user.getAvatarUrl());
+            Throwable error = getError(newItems.get(i).user.getAvatarUrl());
             
             //Log.i(TAG,"!!!!!!!!!!!!!!!!! " + bitmap);
             
@@ -111,14 +111,14 @@ public class PlayerCommentBar extends View {
         
         if (mCurrentComments == null || mDuration == -1)
             return;
-        
-        for (int i = 0; i < mCurrentComments.size(); i++){
-            if (((Comment) mCurrentComments.get(i)).timestamp != 0){
-                if (((Comment) mCurrentComments.get(i)).xPos == -1) ((Comment) mCurrentComments.get(i)).calculateXPos(this.getWidth(), mDuration);
-                if (((Comment) mCurrentComments.get(i)).avatar != null && ((Comment) mCurrentComments.get(i)).avatar.get() != null){
-                    canvas.drawBitmap(((Comment) mCurrentComments.get(i)).avatar.get(), ((Comment) mCurrentComments.get(i)).xPos, 0, mPaint);
-                }else
-                    canvas.drawBitmap(mDefaultAvatar, ((Comment) mCurrentComments.get(i)).xPos, 0, mPaint);
+
+        for (Comment mCurrentComment : mCurrentComments) {
+            if (mCurrentComment.timestamp != 0) {
+                if (mCurrentComment.xPos == -1) mCurrentComment.calculateXPos(this.getWidth(), mDuration);
+                if (mCurrentComment.avatar != null && mCurrentComment.avatar.get() != null) {
+                    canvas.drawBitmap(mCurrentComment.avatar.get(), mCurrentComment.xPos, 0, mPaint);
+                } else
+                    canvas.drawBitmap(mDefaultAvatar, mCurrentComment.xPos, 0, mPaint);
             }
         }
     }

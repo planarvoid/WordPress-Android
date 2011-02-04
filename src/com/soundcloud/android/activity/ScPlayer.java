@@ -7,6 +7,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCollectionTask;
@@ -147,7 +148,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     
     private boolean mTrackDetailsFilled = false;
     
-    private LoadCollectionTask mLoadCommentsTask;
+    private LoadCommentsTask mLoadCommentsTask;
 
     private static final int REFRESH = 1;
 
@@ -1220,7 +1221,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     
     
     
-    private class LoadCommentsTask extends LoadCollectionTask{
+    private class LoadCommentsTask extends LoadCollectionTask<Comment>{
         @Override
         protected void onPostExecute(Boolean keepGoing) {
             super.onPostExecute(keepGoing);

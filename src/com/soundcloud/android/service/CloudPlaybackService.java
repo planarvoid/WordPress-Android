@@ -695,7 +695,7 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    private void prepareDownload(Track trackToCache) {
+    private void prepareDownload(final Track trackToCache) {
         synchronized (this) {
             configureTrackData(trackToCache);
 
@@ -709,19 +709,23 @@ public class CloudPlaybackService extends Service {
             // start downloading if there is a valid connection, otherwise it
             // will happen when we regain connectivity
             if (checkNetworkStatus()) {
-                try {
 
-                   // Log.i(TAG, "Trimming cache and downloading new file");
-                    trimCache(trackToCache.getCacheFile());
-                    trackToCache.getCacheFile().setLastModified(System.currentTimeMillis());
-                    (mDownloadThread = new DownloadThread(this, trackToCache)).start();
+                // Log.i(TAG, "Trimming cache and downloading new file");
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                   // Log.i(TAG, "Unable to start download, no connection");
-                    this.sendDownloadException();
-                }
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            trimCache(trackToCache.getCacheFile());
+                        } catch (IOException ignored) {
+                            Log.w(TAG, "error", ignored);
 
+                        }
+                        trackToCache.getCacheFile().setLastModified(System.currentTimeMillis());
+
+                    }
+                };
+                (mDownloadThread = new DownloadThread(this, trackToCache)).start();
             }
         }
     }

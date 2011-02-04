@@ -21,13 +21,13 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class LoadCollectionTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
+public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     
         private static final String TAG = "LoadCollectionTask";
 
         private WeakReference<LazyActivity> mActivityReference;
 
-        protected ArrayList<Parcelable> newItems;
+        protected ArrayList<T> newItems;
 
         public CloudUtils.Model loadModel;
         
@@ -101,14 +101,14 @@ public class LoadCollectionTask extends AsyncTask<HttpUriRequest, Parcelable, Bo
                         
                     case event:
                         EventsWrapper evtWrapper = mapper.readValue(is, EventsWrapper.class);
-                        newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
+                        newItems = new ArrayList<T>(evtWrapper.getCollection().size());
                         for (Event evt : evtWrapper.getCollection())
-                            newItems.add(evt);
+                            newItems.add((T) evt);
                         break;
                 }
 
                 // resolve data
-                for (Parcelable p : newItems)
+                for (T p : newItems)
                     if (mActivityReference.get() != null)
                         mActivityReference.get().resolveParcelable(p);
 
