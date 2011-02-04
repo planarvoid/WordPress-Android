@@ -1,23 +1,26 @@
 
 package com.soundcloud.android.objects;
 
-import org.apache.james.mime4j.field.datetime.DateTime;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import java.lang.ref.WeakReference;
 
 public class Comment extends BaseObj implements Parcelable {
     
     private Long id;
 
-    private DateTime created_at;
+    private String created_at;
     
     private Long user_id;
     
     private Long track_id;
     
-    private DateTime timestamp;    
+    private Long timestamp;    
     
     private String body;
     
@@ -34,11 +37,11 @@ public class Comment extends BaseObj implements Parcelable {
         this.id = id;
     }
     @JsonProperty("created_at")
-    public DateTime getCreatedAt() {
+    public String getCreatedAt() {
         return created_at;
     }
     @JsonProperty("created_at")
-    public void setCreatedAt(DateTime created_at) {
+    public void setCreatedAt(String created_at) {
         this.created_at = created_at;
     }
     @JsonProperty("user_id")
@@ -58,11 +61,11 @@ public class Comment extends BaseObj implements Parcelable {
         this.track_id = track_id;
     }
     @JsonProperty("timestamp")
-    public DateTime getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
     @JsonProperty("timestamp")
-    public void setTimestamp(DateTime timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
     @JsonProperty("body")
@@ -89,6 +92,14 @@ public class Comment extends BaseObj implements Parcelable {
     public void setUser(User user) {
         this.user = user;
     }
+    
+    public WeakReference<Bitmap> avatar;
+    public int xPos = -1;
+    
+    public void calculateXPos(int parentWidth, long duration){
+        this.xPos = (int) ((this.timestamp * parentWidth)/duration);
+    }
+    
 
     public Comment() {
     }

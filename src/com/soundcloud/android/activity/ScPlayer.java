@@ -830,15 +830,15 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
         if (mCurrentTrackId == null || mPlayingTrack.getId().compareTo(mCurrentTrackId) != 0) {
             
-            //mLoadCommentsTask = new LoadCollectionTask();
-            //mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
-            //mLoadCommentsTask.pageSize = 50;
-            //mLoadCommentsTask.setContext(this);
-            //try {
-              //  mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
-            //} catch (OAuthException e) {
-              //  e.printStackTrace();
-            //}
+            mLoadCommentsTask = new LoadCommentsTask();
+            mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
+            mLoadCommentsTask.pageSize = 50;
+            mLoadCommentsTask.setContext(this);
+            try {
+                mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
+            } catch (OAuthException e) {
+                e.printStackTrace();
+            }
            
             
             mTrackName.setText(mPlayingTrack.getTitle());
@@ -1219,6 +1219,21 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         }
         if (mFavoriteButton != null)
             mFavoriteButton.setEnabled(true);
+    }
+    
+    
+    
+    
+    private class LoadCommentsTask extends LoadCollectionTask{
+        @Override
+        protected void onPostExecute(Boolean keepGoing) {
+            super.onPostExecute(keepGoing);
+            
+            if (newItems != null){
+                mWaveformController.setComments(newItems);
+            }
+            
+        }
     }
 
 }
