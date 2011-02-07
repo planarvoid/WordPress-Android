@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:panel="http://schemas.android.com/apk/res/org.miscwidgets"
-	android:background="@color/createBackground" 
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<com.soundcloud.android.view.SafeViewFlipper android:id="@+id/flipper" android:layout_width="fill_parent" android:layout_height="fill_parent">
+    android:background="@color/createBackground"
+    android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/flipper" android:layout_width="fill_parent" android:layout_height="fill_parent">
             <include android:id="@+id/create_record" layout="@layout/sc_record" />
             <include android:id="@+id/create_upload" layout="@layout/sc_upload" />
             <include android:id="@+id/create_uploading" layout="@layout/sc_uploading" />

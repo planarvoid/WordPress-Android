@@ -14,7 +14,7 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 public class ScTabView extends FrameLayout {
     private static final String TAG = "ScTabView";
 
-    private LazyActivity mActivity;;
+    private LazyActivity mActivity;
 
     private ListAdapter mAdapter;
 
@@ -59,6 +59,10 @@ public class ScTabView extends FrameLayout {
     }
 
     public void onStop() {
+
+    }
+
+    public void onAuthenticated() {
 
     }
 

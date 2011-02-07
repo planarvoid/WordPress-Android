@@ -48,6 +48,8 @@ public class LazyTabActivity extends LazyActivity {
 
     protected TabWidget tabWidget;
 
+    protected FrameLayout tabContent;
+
     protected int mUserTracksIndex = 0;
 
     protected int mFavoritesIndex = 1;
@@ -246,17 +248,29 @@ public class LazyTabActivity extends LazyActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+       ((ScTabView) tabHost.getCurrentView()).onStart();
     }
 
     @Override
     protected void onStop() {
         mIgnorePlaybackStatus = false;
+        ((ScTabView) tabHost.getCurrentView()).onStop();
+
         super.onStop();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onAuthenticated() {
+        super.onAuthenticated();
+
+        if (tabContent == null) {
+            tabContent = (FrameLayout) findViewById(android.R.id.tabcontent);
+        }
+
+        for (int i=0; i<tabContent.getChildCount(); i++) {
+            ((ScTabView)tabContent.getChildAt(i)).onAuthenticated();
+        }
 
     }
 

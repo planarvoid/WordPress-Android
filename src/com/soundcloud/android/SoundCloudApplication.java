@@ -50,11 +50,13 @@ import com.soundcloud.utils.http.ProgressListener;
 @ReportsCrashes(formKey = "dHBndkdXY1lwUEN4QmtDZkNlQkh2YVE6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
 
+
+
     public static enum Events {
         track, favorite, playlist
     }
 
-    private static final String TAG = "SoundCloudApplication";
+    public static final String TAG = "SoundCloudApplication";
 
     public static String PATH_MY_USERS = "me/followings";
 

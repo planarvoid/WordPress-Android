@@ -1,6 +1,7 @@
 package com.soundcloud.android.objects;
 
 
+import com.soundcloud.android.R;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.net.URI;
@@ -8,7 +9,14 @@ import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection {
-    enum Type { TWITTER, FACEBOOK, MYSPACE }
+    public enum Type {
+        TWITTER(R.drawable.service_twitter),
+        FACEBOOK(R.drawable.service_facebook_profile),
+        MYSPACE(R.drawable.service_myspace);
+
+        public int id;
+        Type(int resId) { this.id = resId; }
+    }
 
     public int id;
     public Date created_at;
@@ -18,6 +26,8 @@ public class Connection {
     public String type;
     public String service;
     public URI uri;
+
+    public Type type() { return Enum.valueOf(Type.class, type.toUpperCase()); }
 
     @Override
     public String toString() {

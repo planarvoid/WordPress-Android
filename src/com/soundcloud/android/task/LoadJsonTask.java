@@ -2,26 +2,20 @@ package com.soundcloud.android.task;
 
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
-import com.soundcloud.android.objects.Track;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.codehaus.jackson.map.util.StdDateFormat;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class LoadJsonTask<T> extends AsyncTask<String, Parcelable, List<T>> {
     protected WeakReference<CloudAPI> mApi;
@@ -47,7 +41,8 @@ public abstract class LoadJsonTask<T> extends AsyncTask<String, Parcelable, List
             if (is == null) throw new NullPointerException();
             return getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, type));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Log.w(TAG, "error fetching JSON", e);
+            return Collections.emptyList();
         }
     }
 }

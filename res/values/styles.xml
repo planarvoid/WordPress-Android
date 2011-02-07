@@ -89,7 +89,13 @@
 		<item name="android:textSize">20sp</item>
 		<item name="android:padding">10dip</item>
 	</style>
-	
+
+
+    <style name="txt_record_connections" parent="@android:style/Widget.CompoundButton.CheckBox">
+		<item name="android:textColor">#ffffffff</item>
+		<item name="android:textSize">20sp</item>
+	</style>
+
 	<style name="txt_record_rdo">
 		<item name="android:textColor">#ffffffff</item>
 		<item name="android:textSize">20sp</item>

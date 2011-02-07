@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- representing a connection to a service (twitter,facebook,...) -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content">
+
+    <ImageView android:id="@+id/service_icon"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"/>
+
+    <TextView android:id="@+id/display_name"
+              style="@style/txt_record_connections"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"/>
+
+    <CheckBox android:id="@+id/post_publish"
+              android:layout_toRightOf="@id/display_name"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"/>
+</RelativeLayout>

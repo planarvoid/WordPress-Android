@@ -214,15 +214,15 @@ public class Dashboard extends LazyTabActivity {
     }
 
     protected void createRecordTab() {
-        final ScCreate recordView = mScCreate = new ScCreate(this);
+        this.mScCreate = new ScCreate(this);
         CloudUtils.createTab(this, tabHost, "favorites", getString(R.string.tab_record),
-                getResources().getDrawable(R.drawable.ic_tab_record), recordView, false);
+                getResources().getDrawable(R.drawable.ic_tab_record), mScCreate, false);
     }
 
     protected void createSearchTab() {
-        final ScTabView searchView = mScSearch = new ScSearch(this);
+        this.mScSearch = new ScSearch(this);
         CloudUtils.createTab(this, tabHost, "search", getString(R.string.tab_search),
-                getResources().getDrawable(R.drawable.ic_tab_search), searchView, false);
+                getResources().getDrawable(R.drawable.ic_tab_search), mScSearch, false);
     }
 
     @Override
@@ -284,40 +284,6 @@ public class Dashboard extends LazyTabActivity {
             mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
             mLists.get(mSearchListIndex).setFocusable(true);
         }
-    }
-
-    /**
-     * Called after {@link #onCreate} or {@link #onStop} when the current
-     * activity is now being displayed to the user. It will be followed by
-     * {@link #onRestart}.
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        ((ScTabView) tabHost.getCurrentView()).onStart();
-
-    }
-
-    /**
-     * Called as part of the activity lifecycle when an activity is going into
-     * the background, but has not (yet) been killed. The counterpart to
-     * onResume().
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
-
-    /**
-     * Called when you are no longer visible to the user. You will next receive
-     * either {@link #onStart}, {@link #onDestroy}, or nothing, depending on
-     * later user activity.
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        ((ScTabView) tabHost.getCurrentView()).onStop();
     }
 
     @Override
