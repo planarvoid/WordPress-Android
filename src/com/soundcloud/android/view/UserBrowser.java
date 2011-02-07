@@ -361,7 +361,7 @@ public class UserBrowser extends ScTabView {
     }
 
     protected void build() {
-        
+        /*
          FrameLayout tabLayout = CloudUtils.createTabLayout(mActivity);
          tabLayout.setLayoutParams(new
          LayoutParams(android.view.ViewGroup.LayoutParams
@@ -404,10 +404,10 @@ public class UserBrowser extends ScTabView {
          
          if (mActivity instanceof ScProfile){
              ((ScProfile) mActivity).setTabHost(mTabHost);
-         }
+         }*/
          
         // this is for the workspace view
-        /*
+        
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         FrameLayout frameLayout = (FrameLayout) findViewById(android.R.id.tabcontent);
         frameLayout.setPadding(0, 0, 0, 0);
@@ -497,7 +497,7 @@ public class UserBrowser extends ScTabView {
             ((ScProfile) mActivity).setTabHost(mTabHost);
         }
         
-        mTabHost.setOnTabChangedListener(tabListener);*/
+        mTabHost.setOnTabChangedListener(tabListener);
     }
 
     protected void setTabTextInfo() {

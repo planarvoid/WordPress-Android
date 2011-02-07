@@ -245,7 +245,7 @@
 	<string name="tab_playlists">Playlists</string>
 	<string name="tab_user_details">Details</string>
 	<string name="tab_users">Users</string>
-	<string name="tab_followings">Followings</string>
+	<string name="tab_followings">Following</string>
 	<string name="tab_followers">Followers</string>
 	<string name="tab_downloaded">Downloaded</string>
 	<string name="tab_pending_downloads">Pending Downloads</string>
