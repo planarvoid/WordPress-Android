@@ -113,19 +113,19 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     public void mapDetails(Parcelable p) {
-        Log.i(TAG,"Map Parcelable " + p);
-        if (((User) p).getId() == null)
+        Log.i(TAG,"Map Parcelable " + ((User) p).id);
+        if (((User) p).id == null)
             return;
         
-        CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).getId());
+        CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).id);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String lastUserId = preferences.getString("currentUserId", null);
-        Log.i(TAG, "Checking users " + ((User) p).getId() + " " + lastUserId);
-        if (lastUserId == null || lastUserId != Long.toString(((User) p).getId())) {
+        Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
+        if (lastUserId == null || lastUserId != Long.toString(((User) p).id)) {
             Log.i(TAG, "--------- new user");
-            preferences.edit().putString("currentUserId", Long.toString(((User) p).getId()))
-                    .putString("currentUsername", ((User) p).getUsername()).commit();
+            preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
+                    .putString("currentUsername", ((User) p).username).commit();
         }
 
     }

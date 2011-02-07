@@ -2,93 +2,27 @@
 package com.soundcloud.android.objects;
 
 import org.apache.james.mime4j.field.datetime.DateTime;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Comment extends BaseObj implements Parcelable {
     
-    private Long id;
+    public Long id;
 
-    private DateTime created_at;
+    public DateTime created_at;
     
-    private Long user_id;
+    public Long user_id;
     
-    private Long track_id;
+    public Long track_id;
     
-    private DateTime timestamp;    
+    public DateTime timestamp;    
     
-    private String body;
+    public String body;
     
-    private String uri;
+    public String uri;
     
-    private User user;
-
-    @JsonProperty("id")
-    public Long getId() {
-        return id;
-    }
-    @JsonProperty("id")
-    public void setId(Long id) {
-        this.id = id;
-    }
-    @JsonProperty("created_at")
-    public DateTime getCreatedAt() {
-        return created_at;
-    }
-    @JsonProperty("created_at")
-    public void setCreatedAt(DateTime created_at) {
-        this.created_at = created_at;
-    }
-    @JsonProperty("user_id")
-    public Long getUserId() {
-        return user_id;
-    }
-    @JsonProperty("user_id")
-    public void setUserId(Long user_id) {
-        this.user_id = user_id;
-    }
-    @JsonProperty("track_id")
-    public Long getTrackId() {
-        return track_id;
-    }
-    @JsonProperty("track_id")
-    public void setTrackId(Long track_id) {
-        this.track_id = track_id;
-    }
-    @JsonProperty("timestamp")
-    public DateTime getTimestamp() {
-        return timestamp;
-    }
-    @JsonProperty("timestamp")
-    public void setTimestamp(DateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-    @JsonProperty("body")
-    public String getBody() {
-        return body;
-    }
-    @JsonProperty("body")
-    public void setBody(String body) {
-        this.body = body;
-    }
-    @JsonProperty("uri")
-    public String getUri() {
-        return uri;
-    }
-    @JsonProperty("uri")
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-    @JsonProperty("user")
-    public User getUser() {
-        return user;
-    }
-    @JsonProperty("user")
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public User user;
 
     public Comment() {
     }

@@ -105,11 +105,11 @@ public class TracklistRow extends LazyRow {
         if (mTrack == null)
             return;
 
-        mTitle.setText(mTrack.getTitle());
+        mTitle.setText(mTrack.title);
         // Log.i(TAG,"UUUSERNAMEN " + mTrack.getUsername() + " " +
         // mTrack.getUser().getUsername());
 
-        mUser.setText(mTrack.getUser().getUsername());
+        mUser.setText(mTrack.user.username);
         // mDuration.setText(mTrack.getData(Track.key_duration_formatted));\\
 
         // Log.i(TAG,"Setting streamable " +
@@ -121,12 +121,12 @@ public class TracklistRow extends LazyRow {
             mTitle.setTextAppearance(mContext, R.style.txt_list_main);
         }
 
-        if (mTrack.getSharing().contentEquals("public")) {
+        if (mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
-        if (mTrack.getUserFavorite()) {
+        if (mTrack.user_favorite) {
             _isFavorite = true;
         } else {
             _isFavorite = false;
@@ -143,7 +143,7 @@ public class TracklistRow extends LazyRow {
             mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
                     R.drawable.list_favorite));
             mPlayIndicator.setVisibility(View.VISIBLE);
-        } else if (mTrack.getUserPlayed() == false) {
+        } else if ((mTrack.user_played == null ? false : mTrack.user_played) == false) {
             mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
                     R.drawable.list_unlistened));
             mPlayIndicator.setVisibility(View.VISIBLE);
@@ -170,9 +170,9 @@ public class TracklistRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mTrack.getArtworkUrl(), GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.large);
         } else
-            return CloudUtils.formatGraphicsUrl(mTrack.getArtworkUrl(), GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.badge);
 
     }
 
@@ -187,9 +187,9 @@ public class TracklistRow extends LazyRow {
     protected void sendTrack() {
         final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.setType("plain/text");
-        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.getTitle() + " ["
-                + mTrack.getUser().getUsername() + "]");
-        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "\n\n" + mTrack.getPermalinkUrl());
+        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.title + " ["
+                + mTrack.user.username + "]");
+        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "\n\n" + mTrack.permalink_url);
         mContext.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
     }
 

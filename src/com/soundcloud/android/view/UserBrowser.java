@@ -264,7 +264,7 @@ public class UserBrowser extends ScTabView {
             }
         }
 
-        if (userInfo != null && userInfo.getId() != null)
+        if (userInfo != null && userInfo.id != null)
             mapUser(userInfo);
 
         build();
@@ -293,7 +293,7 @@ public class UserBrowser extends ScTabView {
 
     public void loadUserByObject(User userInfo) {
         mIsOtherUser = true;
-        mUserLoadId = userInfo.getId();
+        mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
     }
@@ -502,18 +502,18 @@ public class UserBrowser extends ScTabView {
 
     protected void setTabTextInfo() {
         if (mTabWidget != null && mUserData != null) {
-            if (!TextUtils.isEmpty(mUserData.getTrackCount()))
+            if (!TextUtils.isEmpty(mUserData.track_count))
                 CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(
                         R.string.tab_tracks)
-                        + " (" + mUserData.getTrackCount() + ")");
+                        + " (" + mUserData.track_count + ")");
             else
                 CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(
                         R.string.tab_tracks));
 
-            if (!TextUtils.isEmpty(mUserData.getPublicFavoritesCount()))
+            if (!TextUtils.isEmpty(mUserData.public_favorites_count))
                 CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(
                         R.string.tab_favorites)
-                        + " (" + mUserData.getPublicFavoritesCount() + ")");
+                        + " (" + mUserData.public_favorites_count + ")");
             else
                 CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(
                         R.string.tab_favorites));
@@ -572,12 +572,12 @@ public class UserBrowser extends ScTabView {
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().putContent(
                                         SoundCloudApplication.PATH_MY_USERS + "/"
-                                                + mUserData.getId()));
+                                                + mUserData.id));
                     else
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().deleteContent(
                                         SoundCloudApplication.PATH_MY_USERS + "/"
-                                                + mUserData.getId()));
+                                                + mUserData.id));
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -627,7 +627,7 @@ public class UserBrowser extends ScTabView {
 
         if (mUserData != null
                 && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity)
-                        .getString("currentUserId", "-1")) == mUserData.getId()) {
+                        .getString("currentUserId", "-1")) == mUserData.id) {
             return;
         }
 
@@ -639,23 +639,22 @@ public class UserBrowser extends ScTabView {
 
         mUserData = mUserInfo; // save to details object for restoring state
 
-        if (mUserData.getId() == null)
+        if (mUserData.id == null)
             return;
 
         if (mUserLoadId == null && mFollowingChecked == false) {
-            mUserLoadId = mUserData.getId();
+            mUserLoadId = mUserData.id;
             checkFollowingStatus();
         } else {
-            mUserLoadId = mUserData.getId();
+            mUserLoadId = mUserData.id;
         }
 
-        if (mUserData.getUserFollowing() != null)
-            if (mUserData.getUserFollowing().equalsIgnoreCase("true"))
+        if (mUserData.user_following != null)
+            if (mUserData.user_following.equalsIgnoreCase("true"))
                 _isFollowing = true;
 
-        mUser.setText(mUserData.getUsername());
-        mLocation.setText(CloudUtils.getLocationString(mUserData.getCountry(), mUserData
-                .getCountry()));
+        mUser.setText(mUserData.username);
+        mLocation.setText(CloudUtils.getLocationString(mUserData.country, mUserData.country));
         setTabTextInfo();
 
         // check for a local avatar and show it if it exists
@@ -664,9 +663,9 @@ public class UserBrowser extends ScTabView {
         // File avatarFile = new File(localAvatarPath);
         String remoteUrl = "";
         if (getContext().getResources().getDisplayMetrics().density > 1)
-            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.getAvatarUrl(), GraphicsSizes.large);
+            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
         else
-            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.getAvatarUrl(), GraphicsSizes.badge);
+            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
 
         if (_iconURL != remoteUrl) {
             _iconURL = remoteUrl;
@@ -675,11 +674,11 @@ public class UserBrowser extends ScTabView {
 
         Boolean _showTable = false;
 
-        if (TextUtils.isEmpty(mUserData.getTrackCount())
-                || mUserData.getTrackCount().contentEquals("0")) {
+        if (TextUtils.isEmpty(mUserData.track_count)
+                || mUserData.track_count.contentEquals("0")) {
             ((TableRow) mDetailsView.findViewById(R.id.tracks_row)).setVisibility(View.GONE);
         } else {
-            mTracks.setText(mUserData.getTrackCount());
+            mTracks.setText(mUserData.track_count);
             ((TableRow) mDetailsView.findViewById(R.id.tracks_row)).setVisibility(View.VISIBLE);
             _showTable = true;
         }
@@ -687,9 +686,9 @@ public class UserBrowser extends ScTabView {
         ((TableRow) mDetailsView.findViewById(R.id.followers_row)).setVisibility(View.GONE);
         // mFollowers.setText(mUserData.getData(User.key_followers_count));
 
-        if (!TextUtils.isEmpty(mUserData.getFullName())) {
+        if (!TextUtils.isEmpty(mUserData.full_name)) {
             _showTable = true;
-            mFullName.setText(mUserData.getFullName());
+            mFullName.setText(mUserData.full_name);
             ((TableRow) mDetailsView.findViewById(R.id.fullname_row)).setVisibility(View.VISIBLE);
         } else {
 
@@ -697,10 +696,10 @@ public class UserBrowser extends ScTabView {
         }
 
         CharSequence styledText;
-        if (!TextUtils.isEmpty(mUserData.getWebsite())) {
+        if (!TextUtils.isEmpty(mUserData.website)) {
             _showTable = true;
-            styledText = Html.fromHtml("<a href='" + mUserData.getWebsite() + "'>"
-                    + CloudUtils.stripProtocol(mUserData.getWebsite()) + "</a>");
+            styledText = Html.fromHtml("<a href='" + mUserData.website + "'>"
+                    + CloudUtils.stripProtocol(mUserData.website) + "</a>");
             mWebsite.setText(styledText);
             mWebsite.setMovementMethod(LinkMovementMethod.getInstance());
             ((TableRow) mDetailsView.findViewById(R.id.website_row)).setVisibility(View.VISIBLE);
@@ -708,10 +707,10 @@ public class UserBrowser extends ScTabView {
             ((TableRow) mDetailsView.findViewById(R.id.website_row)).setVisibility(View.GONE);
         }
 
-        if (!TextUtils.isEmpty(mUserData.getDiscogsName())) {
+        if (!TextUtils.isEmpty(mUserData.discogs_name)) {
             _showTable = true;
             styledText = Html.fromHtml("<a href='http://www.discogs.com/artist/"
-                    + mUserData.getDiscogsName() + "'>" + mUserData.getDiscogsName() + "</a>");
+                    + mUserData.discogs_name + "'>" + mUserData.discogs_name + "</a>");
             mDiscogsName.setText(styledText);
             mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
             ((TableRow) mDetailsView.findViewById(R.id.discogs_row)).setVisibility(View.VISIBLE);
@@ -719,10 +718,10 @@ public class UserBrowser extends ScTabView {
             ((TableRow) mDetailsView.findViewById(R.id.discogs_row)).setVisibility(View.GONE);
         }
 
-        if (!TextUtils.isEmpty(mUserData.getMyspaceName())) {
+        if (!TextUtils.isEmpty(mUserData.myspace_name)) {
             _showTable = true;
             styledText = Html.fromHtml("<a href='http://www.myspace.com/"
-                    + (mUserData).getMyspaceName() + "'>" + (mUserData).getMyspaceName() + "</a>");
+                    + (mUserData).myspace_name + "'>" + (mUserData).myspace_name + "</a>");
             mMyspaceName.setText(styledText);
             mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
             ((TableRow) mDetailsView.findViewById(R.id.myspace_row)).setVisibility(View.VISIBLE);
@@ -730,9 +729,9 @@ public class UserBrowser extends ScTabView {
             ((TableRow) mDetailsView.findViewById(R.id.myspace_row)).setVisibility(View.GONE);
         }
 
-        if (!TextUtils.isEmpty(mUserData.getDescription())) {
+        if (!TextUtils.isEmpty(mUserData.description)) {
             _showTable = true;
-            styledText = Html.fromHtml((mUserData).getDescription());
+            styledText = Html.fromHtml((mUserData).description);
             mDescription.setText(styledText);
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }

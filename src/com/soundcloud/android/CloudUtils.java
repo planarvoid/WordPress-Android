@@ -619,7 +619,7 @@ public class CloudUtils {
     }
 
     public static Boolean isTrackPlayable(Track track) {
-        return track.getStreamable();
+        return track.streamable;
     }
 
     public static Long getCurrentUserId(Context context) {
@@ -733,13 +733,13 @@ public class CloudUtils {
             } else
                 db = openAdapter;
     
-            Cursor result = db.getTrackById(track.getId(), currentUserId);
+            Cursor result = db.getTrackById(track.id, currentUserId);
             if (result.getCount() != 0) {
                 // add local urls and update database
                 result.moveToFirst();
     
-                track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
-                                : false);
+                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1 ? true
+                : false;
     
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
                     db.updateTrack(track);
@@ -755,7 +755,7 @@ public class CloudUtils {
                 db = null;
     
             // write with insert only because a track will never come in with
-            resolveUser(context, track.getUser(), WriteState.insert_only, currentUserId, openAdapter);
+            resolveUser(context, track.user, WriteState.insert_only, currentUserId, openAdapter);
     }
 
     // ---Make sure the database is up to date with this track info---
@@ -770,11 +770,11 @@ public class CloudUtils {
             // track = resolveTrackFavorite(track);
 
             result.close();
-            result = db.getUserById(track.getUserId(), currentUserId);
+            result = db.getUserById(track.user_id, currentUserId);
 
             if (result.getCount() != 0) {
-                track.setUser(new User(result));
-                track.setUserId(track.getUser().getId());
+                track.user = new User(result);
+                track.user_id = track.user.id;
             }
 
             result.close();
@@ -804,18 +804,16 @@ public class CloudUtils {
             db.open();
         } else
             db = openAdapter;
-
-        Cursor result = db.getUserById(user.getId(), currentUserId);
+        Cursor result = db.getUserById(user.id, currentUserId);
         if (result.getCount() != 0) {
-
             user.update(result); // update the parcelable with values from the
             // db
 
             if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateUser(user, currentUserId.compareTo(user.getId()) == 0);
+                db.updateUser(user, currentUserId.compareTo(user.id) == 0);
 
         } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertUser(user, currentUserId.compareTo(user.getId()) == 0);
+            db.insertUser(user, currentUserId.compareTo(user.id) == 0);
         }
         result.close();
 

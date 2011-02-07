@@ -96,7 +96,7 @@ public class PlayListManager {
             } else if (playlistCache.get(i) instanceof Event) {
                 mPlayListCache[i] = ((Event) playlistCache.get(i)).getTrack();
             }
-            mPlayList[i] = mPlayListCache[i].getId();
+            mPlayList[i] = mPlayListCache[i].id;
         }
 
         mPlayPos = playPos;

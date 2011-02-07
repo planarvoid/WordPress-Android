@@ -1,6 +1,7 @@
 
 package com.soundcloud.android;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -193,22 +194,20 @@ public class DBAdapter {
 
     private ContentValues buildTrackArgs(Track track) {
         ContentValues args = new ContentValues();
-        Method m;
+        Field f;
         for (String key : getDBCols(DATABASE_TRACK_TABLE)) {
             try {
-                // I was going to search through annotaitons but it was too
-                // expensive, so this is way cheaper
-                m = Track.class.getMethod("get" + CloudUtils.toCamelCase(key));
-                if (m != null) {
+                f = Track.class.getField(key);
+                if (f != null) {
                     try {
-                        if (m.getReturnType() == String.class)
-                            args.put(key, (String) m.invoke(track));
-                        else if (m.getReturnType() == Integer.class)
-                            args.put(key, (Integer) m.invoke(track));
-                        else if (m.getReturnType() == Long.class)
-                            args.put(key, (Long) m.invoke(track));
-                        else if (m.getReturnType() == Boolean.class)
-                            args.put(key, ((Boolean) m.invoke(track)) ? 1 : 0);
+                        if (f.getType() == String.class)
+                            args.put(key, (String) f.get(track));
+                        else if (f.getType() == Integer.class)
+                            args.put(key, (Integer) f.get(track));
+                        else if (f.getType() == Long.class)
+                            args.put(key, (Long) f.get(track));
+                        else if (f.getType() == Boolean.class)
+                            args.put(key, ((Boolean) f.get(track)) ? 1 : 0);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -216,45 +215,48 @@ public class DBAdapter {
                 }
             } catch (SecurityException e1) {
                 e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                // e1.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
             }
 
         }
         return args;
-    }
 
-    private ContentValues buildUserArgs(User user, Boolean isCurrentUser) {
+    }
+    
+    private ContentValues buildUserArgs(User User, Boolean isCurrentUser) {
         ContentValues args = new ContentValues();
-        Method m;
+        Field f;
         for (String key : getDBCols(DATABASE_USER_TABLE)) {
             if (!isCurrentUser && key.equalsIgnoreCase("description"))
                 continue;
-
+            
             try {
-                m = User.class.getMethod("get" + CloudUtils.toCamelCase(key));
-                if (m != null) {
-
+                f = User.class.getField(key);
+                if (f != null) {
                     try {
-                        if (m.getReturnType() == String.class)
-                            args.put(key, (String) m.invoke(user));
-                        else if (m.getReturnType() == Integer.class)
-                            args.put(key, (Integer) m.invoke(user));
-                        else if (m.getReturnType() == Long.class)
-                            args.put(key, (Long) m.invoke(user));
-                        else if (m.getReturnType() == Boolean.class)
-                            args.put(key, ((Boolean) m.invoke(user)) ? 1 : 0);
+                        if (f.getType() == String.class)
+                            args.put(key, (String) f.get(User));
+                        else if (f.getType() == Integer.class)
+                            args.put(key, (Integer) f.get(User));
+                        else if (f.getType() == Long.class)
+                            args.put(key, (Long) f.get(User));
+                        else if (f.getType() == Boolean.class)
+                            args.put(key, ((Boolean) f.get(User)) ? 1 : 0);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } catch (SecurityException e1) {
                 e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                // e1.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
             }
+
         }
         return args;
+
     }
 
     // ---insert a title into the database---
@@ -263,15 +265,14 @@ public class DBAdapter {
     }
 
     public long insertTrack(HashMap<String, String> track) {
-
         ContentValues args = new ContentValues();
         for (String key : getDBCols(DATABASE_TRACK_TABLE)) {
             if (track.containsKey(key)) {
                 args.put(key, track.get(key));
             }
         }
-
         return db.insert(DATABASE_TRACK_TABLE, null, args);
+        
     }
 
     public long insertUser(User user, Boolean isCurrentUser) {
@@ -293,32 +294,20 @@ public class DBAdapter {
     }
 
     public int updateTrack(Track track) {
-        return db.update(DATABASE_TRACK_TABLE, buildTrackArgs(track), Track.key_id + "='"
-                + track.getId() + "'", null);
+        return db.update(DATABASE_TRACK_TABLE, buildTrackArgs(track), "id='"
+                + track.id + "'", null);
     }
 
     public int updateUser(User user, Boolean isCurrentUser) {
-        return db.update(DATABASE_USER_TABLE, buildUserArgs(user, isCurrentUser), User.key_id
-                + "='" + user.getId() + "'", null);
-
+        return db.update(DATABASE_USER_TABLE, buildUserArgs(user, isCurrentUser),
+                "id='" + user.id + "'", null);
     }
 
-    public int updateUser(HashMap<String, String> userinfo) {
-        ContentValues args = new ContentValues();
-        for (String key : getDBCols(DATABASE_USER_TABLE)) {
-            if (userinfo.containsKey(key))
-                args.put(key, userinfo.get(key));
-        }
-
-        return db.update(DATABASE_USER_TABLE, args, User.key_id + "='" + userinfo.get(User.key_id)
-                + "'", null);
-
-    }
 
     public int markTrackPlayed(String id) {
         ContentValues args = new ContentValues();
-        args.put(Track.key_user_played, true);
-        return db.update(DATABASE_TRACK_TABLE, args, Track.key_id + "='" + id + "'", null);
+        args.put("user_played", true);
+        return db.update(DATABASE_TRACK_TABLE, args,"id='" + id + "'", null);
     }
 
     // ---retrieves all the titles---
@@ -327,7 +316,7 @@ public class DBAdapter {
             return db.rawQuery("SELECT Tracks.* FROM Tracks WHERE Tracks.id = '" + l + "'", null);
         else
             return db.query(DATABASE_TRACK_TABLE, GetColumnsArray(db, DATABASE_TRACK_TABLE),
-                    Track.key_id + "='" + l + "'", null, null, null, null);
+                    "id='" + l + "'", null, null, null, null);
     }
 
     public Cursor getTrackPlayedById(String id, String current_user_id) {
@@ -342,7 +331,7 @@ public class DBAdapter {
             return db.rawQuery("SELECT Users.* FROM Users WHERE Users.id = '" + userId + "'", null);
         else
             return db.query(DATABASE_USER_TABLE, GetColumnsArray(db, DATABASE_USER_TABLE),
-                    User.key_id + "='" + userId + "'", null, null, null, null);
+                    "id='" + userId + "'", null, null, null, null);
     }
 
     public static List<String> GetColumns(SQLiteDatabase db, String tableName) {

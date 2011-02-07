@@ -57,11 +57,11 @@ public class UserlistRow extends LazyRow {
     public void display(Parcelable p, boolean selected) {
         super.display(p, selected);
         mUser = (User) p;
-        mUsername.setText(mUser.getUsername());
+        mUsername.setText(mUser.username);
         setLocation();
         setTrackCount();
         setFollowerCount();
-        if (mUser.getUserFollowing() != null && mUser.getUserFollowing().equalsIgnoreCase("true")) {
+        if (mUser.user_following != null && mUser.user_following.equalsIgnoreCase("true")) {
             _isFollowing = true;
         } else {
             _isFollowing = false;
@@ -85,9 +85,9 @@ public class UserlistRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mUser.getAvatarUrl(), GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.large);
         } else
-            return CloudUtils.formatGraphicsUrl(mUser.getAvatarUrl(), GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.badge);
     }
 
     // **********************
@@ -95,19 +95,19 @@ public class UserlistRow extends LazyRow {
     // not use them or use them differently
 
     protected void setLocation() {
-        mLocation.setText(mUser.getLocation());
+        mLocation.setText(mUser.location);
     }
 
     protected void setTrackCount() {
         String trackCount = mContext.getResources().getQuantityString(R.plurals.user_track_count,
-                Integer.parseInt(mUser.getTrackCount()), Integer.parseInt(mUser.getTrackCount()));
+                Integer.parseInt(mUser.track_count), Integer.parseInt(mUser.track_count));
         mTracks.setText(trackCount);
     }
 
     protected void setFollowerCount() {
         String followerCount = mContext.getResources().getQuantityString(
-                R.plurals.user_follower_count, Integer.parseInt(mUser.getFollowersCount()),
-                Integer.parseInt(mUser.getFollowersCount()));
+                R.plurals.user_follower_count, Integer.parseInt(mUser.followers_count),
+                Integer.parseInt(mUser.followers_count));
         mFollowers.setText(followerCount);
     }
 

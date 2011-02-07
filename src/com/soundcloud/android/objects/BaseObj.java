@@ -43,27 +43,23 @@ public class BaseObj implements Parcelable {
     };
 
     public void readFromParcel(Parcel in) {
-        Method m;
+        Field f;
         Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
 
             try {
-                // I was going to search through annotaitons but it was too
-                // expensive, so this is way cheaper
-                m = this.getClass().getMethod("set" + CloudUtils.toCamelCase(key),
-                        data.get(key).getClass());
-                if (m != null) {
-                    m.invoke(this, data.get(key));
+                f = this.getClass().getField(CloudUtils.toCamelCase(key));
+                if (f != null) {
+                    f.set(this, data.get(key));
                 }
             } catch (SecurityException e1) {
-                e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
                 e1.printStackTrace();
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchFieldException e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -116,13 +112,5 @@ public class BaseObj implements Parcelable {
         out.writeBundle(data);
     }
 
-    public Field getPrivateField(CharSequence name) {
-        for (Field field : getClass().getDeclaredFields()) {
-            if (field.getName().contentEquals(name)) {
-                return field;
-            }
-        }
-        return null;
-    }
 
 }
