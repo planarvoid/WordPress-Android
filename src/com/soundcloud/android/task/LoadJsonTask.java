@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public abstract class JsonLoadTask<T> extends AsyncTask<String, Parcelable, List<T>> {
+public abstract class LoadJsonTask<T> extends AsyncTask<String, Parcelable, List<T>> {
     protected WeakReference<CloudAPI> mApi;
 
 
-    public JsonLoadTask(CloudAPI api) {
+    public LoadJsonTask(CloudAPI api) {
         this.mApi = new WeakReference<CloudAPI>(api);
     }
 
@@ -49,6 +49,5 @@ public abstract class JsonLoadTask<T> extends AsyncTask<String, Parcelable, List
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

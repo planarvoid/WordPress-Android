@@ -2,7 +2,6 @@ package com.soundcloud.android.task;
 
 
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.objects.Connection;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-public class JsonLoadTaskTests {
+public class LoadJsonTaskTests {
     CloudAPI api;
 
     @Before
@@ -28,7 +27,7 @@ public class JsonLoadTaskTests {
     public void testList() throws Exception {
         when(api.executeRequest("/foo")).thenReturn(new ByteArrayInputStream("[{\"bar\": \"baz\"}]".getBytes()));
 
-        JsonLoadTask<Foo> task = new JsonLoadTask<Foo>(api) {
+        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
             protected List<Foo> doInBackground(String... strings) {
                 return null;
