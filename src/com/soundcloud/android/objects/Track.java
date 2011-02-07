@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends BaseObj implements Parcelable {
@@ -702,14 +703,6 @@ public class Track extends BaseObj implements Parcelable {
         this.filelength = fileLength;
     }
 
-    public Comment[] getComments() {
-        return comments;
-    }
-
-    public void setComments(Comment[] comments) {
-        this.comments = comments;
-    }
-
     public static final String key_id = "id";
 
     public static final String key_uri = "uri";
@@ -830,7 +823,7 @@ public class Track extends BaseObj implements Parcelable {
 
     public static final String key_playback_count = "playback_count";
 
-    public Comment[] comments;
+    public List<Comment> comments;
 
     private boolean mIsPlaylist = false;
 

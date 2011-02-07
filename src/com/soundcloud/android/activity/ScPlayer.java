@@ -149,6 +149,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     private boolean mTrackDetailsFilled = false;
     
     private LoadCommentsTask mLoadCommentsTask;
+    
+    private ArrayList<Comment> mCurrentComments;
 
     private static final int REFRESH = 1;
 
@@ -828,15 +830,17 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
         mWaveformController.updateTrack(mPlayingTrack);
         updateArtwork();
-
+        
         if (mCurrentTrackId == null || mPlayingTrack.getId().compareTo(mCurrentTrackId) != 0) {
             
-            mLoadCommentsTask = new LoadCommentsTask();
-            mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
-            mLoadCommentsTask.pageSize = 50;
-            mLoadCommentsTask.setContext(this);
-            mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
-
+            mCurrentTrackId = mPlayingTrack.getId();
+            
+            if (mLoadCommentsTask == null)
+                startCommentLoading();
+            else if (mLoadCommentsTask != null && mLoadCommentsTask.track_id != mCurrentTrackId){
+                mLoadCommentsTask.cancel(true);
+                startCommentLoading();
+            }
             
             mTrackName.setText(mPlayingTrack.getTitle());
             mUserName.setText(mPlayingTrack.getUser().getUsername());
@@ -862,6 +866,14 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
                     mDuration / 1000);
         }
+    }
+    
+    private void startCommentLoading(){
+        mLoadCommentsTask = new LoadCommentsTask();
+        mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
+        mLoadCommentsTask.pageSize = 50;
+        mLoadCommentsTask.setContext(this);
+        mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}", Long.toString(mPlayingTrack.getId()))));
     }
 
     private void updateArtwork() {
@@ -1031,7 +1043,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[] {mPlayingTrack, mLoadTrackDetailsTask};
+        return new Object[] {mPlayingTrack, mLoadTrackDetailsTask, mLoadCommentsTask, mCurrentComments};
     }
     
     private LoadDetailsTask mLoadTrackDetailsTask;
@@ -1053,6 +1065,21 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 if (CloudUtils.isTaskPending(mLoadTrackDetailsTask))
                     mLoadTrackDetailsTask.execute();
             }
+            
+            if (saved[2] != null && !(mPlayingTrack != null 
+                    && mPlayingTrack.getId() != ((LoadCommentsTask) saved[2]).track_id)){
+                mLoadCommentsTask = (LoadCommentsTask) saved[2];
+                mLoadCommentsTask.setContext(this);
+                if (CloudUtils.isTaskPending(mLoadCommentsTask))
+                    mLoadCommentsTask.execute();
+            }
+            
+            if (saved[3] != null && !(mPlayingTrack != null 
+                    && mPlayingTrack.getId() != ((ArrayList<Comment>) saved[3]).get(0).id)){
+                mCurrentComments = (ArrayList<Comment>) saved[3];
+                mWaveformController.setComments(mCurrentComments);
+            }
+            
         }
     }
 
@@ -1222,11 +1249,14 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     
     
     private class LoadCommentsTask extends LoadCollectionTask<Comment>{
+        public long track_id;
+        
         @Override
         protected void onPostExecute(Boolean keepGoing) {
             super.onPostExecute(keepGoing);
             
             if (newItems != null){
+                mCurrentComments = newItems;
                 mWaveformController.setComments(newItems);
             }
             

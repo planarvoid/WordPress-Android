@@ -4,15 +4,16 @@ package com.soundcloud.android;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.SoundCloudAuthorizationClient.AuthorizationStatus;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.ProgressListener;
 
-import com.soundcloud.android.mapper.CloudDateFormat;
-
 import oauth.signpost.exception.OAuthException;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
@@ -33,6 +34,7 @@ import org.urbanstew.soundcloudapi.SoundCloudOptions;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -40,11 +42,14 @@ import android.preference.PreferenceManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ReportsCrashes(formKey = "dDBFTG1DVkRYb2FMeXV1eE41SEo3Y3c6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
@@ -342,6 +347,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public String urlEncode(String resource) {
         return urlEncode(resource, null);
     }
+
+    public static final Map<String, SoftReference<Bitmap>> mBitmaps = Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
+    public static final Map<String, Throwable> mBitmapErrors = Collections.synchronizedMap(new LruCache<String, Throwable>());
 
     public ObjectMapper getMapper() {
         if (this.mMapper == null) {

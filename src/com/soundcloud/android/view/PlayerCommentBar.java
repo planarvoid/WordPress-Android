@@ -5,8 +5,8 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
-import com.soundcloud.utils.LruCache;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -35,7 +34,6 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -49,29 +47,12 @@ public class PlayerCommentBar extends View {
 
     public static final String BITMAP_LOADER_SERVICE = "com.soundcloud.utils.bitmaploader";
     
-    /**
-     * A cache containing recently used bitmaps.
-     * <p>
-     * Use soft references so that the application does not run out of memory in
-     * the case where one or more of the bitmaps are large.
-     */
-    private static final Map<String, SoftReference<Bitmap>> mBitmaps = Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
-
-    /**
-     * Recent errors encountered when loading bitmaps.
-     */
-    private static final Map<String, Throwable> mErrors = Collections.synchronizedMap(new LruCache<String, Throwable>());
-    
-    private Bitmap mDefaultAvatar;
     private long mDuration;
     private ArrayList<Comment> mCurrentComments;
     private Paint mPaint;
 
-    
     public PlayerCommentBar(Context context, AttributeSet attributeSet) {
         super(context,attributeSet);
-        
-        //Log.i(TAG,"aaaaaaaaaaaaa " + mBitmaps.size());
         
         mResultHandler = new Handler(Looper.getMainLooper());
         mBitmapContentHandler = new BitmapContentHandler();
@@ -79,7 +60,6 @@ public class PlayerCommentBar extends View {
         mImageViewBinding = new WeakHashMap<ImageView, String>();
         mPaint = new Paint();
         
-        mDefaultAvatar = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_badge);
 
     }
 
@@ -91,10 +71,9 @@ public class PlayerCommentBar extends View {
             Bitmap bitmap = getBitmap(newItems.get(i).user.getAvatarUrl());
             Throwable error = getError(newItems.get(i).user.getAvatarUrl());
             
-            //Log.i(TAG,"!!!!!!!!!!!!!!!!! " + bitmap);
-            
             if (bitmap != null) {
                 ((Comment) newItems.get(i)).avatar = new WeakReference<Bitmap>(bitmap);
+                this.invalidate();
             } else {
                 if (error != null) {
                 } else if (CloudUtils.checkIconShouldLoad(((Comment) newItems.get(i)).user.getAvatarUrl())){
@@ -117,8 +96,7 @@ public class PlayerCommentBar extends View {
                 if (mCurrentComment.xPos == -1) mCurrentComment.calculateXPos(this.getWidth(), mDuration);
                 if (mCurrentComment.avatar != null && mCurrentComment.avatar.get() != null) {
                     canvas.drawBitmap(mCurrentComment.avatar.get(), mCurrentComment.xPos, 0, mPaint);
-                } else
-                    canvas.drawBitmap(mDefaultAvatar, mCurrentComment.xPos, 0, mPaint);
+                } 
             }
         }
     }
@@ -341,26 +319,24 @@ public class PlayerCommentBar extends View {
     }
 
     private void putBitmap(String url, Bitmap bitmap) {
-        //Log.i(TAG,"Putting Bitmap " + url + " " + bitmap);
-        mBitmaps.put(url, new SoftReference<Bitmap>(bitmap));
+        SoundCloudApplication.mBitmaps.put(url, new SoftReference<Bitmap>(bitmap));
     }
 
     private void putError(String url, Throwable error) {
-        mErrors.put(url, error);
+        SoundCloudApplication.mBitmapErrors.put(url, error);
     }
 
     private boolean hasError(String url) {
-        return mErrors.containsKey(url);
+        return SoundCloudApplication.mBitmapErrors.containsKey(url);
     }
 
     private Bitmap getBitmap(String url) {
-        //Log.i(TAG,"Getting Bitmap " + url);
-        SoftReference<Bitmap> reference = mBitmaps.get(url);
+        SoftReference<Bitmap> reference = SoundCloudApplication.mBitmaps.get(url);
         return reference != null ? reference.get() : null;
     }
 
     private Throwable getError(String url) {
-        return mErrors.get(url);
+        return SoundCloudApplication.mBitmapErrors.get(url);
     }
 
     /**

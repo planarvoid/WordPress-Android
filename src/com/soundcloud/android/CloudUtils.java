@@ -1,20 +1,19 @@
 
 package com.soundcloud.android;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.Locale;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserBrowser;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -61,21 +60,20 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserBrowser;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class CloudUtils {
 
@@ -1112,7 +1110,8 @@ public class CloudUtils {
 
     }
 
-    public static boolean isTaskPending(LoadTask lt) {
+    @SuppressWarnings("rawtypes")
+    public static boolean isTaskPending(AsyncTask lt) {
         if (lt == null)
             return false;
 

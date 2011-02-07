@@ -1173,15 +1173,6 @@ public class CloudPlaybackService extends Service {
         notifyChange(FAVORITES_SET);
     }
 
-    public void mapCommentsToTrack(Comment[] comments, long trackId) {
-        synchronized (this) {
-            if (mPlayingData.getId().compareTo(trackId) == 0) {
-                mPlayingData.comments = comments;
-            }
-        }
-        notifyChange(COMMENTS_LOADED);
-    }
-
     public void addComment(Comment comment) {
         synchronized (this) {
             /*
@@ -2108,20 +2099,10 @@ public class CloudPlaybackService extends Service {
             return mService.get().getTrack();
         }
 
-        public void setComments(Comment[] commentData, int trackId) throws RemoteException {
-            if (mService.get() != null)
-                mService.get().mapCommentsToTrack(commentData, trackId);
-        }
-
         @Override
         public void playFromAppCache(int playPos) throws RemoteException {
             if (mService.get() != null)
                 mService.get().playFromAppCache(playPos);
-        }
-
-        public void addComment(Comment commentData) throws RemoteException {
-            if (mService.get() != null)
-                mService.get().addComment(commentData);
         }
 
         public void setFavoriteStatus(long trackId, boolean favoriteStatus) throws RemoteException {
@@ -2133,12 +2114,5 @@ public class CloudPlaybackService extends Service {
 
     private final IBinder mBinder = new ServiceStub(this);
 
-    class PlayerLoadCommentsTask extends LoadCommentsTask {
-
-        @Override
-        protected void setComments(Comment[] comments, int trackId) {
-            mapCommentsToTrack(comments, trackId);
-        }
-    }
 
 }
