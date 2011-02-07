@@ -17,7 +17,7 @@ public class Connection {
     public boolean post_favorite;
     public String type;
     public String service;
-    public String uri;
+    public URI uri;
 
     @Override
     public String toString() {

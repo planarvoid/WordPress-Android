@@ -40,6 +40,6 @@ public class LoadConnectionTaskTests {
         assertEquals(false, conn.post_favorite);
         assertEquals("foo", conn.display_name);
         assertEquals(41335, conn.id);
-        assertEquals("https://api.sandbox-soundcloud.com/connections/41335", conn.uri);
+        assertEquals("https://api.sandbox-soundcloud.com/connections/41335", conn.uri.toString());
     }
 }
