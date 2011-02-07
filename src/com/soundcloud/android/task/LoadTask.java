@@ -53,7 +53,5 @@ public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boo
         if (mActivityReference.get() != null)
             mActivityReference.get().setProgressBarIndeterminateVisibility(false);
 
-        System.gc();
     }
-
 }

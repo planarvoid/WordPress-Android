@@ -63,6 +63,7 @@ import android.widget.TextView;
 
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -110,7 +111,7 @@ public class CloudUtils {
 
     public static final String EXTRA_TITLE = "title";
 
-    public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast.db";
+    public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
 
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
@@ -387,6 +388,7 @@ public class CloudUtils {
         checkDirs(c);
 
         File f = new File(DEPRACATED_DB_ABS_PATH);
+        Log.i(TAG,"!!!!!!! looking for db " + f.exists());
         if (f.exists()) {
             File newDb = new File(NEW_DB_ABS_PATH);
             if (newDb.exists())
@@ -1312,6 +1314,18 @@ public class CloudUtils {
         sb.append("]");
         Log.d(TAG, sb.toString());
     }
+    
+    public static TextView buildEmptyView(Context context, CharSequence emptyText) {
+        TextView emptyView = new TextView(context);
+        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        emptyView.setTextAppearance(context, R.style.txt_empty_view);
+        emptyView.setText(emptyText);
+        emptyView.setId(android.R.id.empty);
+        return emptyView;
+    }
+    
+   
 
     public static void cleanupList(ListView list) {
         list.setOnItemClickListener(null);

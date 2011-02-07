@@ -125,8 +125,8 @@ public class CloudRecorder {
                     // normalizes
                     // the amplitude and makes a better looking wave
                     // representation
-                    // application.onFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
-                    service.onRecordFrameUpdate((maxAmplitude) / MAX_AMPLITUDE);
+                    service.onRecordFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
+                    // service.onRecordFrameUpdate((maxAmplitude) / MAX_AMPLITUDE);
                 }
 
             } catch (IOException e) {
@@ -484,8 +484,8 @@ public class CloudRecorder {
                         // hack for not having a proper median. using a square
                         // root normalizes the amplitude and makes a better
                         // looking wave representation
-                        // application.onFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
-                        service.onRecordFrameUpdate((mCurrentMax) / MAX_AMPLITUDE);
+                        service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
+                        //service.onRecordFrameUpdate((mCurrentMax) / MAX_AMPLITUDE);
                     }
 
                     long next = TIMER_INTERVAL;

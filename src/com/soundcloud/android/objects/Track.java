@@ -1,16 +1,17 @@
 
 package com.soundcloud.android.objects;
 
-import java.io.File;
-import java.lang.reflect.Field;
-
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.soundcloud.android.CloudUtils;
 
+import java.io.File;
+import java.lang.reflect.Field;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends BaseObj implements Parcelable {
 
     private static final String TAG = "Track";

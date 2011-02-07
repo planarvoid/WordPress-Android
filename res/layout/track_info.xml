@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<ScrollView android:layout_width="fill_parent"
+	<ScrollView android:layout_width="fill_parent" android:id="@+id/info_view"
 		android:layout_height="fill_parent">
 		<RelativeLayout android:layout_width="fill_parent"
 			android:layout_height="wrap_content">
@@ -20,7 +20,7 @@
 								android:scaleType="center"></ImageView>
 							<TextView style="@style/txt_player_track_info_stats"
 								android:id="@+id/txtPlays" android:layout_alignBottom="@id/imgPlays"
-								android:layout_alignTop="@id/imgPlays" android:text="1234"></TextView>
+								android:layout_alignTop="@id/imgPlays" android:text=""></TextView>
 						</RelativeLayout>
 						<View android:background="@color/horizontalRule"
 							android:layout_height="30dip" android:layout_marginLeft="2dip"
@@ -37,7 +37,7 @@
 								android:scaleType="center"></ImageView>
 							<TextView style="@style/txt_player_track_info_stats"
 								android:id="@+id/txtFavorites" android:layout_alignBottom="@id/imgFavorites"
-								android:layout_alignTop="@id/imgFavorites" android:text="1234"></TextView>
+								android:layout_alignTop="@id/imgFavorites" android:text=""></TextView>
 						</RelativeLayout>
 						<View android:background="@color/horizontalRule"
 							android:layout_height="30dip" android:layout_marginLeft="2dip"
@@ -54,7 +54,7 @@
 								android:scaleType="center"></ImageView>
 							<TextView style="@style/txt_player_track_info_stats"
 								android:id="@+id/txtDownloads" android:layout_alignBottom="@id/imgDownloads"
-								android:layout_alignTop="@id/imgDownloads" android:text="1234"></TextView>
+								android:layout_alignTop="@id/imgDownloads" android:text=""></TextView>
 						</RelativeLayout>
 						<View android:background="@color/horizontalRule"
 							android:layout_height="30dip" android:layout_marginLeft="2dip"
@@ -68,17 +68,24 @@
 							android:layout_height="30dip" android:scaleType="center"></ImageView>
 						<TextView style="@style/txt_player_track_info_stats"
 							android:id="@+id/txtComments" android:layout_alignBottom="@id/imgComments"
-							android:layout_alignTop="@id/imgComments" android:text="1234"></TextView>
+							android:layout_alignTop="@id/imgComments" android:text=""></TextView>
 					</RelativeLayout>
 				</TableRow>
 			</TableLayout>
 			<TextView android:layout_height="wrap_content"
 				style="@style/txt_player_track_info" android:id="@+id/txtInfo"
-				android:padding="3dip" android:text="blah" android:layout_below="@+id/tblStats"
+				android:padding="3dip" android:text="" android:layout_below="@+id/tblStats"
 				android:layout_width="fill_parent" />
 
 		</RelativeLayout>
 	</ScrollView>
+	<ViewStub
+	  android:id="@+id/stub_loading"
+	  android:inflatedId="@+id/loading_layout"
+	  android:layout="@layout/loading_layout"
+	  android:layout_width="fill_parent"
+	  android:layout_height="fill_parent"
+	   />
 	<View android:layout_width="fill_parent"
 		android:layout_alignParentTop="true" android:layout_height="5dip"
 		android:background="@drawable/drop_shadow_down" />

@@ -10,6 +10,7 @@ import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
@@ -31,12 +32,14 @@ import android.text.Layout;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
@@ -150,6 +153,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     private long mDuration;
 
     private boolean paused;
+    
+    private boolean mTrackDetailsFilled = false;
 
     private static final int REFRESH = 1;
 
@@ -396,13 +401,14 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
+        Log.i(TAG,"Text view for container " + tv);
         if (tv == null) {
             return false;
         }
         if (action == MotionEvent.ACTION_DOWN) {
-            v.setBackgroundColor(0xff606060);
             mInitialX = mLastX = (int) event.getX();
             mDraggingLabel = false;
+            return true;
         } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             if (mDraggingLabel) {
                 Message msg = mLabelScroller.obtainMessage(0, tv);
@@ -464,6 +470,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 return true;
             }
         }
+        Log.i(TAG,"Returning false");
         return false;
     }
 
@@ -543,8 +550,12 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         if (mTrackFlipper.getDisplayedChild() == 0) {
             if (mTrackInfo == null) {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
-                fillTrackDetails();
             }
+            
+            if (!mTrackDetailsFilled){
+                fillTrackDetails();                
+            }
+            
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
             mTrackFlipper.showNext();
@@ -556,11 +567,86 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
         }
     }
+    
+    protected LoadDetailsTask newLoadTrackDetailsTask() {
+        LoadDetailsTask lt = new LoadTrackDetailsTask();
+        lt.loadModel = CloudUtils.Model.track;
+        lt.setActivity(this);
+        Log.i(TAG,"New Load Track Details Task");
+        return lt;
+    }
+
+    protected class LoadTrackDetailsTask extends LoadDetailsTask {
+        @Override
+        protected void mapDetails(Parcelable update) {
+            mPlayingTrack = (Track) update;
+            fillTrackDetails();
+        }
+        
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            onDetailsResult(result);
+        }
+    }
+    
+    private void onDetailsResult(Boolean success){
+        if (mTrackInfo.findViewById(R.id.loading_layout) != null){
+            mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
+        } 
+        
+        if (!success){
+            if (mTrackInfo.findViewById(android.R.id.empty) != null){
+                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+            } else {
+                mTrackInfo.addView(CloudUtils.buildEmptyView(this, getResources().getString(R.string.info_error)),mTrackInfo.getChildCount()-2);  
+            }
+            
+            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
+            
+        } else {
+            if (mTrackInfo.findViewById(android.R.id.empty) != null){
+                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
+            }
+            
+            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.VISIBLE);
+            
+        }
+    }
 
     private void fillTrackDetails() {
         if (mPlayingTrack == null)
             return;
-
+        
+        if (mPlayingTrack.getPlaybackCount() == null){
+            
+            if (mTrackInfo.findViewById(R.id.loading_layout) != null)
+                mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
+            else
+                mTrackInfo.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
+            
+            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
+            
+            if (mTrackInfo.findViewById(android.R.id.empty) != null)
+                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
+            
+           if (mLoadTrackDetailsTask == null || CloudUtils.isTaskFinished(mLoadTrackDetailsTask)) {
+                try {
+                    mLoadTrackDetailsTask = newLoadTrackDetailsTask();
+                    mLoadTrackDetailsTask.execute(getSoundCloudApplication().getPreparedRequest(
+                            SoundCloudApplication.PATH_TRACK_DETAILS.replace("{track_id}", Long
+                                    .toString(mPlayingTrack.getId()))));
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (mTrackInfo.findViewById(R.id.loading_layout) != null)
+                    mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+        
         ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(mPlayingTrack
                 .getPlaybackCount());
         ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer
@@ -572,6 +658,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
         ((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html
                 .fromHtml(generateTrackInfoString()));
+        
+        mTrackDetailsFilled = true;
     }
 
     private String generateTrackInfoString() {
@@ -759,7 +847,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             try {
                 if (mService.getTrack() == null)
                     return;
-                mPlayingTrack = mService.getTrack();
+                
+                if (mPlayingTrack == null || mPlayingTrack.getId() != mService.getTrackId())
+                    mPlayingTrack = mService.getTrack();
+                
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -789,9 +880,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 mWaveformController.hideConnectingLayout();
             }
 
-            if (mTrackInfo != null)
-                fillTrackDetails();
-
+            mTrackDetailsFilled = false;
             setFavoriteStatus();
             mDuration = Long.parseLong(Integer.toString(mPlayingTrack.getDuration()));
             mCurrentDurationString = CloudUtils.makeTimeString(
@@ -964,6 +1053,33 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         paused = savedInstanceState.getBoolean("paused");
         super.onRestoreInstanceState(savedInstanceState);
     }
+    
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return new Object[] {mPlayingTrack, mLoadTrackDetailsTask};
+    }
+    
+    private LoadDetailsTask mLoadTrackDetailsTask;
+    
+
+    @Override
+    protected void restoreState() {
+
+        // restore state
+        Object[] saved = (Object[]) getLastNonConfigurationInstance();
+
+        if (saved != null) {
+            if (saved[0] != null)
+                mPlayingTrack = (Track) saved[0];
+            
+            if (saved[1] != null){
+                mLoadTrackDetailsTask = (LoadDetailsTask) saved[1];
+                mLoadTrackDetailsTask.setActivity(this);
+                if (CloudUtils.isTaskPending(mLoadTrackDetailsTask))
+                    mLoadTrackDetailsTask.execute();
+            }
+        }
+    }
 
     /**
      * Called as part of the activity lifecycle when an activity is going into
@@ -1020,7 +1136,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mFavoriteButton.setEnabled(false);
 
         mFavoriteResult = null;
-
+        
         if (mPlayingTrack.getUserFavorite()) {
             mFavoriteTrack.setUserFavorite(false);
             removeFavorite();
@@ -1083,11 +1199,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             boolean favorite = false;
             if (mFavoriteResult != null) {
                 if (mFavoriteResult.contains("200 - OK")
-                        || mFavoriteResult.contains("201 - Created")
-                        || mFavoriteResult.contains("404 - Not Found")) {
+                        || mFavoriteResult.contains("201 - Created")) {
                     favorite = true;
                 } else {
-                    favorite = true;
+                    favorite = false;
                 }
             }
             setFavoriteResult(favorite);
@@ -1109,16 +1224,16 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 }
             }
             setFavoriteResult(favorite);
-
         }
     };
 
     private void setFavoriteResult(boolean favorite) {
+       
         if (mFavoriteTrack.getUserFavorite() != favorite) {
             mFavoriteTrack.setUserFavorite(favorite);
             setFavoriteStatus();
             try {
-                mService.setFavoriteStatus(mFavoriteTrack.getId(), true);
+                mService.setFavoriteStatus(mFavoriteTrack.getId(), favorite);
             } catch (Exception e) {
                 e.printStackTrace();
             }
