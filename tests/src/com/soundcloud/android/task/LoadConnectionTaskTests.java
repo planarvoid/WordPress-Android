@@ -1,33 +1,24 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.api.ApiTest;
 import com.soundcloud.android.objects.Connection;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-public class LoadConnectionTaskTests {
-    CloudAPI api;
-
-    @Before
-    public void setUp() throws Exception {
-        api = mock(CloudAPI.class);
-    }
-
+public class LoadConnectionTaskTests extends ApiTest {
     @Test
-    public void testDeserialisation() throws Exception {
-        when(api.executeRequest("/me/connections.json")).thenReturn(getClass().getResourceAsStream("connections.json"));
+    public void testDeserialisation() throws
+            Exception {
+        fakeApi(Connection.REQUEST, "connections.json");
 
         LoadConnectionsTask task = new LoadConnectionsTask(api);
-        List<Connection> connections = task.list("/me/connections.json", Connection.class);
+        List<Connection> connections = task.list(Connection.REQUEST, Connection.class);
 
         assertEquals(2, connections.size());
         // make sure date gets deserialized properly

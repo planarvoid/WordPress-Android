@@ -3,8 +3,13 @@ package com.soundcloud.android.task;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
+import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.objects.Model;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 

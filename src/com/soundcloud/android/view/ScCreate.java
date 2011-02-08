@@ -1,16 +1,12 @@
 
 package com.soundcloud.android.view;
 
-import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.Button;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.utils.AnimUtils;
@@ -45,9 +41,6 @@ import android.view.inputmethod.InputMethodManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
 
@@ -59,7 +52,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     // Private Data.
     // ******************************************************************** //
 
-    private ViewFlipper mViewFlipper;
+    private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions;
 
@@ -118,6 +111,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private CreateState mStoredState;
 
     private TextView mChrono;
+    private ConnectionList mConnectionList;
 
     public enum CreateState {
         idle_record, record, idle_playback, playback, idle_upload, upload
@@ -231,7 +225,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super(activity);
 
         mActivity = activity;
-        mCurrentState = CreateState.idle_record;
+        mCurrentState = CreateState.idle_upload;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -352,9 +346,20 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         // mWhatText.setOnFocusChangeListener(txtFocusListener);
         // mWhereText.setOnFocusChangeListener(txtFocusListener);
 
+        mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
         mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
         mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
+
+        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rdo_public:   mSharingFlipper.setDisplayedChild(0); break;
+                    case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
+
+                }
+            }
+        });
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -380,19 +385,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     private void initConnections() {
-        new LoadConnectionsTask(mActivity.getSoundCloudApplication()) {
-            @Override
-            protected void onPostExecute(List<Connection> connections) {
-                super.onPostExecute(connections);
-                ViewGroup view = (ViewGroup) findViewById(R.id.connections);
+        if (mConnectionList == null) {
+            mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
+            mConnectionList.setAdapter(new ConnectionList.Adapter()
+                .load(mActivity.getSoundCloudApplication()));
+        }
 
-                view.removeAllViews();
-                for (Connection c : connections) {
-                    view.addView(new ConnectionItem(mActivity, c));
-                }
-
-            }
-        }.execute();
     }
 
     /*** Public ***/
@@ -811,7 +809,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private void startRecording() {
 
-        ((Dashboard) mActivity).forcePause();
+        mActivity.forcePause();
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
@@ -1013,7 +1011,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         trackdata.put("track[sharing]", privateUpload ? "private" : "public");
         if (!privateUpload) {
-            for (int id : ConnectionItem.postToServiceIds((ViewGroup) findViewById(R.id.connections))) {
+            for (int id : mConnectionList.postToServiceIds()) {
                 trackdata.put("post_to[][id]", String.valueOf(id));
             }
         }

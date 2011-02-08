@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CloudDateFormat extends StdDateFormat {
-    public static DateFormat DATEFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+    public static final DateFormat DATEFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
     public static final DateFormat INSTANCE = new CloudDateFormat();
 
     @Override
