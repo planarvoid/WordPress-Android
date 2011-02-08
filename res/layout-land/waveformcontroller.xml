@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/waveform_frame" xmlns:android="http://schemas.android.com/apk/res/android">
 	<com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
-		android:layout_above="@+id/player_comment_bar"
+		android:layout_above="@+id/player_avatar_bar"
 		android:layout_width="fill_parent" android:layout_height="fill_parent">
 			<ProgressBar
 				style="@style/ScProgressBarLand" android:id="@+id/progress_bar"
@@ -20,7 +20,10 @@
 					android:layout_width="40dip" android:layout_height="40dip"/>
 			</RelativeLayout>
 	</com.soundcloud.android.view.WaveformHolder>
-	<com.soundcloud.android.view.PlayerCommentBar android:id="@+id/player_comment_bar"
-        android:layout_alignParentBottom="true"
-        android:layout_width="fill_parent" android:layout_height="47dip" />
+	<com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
+        android:layout_above="@+id/player_comment_bar"
+        android:layout_width="fill_parent" android:layout_height="32dip" />
+    <com.soundcloud.android.view.PlayerCommentBar android:id="@+id/player_comment_bar"
+        android:layout_alignParentBottom="true" android:background="@drawable/comment_touch_bar"
+        android:layout_width="fill_parent" android:layout_height="35dip" />
 </RelativeLayout>

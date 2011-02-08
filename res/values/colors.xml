@@ -8,7 +8,7 @@
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	
-	
+	<color name="commentLine">#FF6e6e6e</color>
 	
 	<color name="playerControlBackground">#FFE2E2E2</color>
 	<color name="playerControlAlphaBackground">#AAE2E2E2</color>

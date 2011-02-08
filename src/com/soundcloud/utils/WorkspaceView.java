@@ -10,6 +10,8 @@ package com.soundcloud.utils;
  * License.
  */
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -28,8 +30,6 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
-import com.soundcloud.android.R;
-
 /**
  * The workspace is a wide area with a infinite number of screens. Each screen
  * contains a view. A workspace is meant to be used with a fixed width only.<br/>
@@ -46,7 +46,7 @@ public class WorkspaceView extends ViewGroup {
 
     // The velocity at which a fling gesture will cause us to snap to the next
     // screen
-    private static final int SNAP_VELOCITY = 500;
+    private static final int SNAP_VELOCITY = 1000;
 
     // the default screen index
     private int defaultScreen;
@@ -116,7 +116,7 @@ public class WorkspaceView extends ViewGroup {
     private Paint tabIndicatorBackgroundPaint;
 
     private static class WorkspaceOvershootInterpolator implements Interpolator {
-        private static final float DEFAULT_TENSION = 1.3f;
+        private static final float DEFAULT_TENSION = 1.0f;
 
         private float mTension;
 
@@ -162,16 +162,17 @@ public class WorkspaceView extends ViewGroup {
     public WorkspaceView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         defaultScreen = 0;
-        initWorkspace();
     }
-
+    
     /**
      * Initializes various states for this workspace.
      */
-    private void initWorkspace() {
+    public void initWorkspace(int defaultScreen, int initialScreen) {
         mScrollInterpolator = new WorkspaceOvershootInterpolator();
         scroller = new Scroller(getContext(), mScrollInterpolator);
-        currentScreen = defaultScreen;
+
+        this.currentScreen = initialScreen;
+        this.defaultScreen = defaultScreen;
 
         paint = new Paint();
         paint.setDither(false);
@@ -710,7 +711,7 @@ public class WorkspaceView extends ViewGroup {
         final int newX = whichScreen * getWidth();
         final int delta = newX - getScrollX();
         Log.d("workspace", "newX=" + newX + " scrollX=" + getScrollX() + " delta=" + delta);
-        scroller.startScroll(getScrollX(), 0, delta, 0, immediate ? 0 : Math.abs(delta) * 2);
+        scroller.startScroll(getScrollX(), 0, delta, 0, immediate ? 0 : Math.abs(delta));
         invalidate();
 
         if (this.scrollListener != null) {
@@ -737,7 +738,11 @@ public class WorkspaceView extends ViewGroup {
      */
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        Log.i("workspace","On Restore Instance Sta " + state);
+        
         SavedState savedState = (SavedState) state;
+        
+        Log.i("workspace","On Restore Instance State 2 " + savedState.getSuperState());
         super.onRestoreInstanceState(savedState.getSuperState());
         if (savedState.currentScreen != -1) {
             currentScreen = savedState.currentScreen;

@@ -16,9 +16,9 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 
-public class CommentMarker extends RelativeLayout implements ContextMenu.ContextMenuInfo {
+public class MakeCommentBubble extends RelativeLayout {
 
-    private Context _context;
+    private Context mContext;
 
     private ImageView mAvatar;
 
@@ -38,39 +38,16 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 
     private int mTimestamp;
 
-    public interface OnCommentClicked {
-        public void onClick(int timestamp);
-    }
-
     private Comment mCommentData;
 
     private ContextMenuInfo mContextMenuInfo;
 
-    public CommentMarker(Context context) {
+    public MakeCommentBubble(Context context) {
+        
         super(context);
 
-        _context = context;
-        this.setBackgroundResource(R.drawable.temp_comment_marker_bg);
-
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                android.view.ViewGroup.LayoutParams.FILL_PARENT);
-        this.setLayoutParams(lp);
-
-        lp = new RelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-
-        int targetDimension = (int) (CloudUtils.GRAPHIC_DIMENSIONS_SMALL * getContext()
-                .getResources().getDisplayMetrics().density);
-
-        mAvatar = new ImageView(_context, null);
-        mAvatar.setImageDrawable(_context.getResources().getDrawable(R.drawable.artwork_badge));
-        mAvatar.setScaleType(ScaleType.CENTER_INSIDE);
-        mAvatar.setLayoutParams(lp);
-        mAvatar.getLayoutParams().width = targetDimension;
-        mAvatar.getLayoutParams().height = targetDimension;
-        addView(mAvatar);
+        mContext = context;
+        this.setBackgroundResource(R.drawable.comment_bubble);
     }
 
     public void flashOn() {
@@ -129,53 +106,6 @@ public class CommentMarker extends RelativeLayout implements ContextMenu.Context
 
     public int getLeftMargin() {
         return mLeftMargin;
-
-    }
-
-    /**
-     * Hit rectangle in parent's coordinates
-     * 
-     * @param outRect The hit rectangle of the view.
-     */
-    @Override
-    public void getHitRect(Rect outRect) {
-        Float tx = ((WaveformHolder) (this.getParent())).getTransformX();
-        outRect.set((int) (this.getLeft() * tx), this.getTop(), (int) (this.getRight() * tx), this
-                .getBottom());
-    }
-
-    @Override
-    public boolean showContextMenu() {
-        mContextMenuInfo = new CommentContextMenuInfo(mCommentData);
-        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-        return super.showContextMenu();
-    }
-
-    @Override
-    protected ContextMenuInfo getContextMenuInfo() {
-        return mContextMenuInfo;
-    }
-
-    /**
-     * Extra menu information provided to the
-     * {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) }
-     * callback when a context menu is brought up for this AdapterView.
-     */
-    public static class CommentContextMenuInfo implements ContextMenu.ContextMenuInfo {
-
-        public CommentContextMenuInfo(Comment mCommentData) {
-            this.comment = mCommentData;
-        }
-
-        /**
-         * The comment data associated with this item
-         */
-        public Comment comment;
-
-    }
-
-    public void onTouchListener(WaveformHolder mWaveformHolder) {
-        // TODO Auto-generated method stub
 
     }
 

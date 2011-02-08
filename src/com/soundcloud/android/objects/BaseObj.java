@@ -43,27 +43,22 @@ public class BaseObj implements Parcelable {
     };
 
     public void readFromParcel(Parcel in) {
-        Method m;
+        Field f;
         Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
-
             try {
-                // I was going to search through annotaitons but it was too
-                // expensive, so this is way cheaper
-                m = this.getClass().getMethod("set" + CloudUtils.toCamelCase(key),
-                        data.get(key).getClass());
-                if (m != null) {
-                    m.invoke(this, data.get(key));
+                f = this.getClass().getField(CloudUtils.toCamelCase(key));
+                if (f != null) {
+                    f.set(this, data.get(key));
                 }
             } catch (SecurityException e1) {
-                e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
                 e1.printStackTrace();
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchFieldException e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -74,55 +69,46 @@ public class BaseObj implements Parcelable {
         return 0;
     }
 
-    public void writeToParcel(Parcel out, int arg1) {
+    public void buildParcel(Parcel out, int flags) {
         // data = in.readBundle();
         Bundle data = new Bundle();
-        for (Method m : this.getClass().getMethods()) {
-            // make sure it is a getter with the right annotation
-            if (!m.getReturnType().equals(Void.TYPE)) // do this first because
-                // finding an annotation
-                // is expensive
-                if (m.isAnnotationPresent(JsonProperty.class)) {
-                    try {
-                        if (m.invoke(this) != null)
-                            if (m.getReturnType() == String.class)
-                                data.putString((m.getAnnotation(JsonProperty.class).value()),
-                                        (String) m.invoke(this));
-                            else if (m.getReturnType() == Integer.class)
-                                data.putInt((m.getAnnotation(JsonProperty.class).value()),
-                                        (Integer) m.invoke(this));
-                            else if (m.getReturnType() == Long.class)
-                                data.putLong((m.getAnnotation(JsonProperty.class).value()),
-                                        (Long) m.invoke(this));
-                            else if (m.getReturnType() == Boolean.class)
-                                data.putBoolean((m.getAnnotation(JsonProperty.class).value()),
-                                        (Boolean) m.invoke(this));
-                            else if (Parcelable.class.isAssignableFrom(m.getReturnType())) {
-
-                                Parcelable p = (Parcelable) m.invoke(this);
-                                data
-                                        .putParcelable(
-                                                (m.getAnnotation(JsonProperty.class).value()), p);
-                            } else {
-                                Log.i("BaseObj", "Ignoring " + m.getAnnotation(JsonProperty.class));
-                            }
-                    } catch (Exception e) {
-                        // catch false parcelable mapping or any other false
-                        // mapping
-                    }
-                    continue;
-                }
+        try {
+            for (Field f : this.getClass().getDeclaredFields()) {
+                    if (f.getType() == String.class)
+                        
+                            data.putString(f.getName(),
+                                    (String) f.get(this));
+                       
+                    else if (f.getType() == Integer.class)
+                        data.putInt(f.getName(),
+                                (Integer) f.get(this));
+                    else if (f.getType() == Long.class)
+                        data.putLong(f.getName(),
+                                (Long) f.get(this));
+                    else if (f.getType() == Boolean.class)
+                        data.putBoolean(f.getName(),
+                                (Boolean) f.get(this));
+                    else if (Parcelable.class.isAssignableFrom(f.getType())) {
+    
+                        Parcelable p = (Parcelable) f.get(this);
+                        data
+                                .putParcelable(f.getName(), p);
+                    } else {
+                        Log.i("BaseObj", "Ignoring " + f.getName() + " of type " + f.getType());
+                    }            
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
         out.writeBundle(data);
     }
 
-    public Field getPrivateField(CharSequence name) {
-        for (Field field : getClass().getDeclaredFields()) {
-            if (field.getName().contentEquals(name)) {
-                return field;
-            }
-        }
-        return null;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        buildParcel(dest,flags);        
     }
+
 
 }

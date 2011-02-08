@@ -94,7 +94,7 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
                 } else {
                     String message = "";
                     if (mAuthorizationException != null) {
-                        // if(mAuthorizationException.getCause() != null)
+                        //if(mAuthorizationException.getCause() != null)
                         // message += " (" + mAuthorizationException..getCause()
                         // + ")";
 

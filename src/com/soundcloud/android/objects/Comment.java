@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.objects;
 
-
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -23,14 +22,14 @@ public class Comment extends BaseObj implements Parcelable, Comparable<Comment> 
     
     public User user;
 
-    public WeakReference<Bitmap> avatar;
     public int xPos = -1;
+    public boolean topLevelComment = false;
+    public Bitmap avatar;
     
     public void calculateXPos(int parentWidth, long duration){
         this.xPos = (int) ((this.timestamp * parentWidth)/duration);
     }
     
-
     public Comment() {
     }
 
@@ -47,9 +46,18 @@ public class Comment extends BaseObj implements Parcelable, Comparable<Comment> 
             return new Comment[size];
         }
     };
+    
+    public void writeToParcel(Parcel out, int flags) {
+        buildParcel(out,flags);
+    }
 
     @Override
     public int compareTo(Comment comment) {
-        return created_at.compareTo(comment.created_at);
+        if (comment.timestamp < timestamp)
+            return -1;
+        else if (comment.timestamp > timestamp)
+            return 1;
+        else
+            return 0;
     }
 }

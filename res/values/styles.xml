@@ -13,8 +13,6 @@
 		<item name="android:textSize">20sp</item>
 	</style>
 
-  	
-  
   	<style name="txt_list_main" >
 		<item name="android:textColor">@color/listTxtValue</item>
 		<item name="android:textSize">14sp</item>
@@ -138,6 +136,17 @@
 		<item name="android:paddingRight">5dip</item>
 	</style>
 	
+	<style name="txt_player_touch_bar">
+        <item name="android:textColor">#ff7b7b7b</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="txt_comment_bubble_time">
+        <item name="android:textColor">#ffe36711</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    
 	
  	<style name="btn_oc">
 		<!--<item name="android:background">@drawable/btn_oc_player_states</item>-->

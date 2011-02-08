@@ -386,13 +386,13 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private)
-            outState
-                    .putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
-        outState.putString("createWhatValue", mWhatText.getText().toString());
-        outState.putString("createWhereValue", mWhereText.getText().toString());
-        outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
+            outState.putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
+            outState.putString("createWhatValue", mWhatText.getText().toString());
+            outState.putString("createWhereValue", mWhereText.getText().toString());
+            outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
         if (!TextUtils.isEmpty(mArtworkUri))
             outState.putString("createArtworkPath", mArtworkUri);
+        
         super.onSaveInstanceState(outState);
     }
 

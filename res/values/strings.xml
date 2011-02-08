@@ -22,6 +22,7 @@
 	
 	<string name="player_not_streamable">This track is not streamable</string>
 	<string name="player_error">There was a playback error</string>
+	<string name="player_touch_bar">Tap here to make a timed comment</string>
 	
 
 	<string name="cloud_player_service_label">Soundcloud: Playing</string>

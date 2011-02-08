@@ -40,7 +40,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
         }
 
         rowView.display(mData.get(index), mSelectedIndex == index, (_playingId != -1 && getTrackAt(
-                index).getId() == _playingId));
+        index).id == _playingId));
 
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
@@ -69,8 +69,8 @@ public class TracklistAdapter extends LazyBaseAdapter {
         _playingId = currentTrackId;
 
         for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i).getId().compareTo(currentTrackId) == 0) {
-                getTrackAt(i).setUserPlayed(true);
+            if (getTrackAt(i).id.compareTo(currentTrackId) == 0) {
+                getTrackAt(i).user_played = true;
             }
         }
 
