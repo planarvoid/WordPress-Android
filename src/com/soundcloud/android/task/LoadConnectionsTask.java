@@ -11,6 +11,6 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
     }
 
     protected List<Connection> doInBackground(String... path) {
-        return list("/me/connections.json", Connection.class);
+        return list(Connection.REQUEST, Connection.class);
     }
 }

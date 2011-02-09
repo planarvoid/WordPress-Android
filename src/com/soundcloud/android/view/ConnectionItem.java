@@ -24,8 +24,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ConnectionItem extends RelativeLayout {
     private CheckBox post_publish;
-
-    public Connection connection;
+    public final Connection connection;
 
     public ConnectionItem(Context context, final Connection c) {
         super(context);
@@ -63,6 +62,7 @@ public class ConnectionItem extends RelativeLayout {
                     post_publish.toggle();
                 } else {
                     Log.d(TAG, "configure " + c.type());
+
                 }
             }
         };

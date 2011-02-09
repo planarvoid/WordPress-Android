@@ -225,7 +225,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super(activity);
 
         mActivity = activity;
-        mCurrentState = CreateState.idle_upload;
+        mCurrentState = CreateState.idle_record;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
