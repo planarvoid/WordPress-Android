@@ -1,10 +1,11 @@
 
 package com.soundcloud.android.view;
 
+import android.widget.*;
+import android.widget.Button;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
@@ -36,18 +37,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +52,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     // Private Data.
     // ******************************************************************** //
 
-    private ViewFlipper mViewFlipper;
+    private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions;
 
@@ -122,6 +111,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private CreateState mStoredState;
 
     private TextView mChrono;
+    private ConnectionList mConnectionList;
 
     public enum CreateState {
         idle_record, record, idle_playback, playback, idle_upload, upload
@@ -236,6 +226,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mActivity = activity;
         mCurrentState = CreateState.idle_record;
+
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.sc_create, this);
@@ -248,6 +239,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         PowerManager pm = (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "SoundRecorder");
+
 
         initResourceRefs();
 
@@ -354,9 +346,20 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         // mWhatText.setOnFocusChangeListener(txtFocusListener);
         // mWhereText.setOnFocusChangeListener(txtFocusListener);
 
+        mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
         mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
         mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
+
+        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rdo_public:   mSharingFlipper.setDisplayedChild(0); break;
+                    case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
+
+                }
+            }
+        });
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -379,6 +382,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mPowerGauge = new PowerGauge(mActivity);
         mGaugeHolder.addView(mPowerGauge);
         mTimerFormat = getResources().getString(R.string.timer_format);
+    }
+
+    private void initConnections() {
+        if (mConnectionList == null) {
+            mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
+            mConnectionList.setAdapter(new ConnectionList.Adapter()
+                .load(mActivity.getSoundCloudApplication()));
+        }
+
     }
 
     /*** Public ***/
@@ -405,7 +417,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 .getString("createCurrentCreateStateIndex") == "null"
                 || savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
                 : savedInstanceState.getString("createCurrentCreateStateIndex");
-        ;
         if (!TextUtils.isEmpty(savedInstanceState
                 .getString("createCurrentCreateStateIndex")))
             setCurrentState(Integer.parseInt(currentCreateStateIndex));
@@ -505,6 +516,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     @Override
     public void onStop() {
 
+    }
+
+    @Override public void onAuthenticated() {
+        initConnections();
     }
 
     public void unlock(Boolean finished) {
@@ -794,7 +809,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private void startRecording() {
 
-        ((Dashboard) mActivity).forcePause();
+        mActivity.forcePause();
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
@@ -993,10 +1008,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         HashMap<String, String> trackdata = new HashMap<String, String>();
 
-        if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
-            trackdata.put("track[sharing]", "private");
-        } else {
-            trackdata.put("track[sharing]", "public");
+        final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
+        trackdata.put("track[sharing]", privateUpload ? "private" : "public");
+        if (!privateUpload) {
+            for (int id : mConnectionList.postToServiceIds()) {
+                trackdata.put("post_to[][id]", String.valueOf(id));
+            }
         }
 
         trackdata.put("pcm_path", mRecordFile.getAbsolutePath());
@@ -1020,6 +1037,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mWhatText.setText("");
         clearArtwork();
     }
+
 
     private OnFocusChangeListener txtFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {

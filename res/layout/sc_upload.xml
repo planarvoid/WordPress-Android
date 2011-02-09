@@ -27,18 +27,67 @@
                       android:text="@string/record_artwork_instructions" android:id="@+id/txt_artwork_instructions"
                       android:layout_below="@id/artwork" style="@style/txt_record_artwork_hint"
                       android:layout_marginTop="5dip"/>
-            <RadioGroup android:layout_width="fill_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal" android:id="@+id/rdo_privacy"
+
+            <RadioGroup android:id="@+id/rdo_privacy"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         android:layout_alignParentBottom="false" android:layout_marginTop="5dip"
                         android:layout_below="@+id/txt_artwork_instructions">
-                <RadioButton android:checked="false" android:id="@+id/rdo_public" android:text="\u00A0Public"
+                <RadioButton android:checked="true" android:id="@+id/rdo_public" android:text="\u00A0Public"
                              android:layout_weight="1" style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
-                <RadioButton android:checked="true" android:id="@+id/rdo_private" android:text="\u00A0Private"
+                <RadioButton android:checked="false" android:id="@+id/rdo_private" android:text="\u00A0Private"
                              android:layout_weight="1" style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
             </RadioGroup>
 
+
+            <!-- sharing -->
+            <com.soundcloud.android.view.SafeViewFlipper
+                    android:id="@+id/vfSharing"
+                    android:layout_weight="1"
+	                android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_below="@id/rdo_privacy">
+
+
+                <com.soundcloud.android.view.ConnectionList
+                          android:id="@+id/connectionList"
+                          android:layout_width="fill_parent"
+                          android:layout_height="fill_parent">
+
+
+                </com.soundcloud.android.view.ConnectionList>
+
+                <!--
+                <LinearLayout android:id="@+id/sharingPublic"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:orientation="vertical">
+                    <LinearLayout android:id="@+id/connections"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="vertical"/>
+
+                </LinearLayout>
+                -->
+
+
+                <LinearLayout android:id="@+id/sharingPrivate"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Private stuffz"
+                        style="@style/txt_record_artwork_hint"/>
+
+                </LinearLayout>
+
+            </com.soundcloud.android.view.SafeViewFlipper>
 
         </RelativeLayout>
     </ScrollView>

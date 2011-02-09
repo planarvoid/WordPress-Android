@@ -108,6 +108,7 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
     }
 
     public Filter getFilter() {
+        // XXX really needed
         // TODO Auto-generated method stub
         return null;
     }

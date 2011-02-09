@@ -55,11 +55,13 @@ import java.util.Map;
 public class SoundCloudApplication extends Application implements CloudAPI {
     private ObjectMapper mMapper;
 
+
+
     public static enum Events {
         track, favorite, playlist
     }
 
-    private static final String TAG = "SoundCloudApplication";
+    public static final String TAG = "SoundCloudApplication";
 
     public static String PATH_MY_USERS = "me/followings";
 

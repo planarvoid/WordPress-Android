@@ -390,11 +390,4 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         initLoadTasks();
         mLastCloudState = getSoundCloudApplication().getState();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
-
 }
