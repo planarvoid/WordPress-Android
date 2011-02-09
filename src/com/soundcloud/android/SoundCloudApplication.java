@@ -318,18 +318,16 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         }
     }
 
-    @Override
-    public HttpResponse upload(ContentBody trackBody, List<NameValuePair> params,
-                               ProgressListener listener) throws IOException {
 
-        return upload(trackBody, null, params, listener);
-    }
 
     @Override
-    public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody,
-                               List<NameValuePair> params, ProgressListener listener)
+    public HttpResponse upload(ContentBody trackBody,
+                               ContentBody artworkBody,
+                               List<NameValuePair> params,
+                               ProgressListener listener)
             throws IOException {
-        HttpPost post = new HttpPost(urlEncode("tracks", null));
+
+        final HttpPost post = new HttpPost(urlEncode("tracks", null));
         // fix contributed by Bjorn Roche
         post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
@@ -341,15 +339,13 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             }
         }
         entity.addPart("track[asset_data]", trackBody);
+        if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);
 
-        if (artworkBody != null)
-            entity.addPart("track[artwork_data]", artworkBody);
+        post.setEntity(new CountingMultipartRequestEntity(entity, listener));
 
-        CountingMultipartRequestEntity countingEntity = new CountingMultipartRequestEntity(entity,
-                listener);
-        post.setEntity(countingEntity);
         try {
             return mSoundCloudApi.performRequest(post);
+
         } catch (OAuthMessageSignerException e) {
             throw new RuntimeException(e);
         } catch (OAuthExpectationFailedException e) {

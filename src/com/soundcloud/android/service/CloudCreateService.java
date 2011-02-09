@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
@@ -513,30 +514,16 @@ public class CloudCreateService extends Service {
     }
 
     private void startUpload() {
-        final List<NameValuePair> params = new java.util.ArrayList<NameValuePair>();
-
-        Iterator it = mUploadingData.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            if (!(pairs.getKey().toString().contentEquals("pcm_path") || pairs.getKey().toString()
-                    .contentEquals("image_path")))
-                params.add(new BasicNameValuePair(pairs.getKey().toString(), pairs.getValue()
-                        .toString()));
-
-        }
-
-        mUploadTask = new UploadOggTask();
-        mUploadTask.trackFile = new File(mOggFilePath);
-        mUploadTask.trackParams = params;
-        mUploadTask.scApplication = (SoundCloudApplication) this.getApplication();
-        if (!TextUtils.isEmpty(mUploadingData.get("artwork_path")))
-            mUploadTask.artworkFile = new File(mUploadingData.get("artwork_path"));
-        mUploadTask.execute();
+        mUploadTask = new UploadOggTask((CloudAPI) getApplication());
+        mUploadTask.execute(new UploadTask.Params(new File(mOggFilePath), mUploadingData));
     }
 
     private class UploadOggTask extends UploadTask {
-
         private String eventString;
+
+        public UploadOggTask(CloudAPI api) {
+            super(api);
+        }
 
         @Override
         protected void onPreExecute() {
@@ -546,15 +533,18 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        protected void onProgressUpdate(Integer... progress) {
-            if (isCancelled())
-                return;
-            notificationView.setProgressBar(R.id.progress_bar, progress[1], Math.min(progress[1],
-                    progress[0]), false);
-            notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
-                    100, (100 * progress[0]) / progress[1])));
-            nm.notify(CREATE_NOTIFY_ID, mNotification);
+        protected void onProgressUpdate(Long... progress) {
+            if (!isCancelled()) {
+                notificationView.setProgressBar(R.id.progress_bar,
+                        progress[1].intValue(), (int) Math.min(progress[1], progress[0]),
+                        false);
 
+
+                notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
+                        100, (100 * progress[0]) / progress[1])));
+
+                nm.notify(CREATE_NOTIFY_ID, mNotification);
+            }
         }
 
         @Override

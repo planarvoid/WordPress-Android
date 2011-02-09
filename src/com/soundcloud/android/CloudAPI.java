@@ -28,11 +28,9 @@ public interface CloudAPI {
 
     InputStream deleteContent(String path) throws IOException;
 
-    HttpResponse upload(ContentBody trackBody, List<NameValuePair> params,
-                        ProgressListener listener) throws IOException;
-
-
-    HttpResponse upload(ContentBody trackBody, ContentBody artworkBody,
-                        List<NameValuePair> params, ProgressListener listener)
-                                    throws IOException;
+    HttpResponse upload(ContentBody trackBody,
+                        ContentBody artworkBody,
+                        List<NameValuePair> params,
+                        ProgressListener listener)
+                    throws IOException;
 }
