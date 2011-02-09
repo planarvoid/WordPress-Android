@@ -58,13 +58,21 @@ public class CloudCreateService extends Service {
 
     private static ArrayBlockingQueue<Track> _uploadlist = new ArrayBlockingQueue<Track>(20);
 
+    public static final String RECORD_STARTED = "com.soundcloud.android.recordstarted";
+    
     public static final String RECORD_ERROR = "com.soundcloud.android.recorderror";
+    
+    public static final String RECORD_STOPPED = "com.soundcloud.android.recordstopped";
 
     public static final String UPLOAD_SUCCESS = "com.sound.android.fileuploadsuccessful";
 
     public static final String UPLOAD_ERROR = "com.sound.android.fileuploaderror";
 
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
+    
+    public static final String SERVICECMD = "com.soundcloud.android.createservicecommand";
+    
+    public static final String CMDNAME = "command";
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
 
@@ -118,10 +126,25 @@ public class CloudCreateService extends Service {
     private String mOggFilePath;
 
     private boolean mCurrentUploadCancelled = false;
-
-    public static void setMainActivity(LazyActivity mainActivity) {
+    
+    private int mCurrentState = 0;
+    
+    public interface States {
+        
+        int IDLE_RECORDING = 0;
+        
+        int RECORDING = 1;
+        
+        int IDLE_PLAYBACK = 2;
+        
+        int PLAYBACK = 3;
+        
+        int PRE_UPLOAD = 4;
+        
+        int UPLOAD = 5;
 
     }
+
 
     protected void acquireWakeLock() {
         if (!mWakeLock.isHeld()) {
@@ -654,6 +677,14 @@ public class CloudCreateService extends Service {
         gotoIdleState();
         notifyChange(UPLOAD_CANCELLED);
     }
+    
+    public void setCurrentState(int currentState) {
+        mCurrentState = currentState;
+    }
+    
+    public int getCurrentState() {
+        return mCurrentState;
+    }
 
     /*
      * By making this a static class with a WeakReference to the Service, we
@@ -710,9 +741,25 @@ public class CloudCreateService extends Service {
             if (mService.get() != null)
                 mService.get().cancelUpload();
         }
+        
+        @Override
+        public int getCurrentState() throws RemoteException {
+            if (mService.get() != null)
+                return mService.get().getCurrentState();
+            
+            return 0;
+        }
+
+        @Override
+        public void setCurrentState(int newState) throws RemoteException {
+            if (mService.get() != null)
+                mService.get().setCurrentState(newState);
+        }
 
     }
 
     private final IBinder mBinder = new ServiceStub(this);
+
+    
 
 }// end class MyService

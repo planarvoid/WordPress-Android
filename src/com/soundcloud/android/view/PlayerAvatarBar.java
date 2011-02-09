@@ -124,15 +124,12 @@ public class PlayerAvatarBar extends View {
         mCurrentComments = null;
         mDuration = -1;
         
-        
-        
         if (mCanvasBmp != null)
             mCanvasBmp.recycle();
         
         if (mNextCanvasBmp != null)
             mNextCanvasBmp.recycle();
         
-        Log.i(TAG,"track cleared");
     }
 
     public void setTrackData(long duration, ArrayList<Comment> newItems){
