@@ -3,19 +3,13 @@ package com.soundcloud.android.service;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.utils.record.CloudRecorder;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -25,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.media.AudioFormat;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -34,44 +27,30 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
+
+import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
 public class CloudCreateService extends Service {
-
-    // public static final String ServletUri = "http://" +
-    // AppUtils.EmulatorLocalhost + ":8080/Ping";
     private static final String TAG = "CloudUploaderService";
 
-    private static ArrayBlockingQueue<Track> _uploadlist = new ArrayBlockingQueue<Track>(20);
-
-    public static final String RECORD_ERROR = "com.soundcloud.android.recorderror";
-
-    public static final String UPLOAD_SUCCESS = "com.sound.android.fileuploadsuccessful";
-
-    public static final String UPLOAD_ERROR = "com.sound.android.fileuploaderror";
-
+    public static final String RECORD_ERROR     = "com.soundcloud.android.recorderror";
+    public static final String UPLOAD_SUCCESS   = "com.sound.android.fileuploadsuccessful";
+    public static final String UPLOAD_ERROR     = "com.sound.android.fileuploaderror";
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
 
     private static final int UPLOAD_NOTIFY_END_ID = R.layout.sc_upload;
-
-    private static PowerManager mPowerManager;
 
     private static WakeLock mWakeLock;
 
@@ -79,50 +58,26 @@ public class CloudCreateService extends Service {
 
     private File mRecordFile;
 
-    private Boolean mRecording = false;
+    private boolean mRecording = false;
 
-    // private WavEncoderTask mWavTask;
     private VorbisEncoderTask mOggTask;
-
     private ImageResizeTask mResizeTask;
-
     private UploadTask mUploadTask;
 
     private PendingIntent mPendingIntent;
-
     private RemoteViews notificationView;
 
     private Notification mNotification;
 
     private String mCreateEventTitle;
-
     private String mCreateEventMessage;
-
-    private HashMap<String, String> mUploadingData;
-
-    private int _lastuploadPercentage;
 
     private NotificationManager nm;
 
-    private DBAdapter db;
-
     private int mServiceStartId = -1;
-
-    private boolean mServiceInUse = false;
-
-    private boolean mResumeAfterCall = false;
-
-    private boolean mIsSupposedToBePlaying = false;
-
-    private boolean mQuietMode = false;
-
-    private String mOggFilePath;
 
     private boolean mCurrentUploadCancelled = false;
 
-    public static void setMainActivity(LazyActivity mainActivity) {
-
-    }
 
     protected void acquireWakeLock() {
         if (!mWakeLock.isHeld()) {
@@ -136,19 +91,14 @@ public class CloudCreateService extends Service {
         }
     }
 
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // lifecycle methods
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     @Override
     public IBinder onBind(Intent intent) {
-        mServiceInUse = true;
         return mBinder;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        mServiceInUse = true;
     }
 
     @Override
@@ -159,8 +109,6 @@ public class CloudCreateService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        mServiceInUse = false;
-
         if (isUploading() || isRecording()) {
             // something is currently uploading so don't stop the service now.
             return true;
@@ -174,18 +122,14 @@ public class CloudCreateService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         // init the service here
         _startService();
 
         // get notification manager
         nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
-
-        // mRecorder.setInputBlockSize(16);
-        // mRecorder.setSampleRate(ScCreate.REC_SAMPLE_RATE);
     }
 
     private void _startService() {
@@ -213,18 +157,15 @@ public class CloudCreateService extends Service {
     }
 
     private void _shutdownService() {
-        Log.i(getClass().getSimpleName(), "upload Service stopped!!!");
+        Log.i(TAG, "upload Service stopped!!!");
 
         releaseWakeLock();
 
-        if (mOggTask != null)
-            mOggTask.cancel(true);
+        if (mOggTask != null)    mOggTask.cancel(true);
+        if (mUploadTask != null) mUploadTask.cancel(true);
+        if (mResizeTask != null) mResizeTask.cancel(true);
 
-        if (mUploadTask != null)
-            mUploadTask.cancel(true);
-
-        Log.i(getClass().getSimpleName(), "upload Service shutdown complete.");
-
+        Log.i(TAG, "upload Service shutdown complete.");
     }
 
     /**
@@ -241,15 +182,11 @@ public class CloudCreateService extends Service {
      * or that the play-state changed (paused/resumed).
      */
     private void notifyChange(String what) {
-
-        Intent i = new Intent(what);
-        sendBroadcast(i);
-
+        sendBroadcast(new Intent(what));
     }
 
     @SuppressWarnings("unchecked")
     private void startRecording(String path) {
-
         acquireWakeLock();
 
         mRecordFile = new File(path);
@@ -273,11 +210,11 @@ public class CloudCreateService extends Service {
                 .getResources().getString(R.string.cloud_recorder_notification_ticker), System
                 .currentTimeMillis());
 
-        Intent i = new Intent(this, Dashboard.class);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        // i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        i.putExtra("tabIndex", Dashboard.TabIndexes.TAB_RECORD);
+        Intent i = (new Intent(this, Dashboard.class))
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .putExtra("tabIndex", Dashboard.TabIndexes.TAB_RECORD);
+
         mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -299,11 +236,9 @@ public class CloudCreateService extends Service {
 
     public void onRecordFrameUpdate(float maxAmplitude) {
         ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
-        if (frameCount % 10 == 0) // this should happen every second, as the
-            // frame updates are every 100 ms
-            updateRecordTicker();
+        // this should happen every second, as the frame updates are every 100 ms
+        if (frameCount % 10 == 0) updateRecordTicker();
         frameCount++;
-
     }
 
     private void stopRecording() {
@@ -331,36 +266,23 @@ public class CloudCreateService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    private void startUpload(Map trackdata) {
-
+    private void uploadTrack(final Map<String,String> trackdata) {
         acquireWakeLock();
 
         mCurrentUploadCancelled = false;
-
-        /*
-         * Iterator it = trackdata.entrySet().iterator(); while (it.hasNext()) {
-         * Map.Entry pairs = (Map.Entry)it.next();
-         * System.out.println(pairs.getKey() + " = " + pairs.getValue()); }
-         */
-
-        mUploadingData = (HashMap<String, String>) trackdata;
-
         int icon = R.drawable.statusbar;
         CharSequence tickerText = getString(R.string.cloud_uploader_notification_ticker);
-        long when = System.currentTimeMillis();
-        mNotification = new Notification(icon, tickerText, when);
+        mNotification = new Notification(icon, tickerText, System.currentTimeMillis());
 
-        Intent i = new Intent(this, Dashboard.class);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.setAction(Intent.ACTION_MAIN);
+        Intent i = (new Intent(this, Dashboard.class))
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .setAction(Intent.ACTION_MAIN);
 
         notificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
 
-        // CharSequence titleText =
-        // getString(R.string.cloud_uploader_event_title_track);
-        CharSequence trackText = mUploadingData.get("track[title]").toString();
+        CharSequence trackText = trackdata.get("track[title]");
         notificationView.setTextViewText(R.id.message, trackText);
         notificationView.setTextViewText(R.id.percentage, "0");
         notificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
@@ -371,151 +293,112 @@ public class CloudCreateService extends Service {
 
         startForeground(CREATE_NOTIFY_ID, mNotification);
 
-        mOggFilePath = CloudUtils.getCacheDirPath(this) + "/"
-                + mUploadingData.get("ogg_filename").toString();
-        ;
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(mUploadingData.get("pcm_path"), mOggFilePath);
-
+        mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
     }
 
-    private class EncodeOggTask extends VorbisEncoderTask {
-
+    private class EncodeOggTask extends VorbisEncoderTask<UploadTask.Params, UploadTask.Params> {
         private String eventString;
 
         @Override
         protected void onPreExecute() {
-            eventString = getApplicationContext().getString(R.string.cloud_uploader_event_encoding);
+            eventString = getString(R.string.cloud_uploader_event_encoding);
             notificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
         }
 
         @Override
-        protected void onProgressUpdate(Integer... progress) {
-
-            // Log.i(TAG, "Progress " + progress[0] + " " + progress[1] + " " +
-            // isCancelled());
-
-            if (isCancelled())
-                return;
-
-            notificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
-            notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
-                    100, (100 * progress[0]) / progress[1])));
-            nm.notify(CREATE_NOTIFY_ID, mNotification);
+        protected UploadTask.Params doInBackground(UploadTask.Params... params) {
+            UploadTask.Params param = params[0];
+            if (!encode(param.trackFile, param.encodedFile)) param.fail();
+            return param;
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (isCancelled())
-                result = false;
-
-            onOggEncodeComplete(result);
+        protected void onProgressUpdate(Integer... progress) {
+            if (!isCancelled()) {
+                notificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
+                notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
+                        100, (100 * progress[0]) / progress[1])));
+                nm.notify(CREATE_NOTIFY_ID, mNotification);
+            }
         }
-    }
 
-    public void onOggEncodeComplete(Boolean result) {
-        mOggTask = null;
+        @Override
+        protected void onPostExecute(UploadTask.Params param) {
+            mOggTask = null;
+            if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
+                if (param.trackFile.delete()) Log.v(TAG, "deleted file " + param.trackFile);
 
-        if (result && !mCurrentUploadCancelled) {
+                mUploadTask = new UploadOggTask((CloudAPI) getApplication());
 
-            File pcmFile = new File(mUploadingData.get("pcm_path"));
-            pcmFile.delete();
-
-            if (!TextUtils.isEmpty(mUploadingData.get("artwork_path"))) {
-
-                Options opt;
-                try {
-                    opt = CloudUtils.determineResizeOptions(mUploadingData.get("artwork_path"),
-                            500, 500, true);
-                    if (opt.inSampleSize > 1) {
-                        mResizeTask = new ImageResizeTask();
-                        mResizeTask.execute(opt.inSampleSize);
-                        return;
-                    }
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                if (param.artworkFile == null) {
+                    mUploadTask.execute(param);
+                } else {
+                    mResizeTask = new ImageResizeTask(mUploadTask);
+                    mResizeTask.execute(param);
                 }
-
-            }
-            startUpload();
-
-        } else {
-            if (!mCurrentUploadCancelled) {
-                notifyUploadCurrentUploadFinished(result);
-            }
+            } else if (!mCurrentUploadCancelled) notifyUploadCurrentUploadFinished(param);
         }
     }
 
-    public class ImageResizeTask extends AsyncTask<Integer, Integer, Boolean> {
+    public class ImageResizeTask extends AsyncTask<UploadTask.Params, Integer, UploadTask.Params> {
+        static final int RECOMMENDED_SIZE = 500;
+        private AsyncTask<UploadTask.Params, ?, ?> nextTask;
 
-        @Override
-        protected void onPreExecute() {
+
+        public ImageResizeTask(AsyncTask<UploadTask.Params, ?, ?> nextTask) {
+            this.nextTask = nextTask;
         }
 
         @Override
-        protected void onProgressUpdate(Integer... progress) {
-            if (isCancelled())
-                return;
+        protected void onPostExecute(UploadTask.Params result) {
+            mResizeTask = null;
+            if (result.isSuccess() && !isCancelled() && !mCurrentUploadCancelled) {
+                nextTask.execute(result);
+            } else if (!mCurrentUploadCancelled) {
+                notifyUploadCurrentUploadFinished(result);
+            }
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (isCancelled())
-                result = false;
-            onImageResizeComplete(result);
-        }
+        protected UploadTask.Params doInBackground(UploadTask.Params... params) {
+            final UploadTask.Params param = params[0];
 
-        @Override
-        protected Boolean doInBackground(Integer... params) {
             try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = params[0];
-                InputStream is = null;
-                is = new FileInputStream(mUploadingData.get("artwork_path"));
+                final long start = System.currentTimeMillis();
+                BitmapFactory.Options options =
+                        CloudUtils.determineResizeOptions(param.artworkFile,
+                            RECOMMENDED_SIZE, RECOMMENDED_SIZE);
+                int sampleSize = options.inSampleSize;
 
-                Bitmap newBitmap = BitmapFactory.decodeStream(is, null, options);
-                is.close();
+                if (sampleSize > 1) {
+                    Log.v(TAG, "resizing " + param.artworkFile);
+                    InputStream is = new FileInputStream(param.artworkFile);
 
-                FileOutputStream out = new FileOutputStream(CloudUtils
-                        .getCacheDirPath(CloudCreateService.this)
-                        + "/upload_tmp.png");
-                newBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-                CloudUtils.clearBitmap(newBitmap);
-                mUploadingData.put("artwork_path", CloudUtils
-                        .getCacheDirPath(CloudCreateService.this)
-                        + "/upload_tmp.png");
+                    options = new BitmapFactory.Options();
+                    options.inSampleSize = sampleSize;
+                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
+                    is.close();
 
-                return true;
+                    if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                    File resized = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
+                    FileOutputStream out = new FileOutputStream(resized);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+
+                    out.close();
+                    CloudUtils.clearBitmap(bitmap);
+                    param.resizedFile = resized;
+
+                    Log.v(TAG, String.format("resized image in %d ms", System.currentTimeMillis() - start));
+                }
+                return param;
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return false;
-        }
-
-    }
-
-    public void onImageResizeComplete(Boolean result) {
-        mResizeTask = null;
-
-        if (result && !mCurrentUploadCancelled) {
-            startUpload();
-        } else {
-            if (!mCurrentUploadCancelled) {
-                notifyUploadCurrentUploadFinished(result);
+                Log.e(TAG, "error resizing", e);
+                return param.fail();
             }
         }
-    }
 
-    private void startUpload() {
-        mUploadTask = new UploadOggTask((CloudAPI) getApplication());
-        mUploadTask.execute(new UploadTask.Params(new File(mOggFilePath), mUploadingData));
     }
 
     private class UploadOggTask extends UploadTask {
@@ -527,8 +410,7 @@ public class CloudCreateService extends Service {
 
         @Override
         protected void onPreExecute() {
-            eventString = getApplicationContext()
-                    .getString(R.string.cloud_uploader_event_uploading);
+            eventString = getString(R.string.cloud_uploader_event_uploading);
             notificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
         }
 
@@ -539,7 +421,6 @@ public class CloudCreateService extends Service {
                         progress[1].intValue(), (int) Math.min(progress[1], progress[0]),
                         false);
 
-
                 notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
                         100, (100 * progress[0]) / progress[1])));
 
@@ -548,48 +429,43 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (isCancelled())
-                result = false;
-            onOggUploadComplete(result);
+        protected void onPostExecute(UploadTask.Params result) {
+            if (isCancelled()) result.fail();
+            mUploadTask = null;
+            if (!mCurrentUploadCancelled) {
+                notifyUploadCurrentUploadFinished(result);
+            }
         }
     }
 
-    public void onOggUploadComplete(Boolean result) {
-        mUploadTask = null;
-        if (!mCurrentUploadCancelled) {
-            notifyUploadCurrentUploadFinished(result);
-        }
-    }
-
-    private void notifyUploadCurrentUploadFinished(boolean success) {
-
+    private void notifyUploadCurrentUploadFinished(UploadTask.Params params) {
         nm.cancel(CREATE_NOTIFY_ID);
 
         gotoIdleState();
 
         int icon = R.drawable.statusbar;
-        CharSequence tickerText = success ? getString(R.string.cloud_uploader_notification_finished_ticker)
+        CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
         mNotification = new Notification(icon, tickerText, when);
         mNotification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
-        Intent i = new Intent(this, Dashboard.class);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.setAction(Intent.ACTION_MAIN);
+        Intent i = (new Intent(this, Dashboard.class))
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .setAction(Intent.ACTION_MAIN);
+
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
         // the next two lines initialize the Notification, using the
         // configurations above
         Notification notification = new Notification(icon, tickerText, when);
-        if (success) {
+        if (params.isSuccess()) {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
                             getString(R.string.cloud_uploader_notification_finished_message),
-                            mUploadingData.get("track[title]").toString()), contentIntent);
+                            params.get("track[title]")), contentIntent);
 
             notifyChange(UPLOAD_SUCCESS);
 
@@ -597,7 +473,7 @@ public class CloudCreateService extends Service {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_error_title), String.format(
                             getString(R.string.cloud_uploader_notification_error_message),
-                            mUploadingData.get("track[title]").toString()), contentIntent);
+                            params.get("track[title]")), contentIntent);
 
             notifyChange(UPLOAD_ERROR);
         }
@@ -606,36 +482,25 @@ public class CloudCreateService extends Service {
         releaseWakeLock();
     }
 
-    private void cleanUp() {
-        File tmp = new File(mOggFilePath);
-        if (tmp.exists()) {
-            tmp.delete();
-            tmp = null;
-        }
 
-        tmp = new File(mUploadingData.get("artwork_path"));
-        if (tmp.exists()) {
-            tmp.delete();
-            tmp = null;
-        }
-    }
-
-    public Boolean isUploading() {
+    public boolean isUploading() {
         return (mOggTask != null || mResizeTask != null || mUploadTask != null);
     }
 
     public void cancelUpload() {
-        if (mOggTask != null && !CloudUtils.isTaskFinished(mOggTask)) {
+        mCurrentUploadCancelled = true;
+
+        if (mOggTask != null && !isTaskFinished(mOggTask)) {
             mOggTask.cancel(true);
             mOggTask = null;
         }
 
-        if (mResizeTask != null && !CloudUtils.isTaskFinished(mResizeTask)) {
+        if (mResizeTask != null && !isTaskFinished(mResizeTask)) {
             mResizeTask.cancel(true);
             mResizeTask = null;
         }
 
-        if (mUploadTask != null && !CloudUtils.isTaskFinished(mUploadTask)) {
+        if (mUploadTask != null && !isTaskFinished(mUploadTask)) {
             mUploadTask.cancel(true);
             mUploadTask = null;
         }
@@ -685,7 +550,7 @@ public class CloudCreateService extends Service {
         @Override
         public void uploadTrack(Map trackdata) throws RemoteException {
             if (mService.get() != null)
-                mService.get().startUpload(trackdata);
+                mService.get().uploadTrack(trackdata);
         }
 
         @Override
@@ -704,5 +569,4 @@ public class CloudCreateService extends Service {
     }
 
     private final IBinder mBinder = new ServiceStub(this);
-
-}// end class MyService
+}

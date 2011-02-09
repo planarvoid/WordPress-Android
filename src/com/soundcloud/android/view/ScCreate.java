@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.text.format.DateFormat;
 import android.widget.*;
 import android.widget.Button;
 import com.soundcloud.android.CloudUtils;
@@ -9,11 +10,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
+import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.utils.AnimUtils;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -24,7 +25,6 @@ import android.graphics.BitmapFactory.Options;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
@@ -36,11 +36,11 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
 
@@ -54,15 +54,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
-    private TextView txtInstructions;
-
-    private TextView txtRecordStatus;
+    private TextView txtInstructions, txtRecordStatus;
 
     private LinearLayout mFileLayout;
-
-    private FrameLayout mGaugeHolder;
-
-    private RelativeLayout mProgressFrame;
 
     private PowerGauge mPowerGauge;
 
@@ -70,45 +64,23 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private RadioGroup mRdoPrivacy;
 
-    private RadioButton mRdoPrivate;
+    private RadioButton mRdoPrivate, mRdoPublic;
 
-    private RadioButton mRdoPublic;
-
-    private EditText mWhereText;
-
-    private EditText mWhatText;
+    private EditText mWhereText, mWhatText;
 
     private TextView mArtworkInstructions;
-
     private ImageView mArtwork;
-
     private ImageButton btnAction;
 
-    private Button btnReset;
-
-    private Button btnCancel;
-
-    private Button btnSave;
-
-    private Button btnUpload;
-
-    private Button btnCancelUpload;
-
     private File mRecordFile;
-
     private String mArtworkUri;
-
     private Bitmap mArtworkBitmap;
 
     private int mArtworkInSampleSize;
 
     private LazyActivity mActivity;
 
-    private CreateState mLastState;
-
-    private CreateState mCurrentState;
-
-    private CreateState mStoredState;
+    private CreateState mLastState, mCurrentState;
 
     private TextView mChrono;
     private ConnectionList mConnectionList;
@@ -117,17 +89,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         idle_record, record, idle_playback, playback, idle_upload, upload
     }
 
-    private Boolean isRecording = false;
-
     private String mRecordErrorMessage = "";
 
-    private Boolean isPlayingBack = false;
-
-    private Thread uploadThread;
-
-    private int mPlaybackLength;
-
-    // private PCMRecordTask mRecordTask;
     private PCMPlaybackTask mPlaybackTask;
 
     private AudioTrack playbackTrack;
@@ -138,88 +101,22 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private String mCurrentDurationString;
 
-    private String progressLengthString;
-
-    private String progressCounterString;
-
     public static int REC_SAMPLE_RATE = 44100;
 
     public static int REC_CHANNELS = 2;
 
     public static int REC_BITS_PER_SAMPLE = 16;
 
-    // public static int REC_MAX_FILE_SIZE = 52920000; //5 mins at
-    // 44100x16bitx2channels
-    // public static int REC_MAX_FILE_SIZE = 105840000; //10 mins at
-    // 44100x16bitx2channels
-    public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at
-
-    // 44100x16bitx2channels
-
-    // public static int REC_MAX_FILE_SIZE = 211680000; //20 mins at
-    // 44100x16bitx2channels
-
-    static final String STATE_FILE_NAME = "soundrecorder.state";
-
-    static final String RECORDER_STATE_KEY = "recorder_state";
-
-    static final String SAMPLE_INTERRUPTED_KEY = "sample_interrupted";
-
-    static final String MAX_FILE_SIZE_KEY = "max_file_size";
-
-    static final String AUDIO_3GPP = "audio/3gpp";
-
-    static final String AUDIO_AMR = "audio/amr";
-
-    static final String AUDIO_ANY = "audio/*";
-
-    static final String ANY_ANY = "*/*";
-
-    static final int BITRATE_AMR = 5900; // bits/sec
-
-    static final int BITRATE_3GPP = 5900;
-
+    public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
     WakeLock mWakeLock;
 
-    String mRequestedType = AUDIO_ANY;
 
     boolean mSampleInterrupted = false;
-
-    String mErrorUiMessage = null; // Some error messages are displayed in the
-
-    // UI,
-
-    // not a dialog. This happens when a recording
-    // is interrupted for some reason.
-
-    long mMaxFileSize = -1; // can be specified in the intent
-
     RemainingTimeCalculator mRemainingTimeCalculator;
 
     String mTimerFormat;
+    private Long pcmTime;
 
-    final Handler mHandler = new Handler();
-
-    private BroadcastReceiver mSDCardMountEventReceiver = null;
-
-    // ******************************************************************** //
-    // Activity Lifecycle.
-    // ******************************************************************** //
-
-    /**
-     * Called when the activity is starting. This is where most initialisation
-     * should go: calling setContentView(int) to inflate the activity's UI, etc.
-     * You can call finish() from within this function, in which case
-     * onDestroy() will be immediately called without any of the rest of the
-     * activity lifecycle executing. Derived classes must call through to the
-     * super class's implementation of this method. If they do not, an exception
-     * will be thrown.
-     * 
-     * @param icicle If the activity is being re-initialised after previously
-     *            being shut down then this Bundle contains the data it most
-     *            recently supplied in onSaveInstanceState(Bundle). Note:
-     *            Otherwise it is null.
-     */
 
     public ScCreate(LazyActivity activity) {
         super(activity);
@@ -256,7 +153,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
         mFileLayout = (LinearLayout) findViewById(R.id.file_layout);
-        mGaugeHolder = (FrameLayout) findViewById(R.id.gauge_holder);
+        FrameLayout mGaugeHolder = (FrameLayout) findViewById(R.id.gauge_holder);
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
         mProgressBar = (SeekBar) findViewById(R.id.progress_bar);
 
@@ -265,7 +162,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
 
-        mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
+        RelativeLayout mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
         mProgressFrame.setVisibility(View.GONE);
 
         btnAction = (ImageButton) findViewById(R.id.btn_action);
@@ -275,7 +172,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        btnReset = (Button) findViewById(R.id.btn_reset);
+        Button btnReset = (Button) findViewById(R.id.btn_reset);
         btnReset.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCurrentState = CreateState.idle_record;
@@ -283,7 +180,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        btnSave = (Button) findViewById(R.id.btn_save);
+        Button btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCurrentState = CreateState.idle_upload;
@@ -291,7 +188,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        btnCancel = (Button) findViewById(R.id.btn_cancel);
+        Button btnCancel = (Button) findViewById(R.id.btn_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCurrentState = CreateState.idle_playback;
@@ -299,7 +196,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        btnUpload = (Button) findViewById(R.id.btn_upload);
+        Button btnUpload = (Button) findViewById(R.id.btn_upload);
         btnUpload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCurrentState = CreateState.upload;
@@ -414,7 +311,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         }
         String currentCreateStateIndex = savedInstanceState
-                .getString("createCurrentCreateStateIndex") == "null"
+                .getString("createCurrentCreateStateIndex") == null
                 || savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
                 : savedInstanceState.getString("createCurrentCreateStateIndex");
         if (!TextUtils.isEmpty(savedInstanceState
@@ -507,7 +404,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 }
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
             mCurrentState = CreateState.idle_record;
         }
         updateUi(false);
@@ -545,11 +442,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     public void setPickedImage(String imageUri) {
-        Options opt;
         try {
-
-            opt = CloudUtils.determineResizeOptions(imageUri, mArtwork.getWidth(), mArtwork
-                    .getHeight(), true);
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
+                    .getHeight());
             mArtworkUri = imageUri;
             mArtworkInSampleSize = opt.inSampleSize;
 
@@ -562,10 +457,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             mArtworkInstructions.setText(mActivity.getResources().getString(
                     R.string.record_artwork_instructions_added));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
-
     }
 
     public void clearArtwork() {
@@ -578,23 +471,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             CloudUtils.clearBitmap(mArtworkBitmap);
     }
 
-    public void hideProgressFrame() {
-        mProgressFrame.setVisibility(View.GONE);
-    }
-
-    public void showProgressFrame() {
-        mProgressFrame.setVisibility(View.VISIBLE);
-    }
 
     private void restoreRecordings() {
-
         mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.mp4");
-
-        // if (mRecordFile.exists()){
-        // mCurrentState = CreateState.idle_playback;
-        // updateUi();
-        // }
-
     }
 
     /*** State Handling ***/
@@ -840,8 +719,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         try {
             (mActivity).getCreateService().startRecording(mRecordFile.getAbsolutePath());
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
 
         mActivity.getSoundCloudApplication().setRecordListener(recListener);
@@ -884,12 +762,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         Resources res = mActivity.getResources();
         String timeStr = "";
 
-        if (t < 60)
-            timeStr = res.getQuantityString(R.plurals.seconds_available, (int) t, t).toString();
-        else if (t < 300)
+        if (t < 60) {
+            timeStr = res.getQuantityString(R.plurals.seconds_available, (int) t, t);
+        } else if (t < 300) {
             timeStr = res.getQuantityString(R.plurals.minutes_available, (int) (t / 60 + 1),
-                    (t / 60 + 1)).toString();
-
+                    (t / 60 + 1));
+        }
         txtRecordStatus.setText(timeStr);
 
     }
@@ -913,8 +791,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         try {
             (mActivity).getCreateService().stopRecording();
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
 
         // disable actions during processing and playback preparation
@@ -936,8 +813,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     private void startPlayback() {
-        mPlaybackLength = (int) Math.floor(mRecordFile.length() / (44100 * 2));
-
         if (playbackTrack != null) {
             clearPlaybackTrack();
         }
@@ -948,33 +823,25 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mPlaybackTask.setPlaybackListener(this);
         mPlaybackTask.execute();
 
-        isPlayingBack = true;
-        // startProgressTracker();
-
     }
 
     private void pausePlayback() {
-        // playbackTrack.pause();
         mPlaybackTask.stopPlayback();
-        // mPlaybackTask.
-        isPlayingBack = false;
 
     }
 
     private void startUpload() {
-        if ((mActivity).getCreateService() == null)
-            return;
+        if (mActivity.getCreateService() == null) return;
 
-        Boolean uploading = true;
+        boolean uploading = true;
         try {
             uploading = (mActivity).getCreateService().isUploading();
-            if (uploading)
-                mActivity.showToast(R.string.wait_for_upload_to_finish);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
 
         if (uploading) {
+            mActivity.showToast(R.string.wait_for_upload_to_finish);
             mCurrentState = CreateState.idle_upload;
             updateUi();
             return;
@@ -987,8 +854,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         String dayOfWeek = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG)
                 .toLowerCase();
 
-        String title = "";
-        String oggFilename = "";
+        String title, oggFilename;
+
         if (!TextUtils.isEmpty(mWhatText.getText().toString())
                 && !TextUtils.isEmpty(mWhereText.getText().toString()))
             oggFilename = title = mWhatText.getText().toString() + " at "
@@ -999,64 +866,41 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             oggFilename = title = mWhereText.getText().toString();
         else {
             title = "recording on " + dayOfWeek;
-            oggFilename = "recording_on_"
-                    + android.text.format.DateFormat.format("yyyy-MM-dd-hh-mm-ss",
-                            new java.util.Date());
+            oggFilename = "recording_on_" + DateFormat.format("yyyy-MM-dd-hh-mm-ss", new java.util.Date());
         }
 
         oggFilename += ".ogg";
 
-        HashMap<String, String> trackdata = new HashMap<String, String>();
-
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
-        trackdata.put("track[sharing]", privateUpload ? "private" : "public");
+        final Map<String, String> data = new HashMap<String, String>();
+        data.put("track[sharing]", privateUpload ? "private" : "public");
         if (!privateUpload) {
             for (int id : mConnectionList.postToServiceIds()) {
-                trackdata.put("post_to[][id]", String.valueOf(id));
+                data.put("post_to[][id]", String.valueOf(id));
             }
         }
 
-        trackdata.put("pcm_path", mRecordFile.getAbsolutePath());
-        trackdata.put("track[title]", title);
-        trackdata.put("track[tag_list]", "soundcloud:source=web-record");
-        trackdata.put("ogg_filename", oggFilename);
+        data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
+        data.put("track[title]", title);
+        data.put("track[tag_list]", "soundcloud:source=web-record");
+        data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), oggFilename));
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
-            trackdata.put("artwork_path", mArtworkUri);
-            trackdata.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
+            data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
+            data.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
         }
 
         try {
-            (mActivity).getCreateService().uploadTrack(trackdata);
-        } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            (mActivity).getCreateService().uploadTrack(data);
+        } catch (RemoteException ignored) {
+            Log.e(TAG, "error", ignored);
+        } finally {
+            mWhereText.setText("");
+            mWhatText.setText("");
+            clearArtwork();
         }
-
-        mWhereText.setText("");
-        mWhatText.setText("");
-        clearArtwork();
     }
 
-
-    private OnFocusChangeListener txtFocusListener = new View.OnFocusChangeListener() {
-        public void onFocusChange(View v, boolean hasFocus) {
-            InputMethodManager mgr = (InputMethodManager) mActivity
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (hasFocus == false) {
-
-                if (!TextUtils.isEmpty(((TextView) v).getText().toString()))
-                    ((TextView) v).setText(CloudUtils.toTitleCase(((TextView) v).getText()
-                            .toString()));
-
-                if (mgr != null)
-                    mgr.hideSoftInputFromWindow(mWhatText.getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);
-            }
-        }
-    };
-
-    @Override
     public void onPlayComplete(boolean result) {
         mProgressBar.setProgress(0);
         if (mCurrentState != CreateState.idle_upload) {
@@ -1065,7 +909,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
     }
 
-    private Long pcmTime;
 
     @Override
     public void onPlayProgressUpdate(int position) {

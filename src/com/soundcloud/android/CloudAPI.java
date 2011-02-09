@@ -8,12 +8,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 public interface CloudAPI {
+    ObjectMapper getMapper();
+
     InputStream executeRequest(String req) throws IOException;
 
     InputStream getContent(String path) throws IOException;

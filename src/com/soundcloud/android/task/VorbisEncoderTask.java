@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import android.util.Log;
 import org.xiph.libogg.ogg_packet;
 import org.xiph.libogg.ogg_page;
 import org.xiph.libogg.ogg_stream_state;
@@ -16,7 +17,7 @@ import org.xiph.libvorbis.vorbisenc;
 
 import android.os.AsyncTask;
 
-public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
+ public abstract class VorbisEncoderTask<Params, Result> extends AsyncTask<Params, Integer, Result> {
 
     private static final String TAG = "VorbisEncoderTask";
 
@@ -46,49 +47,26 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 
     static byte[] readbuffer = new byte[READ * 4 + 44];
 
-    static int page_count = 0;
 
-    static int block_count = 0;
-
-    private File inputFile;
-
-    private File outputFile;
-
-    public interface stages {
+     public interface stages {
         int reading = 1;
-
         int writing = 2;
     }
 
-    /**
-     * VorbisEncoder Task Based on the vorbis encoder java library from xiph.org
-     */
 
-    @Override
-    protected void onPreExecute() {
-    }
 
-    @Override
-    protected void onProgressUpdate(Integer... progress) {
-    }
+     @Override
+     protected abstract Result doInBackground(Params... params);
 
-    @Override
-    protected void onPostExecute(Boolean result) {
-    }
-
-    @Override
-    protected Boolean doInBackground(String... params) {
+     protected boolean encode(File inputFile, File outputFile) {
         boolean eos = false;
-
-        inputFile = new File(params[0]);
-        outputFile = new File(params[1]);
 
         vi = new vorbis_info();
 
         encoder = new vorbisenc();
 
         if (!encoder.vorbis_encode_init_vbr(vi, 2, 44100, .3f)) {
-            System.out.println("Failed to Initialize vorbisenc");
+            Log.w(TAG, "Failed to Initialize vorbisenc");
             return false;
         }
 
@@ -98,7 +76,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
         vd = new vorbis_dsp_state();
 
         if (!vd.vorbis_analysis_init(vi)) {
-            System.out.println("Failed to Initialize vorbis_dsp_state");
+            Log.w(TAG, "Failed to Initialize vorbis_dsp_state");
             return false;
         }
 
@@ -108,7 +86,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
         // randomize seed
         os = new ogg_stream_state(generator.nextInt(256));
 
-        System.out.print("Writing header.");
+        Log.d(TAG, "Writing header.");
         ogg_packet header = new ogg_packet();
         ogg_packet header_comm = new ogg_packet();
         ogg_packet header_code = new ogg_packet();
@@ -123,19 +101,16 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
         op = new ogg_packet();
 
         try {
-
             FileOutputStream fos = new FileOutputStream(outputFile);
 
             while (!eos) {
-
                 if (!os.ogg_stream_flush(og))
                     break;
 
                 fos.write(og.header, 0, og.header_len);
                 fos.write(og.body, 0, og.body_len);
-                System.out.print(".");
             }
-            System.out.print("Done.\n");
+            Log.d(TAG, "Done.\n");
 
             FileInputStream fin = new FileInputStream(inputFile);
 
@@ -145,7 +120,7 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
 
             int lastPercentReported = 0;
 
-            System.out.print("Encoding.");
+            Log.d(TAG, "Encoding.");
             while (!eos && !isCancelled()) {
 
                 int i;
@@ -221,31 +196,20 @@ public class VorbisEncoderTask extends AsyncTask<String, Integer, Boolean> {
                         }
                     }
                 }
-
-                // Log.i(TAG,"checking progress crap " + lastPercentReported +
-                // " " + Math.round(100 * blocks / blocksTotal));
-
                 if (Math.round(100 * blocks / blocksTotal) > lastPercentReported) {
                     lastPercentReported = Math.round(100 * blocks / blocksTotal);
                     publishProgress(blocks, blocksTotal);
                 }
-
             }
 
             fin.close();
             fos.close();
 
-            // publishProgress(bytestotal,bytestotal);
-            if (isCancelled())
-                return false;
-
-            return true;
-
+            return !isCancelled();
         } catch (Exception e) {
-            System.out.println("\n" + e);
-            e.printStackTrace(System.out);
+            Log.e(TAG, "error", e);
+            return false;
         }
-        return false;
     }
 
 }

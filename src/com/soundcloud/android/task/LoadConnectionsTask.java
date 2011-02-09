@@ -2,6 +2,7 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.objects.Connection;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.util.List;
 

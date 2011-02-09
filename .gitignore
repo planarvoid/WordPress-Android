@@ -20,3 +20,5 @@ tmp
 local.properties
 
 test
+
+lib-proguard/out

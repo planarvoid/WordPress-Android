@@ -371,17 +371,12 @@ public class CloudUtils {
         }
     }
 
-    public static void trimCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            if (dir != null && dir.isDirectory()) {
-                deleteDir(dir);
+    public static String getCacheFilePath(Context c, String name) {
+        return getCacheFile(c, name).getAbsolutePath();
+    }
 
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-
+    public static File getCacheFile(Context c, String name) {
+          return new File(getCacheDir(c), name);
     }
 
     public static void checkState(Context c) {
@@ -1106,10 +1101,7 @@ public class CloudUtils {
 
     @SuppressWarnings("unchecked")
     public static boolean isTaskFinished(AsyncTask lt) {
-        if (lt == null)
-            return true;
-
-        return lt.getStatus() == AsyncTask.Status.FINISHED;
+        return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;
 
     }
 
@@ -1141,13 +1133,13 @@ public class CloudUtils {
         return bytes / (sampleRate * channels * bitsPerSample / 8);
     }
 
-    public static BitmapFactory.Options determineResizeOptions(String imageUri, int targetWidth,
-            int targetHeight, boolean crop) throws IOException {
+    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
+                                                               int targetHeight) throws IOException {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        InputStream is = null;
-        is = new FileInputStream(imageUri);
+
+        InputStream is = new FileInputStream(imageUri);
 
         BitmapFactory.decodeStream(is, null, options);
         is.close();
@@ -1163,7 +1155,6 @@ public class CloudUtils {
             }
 
         }
-
         return options;
     }
 

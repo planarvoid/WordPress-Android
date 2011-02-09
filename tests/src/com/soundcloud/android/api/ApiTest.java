@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import com.soundcloud.android.CloudAPI;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
@@ -17,6 +18,7 @@ public class ApiTest {
     @Before
     public void setUp() throws Exception {
         api = mock(CloudAPI.class);
+        when(api.getMapper()).thenReturn(getMapper());
     }
 
     public void fakeApi(String request, String resource) throws IOException {
@@ -28,4 +30,7 @@ public class ApiTest {
         when(api.executeRequest(request)).thenReturn(data);
     }
 
+    public ObjectMapper getMapper() {
+        return new ObjectMapper();
+    }
 }
