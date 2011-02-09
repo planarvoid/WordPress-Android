@@ -168,6 +168,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         super.onLayout(changed, l,t,r,b);
         
         if (changed && mLandscape){
+            if (mCommentBubble == null)
+                mCommentBubble = new CommentBubble(mContext);
+            
             int[] calc = new int[2];
             
             mPlayer.getCommentHolder().getLocationInWindow(calc);
@@ -267,13 +270,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 if (mCommentBubble != null && mCommentBubble.getParent() == this) removeView(mCommentBubble);
 
                 if (v == mPlayerAvatarBar){
-                    mode = AVATAR_DRAG;
-                    calcAvatarHit(event.getX());
-                        
+                    if (mCurrentComments != null){
+                        mode = AVATAR_DRAG;
+                        calcAvatarHit(event.getX());    
+                    }
                 } else if (v == mPlayerCommentBar){
                     mode = COMMENT_DRAG;
+                    mCommentBubble.onNewCommentMode(mPlayingTrack);
                    showBubbleAt((int) event.getX(),mCommentBarOffsetY);
-                    
                 } else {
                     mode = SEEK_DRAG;
                     if (mPlayer != null && mPlayer.isSeekable()) {
@@ -325,7 +329,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
     
     private void showBubbleAt(int xPos, int yPos){
-        if (mCommentBubble == null) mCommentBubble = new CommentBubble(mContext);
         if (mCommentBubble.getParent() != mPlayer.getCommentHolder()) 
             mPlayer.getCommentHolder().addView(mCommentBubble);
         
@@ -368,7 +371,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     private Comment isHitting(float xPos){
       for (Comment comment : mCurrentComments)
-          
           if (comment.xPos != -1 && isHitting(comment,xPos))
               return comment;
 

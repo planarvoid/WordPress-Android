@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
 
 import android.content.Context;
 import android.util.Log;
@@ -20,6 +21,8 @@ public class CommentBubble extends RelativeLayout {
     public Comment mComment;
     
     public Float mDensity;
+    
+    public Track mTrack;
 
     public CommentBubble(Context context) {
         
@@ -56,6 +59,10 @@ public class CommentBubble extends RelativeLayout {
         this.setLayoutParams(lp);
         
         mArrow.setPosition(arrowOffset);
+    }
+
+    public void onNewCommentMode(Track mPlayingTrack) {
+        mTrack = mPlayingTrack;
     }
     
 }

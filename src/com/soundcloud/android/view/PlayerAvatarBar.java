@@ -108,12 +108,12 @@ public class PlayerAvatarBar extends View {
     }
     
     public void clearTrackData(){
-        Log.i(TAG,"Clearing track ");
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
         
         stopLoading();
         
+        if (mCurrentComments != null)
         for (Comment c : mCurrentComments){
             if (c.avatar != null)
                 c.avatar.recycle();
