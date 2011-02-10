@@ -99,14 +99,14 @@ public class PlayListManager {
             } else if (playlistCache.get(i) instanceof Event) {
                 mPlayListCache[i] = ((Event) playlistCache.get(i)).getTrack();
             }
-            mPlayList[i] = mPlayListCache[i].getId();
+            mPlayList[i] = mPlayListCache[i].id;
         }
 
         mPlayPos = playPos;
         mPlayListLen = playlistCache.size();
 
-        new CommitPlaylistTask((SoundCloudApplication) mPlaybackService.getApplication(),
-                CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
+        //new CommitPlaylistTask((SoundCloudApplication) mPlaybackService.getApplication(),
+           //     CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
     }
 
     public class CommitPlaylistTask extends CommitTracksTask {

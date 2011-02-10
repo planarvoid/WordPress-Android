@@ -1,20 +1,19 @@
 
 package com.soundcloud.android;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.Locale;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserBrowser;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -61,21 +60,19 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserBrowser;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class CloudUtils {
 
@@ -85,6 +82,10 @@ public class CloudUtils {
 
     public static final String REQUEST_FORMAT = "json";
 
+    public static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
+    
+    public static final String DURATION_FORMAT_LONG = "%1$d.%3$02d.%5$02d";
+    
     public static final int GRAPHIC_DIMENSIONS_T500 = 500;
 
     public static final int GRAPHIC_DIMENSIONS_CROP = 400;
@@ -427,6 +428,7 @@ public class CloudUtils {
         // The directory is now empty so delete it
         return dir.delete();
     }
+    
 
     public static String md5(String s) {
         try {
@@ -615,7 +617,7 @@ public class CloudUtils {
     }
 
     public static Boolean isTrackPlayable(Track track) {
-        return track.getStreamable();
+        return track.streamable;
     }
 
     public static Long getCurrentUserId(Context context) {
@@ -722,37 +724,36 @@ public class CloudUtils {
     // ---Make sure the database is up to date with this track info---
     public static void resolveTrack(SoundCloudApplication context, Track track,
             WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
-
-        DBAdapter db;
-        if (openAdapter == null) {
-            db = new DBAdapter(context);
-            db.open();
-        } else
-            db = openAdapter;
-
-        Cursor result = db.getTrackById(track.getId(), currentUserId);
-        if (result.getCount() != 0) {
-            // add local urls and update database
-            result.moveToFirst();
-
-            track.setUserPlayed(result.getInt(result.getColumnIndex(Track.key_user_played)) == 1 ? true
-                            : false);
-
-            if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateTrack(track);
-
-        } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertTrack(track);
-        }
-        result.close();
-
-        if (openAdapter == null)
-            db.close();
-        else
-            db = null;
-
-        // write with insert only because a track will never come in with
-        resolveUser(context, track.getUser(), WriteState.insert_only, currentUserId, openAdapter);
+            DBAdapter db;
+            if (openAdapter == null) {
+                db = new DBAdapter(context);
+                db.open();
+            } else
+                db = openAdapter;
+    
+            Cursor result = db.getTrackById(track.id, currentUserId);
+            if (result.getCount() != 0) {
+                // add local urls and update database
+                result.moveToFirst();
+    
+                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1 ? true
+                : false;
+    
+                if (writeState == WriteState.update_only || writeState == WriteState.all)
+                    db.updateTrack(track);
+    
+            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                db.insertTrack(track);
+            }
+            result.close();
+    
+            if (openAdapter == null)
+                db.close();
+            else
+                db = null;
+    
+            // write with insert only because a track will never come in with
+            resolveUser(context, track.user, WriteState.insert_only, currentUserId, openAdapter);
     }
 
     // ---Make sure the database is up to date with this track info---
@@ -767,11 +768,11 @@ public class CloudUtils {
             // track = resolveTrackFavorite(track);
 
             result.close();
-            result = db.getUserById(track.getUserId(), currentUserId);
+            result = db.getUserById(track.user_id, currentUserId);
 
             if (result.getCount() != 0) {
-                track.setUser(new User(result));
-                track.setUserId(track.getUser().getId());
+                track.user = new User(result);
+                track.user_id = track.user.id;
             }
 
             result.close();
@@ -802,17 +803,17 @@ public class CloudUtils {
         } else
             db = openAdapter;
 
-        Cursor result = db.getUserById(user.getId(), currentUserId);
+        Cursor result = db.getUserById(user.id, currentUserId);
         if (result.getCount() != 0) {
 
             user.update(result); // update the parcelable with values from the
             // db
 
             if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateUser(user, currentUserId.compareTo(user.getId()) == 0);
+                db.updateUser(user, currentUserId.compareTo(user.id) == 0);
 
         } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertUser(user, currentUserId.compareTo(user.getId()) == 0);
+            db.insertUser(user, currentUserId.compareTo(user.id) == 0);
         }
         result.close();
 
@@ -1052,20 +1053,12 @@ public class CloudUtils {
             else
                 return mUrl;
 
-        return String.format(mUrl + "?order=%s", encode(order) + refreshAppend);
+        return String.format(mUrl + "?order=%s", URLEncoder.encode(order) + refreshAppend);
 
     }
 
     public static String formatUsername(String username) {
         return username.replace(" ", "-");
-    }
-
-    public static String encode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static String stripProtocol(String url) {
@@ -1105,7 +1098,7 @@ public class CloudUtils {
 
     }
 
-    public static boolean isTaskPending(LoadTask lt) {
+    public static boolean isTaskPending(AsyncTask lt) {
         if (lt == null)
             return false;
 
@@ -1162,6 +1155,12 @@ public class CloudUtils {
         bmp.recycle();
         bmp = null;
         System.gc();
+    }
+    
+
+    public static String formatTimestamp(long pos){
+        return CloudUtils.makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
+                : DURATION_FORMAT_LONG, pos / 1000);
     }
 
     /*

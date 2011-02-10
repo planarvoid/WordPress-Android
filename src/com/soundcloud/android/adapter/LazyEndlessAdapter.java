@@ -353,6 +353,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 if (appendTask == null || CloudUtils.isTaskFinished(appendTask)) {
                     appendTask = new AppendTask();
                     appendTask.loadModel = getLoadModel();
+                    appendTask.pageSize = mActivity.getPageSize();
                     appendTask.setContext(this, mActivity);
                     appendTask.execute(this.buildRequest());
                 }
@@ -536,13 +537,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (baseUrl.indexOf("limit") == -1)
             builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
 
-        builder.appendQueryParameter("rand", String.valueOf(((int) (Math.random() * 100000))));
         builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()
                 * (getCurrentPage())));
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
 
-         return mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
+       return mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
     }
 
     /**
@@ -558,10 +558,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         private WeakReference<LazyActivity> mActivityReference;
 
         private Boolean keepGoing = true;
-
+        
         private ArrayList<Parcelable> newItems;
 
         public CloudUtils.Model loadModel;
+        
+        public int pageSize;
 
         /**
          * Set the activity and adapter that this task now belong to. This will
@@ -648,13 +650,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                         for (Event evt : evtWrapper.getCollection())
                             newItems.add(evt);
 
-                        if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) // set
-                                                                                                  // the
-                                                                                                  // params
-                                                                                                  // of
-                                                                                                  // the
-                                                                                                  // next
-                                                                                                  // url
+                        if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) 
                             ((EventsAdapterWrapper) mAdapterReference.get())
                                     .onNextEventsParam(evtWrapper.getNext_href());
                         break;
@@ -669,7 +665,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 // done grabbing items for this list
                 if (mActivityReference.get() != null)
                     if (newItems == null
-                            || newItems.size() < mActivityReference.get().getPageSize())
+                            || newItems.size() < pageSize)
                         keep_appending = false;
 
                 // we were successful, so increment the adapter

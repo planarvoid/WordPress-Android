@@ -4,6 +4,7 @@ package com.soundcloud.android;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -12,6 +13,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.http.ProgressListener;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -24,13 +26,16 @@ import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@ReportsCrashes(formKey = "dC0zSEhYX0xRX1lfYTVYYWpJbWh6NlE6MQ")
+@ReportsCrashes(formKey = "dDBFTG1DVkRYb2FMeXV1eE41SEo3Y3c6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
 
     public static enum Events {
@@ -77,13 +82,19 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
 
-    private CloudAPI mCloudApi;
-
-    private ArrayList<Parcelable> mPlaylistCache = null;
-
-    private ImageLoader mImageLoader;
-
     static final boolean API_PRODUCTION = true;
+
+    private CloudAPI mCloudApi;
+    private ArrayList<Parcelable> mPlaylistCache = null;
+    private ImageLoader mImageLoader;
+    static ContentHandler mBitmapHandler;
+
+    public static final Map<String, SoftReference<Bitmap>> mBitmaps =
+            Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
+    public static final Map<String, Throwable> mBitmapErrors =
+            Collections.synchronizedMap(new LruCache<String, Throwable>());
+
+    private HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
 
     @Override
     public void onCreate() {
@@ -99,11 +110,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             preferences.getString("oauth_access_token", ""),
             preferences.getString("oauth_access_token_secret", ""),
             API_PRODUCTION);
-
-    }
-
-    public CloudAPI getApi() {
-        return mCloudApi;
     }
 
     protected String getConsumerKey(boolean production) {
@@ -133,10 +139,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         }
     }
 
-    private HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
-
     public HashMap<String, String[]> getDBColumns() {
         return dbColumns;
+    }
+    
+    public ContentHandler getBitmapHandler(){
+        return mBitmapHandler;
     }
 
     /**
@@ -153,7 +161,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
         // Load images using a BitmapContentHandler
         // and cache the image data in the file cache.
-        ContentHandler bitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
+        mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
 
         // For pre-fetching, use a "sink" content handler so that the
         // the binary image data is captured by the cache without actually
@@ -164,7 +172,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         // Perform callbacks on the main thread
         Handler handler = null;
 
-        return new ImageLoader(streamFactory, bitmapHandler, prefetchHandler, handler);
+        return new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
 
     @Override
@@ -180,7 +188,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mPlaylistCache = playlistCache;
     }
 
-    public ArrayList<Parcelable> flushCachePlaylist() {
+    public List<Parcelable> flushCachePlaylist() {
         ArrayList<Parcelable> playlistRef = mPlaylistCache;
         mPlaylistCache = null;
         return playlistRef;
@@ -202,6 +210,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public interface RecordListener {
         public abstract void onFrameUpdate(float maxAmplitude);
     }
+
 
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();

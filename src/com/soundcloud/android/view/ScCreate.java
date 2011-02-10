@@ -298,11 +298,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
             outState.putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
         }
+
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
+
+
         if (!TextUtils.isEmpty(mArtworkUri))
             outState.putString("createArtworkPath", mArtworkUri);
+        
         super.onSaveInstanceState(outState);
     }
 
@@ -858,12 +862,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             data.put("post_to[][id]", serviceIds);
         }
 
+
         data.put("track[title]", title);
         data.put("track[track_type]", "recording");
         data.put("track[tag_list]", "soundcloud:source=web-record");
         data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), oggFilename));
         data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
-
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
             data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);

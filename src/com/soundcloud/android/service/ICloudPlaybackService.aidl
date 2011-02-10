@@ -29,8 +29,6 @@ interface ICloudPlaybackService
     String getUserPermalink();
     String getWaveformUrl();
     boolean isBuffering();
-    void setComments(in Comment[] commentData, int trackId);
-    void addComment(in Comment commentData);
     void setFavoriteStatus(long trackId, boolean favoriteStatus);
     void setQueuePosition(int index);
     boolean getDownloadable();

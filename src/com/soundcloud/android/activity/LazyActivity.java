@@ -218,7 +218,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         // player
         try {
             if (t != null && mService != null && mService.getTrackId() != -1
-                    && mService.getTrackId() == (t.getId())) {
+                    && mService.getTrackId() == (t.id)) {
                 // skip the enquing, its already playing
                 Intent intent = new Intent(this, ScPlayer.class);
                 startActivity(intent);

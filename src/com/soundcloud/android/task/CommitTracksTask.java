@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.task;
 
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
@@ -43,7 +44,10 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
     protected Boolean doInBackground(Track... params) {
 
         for (int i = 0; i < params.length; i++) {
-            CloudUtils.resolveTrack(scApp, params[i], WriteState.all, currentUserId);
+            try{
+                CloudUtils.resolveTrack(scApp, params[i], WriteState.all, currentUserId);
+            } catch (SQLiteException ex){
+            }
         }
 
         afterCommitInBg();

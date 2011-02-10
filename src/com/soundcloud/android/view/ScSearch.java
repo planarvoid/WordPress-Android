@@ -1,8 +1,15 @@
 
 package com.soundcloud.android.view;
 
-import java.net.URLEncoder;
-import java.util.ArrayList;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -19,17 +26,8 @@ import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-
-import static com.soundcloud.android.CloudUtils.encode;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 
 public class ScSearch extends ScTabView {
 
@@ -178,13 +176,13 @@ public class ScSearch extends ScTabView {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS, encode(txtQuery
+            mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
 
         } else {
-            mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS, encode(txtQuery
+            mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);

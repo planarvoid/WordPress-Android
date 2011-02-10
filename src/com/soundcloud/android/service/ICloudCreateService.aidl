@@ -10,5 +10,7 @@ interface ICloudCreateService
  	void uploadTrack(in Map trackdata);
  	boolean isUploading();
  	void cancelUpload();
+ 	void setCurrentState(int newState);
+ 	int getCurrentState();
 }
 

@@ -6,6 +6,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.android.view.ScCreate;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
@@ -46,7 +48,12 @@ public class CloudCreateService extends Service {
     public static final String RECORD_ERROR     = "com.soundcloud.android.recorderror";
     public static final String UPLOAD_SUCCESS   = "com.sound.android.fileuploadsuccessful";
     public static final String UPLOAD_ERROR     = "com.sound.android.fileuploaderror";
+    public static final String RECORD_STARTED   = "com.soundcloud.android.recordstarted";
+    public static final String RECORD_STOPPED   = "com.soundcloud.android.recordstopped";
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
+    public static final String SERVICECMD       = "com.soundcloud.android.createservicecommand";
+    
+    public static final String CMDNAME = "command";
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
 
@@ -77,6 +84,23 @@ public class CloudCreateService extends Service {
     private int mServiceStartId = -1;
 
     private boolean mCurrentUploadCancelled = false;
+
+    private int mCurrentState = 0;
+    
+    public interface States {
+        
+        int IDLE_RECORDING = 0;
+        
+        int RECORDING = 1;
+        
+        int IDLE_PLAYBACK = 2;
+        
+        int PLAYBACK = 3;
+        
+        int PRE_UPLOAD = 4;
+        
+        int UPLOAD = 5;
+    }
 
 
     protected void acquireWakeLock() {
@@ -293,7 +317,7 @@ public class CloudCreateService extends Service {
         startForeground(CREATE_NOTIFY_ID, mNotification);
 
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
+        mOggTask.execute(new UploadTask.Params[]{new UploadTask.Params(trackdata)});
     }
 
     private class EncodeOggTask extends VorbisEncoderTask<UploadTask.Params, UploadTask.Params> {
@@ -508,6 +532,14 @@ public class CloudCreateService extends Service {
         gotoIdleState();
         notifyChange(UPLOAD_CANCELLED);
     }
+    
+    public void setCurrentState(int currentState) {
+        mCurrentState = currentState;
+    }
+    
+    public int getCurrentState() {
+        return mCurrentState;
+    }
 
     /*
      * By making this a static class with a WeakReference to the Service, we
@@ -564,8 +596,22 @@ public class CloudCreateService extends Service {
             if (mService.get() != null)
                 mService.get().cancelUpload();
         }
+        
+        @Override
+        public int getCurrentState() throws RemoteException {
+            if (mService.get() != null)
+                return mService.get().getCurrentState();
+            
+            return 0;
+        }
+
+        @Override
+        public void setCurrentState(int newState) throws RemoteException {
+            if (mService.get() != null)
+                mService.get().setCurrentState(newState);
+        }
 
     }
-
     private final IBinder mBinder = new ServiceStub(this);
 }
+
