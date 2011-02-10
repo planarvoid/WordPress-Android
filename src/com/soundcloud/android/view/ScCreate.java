@@ -40,6 +40,7 @@ import android.view.View;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
@@ -83,10 +84,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private CreateState mLastState, mCurrentState;
 
     private TextView mChrono;
-    private ConnectionList mConnectionList;
+
+    /* package */ ConnectionList mConnectionList;
 
     public enum CreateState {
-        idle_record, record, idle_playback, playback, idle_upload, upload
+        IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK, IDLE_UPLOAD, UPLOAD
     }
 
     private String mRecordErrorMessage = "";
@@ -122,7 +124,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super(activity);
 
         mActivity = activity;
-        mCurrentState = CreateState.idle_record;
+        mCurrentState = CreateState.IDLE_RECORD;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -137,7 +139,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         PowerManager pm = (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "SoundRecorder");
 
-
         initResourceRefs();
 
         updateUi(false);
@@ -149,7 +150,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
      * to reinitialize references to the views.
      */
     private void initResourceRefs() {
-
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
         mFileLayout = (LinearLayout) findViewById(R.id.file_layout);
@@ -175,7 +175,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         Button btnReset = (Button) findViewById(R.id.btn_reset);
         btnReset.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.idle_record;
+                mCurrentState = CreateState.IDLE_RECORD;
                 updateUi();
             }
         });
@@ -183,7 +183,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         Button btnSave = (Button) findViewById(R.id.btn_save);
         btnSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.idle_upload;
+                mCurrentState = CreateState.IDLE_UPLOAD;
                 updateUi();
             }
         });
@@ -191,7 +191,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         Button btnCancel = (Button) findViewById(R.id.btn_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.idle_playback;
+                mCurrentState = CreateState.IDLE_PLAYBACK;
                 updateUi();
             }
         });
@@ -199,7 +199,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         Button btnUpload = (Button) findViewById(R.id.btn_upload);
         btnUpload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.upload;
+                mCurrentState = CreateState.UPLOAD;
                 updateUi();
             }
         });
@@ -240,9 +240,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        // mWhatText.setOnFocusChangeListener(txtFocusListener);
-        // mWhereText.setOnFocusChangeListener(txtFocusListener);
-
         mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
         mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
@@ -279,24 +276,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mPowerGauge = new PowerGauge(mActivity);
         mGaugeHolder.addView(mPowerGauge);
         mTimerFormat = getResources().getString(R.string.timer_format);
+
+        mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
+        mConnectionList.setAdapter(
+            new ConnectionList.Adapter().load(mActivity.getSoundCloudApplication())
+        );
     }
 
-    private void initConnections() {
-        if (mConnectionList == null) {
-            mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-            mConnectionList.setAdapter(new ConnectionList.Adapter()
-                .load(mActivity.getSoundCloudApplication()));
-        }
 
+    @Override
+    public void onAuthenticated() {
+        mConnectionList.getAdapter().loadIfNecessary(
+                mActivity.getSoundCloudApplication()
+        );
     }
 
     /*** Public ***/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private)
-            outState
-                    .putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
+        if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
+            outState.putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
+        }
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
@@ -326,8 +327,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         else
             mRdoPublic.setChecked(true);
 
-        if (!TextUtils.isEmpty(savedInstanceState.getString("createArtworkPath")))
+        if (!TextUtils.isEmpty(savedInstanceState.getString("createArtworkPath"))) {
             setPickedImage(savedInstanceState.getString("createArtworkPath"));
+        }
 
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -337,17 +339,17 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             return 0;
 
         switch (mCurrentState) {
-            case idle_record:
+            case IDLE_RECORD:
                 return 0;
-            case record:
+            case RECORD:
                 return 1;
-            case idle_playback:
+            case IDLE_PLAYBACK:
                 return 2;
-            case playback:
+            case PLAYBACK:
                 return 3;
-            case idle_upload:
+            case IDLE_UPLOAD:
                 return 4;
-            case upload:
+            case UPLOAD:
                 return 5;
         }
         return 0;
@@ -356,22 +358,22 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     public void setCurrentState(int state) {
         switch (state) {
             case 0:
-                mCurrentState = CreateState.idle_record;
+                mCurrentState = CreateState.IDLE_RECORD;
                 break;
             case 1:
-                mCurrentState = CreateState.record;
+                mCurrentState = CreateState.RECORD;
                 break;
             case 2:
-                mCurrentState = CreateState.idle_playback;
+                mCurrentState = CreateState.IDLE_PLAYBACK;
                 break;
             case 3:
-                mCurrentState = CreateState.playback;
+                mCurrentState = CreateState.PLAYBACK;
                 break;
             case 4:
-                mCurrentState = CreateState.idle_upload;
+                mCurrentState = CreateState.IDLE_UPLOAD;
                 break;
             case 5:
-                mCurrentState = CreateState.upload;
+                mCurrentState = CreateState.UPLOAD;
                 break;
 
         }
@@ -382,7 +384,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = getResources().getString(R.string.error_recording_message);
-        mCurrentState = CreateState.idle_record;
+        mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
     }
 
@@ -392,41 +394,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         try {
             if (mActivity.getCreateService() != null && mActivity.getCreateService().isUploading()) {
-                mCurrentState = CreateState.upload;
-            } else if (mCurrentState == CreateState.upload) {
-                mCurrentState = CreateState.idle_record;
+                mCurrentState = CreateState.UPLOAD;
+            } else if (mCurrentState == CreateState.UPLOAD) {
+                mCurrentState = CreateState.IDLE_RECORD;
             } else if (mCurrentState == null) {
 
                 if (!mRecordFile.exists()) {
-                    mCurrentState = CreateState.idle_record;
+                    mCurrentState = CreateState.IDLE_RECORD;
                 } else {
-                    mCurrentState = CreateState.idle_playback;
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
                 }
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
-            mCurrentState = CreateState.idle_record;
+            mCurrentState = CreateState.IDLE_RECORD;
         }
         updateUi(false);
     }
 
-    @Override
-    public void onStop() {
-
-    }
-
-    @Override public void onAuthenticated() {
-        initConnections();
-    }
-
     public void unlock(Boolean finished) {
         // not currently uploading anything, so allow recording
-        if (mCurrentState == CreateState.upload) {
-            if (finished)
-                mCurrentState = CreateState.idle_record;
-            else
-                mCurrentState = CreateState.idle_playback;
-
+        if (mCurrentState == CreateState.UPLOAD) {
+            mCurrentState =  finished ? CreateState.IDLE_RECORD : CreateState.IDLE_PLAYBACK;
             updateUi(false);
         }
     }
@@ -479,20 +468,20 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     /*** State Handling ***/
     private void onAction() {
         switch (mCurrentState) {
-            case idle_record:
-                mCurrentState = CreateState.record;
+            case IDLE_RECORD:
+                mCurrentState = CreateState.RECORD;
                 break;
 
-            case record:
-                mCurrentState = CreateState.idle_playback;
+            case RECORD:
+                mCurrentState = CreateState.IDLE_PLAYBACK;
                 break;
 
-            case idle_playback:
-                mCurrentState = CreateState.playback;
+            case IDLE_PLAYBACK:
+                mCurrentState = CreateState.PLAYBACK;
                 break;
 
-            case playback:
-                mCurrentState = CreateState.idle_playback;
+            case PLAYBACK:
+                mCurrentState = CreateState.IDLE_PLAYBACK;
                 break;
         }
 
@@ -503,12 +492,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         updateUi(true);
     }
 
-    private void updateUi(Boolean takeAction) {
-
+    private void updateUi(boolean takeAction) {
         Log.i(TAG, "Update Soundcloud Create state: " + mCurrentState + " | take action: "
                 + takeAction);
         switch (mCurrentState) {
-            case idle_record:
+            case IDLE_RECORD:
                 goToView(0);
                 if (takeAction)
                     clearPlaybackTrack();
@@ -530,10 +518,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mProgressBar.setVisibility(View.GONE);
                 mPowerGauge.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
-
                 break;
 
-            case record:
+            case RECORD:
                 goToView(0);
                 if (mViewFlipper.getDisplayedChild() != 0)
                     mViewFlipper.setDisplayedChild(0);
@@ -549,21 +536,19 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mFileLayout.setVisibility(View.GONE);
                 mPowerGauge.setVisibility(View.VISIBLE);
 
-                if (takeAction)
-                    startRecording();
-
+                if (takeAction) startRecording();
                 break;
 
-            case idle_playback:
+            case IDLE_PLAYBACK:
                 goToView(0);
 
                 calculateTotalProgress();
                 mChrono.setText(mCurrentDurationString);
 
                 if (takeAction) {
-                    if (mLastState == CreateState.record)
+                    if (mLastState == CreateState.RECORD)
                         stopRecording();
-                    if (mLastState == CreateState.playback)
+                    if (mLastState == CreateState.PLAYBACK)
                         pausePlayback();
                 }
 
@@ -574,17 +559,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mPowerGauge.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
-
-                // if (TextUtils.isEmpty(mRecordErrorMessage)){
-                // txtRecordStatus.setText(mActivityReference.getResources().getString(R.string.cloud_recorder_experimental));
-                // txtRecordStatus.setVisibility(View.VISIBLE);
-                // } else
                 txtRecordStatus.setVisibility(View.GONE);
 
                 break;
 
-            case playback:
-
+            case PLAYBACK:
                 goToView(0);
                 calculateTotalProgress();
                 txtRecordStatus.setVisibility(View.GONE);
@@ -600,11 +579,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     startPlayback();
                 break;
 
-            case idle_upload:
+            case IDLE_UPLOAD:
                 goToView(1);
                 break;
 
-            case upload:
+            case UPLOAD:
                 goToView(2);
                 clearPlaybackTrack();
                 flipRight();
@@ -705,7 +684,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
 
         if (mSampleInterrupted) {
-            mCurrentState = CreateState.idle_record;
+            mCurrentState = CreateState.IDLE_RECORD;
             updateUi();
             return;
         }
@@ -754,7 +733,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     break;
             }
 
-            mCurrentState = CreateState.idle_playback;
+            mCurrentState = CreateState.IDLE_PLAYBACK;
             updateUi();
             return;
         }
@@ -830,7 +809,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     }
 
-    private void startUpload() {
+    void startUpload() {
         if (mActivity.getCreateService() == null) return;
 
         boolean uploading = true;
@@ -842,7 +821,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         if (uploading) {
             mActivity.showToast(R.string.wait_for_upload_to_finish);
-            mCurrentState = CreateState.idle_upload;
+            mCurrentState = CreateState.IDLE_UPLOAD;
             updateUi();
             return;
         }
@@ -851,9 +830,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         time.setToNow();
 
         // Calendar header
-        String dayOfWeek = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG)
-                .toLowerCase();
-
+        String dayOfWeek = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
         String title, oggFilename;
 
         if (!TextUtils.isEmpty(mWhatText.getText().toString())
@@ -865,25 +842,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         else if (!TextUtils.isEmpty(mWhereText.getText().toString()))
             oggFilename = title = mWhereText.getText().toString();
         else {
-            title = "recording on " + dayOfWeek;
+            title = "recording on " + (dayOfWeek == null ? "" : dayOfWeek.toLowerCase());
+
             oggFilename = "recording_on_" + DateFormat.format("yyyy-MM-dd-hh-mm-ss", new java.util.Date());
         }
 
         oggFilename += ".ogg";
 
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
-        final Map<String, String> data = new HashMap<String, String>();
+        final Map<String, Object> data = new HashMap<String, Object>();
         data.put("track[sharing]", privateUpload ? "private" : "public");
-        if (!privateUpload) {
-            for (int id : mConnectionList.postToServiceIds()) {
-                data.put("post_to[][id]", String.valueOf(id));
-            }
+
+        final List<Integer> serviceIds = mConnectionList.postToServiceIds();
+        if (!privateUpload && !serviceIds.isEmpty()) {
+            data.put("post_to[][id]", serviceIds);
         }
 
-        data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
         data.put("track[title]", title);
+        data.put("track[track_type]", "recording");
         data.put("track[tag_list]", "soundcloud:source=web-record");
         data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), oggFilename));
+        data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
+
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
             data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
@@ -903,8 +883,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void onPlayComplete(boolean result) {
         mProgressBar.setProgress(0);
-        if (mCurrentState != CreateState.idle_upload) {
-            mCurrentState = CreateState.idle_playback;
+        if (mCurrentState != CreateState.IDLE_UPLOAD) {
+            mCurrentState = CreateState.IDLE_PLAYBACK;
             updateUi();
         }
     }
@@ -938,13 +918,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private String getMinsSecsString(File file, int sampleRate, int channels, int bitsPerSample) {
         pcmTime = CloudUtils.getPCMTime(file.length(), REC_SAMPLE_RATE, REC_CHANNELS,
-                REC_BITS_PER_SAMPLE);
-        return CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
-                : mDurationFormatLong, pcmTime);
-    }
-
-    private String getMinsSecsString(int position, int sampleRate, int channels, int bitsPerSample) {
-        pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
                 REC_BITS_PER_SAMPLE);
         return CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
                 : mDurationFormatLong, pcmTime);

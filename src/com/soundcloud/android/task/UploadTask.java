@@ -1,7 +1,6 @@
 package com.soundcloud.android.task;
 
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.utils.http.ProgressListener;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements ProgressListener {
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements ProgressListener {
     private static final String TAG = UploadTask.class.getSimpleName();
 
     private long transferred;
@@ -35,22 +34,28 @@ public abstract class UploadTask extends AsyncTask<UploadTask.Params, Long, Uplo
 
         public File resizedFile;
 
-        private final Map<String, String> map;
+        private final Map<String, ?> map;
 
         public String get(String s) {
-            return map.get(s);
+            return map.get(s).toString();
         }
 
-        public Params(Map<String, String> map) {
+        public Params(Map<String, ?> map) {
             this.map = map;
 
-            this.trackFile   = new File(map.remove(PCM_PATH));
-            this.encodedFile = new File(map.remove(OGG_FILENAME));
+            if (!map.containsKey(PCM_PATH) || !map.containsKey(OGG_FILENAME)) {
+                throw new IllegalArgumentException("Need to specify both "
+                        + PCM_PATH + " and " + OGG_FILENAME);
+            }
 
-            if (TextUtils.isEmpty(map.get(ARTWORK_PATH))) {
-                artworkFile = null;
+            this.trackFile   = new File(String.valueOf(map.remove(PCM_PATH)));
+            this.encodedFile = new File(String.valueOf(map.remove(OGG_FILENAME)));
+
+
+            if (map.containsKey(ARTWORK_PATH)) {
+                artworkFile = new File(String.valueOf(map.remove(ARTWORK_PATH)));
             } else {
-                artworkFile = new File(map.remove(ARTWORK_PATH));
+                artworkFile = null;
             }
         }
 
@@ -67,6 +72,20 @@ public abstract class UploadTask extends AsyncTask<UploadTask.Params, Long, Uplo
         public boolean isSuccess() {
             return !failed;
         }
+
+        public List<NameValuePair> getApiParams() {
+            final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
+                 if (entry.getValue() instanceof Iterable) {
+                     for (Object o : (Iterable)entry.getValue()) {
+                         apiParams.add(new BasicNameValuePair(entry.getKey(), o.toString()));
+                     }
+                 } else {
+                    apiParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                 }
+            }
+            return apiParams;
+        }
     }
 
     public UploadTask(CloudAPI api) {
@@ -76,6 +95,14 @@ public abstract class UploadTask extends AsyncTask<UploadTask.Params, Long, Uplo
     @Override
     protected Params doInBackground(final Params... params) {
         final Params param = params[0];
+
+        if (!param.encodedFile.exists()) {
+            throw new IllegalArgumentException("Encoded file does not exist");
+        }
+
+        if (param.encodedFile.length() == 0) {
+            throw new IllegalArgumentException("Encoded file is empty");
+        }
 
         final FileBody track = new FileBody(param.encodedFile);
         final FileBody artwork = param.artworkFile() == null ? null : new FileBody(param.artworkFile());
@@ -87,11 +114,9 @@ public abstract class UploadTask extends AsyncTask<UploadTask.Params, Long, Uplo
         final Thread uploadThread = new Thread(new Runnable() {
             public void run() {
                 try {
-                    final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
-                    for (Map.Entry<String, String> entry : param.map.entrySet()) {
-                        apiParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-                    }
-                    HttpResponse response = api.upload(track, artwork, apiParams, UploadTask.this);
+                    Log.v(TAG, "starting upload of " + param.encodedFile);
+
+                    HttpResponse response = api.upload(track, artwork, param.getApiParams(), UploadTask.this);
                     StatusLine status = response.getStatusLine();
 
                     if (status.getStatusCode() == HttpStatus.SC_CREATED) {

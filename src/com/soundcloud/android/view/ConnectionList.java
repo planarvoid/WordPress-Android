@@ -8,21 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.task.LoadConnectionsTask;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 
 public class ConnectionList extends LinearLayout {
-    private ListAdapter listAdapter;
+    private Adapter listAdapter;
 
     public ConnectionList(Context context) {
         super(context);
@@ -45,7 +43,7 @@ public class ConnectionList extends LinearLayout {
         }
     }
 
-    public void setAdapter(ListAdapter listAdapter) {
+    public void setAdapter(Adapter listAdapter) {
         this.listAdapter = listAdapter;
         listAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -60,8 +58,12 @@ public class ConnectionList extends LinearLayout {
         });
     }
 
-    public Set<Integer> postToServiceIds() {
-        Set<Integer> ids = new HashSet<Integer>();
+    public Adapter getAdapter() {
+        return this.listAdapter;
+    }
+
+    public List<Integer> postToServiceIds() {
+        List<Integer> ids = new ArrayList<Integer>();
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof ConnectionItem && v.isEnabled()) {
@@ -84,7 +86,7 @@ public class ConnectionList extends LinearLayout {
 
     public static class Adapter extends BaseAdapter {
         private List<Connection> connections;
-
+        private boolean failed;
 
         @Override
         public int getCount() {
@@ -106,18 +108,37 @@ public class ConnectionList extends LinearLayout {
             return true;
         }
 
+        public void setConnections(List<Connection> connections) {
+            this.connections = connections;
+            notifyDataSetChanged();
+        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             return new ConnectionItem(parent.getContext(), getItem(position));
         }
 
+        public Adapter loadIfNecessary(CloudAPI api) {
+            if (failed) load(api);
+            return this;
+        }
+
         public Adapter load(CloudAPI api) {
             new LoadConnectionsTask(api) {
                 @Override
+                protected void onPreExecute() {
+                    Log.v(TAG, "loading connections");
+                }
+
+                @Override
                 protected void onPostExecute(List<Connection> connections) {
-                    Adapter.this.connections = Connection.addUnused(connections);
-                    notifyDataSetChanged();
+                    if (connections != null) {
+                        failed = false;
+                        setConnections(Connection.addUnused(connections));
+                    } else {
+                        failed = true;
+                        setConnections(Connection.addUnused(new ArrayList<Connection>()));
+                    }
                 }
             }.execute();
             return this;

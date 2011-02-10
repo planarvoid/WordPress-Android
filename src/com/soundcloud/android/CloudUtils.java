@@ -356,7 +356,7 @@ public class CloudUtils {
     }
 
     public static File getCacheDir(Context c) {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return new File(EXTERNAL_CACHE_DIRECTORY);
         } else {
             return c.getCacheDir();
@@ -364,7 +364,7 @@ public class CloudUtils {
     }
 
     public static String getCacheDirPath(Context c) {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return EXTERNAL_CACHE_DIRECTORY;
         } else {
             return c.getCacheDir().getAbsolutePath();

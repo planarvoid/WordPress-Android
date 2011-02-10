@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.util.Log;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthException;

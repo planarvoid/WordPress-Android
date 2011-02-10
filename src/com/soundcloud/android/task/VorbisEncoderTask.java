@@ -4,6 +4,7 @@ package com.soundcloud.android.task;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Random;
 
 import android.util.Log;
 import org.xiph.libogg.ogg_packet;
@@ -48,17 +49,15 @@ import android.os.AsyncTask;
     static byte[] readbuffer = new byte[READ * 4 + 44];
 
 
-     public interface stages {
-        int reading = 1;
-        int writing = 2;
-    }
-
-
-
      @Override
      protected abstract Result doInBackground(Params... params);
 
      protected boolean encode(File inputFile, File outputFile) {
+         if (!inputFile.exists() || !inputFile.canRead()) {
+             throw new IllegalArgumentException("input file " + inputFile +
+             " not found or not readable");
+         }
+
         boolean eos = false;
 
         vi = new vorbis_info();
@@ -82,8 +81,7 @@ import android.os.AsyncTask;
 
         vb = new vorbis_block(vd);
 
-        java.util.Random generator = new java.util.Random(); // need to
-        // randomize seed
+        Random generator = new Random(); // need to randomize seed
         os = new ogg_stream_state(generator.nextInt(256));
 
         Log.d(TAG, "Writing header.");
@@ -128,8 +126,6 @@ import android.os.AsyncTask;
                 // hardwired here
 
                 blocks++;
-
-                int break_count = 0;
 
                 if (bytes == 0) {
 
@@ -180,7 +176,6 @@ import android.os.AsyncTask;
                         while (!eos) {
 
                             if (!os.ogg_stream_pageout(og)) {
-                                break_count++;
                                 break;
                             }
 
