@@ -236,9 +236,8 @@ public class CloudCreateService extends Service {
 
     public void onRecordFrameUpdate(float maxAmplitude) {
         ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
-        // this should happen every second, as the frame updates are every 100 ms
-        if (frameCount % 10 == 0) updateRecordTicker();
-        frameCount++;
+        // this should happen every second
+        if (frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
     }
 
     private void stopRecording() {

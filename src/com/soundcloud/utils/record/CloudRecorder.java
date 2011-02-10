@@ -15,6 +15,8 @@ import android.util.Log;
 import com.soundcloud.android.service.CloudCreateService;
 
 public class CloudRecorder {
+    static final String TAG = CloudRecorder.class.getSimpleName();
+
     /**
      * INITIALIZING : recorder is initializing; READY : recorder has been
      * initialized, recorder not yet started RECORDING : recording ERROR :
@@ -22,15 +24,11 @@ public class CloudRecorder {
      */
     public enum State {
         INITIALIZING, READY, RECORDING, ERROR, STOPPED
-    };
-
-    public static final boolean RECORDING_UNCOMPRESSED = true;
-
-    public static final boolean RECORDING_COMPRESSED = false;
+    }
 
     // The interval in which the recorded samples are output to the file
     // Used only in uncompressed mode
-    private static final int TIMER_INTERVAL = 100;
+    public static final int TIMER_INTERVAL = 50;
 
     // Toggles uncompressed recording on/off; RECORDING_UNCOMPRESSED /
     // RECORDING_COMPRESSED
@@ -75,13 +73,6 @@ public class CloudRecorder {
     // Buffer for output(only in uncompressed mode)
     private byte[] buffer;
 
-    // Number of bytes written to file after header(only in uncompressed mode)
-    // after stop() is called, this size is written to the header/data chunk in
-    // the wave file
-    private int payloadSize;
-
-    private final float MAX_VALUE = 1.0f / Short.MAX_VALUE;
-
     private CloudCreateService service;
 
     /**
@@ -110,7 +101,6 @@ public class CloudRecorder {
             aRecorder.read(buffer, 0, buffer.length); // Fill buffer
             try {
                 fWriter.write(buffer); // Write buffer to file
-                payloadSize += buffer.length;
 
                 for (int i = 0; i < buffer.length / 2; i++) {
                     shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
@@ -130,9 +120,7 @@ public class CloudRecorder {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(CloudRecorder.class.getName(),
-                        "Error occured in updateListener, recording is aborted : ");
+                Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
                 stop();
             }
         }
@@ -181,7 +169,7 @@ public class CloudRecorder {
                             audioFormat);
                     // Set frame period and timer interval accordingly
                     framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-                    Log.w(CloudRecorder.class.getName(), "Increasing buffer size to "
+                    Log.w(TAG, "Increasing buffer size to "
                             + Integer.toString(bufferSize));
                 }
 
@@ -226,9 +214,9 @@ public class CloudRecorder {
             }
         } catch (Exception e) {
             if (e.getMessage() != null) {
-                Log.e(CloudRecorder.class.getName(), e.getMessage());
+                Log.e(TAG, e.getMessage());
             } else {
-                Log.e(CloudRecorder.class.getName(),
+                Log.e(TAG,
                         "Unknown error occured while setting output path");
             }
             state = State.ERROR;
@@ -276,36 +264,10 @@ public class CloudRecorder {
                         fWriter = new RandomAccessFile(fPath, "rw");
 
                         fWriter.setLength(0); // Set file length to 0, to
-                        // prevent unexpected behavior in
-                        // case the file already existed
-                        /*
-                         * fWriter.writeBytes("RIFF"); fWriter.writeInt(0); //
-                         * Final file size not known yet, write 0
-                         * fWriter.writeBytes("WAVE");
-                         * fWriter.writeBytes("fmt ");
-                         * fWriter.writeInt(Integer.reverseBytes(16)); //
-                         * Sub-chunk size, 16 for PCM
-                         * fWriter.writeShort(Short.reverseBytes((short) 1)); //
-                         * AudioFormat, 1 for PCM
-                         * fWriter.writeShort(Short.reverseBytes(nChannels));//
-                         * Number of channels, 1 for mono, 2 for stereo
-                         * fWriter.writeInt(Integer.reverseBytes(sRate)); //
-                         * Sample rate
-                         * fWriter.writeInt(Integer.reverseBytes(sRate
-                         * *bSamples*nChannels/8)); // Byte rate,
-                         * SampleRate*NumberOfChannels*BitsPerSample/8
-                         * fWriter.writeShort
-                         * (Short.reverseBytes((short)(nChannels*bSamples/8)));
-                         * // Block align, NumberOfChannels*BitsPerSample/8
-                         * fWriter.writeShort(Short.reverseBytes(bSamples)); //
-                         * Bits per sample fWriter.writeBytes("data");
-                         * fWriter.writeInt(0); // Data chunk size not known
-                         * yet, write 0
-                         */
                         buffer = new byte[framePeriod * bSamples / 8 * nChannels];
                         state = State.READY;
                     } else {
-                        Log.e(CloudRecorder.class.getName(),
+                        Log.e(TAG,
                                 "prepare() method called on uninitialized recorder");
                         state = State.ERROR;
                     }
@@ -314,15 +276,15 @@ public class CloudRecorder {
                     state = State.READY;
                 }
             } else {
-                Log.e(CloudRecorder.class.getName(), "prepare() method called on illegal state");
+                Log.e(TAG, "prepare() method called on illegal state");
                 release();
                 state = State.ERROR;
             }
         } catch (Exception e) {
             if (e.getMessage() != null) {
-                Log.e(CloudRecorder.class.getName(), e.getMessage());
+                Log.e(TAG, e.getMessage());
             } else {
-                Log.e(CloudRecorder.class.getName(), "Unknown error occured in prepare()");
+                Log.e(TAG, "Unknown error occured in prepare()");
             }
             state = State.ERROR;
         }
@@ -340,10 +302,12 @@ public class CloudRecorder {
                 try {
                     fWriter.close(); // Remove prepared file
                 } catch (IOException e) {
-                    Log.e(CloudRecorder.class.getName(),
+                    Log.e(TAG,
                             "I/O exception occured while closing output file");
                 }
-                (new File(fPath)).delete();
+                if ((new File(fPath)).delete()) {
+                    Log.v(TAG, "deleted " + fPath);
+                }
             }
         }
 
@@ -384,7 +348,7 @@ public class CloudRecorder {
                 state = State.INITIALIZING;
             }
         } catch (Exception e) {
-            Log.e(CloudRecorder.class.getName(), e.getMessage());
+            Log.e(TAG, e.getMessage());
             state = State.ERROR;
         }
     }
@@ -397,7 +361,6 @@ public class CloudRecorder {
         Log.i("RECORDER", "START CALLED " + state);
         if (state == State.READY) {
             if (rUncompressed) {
-                payloadSize = 0;
 
                 state = State.RECORDING;
                 aRecorder.startRecording();
@@ -410,7 +373,7 @@ public class CloudRecorder {
             }
 
         } else {
-            Log.e(CloudRecorder.class.getName(), "start() called on illegal state");
+            Log.e(TAG, "start() called on illegal state");
             state = State.ERROR;
         }
     }
@@ -426,15 +389,9 @@ public class CloudRecorder {
                 aRecorder.stop();
 
                 try {
-                    /*
-                     * fWriter.seek(4); // Write size to RIFF header
-                     * fWriter.writeInt(Integer.reverseBytes(36+payloadSize));
-                     * fWriter.seek(40); // Write size to Subchunk2Size field
-                     * fWriter.writeInt(Integer.reverseBytes(payloadSize));
-                     */
                     fWriter.close();
                 } catch (IOException e) {
-                    Log.e(CloudRecorder.class.getName(),
+                    Log.e(TAG,
                             "I/O exception occured while closing output file");
                     state = State.ERROR;
                 }
@@ -447,7 +404,7 @@ public class CloudRecorder {
             }
             state = State.STOPPED;
         } else {
-            Log.e(CloudRecorder.class.getName(), "stop() called on illegal state");
+            Log.e(TAG, "stop() called on illegal state");
             state = State.ERROR;
         }
     }
