@@ -11,7 +11,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.awt.image.ImagingOpException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

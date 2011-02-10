@@ -10,10 +10,12 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
@@ -24,7 +26,7 @@ import com.soundcloud.utils.SoundCloudAuthorizationClient;
  * @http://code.google.com/p/soundclouddroid/
  */
 
-public class Authorize extends ScActivity implements SoundCloudAuthorizationClient {
+public class Authorize extends ScActivity implements CloudAPI.Client {
 
     private static final String TAG = "Authorize";
 
@@ -62,7 +64,9 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
         });
 
         mVerificationCodeAvailable = new Semaphore(0);
-        this.getSoundCloudApplication().authorizeWithoutCallback(this);
+
+
+        this.getSoundCloudApplication().getApi().authorizeWithoutCallback(this);
 
         safeShowDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
 
@@ -107,11 +111,11 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
                     }
                     new AlertDialog.Builder(Authorize.this).setTitle("Authorization Failed")
                             .setMessage(message).setCancelable(false).setPositiveButton("OK",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            finish();
-                                        }
-                                    }).create().show();
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    finish();
+                                }
+                            }).create().show();
                 }
             }
         });
@@ -151,4 +155,12 @@ public class Authorize extends ScActivity implements SoundCloudAuthorizationClie
         }
     };
 
+    @Override
+    public void storeKeys(String token, String secret) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit()
+                .putString("oauth_access_token", token)
+                .putString("oauth_access_token_secret", secret)
+                .commit();
+    }
 }

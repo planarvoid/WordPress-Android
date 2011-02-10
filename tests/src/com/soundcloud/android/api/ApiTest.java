@@ -3,6 +3,7 @@ package com.soundcloud.android.api;
 import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.utils.ApiWrapper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.internal.Implements;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public class ApiTest {
+public abstract class ApiTest {
     public CloudAPI api;
     public ObjectMapper mapper;
 
@@ -42,7 +43,7 @@ public class ApiTest {
 
     public ObjectMapper getMapper() {
         if (mapper == null) {
-            mapper = new SoundCloudApplication().getMapper();
+            mapper = new ApiWrapper().getMapper();
         }
         return mapper;
     }

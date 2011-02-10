@@ -1,56 +1,37 @@
 
 package com.soundcloud.android;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ContentHandler;
-import java.net.URLStreamHandlerFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import com.soundcloud.android.mapper.CloudDateFormat;
-import oauth.signpost.exception.OAuthException;
-
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
-import org.urbanstew.soundcloudapi.SoundCloudOptions;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.SoundCloudAuthorizationClient;
-import com.soundcloud.utils.SoundCloudAuthorizationClient.AuthorizationStatus;
-import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.ProgressListener;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ContentHandler;
+import java.net.URLStreamHandlerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @ReportsCrashes(formKey = "dC0zSEhYX0xRX1lfYTVYYWpJbWh6NlE6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
-    private ObjectMapper mMapper;
-
-
 
     public static enum Events {
         track, favorite, playlist
@@ -60,13 +41,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public static String PATH_MY_USERS = "me/followings";
 
-    public static String PATH_MY_FEED = "events";
-
     public static String PATH_USERS = "users";
 
     public static String PATH_TRACKS = "tracks";
-
-    public static String PATH_PLAYLISTS = "playlists";
 
     public static String PATH_MY_DETAILS = "me";
 
@@ -100,18 +77,13 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
 
-    private SoundCloudAPI mSoundCloudApi;
+    private CloudAPI mCloudApi;
+
+    private ArrayList<Parcelable> mPlaylistCache = null;
 
     private ImageLoader mImageLoader;
 
-    private static HttpClient httpClient;
-
-    public static SoundCloudOptions sSoundCloudOptions =
-    // SoundCloudAPI.USE_SANDBOX;
-    SoundCloudAPI.USE_PRODUCTION;
-
-    // SoundCloudAPI.USE_SANDBOX.with(OAuthVersion.V2_0);
-    // SoundCloudAPI.USE_PRODUCTION.with(OAuthVersion.V2_0);
+    static final boolean API_PRODUCTION = true;
 
     @Override
     public void onCreate() {
@@ -121,267 +93,47 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mImageLoader = createImageLoader(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mSoundCloudApi = new SoundCloudAPI(getConsumerKey(), getConsumerSecret(), preferences
-                .getString("oauth_access_token", ""), preferences.getString(
-                "oauth_access_token_secret", ""), sSoundCloudOptions);
+        mCloudApi = new ApiWrapper(
+            getConsumerKey(API_PRODUCTION),
+            getConsumerSecret(API_PRODUCTION),
+            preferences.getString("oauth_access_token", ""),
+            preferences.getString("oauth_access_token_secret", ""),
+            API_PRODUCTION);
+
     }
 
-    public SoundCloudAPI getSoundCloudAPI() {
-        return mSoundCloudApi;
+    public CloudAPI getApi() {
+        return mCloudApi;
     }
 
-    public SoundCloudAPI.State getState() {
-        return mSoundCloudApi.getState();
-    }
-
-
-    public final void clearSoundCloudAccount() {
-        PreferenceManager.getDefaultSharedPreferences(this).edit().remove("oauth_access_token")
-                .remove("oauth_access_token_secret").remove("lastDashboardIndex").remove(
-                        "lastProfileIndex").putString("currentUserId", "-1").putString(
-                        "currentUsername", "").commit();
-
-        if (mSoundCloudApi != null) {
-            mSoundCloudApi.unauthorize();
-            mSoundCloudApi = null;
-        }
-
-        mSoundCloudApi = new SoundCloudAPI(getConsumerKey(), getConsumerSecret(), "", "",
-                sSoundCloudOptions);
-    }
-
-    public void authorizeWithoutCallback(final SoundCloudAuthorizationClient client) {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                AuthorizationStatus status = AuthorizationStatus.FAILED;
-
-                try {
-                    String url = mSoundCloudApi.obtainRequestToken("soundcloud://auth");
-                    client.openAuthorizationURL(url);
-                    String verificationCode = client.getVerificationCode();
-                    if (verificationCode != null) {
-                        mSoundCloudApi.obtainAccessToken(verificationCode);
-                        status = AuthorizationStatus.SUCCESSFUL;
-                        storeAuthorization();
-                    }
-                } catch (Exception e) {
-                    client.exceptionOccurred(e);
-                } finally {
-                    client.authorizationCompleted(status);
-                }
-            }
-        });
-        thread.start();
-    }
-
-    private void storeAuthorization() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit().putString("oauth_access_token", mSoundCloudApi.getToken()).putString(
-                "oauth_access_token_secret", mSoundCloudApi.getTokenSecret()).commit();
-    }
-
-    public String getConsumerKey() {
-        return sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION ? this.getResources().getString(
-                R.string.consumer_key) : this.getResources().getString(
+    protected String getConsumerKey(boolean production) {
+        return getResources().getString(production ?
+                R.string.consumer_key :
                 R.string.sandbox_consumer_key);
     }
 
-    public String getConsumerSecret() {
-        return sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION ? this.getResources().getString(
-                R.string.consumer_secret) : this.getResources().getString(
+    protected String getConsumerSecret(boolean production) {
+          return getResources().getString(production ?
+                R.string.consumer_secret :
                 R.string.sandbox_consumer_secret);
     }
 
-    public HttpClient getHttpClient() {
-        if (httpClient == null) {
-            HttpClient client = new DefaultHttpClient();
-            httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(client.getParams(),
-                    client.getConnectionManager().getSchemeRegistry()), client.getParams());
-        }
-        return httpClient;
+    public final void clearSoundCloudAccount() {
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .remove("oauth_access_token")
+                .remove("oauth_access_token_secret")
+                .remove("lastDashboardIndex")
+                .remove("lastProfileIndex")
+                .putString("currentUserId", "-1")
+                .putString("currentUsername", "")
+                .commit();
 
-    }
-
-    public HttpUriRequest getPreparedRequest(String path) {
-        HttpUriRequest req = getRequest(path, null);
-        req.getParams().setParameter("consumer_key", getConsumerKey());
-        req.addHeader("Accept", "application/json");
-
-        return req;
-    }
-
-
-    @Override
-    public InputStream executeRequest(String req) throws IOException {
-        return executeRequest(getRequest(req, null));
-    }
-
-    public InputStream executeRequest(HttpUriRequest req) throws IOException {
-        HttpResponse response = getHttpClient().execute(req);
-        return response.getEntity().getContent();
-    }
-
-    @Override
-    public InputStream getContent(String path) throws IOException {
-        return executeRequest(getPreparedRequest(path));
-    }
-
-    @Override
-    public HttpUriRequest getRequest(String path, List<NameValuePair> params) {
-        try {
-            return mSoundCloudApi.getRequest(path, params);
-        } catch (OAuthException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getDomain() {
-        return sSoundCloudOptions == SoundCloudAPI.USE_PRODUCTION ? "http://api.soundcloud.com/"
-                : "http://api.sandbox-soundcloud.com/";
-    }
-
-    public HttpResponse getHttpResponse(String path) {
-
-        try {
-            return mSoundCloudApi.get(path);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
-
-    @Override
-    public String getSignedUrl(String path) {
-        try {
-            return mSoundCloudApi.signStreamUrl(urlEncode(path)) + "&consumer_key="
-                    + getConsumerKey();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
-
-    public String signStreamUrl(String path) {
-        try {
-            return mSoundCloudApi.signStreamUrl(path) + "&consumer_key=" + getConsumerKey();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
-
-    @Override
-    public String signStreamUrlNaked(String path) {
-        try {
-            return mSoundCloudApi.signStreamUrl(path);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
-
-    @Override
-    public InputStream putContent(String path) throws IOException {
-        try {
-            return mSoundCloudApi.put(path).getEntity().getContent();
-        } catch (OAuthException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public InputStream deleteContent(String path) throws IOException {
-        try {
-            return mSoundCloudApi.delete(path).getEntity().getContent();
-        } catch (OAuthException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public HttpResponse upload(ContentBody trackBody,
-                               ContentBody artworkBody,
-                               List<NameValuePair> params,
-                               ProgressListener listener)
-            throws IOException {
-
-        final HttpPost post = new HttpPost(urlEncode("tracks", null));
-        // fix contributed by Bjorn Roche
-        post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-
-        MultipartEntity entity = new MultipartEntity();
-        for (NameValuePair pair : params) {
-            try {
-                entity.addPart(pair.getName(), new StringBodyNoHeaders(pair.getValue()));
-            } catch (UnsupportedEncodingException ignored) {
-            }
-        }
-        entity.addPart("track[asset_data]", trackBody);
-        if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);
-
-        post.setEntity(new CountingMultipartRequestEntity(entity, listener));
-
-        try {
-            return mSoundCloudApi.performRequest(post);
-
-        } catch (OAuthException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String urlEncode(String resource) {
-        return urlEncode(resource, null);
-    }
-
-    public ObjectMapper getMapper() {
-        if (this.mMapper == null) {
-            mMapper = new ObjectMapper();
-            mMapper.getDeserializationConfig().setDateFormat(CloudDateFormat.INSTANCE);
-        }
-        return mMapper;
-    }
-
-    private String urlEncode(String resource, List<NameValuePair> params) {
-        String resourceUrl;
-        if (resource.startsWith("/")) {
-            resourceUrl = getDomain() + resource.substring(1);
-        } else {
-            resourceUrl = resource.contains("://") ? resource : getDomain() + resource;
-        }
-        return params == null ? resourceUrl : resourceUrl + "?"
-                + URLEncodedUtils.format(params, "UTF-8");
-    }
-
-    class StringBodyNoHeaders extends StringBody {
-        public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {
-            super(value);
-        }
-
-        @Override
-        public String getMimeType() {
-            return null;
-        }
-
-        @Override
-        public String getTransferEncoding() {
-            return null;
+        if (mCloudApi != null) {
+            mCloudApi.unauthorize();
         }
     }
 
     private HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
-
-    public void setDBColumns(HashMap<String, String[]> dbColumns) {
-        this.dbColumns = dbColumns;
-    }
 
     public HashMap<String, String[]> getDBColumns() {
         return dbColumns;
@@ -424,15 +176,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         }
     }
 
-    // caches a playlsit to be delivered to the playback service
-    private ArrayList<Parcelable> mPlaylistCache = null;
-
     public void cachePlaylist(ArrayList<Parcelable> playlistCache) {
         mPlaylistCache = playlistCache;
-    }
-
-    public void getPlaylistTrack() {
-
     }
 
     public ArrayList<Parcelable> flushCachePlaylist() {
@@ -458,4 +203,59 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         public abstract void onFrameUpdate(float maxAmplitude);
     }
 
+    public ObjectMapper getMapper() {
+        return mCloudApi.getMapper();
+    }
+
+    public InputStream executeRequest(String req) throws IOException {
+        return mCloudApi.executeRequest(req);
+    }
+
+    public InputStream getContent(String path) throws IOException {
+        return mCloudApi.getContent(path);
+    }
+
+    public HttpUriRequest getRequest(String path, List<NameValuePair> params) {
+        return mCloudApi.getRequest(path, params);
+    }
+
+    public String getSignedUrl(String path) {
+        return mCloudApi.getSignedUrl(path);
+    }
+
+    public String signStreamUrlNaked(String path) {
+        return mCloudApi.signStreamUrlNaked(path);
+    }
+
+    public InputStream putContent(String path) throws IOException {
+        return mCloudApi.putContent(path);
+    }
+
+    public InputStream deleteContent(String path) throws IOException {
+        return mCloudApi.deleteContent(path);
+    }
+
+    public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params, ProgressListener listener) throws IOException {
+        return mCloudApi.upload(trackBody, artworkBody, params, listener);
+    }
+
+    public void unauthorize() {
+        mCloudApi.unauthorize();
+    }
+
+    public void authorizeWithoutCallback(CloudAPI.Client client) {
+        mCloudApi.authorizeWithoutCallback(client);
+    }
+
+    public SoundCloudAPI.State getState() {
+        return mCloudApi.getState();
+    }
+
+    public HttpUriRequest getPreparedRequest(String path) {
+        return mCloudApi.getPreparedRequest(path);
+    }
+
+    public InputStream executeRequest(HttpUriRequest req) throws IOException {
+        return mCloudApi.executeRequest(req);
+    }
 }

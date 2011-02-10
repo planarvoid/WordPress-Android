@@ -36,8 +36,8 @@ public class ScCreateTests {
             public SoundCloudApplication getSoundCloudApplication() {
                 return new SoundCloudApplication() {
                     { onCreate(); }
-                    @Override public String getConsumerKey()    { return "xxx"; }
-                    @Override public String getConsumerSecret() { return "xxx"; }
+                    @Override public String getConsumerKey(boolean b)    { return "xxx"; }
+                    @Override public String getConsumerSecret(boolean b) { return "xxx"; }
                 };
             }
             @Override
