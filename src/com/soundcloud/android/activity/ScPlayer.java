@@ -19,12 +19,12 @@ import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,7 +32,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
@@ -45,6 +44,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -1075,6 +1075,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mLoadCommentsTask.execute();
             }
 
+            
+            
             if (saved[3] != null
                     && ((ArrayList<Comment>) saved[3]).size() > 0
                     && !(mPlayingTrack != null && mPlayingTrack.id != ((ArrayList<Comment>) saved[3])
@@ -1115,8 +1117,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private Track mFavoriteTrack;
 
-    private String mFavoriteResult;
-
     private void setFavoriteStatus() {
 
         if (mPlayingTrack == null || mFavoriteButton == null) {
@@ -1139,8 +1139,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
         mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
-
-        mFavoriteResult = null;
 
         if (mPlayingTrack.user_favorite) {
             mFavoriteTrack.user_favorite = false;
@@ -1225,7 +1223,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     public void addNewComment(Track track, long timestamp) {
         final EditText input = new EditText(this);
-        new AlertDialog.Builder(ScPlayer.this)
+        final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
                 .setMessage("Add comment at " + CloudUtils.formatTimestamp(timestamp))
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -1235,16 +1233,25 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // Do nothing.
                     }
-                }).show();
+                }).create();
+        
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+        commentDialog.show();
     }
 
     public void replyToComment(Comment comment) {
         final EditText input = new EditText(this);
-        new AlertDialog.Builder(ScPlayer.this)
-                .setMessage(
-                        "Reply to " + comment.user.username + " at "
-                                + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
+                .setMessage("Reply to " + comment.user.username + " at "
+                        + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
+                .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         Editable value = input.getText();
                     }
@@ -1252,7 +1259,17 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // Do nothing.
                     }
-                }).show();
+                }).create();
+        
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+        commentDialog.show();
     }
 
 }

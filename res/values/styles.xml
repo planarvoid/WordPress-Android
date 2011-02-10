@@ -325,7 +325,7 @@
     </style>
     
     <style name="txt_comment_bubble">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">12sp</item>
     </style>
     
     <style name="txt_comment_bubble_new" parent="txt_comment_bubble">
@@ -354,7 +354,9 @@
     </style>
     
      <style name="txt_comment_bubble_reply"  parent="txt_comment_bubble">
-        <item name="android:textColor">#ff9c9c9c</item>
+     <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textStyle">bold</item>
     </style>
     
 </resources>
