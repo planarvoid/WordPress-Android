@@ -10,12 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.util.Log;
 import com.soundcloud.android.mapper.CloudDateFormat;
-import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -297,11 +293,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public InputStream putContent(String path) throws IOException {
         try {
             return mSoundCloudApi.put(path).getEntity().getContent();
-        } catch (OAuthMessageSignerException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthExpectationFailedException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthCommunicationException e) {
+        } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
     }
@@ -310,16 +302,10 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public InputStream deleteContent(String path) throws IOException {
         try {
             return mSoundCloudApi.delete(path).getEntity().getContent();
-        } catch (OAuthMessageSignerException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthExpectationFailedException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthCommunicationException e) {
+        } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
     }
-
-
 
     @Override
     public HttpResponse upload(ContentBody trackBody,
@@ -347,11 +333,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         try {
             return mSoundCloudApi.performRequest(post);
 
-        } catch (OAuthMessageSignerException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthExpectationFailedException e) {
-            throw new RuntimeException(e);
-        } catch (OAuthCommunicationException e) {
+        } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
     }

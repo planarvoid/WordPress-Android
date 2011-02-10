@@ -11,7 +11,9 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.awt.image.ImagingOpException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -128,8 +130,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
                         param.fail();
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "error uploading", e);
+                } catch (IOException e) {
+                    Log.e(TAG, "Error uploading", e);
                 }
             }
         });

@@ -48,7 +48,7 @@ public class ApiTest {
     }
 
 
-    @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration"})
+    @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})
     @Implements(Log.class)
     static class ShadowLog {
         public static int v(java.lang.String tag, java.lang.String msg) {
@@ -68,11 +68,13 @@ public class ApiTest {
 
         public static int e(java.lang.String tag, java.lang.String msg, Throwable e) {
             System.out.println("[" + tag + "] " + msg);
+            e.printStackTrace();
             return 0;
         }
 
         public static int w(java.lang.String tag, java.lang.String msg, Throwable e) {
             System.out.println("[" + tag + "] " + msg);
+            e.printStackTrace();
             return 0;
         }
     }
