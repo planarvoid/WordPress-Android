@@ -73,7 +73,7 @@
 		<ImageButton android:layout_weight="1"
 			android:layout_alignParentLeft="true" android:id="@+id/prev"
 			style="@style/btn_sc_transport" android:src="@drawable/ic_prev_states" />
-		<ImageButton android:layout_weight="1" android:id="@+id/pause"
+		<ImageButton android:layout_weight="1" android:id="@+id/pause" android:layout_marginLeft="1dip"
 			android:layout_toRightOf="@id/prev" style="@style/btn_sc_transport"
 			android:src="@drawable/ic_play_states" />
 		<ImageButton android:layout_weight="1"

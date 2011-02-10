@@ -95,12 +95,43 @@
 	<string name="list_loading">Loading results...</string>
 	<string name="list_loading_done">No more results.</string>
 	
+	<plurals name="elapsed_seconds">
+        <item quantity="one">1 second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    
+    <plurals name="elapsed_minutes">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    
+    <plurals name="elapsed_hours">
+        <item quantity="one">1 hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    
+    <plurals name="elapsed_days">
+        <item quantity="one">1 day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    
+    <plurals name="elapsed_months">
+        <item quantity="one">1 month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    
+    <plurals name="elapsed_years">
+        <item quantity="one">1 year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+	
 	<plurals name="row_downloaded_track_count">
         <item quantity="one">1 track downloaded</item>
         <item quantity="other">
             <xliff:g id="count">%d</xliff:g> tracks downloaded
         </item>
     </plurals>
+    
     
 	<plurals name="user_track_count">
         <item quantity="one">1 track</item>

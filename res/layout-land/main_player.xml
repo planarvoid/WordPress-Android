@@ -31,7 +31,7 @@
 		<LinearLayout android:id="@+id/transport_bar" android:background="@color/playerControlBackground"  android:paddingTop="5dip" android:paddingBottom="5dip"
 			 android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="fill_parent">						
 			<ImageButton android:layout_weight="1" android:layout_alignParentLeft="true" android:id="@+id/prev" style="@style/btn_sc_transport" android:src="@drawable/ic_prev_states" />
-			<ImageButton android:layout_weight="1" android:id="@+id/pause" android:layout_toRightOf="@id/prev" style="@style/btn_sc_transport" android:src="@drawable/ic_play_states" />
+			<ImageButton android:layout_weight="1" android:layout_marginLeft="1dip" android:id="@+id/pause" android:layout_toRightOf="@id/prev" style="@style/btn_sc_transport" android:src="@drawable/ic_play_states" />
 			<ImageButton android:layout_weight="1" android:layout_toRightOf="@id/pause" android:id="@+id/next" style="@style/btn_sc_transport" android:src="@drawable/ic_next_states" />
 		</LinearLayout>
 	</LinearLayout>

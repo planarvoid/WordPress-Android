@@ -106,6 +106,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     static final int AVATAR_DRAG = 3;
     
+    
+    long mLastMoveTime = 0;
     int mTouchX;
     int mTouchY;
 
@@ -270,7 +272,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                
                 if (mCommentBubble != null && mCommentBubble.getParent() == this) removeView(mCommentBubble);
 
                 if (v == mPlayerAvatarBar){
@@ -297,9 +298,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mTouchX == (int) event.getX() && mTouchY == (int) event.getY())
+                if (mTouchX == (int) event.getX() && mTouchY == (int) event.getY() && System.currentTimeMillis() - mLastMoveTime > 50)
                     return true;
                     
+                mLastMoveTime = System.currentTimeMillis();
                 mTouchX = (int) event.getX();
                 mTouchY = (int) event.getY();
                 

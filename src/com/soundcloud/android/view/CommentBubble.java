@@ -8,9 +8,11 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -54,11 +56,11 @@ public class CommentBubble extends RelativeLayout {
     
     private TextView mTxtElapsed;
     
-    private ImageView mImgClose;
+    private ImageButton mBtnClose;
     
     private TextView mTxtComment;
     
-    private TextView mReply;
+    private Button mBtnReply;
     
     private WaveformController mController;
     
@@ -90,12 +92,12 @@ public class CommentBubble extends RelativeLayout {
         mTxtUsername = (TextView) findViewById(R.id.txt_username);
         mTxtDate = (TextView) findViewById(R.id.txt_show_date);
         mTxtElapsed = (TextView) findViewById(R.id.txt_show_elapsed);
-        mImgClose = (ImageView) findViewById(R.id.close);
+        mBtnClose = (ImageButton) findViewById(R.id.btn_close);
         mTxtComment = (TextView) findViewById(R.id.txt_comment);
         
-        mReply = (TextView) findViewById(R.id.txt_reply);
+        mBtnReply = (Button) findViewById(R.id.btn_reply);
         
-        mReply.setOnClickListener(new View.OnClickListener(){
+        mBtnReply.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 mPlayer.replyToComment(mComment);
@@ -103,7 +105,7 @@ public class CommentBubble extends RelativeLayout {
             
         });
         
-        mImgClose.setOnClickListener(new View.OnClickListener(){
+        mBtnClose.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 mController.closeComment();
@@ -136,9 +138,9 @@ public class CommentBubble extends RelativeLayout {
         mTxtUsername.setVisibility(View.GONE);
         mTxtDate.setVisibility(View.GONE);
         mTxtElapsed.setVisibility(View.GONE);
-        mImgClose.setVisibility(View.GONE);
+        mBtnClose.setVisibility(View.GONE);
         mTxtComment.setVisibility(View.GONE);
-        mReply.setVisibility(View.GONE);
+        mBtnReply.setVisibility(View.GONE);
         
         mTxtNewTime.setVisibility(View.VISIBLE);
         mTxtNewInstructions.setVisibility(View.VISIBLE);
@@ -149,12 +151,32 @@ public class CommentBubble extends RelativeLayout {
     public void onShowCommentMode(Comment currentShowingComment) {
         mComment = currentShowingComment;
         
+        mTxtUsername.setText(mComment.user.username);
+        mTxtDate.setText("at " + CloudUtils.formatTimestamp(mComment.timestamp));
+        mTxtComment.setText(mComment.body);
+        
+        long elapsed = (System.currentTimeMillis() - mComment.created_at.getTime())/1000;
+        
+        if (elapsed < 60)
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed));
+        else if (elapsed < 3600)
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60)));
+        else if (elapsed < 86400)
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600)));
+        else if (elapsed < 2592000)
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400)));
+        else if (elapsed < 31536000)
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000)));
+        else 
+            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000)));
+        
+        
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtDate.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);
-        mImgClose.setVisibility(View.VISIBLE);
+        mBtnClose.setVisibility(View.VISIBLE);
         mTxtComment.setVisibility(View.VISIBLE);
-        mReply.setVisibility(View.VISIBLE);
+        mBtnReply.setVisibility(View.VISIBLE);
         
         mTxtNewTime.setVisibility(View.GONE);
         mTxtNewInstructions.setVisibility(View.GONE);

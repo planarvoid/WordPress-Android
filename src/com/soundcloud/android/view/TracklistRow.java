@@ -59,27 +59,6 @@ public class TracklistRow extends LazyRow {
         mIcon = (ImageView) findViewById(R.id.icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
         mPrivateIndicator = (ImageView) findViewById(R.id.private_indicator);
-        /*
-         * mPlayBtn = (ImageButton) findViewById(R.id.btn_play); mPlaylistBtn =
-         * (ImageButton) findViewById(R.id.btn_playlist); mFavoriteBtn =
-         * (ImageButton) findViewById(R.id.btn_favorite); mDownloadBtn =
-         * (ImageButton) findViewById(R.id.btn_download); mDetailsBtn =
-         * (ImageButton) findViewById(R.id.btn_details);
-         * mPlayBtn.setOnClickListener(new View.OnClickListener() { public void
-         * onClick(View view) { playClicked();
-         * //Log.i("PlayButton","Play button done"); } });
-         * mPlaylistBtn.setOnClickListener(new View.OnClickListener() { public
-         * void onClick(View view) { ((TrackList) mAppContextReference).enqueue(mTrack); }
-         * }); mFavoriteBtn.setOnClickListener(new View.OnClickListener() {
-         * public void onClick(View view) { toggleFavorite(); } });
-         * mDownloadBtn.setOnClickListener(new View.OnClickListener() { public
-         * void onClick(View view) { ((TrackList)
-         * mAppContextReference).downloadTrack(mTrack); } });
-         * mDetailsBtn.setOnClickListener(new View.OnClickListener() { public
-         * void onClick(View view) { CloudUtils.gotoTrackDetails(((TrackList)
-         * mAppContextReference), (Track) mTrack); } });
-         */
-
     }
 
     @Override
@@ -98,22 +77,12 @@ public class TracklistRow extends LazyRow {
     public void display(Parcelable p, boolean selected) {
         super.display(p, selected);
 
-        // Log.i(TAG,"SIZE " + mPrivateIndicator.getWidth() + " " +
-        // mPrivateIndicator.getHeight());
-
         mTrack = getTrackFromParcelable(p);
         if (mTrack == null)
             return;
 
         mTitle.setText(mTrack.title);
-        // Log.i(TAG,"UUUSERNAMEN " + mTrack.getUsername() + " " +
-        // mTrack.getUser().getUsername());
-
         mUser.setText(mTrack.user.username);
-        // mDuration.setText(mTrack.getData(Track.key_duration_formatted));\\
-
-        // Log.i(TAG,"Setting streamable " +
-        // mTrack.getData(Track.key_streamable));
 
         if (!CloudUtils.isTrackPlayable(mTrack)) {
             mTitle.setTextAppearance(mContext, R.style.txt_list_main_inactive);
@@ -131,10 +100,7 @@ public class TracklistRow extends LazyRow {
         } else {
             _isFavorite = false;
         }
-        // Log.i(TAG,"Setting status " + mTrack.getData(Track.key_title) + ":" +
-        // _isPlaying +"|"+ mTrack.getData(Track.key_user_favorite) +
-        // "|"+mTrack.getData(Track.key_user_played));
-
+        
         if (_isPlaying) {
             mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
                     R.drawable.list_playing));
@@ -150,7 +116,6 @@ public class TracklistRow extends LazyRow {
         } else {
             mPlayIndicator.setVisibility(View.GONE);
         }
-        setFavoriteStatus();
 
     }
 
@@ -176,42 +141,5 @@ public class TracklistRow extends LazyRow {
 
     }
 
-    private void setFavoriteStatus() {
-        if (_isFavorite) {
-            // mFavoriteBtn.setImageResource(R.drawable.ic_track_unfavorite_states);
-        } else {
-            // mFavoriteBtn.setImageResource(R.drawable.ic_track_favorite_states);
-        }
-    }
-
-    protected void sendTrack() {
-        final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-        emailIntent.setType("plain/text");
-        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.title + " ["
-                + mTrack.user.username + "]");
-        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "\n\n" + mTrack.permalink_url);
-        mContext.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
-        super.onLayout(changed, l, t, r, b);
-        // Log.i(TAG,"SIZE " + mPlayIndicator.getWidth() + " " +
-        // mPlayIndicator.getHeight());
-    }
-
-    private void toggleFavorite() {
-        /*
-         * if (_isFavorite){ ((TrackList) mAppContextReference).removeFavorite(mTrack,
-         * this); } else { ((TrackList) mAppContextReference).addFavorite(mTrack);
-         * _isFavorite = !_isFavorite; setFavoriteStatus(); }
-         */
-    }
-
-    public void setFavoriteStatus(Boolean favorited) {
-        _isFavorite = favorited;
-        setFavoriteStatus();
-    }
 
 }
