@@ -21,16 +21,16 @@
 				<TableRow android:layout_width="fill_parent"
 					android:layout_height="wrap_content" android:gravity="center_horizontal">
 					<ImageButton android:layout_alignWithParentIfMissing="true"
-						android:layout_weight="1" android:id="@+id/btn_profile" style="@style/btn_oc_transport"
+						android:layout_weight="1" android:id="@+id/btn_profile" style="@style/btn_sc_transport"
 						android:src="@drawable/ic_profile_states" />
 					<ImageButton android:layout_alignWithParentIfMissing="true"
-						android:layout_weight="1" android:id="@+id/btn_favorite" style="@style/btn_oc_transport"
+						android:layout_weight="1" android:id="@+id/btn_favorite" style="@style/btn_sc_transport"
 						android:src="@drawable/ic_favorite_states" />
 					<ImageButton android:layout_alignWithParentIfMissing="true"
-						android:layout_weight="1" android:id="@+id/btn_comment" style="@style/btn_oc_transport"
+						android:layout_weight="1" android:id="@+id/btn_comment" style="@style/btn_sc_transport"
 						android:src="@drawable/ic_comment_states" />
 					<ImageButton android:layout_alignWithParentIfMissing="true"
-						android:layout_weight="1" android:id="@+id/btn_share" style="@style/btn_oc_transport"
+						android:layout_weight="1" android:id="@+id/btn_share" style="@style/btn_sc_transport"
 						android:src="@drawable/ic_share_states" />
 				</TableRow>
 			</TableLayout>
@@ -72,13 +72,13 @@
 		android:layout_width="fill_parent">
 		<ImageButton android:layout_weight="1"
 			android:layout_alignParentLeft="true" android:id="@+id/prev"
-			style="@style/btn_oc_transport" android:src="@drawable/ic_prev_states" />
+			style="@style/btn_sc_transport" android:src="@drawable/ic_prev_states" />
 		<ImageButton android:layout_weight="1" android:id="@+id/pause"
-			android:layout_toRightOf="@id/prev" style="@style/btn_oc_transport"
+			android:layout_toRightOf="@id/prev" style="@style/btn_sc_transport"
 			android:src="@drawable/ic_play_states" />
 		<ImageButton android:layout_weight="1"
 			android:layout_toRightOf="@id/pause" android:id="@+id/next"
-			style="@style/btn_oc_transport" android:src="@drawable/ic_next_states" />
+			style="@style/btn_sc_transport" android:src="@drawable/ic_next_states" />
 	</LinearLayout>
 
 </LinearLayout>

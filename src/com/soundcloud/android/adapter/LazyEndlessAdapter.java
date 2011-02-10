@@ -650,13 +650,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                         for (Event evt : evtWrapper.getCollection())
                             newItems.add(evt);
 
-                        if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) // set
-                                                                                                  // the
-                                                                                                  // params
-                                                                                                  // of
-                                                                                                  // the
-                                                                                                  // next
-                                                                                                  // url
+                        if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) 
                             ((EventsAdapterWrapper) mAdapterReference.get())
                                     .onNextEventsParam(evtWrapper.getNext_href());
                         break;

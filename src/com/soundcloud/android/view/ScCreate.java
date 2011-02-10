@@ -1018,6 +1018,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         trackdata.put("pcm_path", mRecordFile.getAbsolutePath());
         trackdata.put("track[title]", title);
+        trackdata.put("track[type]", "recording");
         trackdata.put("track[tag_list]", "soundcloud:source=web-record");
         trackdata.put("ogg_filename", oggFilename);
 

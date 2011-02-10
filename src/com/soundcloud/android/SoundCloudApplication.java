@@ -108,6 +108,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private SoundCloudAPI mSoundCloudApi;
 
     private ImageLoader mImageLoader;
+    
+    static ContentHandler mBitmapHandler;
 
     private static HttpClient httpClient;
     
@@ -397,6 +399,10 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public HashMap<String, String[]> getDBColumns() {
         return dbColumns;
     }
+    
+    public ContentHandler getBitmapHandler(){
+        return mBitmapHandler;
+    }
 
     /**
      * Create an instance of the imageloader. Library and examples of cacher and
@@ -412,7 +418,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
         // Load images using a BitmapContentHandler
         // and cache the image data in the file cache.
-        ContentHandler bitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
+        mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
 
         // For pre-fetching, use a "sink" content handler so that the
         // the binary image data is captured by the cache without actually
@@ -423,7 +429,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         // Perform callbacks on the main thread
         Handler handler = null;
 
-        return new ImageLoader(streamFactory, bitmapHandler, prefetchHandler, handler);
+        return new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
 
     @Override

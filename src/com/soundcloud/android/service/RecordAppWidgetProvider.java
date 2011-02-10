@@ -1,7 +1,6 @@
-package com.soundcloud.android.widget;
+package com.soundcloud.android.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.service.CloudCreateService;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -17,7 +16,7 @@ import android.widget.RemoteViews;
     /**
      * Recording Widget
      */
-    public class RecordaAppWidgetProvider extends AppWidgetProvider {
+    public class RecordAppWidgetProvider extends AppWidgetProvider {
         static final String TAG = "RecordWidget";
         
         public static final String CMDAPPWIDGETUPDATE = "recordwidgetupdate";
@@ -26,11 +25,11 @@ import android.widget.RemoteViews;
             new ComponentName("com.soundcloud.android",
                     "com.soundcloud.android.RecordAppWidgetProvider");
         
-        private static RecordaAppWidgetProvider sInstance;
+        private static RecordAppWidgetProvider sInstance;
         
-        static synchronized RecordaAppWidgetProvider getInstance() {
+        static synchronized RecordAppWidgetProvider getInstance() {
             if (sInstance == null) {
-                sInstance = new RecordaAppWidgetProvider();
+                sInstance = new RecordAppWidgetProvider();
             }
             return sInstance;
         }
@@ -43,7 +42,7 @@ import android.widget.RemoteViews;
             // wrap around with an immediate update.
             Intent updateIntent = new Intent(CloudCreateService.SERVICECMD);
             updateIntent.putExtra(CloudCreateService.CMDNAME,
-                    RecordaAppWidgetProvider.CMDAPPWIDGETUPDATE);
+                    RecordAppWidgetProvider.CMDAPPWIDGETUPDATE);
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
             updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
             context.sendBroadcast(updateIntent);
@@ -114,7 +113,7 @@ import android.widget.RemoteViews;
          * Link up various button actions using {@link PendingIntents}.
          * 
          * @param playerActive True if player is active in background, which means
-         *            widget click will launch {@link MediaPlaybackActivityStarter},
+         *            widget click will launch {@link ScPlaybackActivityStarter},
          *            otherwise we launch {@link MusicBrowserActivity}.
          */
         private void linkButtons(Context context, RemoteViews views, int state) {

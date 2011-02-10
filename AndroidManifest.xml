@@ -43,13 +43,20 @@
         android:launchMode="singleInstance"
         android:excludeFromRecents="true"
         android:finishOnTaskLaunch="true" />
-        <receiver android:name="ExampleAppWidgetProvider" >
+        <receiver android:label="SoundCloud Player" android:name="com.soundcloud.android.service.PlayerAppWidgetProvider" >
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 		    </intent-filter>
 		    <meta-data android:name="android.appwidget.provider"
-		               android:resource="@xml/widget_record" />
+		               android:resource="@xml/widget_player" />
 		</receiver>
+		<receiver android:label="SoundCloud Recorder" android:name="com.soundcloud.android.service.RecordAppWidgetProvider">
+		    <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/widget_record" />
+        </receiver>
     </application>
     
     <!-- Used for install referrer tracking -->

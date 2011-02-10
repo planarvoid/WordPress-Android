@@ -21,7 +21,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.utils.CloudCache;
@@ -38,6 +37,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -114,6 +114,8 @@ public class CloudPlaybackService extends Service {
 
     public static final int MAX_RECONNECT_COUNT = 1;
 
+    public static final String PROGRESS_UPDATE = "com.soundcloud.android.progressupdate";
+    
     public static final String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
 
     public static final String META_CHANGED = "com.soundcloud.android.metachanged";
@@ -207,6 +209,8 @@ public class CloudPlaybackService extends Service {
     private boolean mResumeAfterCall = false;
 
     private boolean mIsSupposedToBePlaying = false;
+    
+    private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
@@ -232,6 +236,8 @@ public class CloudPlaybackService extends Service {
     private int mCurrentPlugState;
 
     private boolean isStagefright = false;
+    
+    private int mUpdateWidgetCounter = 0;
 
     public CloudPlaybackService() {
 
@@ -250,6 +256,14 @@ public class CloudPlaybackService extends Service {
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
         connectivityListener.startListening(this);
+        
+        IntentFilter commandFilter = new IntentFilter();
+        commandFilter.addAction(SERVICECMD);
+        commandFilter.addAction(TOGGLEPAUSE_ACTION);
+        commandFilter.addAction(PAUSE_ACTION);
+        commandFilter.addAction(NEXT_ACTION);
+        commandFilter.addAction(PREVIOUS_ACTION);
+        registerReceiver(mIntentReceiver, commandFilter);
 
         // setup call listening
         TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -366,6 +380,8 @@ public class CloudPlaybackService extends Service {
         connectivityListener.stopListening();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
+        
+        unregisterReceiver(mIntentReceiver);
 
         if (mWakeLock.isHeld())
             mWakeLock.release();
@@ -521,6 +537,9 @@ public class CloudPlaybackService extends Service {
         } else {
             mPlayListManager.saveQueue(false);
         }
+        
+        // Share this notification directly with our widgets
+        mAppWidgetProvider.notifyChange(this, what);
     }
 
     public void playFromAppCache(int playPos) {
@@ -819,6 +838,14 @@ public class CloudPlaybackService extends Service {
                 }
             }
         }
+        
+        Log.i(TAG,"UPdating app widget");
+        
+        if (mUpdateWidgetCounter == 20){
+            mAppWidgetProvider.updatePosition(this,getDuration(),position());
+            mUpdateWidgetCounter = 0;
+        } else 
+            mUpdateWidgetCounter++;
 
         return true;
     }
@@ -1613,6 +1640,39 @@ public class CloudPlaybackService extends Service {
         };
 
     }
+    
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            String cmd = intent.getStringExtra("command");
+            
+            Log.i(TAG,"RECEIVED Command " + cmd);
+            
+            if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
+                next(true);
+            } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
+                prev();
+            } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
+                if (isPlaying()) {
+                    pause();
+                } else {
+                    play();
+                }
+            } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
+                pause();
+            } else if (CMDSTOP.equals(cmd)) {
+                pause();
+                seek(0);
+            } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
+                // Someone asked us to refresh a set of specific widgets, probably
+                // because they were just added.
+                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
+            }
+        }
+    };
+
 
     BroadcastReceiver batteryLevelReceiver = new BroadcastReceiver() {
         @Override

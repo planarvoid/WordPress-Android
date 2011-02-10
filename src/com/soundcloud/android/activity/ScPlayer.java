@@ -1077,7 +1077,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mLoadCommentsTask.execute();
             }
             
-            if (saved[3] != null && !(mPlayingTrack != null 
+            if (saved[3] != null && ((ArrayList<Comment>) saved[3]).size() > 0 && !(mPlayingTrack != null 
                     && mPlayingTrack.id != ((ArrayList<Comment>) saved[3]).get(0).id)){
                 mCurrentComments = (ArrayList<Comment>) saved[3];
                 mWaveformController.setComments(mCurrentComments);

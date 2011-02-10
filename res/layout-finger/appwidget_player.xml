@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:id="@+id/main_holder"
+	android:background="@drawable/widget_bg" android:padding="6dip"
+	android:orientation="vertical" android:layout_height="fill_parent">
+	<RelativeLayout android:layout_width="fill_parent"
+		android:id="@+id/list_info" android:layout_height="wrap_content">
+		<TextView android:id="@+id/playlist_txt"
+		    style="@style/txt_widget_primary"
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:text="Incoming"></TextView>
+	</RelativeLayout>
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_weight="1">
+		<RelativeLayout android:layout_width="fill_parent"
+			android:id="@+id/playable_layout" android:layout_height="fill_parent"
+			android:layout_alignParentBottom="true">
+			<RelativeLayout android:id="@+id/waveform_holder"
+				android:layout_width="fill_parent" android:layout_height="fill_parent">
+				<ProgressBar
+	                style="@style/ScProgressBar" 
+	                android:id="@+id/progress_bar"
+	                android:layout_alignParentTop="true" 
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent" />
+				<ImageView android:id="@+id/progress_overlay"
+					android:layout_alignParentTop="true" android:layout_width="fill_parent"
+					android:layout_height="fill_parent" android:scaleType="fitXY" />
+			</RelativeLayout>
+		</RelativeLayout>
+		<FrameLayout android:layout_width="fill_parent"
+			android:id="@+id/unplayable_layout" android:visibility="gone"
+			android:layout_height="fill_parent" android:layout_alignParentBottom="true"
+			android:background="@color/playerControlAlphaBackground">
+			<TextView android:id="@+id/unplayable_txt"
+				android:layout_height="fill_parent" android:layout_width="fill_parent"
+				android:text="" android:gravity="center"></TextView>
+		</FrameLayout>
+		<FrameLayout android:layout_width="fill_parent"
+			android:layout_below="@id/list_info" android:layout_height="5dip"
+			android:background="@drawable/drop_shadow_down" />
+		<FrameLayout android:layout_width="fill_parent"
+			android:layout_alignParentBottom="true" android:layout_height="5dip"
+			android:background="@drawable/drop_shadow_up" />
+	</RelativeLayout>
+	<RelativeLayout android:layout_width="fill_parent"
+		android:id="@+id/track_info" android:layout_height="wrap_content">
+		<ImageButton android:id="@+id/btn_favorite" style="@style/btn_sc_transport"
+			android:src="@drawable/ic_widget_favorite_states" />
+		<TextView android:id="@+id/title_txt"
+            style="@style/txt_widget_primary"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:layout_weight="1"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/btn_favorite"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:text=""></TextView>
+        <TextView android:id="@+id/by_txt"
+            style="@style/txt_widget_secondary"
+            android:layout_toRightOf="@id/btn_favorite_txt"
+            android:layout_below="@id/title_txt"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:text="by"></TextView>
+        <TextView android:id="@+id/user_txt"
+            style="@style/txt_widget_primary"
+            android:layout_toRightOf="@id/by_txt"
+            android:layout_below="@id/title_txt"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:text=""></TextView>
+	</RelativeLayout>
+	<LinearLayout android:id="@+id/transport_bar" 
+		android:orientation="horizontal" android:layout_height="wrap_content"
+		android:layout_width="fill_parent">
+		<ImageButton android:layout_weight="1"
+			android:layout_alignParentLeft="true" android:id="@+id/prev"
+			style="@style/btn_sc_widget" android:src="@drawable/ic_widget_prev_states" />
+		<ImageButton android:layout_weight="1" android:id="@+id/pause"
+			android:layout_toRightOf="@id/prev" style="@style/btn_sc_widget"
+			android:src="@drawable/ic_widget_play_states" />
+		<ImageButton android:layout_weight="1"
+			android:layout_toRightOf="@id/pause" android:id="@+id/next"
+			style="@style/btn_sc_widget" android:src="@drawable/ic_widget_next_states" />
+	</LinearLayout>
+</LinearLayout>
