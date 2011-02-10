@@ -36,6 +36,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import com.sun.istack.internal.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -715,11 +716,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
      * If we've run out of time, stop the recording.
      */
     private void updateTimeRemaining() {
-
-        long t = mRemainingTimeCalculator.timeRemaining() + 2; // adding 2
-        // seconds to
-        // make up for
-        // lag
+        // adding 2 seconds to make up for lag
+        long t = mRemainingTimeCalculator.timeRemaining() + 2;
         if (t <= 1) {
             mSampleInterrupted = true;
 
@@ -911,6 +909,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         }
     }
+
 
     public void onRecProgressUpdate(int position) {
         pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,

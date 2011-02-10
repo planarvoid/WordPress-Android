@@ -209,7 +209,7 @@ public class CloudCreateService extends Service {
         sendBroadcast(new Intent(what));
     }
 
-    @SuppressWarnings("unchecked")
+
     private void startRecording(String path) {
         acquireWakeLock();
 

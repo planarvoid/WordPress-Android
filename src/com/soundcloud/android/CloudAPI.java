@@ -2,9 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.http.ProgressListener;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -17,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface CloudAPI {
-    // XXX simplify+consoliate methods
+    // XXX simplify+consolidate methods
 
 
     ObjectMapper getMapper();

@@ -72,7 +72,6 @@ public class ApiWrapper implements CloudAPI {
                     client.getConnectionManager().getSchemeRegistry()), client.getParams());
         }
         return httpClient;
-
     }
 
     @Override
@@ -129,6 +128,7 @@ public class ApiWrapper implements CloudAPI {
     @Override
     public InputStream putContent(String path) throws IOException {
         try {
+
             return mSoundCloudApi.put(path).getEntity().getContent();
         } catch (OAuthException e) {
             throw new RuntimeException(e);

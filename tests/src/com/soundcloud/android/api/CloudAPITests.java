@@ -1,22 +1,29 @@
 package com.soundcloud.android.api;
 
 import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.utils.ApiWrapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.urbanstew.soundcloudapi.AuthorizationURLOpener;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,29 +46,37 @@ public class CloudAPITests {
                 TOKEN,
                 SECRET,
                 true);
-
-        Logger.getLogger("httpclient.wire.header").setLevel(Level.FINEST);
-        Logger.getLogger("httpclient.wire.content").setLevel(Level.FINEST);
     }
 
 
+    @Test @Ignore
+    public void testConnections() throws IOException {
+        BufferedReader r = new BufferedReader(
+                new InputStreamReader(
+                    api.executeRequest("/me/connections.json")
+                        ));
 
-    @Test
+        String l;
+        while ((l = r.readLine()) != null) {
+            System.err.println(l);
+        }
+    }
+
+    @Test @Ignore
     public void testUpload() throws Exception {
-        File file = File.createTempFile("upload", ".ogg");
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("track[title]", "title"));
 
-        ContentBody track = new FileBody(file);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("track[title]", "Hello Android"));
+        params.add(new BasicNameValuePair("post_to[][id]", "486436"));
+
+        ContentBody track = new FileBody(
+                new File(getClass().getResource("hello.aiff").getFile()));
 
         HttpResponse resp = api.upload(track, null, params, null);
-
         int status = resp.getStatusLine().getStatusCode();
 
         assertEquals(201, status);
     }
-
-
 
     public static void main(String[] args) throws Exception {
         SoundCloudAPI api = new SoundCloudAPI(
