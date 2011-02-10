@@ -10,13 +10,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -1169,7 +1171,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     public void removeFavorite() {
 
-        FavoriteRemoveTask f = (FavoriteRemoveTask) new FavoriteRemoveTask(
+        FavoriteRemoveTask f = new FavoriteRemoveTask(
                 this.getSoundCloudApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1195,7 +1197,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             try {
                 mService.setFavoriteStatus(mFavoriteTrack.id, favorite);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
 
         }

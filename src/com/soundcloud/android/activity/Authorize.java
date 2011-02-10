@@ -18,14 +18,12 @@ import android.webkit.WebViewClient;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.utils.SoundCloudAuthorizationClient;
 
 /**
  * Adopted from UrbanStew's soundclouddroid authorization process
  * 
  * @http://code.google.com/p/soundclouddroid/
  */
-
 public class Authorize extends ScActivity implements CloudAPI.Client {
 
     private static final String TAG = "Authorize";
@@ -65,11 +63,8 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
 
         mVerificationCodeAvailable = new Semaphore(0);
 
-
-        this.getSoundCloudApplication().getApi().authorizeWithoutCallback(this);
-
+        this.getSoundCloudApplication().authorizeWithoutCallback(this);
         safeShowDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
-
     }
 
     @Override
@@ -98,10 +93,6 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
                 } else {
                     String message = "";
                     if (mAuthorizationException != null) {
-                        //if(mAuthorizationException.getCause() != null)
-                        // message += " (" + mAuthorizationException..getCause()
-                        // + ")";
-
                         if (mAuthorizationException.getLocalizedMessage() != null) {
                             message += "\n\n" + mAuthorizationException.getLocalizedMessage() + ".";
                         } else {
@@ -125,7 +116,6 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
     @Override
     public void exceptionOccurred(Exception e) {
         Log.i(TAG, "Exception Occured " + e.toString());
-        e.printStackTrace();
         mAuthorizationException = e;
 
     }
