@@ -119,14 +119,6 @@ import java.net.URLConnection;
             }
         }
         
-        void updatePosition(CloudPlaybackService service, int max, long position){
-            Log.i(TAG,"Update position " + position + " of " + max);
-            if (mCurrentViews != null){
-                mCurrentViews.setProgressBar(R.id.progress_bar, max, max, false);
-                pushUpdate(service, null, mCurrentViews);
-            }
-        }
-        
         void performUpdate(CloudPlaybackService service, int[] appWidgetIds) {
             performUpdate(service,appWidgetIds,CloudPlaybackService.PLAYSTATE_CHANGED);
         }
@@ -138,26 +130,6 @@ import java.net.URLConnection;
             final Resources res = service.getResources();
             final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.appwidget_player);
             
-            if (what.equals(CloudPlaybackService.META_CHANGED)) {
-                mCurrentTrackError = false;
-            } else if (what.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
-                if (service.isPlaying() == false) {
-                    hideUnplayable(service,views);
-                    mCurrentTrackError = false;
-                }
-            } else if (what.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
-                mCurrentTrackError = false;
-                hideUnplayable(service,views);
-            } else if (what.equals(CloudPlaybackService.BUFFERING)) {
-                hideUnplayable(service,views);
-            } else if (what.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
-                // clearSeekVars();
-            } else if (what.equals(CloudPlaybackService.TRACK_ERROR)) {
-                mCurrentTrackError = true;
-                showUnplayable(service,views);
-            }             
-            
-            
             final boolean playing = service.isPlaying();
             views.setImageViewResource(R.id.pause, playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
             
@@ -165,29 +137,9 @@ import java.net.URLConnection;
                 Track mCurrentTrack = service.getTrack();
                 mCurrentTrackId = mCurrentTrack.id;
                 
-                views.setProgressBar(R.id.progress_bar, mCurrentTrack.duration, mCurrentTrack.duration, false);
                 views.setTextViewText(R.id.title_txt, mCurrentTrack.title);
                 views.setTextViewText(R.id.user_txt, mCurrentTrack.user.username);
-                
-                
-                URL url;
-                Bitmap b = null;
-                try {
-                    url = new URL(mCurrentTrack.waveform_url);
-                    URLConnection connection = url.openConnection();
-                    b = (Bitmap) ((SoundCloudApplication) service.getApplication()).getBitmapHandler().getContent(connection);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-               
-                if (b != null){
-                    Matrix m = new Matrix();
-                    //m.setScale(1, 2);
-                    views.setImageViewBitmap(R.id.progress_overlay, b);
-                    
-                }
+                Log.i(TAG,"Setting user name to " + mCurrentTrack.user.username);
                 
             }
             
@@ -197,26 +149,6 @@ import java.net.URLConnection;
             mCurrentViews = views;
         }
         
-        
-        private void showUnplayable(CloudPlaybackService service,RemoteViews views) {
-            views.setTextViewText(R.id.unplayable_txt, service.getResources().getText(R.string.player_not_streamable));
-            
-            if ( service.getTrack() == null || CloudUtils.isTrackPlayable(service.getTrack())) { // playback
-                // error
-                views.setTextViewText(R.id.unplayable_txt, service.getResources().getText(R.string.player_error));
-            } else {
-                views.setTextViewText(R.id.unplayable_txt, service.getResources().getText(R.string.player_not_streamable));
-            }
-            
-            views.setViewVisibility(R.id.playable_layout, View.GONE);
-            views.setViewVisibility(R.id.unplayable_layout, View.VISIBLE);
-        }
-
-        private void hideUnplayable(CloudPlaybackService service, RemoteViews views) {
-            views.setViewVisibility(R.id.playable_layout, View.VISIBLE);
-            views.setViewVisibility(R.id.unplayable_layout, View.GONE);
-        }
-
         /**
          * Link up various button actions using {@link PendingIntents}.
          * 

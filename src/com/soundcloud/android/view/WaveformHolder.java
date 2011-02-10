@@ -1,21 +1,27 @@
 
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.objects.Comment;
+
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-public class WaveformHolder extends FrameLayout {
+import java.util.ArrayList;
+
+public class WaveformHolder extends RelativeLayout {
 
     private static final String TAG = "WaveformHolder";
+    
+    private ArrayList<Comment> mComments;
 
     public WaveformHolder(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+    
+    public void setComments(ArrayList<Comment> comments){
+        mComments = comments;
+    }
+    
 
 }

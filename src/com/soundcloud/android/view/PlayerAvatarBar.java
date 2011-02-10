@@ -144,10 +144,6 @@ public class PlayerAvatarBar extends View {
             } else
                 avatarUrl = CloudUtils.formatGraphicsUrl(newItems.get(i).user.avatar_url, GraphicsSizes.small);
             
-            if (mCurrentComments.get(i).timestamp != -1 && (i == mCurrentComments.size()-1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i+1).timestamp)) {
-                mCurrentComments.get(i).topLevelComment = true;
-            }
-            
             Bitmap bitmap = getBitmap(avatarUrl);
             Throwable error = getError(avatarUrl);
             if (bitmap != null) {
@@ -195,18 +191,20 @@ public class PlayerAvatarBar extends View {
                 if (Thread.currentThread().isInterrupted())
                     break;
                 if (comment.timestamp == 0) continue;
-                if (comment.xPos == -1) comment.calculateXPos(getWidth(), mDuration);
+                
                 if (comment.topLevelComment){
                     if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null){
                         mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
                         mMatrix.postTranslate(comment.xPos, 0);
                         canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
-                        canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);
+                        canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
+                        //canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);
                     } else if (comment.avatar != null){
                         mMatrix.setScale(mAvatarScale, mAvatarScale);
                         mMatrix.postTranslate(comment.xPos, 0);
                         canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
-                        canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);    
+                        canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
+                        //canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);    
                     } else {
                        // Log.i(TAG,"Bitmap not found " + comment.user.avatar_url);
                     }
@@ -255,6 +253,10 @@ public class PlayerAvatarBar extends View {
         
         if (mCanvasBmp != null)
             canvas.drawBitmap(mCanvasBmp, new Matrix(), mImagePaint);
+        else if (mCurrentComments != null)
+            for (Comment comment : mCurrentComments){
+                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
+            }
         
     }
     

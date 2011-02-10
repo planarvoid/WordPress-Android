@@ -145,15 +145,8 @@
 	<style name="txt_player_touch_bar">
         <item name="android:textColor">#ff7b7b7b</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
     
-    <style name="txt_comment_bubble_time">
-        <item name="android:textColor">#ffe36711</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-    
-	
 	<style name="btn_sc_transport">
         <item name="android:layout_width">60dip</item>
         <item name="android:layout_height">50dip</item>
@@ -161,11 +154,22 @@
 	</style>
 	
 	<style name="btn_sc_widget">
+        <item name="android:padding">0dip</item>
+        <item name="android:layout_margin">0dip</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+	
+	<style name="btn_sc_widget_transport" parent="btn_sc_widget">
         <item name="android:layout_width">60dip</item>
         <item name="android:layout_height">54dip</item>
         <item name="android:padding">0dip</item>
         <item name="android:layout_margin">0dip</item>
         <item name="android:background">@android:color/transparent</item>
+    </style>
+    
+    <style name="btn_sc_widget_favorite" parent="btn_sc_widget">
+        <item name="android:layout_width">40dip</item>
+        <item name="android:layout_height">40dip</item>
     </style>
 	
 	<style name="btn_sc_show_info" parent="btn_sc_transport">
@@ -307,13 +311,50 @@
     
     <style name="txt_widget_primary">
         <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:padding">5dip</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:layout_margin">0dip</item>
     </style>
-    <style name="txt_widget_secondary">
+    <style name="txt_widget_title" parent="txt_widget_primary">
+        <item name="android:paddingTop">5dip</item>
+    </style>
+    <style name="txt_widget_secondary" parent="txt_widget_primary">
+        <item name="android:paddingRight">10dip</item>
         <item name="android:textColor">#ff5b5b5b</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:padding">5dip</item>
     </style>
-	
+    
+    <style name="txt_comment_bubble">
+        <item name="android:textSize">14sp</item>
+    </style>
+    
+    <style name="txt_comment_bubble_new" parent="txt_comment_bubble">
+        <item name="android:textColor">#ff9c9c9c</item>
+    </style>
+    
+    <style name="txt_comment_bubble_new_time"  parent="txt_comment_bubble">
+        <item name="android:textColor">#ffe36711</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    
+    <style name="txt_comment_bubble_white"  parent="txt_comment_bubble">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:paddingLeft">5dip</item>
+    </style>
+    
+    <style name="txt_comment_bubble_username"  parent="txt_comment_bubble">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="txt_comment_bubble_gray"  parent="txt_comment_bubble">
+        <item name="android:textColor">#ff9c9c9c</item>
+        <item name="android:paddingLeft">5dip</item>
+    </style>
+    
+     <style name="txt_comment_bubble_reply"  parent="txt_comment_bubble">
+        <item name="android:textColor">#ff9c9c9c</item>
+    </style>
+    
 </resources>

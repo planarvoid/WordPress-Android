@@ -1101,11 +1101,4 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 : mDurationFormatLong, pcmTime);
     }
 
-    private String getMinsSecsString(int position, int sampleRate, int channels, int bitsPerSample) {
-        pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
-                REC_BITS_PER_SAMPLE);
-        return CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
-                : mDurationFormatLong, pcmTime);
-    }
-
 }

@@ -829,8 +829,6 @@ public class CloudPlaybackService extends Service {
                             mPlayer.pause();
                         }
 
-                        Log.i(TAG, "PAUSED FOR BUFFERING");
-
                         notifyChange(BUFFERING);
                         pausedForBuffering = true;
 
@@ -839,14 +837,6 @@ public class CloudPlaybackService extends Service {
             }
         }
         
-        Log.i(TAG,"UPdating app widget");
-        
-        if (mUpdateWidgetCounter == 20){
-            mAppWidgetProvider.updatePosition(this,getDuration(),position());
-            mUpdateWidgetCounter = 0;
-        } else 
-            mUpdateWidgetCounter++;
-
         return true;
     }
 

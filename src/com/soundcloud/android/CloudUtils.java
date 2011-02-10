@@ -82,6 +82,10 @@ public class CloudUtils {
 
     public static final String REQUEST_FORMAT = "json";
 
+    public static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
+    
+    public static final String DURATION_FORMAT_LONG = "%1$d.%3$02d.%5$02d";
+    
     public static final int GRAPHIC_DIMENSIONS_T500 = 500;
 
     public static final int GRAPHIC_DIMENSIONS_CROP = 400;
@@ -429,6 +433,7 @@ public class CloudUtils {
         // The directory is now empty so delete it
         return dir.delete();
     }
+    
 
     public static String md5(String s) {
         try {
@@ -1159,6 +1164,12 @@ public class CloudUtils {
         bmp.recycle();
         bmp = null;
         System.gc();
+    }
+    
+
+    public static String formatTimestamp(long pos){
+        return CloudUtils.makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
+                : DURATION_FORMAT_LONG, pos / 1000);
     }
 
     /*

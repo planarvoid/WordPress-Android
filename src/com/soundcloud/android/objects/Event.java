@@ -2,11 +2,10 @@
 package com.soundcloud.android.objects;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event extends BaseObj implements Parcelable {
@@ -22,7 +21,7 @@ public class Event extends BaseObj implements Parcelable {
     public Origin origin;
 
     public static class Origin extends Track {
-        public Track sharedTrack;
+        public Track track;
     }
 
 
@@ -37,8 +36,7 @@ public class Event extends BaseObj implements Parcelable {
         if (type.equalsIgnoreCase("track"))
             return origin;
         else if (type.equalsIgnoreCase("track-sharing"))
-            return origin.sharedTrack;
-
+            return origin.track;
         return null;
     }
 

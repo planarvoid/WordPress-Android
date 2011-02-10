@@ -69,7 +69,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
         _playingId = currentTrackId;
 
         for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i) != null && getTrackAt(i).id != null && getTrackAt(i).id.compareTo(currentTrackId) == 0) {
+            if (getTrackAt(i).id.compareTo(currentTrackId) == 0) {
                 getTrackAt(i).user_played = true;
             }
         }

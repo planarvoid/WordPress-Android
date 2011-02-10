@@ -59,11 +59,7 @@ public class CommentBubbleArrow extends View {
     
     
     public void setPosition(float x) {
-        Log.i("arrow","asdf " + x + " " + CommentBubble.CORNER_MARGIN);
-        
         x = Math.min(Math.max(CommentBubble.CORNER_MARGIN, x), getWidth() - CommentBubble.CORNER_MARGIN);
-        
-        Log.i("arrow","asdfff " + x);
         
         if (x > CommentBubble.HARD_WIDTH/2 - RIGHT_ARROW_MARGIN){
             mCurrentArrow = mRightArrow;
