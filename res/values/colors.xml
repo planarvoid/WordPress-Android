@@ -20,6 +20,8 @@
 	<color name="progressDarkAlphaBackground">#AA000000</color>
 	
 	<color name="userHeaderBackground">#FFEEEEEE</color>
+	
+	<color name="commentGray">#ff9c9c9c</color>
 
 	<color name="cloudProgressBackgroundStart">#AA999999</color>
 	<color name="cloudProgressBackgroundCenter">#AACACACA</color>

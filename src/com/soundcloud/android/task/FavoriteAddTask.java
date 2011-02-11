@@ -21,7 +21,7 @@ public class FavoriteAddTask extends FavoriteTask {
         return mScApp
         .putContent(
                 CloudAPI.Enddpoints.MY_FAVORITES + "/"
-                        + t.id);
+                        + t.id, null);
     }
 
     @Override

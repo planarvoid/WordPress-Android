@@ -4,7 +4,7 @@
 	<ScrollView android:layout_width="fill_parent" android:id="@+id/info_view"
 		android:layout_height="fill_parent">
 		<RelativeLayout android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content" android:id="@+id/info_holder">
 			<TableLayout android:stretchColumns="*" 
 				android:layout_height="wrap_content" android:layout_width="fill_parent"
 				android:id="@+id/tblStats">
@@ -76,7 +76,13 @@
 				style="@style/txt_player_track_info" android:id="@+id/txtInfo"
 				android:padding="3dip" android:text="" android:layout_below="@+id/tblStats"
 				android:layout_width="fill_parent" />
-
+			<ViewStub
+		      android:id="@+id/stub_comments_list"
+		      android:inflatedId="@+id/comments_list"
+		      android:layout="@layout/info_comments_list"
+		      android:layout_below="@+id/txtInfo"
+		      android:layout_width="fill_parent"
+		      android:layout_height="wrap_content" />
 		</RelativeLayout>
 	</ScrollView>
 	<ViewStub

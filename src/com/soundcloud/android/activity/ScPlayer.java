@@ -9,6 +9,7 @@ import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -18,6 +19,10 @@ import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,17 +40,24 @@ import android.os.SystemClock;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -56,7 +69,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ScPlayer extends LazyActivity implements OnTouchListener {
 
@@ -142,7 +160,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private boolean paused;
 
-    private boolean mTrackDetailsFilled = false;
+    private boolean mTrackInfoFilled = false;
+    
+    private boolean mTrackInfoCommentsFilled = false;
 
     private LoadCommentsTask mLoadCommentsTask;
 
@@ -279,6 +299,13 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
 
             mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
+            mCommentsButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    addNewComment(mPlayingTrack,0);
+                }
+            });
+            
+           
             // mCommentsButton.setOnClickListener(mToggleCommentsListener);
             // setCommentButtonImage();
 
@@ -523,8 +550,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
             }
 
-            if (!mTrackDetailsFilled) {
+            if (!mTrackInfoFilled) {
                 fillTrackDetails();
+            } else if (!mTrackInfoCommentsFilled){
+                fillTrackInfoComments();
             }
 
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
@@ -632,7 +661,97 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         ((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html
                 .fromHtml(generateTrackInfoString()));
 
-        mTrackDetailsFilled = true;
+        fillTrackInfoComments();
+        
+        mTrackInfoFilled = true;
+    }
+    
+    private void fillTrackInfoComments(){
+        if (mTrackInfo == null)
+            return;
+        
+        //sort by created date descending for this list
+        Collections.sort(mCurrentComments, new Comment.CompareCreatedAt());
+        
+        LinearLayout commentsList;
+        if (mTrackInfo.findViewById(R.id.comments_list) == null){
+            mTrackInfo.findViewById(R.id.stub_comments_list).setVisibility(View.VISIBLE);
+            ((Button) mTrackInfo.findViewById(R.id.btn_info_comment)).setOnClickListener(new OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    addNewComment(mPlayingTrack,0);                    
+                }
+            });
+            commentsList = (LinearLayout) mTrackInfo.findViewById(R.id.comments_list);    
+        } else {
+            commentsList = (LinearLayout) mTrackInfo.findViewById(R.id.comments_list);
+            while (commentsList.getChildCount() > 1){
+                commentsList.removeViewAt(1);
+            }
+        }
+        
+        
+        if (mCurrentComments == null)
+            return;
+        
+        final SpannableStringBuilder commentText = new SpannableStringBuilder();
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.commentGray));
+        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
+        
+        int spanStartIndex;
+        int spanEndIndex;
+
+        for (Comment comment : mCurrentComments){
+            commentText.clear();
+            
+            View v = new View(this);
+            v.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,1));
+            v.setBackgroundColor(R.color.background_dark);
+            commentsList.addView(v);
+            
+            TextView tv = new TextView(this);
+            tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+            tv.setPadding(10, 5, 10, 5);
+            //((LinearLayout.LayoutParams) tv.getLayoutParams()).
+            tv.setTextSize(14);
+            tv.setLineSpacing(5, 1);
+            
+            commentText.append(comment.user.username).append(" ");
+            spanEndIndex = commentText.length();
+            commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            if (comment.timestamp != 0)
+                commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
+            
+            spanStartIndex = commentText.length();
+            commentText.append(" said ");
+            
+            long elapsed = (System.currentTimeMillis() - comment.created_at.getTime())/1000;
+            
+            if (elapsed < 60)
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed));
+            else if (elapsed < 3600)
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60)));
+            else if (elapsed < 86400)
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600)));
+            else if (elapsed < 2592000)
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400)));
+            else if (elapsed < 31536000)
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000)));
+            else 
+                commentText.append(getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000)));
+            
+            spanEndIndex = commentText.length();
+            commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            commentText.append("\n").append(comment.body);
+            
+            tv.setText(commentText);
+            commentsList.addView(tv);
+        }
+        
+        //restore default sort
+        Collections.sort(mCurrentComments, new Comment.CompareTimestamp());
+        
     }
 
     private String generateTrackInfoString() {
@@ -862,7 +981,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 mWaveformController.hideConnectingLayout();
             }
 
-            mTrackDetailsFilled = false;
+            mTrackInfoFilled = false;
+            mTrackInfoCommentsFilled = false;
+            
             setFavoriteStatus();
             mDuration = Long.parseLong(Integer.toString(mPlayingTrack.duration));
             mCurrentDurationString = CloudUtils.makeTimeString(
@@ -1214,19 +1335,28 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             if (newItems != null) {
                 mCurrentComments = newItems;
-                mWaveformController.setComments(newItems);
+                refreshComments();
             }
 
         }
     }
+    
+    private void refreshComments(){
+        mTrackInfoCommentsFilled = false;
+        
+        if (mTrackFlipper.getDisplayedChild() == 1)
+            fillTrackInfoComments();
+        
+        mWaveformController.setComments(mCurrentComments);
+    }
 
-    public void addNewComment(Track track, long timestamp) {
+    public void addNewComment(final Track track, final long timestamp) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
-                .setMessage("Add comment at " + CloudUtils.formatTimestamp(timestamp))
+                .setMessage(timestamp == 0 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        Editable value = input.getText();
+                        sendComment(track.id,timestamp,input.getText().toString(),0);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -1244,19 +1374,73 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         });
         commentDialog.show();
     }
+    
+    private HttpResponse mAddCommentResult;
+    private Comment mAddComment;
+    private void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
+        
+        mAddComment = new Comment();
+        mAddComment.track_id = track_id;
+        mAddComment.created_at = new Date(System.currentTimeMillis());
+        mAddComment.user_id = CloudUtils.getCurrentUserId(this);
+        mAddComment.user = CloudUtils.resolveUserById(this.getSoundCloudApplication(), mAddComment.user_id, mAddComment.user_id);
+        mAddComment.timestamp = timestamp;
+        mAddComment.body = commentBody;
+        
+        final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
+        apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
+        if (timestamp > 0) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
+        if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
 
-    public void replyToComment(Comment comment) {
+        
+        // Fire off a thread to do some work that we shouldn't do directly in the UI thread
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                    mAddCommentResult = getSoundCloudApplication().postContent(
+                            CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    ScPlayer.this.setException(e);
+                }
+                mHandler.post(mOnCommentAdd);
+            }
+        };
+        t.start();
+    }
+    
+ // Create runnable for posting
+    final Runnable mOnCommentAdd = new Runnable() {
+        public void run() {
+            if (mAddCommentResult.getStatusLine().getStatusCode() == 201){
+                if (mAddComment.track_id != mPlayingTrack.id)
+                    return;
+                
+                if (mCurrentComments == null)
+                    mCurrentComments = new ArrayList<Comment>();
+                
+                mCurrentComments.add(mAddComment);
+                refreshComments();
+                
+            } else
+                handleException();
+            Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
+        }
+    };
+    
+    
+
+    public void replyToComment(final Comment comment) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
                 .setMessage("Reply to " + comment.user.username + " at "
                         + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        Editable value = input.getText();
+                        sendComment(comment.track_id,comment.timestamp,input.getText().toString(),comment.id);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
                     }
                 }).create();
         

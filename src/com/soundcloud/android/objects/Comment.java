@@ -7,8 +7,9 @@ import android.os.Parcelable;
 
 import java.lang.ref.WeakReference;
 import java.sql.Date;
+import java.util.Comparator;
 
-public class Comment extends BaseObj implements Parcelable, Comparable<Comment> {
+public class Comment extends BaseObj implements Parcelable {
     
     public long id;
     public Date created_at;
@@ -51,13 +52,22 @@ public class Comment extends BaseObj implements Parcelable, Comparable<Comment> 
         buildParcel(out,flags);
     }
 
-    @Override
-    public int compareTo(Comment comment) {
-        if (comment.timestamp < timestamp)
-            return -1;
-        else if (comment.timestamp > timestamp)
-            return 1;
-        else
-            return 0;
+    public static class CompareTimestamp implements Comparator<Comment>{
+        @Override
+        public int compare(Comment c1, Comment c2) {
+            if (c1.timestamp > c2.timestamp)
+                return -1;
+            else if (c1.timestamp < c2.timestamp)
+                return 1;
+            else
+                return 0;
+        }
+    }
+    
+    public static class CompareCreatedAt implements Comparator<Comment>{
+        @Override
+        public int compare(Comment c1, Comment c2) {
+            return c2.created_at.compareTo(c1.created_at);
+        }
     }
 }

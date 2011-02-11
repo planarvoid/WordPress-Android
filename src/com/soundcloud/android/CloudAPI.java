@@ -71,7 +71,9 @@ public interface CloudAPI {
 
     String signStreamUrlNaked(String path);
 
-    InputStream putContent(String path) throws IOException;
+    InputStream putContent(String path, List<NameValuePair> params) throws IOException;
+    
+    HttpResponse postContent(String path, List<NameValuePair> params) throws IOException;
 
     InputStream deleteContent(String path) throws IOException;
 

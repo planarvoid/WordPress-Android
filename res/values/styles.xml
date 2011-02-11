@@ -329,7 +329,7 @@
     </style>
     
     <style name="txt_comment_bubble_new" parent="txt_comment_bubble">
-        <item name="android:textColor">#ff9c9c9c</item>
+        <item name="android:textColor">@color/commentGray</item>
     </style>
     
     <style name="txt_comment_bubble_new_time"  parent="txt_comment_bubble">
@@ -349,7 +349,7 @@
     </style>
     
     <style name="txt_comment_bubble_gray"  parent="txt_comment_bubble">
-        <item name="android:textColor">#ff9c9c9c</item>
+        <item name="android:textColor">@color/commentGray</item>
         <item name="android:paddingLeft">5dip</item>
     </style>
     
