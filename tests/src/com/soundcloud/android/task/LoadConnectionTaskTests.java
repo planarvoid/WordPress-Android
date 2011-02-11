@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
 public class LoadConnectionTaskTests extends ApiTest {
@@ -20,17 +21,24 @@ public class LoadConnectionTaskTests extends ApiTest {
         LoadConnectionsTask task = new LoadConnectionsTask(api);
         List<Connection> connections = task.list(CONNECTIONS, Connection.class);
 
-        assertEquals(2, connections.size());
+        assertEquals(6, connections.size());
         // make sure date gets deserialized properly
         Connection conn = connections.get(0);
 
         assertEquals("Wed Dec 16 19:52:56 CET 2009", conn.created_at.toString());
         assertEquals("twitter", conn.type);
+        assertEquals(Connection.Service.Twitter, conn.type());
         assertEquals("twitter", conn.service);
         assertEquals(true, conn.post_publish);
         assertEquals(false, conn.post_favorite);
         assertEquals("foo", conn.display_name);
         assertEquals(41335, conn.id);
         assertEquals("https://api.sandbox-soundcloud.com/connections/41335", conn.uri.toString());
+
+        for (Connection c : connections) {
+            assertNotNull(c.type());
+        }
+
+        assertEquals(Connection.Service.Unknown, connections.get(5).type());
     }
 }

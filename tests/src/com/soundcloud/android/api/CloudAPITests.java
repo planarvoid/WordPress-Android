@@ -46,8 +46,7 @@ public class CloudAPITests implements CloudAPI.Params {
     }
 
 
-    @Test
-    @Ignore
+    @Test @Ignore
     public void testConnections() throws IOException {
         BufferedReader r = new BufferedReader(
                 new InputStreamReader(
