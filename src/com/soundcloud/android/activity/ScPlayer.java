@@ -3,10 +3,10 @@ package com.soundcloud.android.activity;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -627,7 +627,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 try {
                     mLoadTrackDetailsTask = newLoadTrackDetailsTask();
                     mLoadTrackDetailsTask.execute(getSoundCloudApplication().getPreparedRequest(
-                            SoundCloudApplication.PATH_TRACK_DETAILS.replace("{track_id}",
+                            CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
                                     Long.toString(mPlayingTrack.id))));
 
                 } catch (Exception e) {
@@ -988,7 +988,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mLoadCommentsTask.pageSize = 50;
         mLoadCommentsTask.setContext(this);
         mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(
-                SoundCloudApplication.PATH_TRACK_COMMENTS.replace("{track_id}",
+                CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}",
                         Long.toString(mPlayingTrack.id))));
     }
 

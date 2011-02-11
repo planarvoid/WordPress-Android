@@ -1,29 +1,7 @@
 
 package com.soundcloud.android;
 
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.LazyExpandableBaseAdapter;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserBrowser;
-
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -31,19 +9,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ParseException;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,6 +28,21 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,7 +50,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -77,66 +60,18 @@ import java.util.Locale;
 public class CloudUtils {
 
     private static final String TAG = "CloudUtils";
-
-    public static final String API_BASE = "http://api.soundcloud.com/";
-
-    public static final String REQUEST_FORMAT = "json";
-
     public static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
-    
     public static final String DURATION_FORMAT_LONG = "%1$d.%3$02d.%5$02d";
-    
-    public static final int GRAPHIC_DIMENSIONS_T500 = 500;
-
-    public static final int GRAPHIC_DIMENSIONS_CROP = 400;
-
-    public static final int GRAPHIC_DIMENSIONS_T300 = 300;
-
-    public static final int GRAPHIC_DIMENSIONS_LARGE = 100;
-
-    public static final int GRAPHIC_DIMENSIONS_T67 = 67;
-
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
-
     public static final int GRAPHIC_DIMENSIONS_SMALL = 32;
 
-    public static final int GRAPHIC_DIMENSIONS_TINY_ARTWORKS = 20;
-
-    public static final int GRAPHIC_DIMENSIONS_TINY_AVATARS = 18;
-
-    public static final int GRAPHIC_DIMENSIONS_MINI = 16;
-
-    public static final String EXTRA_GROUP = "group";
-
-    public static final String EXTRA_FILTER = "filter";
-
-    public static final String EXTRA_TITLE = "title";
-
     public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
-
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
-
-    public static final String MUSIC_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Soundcloud/music";
-
-    public static final String ARTWORK_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Soundcloud/images/artwork";
-
-    public static final String WAVEFORM_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Soundcloud/images/waveforms";
-
-    public static final String AVATAR_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Soundcloud/images/avatars";
 
     public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory()
             + "/Android/data/com.soundcloud.android/files/.cache/";
 
-    public static final String EXTERNAL_CACHE_DIRECTORY_DEPRACATED = Environment
-            .getExternalStorageDirectory()
-            + "/Soundcloud";
-
-    public static final String EXTERNAL_STORAGE_DIRECTORY = Environment
-            .getExternalStorageDirectory()
+    public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory()
             + "/Soundcloud";
 
     public interface RequestCodes {
@@ -300,18 +235,6 @@ public class CloudUtils {
 
     }
 
-    public interface UserOrderBy {
-        public final static int ALPHABETICAL = 0;
-
-        public final static int TRACK_COUNT = 1;
-    }
-
-    public interface TrackOrderBy {
-        public final static int ALPHABETICAL = 0;
-
-        public final static int UPLOAD_DATE = 1;
-    }
-
     public interface GraphicsSizes {
         public final static String t500 = "t500x500";
 
@@ -444,9 +367,9 @@ public class CloudUtils {
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
+            return "";
         }
-        return "";
     }
 
     public static LazyList createList(LazyActivity activity) {
@@ -625,26 +548,6 @@ public class CloudUtils {
         return Long.parseLong(preferences.getString("currentUserId", "-1"));
     }
 
-    public static long getCurrentTrackId() {
-        if (sService != null) {
-            try {
-                return sService.getTrackId();
-            } catch (RemoteException ex) {
-            }
-        }
-        return -1;
-    }
-
-    public static String getCurrentUserPermalink() {
-        if (CloudUtils.sService != null) {
-            try {
-                return sService.getUserPermalink();
-            } catch (RemoteException ex) {
-            }
-        }
-        return null;
-    }
-
     public static boolean checkIconShouldLoad(String url) {
         if (url == null || url.contentEquals("") || url.toLowerCase().contentEquals("null")
                 || url.contains("default_avatar"))
@@ -707,15 +610,6 @@ public class CloudUtils {
         }
     }
 
-    public static String buildLocalAvatarUrl(String user_permalink) {
-        return CloudUtils.AVATAR_DIRECTORY + "/" + user_permalink + ".jpg";
-    }
-
-    public static void resolveTrack(SoundCloudApplication context, Track track,
-            WriteState writeState) {
-        resolveTrack(context, track, writeState, null, null);
-    }
-
     public static void resolveTrack(SoundCloudApplication context, Track track,
             WriteState writeState, long currentUserId) {
         resolveTrack(context, track, writeState, currentUserId, null);
@@ -736,8 +630,7 @@ public class CloudUtils {
                 // add local urls and update database
                 result.moveToFirst();
     
-                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1 ? true
-                : false;
+                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1;
     
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
                     db.updateTrack(track);
@@ -747,12 +640,10 @@ public class CloudUtils {
             }
             result.close();
     
-            if (openAdapter == null)
-                db.close();
-            else
-                db = null;
-    
-            // write with insert only because a track will never come in with
+            if (openAdapter == null) db.close();
+
+
+        // write with insert only because a track will never come in with
             resolveUser(context, track.user, WriteState.insert_only, currentUserId, openAdapter);
     }
 
@@ -806,8 +697,7 @@ public class CloudUtils {
         Cursor result = db.getUserById(user.id, currentUserId);
         if (result.getCount() != 0) {
 
-            user.update(result); // update the parcelable with values from the
-            // db
+            user.update(result); // update the parcelable with values from the db
 
             if (writeState == WriteState.update_only || writeState == WriteState.all)
                 db.updateUser(user, currentUserId.compareTo(user.id) == 0);
@@ -817,11 +707,7 @@ public class CloudUtils {
         }
         result.close();
 
-        if (openAdapter == null)
-            db.close();
-        else
-            db = null;
-
+        if (openAdapter == null) db.close();
     }
 
     // ---Make sure the database is up to date with this track info---
@@ -861,149 +747,6 @@ public class CloudUtils {
 
     }
 
-    public static boolean isLocalFile(String filename) {
-        if (filename.startsWith("/"))
-            return true;
-        else
-            return false;
-    }
-
-    static void setBackground(View v, Bitmap bm) {
-
-        if (bm == null) {
-            v.setBackgroundResource(0);
-            return;
-        }
-
-        int vwidth = v.getWidth();
-        int vheight = v.getHeight();
-        int bwidth = bm.getWidth();
-        int bheight = bm.getHeight();
-        float scalex = (float) vwidth / bwidth;
-        float scaley = (float) vheight / bheight;
-        float scale = Math.max(scalex, scaley) * 1.3f;
-
-        Bitmap.Config config = Bitmap.Config.ARGB_8888;
-        Bitmap bg = Bitmap.createBitmap(vwidth, vheight, config);
-        Canvas c = new Canvas(bg);
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        ColorMatrix greymatrix = new ColorMatrix();
-        greymatrix.setSaturation(0);
-        ColorMatrix darkmatrix = new ColorMatrix();
-        darkmatrix.setScale(.3f, .3f, .3f, 1.0f);
-        greymatrix.postConcat(darkmatrix);
-        ColorFilter filter = new ColorMatrixColorFilter(greymatrix);
-        paint.setColorFilter(filter);
-        Matrix matrix = new Matrix();
-        matrix.setTranslate(-bwidth / 2, -bheight / 2); // move bitmap center to
-        // origin
-        matrix.postRotate(10);
-        matrix.postScale(scale, scale);
-        matrix.postTranslate(vwidth / 2, vheight / 2); // Move bitmap center to
-        // view center
-        c.drawBitmap(bm, matrix, paint);
-        v.setBackgroundDrawable(new BitmapDrawable(bg));
-    }
-
-    public static String formatTimestamp(int ts) {
-        int milliseconds = ts;
-        int seconds = ((milliseconds / 1000) % 60);
-        int minutes = ((milliseconds / 1000) / 60);
-
-        String ts_formatted;
-        if (seconds < 10)
-            ts_formatted = String.format("%d.0%d ", minutes, seconds);
-        else
-            ts_formatted = String.format("%d.%d ", minutes, seconds);
-        return ts_formatted;
-    }
-
-    public static void mapCommentsToAdapter(Comment[] comments,
-            LazyExpandableBaseAdapter mExpandableAdapter, Boolean chronological) {
-        /*
-         * if (comments == null || comments.length == 0) return; Comment
-         * threadData; ArrayList<Parcelable> commentData; for (Comment comment :
-         * comments){ int ts =
-         * Integer.parseInt(comment.getData(Comment.key_timestamp)); String
-         * ts_formatted = formatTimestamp(ts); ArrayList<Parcelable> ls =
-         * (ArrayList<Parcelable>) mExpandableAdapter.getGroupData(); int i = 0;
-         * Boolean threadFound = false; if (ls != null){ Iterator<Parcelable> it
-         * = ls.iterator(); while (it.hasNext()){ Parcelable threadItem =
-         * it.next(); if (((Comment)
-         * threadItem).getData(Comment.key_timestamp).contentEquals
-         * (Integer.toString(ts))){ threadFound = true; break; } i++; } } if
-         * (!threadFound){ threadData = new Comment(comment);
-         * threadData.putData(Comment.key_timestamp_formatted, ts_formatted);
-         * commentData = new ArrayList<Parcelable>();
-         * commentData.add((Parcelable) comment); if (chronological &&
-         * mExpandableAdapter.getGroupCount() > 0){ ArrayList<Parcelable>
-         * groupData = (ArrayList<Parcelable>)
-         * mExpandableAdapter.getGroupData(); int j = 0; while (j <
-         * groupData.size() && Integer.parseInt(((Comment)
-         * groupData.get(j)).getData(Comment.key_timestamp)) <
-         * Integer.parseInt(comment.getData(Comment.key_timestamp))){ j++; } if
-         * (j < groupData.size()){ mExpandableAdapter.getGroupData().add(j,
-         * (Parcelable) threadData); mExpandableAdapter.getChildData().add(j,
-         * commentData); } else {
-         * mExpandableAdapter.getGroupData().add((Parcelable) threadData);
-         * mExpandableAdapter.getChildData().add(commentData); } } else {
-         * mExpandableAdapter.getGroupData().add((Parcelable) threadData);
-         * mExpandableAdapter.getChildData().add(commentData); } } else {
-         * threadData = (Comment) mExpandableAdapter.getGroupData().get(i);
-         * threadData.putData(Comment.key_username,
-         * comment.getData(Comment.key_username));
-         * threadData.putData(Comment.key_body,
-         * comment.getData(Comment.key_body));
-         * threadData.putData(Comment.key_timestamp,
-         * comment.getData(Comment.key_timestamp));
-         * threadData.putData(Comment.key_timestamp_formatted, ts_formatted);
-         * commentData = (ArrayList<Parcelable>)
-         * mExpandableAdapter.getChildData().get(i);
-         * commentData.add(0,(Parcelable) comment); } } //trim the first comment
-         * off of each child so its not double represented for (int i = 0; i <
-         * mExpandableAdapter.getChildData().size(); i++){
-         * mExpandableAdapter.getChildData().get(i).remove(0); }
-         * mExpandableAdapter.notifyDataSetChanged();
-         */
-    }
-
-    static String getResponseBody(final HttpEntity entity) throws IOException, ParseException {
-
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-
-        InputStream instream = entity.getContent();
-        if (instream == null) {
-            return "";
-        }
-        if (entity.getContentLength() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-        }
-        String charset = getContentCharSet(entity);
-
-        if (charset == null) {
-            charset = HTTP.DEFAULT_CONTENT_CHARSET;
-        }
-
-        Reader reader = new InputStreamReader(instream, charset);
-        StringBuilder buffer = new StringBuilder();
-        try {
-            char[] tmp = new char[1024];
-            int l;
-            while ((l = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, l);
-            }
-
-        } finally {
-            reader.close();
-        }
-        return buffer.toString();
-
-    }
-
     static String getContentCharSet(final HttpEntity entity) throws ParseException {
 
         if (entity == null) {
@@ -1021,20 +764,6 @@ public class CloudUtils {
         }
         return charset;
 
-    }
-
-    public static void gotoTrackUploader(Context context, String userPemalink) {
-        Intent i = new Intent(context, UserBrowser.class);
-        i.putExtra("userLoadPermalink", userPemalink);
-        context.startActivity(i);
-    }
-
-    public static void gotoTrackDetails(Context context, Track track) {
-        /*
-         * Intent i = new Intent(context, TrackBrowser.class);
-         * i.putExtra("track", track); if (track.comments != null)
-         * i.putExtra("comments", track.comments); context.startActivity(i);
-         */
     }
 
     public static String buildRequestPath(String mUrl, String order) {
@@ -1057,35 +786,12 @@ public class CloudUtils {
 
     }
 
-    public static String formatUsername(String username) {
-        return username.replace(" ", "-");
-    }
-
     public static String stripProtocol(String url) {
         return url.replace("http://www.", "").replace("http://", "");
     }
 
-    public static File getCacheFile(String url) {
-        return new File(EXTERNAL_CACHE_DIRECTORY + "/" + url.hashCode() + ".png");
-    }
-
-    public static String getCacheFileName(String url) {
-        return url.hashCode() + ".png";
-    }
-
-    public static String toTitleCase(String str) {
-
-        str = str.toLowerCase();
-        int intTmp = str.charAt(0) - 32;
-
-        char[] carray = str.toCharArray();
-        carray[0] = (char) intTmp;
-
-        return String.valueOf(carray);
-    }
-
     public static String formatGraphicsUrl(String url, String targetSize) {
-        // Log.i(TAG,"FOrmat Graphics URL " + url);
+        // Log.i(TAG,"Format Graphics URL " + url);
         // for (String size : GraphicsSizesLib){
         // url = url.replace(size, targetSize);
         // }
@@ -1099,23 +805,8 @@ public class CloudUtils {
     }
 
     public static boolean isTaskPending(AsyncTask lt) {
-        if (lt == null)
-            return false;
+        return lt != null && lt.getStatus() == AsyncTask.Status.PENDING;
 
-        return lt.getStatus() == AsyncTask.Status.PENDING;
-
-    }
-
-    static int getCardId(Context context) {
-        ContentResolver res = context.getContentResolver();
-        Cursor c = res.query(Uri.parse("content://media/external/fs_id"), null, null, null, null);
-        int id = -1;
-        if (c != null) {
-            c.moveToFirst();
-            id = c.getInt(0);
-            c.close();
-        }
-        return id;
     }
 
     public static Long getPCMTime(File file, int sampleRate, int channels, int bitsPerSample) {
@@ -1153,7 +844,6 @@ public class CloudUtils {
 
     public static void clearBitmap(Bitmap bmp) {
         bmp.recycle();
-        bmp = null;
         System.gc();
     }
     
@@ -1178,11 +868,6 @@ public class CloudUtils {
     public static String formatString(String stringFormat, Object arg) {
         sBuilder.setLength(0);
         return sFormatter.format(stringFormat, arg).toString();
-    }
-
-    public static String formatString(String stringFormat, Object[] args) {
-        sBuilder.setLength(0);
-        return sFormatter.format(stringFormat, args).toString();
     }
 
     public static String makeTimeString(String durationformat, long secs) {
@@ -1227,24 +912,6 @@ public class CloudUtils {
         }
     }
 
-    /**
-     * Reallocates an array with a new size, and copies the contents of the old
-     * array to the new array.
-     * 
-     * @param oldArray the old array, to be reallocated.
-     * @param newSize the new array size.
-     * @return A new array with the same contents.
-     */
-    public static Object resizeArray(Object oldArray, int newSize) {
-        int oldSize = java.lang.reflect.Array.getLength(oldArray);
-        Class elementType = oldArray.getClass().getComponentType();
-        Object newArray = java.lang.reflect.Array.newInstance(elementType, newSize);
-        int preserveLength = Math.min(oldSize, newSize);
-        if (preserveLength > 0)
-            System.arraycopy(oldArray, 0, newArray, 0, preserveLength);
-        return newArray;
-    }
-
     public static String toCamelCase(String s) {
         String[] parts = s.split("_");
         String camelCaseString = "";
@@ -1264,7 +931,7 @@ public class CloudUtils {
      * @return boolean : is the thread alive
      */
     public static Boolean checkThreadAlive(Thread t) {
-        return (t == null || !t.isAlive()) ? false : true;
+        return (!(t == null || !t.isAlive()));
     }
 
     public static String streamToString(InputStream is) throws IOException {
@@ -1277,7 +944,7 @@ public class CloudUtils {
         return total.toString();
     }
 
-    /** Show an event in the LogCat view, for debugging */
+    // Show an event in the LogCat view, for debugging
     public static void dumpMotionEvent(MotionEvent event) {
         String names[] = {
                 "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE", "POINTER_DOWN", "POINTER_UP", "7?",

@@ -12,8 +12,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection {
-    public static final String REQUEST = "/me/connections.json";
-
     public enum Type {
         Twitter(R.drawable.service_twitter),
         Facebook(R.drawable.service_facebook_profile),

@@ -44,44 +44,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public static final String TAG = "SoundCloudApplication";
 
-    public static String PATH_MY_USERS = "me/followings";
-
-    public static String PATH_USERS = "users";
-
-    public static String PATH_TRACKS = "tracks";
-
-    public static String PATH_MY_DETAILS = "me";
-
-    public static String PATH_MY_ACTIVITIES = "me/activities/tracks";
-
-    public static String PATH_MY_EXCLUSIVE_TRACKS = "me/activities/tracks/exclusive";
-
-    public static String PATH_MY_TRACKS = "me/tracks";
-
-    public static String PATH_MY_PLAYLISTS = "me/playlists";
-
-    public static String PATH_MY_FAVORITES = "me/favorites";
-
-    public static String PATH_MY_FOLLOWERS = "me/followers";
-
-    public static String PATH_MY_FOLLOWINGS = "me/followings";
-
-    public static String PATH_USER_DETAILS = "users/{user_id}";
-
-    public static String PATH_USER_FOLLOWINGS = "users/{user_id}/followings";
-
-    public static String PATH_USER_FOLLOWERS = "users/{user_id}/followers";
-
-    public static String PATH_TRACK_DETAILS = "tracks/{track_id}";
-
-    public static String PATH_USER_TRACKS = "users/{user_id}/tracks";
-
-    public static String PATH_USER_FAVORITES = "users/{user_id}/favorites";
-
-    public static String PATH_USER_PLAYLISTS = "users/{user_id}/playlists";
-
-    public static String PATH_TRACK_COMMENTS = "tracks/{track_id}/comments";
-
     static final boolean API_PRODUCTION = true;
 
     private CloudAPI mCloudApi;
@@ -124,7 +86,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 R.string.sandbox_consumer_secret);
     }
 
-    public final void clearSoundCloudAccount() {
+    public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .remove("oauth_access_token")
                 .remove("oauth_access_token_secret")
@@ -134,9 +96,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .putString("currentUsername", "")
                 .commit();
 
-        if (mCloudApi != null) {
-            mCloudApi.unauthorize();
-        }
+
+        mCloudApi.unauthorize();
     }
 
     public HashMap<String, String[]> getDBColumns() {

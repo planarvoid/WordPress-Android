@@ -1,11 +1,11 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
-import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,24 +22,36 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-public class ScCreateTests {
+public class ScCreateTests
+        implements CloudAPI.Params {
     ScCreate create;
     ICloudCreateService service;
 
     @Before
     public void setup() {
         service = mock(ICloudCreateService.class);
-        addPendingHttpResponse(401, "Error");
+        addPendingHttpResponse(401, "Error");  // load connections
 
         final LazyActivity activity = new LazyActivity() {
             @Override
             public SoundCloudApplication getSoundCloudApplication() {
                 return new SoundCloudApplication() {
-                    { onCreate(); }
-                    @Override public String getConsumerKey(boolean b)    { return "xxx"; }
-                    @Override public String getConsumerSecret(boolean b) { return "xxx"; }
+                    {
+                        onCreate();
+                    }
+
+                    @Override
+                    public String getConsumerKey(boolean b) {
+                        return "xxx";
+                    }
+
+                    @Override
+                    public String getConsumerSecret(boolean b) {
+                        return "xxx";
+                    }
                 };
             }
+
             @Override
             public ICloudCreateService getCreateService() {
                 return service;
@@ -49,7 +61,7 @@ public class ScCreateTests {
         create = new ScCreate(activity);
     }
 
-    private Map upload() throws Exception  {
+    private Map upload() throws Exception {
         create.startUpload();
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         verify(service).uploadTrack(captor.capture());
@@ -61,8 +73,13 @@ public class ScCreateTests {
     public void testUploadParams() throws Exception {
         Map arguments = upload();
 
-        assertEquals("recording", arguments.get("track[track_type]"));
-        assertNotNull(arguments.get("track[title]"));
+        assertEquals("recording", arguments.get(TYPE));
+        assertNotNull(arguments.get(TITLE));
+
+        assertNull(arguments.get(POST_TO));
+        assertNotNull(arguments.get(POST_TO_EMPTY));
+        assertEquals("", arguments.get(POST_TO_EMPTY));
+        assertEquals(PUBLIC, arguments.get(SHARING));
 
         assertNotNull(arguments.get(UploadTask.Params.PCM_PATH));
         assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
@@ -90,8 +107,8 @@ public class ScCreateTests {
         create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1, c2, c3));
 
         Map args = upload();
-        assertTrue(args.get("post_to[][id]") instanceof List);
-        List ids = (List) args.get("post_to[][id]");
+        assertTrue(args.get(POST_TO) instanceof List);
+        List ids = (List) args.get(POST_TO);
 
         assertEquals(2, ids.size());
         assertEquals("1000", ids.get(0).toString());

@@ -35,7 +35,25 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
+=======
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.EventsAdapter;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.task.PCMPlaybackTask;
+import com.soundcloud.android.view.ScCreate;
+import com.soundcloud.android.view.ScSearch;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserBrowser;
+>>>>>>> 411e220ed31180fa6ad576ed8b2ddf84d1740925
 
 public class Dashboard extends LazyTabActivity {
 
@@ -181,7 +199,7 @@ public class Dashboard extends LazyTabActivity {
     protected void createIncomingTab() {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                SoundCloudApplication.PATH_MY_ACTIVITIES, CloudUtils.Model.event, "collection");
+                CloudAPI.Enddpoints.MY_ACTIVITIES, CloudUtils.Model.event, "collection");
         adpWrap.setEmptyViewText(getResources().getString(R.string.empty_incoming_text));
 
         final ScTabView incomingView = mIncomingView = new ScTabView(this, adpWrap);
@@ -193,7 +211,7 @@ public class Dashboard extends LazyTabActivity {
     protected void createExclusiveTab() {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                SoundCloudApplication.PATH_MY_EXCLUSIVE_TRACKS, CloudUtils.Model.event,
+                CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS, CloudUtils.Model.event,
                 "collection");
         // LazyEndlessAdapter adpWrap = new
         // LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);

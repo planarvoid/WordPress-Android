@@ -72,7 +72,6 @@ public class ApiWrapper implements CloudAPI {
                     client.getConnectionManager().getSchemeRegistry()), client.getParams());
         }
         return httpClient;
-
     }
 
     @Override
@@ -129,6 +128,7 @@ public class ApiWrapper implements CloudAPI {
     @Override
     public InputStream putContent(String path) throws IOException {
         try {
+
             return mSoundCloudApi.put(path).getEntity().getContent();
         } catch (OAuthException e) {
             throw new RuntimeException(e);
@@ -179,6 +179,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public void unauthorize() {
+        mSoundCloudApi.unauthorize();
     }
 
     public ObjectMapper getMapper() {
@@ -196,7 +197,7 @@ public class ApiWrapper implements CloudAPI {
                                ProgressListener listener)
             throws IOException {
 
-        final HttpPost post = new HttpPost(urlEncode("tracks", null));
+        final HttpPost post = new HttpPost(urlEncode(Enddpoints.TRACKS, null));
         // fix contributed by Bjorn Roche
         post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
@@ -207,8 +208,8 @@ public class ApiWrapper implements CloudAPI {
             } catch (UnsupportedEncodingException ignored) {
             }
         }
-        entity.addPart("track[asset_data]", trackBody);
-        if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);
+        entity.addPart(Params.ASSET_DATA, trackBody);
+        if (artworkBody != null) entity.addPart(Params.ARTWORK_DATA, artworkBody);
 
         post.setEntity(new CountingMultipartRequestEntity(entity, listener));
 
