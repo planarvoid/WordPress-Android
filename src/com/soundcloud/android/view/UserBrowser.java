@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -475,7 +475,7 @@ public class UserBrowser extends ScTabView {
 
         mFollowingChecked = true;
         try {
-            new CheckFollowingStatusTask().execute(SoundCloudApplication.PATH_MY_FOLLOWINGS + "/"
+            new CheckFollowingStatusTask().execute(CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
                     + mUserLoadId);
 
         } catch (Exception e) {
@@ -498,12 +498,12 @@ public class UserBrowser extends ScTabView {
                     if (_isFollowing)
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().putContent(
-                                        SoundCloudApplication.PATH_MY_USERS + "/"
+                                        CloudAPI.Enddpoints.MY_USERS + "/"
                                                 + mUserData.id));
                     else
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().deleteContent(
-                                        SoundCloudApplication.PATH_MY_USERS + "/"
+                                        CloudAPI.Enddpoints.MY_USERS + "/"
                                                 + mUserData.id));
 
                 } catch (Exception e) {
@@ -697,46 +697,46 @@ public class UserBrowser extends ScTabView {
     }
 
     protected String getDetailsUrl() {
-        return mIsOtherUser ? SoundCloudApplication.PATH_USER_DETAILS.replace("{user_id}", Long
-                .toString(mUserLoadId)) : SoundCloudApplication.PATH_MY_DETAILS;
+        return mIsOtherUser ? CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}", Long
+                .toString(mUserLoadId)) : CloudAPI.Enddpoints.MY_DETAILS;
     }
 
     protected String getUserTracksUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
-                SoundCloudApplication.PATH_USER_TRACKS.replace("{user_id}", Long
+                CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}", Long
                         .toString(mUserLoadId)), mActivity.getTrackOrder()) : CloudUtils
-                .buildRequestPath(SoundCloudApplication.PATH_MY_TRACKS, mActivity.getTrackOrder());
+                .buildRequestPath(CloudAPI.Enddpoints.MY_TRACKS, mActivity.getTrackOrder());
     }
 
     protected String getPlaylistsUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
-                SoundCloudApplication.PATH_USER_PLAYLISTS.replace("{user_id}", Long
+                CloudAPI.Enddpoints.USER_PLAYLISTS.replace("{user_id}", Long
                         .toString(mUserLoadId)), mActivity.getTrackOrder()) : CloudUtils
-                .buildRequestPath(SoundCloudApplication.PATH_MY_PLAYLISTS,
+                .buildRequestPath(CloudAPI.Enddpoints.MY_PLAYLISTS,
                         mActivity.getTrackOrder());
     }
 
     protected String getFavoritesUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
-                SoundCloudApplication.PATH_USER_FAVORITES.replace("{user_id}", Long
+                CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}", Long
                         .toString(mUserLoadId)), "favorited_at") : CloudUtils
-                .buildRequestPath(SoundCloudApplication.PATH_MY_FAVORITES,
+                .buildRequestPath(CloudAPI.Enddpoints.MY_FAVORITES,
                         mActivity.getTrackOrder());
     }
 
     protected String getFollowersUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
-                SoundCloudApplication.PATH_USER_FOLLOWERS.replace("{user_id}", Long
+                CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}", Long
                         .toString(mUserLoadId)), mActivity.getUserOrder()) : CloudUtils
-                .buildRequestPath(SoundCloudApplication.PATH_MY_FOLLOWERS,
+                .buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWERS,
                         mActivity.getTrackOrder());
     }
 
     protected String getFollowingsUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
-                SoundCloudApplication.PATH_USER_FOLLOWINGS.replace("{user_id}", Long
+                CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}", Long
                         .toString(mUserLoadId)), mActivity.getUserOrder()) : CloudUtils
-                .buildRequestPath(SoundCloudApplication.PATH_MY_FOLLOWINGS,
+                .buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWINGS,
                         mActivity.getTrackOrder());
     }
 

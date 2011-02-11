@@ -14,11 +14,29 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface CloudAPI {
-    // XXX simplify+consolidate methods
-
     public interface Enddpoints {
-        String TRACKS         = "tracks";
-        String CONNECTIONS    = "/me/connections.json";
+        String TRACKS              = "tracks";
+        String CONNECTIONS         = "/me/connections.json";
+        String MY_USERS            = "me/followings";
+        String USERS               = "users";
+        String PATH_TRACKS         = "tracks";
+
+        String MY_DETAILS          = "me";
+        String MY_ACTIVITIES       = "me/activities/tracks";
+        String MY_EXCLUSIVE_TRACKS = "me/activities/tracks/exclusive";
+        String MY_TRACKS           = "me/tracks";
+        String MY_PLAYLISTS        = "me/playlists";
+        String MY_FAVORITES        = "me/favorites";
+        String MY_FOLLOWERS        = "me/followers";
+        String MY_FOLLOWINGS       = "me/followings";
+        String USER_DETAILS        = "users/{user_id}";
+        String USER_FOLLOWINGS     = "users/{user_id}/followings";
+        String USER_FOLLOWERS      = "users/{user_id}/followers";
+        String TRACK_DETAILS       = "tracks/{track_id}";
+        String USER_TRACKS         = "users/{user_id}/tracks";
+        String USER_FAVORITES      = "users/{user_id}/favorites";
+        String USER_PLAYLISTS      = "users/{user_id}/playlists";
+        String TRACK_COMMENTS      = "tracks/{track_id}/comments";
     }
 
     public interface Params {
@@ -37,6 +55,8 @@ public interface CloudAPI {
         String PUBLIC         = "public";
         String PRIVATE        = "private";
     }
+
+    // XXX simplify+consolidate methods
 
     ObjectMapper getMapper();
 
@@ -72,5 +92,4 @@ public interface CloudAPI {
     static interface Client extends SoundCloudAuthorizationClient {
         void storeKeys(String token , String secret);
     }
-
 }

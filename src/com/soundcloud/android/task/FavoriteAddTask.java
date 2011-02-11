@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
 
@@ -19,7 +20,7 @@ public class FavoriteAddTask extends FavoriteTask {
     protected InputStream executeResponse(Track t) throws IOException{
         return mScApp
         .putContent(
-                SoundCloudApplication.PATH_MY_FAVORITES + "/"
+                CloudAPI.Enddpoints.MY_FAVORITES + "/"
                         + t.id);
     }
 
