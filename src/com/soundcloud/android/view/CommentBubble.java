@@ -56,6 +56,8 @@ public class CommentBubble extends RelativeLayout {
     
     private TextView mTxtElapsed;
     
+    private Button mBtnReadOn;
+    
     private ImageButton mBtnClose;
     
     private TextView mTxtComment;
@@ -65,6 +67,8 @@ public class CommentBubble extends RelativeLayout {
     private WaveformController mController;
     
     private ScPlayer mPlayer;
+    
+    public boolean interacted;
     
 
     public CommentBubble(Context context, WaveformController controller) {
@@ -93,6 +97,7 @@ public class CommentBubble extends RelativeLayout {
         mTxtDate = (TextView) findViewById(R.id.txt_show_date);
         mTxtElapsed = (TextView) findViewById(R.id.txt_show_elapsed);
         mBtnClose = (ImageButton) findViewById(R.id.btn_close);
+        mBtnReadOn = (Button) findViewById(R.id.btn_read_on);
         mTxtComment = (TextView) findViewById(R.id.txt_comment);
         
         mBtnReply = (Button) findViewById(R.id.btn_reply);
@@ -105,10 +110,26 @@ public class CommentBubble extends RelativeLayout {
             
         });
         
+        mBtnReadOn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                mController.nextCommentInThread();
+            }
+            
+        });
+        
         mBtnClose.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 mController.closeComment();
+            }
+            
+        });
+        
+        setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                interacted = true;
             }
             
         });
@@ -141,6 +162,7 @@ public class CommentBubble extends RelativeLayout {
         mBtnClose.setVisibility(View.GONE);
         mTxtComment.setVisibility(View.GONE);
         mBtnReply.setVisibility(View.GONE);
+        mBtnReadOn.setVisibility(View.GONE);
         
         mTxtNewTime.setVisibility(View.VISIBLE);
         mTxtNewInstructions.setVisibility(View.VISIBLE);
@@ -177,6 +199,11 @@ public class CommentBubble extends RelativeLayout {
         mBtnClose.setVisibility(View.VISIBLE);
         mTxtComment.setVisibility(View.VISIBLE);
         mBtnReply.setVisibility(View.VISIBLE);
+        
+        if (currentShowingComment.nextComment != null)
+            mBtnReadOn.setVisibility(View.VISIBLE);
+        else
+            mBtnReadOn.setVisibility(View.GONE);
         
         mTxtNewTime.setVisibility(View.GONE);
         mTxtNewInstructions.setVisibility(View.GONE);

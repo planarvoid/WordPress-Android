@@ -55,6 +55,7 @@ public class PlayerAvatarBar extends View {
     private long mDuration;
     
     private ArrayList<Comment> mCurrentComments;
+    private Comment mCurrentComment;
     
     private Matrix mMatrix;
     private Float mAvatarScale = (float) 1;
@@ -62,6 +63,7 @@ public class PlayerAvatarBar extends View {
     
     private Paint mImagePaint;
     private Paint mLinePaint;
+    private Paint mActiveLinePaint;
     
     private int mAvatarWidth;
     
@@ -90,6 +92,10 @@ public class PlayerAvatarBar extends View {
         mLinePaint= new Paint();
         mLinePaint.setColor(com.soundcloud.android.R.color.commentLine);
         
+        mActiveLinePaint= new Paint();
+        mActiveLinePaint.setColor(com.soundcloud.android.R.color.activeCommentLine);
+        
+        
         mDefaultAvatar = BitmapFactory.decodeResource(context.getResources(), R.drawable.avatar_badge);
 
         mDensity = getContext().getResources().getDisplayMetrics().density;
@@ -97,7 +103,6 @@ public class PlayerAvatarBar extends View {
         mMatrix = new Matrix();
         if (mDensity > 1) {
             mAvatarWidth = (int) (AVATAR_WIDTH*mDensity);
-            Log.i(TAG,"Setting default height to " + mAvatarWidth);
             mAvatarScale = ((float)mAvatarWidth)/47;
             mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
         }
@@ -121,6 +126,7 @@ public class PlayerAvatarBar extends View {
             c.avatar = null;
         }
         
+        mCurrentComment = null;
         mCurrentComments = null;
         mDuration = -1;
         
@@ -130,40 +136,51 @@ public class PlayerAvatarBar extends View {
         if (mNextCanvasBmp != null)
             mNextCanvasBmp.recycle();
         
+        invalidate();
+        
     }
 
     public void setTrackData(long duration, ArrayList<Comment> newItems){
-        
         mDuration = duration;
         mCurrentComments = newItems;
+        for (Comment c : newItems){
+            loadAvatar(c);
+        }
+    }
+    
+    public void setCurrentComment(Comment c){
+        mCurrentComment = c;
+        if (c != null) loadAvatar(c);
+        invalidate();
+    }
+    
+    private void loadAvatar(Comment c){
         String avatarUrl;
+        if (getContext().getResources().getDisplayMetrics().density > 1) {
+            avatarUrl = CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge);
+        } else
+            avatarUrl = CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small);
         
-        for (int i = 0; i < newItems.size(); i++){
-            if (getContext().getResources().getDisplayMetrics().density > 1) {
-                avatarUrl = CloudUtils.formatGraphicsUrl(newItems.get(i).user.avatar_url, GraphicsSizes.badge);
-            } else
-                avatarUrl = CloudUtils.formatGraphicsUrl(newItems.get(i).user.avatar_url, GraphicsSizes.small);
+        Bitmap bitmap = getBitmap(avatarUrl);
+        Throwable error = getError(avatarUrl);
+        if (bitmap != null) {
+            c.avatar = bitmap;
+            if (c.topLevelComment){
+                if (!mUIHandler.hasMessages(REFRESH_AVATARS)){
+                    Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
+                    PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg,100);
+                }
+            }
             
-            Bitmap bitmap = getBitmap(avatarUrl);
-            Throwable error = getError(avatarUrl);
-            if (bitmap != null) {
-                ((Comment) mCurrentComments.get(i)).avatar = bitmap;
-                if (mCurrentComments.get(i).topLevelComment){
-                    if (!mUIHandler.hasMessages(REFRESH_AVATARS)){
-                        Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
-                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg,100);
-                    }
-                }
-                
-            } else {
-                if (error != null) {
-                } else if (CloudUtils.checkIconShouldLoad(((Comment) mCurrentComments.get(i)).user.avatar_url)){
-                    ImageTask task = new ImageTask(((Comment) mCurrentComments.get(i)), avatarUrl);
-                    postTask(task);
-                }
+        } else {
+            if (error != null) {
+            } else if (CloudUtils.checkIconShouldLoad((c).user.avatar_url)){
+                ImageTask task = new ImageTask(c, avatarUrl);
+                postTask(task);
             }
         }
     }
+    
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l,t,r,b);
@@ -191,24 +208,7 @@ public class PlayerAvatarBar extends View {
                 if (Thread.currentThread().isInterrupted())
                     break;
                 if (comment.timestamp == 0) continue;
-                
-                if (comment.topLevelComment){
-                    if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null){
-                        mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
-                        mMatrix.postTranslate(comment.xPos, 0);
-                        canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
-                        canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
-                        //canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);
-                    } else if (comment.avatar != null){
-                        mMatrix.setScale(mAvatarScale, mAvatarScale);
-                        mMatrix.postTranslate(comment.xPos, 0);
-                        canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
-                        canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
-                        //canvas.drawRect(comment.xPos-1, 0, comment.xPos+1, AVATAR_WIDTH*mDensity, mLinePaint);    
-                    } else {
-                       // Log.i(TAG,"Bitmap not found " + comment.user.avatar_url);
-                    }
-                }
+                drawCommentOnCanvas(comment,canvas,mLinePaint);
             }
             
             if (Thread.currentThread().isInterrupted())
@@ -247,6 +247,22 @@ public class PlayerAvatarBar extends View {
         }
     };
     
+    private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint){
+        if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null){
+            mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
+            mMatrix.postTranslate(comment.xPos, 0);
+            canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+        } else if (comment.avatar != null){
+            mMatrix.setScale(mAvatarScale, mAvatarScale);
+            mMatrix.postTranslate(comment.xPos, 0);
+            canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
+            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+        } else {
+           // Log.i(TAG,"Bitmap not found " + comment.user.avatar_url);
+        }
+    }
+    
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -257,6 +273,12 @@ public class PlayerAvatarBar extends View {
             for (Comment comment : mCurrentComments){
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
             }
+        
+        if (mCurrentComment != null){
+            drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
+            canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
+        }
+            
         
     }
     

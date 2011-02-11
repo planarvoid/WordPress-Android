@@ -27,6 +27,8 @@ public class Comment extends BaseObj implements Parcelable {
     public boolean topLevelComment = false;
     public Bitmap avatar;
     
+    public Comment nextComment; //pointer to the next comment at this timestamp
+    
     public void calculateXPos(int parentWidth, long duration){
         this.xPos = (int) ((this.timestamp * parentWidth)/duration);
     }

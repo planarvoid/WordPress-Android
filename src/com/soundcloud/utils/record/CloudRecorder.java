@@ -174,8 +174,8 @@ public class CloudRecorder {
                 }
 
                 aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
-                if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-                    throw new Exception("AudioRecord initialization failed");
+                //if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
+                  //  throw new Exception("AudioRecord initialization failed");
                 aRecorder.setRecordPositionUpdateListener(updateListener);
                 aRecorder.setPositionNotificationPeriod(framePeriod);
             } else { // RECORDING_COMPRESSED
@@ -189,6 +189,7 @@ public class CloudRecorder {
             fPath = null;
             state = State.INITIALIZING;
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 Log.e(CloudRecorder.class.getName(), e.getMessage());
             } else {

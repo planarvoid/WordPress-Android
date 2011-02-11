@@ -32,6 +32,10 @@
 		<TextView android:id="@+id/txt_comment"
 			android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerHorizontal="true" style="@style/txt_comment_bubble_gray" android:text="Robert Owens - I'll be your friend (? remix)"
 			android:layout_below="@id/txt_username" android:layout_centerVertical="true" android:layout_above="@+id/btn_reply" android:gravity="center_vertical"/>
+	   <Button android:layout_alignParentBottom="true" android:id="@+id/btn_read_on"
+            android:layout_width="57dip" android:layout_height="21dip"
+            android:layout_alignParentLeft="true" style="@style/txt_comment_bubble_reply"
+            android:text="Read on" android:gravity="center" android:background="@drawable/ic_submit_states" />
 	   <Button android:layout_alignParentBottom="true" android:id="@+id/btn_reply"
             android:layout_width="57dip" android:layout_height="21dip"
             android:layout_alignParentRight="true" style="@style/txt_comment_bubble_reply"

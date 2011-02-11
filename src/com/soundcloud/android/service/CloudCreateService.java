@@ -225,6 +225,8 @@ public class CloudCreateService extends Service {
         mRecorder.prepare();
         mRecorder.start();
 
+        Log.i(TAG,"RECORD GET STATE " + mRecorder.getState());
+        
         if (mRecorder.getState() == CloudRecorder.State.ERROR) {
             notifyChange(RECORD_ERROR);
             return;

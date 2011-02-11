@@ -19,8 +19,11 @@ public class WaveformCommentLines extends View {
     private static final String TAG = "WaveformHolder";
 
     private Paint mPaint;
+    private Paint mActiveLinePaint;
+    
     private long mDuration;
     private ArrayList<Comment> mComments;
+    private Comment mCurrentComment;
 
     public WaveformCommentLines(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,6 +32,10 @@ public class WaveformCommentLines extends View {
         
         mPaint = new Paint();
         mPaint.setColor(R.color.commentLine);
+        
+        mActiveLinePaint= new Paint();
+        mActiveLinePaint.setColor(com.soundcloud.android.R.color.activeCommentLine);
+        
     }
     
     public void setTrackData(long duration, ArrayList<Comment> comments){
@@ -38,6 +45,12 @@ public class WaveformCommentLines extends View {
     
     public void clearTrackData(){
         mComments = null;
+        mCurrentComment = null;
+        invalidate();
+    }
+    
+    public void setCurrentComment(Comment c){
+        mCurrentComment = c;
         invalidate();
     }
     
@@ -60,6 +73,10 @@ public class WaveformCommentLines extends View {
         if (mComments != null)
         for (Comment comment : mComments){
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mPaint);
+        }
+        
+        if (mCurrentComment != null){
+            canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
     }
     

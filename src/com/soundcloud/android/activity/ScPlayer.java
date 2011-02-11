@@ -301,7 +301,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack,0);
+                    addNewComment(mPlayingTrack,-1);
                 }
             });
             
@@ -679,7 +679,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             ((Button) mTrackInfo.findViewById(R.id.btn_info_comment)).setOnClickListener(new OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack,0);                    
+                    addNewComment(mPlayingTrack,-1);                    
                 }
             });
             commentsList = (LinearLayout) mTrackInfo.findViewById(R.id.comments_list);    
@@ -1389,7 +1389,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         
         final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
         apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
-        if (timestamp > 0) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
+        if (timestamp > -1) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
         if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
 
         
