@@ -1,9 +1,9 @@
 
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LazyTabActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -176,13 +176,13 @@ public class ScSearch extends ScTabView {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(SoundCloudApplication.PATH_TRACKS, URLEncoder.encode(txtQuery
+            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.PATH_TRACKS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
 
         } else {
-            mUserAdpWrapper.setPath(SoundCloudApplication.PATH_USERS, URLEncoder.encode(txtQuery
+            mUserAdpWrapper.setPath(CloudAPI.Enddpoints.USERS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);

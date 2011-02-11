@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.view.View;
@@ -21,9 +20,9 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TabHost.OnTabChangeListener;
 
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -180,7 +179,7 @@ public class Dashboard extends LazyTabActivity {
     protected void createIncomingTab() {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                SoundCloudApplication.PATH_MY_ACTIVITIES, CloudUtils.Model.event, "collection");
+                CloudAPI.Enddpoints.MY_ACTIVITIES, CloudUtils.Model.event, "collection");
         adpWrap.setEmptyViewText(getResources().getString(R.string.empty_incoming_text));
 
         final ScTabView incomingView = mIncomingView = new ScTabView(this, adpWrap);
@@ -192,7 +191,7 @@ public class Dashboard extends LazyTabActivity {
     protected void createExclusiveTab() {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                SoundCloudApplication.PATH_MY_EXCLUSIVE_TRACKS, CloudUtils.Model.event,
+                CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS, CloudUtils.Model.event,
                 "collection");
         // LazyEndlessAdapter adpWrap = new
         // LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);

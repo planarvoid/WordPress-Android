@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.soundcloud.android.CloudAPI;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -59,7 +60,7 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
 
-        String mBaseUrl = CloudUtils.buildRequestPath(SoundCloudApplication.PATH_TRACK_COMMENTS
+        String mBaseUrl = CloudUtils.buildRequestPath(CloudAPI.Enddpoints.TRACK_COMMENTS
                 .replace("{track_id}", Integer.toString(track_id)), null);
 
         Log.i("COMMENTS", "Load comments task  " + mBaseUrl);
