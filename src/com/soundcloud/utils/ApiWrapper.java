@@ -196,7 +196,7 @@ public class ApiWrapper implements CloudAPI {
                                ProgressListener listener)
             throws IOException {
 
-        final HttpPost post = new HttpPost(urlEncode("tracks", null));
+        final HttpPost post = new HttpPost(urlEncode(Enddpoints.TRACKS, null));
         // fix contributed by Bjorn Roche
         post.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
@@ -207,8 +207,8 @@ public class ApiWrapper implements CloudAPI {
             } catch (UnsupportedEncodingException ignored) {
             }
         }
-        entity.addPart("track[asset_data]", trackBody);
-        if (artworkBody != null) entity.addPart("track[artwork_data]", artworkBody);
+        entity.addPart(Params.ASSET_DATA, trackBody);
+        if (artworkBody != null) entity.addPart(Params.ARTWORK_DATA, artworkBody);
 
         post.setEntity(new CountingMultipartRequestEntity(entity, listener));
 

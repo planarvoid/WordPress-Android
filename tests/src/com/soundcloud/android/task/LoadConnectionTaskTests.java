@@ -15,10 +15,10 @@ public class LoadConnectionTaskTests extends ApiTest {
     @Test
     public void testDeserialisation() throws
             Exception {
-        fakeApi(Connection.REQUEST, "connections.json");
+        fakeApi(CONNECTIONS, "connections.json");
 
         LoadConnectionsTask task = new LoadConnectionsTask(api);
-        List<Connection> connections = task.list(Connection.REQUEST, Connection.class);
+        List<Connection> connections = task.list(CONNECTIONS, Connection.class);
 
         assertEquals(2, connections.size());
         // make sure date gets deserialized properly

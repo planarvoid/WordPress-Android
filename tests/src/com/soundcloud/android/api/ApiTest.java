@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public abstract class ApiTest {
+public abstract class ApiTest implements CloudAPI.Enddpoints {
     public CloudAPI api;
     public ObjectMapper mapper;
 

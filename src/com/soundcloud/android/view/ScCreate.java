@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import android.text.format.DateFormat;
 import android.widget.*;
 import android.widget.Button;
+import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -36,7 +37,6 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import com.sun.istack.internal.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -853,22 +853,26 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         final Map<String, Object> data = new HashMap<String, Object>();
-        data.put("track[sharing]", privateUpload ? "private" : "public");
+        data.put(CloudAPI.Params.SHARING, privateUpload ? CloudAPI.Params.PRIVATE : CloudAPI.Params.PUBLIC);
 
         final List<Integer> serviceIds = mConnectionList.postToServiceIds();
-        if (!privateUpload && !serviceIds.isEmpty()) {
-            data.put("post_to[][id]", serviceIds);
+        if (!privateUpload) {
+             if (!serviceIds.isEmpty()) {
+                data.put(CloudAPI.Params.POST_TO, serviceIds);
+             } else {
+                data.put(CloudAPI.Params.POST_TO_EMPTY, "");
+             }
         }
 
-
-        data.put("track[title]", title);
-        data.put("track[track_type]", "recording");
-        data.put("track[tag_list]", "soundcloud:source=web-record");
+        data.put(CloudAPI.Params.TITLE, title);
+        data.put(CloudAPI.Params.TYPE, "recording");
+        data.put(CloudAPI.Params.TAG_LIST, "soundcloud:source=web-record");
         data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), oggFilename));
         data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
             data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
+            // XXX used?
             data.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
         }
 
