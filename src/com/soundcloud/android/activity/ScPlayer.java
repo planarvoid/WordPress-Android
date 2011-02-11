@@ -9,6 +9,7 @@ import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -18,6 +19,10 @@ import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -63,8 +69,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ScPlayer extends LazyActivity implements OnTouchListener {
 
@@ -1325,11 +1335,19 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             if (newItems != null) {
                 mCurrentComments = newItems;
-                
-                mWaveformController.setComments(newItems);
+                refreshComments();
             }
 
         }
+    }
+    
+    private void refreshComments(){
+        mTrackInfoCommentsFilled = false;
+        
+        if (mTrackFlipper.getDisplayedChild() == 1)
+            fillTrackInfoComments();
+        
+        mWaveformController.setComments(mCurrentComments);
     }
 
     public void addNewComment(final Track track, final long timestamp) {
@@ -1338,7 +1356,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 .setMessage(timestamp == 0 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        sendComment(track,timestamp,input.getText().toString());
+                        sendComment(track.id,timestamp,input.getText().toString(),0);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -1357,22 +1375,72 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         commentDialog.show();
     }
     
-    private void sendComment(Track track, long timestamp, String commentBody) {
-        Log.i(TAG,"SEND COMMENT " + track.id + " " + timestamp + " " + commentBody);
-    }
+    private HttpResponse mAddCommentResult;
+    private Comment mAddComment;
+    private void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
+        
+        mAddComment = new Comment();
+        mAddComment.track_id = track_id;
+        mAddComment.created_at = new Date(System.currentTimeMillis());
+        mAddComment.user_id = CloudUtils.getCurrentUserId(this);
+        mAddComment.user = CloudUtils.resolveUserById(this.getSoundCloudApplication(), mAddComment.user_id, mAddComment.user_id);
+        mAddComment.timestamp = timestamp;
+        mAddComment.body = commentBody;
+        
+        final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
+        apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
+        if (timestamp > 0) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
+        if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
 
-    public void replyToComment(Comment comment) {
+        
+        // Fire off a thread to do some work that we shouldn't do directly in the UI thread
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                    mAddCommentResult = getSoundCloudApplication().postContent(
+                            CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    ScPlayer.this.setException(e);
+                }
+                mHandler.post(mOnCommentAdd);
+            }
+        };
+        t.start();
+    }
+    
+ // Create runnable for posting
+    final Runnable mOnCommentAdd = new Runnable() {
+        public void run() {
+            if (mAddCommentResult.getStatusLine().getStatusCode() == 201){
+                if (mAddComment.track_id != mPlayingTrack.id)
+                    return;
+                
+                if (mCurrentComments == null)
+                    mCurrentComments = new ArrayList<Comment>();
+                
+                mCurrentComments.add(mAddComment);
+                refreshComments();
+                
+            } else
+                handleException();
+            Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
+        }
+    };
+    
+    
+
+    public void replyToComment(final Comment comment) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
                 .setMessage("Reply to " + comment.user.username + " at "
                         + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        Editable value = input.getText();
+                        sendComment(comment.track_id,comment.timestamp,input.getText().toString(),comment.id);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
                     }
                 }).create();
         

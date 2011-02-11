@@ -49,7 +49,7 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
         return mScApp
         .putContent(
                 CloudAPI.Enddpoints.MY_FAVORITES + "/"
-                        + t.id);
+                        + t.id, null);
     }
     
     

@@ -1904,9 +1904,10 @@ public class CloudPlaybackService extends Service {
                     // return if its valid
 
                     if (track.mCacheFile.length() >= track.filelength) {
+                        Log.i(TAG,"Getting signed uri " + track.mSignedUri );
                         HttpHead request = new HttpHead(track.mSignedUri);
                         httpResponse = client.execute(request);
-
+                        
                         if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
                             // status
                             Log.i(TAG, "invalid status received: "

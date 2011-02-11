@@ -499,7 +499,7 @@ public class UserBrowser extends ScTabView {
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().putContent(
                                         CloudAPI.Enddpoints.MY_USERS + "/"
-                                                + mUserData.id));
+                                                + mUserData.id, null));
                     else
                         mFollowResult = CloudUtils.streamToString(mActivity
                                 .getSoundCloudApplication().deleteContent(

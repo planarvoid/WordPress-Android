@@ -126,10 +126,18 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
-    public InputStream putContent(String path) throws IOException {
+    public InputStream putContent(String path, List<NameValuePair> params) throws IOException {
         try {
-
-            return mSoundCloudApi.put(path).getEntity().getContent();
+            return mSoundCloudApi.put(path,params).getEntity().getContent();
+        } catch (OAuthException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    @Override
+    public HttpResponse postContent(String path, List<NameValuePair> params) throws IOException {
+        try {
+            return mSoundCloudApi.post(path,params);
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }

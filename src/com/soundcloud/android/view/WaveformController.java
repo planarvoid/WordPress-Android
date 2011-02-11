@@ -400,9 +400,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     private void calcAvatarHit(float xPos){
         if (mCurrentShowingComment != null){
-            if (isHitting(mCurrentShowingComment,xPos))
+            if (isHitting(mCurrentShowingComment,xPos)){
+                
                 return;
-            else {
+            } else {
                closeComment();
             }
         }
@@ -467,10 +468,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         
         if (mCommentLines != null)
             mCommentLines.clearTrackData();
-    }
-    
-    public void makeCommentAt(long timestamp){
-        
     }
 
 }
