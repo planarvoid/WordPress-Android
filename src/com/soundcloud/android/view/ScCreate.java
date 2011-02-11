@@ -70,7 +70,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private RadioButton mRdoPrivate, mRdoPublic;
 
-    private EditText mWhereText, mWhatText;
+    /* package */ EditText mWhereText, mWhatText;
 
     private ImageView mArtwork;
     private ImageButton btnAction;
@@ -839,24 +839,32 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         time.setToNow();
 
         // Calendar header
-        String dayOfWeek = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
-        String title, oggFilename;
+        String day = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
+        String title, dayTime, filename = null;
 
-        if (!TextUtils.isEmpty(mWhatText.getText().toString())
-                && !TextUtils.isEmpty(mWhereText.getText().toString()))
-            oggFilename = title = mWhatText.getText().toString() + " at "
-                    + mWhereText.getText().toString();
-        else if (!TextUtils.isEmpty(mWhatText.getText().toString()))
-            oggFilename = title = mWhatText.getText().toString();
-        else if (!TextUtils.isEmpty(mWhereText.getText().toString()))
-            oggFilename = title = mWhereText.getText().toString();
-        else {
-            title = "recording on " + (dayOfWeek == null ? "" : dayOfWeek.toLowerCase());
-
-            oggFilename = "recording_on_" + DateFormat.format("yyyy-MM-dd-hh-mm-ss", new java.util.Date());
+        if (time.hour <= 12) {
+            dayTime = "morning";
+        } else if (time.hour <= 17) {
+            dayTime = "afternoon";
+        } else if (time.hour <= 21) {
+           dayTime = "evening";
+        } else {
+           dayTime = "night";
         }
 
-        oggFilename += ".ogg";
+        if (mWhatText.length() > 0 && mWhereText.length() > 0) {
+            title = mWhatText.getText() + " at " + mWhereText.getText();
+        } else if (mWhatText.length() > 0) {
+            title = mWhatText.getText().toString();
+        } else if (mWhereText.length() > 0) {
+            title = mWhereText.getText().toString();
+        } else {
+            title    = "recording on " + (day == null ? "" : day.toLowerCase()) + " " + dayTime;
+            filename = "recording_on_" + DateFormat.format("yyyy-MM-dd-hh-mm-ss", time.toMillis(false));
+        }
+
+        if (filename == null) filename = title;
+        filename += ".ogg";
 
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         final Map<String, Object> data = new HashMap<String, Object>();
@@ -874,7 +882,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         data.put(CloudAPI.Params.TITLE, title);
         data.put(CloudAPI.Params.TYPE, "recording");
         data.put(CloudAPI.Params.TAG_LIST, "soundcloud:source=web-record");
-        data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), oggFilename));
+        data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), filename));
         data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
         if (!TextUtils.isEmpty(mArtworkUri)) {

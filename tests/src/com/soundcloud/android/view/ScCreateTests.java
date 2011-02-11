@@ -68,6 +68,37 @@ public class ScCreateTests
         return captor.getValue();
     }
 
+    @Test
+    public void shouldUseUserTitleIfPresent() throws Exception {
+        create.mWhatText.setText("my soundz");
+        Map args = upload();
+        assertEquals("my soundz", args.get(TITLE));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("my soundz.ogg"));
+    }
+
+    @Test
+    public void shouldUseLocationIfPresent() throws Exception {
+        create.mWhereText.setText("home");
+        Map args = upload();
+        assertEquals("home", args.get(TITLE));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("home.ogg"));
+    }
+
+    @Test
+    public void shouldUseTitleAndLocationIfPresent() throws Exception {
+        create.mWhatText.setText("my soundz");
+        create.mWhereText.setText("home");
+        Map args = upload();
+        assertEquals("my soundz at home", args.get(TITLE));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("my soundz at home.ogg"));
+    }
+
+    @Test
+    public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
+        Map args = upload();
+        assertEquals("", args.get(TITLE));
+        assertEquals("", args.get(UploadTask.Params.OGG_FILENAME));
+    }
 
     @Test
     public void shouldPassThroughAllRequiredTrackParams() throws Exception {
