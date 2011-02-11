@@ -708,5 +708,6 @@
     <string name="sdcard_error_title">SD card error</string>
     <!-- label underneath icon used to indicate there was an error accessing the sd card -->
     <string name="sdcard_error_message">An error was encountered on your SD card.</string>
+    <string name="new_connection_error">Error adding connection</string>
 
 </resources>

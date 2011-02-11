@@ -159,33 +159,14 @@ public class UserBrowser extends ScTabView {
         mLastTabIndex = 0;
     }
 
-    public void setUserTab(UserTabs tab) {
-        switch (tab) {
-            case tracks:
-                mTabWidget.setCurrentTab(0);
-                break;
-            case favorites:
-                mTabWidget.setCurrentTab(1);
-                break;
-            case info:
-                mTabWidget.setCurrentTab(2);
-                break;
-        }
-
-        if (mWorkspaceView != null)
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
-        else
-            ((ScTabView) mTabHost.getCurrentView()).onRefresh();
-    }
-
     @Override
-    public void onRefresh(Boolean refreshAll) {
+    public void onRefresh(boolean all) {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
 
-        if (refreshAll) {
-            mTracksView.onRefresh();
-            mFavoritesView.onRefresh();
+        if (all) {
+            mTracksView.onRefresh(all);
+            mFavoritesView.onRefresh(all);
 
             if (mLoadDetailsTask != null) {
                 if (!CloudUtils.isTaskFinished(mLoadDetailsTask))
@@ -199,9 +180,9 @@ public class UserBrowser extends ScTabView {
             }
             if (mWorkspaceView != null)
                 ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()))
-                        .onRefresh();
+                        .onRefresh(all);
             else
-                ((ScTabView) mTabHost.getCurrentView()).onRefresh();
+                ((ScTabView) mTabHost.getCurrentView()).onRefresh(all);
         }
     }
 
@@ -706,14 +687,6 @@ public class UserBrowser extends ScTabView {
                 CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}", Long
                         .toString(mUserLoadId)), mActivity.getTrackOrder()) : CloudUtils
                 .buildRequestPath(CloudAPI.Enddpoints.MY_TRACKS, mActivity.getTrackOrder());
-    }
-
-    protected String getPlaylistsUrl() {
-        return mIsOtherUser ? CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_PLAYLISTS.replace("{user_id}", Long
-                        .toString(mUserLoadId)), mActivity.getTrackOrder()) : CloudUtils
-                .buildRequestPath(CloudAPI.Enddpoints.MY_PLAYLISTS,
-                        mActivity.getTrackOrder());
     }
 
     protected String getFavoritesUrl() {

@@ -63,7 +63,7 @@ public class UploadTaskTests extends ApiTest {
     }
 
     @Test
-    public void testMultiParamsArePreserved() throws Exception {
+    public void shouldPreserveMultiparams() throws Exception {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();

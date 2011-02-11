@@ -37,12 +37,9 @@ import java.util.Map;
 
 @ReportsCrashes(formKey = "dDBFTG1DVkRYb2FMeXV1eE41SEo3Y3c6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
-
-    public static enum Events {
-        track, favorite, playlist
-    }
-
-    public static final String TAG = "SoundCloudApplication";
+    public static final String TAG = SoundCloudApplication.class.getSimpleName();
+    public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
+                                     "sdk".equals(android.os.Build.PRODUCT);
 
     static final boolean API_PRODUCTION = true;
 
@@ -50,6 +47,10 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
     static ContentHandler mBitmapHandler;
+
+    public static enum Events {
+        track, favorite, playlist
+    }
 
     public static final Map<String, SoftReference<Bitmap>> mBitmaps =
             Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());

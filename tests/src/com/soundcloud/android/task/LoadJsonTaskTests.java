@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNull;
 public class LoadJsonTaskTests extends ApiTest {
 
     @Test
-    public void testList() throws Exception {
+    public void shouldReturnAList() throws Exception {
         fakeApi("/foo", "[{\"bar\": \"baz\"}]");
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
@@ -31,7 +31,7 @@ public class LoadJsonTaskTests extends ApiTest {
     }
 
     @Test
-    public void testFailureCase() throws Exception {
+    public void shouldReturnNullWhenExceptionEncountered() throws Exception {
         fakeApi("/foo", new IOException());
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
@@ -45,7 +45,7 @@ public class LoadJsonTaskTests extends ApiTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testFailureCaseWithException() throws Exception {
+    public void shouldReraiseExceptionWhenTold() throws Exception {
         fakeApi("/foo", new IOException());
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {

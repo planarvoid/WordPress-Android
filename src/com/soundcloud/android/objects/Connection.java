@@ -1,7 +1,6 @@
 package com.soundcloud.android.objects;
 
 
-import android.text.TextUtils;
 import com.soundcloud.android.R;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -12,51 +11,59 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection {
-    public enum Type {
-        Twitter(R.drawable.service_twitter),
-        Facebook(R.drawable.service_facebook_profile),
-        Myspace(R.drawable.service_myspace),
-        Foursquare(R.drawable.service_myspace);
+    public enum Service {
+        Twitter(R.drawable.service_twitter, "twitter"),
+        Facebook(R.drawable.service_facebook_profile, "facebook_profile", "facebook_page"),
+        Myspace(R.drawable.service_myspace, "myspace"),
+        Foursquare(R.drawable.service_foursquare, "foursquare"),
+        Unknown(R.drawable.service_myspace, "unknown");
 
         public final int resId;
+        public final String name;
+        public final String[] names;
 
-        Type(int resId) {
+        Service(int resId, String... names) {
             this.resId = resId;
+            this.names = names;
+            this.name  = names[0];
         }
-        static Type fromString(String s) {
-            return Enum.valueOf(Type.class,
-                   s.substring(0, 1).toUpperCase() + s.substring(1, s.length()));
+        static Service fromString(String s) {
+            for (Service svc : EnumSet.allOf(Service.class)) {
+                for (String n : svc.names) if (s.equalsIgnoreCase(n)) return svc;
+            }
+            return Unknown;
         }
     }
     public Connection() {}
-    public Connection(Type t) {
-        this._type = t;
-        this.display_name = t.toString();
+    public Connection(Service s) {
+        this._service = s;
+        this.display_name = s.toString();
         this.active = false;
     }
 
     public boolean active() { return active; }
     private boolean active = true;
-    private Type _type;
+    private Service _service;
 
     public int id;
     public Date created_at;
     public String display_name;
     public boolean post_publish;
     public boolean post_favorite;
-    public String type;
     public String service;
     public URI uri;
 
-    public Type type() {
-        if (_type == null) _type = Type.fromString(type);
-        return _type;
+    public Service service() {
+        if (_service == null) _service = Service.fromString(service);
+        return _service;
     }
 
     public static List<Connection> addUnused(List<Connection> connections) {
-        EnumSet<Type> networks = EnumSet.allOf(Type.class);
-        for (Connection c : connections) networks.remove(c.type());
-        for (Type t : networks) connections.add(new Connection(t));
+        EnumSet<Service> networks = EnumSet.allOf(Service.class);
+        networks.remove(Service.Unknown);
+
+        for (Connection c : connections) networks.remove(c.service());
+        for (Service t : networks) connections.add(new Connection(t));
         return connections;
     }
 }

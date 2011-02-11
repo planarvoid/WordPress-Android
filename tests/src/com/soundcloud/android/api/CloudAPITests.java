@@ -48,21 +48,7 @@ public class CloudAPITests implements CloudAPI.Params {
 
     @Test
     @Ignore
-    public void testConnections() throws IOException {
-        BufferedReader r = new BufferedReader(
-                new InputStreamReader(
-                        api.executeRequest(CloudAPI.Enddpoints.CONNECTIONS)
-                ));
-
-        String l;
-        while ((l = r.readLine()) != null) {
-            System.err.println(l);
-        }
-    }
-
-    @Test
-    @Ignore
-    public void testUpload() throws Exception {
+    public void shouldUploadASimpleAudioFile() throws Exception {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(TITLE, "Hello Android"));
         params.add(new BasicNameValuePair(POST_TO, "486436"));
@@ -77,7 +63,7 @@ public class CloudAPITests implements CloudAPI.Params {
     }
 
     @Test @Ignore
-    public void testUploadOverridingSharing() throws Exception {
+    public void shouldOverrideConnectionSettings() throws Exception {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(TITLE, "Hello Android"));
         params.add(new BasicNameValuePair(POST_TO_EMPTY, ""));

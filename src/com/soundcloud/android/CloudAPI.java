@@ -14,9 +14,11 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface CloudAPI {
+
+
     public interface Enddpoints {
         String TRACKS              = "tracks";
-        String CONNECTIONS         = "/me/connections.json";
+        String CONNECTIONS         = "me/connections.json";
         String MY_USERS            = "me/followings";
         String USERS               = "users";
         String PATH_TRACKS         = "tracks";
@@ -84,7 +86,6 @@ public interface CloudAPI {
                     throws IOException;
 
     void unauthorize();
-
     void authorizeWithoutCallback(Client client);
 
     SoundCloudAPI.State getState();

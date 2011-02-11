@@ -80,6 +80,7 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
+    // XXX needed?
     public InputStream executeRequest(HttpUriRequest req) throws IOException {
         HttpResponse response = getHttpClient().execute(req);
         return response.getEntity().getContent();
@@ -160,8 +161,8 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public void authorizeWithoutCallback(final Client client) {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
+        (new Thread() {
+            @Override public void run() {
                 SoundCloudAuthorizationClient.AuthorizationStatus status =
                         SoundCloudAuthorizationClient.AuthorizationStatus.FAILED;
 
@@ -180,10 +181,8 @@ public class ApiWrapper implements CloudAPI {
                     client.authorizationCompleted(status);
                 }
             }
-        });
-        thread.start();
+        }).start();
     }
-
 
     @Override
     public void unauthorize() {
