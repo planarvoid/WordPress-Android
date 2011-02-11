@@ -35,10 +35,13 @@ public class LoadConnectionTaskTests extends ApiTest {
         assertEquals(41335, conn.id);
         assertEquals("https://api.sandbox-soundcloud.com/connections/41335", conn.uri.toString());
 
+
+        int unknown = 0;
         for (Connection c : connections) {
             assertNotNull(c.type());
+            if (c.type() == Connection.Service.Unknown) unknown++;
         }
-
-        assertEquals(Connection.Service.Unknown, connections.get(5).type());
+        assertEquals(1, unknown);
+        assertEquals(Connection.Service.Unknown, connections.get(connections.size()-1).type());
     }
 }
