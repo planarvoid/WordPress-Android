@@ -32,6 +32,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.ConnectActivity"
+            android:label="Connect"
+            android:configChanges="orientation|keyboardHidden">
+
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="soundcloud" android:host="auth" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="com.soundcloud.android.activity.Settings" android:label="Settings" />
         <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player"/>
         <activity android:name="com.soundcloud.android.activity.ScProfile" android:label="Profile" />

@@ -3,22 +3,13 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -54,21 +45,23 @@ public class ConnectionItem extends RelativeLayout {
 
 
         ImageView service_icon = (ImageView) findViewById(R.id.service_icon);
-        service_icon.setImageDrawable(getResources().getDrawable(c.type().resId));
+        service_icon.setImageDrawable(getResources().getDrawable(c.service().resId));
 
         final OnClickListener toggle = new OnClickListener() {
             public void onClick(View v) {
                 if (c.active()) {
                     post_publish.toggle();
                 } else {
-                    Log.d(TAG, "configure " + c.type());
-
+                    configureService(c.service());
                 }
             }
         };
         display_name.setOnClickListener(toggle);
         configure.setOnClickListener(toggle);
         setOnClickListener(toggle);
+    }
+
+    public void configureService(Connection.Service service) {
     }
 
     public boolean isEnabled() {

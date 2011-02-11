@@ -1,14 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
-import oauth.signpost.exception.OAuthCommunicationException;
-
-import org.json.JSONException;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,14 +9,12 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
@@ -32,45 +22,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
+import oauth.signpost.exception.OAuthCommunicationException;
+import org.json.JSONException;
+import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public abstract class ScActivity extends Activity {
     private static final String TAG = "ScActivity";
 
     protected LinearLayout mHolder;
 
-    protected Parcelable mDetailsData;
-
-    protected String mCurrentTrackId;
-
-    protected DBAdapter db;
-
-    protected SharedPreferences mPreferences;
-
     private Exception mException = null;
 
     private String mError = null;
 
-    protected Comment addComment;
-
-    protected Parcelable menuParcelable;
-
-    protected Parcelable dialogParcelable;
-
     protected String dialogUsername;
-
-    private ProgressDialog mProgressDialog;
 
     protected ICloudPlaybackService mService = null;
 
@@ -84,15 +61,6 @@ public abstract class ScActivity extends Activity {
     public final Handler mHandler = new Handler();
 
     protected GoogleAnalyticsTracker tracker;
-
-    /**
-     * Get an instance of our playback service
-     * 
-     * @return the playback service, or null if it doesn't exist for some reason
-     */
-    public ICloudPlaybackService getPlaybackService() {
-        return mService;
-    }
 
     /**
      * Get an instance of our upload service
@@ -148,10 +116,7 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    /**
-     * @param savedInstanceState
-     * @param layoutResId
-     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,7 +142,7 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Get goole tracker instance
+        // Get google tracker instance
         tracker = GoogleAnalyticsTracker.getInstance();
 
         // Start the tracker in manual dispatch mode...
@@ -189,7 +154,7 @@ public abstract class ScActivity extends Activity {
         startService(new Intent(this, CloudCreateService.class));
         bindService(new Intent(this, CloudCreateService.class), createOsc, 0);
 
-        if (false == CloudUtils.bindToService(this, osc)) {
+        if (!CloudUtils.bindToService(this, osc)) {
             Log.i(TAG, "BIND TO SERVICE FAILED");
         }
     }
@@ -201,10 +166,10 @@ public abstract class ScActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
-        Log.i(TAG, "KILLING THE TRACKER " + tracker);
+        Log.v(TAG, "KILLING THE TRACKER " + tracker);
         tracker.stop();
         tracker = null;
-        Log.i(TAG, "KILLED THE TRACKER " + tracker);
+        Log.v(TAG, "KILLED THE TRACKER " + tracker);
         connectivityListener.stopListening();
 
         if (mCreateService != null) {
@@ -232,6 +197,8 @@ public abstract class ScActivity extends Activity {
             forcePause();
 
             if (!this.getClass().equals(Authorize.class)) {
+                onReauthenticate();
+
                 Intent intent = new Intent(this, Authorize.class);
                 intent.putExtra("reauthorize", true);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -244,9 +211,10 @@ public abstract class ScActivity extends Activity {
     protected void onAuthenticated() {
     }
 
-    /**
-	 * 
-	 */
+    protected void onReauthenticate() {
+    }
+
+
     public void forcePause() {
         try {
             if (mService != null) {
@@ -254,9 +222,8 @@ public abstract class ScActivity extends Activity {
                     mService.forcePause();
                 }
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -275,40 +242,21 @@ public abstract class ScActivity extends Activity {
         return mException;
     }
 
-    /**
-     * Get the current error
-     * 
-     * @return the error
-     */
-    public String getError() {
-        return mError;
-    }
-
     public void setException(Exception e) {
         if (e != null)
             Log.i(TAG, "exception: " + e.toString());
         mException = e;
     }
 
-    public void setError(String e) {
-        if (e != null)
-            Log.i(TAG, "error: " + e.toString());
-        mError = e;
-
-    }
-
     public void handleException() {
-
-        if (getException() != null) {
-            if (getException() instanceof UnknownHostException
-                    || getException() instanceof SocketException
-                    || getException() instanceof JSONException
-                    || getException() instanceof OAuthCommunicationException) {
-                safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-            } else {
-                // don't show general errors :
-                // safeShowDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
-            }
+        if (getException() instanceof UnknownHostException
+                || getException() instanceof SocketException
+                || getException() instanceof JSONException
+                || getException() instanceof OAuthCommunicationException) {
+            safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+        } else {
+            // don't show general errors :
+            // safeShowDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
         }
         setException(null);
     }
@@ -321,7 +269,7 @@ public abstract class ScActivity extends Activity {
 
     public void handleError() {
         if (mError != null) {
-            if (mError.toString().toLowerCase().indexOf("unauthorized") != -1)
+            if (mError.toLowerCase().indexOf("unauthorized") != -1)
                 safeShowDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
 
             mError = null;
@@ -465,7 +413,7 @@ public abstract class ScActivity extends Activity {
 
             case CloudUtils.Dialogs.DIALOG_PROCESSING:
 
-                mProgressDialog = new ProgressDialog(this);
+                ProgressDialog mProgressDialog = new ProgressDialog(this);
                 mProgressDialog.setTitle(R.string.processing_title);
                 mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 mProgressDialog.setIndeterminate(true);

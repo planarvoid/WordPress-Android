@@ -264,7 +264,6 @@ public class LazyTabActivity extends LazyActivity {
     @Override
     protected void onAuthenticated() {
         super.onAuthenticated();
-
         if (tabContent == null) {
             tabContent = (FrameLayout) findViewById(android.R.id.tabcontent);
         }
@@ -272,7 +271,18 @@ public class LazyTabActivity extends LazyActivity {
         for (int i=0; i<tabContent.getChildCount(); i++) {
             ((ScTabView)tabContent.getChildAt(i)).onAuthenticated();
         }
+    }
 
+    @Override
+    protected void onReauthenticate() {
+        super.onReauthenticate();
+        if (tabContent == null) {
+            tabContent = (FrameLayout) findViewById(android.R.id.tabcontent);
+        }
+
+        for (int i=0; i<tabContent.getChildCount(); i++) {
+            ((ScTabView)tabContent.getChildAt(i)).onReauthenticate();
+        }
     }
 
     @Override
@@ -558,7 +568,7 @@ public class LazyTabActivity extends LazyActivity {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.REFRESH:
                 Log.i(TAG,"Get Current Tab " + tabHost.getCurrentView());
-                ((ScTabView) tabHost.getCurrentView()).onRefresh();
+                ((ScTabView) tabHost.getCurrentView()).onRefresh(false);
                 return true;
         }
         return super.onOptionsItemSelected(item);

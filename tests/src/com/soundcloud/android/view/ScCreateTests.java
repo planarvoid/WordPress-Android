@@ -70,7 +70,7 @@ public class ScCreateTests
 
 
     @Test
-    public void testUploadParams() throws Exception {
+    public void shouldPassThroughAllRequiredTrackParams() throws Exception {
         Map arguments = upload();
 
         assertEquals("recording", arguments.get(TYPE));
@@ -87,20 +87,20 @@ public class ScCreateTests
     }
 
     @Test
-    public void connectionsAreSet() throws Exception {
+    public void shouldSetAllEnabledConnections() throws Exception {
         Connection c1 = new Connection();
-        c1.type = "Twitter";
+        c1.service = "twitter";
         c1.post_publish = true;
         c1.id = 1000;
 
 
         Connection c2 = new Connection();
-        c2.type = "Facebook";
+        c2.service = "facebook";
         c2.post_publish = true;
         c2.id = 1001;
 
         Connection c3 = new Connection();
-        c3.type = "Myspace";
+        c3.service = "myspace";
         c3.post_publish = false;
         c3.id = 1002;
 

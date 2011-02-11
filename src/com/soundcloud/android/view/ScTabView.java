@@ -63,14 +63,13 @@ public class ScTabView extends FrameLayout {
     }
 
     public void onAuthenticated() {
-
     }
 
-    public void onRefresh() {
-        onRefresh(false);
+    public void onReauthenticate() {
     }
 
-    public void onRefresh(Boolean refreshAll) {
+
+    public void onRefresh(boolean all) {
         if (mAdapter != null) {
             if (mAdapter instanceof LazyEndlessAdapter) {
                 ((LazyEndlessAdapter) mAdapter).clear();

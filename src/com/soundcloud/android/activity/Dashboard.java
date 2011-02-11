@@ -44,21 +44,11 @@ public class Dashboard extends LazyTabActivity {
 
     protected ScTabView mLastTab;
 
-    protected int mFavoritesIndex = 1;
-
-    protected int mSetsIndex = 2;
-
-    private ScTabView mIncomingView;
-
-    private ScTabView mExclusiveView;
-
     private UserBrowser mUserBrowser;
 
     private ScCreate mScCreate;
 
     private ScSearch mScSearch;
-
-    private Boolean initialAuth = true;
 
     public interface TabIndexes {
         public final static int TAB_INCOMING = 0;
@@ -72,16 +62,16 @@ public class Dashboard extends LazyTabActivity {
         public final static int TAB_SEARCH = 4;
     }
 
-    private Boolean _launch = true;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         CloudUtils.checkState(this);
-        
+
         //initialize the db here in case it needs to be created, it won't result in locks
         new DBAdapter(this.getSoundCloudApplication());
         
         super.onCreate(savedInstanceState, R.layout.main_holder);
+
+        Log.d(TAG, "onCreate " + this.getIntent());
 
         mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
         mHolder.setVisibility(View.GONE);
@@ -92,11 +82,6 @@ public class Dashboard extends LazyTabActivity {
         tracker.trackPageView("/dashboard");
         tracker.dispatch();
         super.onResume();
-    }
-
-    public void gotoUserTab(UserBrowser.UserTabs tab) {
-        tabHost.setCurrentTab(2);
-        mUserBrowser.setUserTab(tab);
     }
 
     @Override
@@ -123,7 +108,7 @@ public class Dashboard extends LazyTabActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String lastUserId = preferences.getString("currentUserId", null);
         Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
-        if (lastUserId == null || lastUserId != Long.toString(((User) p).id)) {
+        if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
             Log.i(TAG, "--------- new user");
             preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
                     .putString("currentUsername", ((User) p).username).commit();
@@ -136,8 +121,6 @@ public class Dashboard extends LazyTabActivity {
 
         mHolder = (LinearLayout) findViewById(R.id.main_holder);
         mHolder.setVisibility(View.GONE);
-
-        initialAuth = false;
 
         FrameLayout tabLayout = CloudUtils.createTabLayout(this);
         tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
@@ -185,7 +168,7 @@ public class Dashboard extends LazyTabActivity {
                 CloudAPI.Enddpoints.MY_ACTIVITIES, CloudUtils.Model.event, "collection");
         adpWrap.setEmptyViewText(getResources().getString(R.string.empty_incoming_text));
 
-        final ScTabView incomingView = mIncomingView = new ScTabView(this, adpWrap);
+        final ScTabView incomingView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, incomingView, adpWrap, CloudUtils.ListId.LIST_INCOMING);
         CloudUtils.createTab(this, tabHost, "incoming", getString(R.string.tab_incoming),
                 getResources().getDrawable(R.drawable.ic_tab_incoming), incomingView, false);
@@ -199,7 +182,7 @@ public class Dashboard extends LazyTabActivity {
         // LazyEndlessAdapter adpWrap = new
         // LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);
 
-        final ScTabView exclusiveView = mExclusiveView = new ScTabView(this, adpWrap);
+        final ScTabView exclusiveView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, exclusiveView, adpWrap, CloudUtils.ListId.LIST_EXCLUSIVE);
         CloudUtils.createTab(this, tabHost, "exclusive", getString(R.string.tab_exclusive),
                 getResources().getDrawable(R.drawable.ic_tab_incoming), exclusiveView, false);

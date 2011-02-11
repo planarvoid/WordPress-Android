@@ -1,17 +1,23 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ConnectActivity;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.NewConnectionTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,17 +91,22 @@ public class ConnectionList extends LinearLayout {
     }
 
     public static class Adapter extends BaseAdapter {
-        private List<Connection> connections;
-        private boolean failed;
+        private CloudAPI api;
+        private List<Connection> mConnections;
+        private boolean mFailed;
+
+        public Adapter(CloudAPI api) {
+            this.api = api;
+        }
 
         @Override
         public int getCount() {
-            return connections == null ? 0 : connections.size();
+            return mConnections == null ? 0 : mConnections.size();
         }
 
         @Override
         public Connection getItem(int position) {
-            return connections.get(position);
+            return mConnections.get(position);
         }
 
         @Override
@@ -109,21 +120,45 @@ public class ConnectionList extends LinearLayout {
         }
 
         public void setConnections(List<Connection> connections) {
-            this.connections = connections;
+            this.mConnections = connections;
             notifyDataSetChanged();
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return new ConnectionItem(parent.getContext(), getItem(position));
+        public View getView(int position, View convertView, final ViewGroup parent) {
+            return new ConnectionItem(parent.getContext(), getItem(position)) {
+                @Override
+                public void configureService(Connection.Service service) {
+                    Log.d(TAG, "configure service " + service);
+                    new NewConnectionTask(api) {
+                        @Override
+                        protected void onPostExecute(Uri uri) {
+                            if (uri != null) {
+                                parent.getContext().startActivity(
+                                    (new Intent(parent.getContext(), ConnectActivity.class)).setData(uri));
+                            } else {
+                                Toast toast = Toast.makeText(parent.getContext(),
+                                        parent.getResources().getString(R.string.new_connection_error),
+                                        Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                            }
+                        }
+                    }.execute(service);
+                }
+            };
         }
 
-        public Adapter loadIfNecessary(CloudAPI api) {
-            if (failed) load(api);
+        public void clear() {
+            mConnections = null;
+        }
+
+        public Adapter loadIfNecessary() {
+            if (mFailed || mConnections == null) load();
             return this;
         }
 
-        public Adapter load(CloudAPI api) {
+        public Adapter load() {
             new LoadConnectionsTask(api) {
                 @Override
                 protected void onPreExecute() {
@@ -133,10 +168,10 @@ public class ConnectionList extends LinearLayout {
                 @Override
                 protected void onPostExecute(List<Connection> connections) {
                     if (connections != null) {
-                        failed = false;
+                        mFailed = false;
                         setConnections(Connection.addUnused(connections));
                     } else {
-                        failed = true;
+                        mFailed = true;
                         setConnections(Connection.addUnused(new ArrayList<Connection>()));
                     }
                 }

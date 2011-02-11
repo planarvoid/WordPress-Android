@@ -4,11 +4,9 @@ package com.soundcloud.android.view;
 import android.app.Activity;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.api.ApiTest;
-import com.soundcloud.android.objects.Connection;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 
@@ -19,15 +17,15 @@ import static org.mockito.Mockito.reset;
 public class ConnectionListTests extends ApiTest implements CloudAPI.Enddpoints {
 
     @Test
-    public void testLoadingConnections() throws Exception {
+    public void shouldLoadConnectionsFromApi() throws Exception {
         fakeApi(CONNECTIONS, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
         assertEquals(0, list.postToServiceIds().size());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter();
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
         list.setAdapter(adapter);
-        adapter.load(api);
+        adapter.load();
 
         assertEquals(1, list.postToServiceIds().size());
         int id = list.postToServiceIds().iterator().next();
@@ -35,21 +33,21 @@ public class ConnectionListTests extends ApiTest implements CloudAPI.Enddpoints 
     }
 
     @Test
-    public void onlyReloadIfNeeded() throws Exception {
+    public void shouldOnlyReloadIfNeeded() throws Exception {
         fakeApi(CONNECTIONS, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter();
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
         list.setAdapter(adapter);
-        adapter.load(api);
+        adapter.load();
 
         assertEquals(1, list.postToServiceIds().size());
 
         reset(api);
         fakeApi(CONNECTIONS, new IOException());
 
-        list.getAdapter().loadIfNecessary(api);
+        list.getAdapter().loadIfNecessary();
         assertEquals(1, list.postToServiceIds().size());
     }
 }

@@ -1,8 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import java.util.concurrent.Semaphore;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,25 +17,20 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 
+import java.util.concurrent.Semaphore;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 /**
  * Adopted from UrbanStew's soundclouddroid authorization process
  * 
  * @http://code.google.com/p/soundclouddroid/
  */
 public class Authorize extends ScActivity implements CloudAPI.Client {
-
-    private static final String TAG = "Authorize";
-
-    private SharedPreferences mPreferences;
-
-    WebView mWebView;
-
+    private WebView mWebView;
     private Exception mAuthorizationException;
-
-    Semaphore mVerificationCodeAvailable;
-
+    private Semaphore mVerificationCodeAvailable;
     private Handler mHandler = new Handler();
-
     private String mVerificationCode;
 
     @Override
@@ -85,7 +78,6 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
         runOnUiThread(new Runnable() {
             public void run() {
                 if (status == AuthorizationStatus.SUCCESSFUL) {
-                    // showToast("Authorization Successful");
                     Intent intent = new Intent(Authorize.this, Dashboard.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);

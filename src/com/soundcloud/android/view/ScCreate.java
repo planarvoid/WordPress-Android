@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+
 public class ScCreate extends ScTabView implements PlaybackListener {
 
     // Debugging tag.
@@ -125,7 +127,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super(activity);
 
         mActivity = activity;
-        mCurrentState = CreateState.IDLE_RECORD;
+
+        // go straight to upload if running in emulator, since we can't record anyway
+        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : CreateState.IDLE_RECORD;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -280,19 +284,27 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
         mConnectionList.setAdapter(
-            new ConnectionList.Adapter().load(mActivity.getSoundCloudApplication())
-        );
+            new ConnectionList.Adapter(mActivity.getSoundCloudApplication())
+            .load());
     }
 
 
     @Override
     public void onAuthenticated() {
-        mConnectionList.getAdapter().loadIfNecessary(
-                mActivity.getSoundCloudApplication()
-        );
+        mConnectionList.getAdapter().loadIfNecessary();
     }
 
-    /*** Public ***/
+    @Override
+    public void onReauthenticate() {
+        mConnectionList.getAdapter().clear();
+    }
+
+    @Override
+    public void onRefresh(boolean all) {
+        super.onRefresh(all);
+        onReauthenticate();
+        onAuthenticated();
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
