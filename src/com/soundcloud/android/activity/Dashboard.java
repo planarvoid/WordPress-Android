@@ -1,7 +1,22 @@
 
 package com.soundcloud.android.activity;
 
-import java.util.ArrayList;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.DBAdapter;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.EventsAdapter;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
+import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.PCMPlaybackTask;
+import com.soundcloud.android.view.ScCreate;
+import com.soundcloud.android.view.ScSearch;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserBrowser;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +25,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.view.View;
@@ -18,24 +32,10 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabWidget;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.EventsAdapter;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.task.PCMPlaybackTask;
-import com.soundcloud.android.view.ScCreate;
-import com.soundcloud.android.view.ScSearch;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserBrowser;
+import java.util.ArrayList;
 
 public class Dashboard extends LazyTabActivity {
 
@@ -76,10 +76,11 @@ public class Dashboard extends LazyTabActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         CloudUtils.checkState(this);
-
+        
+        //initialize the db here in case it needs to be created, it won't result in locks
+        new DBAdapter(this.getSoundCloudApplication());
+        
         super.onCreate(savedInstanceState, R.layout.main_holder);
-
-        Log.i(TAG, "ON CReATE " + this.getIntent());
 
         mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
         mHolder.setVisibility(View.GONE);
