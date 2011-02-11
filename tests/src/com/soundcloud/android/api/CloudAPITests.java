@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 
 @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
-public class CloudAPITests {
+public class CloudAPITests implements CloudAPI.Params {
     // testor app
     static String CONSUMER_KEY = "n3X11THP8cBvoXFE1TVxQ";
     static String CONSUMER_SECRET = "nEIW6nGA4KXoTtNbYYHw4fIaHRUxGWDrF1SH0Q81I";
@@ -64,8 +64,8 @@ public class CloudAPITests {
     @Ignore
     public void testUpload() throws Exception {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(CloudAPI.Params.TITLE, "Hello Android"));
-        params.add(new BasicNameValuePair(CloudAPI.Params.POST_TO, "486436"));
+        params.add(new BasicNameValuePair(TITLE, "Hello Android"));
+        params.add(new BasicNameValuePair(POST_TO, "486436"));
 
         ContentBody track = new FileBody(
                 new File(getClass().getResource("hello.aiff").getFile()));
@@ -79,8 +79,8 @@ public class CloudAPITests {
     @Test @Ignore
     public void testUploadOverridingSharing() throws Exception {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(CloudAPI.Params.TITLE, "Hello Android"));
-        params.add(new BasicNameValuePair(CloudAPI.Params.POST_TO_EMPTY, ""));
+        params.add(new BasicNameValuePair(TITLE, "Hello Android"));
+        params.add(new BasicNameValuePair(POST_TO_EMPTY, ""));
 
         ContentBody track = new FileBody(
                 new File(getClass().getResource("hello.aiff").getFile()));

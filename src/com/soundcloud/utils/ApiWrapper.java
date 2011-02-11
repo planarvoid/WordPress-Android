@@ -179,6 +179,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public void unauthorize() {
+        mSoundCloudApi.unauthorize();
     }
 
     public ObjectMapper getMapper() {

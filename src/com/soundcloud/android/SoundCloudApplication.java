@@ -124,7 +124,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 R.string.sandbox_consumer_secret);
     }
 
-    public final void clearSoundCloudAccount() {
+    public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .remove("oauth_access_token")
                 .remove("oauth_access_token_secret")
@@ -134,9 +134,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .putString("currentUsername", "")
                 .commit();
 
-        if (mCloudApi != null) {
-            mCloudApi.unauthorize();
-        }
+
+        mCloudApi.unauthorize();
     }
 
     public HashMap<String, String[]> getDBColumns() {
