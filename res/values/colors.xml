@@ -59,7 +59,7 @@
 	<color name="cloudProgressCommentBarBgOn">#3D00C1</color>
 
 	<color name="listSeperator">#FF333333</color>
-	<color name="horizontalRule">#FF777777</color>
+	<color name="horizontalRule">#FFAAAAAA</color>
 
 	<color name="menuBackground">#7fff0000</color>
 	<color name="tabFocused">#7fff0000</color>

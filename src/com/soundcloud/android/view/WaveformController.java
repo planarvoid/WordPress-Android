@@ -27,8 +27,10 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
@@ -77,11 +79,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     final Handler mHandler = new Handler();
     
-    private Comment mNextPlaybackComment;
-    
     private Comment mLastAutoComment;
     
     private CommentBubble mCommentBubble;
+    
+    private Animation mBubbleAnimation;
+    
+    private Animation mConnectingAnimation;
     
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -113,8 +117,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int COMMENT_DRAG = 2;
     
     static final int AVATAR_DRAG = 3;
-    
-    boolean mBubbleAnimating = false;
     
     long mLastMoveTime = 0;
     int mTouchX;
@@ -171,11 +173,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showConnectingLayout() {
+        if (mConnectingAnimation != null)
+            mConnectingAnimation.cancel();
         mConnectingBar.setVisibility(View.VISIBLE);
     }
 
     public void hideConnectingLayout() {
         mConnectingBar.setVisibility(View.GONE);
+        
+        
     }
     
     @Override
@@ -212,6 +218,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             if (mCommentLines == null){
                 mCommentLines = new WaveformCommentLines(mPlayer, null);
+                mCommentLines.setVisibility(View.INVISIBLE);
                 mWaveformHolder.addView(mCommentLines);    
             }
         }
@@ -238,10 +245,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (last != null){
                 if (mLastAutoComment != last && pos - last.timestamp < 2000){
                     mLastAutoComment = last;
-                    if (mCurrentShowingComment == null){
+                    if (mCurrentShowingComment == null && mPlayer.waveformVisible()){
                         mCurrentShowingComment = last;
                         showCurrentComment(true);
-                        mHandler.postDelayed(mAutoCloseBubble, 4000);
+                        mHandler.postDelayed(mAutoCloseBubble, 3000);
                     }
                 }
             
@@ -274,18 +281,32 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     @Override
                     public void onImageError(ImageView view, String url, Throwable error) {
                         waveformResult = BindResult.ERROR;
+                        mOverlay.setImageDrawable(mPlayer.getResources()
+                                .getDrawable(R.drawable.player_wave_bg));
                     }
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+                        showWaveform();
                     }
                 });
 
         if (waveformResult != BindResult.OK) { // otherwise, it succesfull
-            // pulled it out of memory, so no
-            // temp image necessary
-            mOverlay.setImageDrawable(mPlayer.getResources()
-                    .getDrawable(R.drawable.player_wave_bg));
+            if (waveformResult == BindResult.LOADING)
+                mOverlay.setVisibility(View.INVISIBLE);
+            else
+                mOverlay.setImageDrawable(mPlayer.getResources()
+                        .getDrawable(R.drawable.player_wave_bg));    
+        }
+    }
+    
+    private void showWaveform(){
+        if (mOverlay.getVisibility() == View.INVISIBLE){
+            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+            aa.setDuration(500);
+            
+            mOverlay.startAnimation(aa);
+            mOverlay.setVisibility(View.VISIBLE);
         }
     }
 
@@ -296,8 +317,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (mCommentBubble != null && mCommentBubble.getParent() == this) removeView(mCommentBubble);
-
                 if (v == mPlayerAvatarBar){
                     if (mCurrentComments != null){
                         mode = AVATAR_DRAG;
@@ -305,14 +324,18 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     }
                 } else if (v == mPlayerCommentBar){
                     mode = COMMENT_DRAG;
-                    mCommentBubble.onNewCommentMode(mPlayingTrack, stampFromPosition((int) event.getX()));
                     
-                   showBubbleAt((int) event.getX(),mCommentBarOffsetY);
+                    mCurrentShowingComment = null;
+                    mCommentBubble.onNewCommentMode(mPlayingTrack, stampFromPosition((int) event.getX()));
+                   showBubbleAt((int) event.getX(),mCommentBarOffsetY, true);
+                   
                 } else {
                     mode = SEEK_DRAG;
                     if (mPlayer != null && mPlayer.isSeekable()) {
+                        mLastAutoComment = null; //reset auto comment in case they seek backward
+                        
                             setProgress(mPlayer
-                                    .setSeekMarker((int) event.getX() / mWaveformHolder.getWidth()));
+                                    .setSeekMarker(event.getX() / mWaveformHolder.getWidth()));
                         mWaveformHolder.invalidate();
                     }
                     
@@ -322,7 +345,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mTouchX == (int) event.getX() && mTouchY == (int) event.getY() && System.currentTimeMillis() - mLastMoveTime > 50)
+                if (mTouchX == (int) event.getX() && mTouchY == (int) event.getY() && System.currentTimeMillis() - mLastMoveTime > 100)
                     return true;
                     
                 mLastMoveTime = System.currentTimeMillis();
@@ -353,11 +376,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         if (mPlayer != null) mPlayer.sendSeek();
                         break;
                     case COMMENT_DRAG :
-                        if (!mBubbleAnimating){
-                            removeBubble();
+                        Log.i(TAG,"Finger up " + mBubbleAnimation);
+                        if (mBubbleAnimation == null){
                             if (Math.abs(mPlayerCommentBar.getTop() - (int) event.getY()) < 200)
                                 mPlayer.addNewComment(mPlayingTrack,stampFromPosition(mTouchX));
                         }
+                        removeBubble();
                         break;
                     case AVATAR_DRAG :
                         //mCommentBubble.setPosition(event.getX(), event.getY());
@@ -376,19 +400,31 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
     
     private void showBubbleAt(int xPos, int yPos){
+        showBubbleAt(xPos,yPos,false);
+    }
+    
+    private void showBubbleAt(int xPos, int yPos, boolean forceAnimation){
         float offsetX = mCommentBubble.setPosition(xPos,yPos,getWidth());
+        mCommentBubble.closing = false;
         
-        if (mCommentBubble.getParent() != mPlayer.getCommentHolder()){
-            mPlayer.getCommentHolder().addView(mCommentBubble);
+        Log.i(TAG,"SHOW BUBBLE");
         
-            ScaleAnimation scale = new ScaleAnimation((float).6, (float)1.0, (float).6, (float)1.0, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, (float) 1.0);
-            scale.setFillAfter(true);
-            scale.setDuration(100);
-            scale.setAnimationListener(new AnimationListener(){
+        if (mCommentBubble.getParent() != mPlayer.getCommentHolder() || forceAnimation){
+            if (mCommentBubble.getParent() != mPlayer.getCommentHolder())
+                    mPlayer.getCommentHolder().addView(mCommentBubble);
+        
+            if (mBubbleAnimation != null)
+                mBubbleAnimation.cancel();
+            
+            mBubbleAnimation = new ScaleAnimation((float).6, (float)1.0, (float).6, (float)1.0, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, (float) 1.0);
+            mBubbleAnimation.setFillAfter(true);
+            mBubbleAnimation.setDuration(100);
+            mBubbleAnimation.setAnimationListener(new AnimationListener(){
 
                 @Override
                 public void onAnimationEnd(Animation arg0) {
-                    mBubbleAnimating = false;
+                    mBubbleAnimation = null;
+                    Log.i(TAG,"On Animation end " + mode + " " + mCurrentShowingComment);
                     if (mode == NONE && mCurrentShowingComment == null)
                         removeBubble();
                 }
@@ -398,10 +434,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 @Override
                 public void onAnimationStart(Animation arg0) {
-                    mBubbleAnimating = true;
                     
                 }});
-            mCommentBubble.startAnimation(scale); 
+            mCommentBubble.startAnimation(mBubbleAnimation); 
         }
         
         
@@ -413,12 +448,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     public void closeComment(){
         mCurrentShowingComment = null;
-        mPlayerAvatarBar.setCurrentComment(null);
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         removeBubble();
     }
     
     private void removeBubble(){
-        if (mCommentBubble != null && mCommentBubble.getParent() != null) ((ViewGroup) mCommentBubble.getParent()).removeView(mCommentBubble);
+        if (mCommentBubble != null && mCommentBubble.getParent() != null){
+            ((ViewGroup) mCommentBubble.getParent()).removeView(mCommentBubble);
+        }
     }
     
     
@@ -427,12 +464,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (isHitting(mCurrentShowingComment,xPos)){
                 return;
             } else {
-               closeComment();
+                if (!mCommentBubble.closing){
+                    mCommentBubble.interacted = false;
+                    mHandler.postDelayed(mAutoCloseBubble, 500);
+                }
+               //closeComment();
             }
         }
         
-        mCurrentShowingComment = isHitting(xPos);
-        showCurrentComment();
+        Comment c =isHitting(xPos);
+        if (c != null){
+            mCurrentShowingComment = c;
+            showCurrentComment();
+        }
+        
     }
     
     private void showCurrentComment(){
@@ -452,6 +497,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     final Runnable mAutoCloseBubble = new Runnable() {
         public void run() {
+            Log.i(TAG,"AUTO CLOSE BUBBLE " + mCommentBubble + " " + mCurrentShowingComment);
             if (mCommentBubble != null && mCurrentShowingComment != null)
             if (mCurrentShowingComment == mCommentBubble.mComment &&  mCommentBubble.interacted == false){
                 removeBubble();
@@ -512,6 +558,18 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCommentLines.setTrackData(mDuration,comments);
             mCommentLines.invalidate();
         }
+        
+        if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE){
+            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+            aa.setStartOffset(1000);
+            aa.setDuration(500);
+            
+            mPlayerAvatarBar.startAnimation(aa);
+            mPlayerAvatarBar.setVisibility(View.VISIBLE);
+            
+            mCommentLines.startAnimation(aa);
+            mCommentLines.setVisibility(View.VISIBLE);
+        }
     }
     
     public void nextCommentInThread(){
@@ -522,21 +580,27 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
     
     public void clearTrack(){
+        if (mPlayerAvatarBar != null){
+            mPlayerAvatarBar.setVisibility(View.INVISIBLE);
+            mPlayerAvatarBar.clearTrackData();
+        }
+        if (mCommentLines != null){
+            mCommentLines.setVisibility(View.INVISIBLE);
+            mCommentLines.clearTrackData();
+        }
+        
+        
         mCurrentComments = null;
         mCurrentTopComments = null;
         
         mHandler.removeCallbacks(mAutoCloseBubble);
-        
         if (mCurrentShowingComment != null){
-            //mCurrentShowingComment
             mCurrentShowingComment = null;
         }
         
-        if (mPlayerAvatarBar != null)
-            mPlayerAvatarBar.clearTrackData();
+        mode = NONE;
+        removeBubble();
         
-        if (mCommentLines != null)
-            mCommentLines.clearTrackData();
     }
 
 }

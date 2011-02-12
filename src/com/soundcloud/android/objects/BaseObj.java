@@ -47,7 +47,7 @@ public class BaseObj implements Parcelable {
         Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
             try {
-                f = this.getClass().getField(CloudUtils.toCamelCase(key));
+                f = this.getClass().getField(key);
                 if (f != null) {
                     f.set(this, data.get(key));
                 }

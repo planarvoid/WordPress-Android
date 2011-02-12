@@ -427,6 +427,25 @@ public class UserBrowser extends ScTabView {
             else
                 CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(
                         R.string.tab_favorites));
+            
+            if (!TextUtils.isEmpty(mUserData.followings_count))
+                CloudUtils.setTabText(mTabWidget, 3, mActivity.getResources().getString(
+                        R.string.tab_followings)
+                        + " (" + mUserData.followings_count + ")");
+            else
+                CloudUtils.setTabText(mTabWidget, 3, mActivity.getResources().getString(
+                        R.string.tab_followings));
+            
+            if (!TextUtils.isEmpty(mUserData.followers_count))
+                CloudUtils.setTabText(mTabWidget, 4, mActivity.getResources().getString(
+                        R.string.tab_followers)
+                        + " (" + mUserData.followers_count + ")");
+            else
+                CloudUtils.setTabText(mTabWidget, 4, mActivity.getResources().getString(
+                        R.string.tab_followers));
+            
+            ((HorizontalScrollView) findViewById(R.id.tab_scroller)).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
+                    + mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getWidth() / 2 - getWidth() / 2, 0);
         }
     }
 
@@ -581,18 +600,6 @@ public class UserBrowser extends ScTabView {
 
         Boolean _showTable = false;
 
-        if (TextUtils.isEmpty(mUserData.track_count)
-                || mUserData.track_count.contentEquals("0")) {
-            mDetailsView.findViewById(R.id.tracks_row).setVisibility(View.GONE);
-        } else {
-            mTracks.setText(mUserData.track_count);
-            mDetailsView.findViewById(R.id.tracks_row).setVisibility(View.VISIBLE);
-            _showTable = true;
-        }
-
-        mDetailsView.findViewById(R.id.followers_row).setVisibility(View.GONE);
-        // mFollowers.setText(mUserData.getData(User.key_followers_count));
-
         if (!TextUtils.isEmpty(mUserData.full_name)) {
             _showTable = true;
             mFullName.setText(mUserData.full_name);
@@ -638,8 +645,7 @@ public class UserBrowser extends ScTabView {
 
         if (!TextUtils.isEmpty(mUserData.description)) {
             _showTable = true;
-            styledText = Html.fromHtml((mUserData).description);
-            mDescription.setText(styledText);
+            mDescription.setText((mUserData).description);
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
 

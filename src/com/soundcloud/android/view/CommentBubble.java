@@ -70,6 +70,8 @@ public class CommentBubble extends RelativeLayout {
     
     public boolean interacted;
     
+    public boolean closing;
+    
 
     public CommentBubble(Context context, WaveformController controller) {
         
@@ -133,6 +135,9 @@ public class CommentBubble extends RelativeLayout {
             }
             
         });
+        
+        interacted = false;
+        closing = false;
         
     }
     

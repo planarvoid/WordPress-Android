@@ -129,7 +129,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mActivity = activity;
 
         // go straight to upload if running in emulator, since we can't record anyway
-        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : CreateState.IDLE_RECORD;
+        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : mCurrentState == null ? CreateState.IDLE_RECORD : mCurrentState;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -308,10 +308,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
-            outState.putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
-        }
-
+        outState.putString("createCurrentCreateStateIndex", Integer.toString(getCurrentState()));
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
@@ -328,9 +325,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
 
         }
-        String currentCreateStateIndex = savedInstanceState
-                .getString("createCurrentCreateStateIndex") == null
-                || savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
+        
+        Log.i(TAG,"ON RESTORE INSTANCE STATE " + savedInstanceState.getString("createCurrentCreateStateIndex"));
+        
+        String currentCreateStateIndex = savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
                 : savedInstanceState.getString("createCurrentCreateStateIndex");
         if (!TextUtils.isEmpty(savedInstanceState
                 .getString("createCurrentCreateStateIndex")))

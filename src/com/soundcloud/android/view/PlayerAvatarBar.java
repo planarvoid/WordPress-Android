@@ -78,8 +78,6 @@ public class PlayerAvatarBar extends View {
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context,attributeSet);
         
-        this.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.player_avatar_bg));
-        
         mResultHandler = new Handler(Looper.getMainLooper());
         mBitmapContentHandler = new BitmapContentHandler();
         mTaskHandlers = new Handler[WORKER_COUNT];

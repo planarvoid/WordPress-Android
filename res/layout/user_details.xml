@@ -12,12 +12,6 @@
 					android:gravity="right" android:padding="3dip" android:id="@+id/fullname"
 					android:layout_height="wrap_content" />
 			</TableRow>
-			<TableRow android:id="@+id/tracks_row">
-				<TextView android:text="Tracks" android:padding="3dip" />
-				<TextView android:layout_width="wrap_content" android:id="@+id/tracks"
-					android:text="" android:gravity="right" android:padding="3dip"
-					android:layout_height="wrap_content" />
-			</TableRow>
 			<TableRow android:id="@+id/followers_row">
 				<TextView android:text="Followers" android:padding="3dip" />
 				<TextView android:layout_width="wrap_content" android:id="@+id/followers"
