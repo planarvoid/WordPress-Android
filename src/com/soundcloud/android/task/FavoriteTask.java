@@ -2,20 +2,20 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
 
     SoundCloudApplication mScApp;
     FavoriteListener mFavoriteListener;
     Exception mException;
+    Long trackId = (long) -1;
 
     public FavoriteTask(SoundCloudApplication scApp) {
         this.mScApp = scApp;
@@ -35,21 +35,22 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
 
     @Override
     protected Boolean doInBackground(Track... params) {
+        trackId = params[0].id;
         try {
-            return processResponse(CloudUtils.streamToString(executeResponse(params[0])));
+            return processResponse(executeResponse(params[0]));
         } catch (IOException e) {
             e.printStackTrace();
             setException(e);
         }
 
-        return processResponse(null);
+        return processResponse(0);
     }
     
-    protected InputStream executeResponse(Track t) throws IOException{
+    protected int executeResponse(Track t) throws IOException{
         return mScApp
         .putContent(
                 CloudAPI.Enddpoints.MY_FAVORITES + "/"
-                        + t.id, null);
+                        + t.id, null).getStatusLine().getStatusCode();
     }
     
     
@@ -57,23 +58,24 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
         mException = e;
     }
     
-    protected Boolean processResponse(String response){
+    protected Boolean processResponse(int i){
         return false;
     }
     
     @Override
     protected void onPostExecute(Boolean favorite) {
+        Log.i("FAVE","ON POST EXECUTE " + favorite + " " + mFavoriteListener);
         if (mFavoriteListener != null)
-            mFavoriteListener.onNewFavoriteStatus(favorite);
+            mFavoriteListener.onNewFavoriteStatus(trackId, favorite);
         
         if (mException != null && mFavoriteListener != null)
-                mFavoriteListener.onException(mException);
+                mFavoriteListener.onException(trackId,mException);
     }
     
     // Define our custom Listener interface
     public interface FavoriteListener {
-        public abstract void onNewFavoriteStatus(boolean isFavorite);
-        public abstract void onException(Exception e);
+        public abstract void onNewFavoriteStatus(long trackId, boolean isFavorite);
+        public abstract void onException(long trackId, Exception e);
     }
 
 }

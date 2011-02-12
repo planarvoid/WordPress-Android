@@ -232,10 +232,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mWhereText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                if (mWhatText.length() == 1
+                if (mWhereText.length() == 1
                         && !mWhereText.getText().toString().toUpperCase().contentEquals(
-                                mWhatText.getText().toString()))
-                    mWhatText.setTextKeepState(mWhatText.getText().toString().toUpperCase());
+                                mWhereText.getText().toString()))
+                    mWhereText.setTextKeepState(mWhereText.getText().toString().toUpperCase());
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -335,7 +335,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             setCurrentState(Integer.parseInt(currentCreateStateIndex));
 
         mWhatText.setText(savedInstanceState.getString("createWhatValue"));
-        mWhereText.setText(savedInstanceState.getString("createWhatValue"));
+        mWhereText.setText(savedInstanceState.getString("createWhereValue"));
 
         if (savedInstanceState.getInt("createPrivacyValue") == R.id.rdo_private)
             mRdoPrivate.setChecked(true);

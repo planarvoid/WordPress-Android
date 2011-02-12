@@ -161,7 +161,7 @@
 	
 	<style name="btn_sc_widget_transport" parent="btn_sc_widget">
         <item name="android:layout_width">60dip</item>
-        <item name="android:layout_height">54dip</item>
+        <item name="android:layout_height">42dip</item>
         <item name="android:padding">0dip</item>
         <item name="android:layout_margin">0dip</item>
         <item name="android:background">@android:color/transparent</item>
@@ -316,12 +316,12 @@
         <item name="android:paddingRight">5dip</item>
         <item name="android:layout_margin">0dip</item>
     </style>
-    <style name="txt_widget_title" parent="txt_widget_primary">
-        <item name="android:paddingTop">5dip</item>
+    <style name="txt_widget_clickable" parent="txt_widget_primary">
+        <item name="android:textColor">@drawable/widget_text_states</item>
     </style>
     <style name="txt_widget_secondary" parent="txt_widget_primary">
         <item name="android:paddingRight">10dip</item>
-        <item name="android:textColor">#ff5b5b5b</item>
+        <item name="android:textColor">#ff626262</item>
     </style>
     
     <style name="txt_comment_bubble">

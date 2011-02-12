@@ -1,11 +1,10 @@
 package com.soundcloud.android.service;
 
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ScPlaybackActivityStarter;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.objects.Track;
 
 import android.app.PendingIntent;
@@ -15,17 +14,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
     /**
      * Player Widget
@@ -71,10 +62,12 @@ import java.net.URLConnection;
             final Resources res = context.getResources();
             final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
             
+            views.setTextViewText(R.id.title_txt, "Touch to open SoundCloud");
+            views.setViewVisibility(R.id.by_txt, View.GONE);
+            views.setViewVisibility(R.id.user_txt, View.GONE);
             
             // initialize controls
-            
-            linkButtons(context, views, false);
+            linkButtons(context, views, false, null);
             pushUpdate(context, appWidgetIds, views);
         }
         
@@ -113,7 +106,8 @@ import java.net.URLConnection;
                         what.equals(CloudPlaybackService.INITIAL_BUFFERING) ||
                         what.equals(CloudPlaybackService.BUFFERING) ||
                         what.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
-                        what.equals(CloudPlaybackService.TRACK_ERROR) ){
+                        what.equals(CloudPlaybackService.TRACK_ERROR) ||
+                        what.equals(CloudPlaybackService.FAVORITE_SET)){
                     performUpdate(service, null, what);
                 }          
             }
@@ -127,24 +121,28 @@ import java.net.URLConnection;
          * Update all active widget instances by pushing changes 
          */
         void performUpdate(CloudPlaybackService service, int[] appWidgetIds, String what) {
-            final Resources res = service.getResources();
             final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.appwidget_player);
             
             final boolean playing = service.isPlaying();
             views.setImageViewResource(R.id.pause, playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
             
-            if (mCurrentTrackId != service.getTrackId()){
-                Track mCurrentTrack = service.getTrack();
+            Track mCurrentTrack = service.getTrack();
+            views.setImageViewResource(R.id.btn_favorite, mCurrentTrack.user_favorite ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
+            
+            
+            if (mCurrentTrackId != mCurrentTrack.id){
+                
                 mCurrentTrackId = mCurrentTrack.id;
                 
                 views.setTextViewText(R.id.title_txt, mCurrentTrack.title);
                 views.setTextViewText(R.id.user_txt, mCurrentTrack.user.username);
-                Log.i(TAG,"Setting user name to " + mCurrentTrack.user.username);
+                
+                views.setViewVisibility(R.id.by_txt, View.VISIBLE);
+                views.setViewVisibility(R.id.user_txt, View.VISIBLE);
                 
             }
-            
-            // Link actions buttons to intents
-            linkButtons(service, views, playing);
+  
+            linkButtons(service, views, playing, mCurrentTrack);
             pushUpdate(service, appWidgetIds, views);
             mCurrentViews = views;
         }
@@ -156,7 +154,7 @@ import java.net.URLConnection;
          *            widget click will launch {@link ScPlaybackActivityStarter},
          *            otherwise we launch {@link MusicBrowserActivity}.
          */
-        private void linkButtons(Context context, RemoteViews views, boolean playerActive) {
+        private void linkButtons(Context context, RemoteViews views, boolean playerActive, Track track) {
             // Connect up various buttons and touch events
             Intent intent;
             PendingIntent pendingIntent;
@@ -192,6 +190,37 @@ import java.net.URLConnection;
             pendingIntent = PendingIntent.getService(context,
                     0 /* no requestCode */, intent, 0 /* no flags */);
             views.setOnClickPendingIntent(R.id.next, pendingIntent);
+            
+            intent = new Intent(context, ScPlayer.class);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.setAction(Intent.ACTION_MAIN);
+            
+            pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            views.setOnClickPendingIntent(R.id.title_txt, pendingIntent);
+            
+            if (track != null){
+                intent = new Intent(context, ScProfile.class);
+                intent.putExtra("userId", track.user.id);
+                pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+                views.setOnClickPendingIntent(R.id.user_txt, pendingIntent);    
+                
+                if (track.user_favorite){
+                    intent = new Intent(CloudPlaybackService.REMOVE_FAVORITE);    
+                } else {
+                    intent = new Intent(CloudPlaybackService.ADD_FAVORITE);
+                }
+                
+                intent.setComponent(serviceName);
+                intent.putExtra("trackId", track.id);
+                pendingIntent = PendingIntent.getService(context,
+                        0 /* no requestCode */, intent, 0 /* no flags */);
+                views.setOnClickPendingIntent(R.id.btn_favorite, pendingIntent);
+                
+            }
+            
+            
             
         }
     }

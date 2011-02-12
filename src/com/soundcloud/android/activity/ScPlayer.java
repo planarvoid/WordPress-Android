@@ -891,6 +891,12 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     updateTrackInfo();
                     mCurrentTrackError = false;
                 }
+            } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
+                if (mPlayingTrack != null && mPlayingTrack.id == intent.getLongExtra("id", -1)){
+                    mPlayingTrack.user_favorite = intent.getBooleanExtra("isFavorite", false);
+                    if (mFavoriteButton != null) mFavoriteButton.setEnabled(true);
+                    setFavoriteStatus();
+                }
             } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
                 mCurrentTrackError = false;
                 hideUnplayable();
@@ -1116,6 +1122,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
+        f.addAction(CloudPlaybackService.FAVORITE_SET);
         this.registerReceiver(mStatusListener, new IntentFilter(f));
 
     }
@@ -1261,77 +1268,28 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     }
 
     private void toggleFavorite() {
+        
+        Log.i(TAG,"Toggle Favorite ");
 
         if (mPlayingTrack == null)
             return;
 
+        Log.i(TAG,"Toggle Favorite 2 " + mPlayingTrack.user_favorite);
         mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
-
-        if (mPlayingTrack.user_favorite) {
-            mFavoriteTrack.user_favorite = false;
-            removeFavorite();
-        } else {
-            mFavoriteTrack.user_favorite = true;
-            addFavorite();
+        try {
+            if (mPlayingTrack.user_favorite) {
+                    mService.setFavoriteStatus(mPlayingTrack.id, false);
+                mFavoriteTrack.user_favorite = false;
+            } else {
+                mService.setFavoriteStatus(mPlayingTrack.id, true);
+                mFavoriteTrack.user_favorite = true;
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            mFavoriteButton.setEnabled(true);
         }
         setFavoriteStatus();
-    }
-
-    public void addFavorite() {
-
-        FavoriteAddTask f = (FavoriteAddTask) new FavoriteAddTask(this.getSoundCloudApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(boolean isFavorite) {
-                setFavoriteResult(isFavorite);
-            }
-
-            @Override
-            public void onException(Exception e) {
-                setException(e);
-                handleException();
-            }
-
-        });
-
-        f.execute(mFavoriteTrack);
-    }
-
-    public void removeFavorite() {
-
-        FavoriteRemoveTask f = new FavoriteRemoveTask(
-                this.getSoundCloudApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(boolean isFavorite) {
-                setFavoriteResult(isFavorite);
-            }
-
-            @Override
-            public void onException(Exception e) {
-                setException(e);
-                handleException();
-            }
-
-        });
-        f.execute(mFavoriteTrack);
-    }
-
-    private void setFavoriteResult(boolean favorite) {
-
-        if (mFavoriteTrack.user_favorite != favorite) {
-            mFavoriteTrack.user_favorite = favorite;
-            setFavoriteStatus();
-            try {
-                mService.setFavoriteStatus(mFavoriteTrack.id, favorite);
-            } catch (Exception e) {
-                Log.e(TAG, "error", e);
-            }
-
-        }
-        if (mFavoriteButton != null)
-            mFavoriteButton.setEnabled(true);
     }
 
     private class LoadCommentsTask extends LoadCollectionTask<Comment> {

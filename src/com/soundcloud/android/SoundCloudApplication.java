@@ -198,7 +198,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.signStreamUrlNaked(path);
     }
 
-    public InputStream putContent(String path, List<NameValuePair> params) throws IOException {
+    public HttpResponse putContent(String path, List<NameValuePair> params) throws IOException {
         return mCloudApi.putContent(path, params);
     }
     
@@ -206,7 +206,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.postContent(path, params);
     }
 
-    public InputStream deleteContent(String path) throws IOException {
+    public HttpResponse deleteContent(String path) throws IOException {
         return mCloudApi.deleteContent(path);
     }
 

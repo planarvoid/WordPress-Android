@@ -17,21 +17,19 @@ public class FavoriteRemoveTask extends FavoriteTask {
     }
     
     @Override
-    protected InputStream executeResponse(Track t) throws IOException{
+    protected int executeResponse(Track t) throws IOException{
         return mScApp
         .deleteContent(
                 CloudAPI.Enddpoints.MY_FAVORITES + "/"
-                        + t.id);
+                        + t.id).getStatusLine().getStatusCode();
     }
     
     @Override
-    protected Boolean processResponse(String response){
-        Log.i("RemoveFavorite","process response " + response);
+    protected Boolean processResponse(int responseCode){
+        Log.i("RemoveFavorite","process response " + responseCode);
         boolean favorite = true;
-        if (response != null) {
-            if (response.contains("200 - OK")
-                    || response.contains("201 - Created")
-                    || response.contains("404 - Not Found")) {
+        if (responseCode != 0) {
+            if (responseCode == 200 || responseCode == 404) {
                 favorite = false;
             } else {
                 favorite = true;

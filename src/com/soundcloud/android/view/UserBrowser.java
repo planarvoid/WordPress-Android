@@ -88,7 +88,7 @@ public class UserBrowser extends ScTabView {
 
     protected LoadTask mLoadDetailsTask;
 
-    protected String mFollowResult;
+    protected int mFollowResult;
     
     private TabWidget mTabWidget;
 
@@ -488,7 +488,8 @@ public class UserBrowser extends ScTabView {
         mFavorite.setEnabled(false);
         _isFollowing = !_isFollowing;
         setFollowingButtonText();
-
+        mFollowResult = 0;
+        
         // Fire off a thread to do some work that we shouldn't do directly in
         // the UI thread
         Thread t = new Thread() {
@@ -496,15 +497,15 @@ public class UserBrowser extends ScTabView {
             public void run() {
                 try {
                     if (_isFollowing)
-                        mFollowResult = CloudUtils.streamToString(mActivity
+                        mFollowResult = mActivity
                                 .getSoundCloudApplication().putContent(
                                         CloudAPI.Enddpoints.MY_USERS + "/"
-                                                + mUserData.id, null));
+                                                + mUserData.id, null).getStatusLine().getStatusCode();
                     else
-                        mFollowResult = CloudUtils.streamToString(mActivity
+                        mFollowResult = mActivity
                                 .getSoundCloudApplication().deleteContent(
                                         CloudAPI.Enddpoints.MY_USERS + "/"
-                                                + mUserData.id));
+                                                + mUserData.id).getStatusLine().getStatusCode();
 
                 } catch (Exception e) {
                     Log.e(TAG, "error", e);
@@ -524,12 +525,8 @@ public class UserBrowser extends ScTabView {
                 mActivity.handleError();
             }
             boolean success = false;
-            if (mFollowResult != null) {
-
-                if (mFollowResult.contains("<user>")
-                        || mFollowResult.contains("200 - OK")
-                        || mFollowResult.contains("201 - Created")
-                        || mFollowResult.contains("404 - Not Found")) {
+            if (mFollowResult != 0) {
+                if (mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404) {
                         success = true;
                 }
             }

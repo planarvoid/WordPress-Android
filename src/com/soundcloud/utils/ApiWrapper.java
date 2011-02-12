@@ -1,11 +1,12 @@
 package com.soundcloud.utils;
 
-import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.ProgressListener;
+
 import oauth.signpost.exception.OAuthException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -19,6 +20,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,9 +130,9 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
-    public InputStream putContent(String path, List<NameValuePair> params) throws IOException {
+    public HttpResponse putContent(String path, List<NameValuePair> params) throws IOException {
         try {
-            return mSoundCloudApi.put(path,params).getEntity().getContent();
+            return mSoundCloudApi.put(path,params);
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
@@ -145,9 +148,9 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
-    public InputStream deleteContent(String path) throws IOException {
+    public HttpResponse deleteContent(String path) throws IOException {
         try {
-            return mSoundCloudApi.delete(path).getEntity().getContent();
+            return mSoundCloudApi.delete(path);
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }

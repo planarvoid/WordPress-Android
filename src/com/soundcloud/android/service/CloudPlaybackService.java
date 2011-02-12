@@ -22,6 +22,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
@@ -130,7 +133,11 @@ public class CloudPlaybackService extends Service {
 
     public static final String COMMENTS_LOADED = "com.soundcloud.android.commentsloaded";
 
-    public static final String FAVORITES_SET = "com.soundcloud.android.favoriteset";
+    public static final String FAVORITE_SET = "com.soundcloud.android.favoriteset";
+    
+    public static final String ADD_FAVORITE = "com.soundcloud.android.addfavorite";
+    
+    public static final String REMOVE_FAVORITE = "com.soundcloud.android.removefavorite";
 
     public static final String SEEK_START = "com.soundcloud.android.seekstart";
 
@@ -263,6 +270,8 @@ public class CloudPlaybackService extends Service {
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
+        commandFilter.addAction(ADD_FAVORITE);
+        commandFilter.addAction(REMOVE_FAVORITE);
         registerReceiver(mIntentReceiver, commandFilter);
 
         // setup call listening
@@ -412,6 +421,7 @@ public class CloudPlaybackService extends Service {
         mServiceStartId = startId;
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
+        Log.i(TAG,"ON START COMMAND");
         if (intent != null) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
@@ -436,6 +446,12 @@ public class CloudPlaybackService extends Service {
             } else if (CMDSTOP.equals(cmd)) {
                 pause();
                 seek(0);
+            }else if (ADD_FAVORITE.equals(action)){
+                Log.i(TAG,"ADD FAVORITE " + intent.getLongExtra("trackId", -1));
+                setFavoriteStatus(intent.getLongExtra("trackId", -1),true);
+            }else if (REMOVE_FAVORITE.equals(action)){
+                Log.i(TAG,"REMOVE FAVORITE " + intent.getLongExtra("trackId", -1));
+                setFavoriteStatus(intent.getLongExtra("trackId", -1),false);
             }
         }
 
@@ -530,6 +546,7 @@ public class CloudPlaybackService extends Service {
         i.putExtra("track", getTrackName());
         i.putExtra("user", getUserName());
         i.putExtra("isPlaying", isPlaying());
+        if (what == FAVORITE_SET) i.putExtra("isFavorite", mPlayingData.user_favorite);
         sendBroadcast(i);
 
         if (what.equals(QUEUE_CHANGED)) {
@@ -1178,11 +1195,60 @@ public class CloudPlaybackService extends Service {
 
     public void setFavoriteStatus(long trackId, Boolean favoriteStatus) {
         synchronized (this) {
+            Log.i(TAG,"Set Favorite Status " + mPlayingData.id + " " + trackId);
             if (mPlayingData.id.compareTo(trackId) == 0) {
-                mPlayingData.user_favorite = favoriteStatus;
+                if (favoriteStatus)
+                    addFavorite();
+                else
+                    removeFavorite();
             }
         }
-        notifyChange(FAVORITES_SET);
+        
+    }
+    
+    public void addFavorite() {
+        Log.i(TAG,"ADD FAVORITE");
+        FavoriteAddTask f = (FavoriteAddTask) new FavoriteAddTask((SoundCloudApplication) this.getApplication());
+        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+            @Override
+            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+                Log.i(TAG,"On add result " + isFavorite);
+                onFavoriteStatusSet(trackId, isFavorite);
+            }
+
+            @Override
+            public void onException(long trackId, Exception e) {
+                Log.i(TAG,"On add exception ");
+                onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
+            }
+
+        });
+        f.execute(mPlayingData);
+    }
+    
+    public void removeFavorite() {
+        FavoriteRemoveTask f = (FavoriteRemoveTask) new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
+        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+            @Override
+            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+                onFavoriteStatusSet(trackId, isFavorite);
+            }
+
+            @Override
+            public void onException(long trackId, Exception e) {
+                onFavoriteStatusSet(trackId, true); //failed, so it should still be a favorite
+            }
+
+        });
+        f.execute(mPlayingData);
+    }
+    
+
+    private void onFavoriteStatusSet(long trackId, boolean isFavorite){
+        if (mPlayingData.id.compareTo(trackId) == 0) {
+            mPlayingData.user_favorite = isFavorite;
+            notifyChange(FAVORITE_SET);
+        }
     }
 
     public String getUserName() {
@@ -1637,8 +1703,6 @@ public class CloudPlaybackService extends Service {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
             
-            Log.i(TAG,"RECEIVED Command " + cmd);
-            
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
                 next(true);
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
@@ -1659,6 +1723,10 @@ public class CloudPlaybackService extends Service {
                 // because they were just added.
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
+            } else if (ADD_FAVORITE.equals(action)){
+                setFavoriteStatus(intent.getLongExtra("trackId", -1),true);
+            }else if (REMOVE_FAVORITE.equals(action)){
+                setFavoriteStatus(intent.getLongExtra("trackId", -1),false);
             }
         }
     };
