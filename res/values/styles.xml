@@ -369,5 +369,9 @@
         <item name="android:textColor">#ffffffff</item>
         <item name="android:textStyle">bold</item>
     </style>
-    
+
+
+    <style name="connection_list_header" parent="@android:style/Widget.TextView.ListSeparator">
+    </style>
+
 </resources>

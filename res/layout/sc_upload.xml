@@ -65,32 +65,14 @@
 
                 </com.soundcloud.android.view.ConnectionList>
 
-                <!--
-                <LinearLayout android:id="@+id/sharingPublic"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:orientation="vertical">
-                    <LinearLayout android:id="@+id/connections"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="vertical"/>
 
-                </LinearLayout>
-                -->
+                <com.soundcloud.android.view.AccessList
+                          android:id="@+id/accessList"
+                          android:layout_width="fill_parent"
+                          android:layout_height="fill_parent">
 
+                </com.soundcloud.android.view.AccessList>
 
-                <LinearLayout android:id="@+id/sharingPrivate"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        style="@style/txt_record_artwork_hint"/>
-
-                </LinearLayout>
 
             </com.soundcloud.android.view.SafeViewFlipper>
 

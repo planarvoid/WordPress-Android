@@ -7,25 +7,28 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import java.net.URI;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection {
     public enum Service {
-        Twitter(R.drawable.service_twitter, "twitter"),
-        Facebook(R.drawable.service_facebook_profile, "facebook_profile", "facebook_page"),
-        Myspace(R.drawable.service_myspace, "myspace"),
-        /*Foursquare(R.drawable.service_foursquare, "foursquare"),*/
-        Unknown(R.drawable.service_myspace, "unknown");
+        Twitter(R.drawable.service_twitter, true, "twitter"),
+        Facebook(R.drawable.service_facebook_profile, true, "facebook_profile", "facebook_page"),
+        Myspace(R.drawable.service_myspace, true, "myspace"),
+        Foursquare(R.drawable.service_foursquare, false, "foursquare"),
+        Unknown(R.drawable.service_myspace, false, "unknown");
 
         public final int resId;
         public final String name;
         public final String[] names;
+        public final boolean enabled;
 
-        Service(int resId, String... names) {
+        Service(int resId, boolean enabled, String... names) {
             this.resId = resId;
             this.names = names;
             this.name  = names[0];
+            this.enabled = enabled;
         }
         static Service fromString(String s) {
             for (Service svc : EnumSet.allOf(Service.class)) {
@@ -60,7 +63,9 @@ public class Connection {
 
     public static List<Connection> addUnused(List<Connection> connections) {
         EnumSet<Service> networks = EnumSet.allOf(Service.class);
-        networks.remove(Service.Unknown);
+        for (Iterator<Service> it = networks.iterator(); it.hasNext();) {
+          if (!it.next().enabled) it.remove();
+        }
 
         for (Connection c : connections) networks.remove(c.service());
         for (Service t : networks) connections.add(new Connection(t));

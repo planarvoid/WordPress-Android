@@ -88,6 +88,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private TextView mChrono;
 
     /* package */ ConnectionList mConnectionList;
+    /* package */ AccessList mAccessList;
 
     public enum CreateState {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK, IDLE_UPLOAD, UPLOAD
@@ -294,6 +295,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mConnectionList.setAdapter(
             new ConnectionList.Adapter(mActivity.getSoundCloudApplication())
             .load());
+
+        mAccessList = (AccessList) findViewById(R.id.accessList);
+        mAccessList.setAdapter(new AccessList.Adapter());
+        mAccessList.getAdapter().setAccessList(null);
     }
 
 

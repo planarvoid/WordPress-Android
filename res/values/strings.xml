@@ -711,4 +711,6 @@
     <string name="sdcard_error_message">An error was encountered on your SD card.</string>
     <string name="new_connection_error">Error adding connection</string>
 
+    <string name="sharing_options">Sharing options</string>
+    <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
 </resources>

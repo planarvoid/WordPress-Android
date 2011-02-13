@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.util.AttributeSet;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.R;
@@ -27,6 +29,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ConnectionList extends LinearLayout {
     private Adapter listAdapter;
+    private AttributeSet attrs;
 
     public ConnectionList(Context context) {
         super(context);
@@ -35,18 +38,24 @@ public class ConnectionList extends LinearLayout {
 
     public ConnectionList(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.attrs = attrs;
         setOrientation(LinearLayout.VERTICAL);
     }
+
 
     protected void handleDataChanged() {
         Log.d(TAG, "handleDataChanged()");
 
         removeAllViews();
+
         for (int i = 0; i < listAdapter.getCount(); i++) {
-            View item = listAdapter.getView(i, null, this);
-            addView(item);
-            addView(getSeparator());
+            if (listAdapter.getItem(i).service().enabled) {
+                View item = listAdapter.getView(i, null, this);
+                addView(item);
+                addView(getSeparator());
+            }
         }
+        addView(getFooter());
     }
 
     public void setAdapter(Adapter listAdapter) {
@@ -88,6 +97,13 @@ public class ConnectionList extends LinearLayout {
 
         v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
         return v;
+    }
+
+    protected View getFooter() {
+        TextView footer = new TextView(getContext(), attrs, R.style.connection_list_header);
+        footer.setText(R.string.connection_list_footer);
+        footer.setTextColor(getResources().getColor(R.color.background_light));
+        return footer;
     }
 
     public static class Adapter extends BaseAdapter {
@@ -135,7 +151,7 @@ public class ConnectionList extends LinearLayout {
                         protected void onPostExecute(Uri uri) {
                             if (uri != null) {
                                 parent.getContext().startActivity(
-                                    (new Intent(parent.getContext(), ConnectActivity.class)).setData(uri));
+                                        (new Intent(parent.getContext(), ConnectActivity.class)).setData(uri));
                             } else {
                                 Toast toast = Toast.makeText(parent.getContext(),
                                         parent.getResources().getString(R.string.new_connection_error),
