@@ -1,6 +1,8 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ScPlaybackActivityStarter;
+import com.soundcloud.android.activity.Dashboard;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,8 +11,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Environment;
-import android.view.View;
 import android.widget.RemoteViews;
 
     /**
@@ -38,14 +38,7 @@ import android.widget.RemoteViews;
         public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
             defaultAppWidget(context, appWidgetIds);
             
-            // Send broadcast intent to any running CloudCreateService so it can
-            // wrap around with an immediate update.
-            Intent updateIntent = new Intent(CloudCreateService.SERVICECMD);
-            updateIntent.putExtra(CloudCreateService.CMDNAME,
-                    RecordAppWidgetProvider.CMDAPPWIDGETUPDATE);
-            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
-            updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-            context.sendBroadcast(updateIntent);
+           
         }
         
         /**
@@ -55,8 +48,6 @@ import android.widget.RemoteViews;
             final Resources res = context.getResources();
             final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_record);
             
-            
-            // initialize controls
             
             linkButtons(context, views, CloudCreateService.States.IDLE_RECORDING);
             pushUpdate(context, appWidgetIds, views);
@@ -73,43 +64,6 @@ import android.widget.RemoteViews;
         }
         
         /**
-         * Check against {@link AppWidgetManager} if there are any instances of this widget.
-         */
-        private boolean hasInstances(Context context) {
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(THIS_APPWIDGET);
-            return (appWidgetIds.length > 0);
-        }
-
-        /**
-         * Handle a change notification coming over from {@link CloudCreateService}
-         */
-        void notifyChange(CloudCreateService service, String what) {
-            if (hasInstances(service)) {
-                if (CloudCreateService.RECORD_STARTED.equals(what) ||
-                        CloudCreateService.RECORD_STOPPED.equals(what) ||
-                        CloudCreateService.RECORD_ERROR.equals(what)) {
-                    performUpdate(service, null);
-                }
-            }
-        }
-        
-        /**
-         * Update all active widget instances by pushing changes 
-         */
-        void performUpdate(CloudCreateService service, int[] appWidgetIds) {
-            final Resources res = service.getResources();
-            final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.appwidget_record);
-            
-            //set view state based on service
-
-            // Link actions buttons to intents
-            linkButtons(service, views, service.getCurrentState());
-            
-            pushUpdate(service, appWidgetIds, views);
-        }
-
-        /**
          * Link up various button actions using {@link PendingIntents}.
          * 
          * @param playerActive True if player is active in background, which means
@@ -121,13 +75,15 @@ import android.widget.RemoteViews;
             Intent intent;
             PendingIntent pendingIntent;
             
-            final ComponentName serviceName = new ComponentName(context, CloudCreateService.class);
+            Intent i = (new Intent(context, Dashboard.class))
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .putExtra("tabIndex", Dashboard.TabIndexes.TAB_RECORD);
+
+            pendingIntent = PendingIntent.getActivity(context, 0, i,
+                PendingIntent.FLAG_UPDATE_CURRENT);
             
-            // set button intents based on state
-            switch (state){
-                
-            }
-            
+            views.setOnClickPendingIntent(R.id.btn_action, pendingIntent);
             
         }
     }

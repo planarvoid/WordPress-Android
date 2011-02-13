@@ -2,7 +2,6 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Comment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,7 +11,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
 public class CommentBubbleArrow extends View {
@@ -60,6 +58,8 @@ public class CommentBubbleArrow extends View {
     
     public void setPosition(float x) {
         x = Math.min(Math.max(CommentBubble.CORNER_MARGIN, x), getWidth() - CommentBubble.CORNER_MARGIN);
+        
+        Log.i("arrow","Setting arrow " + mRightArrow + " " + mLeftArrow);
         
         if (x > CommentBubble.HARD_WIDTH/2 - RIGHT_ARROW_MARGIN){
             mCurrentArrow = mRightArrow;
