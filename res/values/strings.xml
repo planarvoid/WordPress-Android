@@ -42,6 +42,7 @@
     <string name="timer_format" translatable="false"><xliff:g id="format">%02d:%02d</xliff:g></string> 
 	
 	<string name="cloud_recorder_experimental">Max recording length: 15 min</string>
+	<string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
 	
 	<string name="cloud_recorder_notification_ticker">Recording started</string>
 	<string name="cloud_recorder_event_title">Recording in progress</string>

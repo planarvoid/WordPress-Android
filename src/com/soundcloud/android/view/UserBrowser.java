@@ -79,6 +79,10 @@ public class UserBrowser extends ScTabView {
     private ScTabView mTracksView;
 
     private ScTabView mFavoritesView;
+    
+    private ScTabView mFollowersView;
+    
+    private ScTabView mFollowingsView;
 
     private WorkspaceView mWorkspaceView;
 
@@ -167,6 +171,8 @@ public class UserBrowser extends ScTabView {
         if (all) {
             mTracksView.onRefresh(all);
             mFavoritesView.onRefresh(all);
+            mFollowersView.onRefresh(all);
+            mFavoritesView.onRefresh(all);
 
             if (mLoadDetailsTask != null) {
                 if (!CloudUtils.isTaskFinished(mLoadDetailsTask))
@@ -178,10 +184,11 @@ public class UserBrowser extends ScTabView {
             if (mWorkspaceView.getDisplayedChild() == TabIndexes.TAB_INFO) {
                 this.refreshDetailsTask();
             }
-            if (mWorkspaceView != null)
+            if (mWorkspaceView != null){
+                Log.i(TAG,"ON Refresh " +  mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()));
                 ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()))
                         .onRefresh(all);
-            else
+            } else
                 ((ScTabView) mTabHost.getCurrentView()).onRefresh(all);
         }
     }
@@ -366,7 +373,7 @@ public class UserBrowser extends ScTabView {
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
-        final ScTabView followingsView = new ScTabView(mActivity);
+        final ScTabView followingsView = mFollowingsView = new ScTabView(mActivity);
         CloudUtils.createTabList(mActivity, followingsView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWINGS);
         CloudUtils.createTab(mActivity, mTabHost, "followings", mActivity
@@ -375,7 +382,7 @@ public class UserBrowser extends ScTabView {
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowersUrl(), CloudUtils.Model.user);
 
-        final ScTabView followersView = new ScTabView(mActivity);
+        final ScTabView followersView = mFollowersView = new ScTabView(mActivity);
         CloudUtils.createTabList(mActivity, followersView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWERS);
         CloudUtils.createTab(mActivity, mTabHost, "followers", mActivity

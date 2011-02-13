@@ -88,10 +88,10 @@ public class PlayerAvatarBar extends View {
         
         
         mLinePaint= new Paint();
-        mLinePaint.setColor(com.soundcloud.android.R.color.commentLine);
+        mLinePaint.setColor(getResources().getColor(R.color.commentLine));
         
         mActiveLinePaint= new Paint();
-        mActiveLinePaint.setColor(com.soundcloud.android.R.color.activeCommentLine);
+        mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.activeCommentLine));
         
         
         mDefaultAvatar = BitmapFactory.decodeResource(context.getResources(), R.drawable.avatar_badge);
@@ -147,6 +147,7 @@ public class PlayerAvatarBar extends View {
     }
     
     public void setCurrentComment(Comment c){
+        Log.i(TAG,"SET CURRENT COMMENT " + c);
         mCurrentComment = c;
         if (c != null) loadAvatar(c);
         invalidate();
@@ -272,6 +273,7 @@ public class PlayerAvatarBar extends View {
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
             }
         
+        Log.i(TAG,"ON DRAW " + mCurrentComment);
         if (mCurrentComment != null){
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);

@@ -1031,7 +1031,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
                             CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    GraphicsSizes.crop), new ImageLoader.Callback() {
+                                    GraphicsSizes.t500), new ImageLoader.Callback() {
                                 @Override
                                 public void onImageError(ImageView view, String url, Throwable error) {
                                     mCurrentArtBindResult = BindResult.ERROR;

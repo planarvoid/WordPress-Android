@@ -72,7 +72,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private EditText mWhereText, mWhatText;
 
-    private TextView mArtworkInstructions;
     private ImageView mArtwork;
     private ImageButton btnAction;
 
@@ -210,7 +209,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        mArtworkInstructions = (TextView) findViewById(R.id.txt_artwork_instructions);
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (EditText) findViewById(R.id.where);
 
@@ -262,10 +260,20 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                mActivity
-                        .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                if (TextUtils.isEmpty(mArtworkUri)){
+                    //Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    //imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                    //Uri.fromFile(new File(FILE_PATH)));
+                    //startActivityForResult(imageCaptureIntent, 1);
+                    
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    mActivity
+                            .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);    
+                } else {
+                    mActivity.showToast(R.string.cloud_upload_clear_artwork);
+                }
+                
             }
         });
 
@@ -312,8 +320,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-
-
+        
         if (!TextUtils.isEmpty(mArtworkUri))
             outState.putString("createArtworkPath", mArtworkUri);
         
@@ -322,12 +329,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private) {
-
-        }
-        
-        Log.i(TAG,"ON RESTORE INSTANCE STATE " + savedInstanceState.getString("createCurrentCreateStateIndex"));
-        
         String currentCreateStateIndex = savedInstanceState.getString("createCurrentCreateStateIndex") == null ? "0"
                 : savedInstanceState.getString("createCurrentCreateStateIndex");
         if (!TextUtils.isEmpty(savedInstanceState
@@ -457,9 +458,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
             mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri);
             mArtwork.setImageBitmap(mArtworkBitmap);
-
-            mArtworkInstructions.setText(mActivity.getResources().getString(
-                    R.string.record_artwork_instructions_added));
+            mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
@@ -467,9 +466,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void clearArtwork() {
         mArtworkUri = null;
-        mArtwork.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.artwork_player));
-        mArtworkInstructions.setText(mActivity.getResources().getString(
-                R.string.record_artwork_instructions));
+        mArtwork.setVisibility(View.GONE);
 
         if (mArtworkBitmap != null)
             CloudUtils.clearBitmap(mArtworkBitmap);

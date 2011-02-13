@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
@@ -31,10 +32,10 @@ public class WaveformCommentLines extends View {
         this.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
         
         mPaint = new Paint();
-        mPaint.setColor(R.color.commentLine);
+        mPaint.setColor(getResources().getColor(R.color.commentLine));
         
         mActiveLinePaint= new Paint();
-        mActiveLinePaint.setColor(com.soundcloud.android.R.color.activeCommentLine);
+        mActiveLinePaint.setColor(getResources().getColor(R.color.activeCommentLine));
         
     }
     

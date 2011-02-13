@@ -449,6 +449,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void closeComment(){
         mCurrentShowingComment = null;
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
+        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
         removeBubble();
     }
     
@@ -490,6 +491,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCommentBubble.onShowCommentMode(mCurrentShowingComment);
             mCommentBubble.interacted = !waitForInteraction;
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
+            mCommentLines.setCurrentComment(mCurrentShowingComment);
             showBubbleAt(mCurrentShowingComment.xPos+mPlayerAvatarBar.getAvatarWidth()/2,mAvatarOffsetY);
             
         }
@@ -500,8 +502,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             Log.i(TAG,"AUTO CLOSE BUBBLE " + mCommentBubble + " " + mCurrentShowingComment);
             if (mCommentBubble != null && mCurrentShowingComment != null)
             if (mCurrentShowingComment == mCommentBubble.mComment &&  mCommentBubble.interacted == false){
-                removeBubble();
-                mCurrentShowingComment = null;
+                closeComment();
             }
         }
     };

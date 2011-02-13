@@ -126,7 +126,15 @@ import android.widget.RemoteViews;
             final boolean playing = service.isPlaying();
             views.setImageViewResource(R.id.pause, playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
             
+            
+            
             Track mCurrentTrack = service.getTrack();
+            
+            if (mCurrentTrack == null)
+                return;
+            
+            Log.i(TAG,"asdf " + mCurrentTrack.user_favorite + " " + mCurrentTrack);
+            
             views.setImageViewResource(R.id.btn_favorite, mCurrentTrack.user_favorite ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
             
             

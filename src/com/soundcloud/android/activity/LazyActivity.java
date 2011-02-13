@@ -221,6 +221,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
                     && mService.getTrackId() == (t.id)) {
                 // skip the enquing, its already playing
                 Intent intent = new Intent(this, ScPlayer.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 return;
             }
@@ -243,7 +244,10 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        startActivity(new Intent(this, ScPlayer.class));
+        
+        Intent intent = new Intent(this, ScPlayer.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
     }
 
     /**

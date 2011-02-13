@@ -86,7 +86,7 @@ public class ConnectionList extends LinearLayout {
                 LayoutParams.FILL_PARENT,
                 1));
 
-        v.setBackgroundColor(getResources().getColor(R.color.background_light));
+        v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
         return v;
     }
 
