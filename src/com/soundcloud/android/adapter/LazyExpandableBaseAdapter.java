@@ -14,7 +14,7 @@ import android.widget.Filterable;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 
-public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter implements Filterable {
+public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter {
 
     protected int mSelectedGroupIndex = -1;
 
@@ -89,11 +89,6 @@ public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter impleme
 
     public void setStopLoading(boolean done) {
         mDone = done;
-    }
-
-    public Filter getFilter() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public Object getChild(int groupIndex, int childIndex) {

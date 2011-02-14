@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 import java.util.List;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,10 +13,13 @@ import android.widget.Filterable;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 
-public class LazyBaseAdapter extends BaseAdapter implements Filterable {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class LazyBaseAdapter extends BaseAdapter {
 
     protected int mSelectedIndex = -1;
 
@@ -69,8 +73,8 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
             // occasional bad url)
             result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
         } catch (Exception e) {
+            Log.e(TAG, "error", e);
         }
-        ;
         rowView.setTemporaryDrawable(result);
 
         return rowView;
@@ -95,22 +99,5 @@ public class LazyBaseAdapter extends BaseAdapter implements Filterable {
         mSelectedIndex = -1;
     }
 
-    public void incrementPage() {
-        mPage++;
-    }
-
-    public int getPage() {
-        return mPage;
-    }
-
-    public void setStopLoading(boolean done) {
-        mDone = done;
-    }
-
-    public Filter getFilter() {
-        // XXX really needed
-        // TODO Auto-generated method stub
-        return null;
-    }
 
 }
