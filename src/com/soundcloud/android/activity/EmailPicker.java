@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.CursorAdapter;
 import android.widget.FrameLayout;
@@ -27,7 +30,7 @@ import java.util.regex.Pattern;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class EmailPicker extends Activity {
-    public static final int GET_EMAIL   = 0;
+    public static final int GET_EMAIL = 0;
     public static final int PICK_EMAILS = 9002;
 
     public static final String BUNDLE_KEY = "emails";
@@ -65,16 +68,21 @@ public class EmailPicker extends Activity {
         if (getIntent().hasExtra(BUNDLE_KEY)) {
             String[] emails = getIntent().getExtras().getStringArray(BUNDLE_KEY);
             if (emails != null && emails.length > 0) {
-              mEmail.setText(TextUtils.join(", ", emails));
-            }
+                mEmail.setText(TextUtils.join(", ", emails));
+                mEmail.append(", ");
 
-            // put cursor right after selected item
-            if (getIntent().hasExtra(SELECTED)) {
-                String selected = getIntent().getStringExtra(SELECTED);
-                int cursorPos = mEmail.getEditableText().toString()
-                        .indexOf(selected) + selected.length();
+                // put cursor right after selected item
+                if (getIntent().hasExtra(SELECTED)) {
+                    String selected = getIntent().getStringExtra(SELECTED);
 
-                if (cursorPos <= mEmail.length()) mEmail.setSelection(cursorPos);
+                    if (selected != null && !selected.equals(emails[emails.length-1])) {
+                        int cursorPos = mEmail.getEditableText().toString()
+                                .indexOf(selected) + selected.length();
+                        if (cursorPos <= mEmail.length()) mEmail.setSelection(cursorPos);
+                    } else {
+                        mEmail.setSelection(mEmail.length());
+                    }
+                }
             }
         }
 
@@ -87,7 +95,7 @@ public class EmailPicker extends Activity {
             }
         });
 
-        TextView pick_done = (TextView) findViewById(R.id.pick_done);
+        final TextView pick_done = (TextView) findViewById(R.id.pick_done);
         pick_done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,6 +116,17 @@ public class EmailPicker extends Activity {
                 finish();
             }
         });
+
+        mEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    pick_done.performClick();
+                }
+                return true;
+            }
+        });
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     @Override
@@ -132,15 +151,15 @@ public class EmailPicker extends Activity {
                     String email = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 
                     if (!TextUtils.isEmpty(email) &&
-                        !mEmail.getText().toString().contains(email)) {
+                            !mEmail.getText().toString().contains(email)) {
 
                         if (mEmail.length() == 0) {
-                            mEmail.setText(email+", ");
+                            mEmail.setText(email + ", ");
                         } else {
                             if (!mEmail.getEditableText().toString().trim().endsWith(","))
-                                 mEmail.append(", ");
+                                mEmail.append(", ");
 
-                            mEmail.append(email+",  ");
+                            mEmail.append(email + ",  ");
                         }
 
                         mEmail.setSelection(mEmail.length());
@@ -184,7 +203,6 @@ public class EmailPicker extends Activity {
         }
 
 
-
         @Override
         public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
             Log.v(TAG, "runQueryOnBackgrounThread(" + constraint + ")");
@@ -217,7 +235,7 @@ public class EmailPicker extends Activity {
 
             text = (TextView) view;
             text.setText(s);
-            text.setTextColor(view.getResources().getColor(R.color.white));
+            text.setTextColor(view.getResources().getColor(R.color.black));  // XXX hardcoded style
             return text;
         }
     }

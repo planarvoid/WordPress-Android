@@ -41,7 +41,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
             TextView view = new TextView(getContext(), null, R.style.txt_record_rdo);
             view.setText("With Access - Only you");
             view.setTextSize(20f);
-            view.setTextColor(getResources().getColor(R.color.white));
+            view.setTextColor(getResources().getColor(R.color.white)); // XXX hardcoded styles
 
             addView(view);
             view.setOnClickListener(this);
@@ -122,7 +122,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
         public View getView(int position, View convertView, ViewGroup parent) {
             TextView text = new TextView(parent.getContext());
             text.setTextSize(20f);
-            text.setTextColor(parent.getResources().getColor(R.color.white));
+            text.setTextColor(parent.getResources().getColor(R.color.white)); // XXX hardcoded color
             text.setText(getItem(position).toString());
             return text;
         }
