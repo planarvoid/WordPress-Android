@@ -53,6 +53,7 @@ public interface CloudAPI {
         String TAG_LIST       = "track[tag_list]";
         String SHARING        = "track[sharing]";
 
+        String SHARED_EMAILS  = "track[shared_to][emails][][address]";
 
         String PUBLIC         = "public";
         String PRIVATE        = "private";

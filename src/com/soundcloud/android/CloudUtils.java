@@ -77,7 +77,7 @@ public class CloudUtils {
     public interface RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
 
-        public static final int REUATHORIZE = 9001;
+        public static final int REAUTHORIZE = 9001;
     }
 
     public enum LoadType {

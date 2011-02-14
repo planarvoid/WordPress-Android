@@ -18,7 +18,7 @@ import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.view.LazyRow;
 
-public class CommentsAdapter extends LazyExpandableBaseAdapter implements Filterable {
+public class CommentsAdapter extends LazyExpandableBaseAdapter {
 
     @SuppressWarnings("unchecked")
     public CommentsAdapter(LazyActivity context, ArrayList<Parcelable> groupData,

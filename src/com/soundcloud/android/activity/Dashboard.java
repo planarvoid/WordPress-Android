@@ -36,6 +36,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class Dashboard extends LazyTabActivity {
@@ -97,6 +98,8 @@ public class Dashboard extends LazyTabActivity {
         if (mScCreate != null)
             mScCreate.unlock(success);
     }
+
+
 
     @Override
     public void mapDetails(Parcelable p) {
@@ -317,15 +320,14 @@ public class Dashboard extends LazyTabActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-
-        Log.i(TAG, "On Activity Result " + requestCode + " " + resultCode);
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        super.onActivityResult(requestCode, resultCode, result);
+        Log.i(TAG, "onActivityResult("+requestCode+", "+resultCode+", "+result+")");
 
         switch (requestCode) {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
+                    Uri selectedImage = result.getData();
                     String[] filePathColumn = {
                         MediaColumns.DATA
                     };
@@ -345,8 +347,17 @@ public class Dashboard extends LazyTabActivity {
                 }
                 break;
 
-            case CloudUtils.RequestCodes.REUATHORIZE:
-                // CloudCommunicator.refreshInstance(this);
+            case CloudUtils.RequestCodes.REAUTHORIZE:
+                break;
+
+            case EmailPicker.PICK_EMAILS:
+                if (result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
+                    String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
+                    if (emails != null) {
+                        Log.d(TAG, "got emails " + Arrays.asList(emails));
+                        mScCreate.setPrivateShareEmails(emails);
+                    }
+                }
                 break;
         }
     }

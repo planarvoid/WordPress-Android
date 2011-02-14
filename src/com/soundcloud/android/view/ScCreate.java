@@ -40,6 +40,7 @@ import android.view.View;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private RadioGroup mRdoPrivacy;
 
-    private RadioButton mRdoPrivate, mRdoPublic;
+    /* package */ RadioButton mRdoPrivate, mRdoPublic;
 
     /* package */ EditText mWhereText, mWhatText;
 
@@ -89,6 +90,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
+
+    public void setPrivateShareEmails(String[] emails) {
+        mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
+    }
 
     public enum CreateState {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK, IDLE_UPLOAD, UPLOAD
@@ -300,6 +305,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mAccessList.setAdapter(new AccessList.Adapter());
         mAccessList.getAdapter().setAccessList(null);
     }
+
+
 
 
     @Override
@@ -875,13 +882,24 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         final Map<String, Object> data = new HashMap<String, Object>();
         data.put(CloudAPI.Params.SHARING, privateUpload ? CloudAPI.Params.PRIVATE : CloudAPI.Params.PUBLIC);
 
-        final List<Integer> serviceIds = mConnectionList.postToServiceIds();
+
         if (!privateUpload) {
+            Log.v(TAG, "public track upload");
+
+            final List<Integer> serviceIds = mConnectionList.postToServiceIds();
+
              if (!serviceIds.isEmpty()) {
                 data.put(CloudAPI.Params.POST_TO, serviceIds);
              } else {
                 data.put(CloudAPI.Params.POST_TO_EMPTY, "");
              }
+        } else {
+            Log.v(TAG, "private track upload");
+
+            final List<String> sharedEmails = mAccessList.getAdapter().getAccessList();
+            if (!sharedEmails.isEmpty()) {
+                data.put(CloudAPI.Params.SHARED_EMAILS, sharedEmails);
+            }
         }
 
         data.put(CloudAPI.Params.TITLE, title);

@@ -1,12 +1,14 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,8 +98,7 @@ public class ScCreateTests
     @Test
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
-        assertEquals("", args.get(TITLE));
-        assertEquals("", args.get(UploadTask.Params.OGG_FILENAME));
+        assertEquals("recording on  morning", args.get(TITLE));
     }
 
     @Test
@@ -126,7 +127,7 @@ public class ScCreateTests
 
 
         Connection c2 = new Connection();
-        c2.service = "facebook";
+        c2.service = "facebook_profile";
         c2.post_publish = true;
         c2.id = 1001;
 
@@ -144,5 +145,19 @@ public class ScCreateTests
         assertEquals(2, ids.size());
         assertEquals("1000", ids.get(0).toString());
         assertEquals("1001", ids.get(1).toString());
+    }
+
+    @Test
+    public void shouldSetTheListOfEmailAddressesWithAccess() throws Exception {
+        create.mRdoPrivate.performClick();
+        create.mAccessList.getAdapter().setAccessList(Arrays.asList("foo@bar.com", "bla@example.com"));
+
+        Map args = upload();
+
+        assertTrue(args.get(SHARED_EMAILS) instanceof List);
+        assertEquals(2, ((List) args.get(SHARED_EMAILS)).size());
+
+        assertEquals("foo@bar.com", ((List) args.get(SHARED_EMAILS)).get(0));
+        assertEquals("bla@example.com", ((List) args.get(SHARED_EMAILS)).get(1));
     }
 }

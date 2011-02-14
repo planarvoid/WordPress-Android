@@ -61,6 +61,4 @@ public class ConnectActivity extends ScActivity {
             return super.onKeyDown(keyCode, event);
         }
     }
-
-
 }

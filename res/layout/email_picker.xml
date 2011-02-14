@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+
+    <MultiAutoCompleteTextView android:id="@+id/email"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:completionThreshold="1"
+                          android:textColor="@color/black"/>
+
+
+    <TextView android:id="@+id/picker"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textSize="20sp"
+              android:text="Pick"
+              android:textColor="@color/black"/>
+
+    <TextView android:id="@+id/pick_done"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="20sp"
+          android:text="Done"
+          android:textColor="@color/black"/>
+</LinearLayout>
