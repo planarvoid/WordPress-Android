@@ -50,6 +50,7 @@
         <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player"/>
         <activity android:name="com.soundcloud.android.activity.ScProfile" android:label="Profile" />
         <activity android:name="com.soundcloud.android.activity.EmailPicker"/>
+        <activity android:name="com.soundcloud.android.activity.LocationPicker"/>
 
         <service android:name="com.soundcloud.android.service.CloudPlaybackService"
                  android:exported="true">
@@ -109,4 +110,5 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 </manifest>

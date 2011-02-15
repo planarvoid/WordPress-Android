@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.view;
 
+import android.location.Criteria;
+import android.location.LocationManager;
 import android.text.format.DateFormat;
 import android.widget.*;
 import android.widget.Button;
@@ -9,6 +11,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
@@ -48,9 +51,6 @@ import java.util.Map;
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
-
-    // Debugging tag.
-    @SuppressWarnings("unused")
     private static final String TAG = "ScCreate";
 
     // ******************************************************************** //
@@ -217,6 +217,14 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (EditText) findViewById(R.id.where);
+
+        mWhereText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick");
+                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class), 0);
+            }
+        });
 
         mWhatText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
