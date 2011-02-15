@@ -62,6 +62,8 @@ public class ScCreateTests
     }
 
     private Map upload() throws Exception {
+        // 14:31:01, 15/02/2011
+        create.mRecordingStarted.set(1, 31, 14, 15, 2, 2011);
         create.startUpload();
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         verify(service).uploadTrack(captor.capture());
@@ -71,9 +73,11 @@ public class ScCreateTests
     @Test
     public void shouldUseUserTitleIfPresent() throws Exception {
         create.mWhatText.setText("my soundz");
+
         Map args = upload();
+
         assertEquals("my soundz", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("my soundz.ogg"));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz"));
     }
 
     @Test
@@ -81,7 +85,7 @@ public class ScCreateTests
         create.mWhereText.setText("home");
         Map args = upload();
         assertEquals("home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("home.ogg"));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("home"));
     }
 
     @Test
@@ -90,14 +94,40 @@ public class ScCreateTests
         create.mWhereText.setText("home");
         Map args = upload();
         assertEquals("my soundz at home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().endsWith("my soundz at home.ogg"));
+        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz at home"));
     }
 
     @Test
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
-        assertEquals("", args.get(TITLE));
-        assertEquals("", args.get(UploadTask.Params.OGG_FILENAME));
+        assertEquals("recording on null morning", args.get(TITLE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNote() throws Exception {
+        Connection c1 = new Connection();
+        c1.service = "twitter";
+        c1.post_publish = true;
+        c1.id = 1000;
+        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
+
+        Map args = upload();
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Sounds from null morning", args.get(SHARING_NOTE));
+
+
+    }
+
+    @Test
+    public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
+        Connection c1 = new Connection();
+        c1.service = "twitter";
+        c1.post_publish = false;
+        c1.id = 1000;
+        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
+        Map args = upload();
+        assertNull("A sharing note should not be present", args.get(SHARING_NOTE));
     }
 
     @Test
@@ -126,7 +156,7 @@ public class ScCreateTests
 
 
         Connection c2 = new Connection();
-        c2.service = "facebook";
+        c2.service = "facebook_profile";
         c2.post_publish = true;
         c2.id = 1001;
 
