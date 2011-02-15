@@ -359,7 +359,6 @@ public class CloudRecorder {
      * prepare().
      */
     public void start() {
-        Log.i("RECORDER", "START CALLED " + state);
         if (state == State.READY) {
             if (rUncompressed) {
 

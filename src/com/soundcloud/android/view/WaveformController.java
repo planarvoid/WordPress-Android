@@ -300,6 +300,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
     
+    public void onStop(){
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
+    }
+    
     private void showWaveform(){
         if (mOverlay.getVisibility() == View.INVISIBLE){
             AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
@@ -404,6 +408,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
     
     private void showBubbleAt(int xPos, int yPos, boolean forceAnimation){
+        if (mCommentBubble == null) return;
+            
         float offsetX = mCommentBubble.setPosition(xPos,yPos,getWidth());
         mCommentBubble.closing = false;
         
@@ -486,6 +492,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
     
     private void showCurrentComment(boolean waitForInteraction){
+        if (mCommentBubble == null) return;
         
         if (mCurrentShowingComment != null){
             mCommentBubble.onShowCommentMode(mCurrentShowingComment);
@@ -532,7 +539,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         return true;
     }
     
-    public void setComments(ArrayList<Comment> comments) {
+    public void setComments(ArrayList<Comment> comments, boolean animatIn) {
         mCurrentComments = comments;
         
         mCurrentTopComments = new ArrayList<Comment>();
@@ -561,14 +568,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
         
         if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE){
-            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-            aa.setStartOffset(1000);
-            aa.setDuration(500);
+            if (animatIn){
+                AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+                aa.setStartOffset(1000);
+                aa.setDuration(500);
             
-            mPlayerAvatarBar.startAnimation(aa);
+                mPlayerAvatarBar.startAnimation(aa);
+                mCommentLines.startAnimation(aa);
+            }
+            
             mPlayerAvatarBar.setVisibility(View.VISIBLE);
-            
-            mCommentLines.startAnimation(aa);
             mCommentLines.setVisibility(View.VISIBLE);
         }
     }

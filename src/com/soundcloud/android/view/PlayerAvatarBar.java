@@ -110,6 +110,14 @@ public class PlayerAvatarBar extends View {
         return mAvatarWidth;
     }
     
+    public void onStart(){
+        Log.i(TAG,"ON START " + mCurrentComments);
+    }
+    
+    public void onStop(){
+        stopLoading();
+    }
+    
     public void clearTrackData(){
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
