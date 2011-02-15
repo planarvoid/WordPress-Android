@@ -297,6 +297,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             else
                 mOverlay.setImageDrawable(mPlayer.getResources()
                         .getDrawable(R.drawable.player_wave_bg));    
+        } else {
+            showWaveform();
         }
     }
     

@@ -972,7 +972,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             
             mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
             if (mCurrentComments != null){
-              refreshComments(false);
+              refreshComments(true);
             } else if (mLoadCommentsTask == null)
                 startCommentLoading();
             else if (mLoadCommentsTask != null && mLoadCommentsTask.track_id != mCurrentTrackId) {
