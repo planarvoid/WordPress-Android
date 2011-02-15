@@ -570,7 +570,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE){
             if (animatIn){
                 AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-                aa.setStartOffset(1000);
+                aa.setStartOffset(500);
                 aa.setDuration(500);
             
                 mPlayerAvatarBar.startAnimation(aa);
