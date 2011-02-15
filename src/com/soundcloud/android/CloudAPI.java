@@ -54,6 +54,7 @@ public interface CloudAPI {
         String SHARING        = "track[sharing]";
 
         String SHARED_EMAILS  = "track[shared_to][emails][][address]";
+        String SHARING_NOTE   = "track[sharing_note]";
 
         String PUBLIC         = "public";
         String PRIVATE        = "private";

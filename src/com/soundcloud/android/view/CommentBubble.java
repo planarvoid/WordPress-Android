@@ -25,7 +25,7 @@ public class CommentBubble extends RelativeLayout {
     private static int NEW_MODE_HEIGHT = 150;
     
     private static int SHOW_MODE_WIDTH = 250;
-    private static int SHOW_MODE_HEIGHT = 210;
+    private static int SHOW_MODE_HEIGHT = 220;
     
     public static int HARD_WIDTH;
     public static int CORNER_MARGIN = 20;

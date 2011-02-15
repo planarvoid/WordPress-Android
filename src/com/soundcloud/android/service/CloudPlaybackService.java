@@ -1207,18 +1207,15 @@ public class CloudPlaybackService extends Service {
     }
     
     public void addFavorite() {
-        Log.i(TAG,"ADD FAVORITE");
         FavoriteAddTask f = (FavoriteAddTask) new FavoriteAddTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
             public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                Log.i(TAG,"On add result " + isFavorite);
                 onFavoriteStatusSet(trackId, isFavorite);
             }
 
             @Override
             public void onException(long trackId, Exception e) {
-                Log.i(TAG,"On add exception ");
                 onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
             }
 
@@ -2048,7 +2045,7 @@ public class CloudPlaybackService extends Service {
                 // Start streaming track body.
                 byte[] buff = new byte[1024 * 50];
                 int readBytes = 0;
-                while (!killed && serviceRef.get().keepCaching()
+                while (!killed && !this.isInterrupted() && serviceRef.get().keepCaching()
                         && (readBytes = is.read(buff, 0, buff.length)) != -1) {
                     os.write(buff, 0, readBytes);
                 }

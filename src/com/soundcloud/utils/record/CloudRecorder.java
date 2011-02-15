@@ -110,13 +110,9 @@ public class CloudRecorder {
                 }
 
                 if (service != null) {
-
-                    // hack for not having a proper median. using a square root
-                    // normalizes
-                    // the amplitude and makes a better looking wave
-                    // representation
+                    // hack for not having a proper median. using a square root normalizes
+                    // the amplitude and makes a better looking wave representation
                     service.onRecordFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
-                    // service.onRecordFrameUpdate((maxAmplitude) / MAX_AMPLITUDE);
                 }
 
             } catch (IOException e) {
@@ -359,7 +355,6 @@ public class CloudRecorder {
      * prepare().
      */
     public void start() {
-        Log.i("RECORDER", "START CALLED " + state);
         if (state == State.READY) {
             if (rUncompressed) {
 

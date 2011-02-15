@@ -110,6 +110,14 @@ public class PlayerAvatarBar extends View {
         return mAvatarWidth;
     }
     
+    public void onStart(){
+        Log.i(TAG,"ON START " + mCurrentComments);
+    }
+    
+    public void onStop(){
+        stopLoading();
+    }
+    
     public void clearTrackData(){
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
@@ -139,11 +147,13 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, ArrayList<Comment> newItems){
+        SoundCloudApplication.mBitmapErrors.clear();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
             loadAvatar(c);
         }
+        invalidate();
     }
     
     public void setCurrentComment(Comment c){
@@ -273,7 +283,6 @@ public class PlayerAvatarBar extends View {
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
             }
         
-        Log.i(TAG,"ON DRAW " + mCurrentComment);
         if (mCurrentComment != null){
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
@@ -555,16 +564,20 @@ public class PlayerAvatarBar extends View {
          */
         public boolean execute() {
             try {
-
+                
+               Log.i(TAG,"Executing bitmap load ");
+ 
                 // Check if the last attempt to load the URL had an error
                 mError = getError(mUrl);
                 if (mError != null) {
+                    Log.i(TAG,"BITMAP ERROR");
                     return true;
                 }
 
                 // Check if the Bitmap is already cached in memory
                 mBitmap = getBitmap(mUrl);
                 if (mBitmap != null) {
+                    Log.i(TAG,"GOT BITMAP");
                     // Keep a hard reference until the view has been notified.
                     return true;
                 }
@@ -572,6 +585,7 @@ public class PlayerAvatarBar extends View {
                 URL url = new URL(null, mUrl);
                 URLConnection connection = openConnection(url);
                 try {
+                    Log.i(TAG,"Getting bitmap content");
                     mBitmap = (Bitmap) mBitmapContentHandler.getContent(connection, TYPE_BITMAP);
                     if (mBitmap == null) {
                         throw new NullPointerException();
@@ -597,6 +611,7 @@ public class PlayerAvatarBar extends View {
          */
         public void run() {
             if (mBitmap != null) {
+                Log.i(TAG,"GOt bitmap url " + mUrl);
                 putBitmap(mUrl, mBitmap);
                 mComment.avatar = mBitmap;
                 if (mComment.topLevelComment){
@@ -607,6 +622,7 @@ public class PlayerAvatarBar extends View {
                 }
                 
             } else if (mError != null && !hasError(mUrl)) {
+                Log.i(TAG,"GOt bitmap error " + mUrl);
                 putError(mUrl, mError);
             }
             

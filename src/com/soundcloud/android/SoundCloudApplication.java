@@ -1,20 +1,15 @@
 
 package com.soundcloud.android;
 
-import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.http.ProgressListener;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
@@ -23,6 +18,14 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 @ReportsCrashes(formKey = "dEdsVnppQ0RyOS12d0lPa0dYWDZ4Wmc6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
@@ -56,6 +60,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
     public static final Map<String, Throwable> mBitmapErrors =
             Collections.synchronizedMap(new LruCache<String, Throwable>());
+    
+    private static final HashMap<Long, SoftReference<ArrayList<Comment>>> mCommentSoftCache =
+        new HashMap<Long, SoftReference<ArrayList<Comment>>>();
+    
+    private static final HashMap<Long, ArrayList<Comment>> mCommentCache =
+        new HashMap<Long, ArrayList<Comment>>();
 
     private HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
 
@@ -100,7 +110,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
         mCloudApi.unauthorize();
     }
-
+    
     public HashMap<String, String[]> getDBColumns() {
         return dbColumns;
     }
@@ -151,6 +161,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     }
 
     public List<Parcelable> flushCachePlaylist() {
+        if (mCommentCache.size() > 10)
+            mCommentCache.clear();
+        
         ArrayList<Parcelable> playlistRef = mPlaylistCache;
         mPlaylistCache = null;
         return playlistRef;
@@ -232,5 +245,18 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public InputStream executeRequest(HttpUriRequest req) throws IOException {
         return mCloudApi.executeRequest(req);
+    }
+    
+    public void cacheComments(long track_id, ArrayList<Comment> comments){
+        mCommentCache.put(track_id, comments);
+    }
+    
+    public ArrayList<Comment> getCommentsFromCache(long track_id){
+        if (mCommentCache.get(track_id) != null)
+            return mCommentCache.get(track_id);
+        else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
+            return mCommentSoftCache.get(track_id).get();
+        } else
+            return null;
     }
 }

@@ -90,6 +90,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
+    /* package */ Time mRecordingStarted = new Time();
 
     public void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
@@ -698,7 +699,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     /*** Record Handling ***/
 
     private void startRecording() {
-
         mActivity.forcePause();
 
         mRecordErrorMessage = "";
@@ -729,6 +729,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
         try {
             (mActivity).getCreateService().startRecording(mRecordFile.getAbsolutePath());
+            mRecordingStarted.setToNow();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -780,7 +781,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     }
 
-    public SoundCloudApplication.RecordListener recListener = new com.soundcloud.android.SoundCloudApplication.RecordListener() {
+    public SoundCloudApplication.RecordListener recListener = new SoundCloudApplication.RecordListener() {
         @Override
         public void onFrameUpdate(float maxAmplitude) {
             synchronized (this) {
@@ -789,7 +790,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 onRecProgressUpdate((int) mRecordFile.length());
             }
         }
-
     };
 
     private void stopRecording() {
@@ -855,36 +855,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             return;
         }
 
-        Time time = new Time();
-        time.setToNow();
-
-        // Calendar header
-        String day = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
-        String title, dayTime, filename = null;
-
-        if (time.hour <= 12) {
-            dayTime = "morning";
-        } else if (time.hour <= 17) {
-            dayTime = "afternoon";
-        } else if (time.hour <= 21) {
-           dayTime = "evening";
-        } else {
-           dayTime = "night";
-        }
-
-        if (mWhatText.length() > 0 && mWhereText.length() > 0) {
-            title = mWhatText.getText() + " at " + mWhereText.getText();
-        } else if (mWhatText.length() > 0) {
-            title = mWhatText.getText().toString();
-        } else if (mWhereText.length() > 0) {
-            title = mWhereText.getText().toString();
-        } else {
-            title    = "recording on " + (day == null ? "" : day.toLowerCase()) + " " + dayTime;
-            filename = "recording_on_" + DateFormat.format("yyyy-MM-dd-hh-mm-ss", time.toMillis(false));
-        }
-
-        if (filename == null) filename = title;
-        filename += ".ogg";
 
         final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         final Map<String, Object> data = new HashMap<String, Object>();
@@ -897,6 +867,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             final List<Integer> serviceIds = mConnectionList.postToServiceIds();
 
              if (!serviceIds.isEmpty()) {
+                data.put(CloudAPI.Params.SHARING_NOTE, generateSharingNote());
                 data.put(CloudAPI.Params.POST_TO, serviceIds);
              } else {
                 data.put(CloudAPI.Params.POST_TO_EMPTY, "");
@@ -910,10 +881,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         }
 
+        final String title = generateTitle();
         data.put(CloudAPI.Params.TITLE, title);
         data.put(CloudAPI.Params.TYPE, "recording");
         data.put(CloudAPI.Params.TAG_LIST, "soundcloud:source=web-record");
-        data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), filename));
+        data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), generateFilename(title)));
         data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
@@ -931,6 +903,62 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             mWhatText.setText("");
             clearArtwork();
         }
+    }
+
+
+    private String dateString() {
+        String day = DateUtils.getDayOfWeekString(mRecordingStarted.weekDay + 1, DateUtils.LENGTH_LONG);
+        String dayTime;
+        if (mRecordingStarted.hour <= 12) {
+            dayTime = "morning";
+        } else if (mRecordingStarted.hour <= 17) {
+            dayTime = "afternoon";
+        } else if (mRecordingStarted.hour <= 21) {
+           dayTime = "evening";
+        } else {
+           dayTime = "night";
+        }
+
+        return day + " " + dayTime;
+    }
+
+
+    private String generateTitle() {
+        String title;
+        if (mWhatText.length() > 0 && mWhereText.length() > 0) {
+            title = mWhatText.getText() + " at " + mWhereText.getText();
+        } else if (mWhatText.length() > 0) {
+            title = mWhatText.getText().toString();
+        } else if (mWhereText.length() > 0) {
+            title = mWhereText.getText().toString();
+        } else {
+            title = "recording on " + dateString();
+        }
+        return title;
+    }
+
+    private String generateFilename(String title) {
+        return String.format("%s_%s.ogg", title,
+               DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false))
+        );
+    }
+
+    private String generateSharingNote() {
+        String note;
+        if (mWhatText.length() > 0) {
+            if (mWhereText.length() > 0) {
+                note = String.format("%s at %s", mWhatText.getText(), mWhereText.getText());
+            } else {
+                note = mWhatText.getText().toString();
+            }
+        } else {
+            if (mWhereText.length() > 0) {
+                note = String.format("Sounds at %s", mWhereText.getText());
+            } else {
+                note = String.format("Sounds from %s", dateString());
+            }
+        }
+        return note;
     }
 
     public void onPlayComplete(boolean result) {
