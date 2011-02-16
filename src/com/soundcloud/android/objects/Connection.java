@@ -16,7 +16,7 @@ public class Connection {
         Twitter(R.drawable.service_twitter, true, "twitter"),
         Facebook(R.drawable.service_facebook_profile, true, "facebook_profile", "facebook_page"),
         Myspace(R.drawable.service_myspace, true, "myspace"),
-        Foursquare(R.drawable.service_foursquare, false, "foursquare"),
+        Foursquare(R.drawable.service_foursquare, true, "foursquare"),
         Unknown(R.drawable.service_myspace, false, "unknown");
 
         public final int resId;
