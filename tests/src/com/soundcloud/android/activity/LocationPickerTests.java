@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity;
 
 import android.location.Location;
-import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.utils.http.Http;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.HttpHost;
@@ -76,7 +76,7 @@ public class LocationPickerTests {
         HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
         //http://developer.foursquare.com/docs/venues/search.html
-        HttpGet request = new HttpGet("/v2/venues/search?" + AsyncApiTask.queryString(
+        HttpGet request = new HttpGet("/v2/venues/search?" + new Http.Params(
                 "ll", "52.499229,13.418405",
                 "llAcc", 5,
                 "limit", 50,

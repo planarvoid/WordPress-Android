@@ -351,7 +351,7 @@ public class Dashboard extends LazyTabActivity {
                 break;
 
             case EmailPicker.PICK_EMAILS:
-                if (result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
+                if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
                     String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
                     if (emails != null) {
                         Log.d(TAG, "got emails " + Arrays.asList(emails));
@@ -360,7 +360,7 @@ public class Dashboard extends LazyTabActivity {
                 }
                 break;
             case LocationPicker.PICK_VENUE:
-                if (result != null && result.hasExtra("name")) {
+                if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
                     mScCreate.setWhere(result.getStringExtra("name"),
                             result.getStringExtra("id"),
                             result.getDoubleExtra("longitude", 0),

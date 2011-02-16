@@ -232,8 +232,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mWhereText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick");
-                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class), LocationPicker.PICK_VENUE);
+                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class),
+                        LocationPicker.PICK_VENUE);
             }
         });
 

@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -34,11 +35,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.task.AsyncApiTask.queryString;
 
 
 public class LocationPicker extends ListActivity {
-    public static final int PICK_VENUE = 9003;
+    public static final int PICK_VENUE = 9003;     // Intent request code
+
+    private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
+    private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
+    private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
+
     private static final int LOADING = 0;
 
     private String provider;
@@ -66,7 +71,7 @@ public class LocationPicker extends ListActivity {
     protected void onResume() {
         super.onResume();
         if (provider != null) {
-            getManager().requestLocationUpdates(provider, 1000, 5, (LocationListener) getListAdapter());
+            getManager().requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
         }
     }
 
@@ -112,19 +117,22 @@ public class LocationPicker extends ListActivity {
         private static final ObjectMapper mapper = new ObjectMapper();
 
         @Override
-        protected List<Venue> doInBackground(Location... params) {
-            Location loc = params[0];
+        protected List<Venue> doInBackground(Location... locations) {
+            Location loc = locations[0];
             HttpClient client = new DefaultHttpClient();
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
+            final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
+            Log.d(TAG, "4square: ll="+ ll);
             //http://developer.foursquare.com/docs/venues/search.html
-            HttpGet request = new HttpGet("/v2/venues/search?" + queryString(
-                    "ll", String.format("%.6f,%.6f", loc.getLongitude(), loc.getLatitude()),
+            Http.Params p = new Http.Params("ll", ll,
                     "limit", 50,
                     "client_id", client_id,
-                    "client_secret", client_secret
-            ));
+                    "client_secret", client_secret);
 
+            if (loc.hasAccuracy()) p.add("llAcc", loc.getAccuracy());
+
+            HttpGet request = new HttpGet("/v2/venues/search?" + p);
             try {
                 HttpResponse resp = client.execute(host, request);
                 switch (resp.getStatusLine().getStatusCode()) {
@@ -220,6 +228,15 @@ public class LocationPicker extends ListActivity {
                         setVenues(venues);
                     }
                 }.execute(location);
+
+                // stop requesting updates when we have a recent update with good accuracy
+                if (System.currentTimeMillis() - location.getTime() < 60*1000 &&
+                    location.hasAccuracy() &&
+                    location.getAccuracy() <= MIN_ACCURACY) {
+                    Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
+
+                    getManager().removeUpdates(this);
+                }
             }
         }
 
