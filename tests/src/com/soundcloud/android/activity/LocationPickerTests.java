@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -46,8 +47,18 @@ public class LocationPickerTests {
         assertNotNull(venues);
         assertThat(venues.size(), equalTo(50));
 
-        assertThat(venues.get(0).name, equalTo("U-Bhf Kottbusser Tor - U1, U8"));
-        assertThat(venues.get(0).id, equalTo("4adcda7ef964a520b74721e3"));
+        LocationPicker.Venue kotti = venues.get(0);
+
+        assertThat(kotti.name, equalTo("U-Bhf Kottbusser Tor - U1, U8"));
+        assertThat(kotti.id, equalTo("4adcda7ef964a520b74721e3"));
+
+        assertNotNull(kotti.categories);
+        assertThat(kotti.categories.size(), equalTo(2));
+        assertThat(kotti.categories.get(0).name, equalTo("Monument / Landmark"));
+        assertThat(kotti.categories.get(0).icon.toString(), equalTo("http://foursquare.com/img/categories/building/default.png"));
+        assertThat(kotti.categories.get(0).id, equalTo("4bf58dd8d48988d12d941735"));
+        assertThat(kotti.categories.get(0).primary, is(true));
+        assertThat(kotti.getPrimaryCategory(), equalTo(kotti.categories.get(0).id));
     }
 
     @Test

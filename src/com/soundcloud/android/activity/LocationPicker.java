@@ -34,9 +34,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,12 +86,14 @@ public class LocationPicker extends ListActivity {
         where.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 1 &&
-                    !s.toString().toUpperCase().contentEquals(s.toString())) {
+                        !s.toString().toUpperCase().contentEquals(s.toString())) {
                     where.setTextKeepState(s.toString().toUpperCase());
                 }
             }
+
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
@@ -163,7 +167,7 @@ public class LocationPicker extends ListActivity {
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
-            Log.d(TAG, "4square: ll="+ ll);
+            Log.d(TAG, "4square: ll=" + ll);
             //http://developer.foursquare.com/docs/venues/search.html
             Http.Params p = new Http.Params("ll", ll,
                     "limit", 50,
@@ -196,9 +200,26 @@ public class LocationPicker extends ListActivity {
         }
     }
 
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Venue {
         public String id, name;
+        public List<Category> categories;
+
+        public String getPrimaryCategory() {
+            if (categories == null || categories.size() == 0) return null;
+            for (Category c : categories) {
+                if (c.primary) return c.id;
+            }
+            return null;
+        }
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        static class Category {
+            public String id, name;
+            public boolean primary;
+            public URI icon;
+        }
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
@@ -271,9 +292,9 @@ public class LocationPicker extends ListActivity {
                 }.execute(location);
 
                 // stop requesting updates when we have a recent update with good accuracy
-                if (System.currentTimeMillis() - location.getTime() < 60*1000 &&
-                    location.hasAccuracy() &&
-                    location.getAccuracy() <= MIN_ACCURACY) {
+                if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
+                        location.hasAccuracy() &&
+                        location.getAccuracy() <= MIN_ACCURACY) {
                     Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
                     getManager().removeUpdates(this);
                 }
