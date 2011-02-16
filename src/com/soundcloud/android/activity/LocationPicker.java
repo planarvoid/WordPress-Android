@@ -12,12 +12,18 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.soundcloud.android.R;
 import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -55,15 +61,49 @@ public class LocationPicker extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
+
+        setContentView(R.layout.location_picker);
+
+        final EditText where = (EditText) findViewById(R.id.where);
+
+        where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Intent data = new Intent();
+
+                    data.setData(Uri.parse("location://manual"));
+                    data.putExtra("name", v.getText().toString());
+
+                    setResult(RESULT_OK, data);
+                    finish();
+                }
+                return true;
+            }
+        });
+
+        where.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 1 &&
+                    !s.toString().toUpperCase().contentEquals(s.toString())) {
+                    where.setTextKeepState(s.toString().toUpperCase());
+                }
+            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
+
+
+        if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 
         Criteria c = new Criteria();
         this.provider = getManager().getBestProvider(c, true);
         Log.v(TAG, "best provider: " + provider);
 
+        FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         Location loc = getManager().getLastKnownLocation(provider);
         adapter.onLocationChanged(loc);
-
         setListAdapter(adapter);
     }
 
@@ -165,6 +205,7 @@ public class LocationPicker extends ListActivity {
         private List<Venue> venues;
         private Location location;
 
+
         @Override
         public int getCount() {
             return venues == null ? 0 : venues.size();
@@ -193,7 +234,8 @@ public class LocationPicker extends ListActivity {
             } else {
                 TextView view = new TextView(parent.getContext());
                 view.setText(getItem(position).name);
-                view.setTextSize(20f);
+                view.setTextSize(26f);
+                view.setTextColor(getResources().getColor(R.color.black));
                 return view;
             }
         }
@@ -224,7 +266,6 @@ public class LocationPicker extends ListActivity {
                             dismissDialog(LOADING);
                         } catch (IllegalArgumentException ignored) {
                         }
-
                         setVenues(venues);
                     }
                 }.execute(location);
@@ -234,7 +275,6 @@ public class LocationPicker extends ListActivity {
                     location.hasAccuracy() &&
                     location.getAccuracy() <= MIN_ACCURACY) {
                     Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
-
                     getManager().removeUpdates(this);
                 }
             }

@@ -70,7 +70,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     /* package */ RadioButton mRdoPrivate, mRdoPublic;
 
-    /* package */ EditText mWhereText, mWhatText;
+    /* package */  EditText mWhatText;
+    /* package */  TextView mWhereText;
+
 
     private ImageView mArtwork;
     private ImageButton btnAction;
@@ -100,7 +102,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     public void setWhere(String where, String id, double lng, double lat) {
-        mWhereText.setTextKeepState(where);
+        if (where != null) mWhereText.setTextKeepState(where);
         mFourSquareVenueId = id;
         mLong = lng;
         mLat = lat;
@@ -227,13 +229,14 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mWhatText = (EditText) findViewById(R.id.what);
-        mWhereText = (EditText) findViewById(R.id.where);
+        mWhereText = (TextView) findViewById(R.id.where);
 
         mWhereText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class),
-                        LocationPicker.PICK_VENUE);
+                Intent intent = new Intent(mActivity, LocationPicker.class);
+                intent.putExtra("name", ((TextView)v).getText().toString());
+                mActivity.startActivityForResult(intent, LocationPicker.PICK_VENUE);
             }
         });
 
@@ -253,20 +256,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
         });
 
-        mWhereText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                if (mWhereText.length() == 1
-                        && !mWhereText.getText().toString().toUpperCase().contentEquals(
-                                mWhereText.getText().toString()))
-                    mWhereText.setTextKeepState(mWhereText.getText().toString().toUpperCase());
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
 
         mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
@@ -286,15 +275,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (TextUtils.isEmpty(mArtworkUri)){
-                    //Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                    //Uri.fromFile(new File(FILE_PATH)));
-                    //startActivityForResult(imageCaptureIntent, 1);
-
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
-                    mActivity
-                            .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                    mActivity.startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
                 } else {
                     mActivity.showToast(R.string.cloud_upload_clear_artwork);
                 }
