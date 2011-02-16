@@ -212,7 +212,11 @@ public class LocationPicker extends ListActivity {
 
                     @Override
                     protected void onPostExecute(List<Venue> venues) {
-                        dismissDialog(LOADING);
+                        try {
+                            dismissDialog(LOADING);
+                        } catch (IllegalArgumentException ignored) {
+                        }
+
                         setVenues(venues);
                     }
                 }.execute(location);
