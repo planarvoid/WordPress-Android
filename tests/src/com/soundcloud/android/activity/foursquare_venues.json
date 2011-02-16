@@ -1,0 +1,1958 @@
+{
+  "meta": {
+    "code": 200
+  },
+  "response": {
+    "groups": [
+      {
+        "type": "nearby",
+        "name": "Nearby",
+        "items": [
+          {
+            "id": "4adcda7ef964a520b74721e3",
+            "name": "U-Bhf Kottbusser Tor - U1, U8",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Kottbusser Stra\u221a\u00fce",
+              "crossStreet": "Skalitzer Str.",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10967",
+              "lat": 52.499059586664,
+              "lng": 13.4183835983276,
+              "distance": 18
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d12d941735",
+                "name": "Monument \/ Landmark",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other",
+                  "Government"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d1fd931735",
+                "name": "Subway",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
+                "parents": [
+                  "Travel"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 1232,
+              "usersCount": 302
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b1ff824f964a5208c2b24e3",
+            "name": "U Bahn Kotbusser Tor",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Strassw",
+              "city": "Berlin",
+              "state": "Germany",
+              "lat": 52.499425345854,
+              "lng": 13.4186840057373,
+              "distance": 28
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1fd931735",
+                "name": "Subway",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
+                "parents": [
+                  "Travel"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 84,
+              "usersCount": 60
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda79f964a520924621e3",
+            "name": "M\u221a\u2202bel Olfe",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Reichenberger Str. 177",
+              "crossStreet": "Kottbusser Tor\/Dresdener Str.",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.499996838497,
+              "lng": 13.417541384697,
+              "distance": 103
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d117941735",
+                "name": "Beer Garden",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 222,
+              "usersCount": 129
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda77f964a520294621e3",
+            "name": "Festsaal Kreuzberg",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Strasse 130",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.4993730947275,
+              "lng": 13.4204864501953,
+              "distance": 141
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d1e6931735",
+                "name": "Concert Hall",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/musicvenue.png",
+                "parents": [
+                  "Arts & Entertainment",
+                  "Music Venue"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 359,
+              "usersCount": 237
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4ae375f2f964a520659521e3",
+            "name": "Paloma Bar",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Str. 135",
+              "city": "Berlin",
+              "state": "Germany",
+              "lat": 52.4992432,
+              "lng": 13.4186413,
+              "distance": 16
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d11f941735",
+                "name": "Nightclub \/ Discotheque",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "parents": [
+                  "Nightlife"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 47,
+              "usersCount": 36
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b7f0264f964a520091030e3",
+            "name": "Monarch Bar",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.4993208435388,
+              "lng": 13.4198641777039,
+              "distance": 99
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 151,
+              "usersCount": 96
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4aec9f9af964a52093c921e3",
+            "name": "Photoautomat - Kotti",
+            "contact": {
+
+            },
+            "location": {
+              "address": "skalitzer strasse 135",
+              "city": "Berlin",
+              "state": "Germany",
+              "lat": 52.4992432,
+              "lng": 13.4186413,
+              "distance": 16
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1f1931735",
+                "name": "Other - Entertainment",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/default.png",
+                "parents": [
+                  "Arts & Entertainment"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 32,
+              "usersCount": 27
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda7cf964a5203e4721e3",
+            "name": "West Germany",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Str. 133",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.4992044,
+              "lng": 13.4196338,
+              "distance": 83
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1d9941735",
+                "name": "Music Venue",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/musicvenue.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d11f941735",
+                "name": "Nightclub \/ Discotheque",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "parents": [
+                  "Nightlife"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 35,
+              "usersCount": 32
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bcb7d1cfb84c9b69afd1e3e",
+            "name": "Comebackpackers Hostel",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalberstrasse 87",
+              "city": "Berlin",
+              "lat": 52.499223,
+              "lng": 13.418053,
+              "distance": 23
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1ee931735",
+                "name": "Hostel",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/hostel.png",
+                "parents": [
+                  "Travel"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 41,
+              "usersCount": 16
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b055dcef964a520f35722e3",
+            "name": "co-up",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 7-8",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5003658555136,
+              "lng": 13.4189414978027,
+              "distance": 131
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d174941735",
+                "name": "Coworking Space",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other",
+                  "Corporate \/ Office"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d124941735",
+                "name": "Corporate \/ Office",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 249,
+              "usersCount": 85
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c51af89250dd13abf64a77d",
+            "name": "Your Neighbours HQ",
+            "contact": {
+              "twitter": "yourneighbours"
+            },
+            "location": {
+              "address": "Adalbertstra\u221a\u00fce 5",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.5001176674187,
+              "lng": 13.41881275177,
+              "distance": 102
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d125941735",
+                "name": "Tech Startup",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other",
+                  "Corporate \/ Office"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 104,
+              "usersCount": 33
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda79f964a520b44621e3",
+            "name": "Luzia",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Oranienstrasse 34",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5015731,
+              "lng": 13.4182716,
+              "distance": 261
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d16a941735",
+                "name": "Bakery",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/bakery.png",
+                "parents": [
+                  "Food"
+                ]
+              },
+              {
+                "id": "4bf58dd8d48988d16d941735",
+                "name": "Caf\u221a\u00a9",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 462,
+              "usersCount": 253
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda88f964a520764921e3",
+            "name": "Maroush",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstrasse 98",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5006271046262,
+              "lng": 13.418984413147,
+              "distance": 160
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d115941735",
+                "name": "Middle Eastern",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d1c0941735",
+                "name": "Mediterranean",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 215,
+              "usersCount": 83
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c12ae3db7b9c9287e3ea837",
+            "name": "Caf\u221a\u00a9 Kotti",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499693,
+              "lng": 13.417948,
+              "distance": 60
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d116941735",
+                "name": "Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 12,
+              "usersCount": 11
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b7ed423f964a520890230e3",
+            "name": "Babylon",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Dresdner Stra\u221a\u00fce 126",
+              "crossStreet": "Kottbuser Tor",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.5001307299849,
+              "lng": 13.4173107147217,
+              "distance": 124
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d17e941735",
+                "name": "Indie Theater",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/movietheater.png",
+                "parents": [
+                  "Arts & Entertainment",
+                  "Movie Theater"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 60,
+              "usersCount": 51
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4cfaf32d084f5481b26c7e09",
+            "name": "S\u221a\u00badblock",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.500266,
+              "lng": 13.417906,
+              "distance": 120
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1d8941735",
+                "name": "Gay Bar",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/gaybar.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 24,
+              "usersCount": 16
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bd9e83ec79cc928a4927ce9",
+            "name": "Tadim",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.49939,
+              "lng": 13.418022,
+              "distance": 31
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1c4941735",
+                "name": "Other - Food",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 16,
+              "usersCount": 12
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c2a45faae6820a1bf0f1643",
+            "name": "Izmir K\u221a\u2202ftecisi",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499317,
+              "lng": 13.417303,
+              "distance": 75
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1c0941735",
+                "name": "Mediterranean",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 18,
+              "usersCount": 10
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b06b53bf964a520e2ee22e3",
+            "name": "green rice",
+            "contact": {
+              "phone": "61507367"
+            },
+            "location": {
+              "address": "adalbertstrasse 11",
+              "crossStreet": "oranienstrasse",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5010738,
+              "lng": 13.4191492,
+              "distance": 211
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d149941735",
+                "name": "Thai",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 173,
+              "usersCount": 48
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c8c119955fba093ce3c5cab",
+            "name": "Mezcaleria Lupita",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.498949,
+              "lng": 13.418568,
+              "distance": 33
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d11a941735",
+                "name": "Other - Nightlife",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 10,
+              "usersCount": 10
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c19cd8dfe5a76b00c300415",
+            "name": "Simitdachi",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 97",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.4998858062221,
+              "lng": 13.4180670976639,
+              "distance": 76
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d16d941735",
+                "name": "Caf\u221a\u00a9",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 16,
+              "usersCount": 6
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b0ca361f964a5206d4023e3",
+            "name": "Kaiser's",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Str. 134",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.4990208,
+              "lng": 13.4208922,
+              "distance": 170
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d118951735",
+                "name": "Grocery \/ Supermarket",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/food_grocery.png",
+                "parents": [
+                  "Shops",
+                  "Food & Drink"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 94,
+              "usersCount": 26
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4ba77110f964a520289439e3",
+            "name": "Diner Burgerhouse",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499393,
+              "lng": 13.417963,
+              "distance": 35
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d147941735",
+                "name": "Diner",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 15,
+              "usersCount": 11
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b7f3a91f964a520cb2030e3",
+            "name": "multi_layer laden",
+            "contact": {
+              "twitter": "multilayerladen"
+            },
+            "location": {
+              "address": "Adalbertstr. 4",
+              "city": "Berlin",
+              "state": "Berlin",
+              "lat": 52.5000792,
+              "lng": 13.4184406,
+              "distance": 94
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d121941735",
+                "name": "Lounge",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/lounge.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 14,
+              "usersCount": 11
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4aeaeb5ef964a520a8bc21e3",
+            "name": "Hasir Restaurant",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstrasse 10",
+              "city": "Berlin",
+              "state": "Germany",
+              "lat": 52.5009317,
+              "lng": 13.4190479,
+              "distance": 194
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1c0941735",
+                "name": "Mediterranean",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 163,
+              "usersCount": 120
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b464c82f964a520e81c26e3",
+            "name": "Doyum Grillhaus",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Admiralstr. 38",
+              "city": "Berlin",
+              "state": "Berlin",
+              "lat": 52.4982692751665,
+              "lng": 13.4173429012299,
+              "distance": 128
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d10b941735",
+                "name": "Falafel",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d16e941735",
+                "name": "Fast Food",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "parents": [
+                  "Food"
+                ]
+              },
+              {
+                "id": "4bf58dd8d48988d1e1931735",
+                "name": "Arcade",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/arcade.png",
+                "parents": [
+                  "Arts & Entertainment"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 32,
+              "usersCount": 15
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4ccd5ed6511b236a0c0ef7c9",
+            "name": "Third Wave HQ",
+            "contact": {
+              "phone": "493061671798",
+              "twitter": "thirdwaveberlin"
+            },
+            "location": {
+              "address": "Adalbertstr. 5",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.500467,
+              "lng": 13.419548,
+              "distance": 158
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d125941735",
+                "name": "Tech Startup",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other",
+                  "Corporate \/ Office"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 89,
+              "usersCount": 51
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4be1ab18edbb0f479f40a615",
+            "name": "Santa Maria",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Oranienstra\u221a\u00fce 170",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.50158,
+              "lng": 13.4177,
+              "distance": 266
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1c1941735",
+                "name": "Mexican",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d153941735",
+                "name": "Burritos",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 183,
+              "usersCount": 61
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c0a9ef2ffb8c9b684e46b61",
+            "name": "SENF Consulting",
+            "contact": {
+              "twitter": "_SENF_"
+            },
+            "location": {
+              "address": "\u201a\u00f4\u00f5 socialmediaberater.net \u201a\u00f4\u00f5",
+              "crossStreet": "Reichenberger Str. 9",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "country": "Deutschland",
+              "lat": 52.4994906596749,
+              "lng": 13.416473865509,
+              "distance": 134
+            },
+            "categories": [
+
+            ],
+            "verified": true,
+            "stats": {
+              "checkinsCount": 97,
+              "usersCount": 7
+            },
+            "url": "http:\/\/janhendriksenf.de\/",
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bc871c692b376b0c45e513a",
+            "name": "Huy Hoang",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.49939,
+              "lng": 13.417969,
+              "distance": 34
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d142941735",
+                "name": "Asian",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 7,
+              "usersCount": 2
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c7d353910916dcb71b02896",
+            "name": "Konyali",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499337,
+              "lng": 13.416589,
+              "distance": 123
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1c4941735",
+                "name": "Other - Food",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 19,
+              "usersCount": 6
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c743d11ff1fb60c47f7f2a7",
+            "name": "Kotti Paradise",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Kottbusser Tor",
+              "city": "Berlin",
+              "state": "Berlin",
+              "lat": 52.4994253,
+              "lng": 13.4186625,
+              "distance": 27
+            },
+            "categories": [
+
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 9,
+              "usersCount": 3
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bb363a7eb3e9521ce09cb0a",
+            "name": "schneidersladen",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499188,
+              "lng": 13.418813,
+              "distance": 28
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1fe941735",
+                "name": "Music \/ Instruments",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/music_instruments.png",
+                "parents": [
+                  "Shops"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 5,
+              "usersCount": 3
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4af08e35f964a52031dd21e3",
+            "name": "Pizza a Pezzi",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Oranienstra\u221a\u00fce 176",
+              "crossStreet": "Adalbertstra\u221a\u00fce",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5013124,
+              "lng": 13.4191629,
+              "distance": 237
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1ca941735",
+                "name": "Pizza",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/pizza.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 99,
+              "usersCount": 39
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bf31331cad2c9281e679a99",
+            "name": "Lezzet Grill",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstra\u221a\u00fce 3",
+              "city": "Berlin",
+              "state": "Deutschland",
+              "postalCode": "10999",
+              "lat": 52.5001,
+              "lng": 13.41858,
+              "distance": 97
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d16e941735",
+                "name": "Fast Food",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d10b941735",
+                "name": "Falafel",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 16,
+              "usersCount": 5
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c262f37f1272d7f150b86c5",
+            "name": "Taka",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 97",
+              "city": "Berllin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.499928259772,
+              "lng": 13.417729139328,
+              "distance": 90
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1ce941735",
+                "name": "Seafood",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/seafood.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 4,
+              "usersCount": 1
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bb4f07d62fca5930826f17e",
+            "name": "Berliner Sparkasse",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Str. 15",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.4988734401935,
+              "lng": 13.4200505912304,
+              "distance": 118
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d10a951735",
+                "name": "Bank \/ Financial",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/financial.png",
+                "parents": [
+                  "Shops"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 15,
+              "usersCount": 6
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b0a4767f964a520f22223e3",
+            "name": "Aki Tatsu Sushi Store",
+            "contact": {
+              "phone": "03069569176"
+            },
+            "location": {
+              "address": "Adalbertstr. 90",
+              "crossStreet": "Oranienstr",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10997",
+              "lat": 52.5013766,
+              "lng": 13.4193237,
+              "distance": 247
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d1d2941735",
+                "name": "Sushi",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/sushi.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 74,
+              "usersCount": 51
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c6912651a6620a1c88a628c",
+            "name": "eDarling",
+            "contact": {
+              "twitter": "e_darling"
+            },
+            "location": {
+              "address": "Kohlfurter Stra\u221a\u00fce 41\/43",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.4968173,
+              "lng": 13.4182938,
+              "distance": 268
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d124941735",
+                "name": "Corporate \/ Office",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 149,
+              "usersCount": 11
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b30c3bff964a52072fb24e3",
+            "name": "Lasan",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 96",
+              "city": "Berlin",
+              "state": "Germany",
+              "lat": 52.500203,
+              "lng": 13.417794,
+              "distance": 116
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d115941735",
+                "name": "Middle Eastern",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 7,
+              "usersCount": 6
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bdb2418c79cc9286b5481e9",
+            "name": "Habibi",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.501406,
+              "lng": 13.418966,
+              "distance": 245
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d115941735",
+                "name": "Middle Eastern",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 60,
+              "usersCount": 24
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bab6728f964a520a7a63ae3",
+            "name": "Leylak",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.49825,
+              "lng": 13.418997,
+              "distance": 116
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d16d941735",
+                "name": "Caf\u221a\u00a9",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 8,
+              "usersCount": 7
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b793852f964a52097ef2ee3",
+            "name": "Orient Eck",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Reichenberger Str. 174",
+              "city": "Berlin",
+              "state": "Berlin",
+              "lat": 52.499302,
+              "lng": 13.4176199,
+              "distance": 53
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d115941735",
+                "name": "Middle Eastern",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 7,
+              "usersCount": 5
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4adcda7bf964a520374721e3",
+            "name": "Cake Club",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Oranienstra\u221a\u00fce 32",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5014492,
+              "lng": 13.4187222,
+              "distance": 248
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d11f941735",
+                "name": "Nightclub \/ Discotheque",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "parents": [
+                  "Nightlife"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 60,
+              "usersCount": 39
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4c0eaced336220a1bd98cc77",
+            "name": "Antalia 36",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 96",
+              "city": "Berlin",
+              "state": "Germany",
+              "postalCode": "10999",
+              "lat": 52.5001160345976,
+              "lng": 13.4182441234589,
+              "distance": 99
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d16e941735",
+                "name": "Fast Food",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d10b941735",
+                "name": "Falafel",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 4,
+              "usersCount": 4
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4b696d7df964a520e8a12be3",
+            "name": "moccas",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstr. 93",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.5007338,
+              "lng": 13.4188643,
+              "distance": 170
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d16d941735",
+                "name": "Caf\u221a\u00a9",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "parents": [
+                  "Food"
+                ],
+                "primary": true
+              },
+              {
+                "id": "4bf58dd8d48988d1e0931735",
+                "name": "Coffee Shop",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/coffeeshop.png",
+                "parents": [
+                  "Food"
+                ]
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 21,
+              "usersCount": 15
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4be5c24b2457a5936af5ab15",
+            "name": "Ads2people GmbH & Co. KG",
+            "contact": {
+              "phone": "030720209710",
+              "twitter": "Ads2people"
+            },
+            "location": {
+              "address": "Oranienstr. 183",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.50035,
+              "lng": 13.42055,
+              "distance": 191
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d124941735",
+                "name": "Corporate \/ Office",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "parents": [
+                  "Home \/ Work \/ Other"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 21,
+              "usersCount": 7
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4d248408daa93704bd04c681",
+            "name": "Simitdchi Cafe & Backhaus",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Adalbertstra\u221a\u00fce 97",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.49998,
+              "lng": 13.41783,
+              "distance": 92
+            },
+            "categories": [
+
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 4,
+              "usersCount": 2
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4cb715d355af224bc0809e7e",
+            "name": "Kotti",
+            "contact": {
+
+            },
+            "location": {
+              "address": "Skalitzer Stra\u221a\u00fce 8",
+              "city": "Berlin",
+              "state": "Berlin",
+              "postalCode": "10999",
+              "lat": 52.49887,
+              "lng": 13.41747,
+              "distance": 74
+            },
+            "categories": [
+              {
+                "id": "4bf58dd8d48988d164941735",
+                "name": "Plaza \/ Square",
+                "icon": "http:\/\/foursquare.com\/img\/categories\/parks_outdoors\/default.png",
+                "parents": [
+                  "Parks & Outdoors"
+                ],
+                "primary": true
+              }
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 1,
+              "usersCount": 1
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          },
+          {
+            "id": "4bf718625efe2d7f56656834",
+            "name": "Dusk Til Dawn",
+            "contact": {
+
+            },
+            "location": {
+              "lat": 52.499192,
+              "lng": 13.41928,
+              "distance": 59
+            },
+            "categories": [
+
+            ],
+            "verified": false,
+            "stats": {
+              "checkinsCount": 2,
+              "usersCount": 1
+            },
+            "specials": [
+
+            ],
+            "hereNow": {
+              "count": 0
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,8 +1,6 @@
 
 package com.soundcloud.android.view;
 
-import android.location.Criteria;
-import android.location.LocationManager;
 import android.text.format.DateFormat;
 import android.widget.*;
 import android.widget.Button;
@@ -43,6 +41,7 @@ import android.view.View;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +91,19 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     /* package */ AccessList mAccessList;
     /* package */ Time mRecordingStarted = new Time();
 
+
+    private String mFourSquareVenueId;
+    private double mLong, mLat;
+
     public void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
+    }
+
+    public void setWhere(String where, String id, double lng, double lat) {
+        mWhereText.setTextKeepState(where);
+        mFourSquareVenueId = id;
+        mLong = lng;
+        mLat = lat;
     }
 
     public enum CreateState {
@@ -223,7 +233,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick");
-                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class), 0);
+                mActivity.startActivityForResult(new Intent(mActivity, LocationPicker.class), LocationPicker.PICK_VENUE);
             }
         });
 
@@ -280,15 +290,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     //imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                     //Uri.fromFile(new File(FILE_PATH)));
                     //startActivityForResult(imageCaptureIntent, 1);
-                    
+
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
                     mActivity
-                            .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);    
+                            .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
                 } else {
                     mActivity.showToast(R.string.cloud_upload_clear_artwork);
                 }
-                
+
             }
         });
 
@@ -341,10 +351,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         outState.putString("createWhatValue", mWhatText.getText().toString());
         outState.putString("createWhereValue", mWhereText.getText().toString());
         outState.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-        
+
         if (!TextUtils.isEmpty(mArtworkUri))
             outState.putString("createArtworkPath", mArtworkUri);
-        
+
         super.onSaveInstanceState(outState);
     }
 
@@ -884,7 +894,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         final String title = generateTitle();
         data.put(CloudAPI.Params.TITLE, title);
         data.put(CloudAPI.Params.TYPE, "recording");
-        data.put(CloudAPI.Params.TAG_LIST, "soundcloud:source=web-record");
+
+        // add machine tags
+        List<String> tags = new ArrayList<String>();
+        tags.add("soundcloud:source=web-record");
+        if (mFourSquareVenueId != null) tags.add("foursquare:venue="+mFourSquareVenueId);
+        if (mLat  != 0) tags.add("geo:lat="+mLat);
+        if (mLong != 0) tags.add("geo:long="+mLong);
+        data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
+
         data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), generateFilename(title)));
         data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
@@ -904,7 +922,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             clearArtwork();
         }
     }
-
 
     private String dateString() {
         String day = DateUtils.getDayOfWeekString(mRecordingStarted.weekDay + 1, DateUtils.LENGTH_LONG);
@@ -939,7 +956,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private String generateFilename(String title) {
         return String.format("%s_%s.ogg", title,
-               DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false))
+                DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false))
         );
     }
 

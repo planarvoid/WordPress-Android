@@ -359,6 +359,15 @@ public class Dashboard extends LazyTabActivity {
                     }
                 }
                 break;
+            case LocationPicker.PICK_VENUE:
+                if (result != null && result.hasExtra("name")) {
+                    mScCreate.setWhere(result.getStringExtra("name"),
+                            result.getStringExtra("id"),
+                            result.getDoubleExtra("longitude", 0),
+                            result.getDoubleExtra("latitude",  0));
+                }
+                break;
+
         }
     }
 
