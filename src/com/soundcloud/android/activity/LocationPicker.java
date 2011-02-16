@@ -16,13 +16,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpHost;
@@ -34,7 +37,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.IOException;
@@ -51,6 +53,7 @@ public class LocationPicker extends ListActivity {
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
+    private static final int VENUE_LIMIT     = 50; // fetch this number of 4sq venues
 
     private static final int LOADING = 0;
 
@@ -156,6 +159,7 @@ public class LocationPicker extends ListActivity {
     }
 
     static class FoursquareApiTask extends AsyncTask<Location, Integer, List<Venue>> {
+        // XXX replace with official SoundCloud API keys
         public static final String client_id = "AOJ23GCHGN2C5OWX4OYLWMXKBKAKPS2BK3VE122CEACTY1KD";
         public static final String client_secret = "BZ0MCMCYMUWMB1DPAJI40BLV3YTSQB4XRQKSR1ZMRM442F3R";
         private static final ObjectMapper mapper = new ObjectMapper();
@@ -167,11 +171,11 @@ public class LocationPicker extends ListActivity {
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
-            Log.d(TAG, "4square: ll=" + ll);
             //http://developer.foursquare.com/docs/venues/search.html
-            Http.Params p = new Http.Params("ll", ll,
-                    "limit", 50,
-                    "client_id", client_id,
+            Http.Params p = new Http.Params(
+                    "ll",            ll,
+                    "limit",         VENUE_LIMIT,
+                    "client_id",     client_id,
                     "client_secret", client_secret);
 
             if (loc.hasAccuracy()) p.add("llAcc", loc.getAccuracy());
@@ -206,12 +210,15 @@ public class LocationPicker extends ListActivity {
         public String id, name;
         public List<Category> categories;
 
-        public String getPrimaryCategory() {
+        public Category getCategory() {
             if (categories == null || categories.size() == 0) return null;
-            for (Category c : categories) {
-                if (c.primary) return c.id;
-            }
+            for (Category c : categories) if (c.primary) return c;
             return null;
+        }
+
+        public URI getIcon() {
+            Category c = getCategory();
+            return c == null ? null : c.icon;
         }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
@@ -225,7 +232,6 @@ public class LocationPicker extends ListActivity {
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
         private List<Venue> venues;
         private Location location;
-
 
         @Override
         public int getCount() {
@@ -249,16 +255,33 @@ public class LocationPicker extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView != null) {
-                ((TextView) convertView).setText(getItem(position).name);
-                return convertView;
+            View view;
+            if (convertView == null) {
+                LayoutInflater inf = (LayoutInflater)
+                        parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inf.inflate(R.layout.location_picker_row, parent, false);
             } else {
-                TextView view = new TextView(parent.getContext());
-                view.setText(getItem(position).name);
-                view.setTextSize(26f);
-                view.setTextColor(getResources().getColor(R.color.black));
-                return view;
+                view = convertView;
             }
+
+            TextView name = (TextView) view.findViewById(R.id.venue_name);
+            ImageView image = (ImageView) view.findViewById(R.id.venue_category_icon);
+
+            Venue venue = getItem(position);
+
+            URI categoryIcon = venue.getIcon();
+            if (categoryIcon != null) {
+                try {
+                    ImageLoader.get(parent.getContext()).bind(
+                            this,
+                            image,
+                            categoryIcon.toString());
+                } catch (Exception e) {
+                    Log.e(TAG, "error", e);
+                }
+            }
+            name.setText(venue.name);
+            return view;
         }
 
         public void setVenues(List<Venue> venues) {
