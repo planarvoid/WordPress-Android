@@ -38,6 +38,7 @@ import android.widget.TabWidget;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Dashboard extends LazyTabActivity {
@@ -102,11 +103,9 @@ public class Dashboard extends LazyTabActivity {
         mHolder.setVisibility(View.GONE);
 
         FrameLayout tabLayout = CloudUtils.createTabLayout(this);
-        tabLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-                android.view.ViewGroup.LayoutParams.FILL_PARENT));
+        tabLayout.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
         mHolder.addView(tabLayout);
 
-        //
         tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
         tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
 

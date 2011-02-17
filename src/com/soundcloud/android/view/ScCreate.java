@@ -11,8 +11,6 @@ import android.graphics.BitmapFactory.Options;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -46,14 +44,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
-    private static final String TAG = "ScCreate";
-
-    // ******************************************************************** //
-    // Private Data.
-    // ******************************************************************** //
-
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions, txtRecordStatus;
@@ -66,11 +59,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private RadioGroup mRdoPrivacy;
 
-    /* package */ RadioButton mRdoPrivate, mRdoPublic;
-
+    /* package */  RadioButton mRdoPrivate, mRdoPublic;
     /* package */  EditText mWhatText;
     /* package */  TextView mWhereText;
-
 
     private ImageView mArtwork;
     private ImageButton btnAction;
@@ -91,7 +82,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     /* package */ AccessList mAccessList;
     /* package */ Time mRecordingStarted = new Time();
 
-
     private String mFourSquareVenueId;
     private double mLong, mLat;
 
@@ -110,40 +100,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK, IDLE_UPLOAD, UPLOAD
     }
 
-    private String mRecordErrorMessage = "";
+    private String mRecordErrorMessage;
 
     private PCMPlaybackTask mPlaybackTask;
 
     private AudioTrack playbackTrack;
 
     private String mDurationFormatLong;
-
     private String mDurationFormatShort;
-
     private String mCurrentDurationString;
 
     public static int REC_SAMPLE_RATE = 44100;
-
     public static int REC_CHANNELS = 2;
-
     public static int REC_BITS_PER_SAMPLE = 16;
-
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
-    WakeLock mWakeLock;
 
+    private boolean mSampleInterrupted = false;
+    private RemainingTimeCalculator mRemainingTimeCalculator;
 
-    boolean mSampleInterrupted = false;
-    RemainingTimeCalculator mRemainingTimeCalculator;
-
-    String mTimerFormat;
     private Long pcmTime;
-
 
     public ScCreate(LazyActivity activity) {
         super(activity);
-
-        Log.d(TAG, "ScCreate ctor");
-
         mActivity = activity;
 
         if (EMULATOR) {
@@ -163,13 +141,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
 
-        PowerManager pm = (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "SoundRecorder");
-
         initResourceRefs();
 
         updateUi(false);
         mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.mp4");
+        mRecordErrorMessage = "";
     }
 
     /*
@@ -280,7 +256,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mPowerGauge = new PowerGauge(mActivity);
         mGaugeHolder.addView(mPowerGauge);
-        mTimerFormat = getResources().getString(R.string.timer_format);
 
         mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
         mConnectionList.setAdapter(
@@ -727,7 +702,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
 
         mProgressBar.setMax((int) mRecordFile.length());
-
         mPlaybackTask = new PCMPlaybackTask(mRecordFile);
         mPlaybackTask.setPlaybackListener(this);
         mPlaybackTask.execute();
@@ -824,7 +798,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         return day + " " + dayTime;
     }
 
-
     private String generateTitle() {
         String title;
         if (mWhatText.length() > 0 && mWhereText.length() > 0) {
@@ -889,7 +862,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         }
     }
-
 
     public void onRecProgressUpdate(int position) {
         pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,

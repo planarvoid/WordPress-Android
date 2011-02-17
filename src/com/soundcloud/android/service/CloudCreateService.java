@@ -6,7 +6,6 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.android.view.ScCreate;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
@@ -86,7 +84,9 @@ public class CloudCreateService extends Service {
     private boolean mCurrentUploadCancelled = false;
 
     private int mCurrentState = 0;
-    
+    private int frameCount;
+
+
     public interface States {
         
         int IDLE_RECORDING = 0;
@@ -133,21 +133,21 @@ public class CloudCreateService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (isUploading() || isRecording()) {
+        if (!isUploading() && !isRecording()) {
+            // No active playlist, OK to stop the service right now
+            stopSelf(mServiceStartId);
+            return true;
+        } else {
             // something is currently uploading so don't stop the service now.
             return true;
         }
-
-        // No active playlist, OK to stop the service right now
-        stopSelf(mServiceStartId);
-        return true;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         // init the service here
-        _startService();
+        Log.i(TAG, "upload service started started");
 
         // get notification manager
         nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -156,16 +156,12 @@ public class CloudCreateService extends Service {
                 | PowerManager.ON_AFTER_RELEASE, TAG);
     }
 
-    private void _startService() {
-        Log.i(getClass().getSimpleName(), "upload Service Started started!!!");
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
 
         if (isUploading()) {
-            Log.e(getClass().getSimpleName(), "Service being destroyed while still playing.");
+            Log.e(TAG, "Service being destroyed while still playing.");
         }
 
         _shutdownService();
@@ -258,7 +254,6 @@ public class CloudCreateService extends Service {
 
     }
 
-    private int frameCount;
 
     public void onRecordFrameUpdate(float maxAmplitude) {
         ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
@@ -588,9 +583,7 @@ public class CloudCreateService extends Service {
 
         @Override
         public boolean isUploading() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().isUploading();
-            return false;
+            return mService.get() != null && mService.get().isUploading();
         }
 
         @Override

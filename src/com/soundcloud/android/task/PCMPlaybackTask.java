@@ -12,7 +12,10 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 
+import android.util.Log;
 import com.soundcloud.android.view.ScCreate;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
     private File mPCMFile;
@@ -24,8 +27,6 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
     private Thread writeThread;
 
     public AudioTrack playbackTrack;
-
-    public int minSize;
 
     public PCMPlaybackTask(File pcmFile) {
         mPCMFile = pcmFile;
@@ -97,8 +98,7 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
                             playbackTrack.write(buffer, 0, bytesRead);
                         }
                     } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Log.e(TAG, "error", e);
                     }
                 }
             });
@@ -108,8 +108,7 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
                 publishProgress(playbackTrack.getPlaybackHeadPosition() * 2 * ScCreate.REC_CHANNELS);
                 try {
                     Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
                 }
             }
 
@@ -129,20 +128,4 @@ public class PCMPlaybackTask extends AsyncTask<String, Integer, Boolean> {
 
         public abstract void onPlayComplete(boolean result);
     }
-
 }
-
-/*
- * UNUSED, For later implementation private int playbackPosition; private long
- * mLastSeekEventTime; private boolean mFromTouch = false; private boolean
- * mDragging = false; private OnSeekBarChangeListener mSeekListener = new
- * OnSeekBarChangeListener() { public void onStartTrackingTouch(SeekBar bar) {
- * mLastSeekEventTime = 0; mFromTouch = true; mDragging = true; if
- * (!isPlayingBack) { mCurrentState = CreateState.playback; activateState(); } }
- * public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
- * if (!fromuser) { return; } long now = SystemClock.elapsedRealtime(); if (now
- * - mLastSeekEventTime > 250) { mLastSeekEventTime = now;
- * playbackTrack.setPlaybackHeadPosition(progress); } } public void
- * onStopTrackingTouch(SeekBar bar) { mFromTouch = false; mDragging = false; }
- * };
- */
