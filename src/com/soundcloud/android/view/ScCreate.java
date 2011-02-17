@@ -292,9 +292,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mAccessList.getAdapter().setAccessList(null);
     }
 
-
-
-
     @Override
     public void onAuthenticated() {
         mConnectionList.getAdapter().loadIfNecessary();
@@ -541,8 +538,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     private void calculateTotalProgress() {
-        mCurrentDurationString = getMinsSecsString(mRecordFile, REC_SAMPLE_RATE, REC_CHANNELS,
-                REC_BITS_PER_SAMPLE);
+        mCurrentDurationString = getMinsSecsString(mRecordFile);
     }
 
     // View Flipping
@@ -604,8 +600,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             mViewFlipper.showPrevious();
         }
     }
-
-    /*** Record Handling ***/
 
     private void startRecording() {
         mActivity.forcePause();
@@ -905,7 +899,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         updateTimeRemaining();
     }
 
-    private String getMinsSecsString(File file, int sampleRate, int channels, int bitsPerSample) {
+    private String getMinsSecsString(File file) {
         pcmTime = CloudUtils.getPCMTime(file.length(), REC_SAMPLE_RATE, REC_CHANNELS,
                 REC_BITS_PER_SAMPLE);
         return CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort

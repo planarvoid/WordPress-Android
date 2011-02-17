@@ -40,7 +40,6 @@ import java.util.Arrays;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-
 public class Dashboard extends LazyTabActivity {
     protected ScTabView mLastTab;
 
@@ -72,17 +71,13 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     protected void onRecordingError() {
-
-        if (mScCreate != null)
-            mScCreate.onRecordingError();
+        if (mScCreate != null) mScCreate.onRecordingError();
     }
 
     @Override
     protected void onCreateComplete(boolean success) {
-        if (mScCreate != null)
-            mScCreate.unlock(success);
+        if (mScCreate != null) mScCreate.unlock(success);
     }
-
 
     @Override
     public void mapDetails(Parcelable p) {
@@ -103,7 +98,6 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     protected void build() {
-
         mHolder = (LinearLayout) findViewById(R.id.main_holder);
         mHolder.setVisibility(View.GONE);
 
@@ -117,7 +111,6 @@ public class Dashboard extends LazyTabActivity {
         tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
 
         // setup must be called if you are not initialising the tabhost from XML
-        // tabHost.setup();
         createIncomingTab();
         createExclusiveTab();
         createYouTab();
@@ -135,15 +128,12 @@ public class Dashboard extends LazyTabActivity {
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String s) {
-            if (mLastTab != null) {
-                mLastTab.onStop();
-            }
-
             ((ScTabView) tabHost.getCurrentView()).onStart();
             mLastTab = (ScTabView) tabHost.getCurrentView();
 
-            PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit().putInt(
-                    "lastDashboardIndex", tabHost.getCurrentTab()).commit();
+            PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
+                    .putInt("lastDashboardIndex", tabHost.getCurrentTab())
+                    .commit();
         }
     };
 
@@ -200,10 +190,6 @@ public class Dashboard extends LazyTabActivity {
         this.mScSearch = new ScSearch(this);
         CloudUtils.createTab(tabHost, "search", getString(R.string.tab_search),
                 getResources().getDrawable(R.drawable.ic_tab_search), mScSearch);
-    }
-
-    @Override
-    protected void initLoadTasks() {
     }
 
     @Override

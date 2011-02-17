@@ -121,8 +121,6 @@ public class LazyTabActivity extends LazyActivity {
     @Override
     protected void onStop() {
         mIgnorePlaybackStatus = false;
-        ((ScTabView) tabHost.getCurrentView()).onStop();
-
         super.onStop();
     }
 
@@ -207,14 +205,6 @@ public class LazyTabActivity extends LazyActivity {
                     ((EventsAdapter) mList1.getAdapter()).setPlayingId(mCurrentTrackId);
             }
         }
-    }
-
-    @Override
-    public void leftSwipe() {
-    }
-
-    @Override
-    public void rightSwipe() {
     }
 
     // ******************************************************************** //

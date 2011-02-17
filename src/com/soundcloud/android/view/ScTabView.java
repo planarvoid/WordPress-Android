@@ -40,9 +40,6 @@ public class ScTabView extends FrameLayout {
         }
     }
 
-    public void onStop() {
-    }
-
     public void onAuthenticated() {
     }
 
@@ -55,9 +52,9 @@ public class ScTabView extends FrameLayout {
         }
     }
 
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle state) {
     }
 
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(Bundle state) {
     }
 }

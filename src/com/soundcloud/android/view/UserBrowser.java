@@ -356,8 +356,7 @@ public class UserBrowser extends ScTabView {
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
-        ScTabView mFollowingsView;
-        final ScTabView followingsView = mFollowingsView = new ScTabView(mActivity);
+        final ScTabView followingsView = new ScTabView(mActivity);
         CloudUtils.createTabList(mActivity, followingsView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWINGS);
         CloudUtils.createTab(mTabHost, "followings", mActivity
@@ -443,10 +442,6 @@ public class UserBrowser extends ScTabView {
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String arg0) {
-            if (mLastTab != null) {
-                mLastTab.onStop();
-            }
-
             if (mWorkspaceView != null)
                 mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(),(Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
             
