@@ -141,7 +141,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         return mUserOrder;
     }
 
-    public void configureListMenu(ListView list, CloudUtils.LoadType type) {
+    public void configureListMenu(ListView list) {
 
         list.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override

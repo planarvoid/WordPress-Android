@@ -12,8 +12,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -85,22 +84,7 @@ public class LocationPicker extends ListActivity {
                 return true;
             }
         });
-
-        where.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                if (s.length() == 1 &&
-                        !s.toString().toUpperCase().contentEquals(s.toString())) {
-                    where.setTextKeepState(s.toString().toUpperCase());
-                }
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
-
+        where.addTextChangedListener(new ScCreate.Capitalizer(where));
 
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 

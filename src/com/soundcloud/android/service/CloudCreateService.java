@@ -239,7 +239,7 @@ public class CloudCreateService extends Service {
         Intent i = (new Intent(this, Dashboard.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabIndex", Dashboard.TabIndexes.TAB_RECORD);
+            .putExtra("tabIndex", 3 /* XXX */);
 
         mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);

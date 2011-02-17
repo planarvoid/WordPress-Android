@@ -1,6 +1,21 @@
 
 package com.soundcloud.android.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.RemoteException;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.TabHost;
+import android.widget.TabWidget;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -12,30 +27,6 @@ import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyList;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.utils.AnimUtils;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.RemoteException;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.TabHost;
-import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TabWidget;
-import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,35 +42,11 @@ public class LazyTabActivity extends LazyActivity {
 
     protected FrameLayout tabContent;
 
-    protected int mUserTracksIndex = 0;
-
-    protected int mFavoritesIndex = 1;
-
-    protected int mSetsIndex = 2;
-
-    protected ViewFlipper viewFlipper;
-
     protected ArrayList<LazyList> mLists;
 
     protected Boolean mIgnorePlaybackStatus = false;
 
     protected Integer setTabIndex = -1;
-
-    protected LazyBaseAdapter currentAdapter;
-
-    protected interface Tabs {
-        public final static String TAB_USER_DETAILS = "userDetails";
-
-        public final static String TAB_USER_TRACKS = "userTracks";
-
-        public final static String TAB_USER_SETS = "userSets";
-
-        public final static String TAB_FAVORITES = "favorites";
-
-        public final static String TAB_FOLLOWINGS = "followings";
-
-        public final static String TAB_FOLLOWERS = "followers";
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState, int layoutResId) {
@@ -111,121 +78,21 @@ public class LazyTabActivity extends LazyActivity {
     private void handleIntent() {
         if (getIntent() != null && getIntent().getExtras() != null
                 && getIntent().getIntExtra("tabIndex", -1) != -1) {
-            if (this.tabHost != null)
+            if (this.tabHost != null) {
                 tabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
-            else
+            } else {
                 setTabIndex = getIntent().getIntExtra("tabIndex", -1);
+            }
             getIntent().getExtras().clear();
         }
     }
 
-    public LazyList buildList(Boolean isSearchList) {
-
+    public LazyList buildList(boolean isSearchList) {
         if (isSearchList) {
             mSearchListIndex = mLists.size();
         }
-
         mLists.add(CloudUtils.createList(this));
-
         return mLists.get(mLists.size() - 1);
-    }
-
-    protected void createTabHost() {
-        createTabHost(false);
-    }
-
-    protected LazyList buildList() {
-        return buildList(false);
-    }
-
-    protected void createTabHost(Boolean scrolltabs) {
-        FrameLayout tabLayout = new FrameLayout(this);
-        tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.WRAP_CONTENT));
-        LayoutInflater inflater = (LayoutInflater) this
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (scrolltabs)
-            inflater.inflate(R.layout.cloudscrolltabs, tabLayout);
-        else
-            inflater.inflate(R.layout.cloudtabs, tabLayout);
-
-        mHolder.addView(tabLayout);
-
-        viewFlipper = new ViewFlipper(this);
-        viewFlipper.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.FILL_PARENT));
-
-        mHolder.addView(viewFlipper);
-
-        // construct the tabhost
-        tabHost = (TabHost) findViewById(android.R.id.tabhost);
-        tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-
-            @Override
-            public void onTabChanged(String arg0) {
-                if (tabHost.getCurrentTab() < 0)
-                    return;
-
-                switch (viewFlipper.getDisplayedChild() - tabHost.getCurrentTab()) {
-                    case 1:
-                        viewFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
-                        viewFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
-                        break;
-                    case -1:
-                        viewFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
-                        viewFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
-                        break;
-                    default:
-                        viewFlipper.setInAnimation(null);
-                        viewFlipper.setOutAnimation(null);
-                        break;
-                }
-                if (viewFlipper.getCurrentView() == null)
-                    return;
-                viewFlipper.setDisplayedChild(tabHost.getCurrentTab());
-                // viewFlipper.getCurrentView().setOnTouchListener(swipeListener);
-                ; // viewFlipper.getCurrentView().setOnTouchListener(gestureListener);
-            }
-        });
-
-        // Convert the tabHeight depending on screen density
-        final float scale = getResources().getDisplayMetrics().density;
-        int tabHeight = (int) (scale * 64);
-
-        // every tabhost needs a tabwidget - a container for the clickable tabs
-        // up top. The id is important!
-        tabWidget = (TabWidget) findViewById(android.R.id.tabs);
-
-        FrameLayout frameLayout = (FrameLayout) findViewById(android.R.id.tabcontent);
-        frameLayout.setPadding(0, 0, 0, 0);
-
-        // setup must be called if you are not initialising the tabhost from XML
-        tabHost.setup();
-
-        if (setTabIndex != -1)
-            tabHost.setCurrentTab(setTabIndex);
-
-    }
-
-    protected void createTab(String tabId, String indicatorText, Drawable indicatorIcon,
-            final ScTabView tabContent, Boolean scrolltabs) {
-        Resources res = getResources(); // Resource object to get Drawables
-        TabHost.TabSpec spec;
-
-        spec = tabHost.newTabSpec(tabId);
-        // spec.setIndicator(new ScTab(this,
-        // R.drawable.ic_tab_track,res.getString(R.string.tab_tracks),scrolltabs));
-        spec.setIndicator(indicatorText, indicatorIcon);
-        viewFlipper.addView(tabContent);
-
-        spec.setContent(new TabHost.TabContentFactory() {
-            public View createTabContent(String tag) {
-                return viewFlipper;
-
-            }
-        });
-
-        tabHost.addTab(spec);
     }
 
     @Override
@@ -234,8 +101,7 @@ public class LazyTabActivity extends LazyActivity {
         try {
             setPlayingTrack(mService.getTrackId());
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -247,9 +113,8 @@ public class LazyTabActivity extends LazyActivity {
             try {
                 setPlayingTrack(mService.getTrackId());
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
-
        ((ScTabView) tabHost.getCurrentView()).onStart();
     }
 
@@ -324,8 +189,7 @@ public class LazyTabActivity extends LazyActivity {
 
     }
 
-    protected void onCreateComplete(Boolean success) {
-
+    protected void onCreateComplete(boolean success) {
     }
 
     private void setPlayingTrack(long l) {
@@ -335,47 +199,22 @@ public class LazyTabActivity extends LazyActivity {
 
         mCurrentTrackId = l;
 
-        Iterator<LazyList> mListsIterator = mLists.iterator();
-        int i = 0;
-        while (mListsIterator.hasNext()) {
-            ListView mList = mListsIterator.next();
-            if (mList.getAdapter() != null) {
-                if (mList.getAdapter() instanceof TracklistAdapter)
-                    ((TracklistAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
-                else if (mList.getAdapter() instanceof EventsAdapter)
-                    ((EventsAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
+        for (LazyList mList1 : mLists) {
+            if (mList1.getAdapter() != null) {
+                if (mList1.getAdapter() instanceof TracklistAdapter)
+                    ((TracklistAdapter) mList1.getAdapter()).setPlayingId(mCurrentTrackId);
+                else if (mList1.getAdapter() instanceof EventsAdapter)
+                    ((EventsAdapter) mList1.getAdapter()).setPlayingId(mCurrentTrackId);
             }
         }
     }
 
-    protected int getCurrentSectionIndex() {
-        return tabHost.getCurrentTab();
-    }
-
     @Override
     public void leftSwipe() {
-        if (tabHost == null || tabHost.getChildCount() < 2)
-            return;
-
-        /*
-         * viewFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
-         * viewFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
-         * viewFlipper.showNext();
-         * tabHost.setCurrentTab(viewFlipper.getDisplayedChild());
-         */
     }
 
     @Override
     public void rightSwipe() {
-        if (tabHost == null || tabHost.getChildCount() < 2)
-            return;
-
-        /*
-         * viewFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
-         * viewFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
-         * viewFlipper.showPrevious();
-         * tabHost.setCurrentTab(viewFlipper.getDisplayedChild());
-         */
     }
 
     // ******************************************************************** //
@@ -407,10 +246,9 @@ public class LazyTabActivity extends LazyActivity {
     }
 
     protected Object[] saveLoadTasks() {
-        Object[] ret = {
-            mLoadTask
+        return new Object[]{
+                mLoadTask
         };
-        return ret;
     }
 
     protected void restoreLoadTasks(Object[] taskObjects) {
@@ -463,12 +301,9 @@ public class LazyTabActivity extends LazyActivity {
 
         // store the data for current lists
         ArrayList<ArrayList<Parcelable>> mAdapterDatas = new ArrayList<ArrayList<Parcelable>>();
-        Iterator<LazyList> mListsIterator = mLists.iterator();
-        int i = 0;
-        while (mListsIterator.hasNext()) {
-            ListView mList = mListsIterator.next();
-            if (mList.getAdapter() != null)
-                mAdapterDatas.add((ArrayList<Parcelable>) ((LazyBaseAdapter) mList.getAdapter())
+        for (LazyList list : mLists) {
+            if (list.getAdapter() != null)
+                mAdapterDatas.add((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter())
                         .getData());
             else
                 mAdapterDatas.add(null);
@@ -609,5 +444,4 @@ public class LazyTabActivity extends LazyActivity {
             CloudUtils.cleanupList(mList);
         }
     }
-
 }

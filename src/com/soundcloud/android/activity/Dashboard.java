@@ -38,30 +38,15 @@ import android.widget.TabWidget;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 
 public class Dashboard extends LazyTabActivity {
-
-    private static final String TAG = "Dashboard";
-
     protected ScTabView mLastTab;
 
     private UserBrowser mUserBrowser;
-
     private ScCreate mScCreate;
-
     private ScSearch mScSearch;
-
-    public interface TabIndexes {
-        public final static int TAB_INCOMING = 0;
-
-        public final static int TAB_EXCLUSIVE = 1;
-
-        public final static int TAB_MY_TRACKS = 2;
-
-        public final static int TAB_RECORD = 3;
-
-        public final static int TAB_SEARCH = 4;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,34 +72,31 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     protected void onRecordingError() {
-        // safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_RECORDING);
 
         if (mScCreate != null)
             mScCreate.onRecordingError();
     }
 
     @Override
-    protected void onCreateComplete(Boolean success) {
+    protected void onCreateComplete(boolean success) {
         if (mScCreate != null)
             mScCreate.unlock(success);
     }
 
 
-
     @Override
     public void mapDetails(Parcelable p) {
-        if (((User) p).id == null)
-            return;
-        
-        CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).id);
+        if (((User) p).id != null) {
+            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).id);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String lastUserId = preferences.getString("currentUserId", null);
-        Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
-        if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
-            Log.i(TAG, "--------- new user");
-            preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
-                    .putString("currentUsername", ((User) p).username).commit();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String lastUserId = preferences.getString("currentUserId", null);
+            Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
+            if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
+                Log.i(TAG, "--------- new user");
+                preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
+                        .putString("currentUsername", ((User) p).username).commit();
+            }
         }
 
     }
@@ -144,15 +126,15 @@ public class Dashboard extends LazyTabActivity {
 
         CloudUtils.setTabTextStyle(this, tabWidget);
 
-        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this).getInt(
-                "lastDashboardIndex", 0));
-        tabHost.setOnTabChangedListener(tabListener);
+        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this)
+                .getInt("lastDashboardIndex", 0));
 
+        tabHost.setOnTabChangedListener(tabListener);
     }
 
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
-        public void onTabChanged(String arg0) {
+        public void onTabChanged(String s) {
             if (mLastTab != null) {
                 mLastTab.onStop();
             }
@@ -173,71 +155,71 @@ public class Dashboard extends LazyTabActivity {
 
         final ScTabView incomingView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, incomingView, adpWrap, CloudUtils.ListId.LIST_INCOMING);
-        CloudUtils.createTab(this, tabHost, "incoming", getString(R.string.tab_incoming),
-                getResources().getDrawable(R.drawable.ic_tab_incoming), incomingView, false);
+        CloudUtils.createTab(tabHost, "incoming", getString(R.string.tab_incoming),
+                getResources().getDrawable(R.drawable.ic_tab_incoming), incomingView);
     }
 
     protected void createExclusiveTab() {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS, CloudUtils.Model.event,
+                CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
+                CloudUtils.Model.event,
                 "collection");
-        // LazyEndlessAdapter adpWrap = new
-        // LazyEndlessAdapter(this,adp,getFavoritesUrl(),CloudUtils.Model.track);
 
         final ScTabView exclusiveView = new ScTabView(this, adpWrap);
+
         CloudUtils.createTabList(this, exclusiveView, adpWrap, CloudUtils.ListId.LIST_EXCLUSIVE);
-        CloudUtils.createTab(this, tabHost, "exclusive", getString(R.string.tab_exclusive),
-                getResources().getDrawable(R.drawable.ic_tab_incoming), exclusiveView, false);
+        CloudUtils.createTab(tabHost,
+                "exclusive",
+                getString(R.string.tab_exclusive),
+                getResources().getDrawable(R.drawable.ic_tab_incoming),
+                exclusiveView);
 
     }
 
     protected void createYouTab() {
-        final UserBrowser youView = mUserBrowser = new UserBrowser(this);
-        youView.loadYou();
+        mUserBrowser = new UserBrowser(this);
+        mUserBrowser.loadYou();
 
-        CloudUtils.createTab(this, tabHost, "you", getString(R.string.tab_you), getResources()
-                .getDrawable(R.drawable.ic_tab_you), youView, false);
+        CloudUtils.createTab(tabHost, "you",
+                getString(R.string.tab_you),
+                getResources().getDrawable(R.drawable.ic_tab_you),
+                mUserBrowser);
 
     }
 
     protected void createRecordTab() {
         this.mScCreate = new ScCreate(this);
-        CloudUtils.createTab(this, tabHost, "favorites", getString(R.string.tab_record),
-                getResources().getDrawable(R.drawable.ic_tab_record), mScCreate, false);
+        CloudUtils.createTab(tabHost, "record",
+                getString(R.string.tab_record),
+                getResources().getDrawable(R.drawable.ic_tab_record),
+                mScCreate);
     }
 
     protected void createSearchTab() {
         this.mScSearch = new ScSearch(this);
-        CloudUtils.createTab(this, tabHost, "search", getString(R.string.tab_search),
-                getResources().getDrawable(R.drawable.ic_tab_search), mScSearch, false);
+        CloudUtils.createTab(tabHost, "search", getString(R.string.tab_search),
+                getResources().getDrawable(R.drawable.ic_tab_search), mScSearch);
     }
 
     @Override
     protected void initLoadTasks() {
-        // if (mUserBrowser != null) mUserBrowser.initLoadTasks();
     }
 
     @Override
     protected Object[] saveLoadTasks() {
-        if (mUserBrowser != null)
-            return mUserBrowser.saveLoadTasks();
-        else
-            return null;
+        return mUserBrowser != null ? mUserBrowser.saveLoadTasks() : null;
     }
 
     @Override
     protected void restoreLoadTasks(Object[] taskObject) {
-        if (mUserBrowser != null)
-            mUserBrowser.restoreLoadTasks(taskObject);
+        if (mUserBrowser != null) mUserBrowser.restoreLoadTasks(taskObject);
 
     }
 
     @Override
     protected Parcelable saveParcelable() {
-        if (mUserBrowser != null)
-            return mUserBrowser.saveParcelable();
-        return null;
+        return mUserBrowser != null ? mUserBrowser.saveParcelable() : null;
 
     }
 
@@ -275,27 +257,32 @@ public class Dashboard extends LazyTabActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mScCreate.onSaveInstanceState(outState);
-        mUserBrowser.onSaveInstanceState(outState);
-        mScSearch.onSaveInstanceState(outState);
-        super.onSaveInstanceState(outState);
+    public void onSaveInstanceState(Bundle state) {
+        mScCreate.onSaveInstanceState(state);
+        mUserBrowser.onSaveInstanceState(state);
+        mScSearch.onSaveInstanceState(state);
+        super.onSaveInstanceState(state);
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mScCreate.onRestoreInstanceState(savedInstanceState);
-        mUserBrowser.onRestoreInstanceState(savedInstanceState);
-        mScSearch.onRestoreInstanceState(savedInstanceState);
+    public void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        mScCreate.onRestoreInstanceState(state);
+        mUserBrowser.onRestoreInstanceState(state);
+        mScSearch.onRestoreInstanceState(state);
 
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[] {
-                super.onRetainNonConfigurationInstance(), saveLoadTasks(), saveParcelable(),
-                saveListTasks(), saveListConfigs(), saveListExtras(), saveListAdapters(),
+                super.onRetainNonConfigurationInstance(),
+                saveLoadTasks(),
+                saveParcelable(),
+                saveListTasks(),
+                saveListConfigs(),
+                saveListExtras(),
+                saveListAdapters(),
                 // mScCreate.getRecordTask(),
                 mScCreate.getPlaybackTask()
         };
@@ -303,7 +290,6 @@ public class Dashboard extends LazyTabActivity {
 
     @Override
     protected void restoreState() {
-
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();
 
