@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
 
 public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter {
@@ -20,7 +20,7 @@ public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter {
 
     protected int mSelectedChildIndex = -1;
 
-    protected LazyActivity mActivity;
+    protected Context mActivity;
 
     protected ArrayList<Parcelable> mGroupData;
 
@@ -31,7 +31,7 @@ public class LazyExpandableBaseAdapter extends BaseExpandableListAdapter {
     protected Boolean mDone = false;
 
     @SuppressWarnings("unchecked")
-    public LazyExpandableBaseAdapter(LazyActivity context, List<Parcelable> groupData,
+    public LazyExpandableBaseAdapter(Context context, List<Parcelable> groupData,
             ArrayList<ArrayList<Parcelable>> mTrackData) {
         mGroupData = (ArrayList<Parcelable>) groupData;
         mChildData = mTrackData;

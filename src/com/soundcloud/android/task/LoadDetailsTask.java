@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.task;
 
+import android.util.Log;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
@@ -15,8 +17,6 @@ import java.io.InputStream;
 public class LoadDetailsTask extends LoadTask {
 
     private final static String TAG = "LoadDetailsTask";
-
-    JSONObject returnObject;
 
     @Override
     protected Boolean doInBackground(HttpUriRequest... params) {
@@ -40,29 +40,29 @@ public class LoadDetailsTask extends LoadTask {
                     break;
             }
 
-            if (mActivityReference.get() != null && parcelable != null)
-                mActivityReference.get().resolveParcelable(parcelable);
-            
+            if (mActivityReference.get() != null && parcelable != null) {
+                CloudUtils.resolveParcelable(mActivityReference.get(), parcelable);
+            }
+
             publishProgress(parcelable);
 
             return true;
         } catch (Exception e) {
-            // if (mActivityReference.get() != null)
-            // mActivityReference.get().setException(e);
+            Log.e(TAG, "error", e);
         }
         return false;
     }
 
     @Override
     protected void onProgressUpdate(Parcelable... updates) {
+        /*
         if (mActivityReference.get() != null)
             (mActivityReference.get()).mapDetails(updates[0]);
-
+        */
         mapDetails(updates[0]);
     }
 
     protected void mapDetails(Parcelable update) {
-
     }
 
 }

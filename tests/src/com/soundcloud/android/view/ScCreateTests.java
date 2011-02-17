@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -36,7 +36,7 @@ public class ScCreateTests
         service = mock(ICloudCreateService.class);
         addPendingHttpResponse(401, "Error");  // load connections
 
-        final LazyActivity activity = new LazyActivity() {
+        final ScActivity activity = new ScActivity() {
             @Override
             public SoundCloudApplication getSoundCloudApplication() {
                 return new SoundCloudApplication() {

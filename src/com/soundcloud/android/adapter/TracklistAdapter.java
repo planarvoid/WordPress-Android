@@ -3,13 +3,13 @@ package com.soundcloud.android.adapter;
 
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
@@ -24,7 +24,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 
     protected int _playingPosition = -1;
 
-    public TracklistAdapter(LazyActivity context, ArrayList<Parcelable> data) {
+    public TracklistAdapter(Context context, ArrayList<Parcelable> data) {
         super(context, data);
     }
 

@@ -1,21 +1,17 @@
 
 package com.soundcloud.android.adapter;
 
-import java.util.List;
-
+import android.content.Context;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
-
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.view.LazyRow;
+
+import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -23,7 +19,7 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected int mSelectedIndex = -1;
 
-    protected LazyActivity mActivity;
+    protected Context mActivity;
 
     protected List<Parcelable> mData;
 
@@ -34,7 +30,7 @@ public class LazyBaseAdapter extends BaseAdapter {
     protected ImageLoader mImageLoader;
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(LazyActivity context, List<? extends Parcelable> data) {
+    public LazyBaseAdapter(Context context, List<? extends Parcelable> data) {
         mData = (List<Parcelable>) data;
         mActivity = context;
         mImageLoader = ImageLoader.get(context);

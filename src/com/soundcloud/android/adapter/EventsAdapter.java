@@ -4,7 +4,7 @@ package com.soundcloud.android.adapter;
 import java.util.ArrayList;
 
 import android.os.Parcelable;
-import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.EventsRow;
@@ -20,7 +20,7 @@ public class EventsAdapter extends TracklistAdapter {
 
     protected int _playingPosition = -1;
 
-    public EventsAdapter(LazyActivity context, ArrayList<Parcelable> data) {
+    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data) {
         super(context, data);
     }
 

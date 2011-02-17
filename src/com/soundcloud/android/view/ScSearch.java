@@ -4,8 +4,8 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -39,7 +39,7 @@ public class ScSearch extends ScTabView {
     // Private Data.
     // ******************************************************************** //
 
-    private LazyActivity mActivity;
+    private ScActivity mActivity;
 
     private Button btnSearch;
 
@@ -78,7 +78,7 @@ public class ScSearch extends ScTabView {
      *            Otherwise it is null.
      */
 
-    public ScSearch(LazyActivity activity) {
+    public ScSearch(ScActivity activity) {
         super(activity);
 
         mActivity = activity;
@@ -107,8 +107,8 @@ public class ScSearch extends ScTabView {
         // account for special handling of this list if we are in a tab with
         // regards
         // to checking for data type (user/track) when restoring list data
-        if (mActivity instanceof LazyTabActivity)
-            mList = ((LazyTabActivity) mActivity).buildList(true);
+        if (mActivity instanceof Dashboard)
+            mList = ((Dashboard) mActivity).buildList(true);
         else
             mList = CloudUtils.createList(mActivity);
 

@@ -7,7 +7,6 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -52,7 +51,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -65,13 +63,12 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ScPlayer extends LazyActivity implements OnTouchListener {
+public class ScPlayer extends ScActivity implements OnTouchListener {
 
     // Debugging tag.
     @SuppressWarnings("unused")
@@ -83,23 +80,13 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private boolean _isPlaying = false;
 
-    private ImageButton mPrevButton;
-
     private ImageButton mPauseButton;
-
-    private ImageButton mNextButton;
 
     protected Boolean mLandscape;
 
     private ImageView mArtwork;
 
-    private ImageButton mProfileButton;
-
     private ImageButton mFavoriteButton;
-
-    private ImageButton mCommentsButton;
-
-    private ImageButton mShareButton;
 
     private ImageButton mInfoButton;
 
@@ -110,12 +97,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     private Long mCurrentTrackId = null;
 
     private Track mPlayingTrack;
-
-    private Track[] mEnqueueList;
-
-    private int mEnqueuePosition;
-
-    private LinearLayout mTrackInfoBar;
 
     private ViewFlipper mTrackFlipper;
 
@@ -129,14 +110,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private BindResult mCurrentArtBindResult;
 
-    protected ArrayList<Parcelable> mThreadData;
-
-    protected ArrayList<ArrayList<Parcelable>> mCommentData;
-
-    protected String[] mFrom;
-
-    protected int[] mTo;
-
     private String mDurationFormatLong;
 
     private String mDurationFormatShort;
@@ -148,8 +121,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     private TextView mUserName;
 
     private TextView mTrackName;
-
-    private ProgressBar mProgress;
 
     private long mDuration;
 
@@ -166,8 +137,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
     private RelativeLayout mContainer;
 
     private static final int REFRESH = 1;
-
-    private static final int QUIT = 2;
 
     // ******************************************************************** //
     // Activity Lifecycle.
@@ -195,16 +164,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
      */
     @Override
     public void onCreate(Bundle icicle) {
-
-        super.onCreate(icicle, R.layout.main_player);
-
-        mMainHolder = (LinearLayout) findViewById(R.id.main_holder);
-        /*
-         * Intent intent = getIntent(); Bundle extras = intent.getExtras(); if
-         * (extras != null){ Log.i(TAG,"Setting track id to " +
-         * extras.getString("trackId")); mPlayTrackId =
-         * extras.getString("trackId"); }
-         */
+        super.onCreate(icicle);
+        setContentView(R.layout.main_player);
 
         initControls();
 
@@ -222,7 +183,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setLandscape(mLandscape);
 
-        mProgress = (ProgressBar) findViewById(R.id.progress_bar);
+        ProgressBar mProgress = (ProgressBar) findViewById(R.id.progress_bar);
         mProgress.setMax(1000);
         mProgress.setInterpolator(new AccelerateDecelerateInterpolator());
 
@@ -233,7 +194,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         View v = (View) mTrackName.getParent();
         v.setOnTouchListener(this);
 
-        mTrackInfoBar = ((LinearLayout) findViewById(R.id.track_info_row));
+        LinearLayout mTrackInfoBar = ((LinearLayout) findViewById(R.id.track_info_row));
         mTrackInfoBar.setBackgroundColor(getResources().getColor(R.color.playerControlBackground));
 
         mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
@@ -243,12 +204,12 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             }
         });
 
-        mPrevButton = (ImageButton) findViewById(R.id.prev);
+        ImageButton mPrevButton = (ImageButton) findViewById(R.id.prev);
         mPrevButton.setOnClickListener(mPrevListener);
         mPauseButton = (ImageButton) findViewById(R.id.pause);
         mPauseButton.requestFocus();
         mPauseButton.setOnClickListener(mPauseListener);
-        mNextButton = (ImageButton) findViewById(R.id.next);
+        ImageButton mNextButton = (ImageButton) findViewById(R.id.next);
         mNextButton.setOnClickListener(mNextListener);
 
         mPlayableLayout = (RelativeLayout) findViewById(R.id.playable_layout);
@@ -259,7 +220,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
         if (!mLandscape) {
 
-            mProfileButton = (ImageButton) findViewById(R.id.btn_profile);
+            ImageButton mProfileButton = (ImageButton) findViewById(R.id.btn_profile);
             if (mProfileButton == null)
                 return;// failsafe for orientation check failure
             mProfileButton.setOnClickListener(new View.OnClickListener() {
@@ -282,7 +243,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 }
             });
 
-            mShareButton = (ImageButton) findViewById(R.id.btn_share);
+            ImageButton mShareButton = (ImageButton) findViewById(R.id.btn_share);
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                 }
@@ -293,10 +254,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
             mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
 
-            mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
+            ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack,-1);
+                    addNewComment(mPlayingTrack, -1);
                 }
             });
             // setCommentButtonImage();
@@ -349,13 +310,13 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 setPauseButtonImage();
                 long next = refreshNow();
                 queueNextRefresh(next);
-                return;
             } else {
                 Intent intent = new Intent(this, Dashboard.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
-        } catch (RemoteException ex) {
+        } catch (RemoteException ignored) {
+            Log.e(TAG, "error", ignored);
         }
 
     }
@@ -428,8 +389,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 // start moving
                 mLabelScroller.removeMessages(0, tv);
 
-                // Only turn ellipsizing off when it's not already off, because
-                // it
+                // Only turn ellipsizing off when it's not already off, because it
                 // causes the scroll position to be reset to 0.
                 if (tv.getEllipsize() != null) {
                     tv.setEllipsize(null);
@@ -441,8 +401,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     return false;
                 }
                 // get the non-ellipsized line width, to determine whether
-                // scrolling
-                // should even be allowed
+                // scrolling should even be allowed
                 mTextWidth = (int) tv.getLayout().getLineWidth(0);
                 mViewWidth = tv.getWidth();
                 if (mViewWidth > mTextWidth) {
@@ -496,8 +455,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 } else {
                     mService.restart();
                 }
-            } catch (RemoteException ex) {
-                ex.printStackTrace();
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
             }
         }
     };
@@ -509,8 +468,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             }
             try {
                 mService.next();
-            } catch (RemoteException ex) {
-                ex.printStackTrace();
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
             }
         }
     };
@@ -527,8 +486,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 queueNextRefresh(next);
                 setPauseButtonImage();
             }
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
         }
     }
     
@@ -636,7 +595,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                                     Long.toString(mPlayingTrack.id))));
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
             } else {
                 if (mTrackInfo.findViewById(R.id.loading_layout) != null)
@@ -669,10 +628,10 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         LinearLayout commentsList;
         if (mTrackInfo.findViewById(R.id.comments_list) == null){
             commentsList = (LinearLayout) ((ViewStub) mTrackInfo.findViewById(R.id.stub_comments_list)).inflate();
-            ((Button) commentsList.findViewById(R.id.btn_info_comment)).setOnClickListener(new OnClickListener(){
+            commentsList.findViewById(R.id.btn_info_comment).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack,-1);                    
+                    addNewComment(mPlayingTrack, -1);
                 }
             });
         } else {
@@ -778,20 +737,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             str += "<br />";
         }
 
-        /*
-         * temporary commenting out created_at until I figure out how to do the
-         * formatting properly try { str += "<b>Uploaded " +
-         * mPlayingTrack.getData(Track.key_created_at)+"<br />";
-         * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-         * Date uploadDate = new
-         * Date(sdf.parse(mPlayingTrack.getData(Track.key_created_at
-         * ).substring(0
-         * ,mPlayingTrack.getData(Track.key_created_at).indexOf("+")
-         * -1)).getTime()); str += "<b>Uploaded " +
-         * uploadDate.getDate()+"<br />"; } catch (ParseException e) { // TODO
-         * Auto-generated catch block e.printStackTrace(); }
-         */
-
         return str;
     }
 
@@ -802,8 +747,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             } else {
                 mPauseButton.setImageResource(R.drawable.ic_play_states);
             }
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -845,7 +790,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             // the counter can be updated at just the right time
             return remaining;
 
-        } catch (RemoteException ex) {
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
         }
 
         return 500;
@@ -952,7 +898,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mPlayingTrack = mService.getTrack();
 
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
         }
 
@@ -1061,29 +1007,31 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     public long setSeekMarker(float seekPercent) {
         try {
-            if (mService == null || !mService.isSeekable()) {
-                mSeekPos = -1;
-                return mService.position();
-            }
+            if (mService != null) {
 
-            if (mPlayingTrack != null) {
-                long now = SystemClock.elapsedRealtime();
-                if ((now - mLastSeekEventTime) > 250) {
-                    mLastSeekEventTime = now;
-                    try {
-                        mSeekPos = mService.seek((long) (mPlayingTrack.duration * seekPercent));
-                    } catch (RemoteException ex) {
-                    }
+                if (!mService.isSeekable()) {
+                    mSeekPos = -1;
+                    return mService.position();
                 } else {
-                    // where would we be if we had seeked
-                    mSeekPos = mService
-                            .getSeekResult((long) (mPlayingTrack.duration * seekPercent));
+                    if (mPlayingTrack != null) {
+                        long now = SystemClock.elapsedRealtime();
+                        if ((now - mLastSeekEventTime) > 250) {
+                            mLastSeekEventTime = now;
+                            try {
+                                mSeekPos = mService.seek((long) (mPlayingTrack.duration * seekPercent));
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "error", e);
+                            }
+                        } else {
+                            // where would we be if we had seeked
+                            mSeekPos = mService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
+                        }
+                        return mSeekPos;
+                    }
                 }
-
-                return mSeekPos;
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
         return 0;
     }
@@ -1097,7 +1045,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             mService.seek(mSeekPos);
             mSeekPos = -1;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -1156,24 +1104,24 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
      * onRestoreInstanceState(Bundle) (the Bundle populated by this method will
      * be passed to both).
      * 
-     * @param outState A Bundle in which to place any state information you wish
+     * @param state A Bundle in which to place any state information you wish
      *            to save.
      */
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
 
-        outState.putBoolean("paused", paused);
-        outState.putBoolean("currentTrackError", mCurrentTrackError);
+        state.putBoolean("paused", paused);
+        state.putBoolean("currentTrackError", mCurrentTrackError);
 
-        super.onSaveInstanceState(outState);
+        super.onSaveInstanceState(state);
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        mCurrentTrackError = savedInstanceState.getBoolean("currentTrackError");
-        paused = savedInstanceState.getBoolean("paused");
-        super.onRestoreInstanceState(savedInstanceState);
+    public void onRestoreInstanceState(Bundle state) {
+        mCurrentTrackError = state.getBoolean("currentTrackError");
+        paused = state.getBoolean("paused");
+        super.onRestoreInstanceState(state);
     }
 
     @Override
@@ -1183,13 +1131,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         };
     }
 
-    private LoadDetailsTask mLoadTrackDetailsTask;
-
-    @SuppressWarnings({
-        "unchecked"
-    })
-    @Override
-    protected void restoreState() {
+    @Override protected void restoreState() {
 
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();
@@ -1212,11 +1154,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 if (CloudUtils.isTaskPending(mLoadCommentsTask))
                     mLoadCommentsTask.execute();
             }
-            
+
             if (saved[3] != null
                     && ((ArrayList<Comment>) saved[3]).size() > 0
                     && !(mPlayingTrack != null && mPlayingTrack.id != ((ArrayList<Comment>) saved[3])
-                            .get(0).id)) {
+                    .get(0).id)) {
                 mCurrentComments = (ArrayList<Comment>) saved[3];
                 mWaveformController.setComments(mCurrentComments, false);
             }
@@ -1224,16 +1166,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         }
     }
 
-    /**
-     * Called as part of the activity lifecycle when an activity is going into
-     * the background, but has not (yet) been killed. The counterpart to
-     * onResume().
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
+    private LoadDetailsTask mLoadTrackDetailsTask;
 
-    }
 
     /**
      * Called when you are no longer visible to the user. You will next receive
@@ -1251,8 +1185,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mService = null;
 
     }
-
-    private Track mFavoriteTrack;
 
     private void setFavoriteStatus() {
 
@@ -1277,7 +1209,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             return;
 
         Log.i(TAG,"Toggle Favorite 2 " + mPlayingTrack.user_favorite);
-        mFavoriteTrack = mPlayingTrack;
+        Track mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
             if (mPlayingTrack.user_favorite) {
@@ -1288,7 +1220,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 mFavoriteTrack.user_favorite = true;
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
             mFavoriteButton.setEnabled(true);
         }
         setFavoriteStatus();
@@ -1371,7 +1303,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mAddCommentResult = getSoundCloudApplication().postContent(
                             CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                     ScPlayer.this.setException(e);
                 }
                 mHandler.post(mOnCommentAdd);

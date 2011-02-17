@@ -1,6 +1,7 @@
 
 package com.soundcloud.android;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,16 +23,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.BaseObj.WriteState;
+import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -53,6 +57,8 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+
 public class CloudUtils {
 
     private static final String TAG = "CloudUtils";
@@ -69,6 +75,27 @@ public class CloudUtils {
 
     public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory()
             + "/Soundcloud";
+
+    /**
+     * A parcelable has just been loaded, so perform any data operations
+     * necessary
+     *
+     * @param context
+     * @param p : the parcelable that has just been loaded
+     */
+    public static void resolveParcelable(Context context, Parcelable p) {
+        if (p instanceof Track) {
+            resolveTrack(context, (Track) p, WriteState.none,
+                    getCurrentUserId(context));
+        } else if (p instanceof Event) {
+            if (((Event) p).getTrack() != null)
+                resolveTrack(context, ((Event) p).getTrack(),
+                        WriteState.none, getCurrentUserId(context));
+        } else if (p instanceof User) {
+            resolveUser(context, (User) p, WriteState.none,
+                    getCurrentUserId(context));
+        }
+    }
 
     public interface RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
@@ -362,11 +389,13 @@ public class CloudUtils {
         }
     }
 
-    public static LazyList createList(LazyActivity activity) {
+    public static LazyList createList(Activity activity) {
 
         LazyList mList = new LazyList(activity);
-        mList.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        mList.setOnItemClickListener(activity);
+        mList.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
+        if (activity instanceof AdapterView.OnItemClickListener) {
+            mList.setOnItemClickListener((AdapterView.OnItemClickListener) activity);
+        }
         mList.setFastScrollEnabled(true);
         mList.setTextFilterEnabled(true);
         mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));
@@ -376,25 +405,26 @@ public class CloudUtils {
         return mList;
     }
 
-    public static void createTabList(LazyActivity activity, FrameLayout listHolder,
+    public static void createTabList(ScActivity activity, FrameLayout listHolder,
             LazyEndlessAdapter adpWrap, int listId) {
         createTabList(activity, listHolder, adpWrap, listId, null);
     }
 
-    public static void createTabList(LazyActivity activity, FrameLayout listHolder,
+    public static void createTabList(ScActivity activity, FrameLayout listHolder,
             LazyEndlessAdapter adpWrap, int listId, OnTouchListener touchListener) {
 
-        listHolder.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.FILL_PARENT));
-        LazyList lv = ((LazyTabActivity) activity).buildList(false);
-        if (listId != -1)
-            lv.setId(listId);
-        if (touchListener != null)
-            lv.setOnTouchListener(touchListener);
-        lv.setAdapter(adpWrap);
-        activity.configureListMenu(lv);
-        listHolder.addView(lv);
-        adpWrap.createListEmptyView(lv);
+        listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
+        if (activity instanceof Dashboard) {
+            LazyList lv = ((Dashboard) activity).buildList(false);
+            if (listId != -1)
+                lv.setId(listId);
+            if (touchListener != null)
+                lv.setOnTouchListener(touchListener);
+            lv.setAdapter(adpWrap);
+            ((Dashboard)activity).configureListMenu(lv);
+            listHolder.addView(lv);
+            adpWrap.createListEmptyView(lv);
+        }
     }
 
     public static FrameLayout createTabLayout(Context c) {
@@ -403,8 +433,8 @@ public class CloudUtils {
 
     public static FrameLayout createTabLayout(Context context, Boolean scrolltabs) {
         FrameLayout tabLayout = new FrameLayout(context);
-        tabLayout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.FILL_PARENT));
+        tabLayout.setLayoutParams(new LayoutParams(FILL_PARENT,
+                FILL_PARENT));
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -481,8 +511,8 @@ public class CloudUtils {
                         ((TextView) relativeLayout.getChildAt(j)).setTextAppearance(context,
                                 R.style.TabWidgetTextAppearance);
                         if (textOnly) {
-                            relativeLayout.getChildAt(j).getLayoutParams().width = LayoutParams.FILL_PARENT;
-                            relativeLayout.getChildAt(j).getLayoutParams().height = LayoutParams.FILL_PARENT;
+                            relativeLayout.getChildAt(j).getLayoutParams().width = FILL_PARENT;
+                            relativeLayout.getChildAt(j).getLayoutParams().height = FILL_PARENT;
                             ((TextView) relativeLayout.getChildAt(j)).setGravity(Gravity.CENTER);
                         }
 
@@ -582,13 +612,13 @@ public class CloudUtils {
         }
     }
 
-    public static void resolveTrack(SoundCloudApplication context, Track track,
+    public static void resolveTrack(Context context, Track track,
             WriteState writeState, long currentUserId) {
         resolveTrack(context, track, writeState, currentUserId, null);
     }
 
     // ---Make sure the database is up to date with this track info---
-    public static void resolveTrack(SoundCloudApplication context, Track track,
+    public static void resolveTrack(Context context, Track track,
             WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
             DBAdapter db;
             if (openAdapter == null) {
@@ -651,13 +681,13 @@ public class CloudUtils {
 
     }
 
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
+    public static void resolveUser(Context context, User user, WriteState writeState,
             Long userId) {
         resolveUser(context, user, writeState, userId, null);
     }
 
     // ---Make sure the database is up to date with this track info---
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
+    public static void resolveUser(Context context, User user, WriteState writeState,
             Long currentUserId, DBAdapter openAdapter) {
         DBAdapter db;
         if (openAdapter == null) {
@@ -683,7 +713,7 @@ public class CloudUtils {
     }
 
     // ---Make sure the database is up to date with this track info---
-    public static User resolveUserById(SoundCloudApplication context, long userId,
+    public static User resolveUserById(Context context, long userId,
             long currentUserId) {
         DBAdapter db = new DBAdapter(context);
         db.open();
@@ -911,7 +941,7 @@ public class CloudUtils {
     
     public static TextView buildEmptyView(Context context, CharSequence emptyText) {
         TextView emptyView = new TextView(context);
-        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+        emptyView.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
         emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         emptyView.setTextAppearance(context, R.style.txt_empty_view);
         emptyView.setText(emptyText);

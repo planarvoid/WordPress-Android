@@ -2,7 +2,6 @@
 package com.soundcloud.android;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,20 +66,15 @@ public class DBAdapter {
             + "website_title string null, "
             + "description text null);";
 
-    private final SoundCloudApplication scApp;
-
     private DatabaseHelper DBHelper;
 
     private SQLiteDatabase db;
 
-    public DBAdapter(SoundCloudApplication scApp) {
-        this.scApp = scApp;
+    public DBAdapter(Context scApp) {
         DBHelper = new DatabaseHelper(scApp);
     }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private Context mContext;
-
         DatabaseHelper(Context scApp) {
             super(scApp, DATABASE_NAME, null, DATABASE_VERSION);
         }
@@ -91,7 +85,7 @@ public class DBAdapter {
                 db.execSQL(DATABASE_CREATE_TRACKS);
                 db.execSQL(DATABASE_CREATE_USERS);
             } catch (SQLiteException e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
         }
 
@@ -103,7 +97,6 @@ public class DBAdapter {
             if (newVersion > oldVersion) {
                 db.beginTransaction();
 
-                boolean success = true;
                 for (int i = oldVersion; i < newVersion; ++i) {
                     int nextVersion = i + 1;
                     switch (nextVersion) {
@@ -114,14 +107,9 @@ public class DBAdapter {
                         // etc. for later versions.
                     }
 
-                    if (!success) {
-                        break;
-                    }
                 }
 
-                if (success) {
-                    db.setTransactionSuccessful();
-                }
+                db.setTransactionSuccessful();
                 db.endTransaction();
             } else {
                 db.execSQL("DROP TABLE IF EXISTS Tracks");
@@ -149,8 +137,7 @@ public class DBAdapter {
                     DATABASE_TRACK_TABLE, cols, cols, DATABASE_TRACK_TABLE));
             db.execSQL("DROP table Tmp" + DATABASE_TRACK_TABLE);
 
-            // make sure booleans are formatted properly, as some were strings
-            // before
+            // make sure booleans are formatted properly, as some were strings before
             db.execSQL("UPDATE Tracks  set user_favorite = 0 where user_favorite = '' ");
             db.execSQL("UPDATE Tracks  set user_favorite = 0 where user_favorite = '0' ");
             db.execSQL("UPDATE Tracks  set user_favorite = 0 where user_favorite = 'false' ");
@@ -187,9 +174,9 @@ public class DBAdapter {
     }
 
     private String[] getDBCols(String tablename) {
-        if (this.scApp.getDBColumns().get(tablename) == null)
-            this.scApp.getDBColumns().put(tablename, GetColumnsArray(db, tablename));
-        return this.scApp.getDBColumns().get(tablename);
+        if (SoundCloudApplication.getDBColumns().get(tablename) == null)
+            SoundCloudApplication.getDBColumns().put(tablename, GetColumnsArray(db, tablename));
+        return SoundCloudApplication.getDBColumns().get(tablename);
     }
 
     private ContentValues buildTrackArgs(Track track) {
@@ -210,13 +197,13 @@ public class DBAdapter {
                             args.put(key, ((Boolean) f.get(track)) ? 1 : 0);
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "error", e);
                     }
                 }
-            } catch (SecurityException e1) {
-                e1.printStackTrace();
+            } catch (SecurityException e) {
+                Log.e(TAG, "error", e);
             } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
 
         }
@@ -245,13 +232,13 @@ public class DBAdapter {
                             args.put(key, ((Boolean) f.get(User)) ? 1 : 0);
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "error", e);
                     }
                 }
-            } catch (SecurityException e1) {
-                e1.printStackTrace();
+            } catch (SecurityException e) {
+                Log.e(TAG, "error", e);
             } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
             }
 
         }
@@ -260,8 +247,8 @@ public class DBAdapter {
     }
 
     // ---insert a title into the database---
-    public void insertTrack(Track track) {
-        long id = db.insert(DATABASE_TRACK_TABLE, null, buildTrackArgs(track));
+    public long insertTrack(Track track) {
+        return db.insert(DATABASE_TRACK_TABLE, null, buildTrackArgs(track));
     }
 
     public long insertTrack(HashMap<String, String> track) {
@@ -304,12 +291,6 @@ public class DBAdapter {
     }
 
 
-    public int markTrackPlayed(String id) {
-        ContentValues args = new ContentValues();
-        args.put("user_played", true);
-        return db.update(DATABASE_TRACK_TABLE, args,"id='" + id + "'", null);
-    }
-
     // ---retrieves all the titles---
     public Cursor getTrackById(long l, long currentUserId) {
         if (currentUserId != 0)
@@ -317,12 +298,6 @@ public class DBAdapter {
         else
             return db.query(DATABASE_TRACK_TABLE, GetColumnsArray(db, DATABASE_TRACK_TABLE),
                     "id='" + l + "'", null, null, null, null);
-    }
-
-    public Cursor getTrackPlayedById(String id, String current_user_id) {
-        return db.rawQuery(
-                "SELECT Tracks.user_played as user_played from Tracks where Tracks.id = '" + id
-                        + "'", null);
     }
 
     public Cursor getUserById(Long userId, Long currentUserId) {
@@ -344,7 +319,7 @@ public class DBAdapter {
             }
         } catch (Exception e) {
             Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         } finally {
             if (c != null)
                 c.close();
@@ -362,7 +337,7 @@ public class DBAdapter {
             }
         } catch (Exception e) {
             Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         } finally {
             if (c != null)
                 c.close();
@@ -376,18 +351,7 @@ public class DBAdapter {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list.get(i));
-        }
-        return buf.toString();
-    }
-
-    public static String joinArray(String[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append((String) list[i]);
+            buf.append(list.get(i));
         }
         return buf.toString();
     }
@@ -398,7 +362,7 @@ public class DBAdapter {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) Long.toString(list[i]));
+            buf.append(Long.toString(list[i]));
         }
         return buf.toString();
     }

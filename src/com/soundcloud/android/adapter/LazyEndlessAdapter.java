@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
@@ -61,7 +61,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private int mCurrentPage;
 
-    protected LazyActivity mActivity;
+    protected ScActivity mActivity;
 
     protected AtomicBoolean keepOnAppending = new AtomicBoolean(true);
 
@@ -69,48 +69,29 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private String mEmptyViewText = "";
 
+
+
+
+
     /**
-     * Constructors
-     * 
      * @param activity : context
      * @param wrapped : the adapter list-backing adapter that this adapter is
      *            being wrapped around
+     * @param url : the base url that this adapter will receive data from
      */
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
+                              CloudUtils.Model loadModel) {
 
-    public LazyEndlessAdapter(LazyActivity activity, LazyBaseAdapter wrapped) {
         super(wrapped);
 
         mActivity = activity;
         mCurrentPage = 0;
         mQuery = "";
 
-    }
-
-    /**
-     * @param activity : context
-     * @param wrapped : the adapter list-backing adapter that this adapter is
-     *            being wrapped around
-     * @param url : the base url that this adapter will receive data from
-     */
-    public LazyEndlessAdapter(LazyActivity activity, LazyBaseAdapter wrapped, String url) {
-        this(activity, wrapped);
 
         mUrl = url;
-    }
-
-    /**
-     * @param activity : context
-     * @param wrapped : the adapter list-backing adapter that this adapter is
-     *            being wrapped around
-     * @param url : the base url that this adapter will receive data from
-     * @param loadModel : what type of data this adapter will receive, for
-     *            parsing purposes
-     */
-    public LazyEndlessAdapter(LazyActivity activity, LazyBaseAdapter wrapped, String url,
-            CloudUtils.Model loadModel) {
-        this(activity, wrapped, url);
-
         mLoadModel = loadModel;
+
     }
 
     /**
@@ -123,7 +104,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @param collectionKey : if the return data is not an array, this key in
      *            the object will hold the array
      */
-    public LazyEndlessAdapter(LazyActivity activity, LazyBaseAdapter wrapped, String url,
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
             CloudUtils.Model loadModel, String collectionKey) {
         this(activity, wrapped, url, loadModel);
 
@@ -353,7 +334,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 if (appendTask == null || CloudUtils.isTaskFinished(appendTask)) {
                     appendTask = new AppendTask();
                     appendTask.loadModel = getLoadModel();
-                    appendTask.pageSize = mActivity.getPageSize();
+                    appendTask.pageSize =  getPageSize();
                     appendTask.setContext(this, mActivity);
                     appendTask.execute(this.buildRequest());
                 }
@@ -369,6 +350,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         }
 
         return (super.getView(position, convertView, parent));
+    }
+
+    private int getPageSize() {
+        return 20; //XXX
     }
 
     /**
@@ -535,9 +520,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (!query.contentEquals(""))
             builder.appendQueryParameter("q", query);
         if (baseUrl.indexOf("limit") == -1)
-            builder.appendQueryParameter("limit", String.valueOf(mActivity.getPageSize()));
+            builder.appendQueryParameter("limit", String.valueOf(getPageSize()));
 
-        builder.appendQueryParameter("offset", String.valueOf(mActivity.getPageSize()
+        builder.appendQueryParameter("offset", String.valueOf(getPageSize()
                 * (getCurrentPage())));
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
@@ -555,7 +540,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         private WeakReference<LazyEndlessAdapter> mAdapterReference;
 
-        private WeakReference<LazyActivity> mActivityReference;
+        private WeakReference<ScActivity> mActivityReference;
 
         private Boolean keepGoing = true;
         
@@ -573,9 +558,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
          * @param lazyEndlessAdapter
          * @param activity
          */
-        public void setContext(LazyEndlessAdapter lazyEndlessAdapter, LazyActivity activity) {
+        public void setContext(LazyEndlessAdapter lazyEndlessAdapter, ScActivity activity) {
             mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
-            mActivityReference = new WeakReference<LazyActivity>(activity);
+            mActivityReference = new WeakReference<ScActivity>(activity);
         }
 
         /**
@@ -659,7 +644,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 // resolve data
                 for (Parcelable p : newItems)
                     if (mActivityReference.get() != null)
-                        mActivityReference.get().resolveParcelable(p);
+                        CloudUtils.resolveParcelable(mActivityReference.get(), p);
 
                 // we have less than the requested number of items, so we are
                 // done grabbing items for this list

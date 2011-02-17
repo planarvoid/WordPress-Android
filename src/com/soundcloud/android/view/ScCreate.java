@@ -26,8 +26,8 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LocationPicker;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
@@ -72,7 +72,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private int mArtworkInSampleSize;
 
-    private LazyActivity mActivity;
+    private ScActivity mActivity;
 
     private CreateState mLastState, mCurrentState;
 
@@ -120,7 +120,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private Long pcmTime;
 
-    public ScCreate(LazyActivity activity) {
+    public ScCreate(ScActivity activity) {
         super(activity);
         mActivity = activity;
 

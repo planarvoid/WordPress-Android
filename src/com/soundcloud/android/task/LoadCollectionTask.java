@@ -1,7 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.EventsWrapper;
@@ -25,7 +25,7 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
     
         private static final String TAG = "LoadCollectionTask";
 
-        private WeakReference<LazyActivity> mActivityReference;
+        private WeakReference<ScActivity> mActivityReference;
 
         protected ArrayList<T> newItems;
 
@@ -41,8 +41,8 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
          * @param lazyEndlessAdapter
          * @param activity
          */
-        public void setContext(LazyActivity activity) {
-            mActivityReference = new WeakReference<LazyActivity>(activity);
+        public void setContext(ScActivity activity) {
+            mActivityReference = new WeakReference<ScActivity>(activity);
         }
 
         /**
@@ -108,15 +108,15 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
                 }
 
                 // resolve data
-                for (T p : newItems)
+                for (Parcelable p : newItems) {
                     if (mActivityReference.get() != null)
-                        mActivityReference.get().resolveParcelable(p);
+                        CloudUtils.resolveParcelable(mActivityReference.get(), p);
+                }
 
                 return true;
 
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
-                e.printStackTrace();
             }
 
             // there was an exception of some kind, return failure

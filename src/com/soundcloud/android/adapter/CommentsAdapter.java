@@ -14,14 +14,13 @@ import android.widget.TextView;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.view.LazyRow;
 
 public class CommentsAdapter extends LazyExpandableBaseAdapter {
 
     @SuppressWarnings("unchecked")
-    public CommentsAdapter(LazyActivity context, ArrayList<Parcelable> groupData,
+    public CommentsAdapter(Context context, ArrayList<Parcelable> groupData,
             ArrayList<ArrayList<Parcelable>> childData) {
         super(context, groupData, childData);
     }
@@ -29,7 +28,7 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter {
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View row,
             ViewGroup parent) {
-        CommentRowChild rowView = null;
+        CommentRowChild rowView;
 
         if (row == null) {
             rowView = new CommentRowChild(mActivity);
@@ -46,7 +45,7 @@ public class CommentsAdapter extends LazyExpandableBaseAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View row, ViewGroup parent) {
-        CommentRowGroup rowView = null;
+        CommentRowGroup rowView;
 
         if (row == null) {
             rowView = new CommentRowGroup(mActivity);

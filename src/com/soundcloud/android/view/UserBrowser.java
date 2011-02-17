@@ -7,7 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -46,7 +46,7 @@ public class UserBrowser extends ScTabView {
 
     private static String TAG = "UserBrowser";
 
-    private LazyActivity mActivity;
+    private ScActivity mActivity;
 
     protected ImageView mIcon;
 
@@ -110,7 +110,7 @@ public class UserBrowser extends ScTabView {
         tracks
     }
 
-    public UserBrowser(LazyActivity c) {
+    public UserBrowser(ScActivity c) {
         super(c);
 
         mActivity = c;
@@ -235,7 +235,7 @@ public class UserBrowser extends ScTabView {
         
         if (mWorkspaceView != null)
             ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
-        else
+        else  if (mTabHost != null)
             ((ScTabView) mTabHost.getCurrentView()).onStart();
 
         // if this is the profile of the main user and there is no user id and a
@@ -393,7 +393,7 @@ public class UserBrowser extends ScTabView {
         setTabTextInfo();
         
         if (mActivity instanceof ScProfile){
-            ((ScProfile) mActivity).setTabHost(mTabHost);
+            //XXX ((ScProfile) mActivity).setTabHost(mTabHost);
         }
         
         mTabHost.setOnTabChangedListener(tabListener);
@@ -674,8 +674,13 @@ public class UserBrowser extends ScTabView {
     protected String getUserTracksUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
                 CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}", Long
-                        .toString(mUserLoadId)), mActivity.getTrackOrder()) : CloudUtils
-                .buildRequestPath(CloudAPI.Enddpoints.MY_TRACKS, mActivity.getTrackOrder());
+                        .toString(mUserLoadId)), getTrackOrder()) : CloudUtils
+                .buildRequestPath(CloudAPI.Enddpoints.MY_TRACKS, getTrackOrder());
+    }
+
+    private String getTrackOrder() {
+        return PreferenceManager.getDefaultSharedPreferences(mActivity)
+                .getString("defaultTrackSorting", "");
     }
 
     protected String getFavoritesUrl() {
@@ -683,23 +688,30 @@ public class UserBrowser extends ScTabView {
                 CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}", Long
                         .toString(mUserLoadId)), "favorited_at") : CloudUtils
                 .buildRequestPath(CloudAPI.Enddpoints.MY_FAVORITES,
-                        mActivity.getTrackOrder());
+                        getTrackOrder());
     }
 
     protected String getFollowersUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
                 CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}", Long
-                        .toString(mUserLoadId)), mActivity.getUserOrder()) : CloudUtils
+                        .toString(mUserLoadId)), getUserOrder()) : CloudUtils
                 .buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWERS,
-                        mActivity.getTrackOrder());
+                       getTrackOrder());
+    }
+
+    private String getUserOrder() {
+
+        return PreferenceManager.getDefaultSharedPreferences(mActivity)
+                .getString("defaultUserSorting", "");
+
     }
 
     protected String getFollowingsUrl() {
         return mIsOtherUser ? CloudUtils.buildRequestPath(
                 CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}", Long
-                        .toString(mUserLoadId)), mActivity.getUserOrder()) : CloudUtils
+                        .toString(mUserLoadId)), getUserOrder()) : CloudUtils
                 .buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWINGS,
-                        mActivity.getTrackOrder());
+                        getTrackOrder());
     }
 
     private class CheckFollowingStatusTask extends AsyncTask<String, Integer, String> {

@@ -182,9 +182,6 @@ public abstract class ScActivity extends Activity {
 
     }
 
-    /**
-	 * 
-	 */
     @Override
     protected void onResume() {
         super.onResume();
@@ -196,7 +193,7 @@ public abstract class ScActivity extends Activity {
                 mHolder.setVisibility(View.GONE);
             forcePause();
 
-            if (!this.getClass().equals(Authorize.class)) {
+            if (!(this instanceof Authorize)) {
                 onReauthenticate();
 
                 Intent intent = new Intent(this, Authorize.class);
@@ -233,11 +230,6 @@ public abstract class ScActivity extends Activity {
         toast.show();
     }
 
-    /**
-     * Get the current exception
-     * 
-     * @return the exception
-     */
     public Exception getException() {
         return mException;
     }
@@ -469,9 +461,6 @@ public abstract class ScActivity extends Activity {
         return super.onCreateDialog(which);
     }
 
-    /**
-     * Handle options menu selections
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -497,16 +486,17 @@ public abstract class ScActivity extends Activity {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
 
-                    if (connectivityListener == null)
-                        return;
-                    NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-
-                    if (networkInfo == null)
-                        return;
-                    ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
+                    if (connectivityListener != null) {
+                        NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+                        if (networkInfo != null) {
+                            ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
+                        }
+                    }
                     break;
             }
         }
     };
 
+    protected void restoreState() {
+    }
 }
