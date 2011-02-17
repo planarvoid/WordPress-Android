@@ -53,7 +53,7 @@ public class LocationPicker extends ListActivity {
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
-    private static final int VENUE_LIMIT     = 50; // fetch this number of 4sq venues
+    private static final int VENUE_LIMIT     = 25; // fetch this number of 4sq venues
 
     private static final int LOADING = 0;
 
