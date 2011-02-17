@@ -6,25 +6,53 @@
               android:orientation="vertical">
 
 
-    <MultiAutoCompleteTextView android:id="@+id/email"
-                          android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"
-                          android:completionThreshold="1"
-                          android:textColor="@color/black"
-                          android:imeOptions="actionDone"/>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content">
 
 
-    <TextView android:id="@+id/picker"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:textSize="20sp"
-              android:text="Pick"
-              android:textColor="@color/black"/>
+        <MultiAutoCompleteTextView android:id="@+id/email"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="1"
+                              android:completionThreshold="1"
+                              android:textColor="@color/black"
+                              android:imeOptions="actionDone"/>
 
-    <TextView android:id="@+id/pick_done"
+
+        <ImageView android:id="@+id/picker"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:src="@drawable/sym_action_add"
+                  android:gravity="center_vertical"
+                  android:padding="5dip"/>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <Button android:id="@+id/pick_clear"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:textSize="20sp"
-          android:text="Done"
-          android:textColor="@color/black"/>
+          android:text="Clear"/>
+
+
+        <Button android:id="@+id/pick_done"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="20sp"
+          android:text="OK"/>
+
+    </LinearLayout>
+
+
+
 </LinearLayout>

@@ -86,8 +86,7 @@ public class EmailPicker extends Activity {
             }
         }
 
-        TextView picker = (TextView) findViewById(R.id.picker);
-        picker.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.picker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
@@ -95,8 +94,7 @@ public class EmailPicker extends Activity {
             }
         });
 
-        final TextView pick_done = (TextView) findViewById(R.id.pick_done);
-        pick_done.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.pick_done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent result = new Intent();
@@ -117,10 +115,18 @@ public class EmailPicker extends Activity {
             }
         });
 
+        findViewById(R.id.pick_clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEmail.getText().clear();
+            }
+        }
+        );
+
         mEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    pick_done.performClick();
+                    findViewById(R.id.pick_done).performClick();
                 }
                 return true;
             }
@@ -131,9 +137,8 @@ public class EmailPicker extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == GET_EMAIL) {
+        if (resultCode == RESULT_OK && requestCode == GET_EMAIL) {
             Log.v(TAG, "onActivityResult(" + data + ")");
-
             String id = data.getData().getLastPathSegment();
 
             if (id != null) {
