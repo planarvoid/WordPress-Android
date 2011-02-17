@@ -8,12 +8,15 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.provider.ScContentProvider;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseObj implements Parcelable {
@@ -167,6 +170,46 @@ public class User extends BaseObj implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+    
+    public static final class Users implements BaseColumns {
+        
+        private Users() {
+        }
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScContentProvider.AUTHORITY + "/users");
+
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.users";
+
+        public static final String ID = "_id";
+
+        public static final String PERMALINK = "username";
+
+        public static final String AVATAR_URL = "avatar_url";
+        
+        public static final String CITY = "city";
+        
+        public static final String COUNTRY = "country";
+        
+        public static final String DISCOGS_NAME = "discogs_name";
+        
+        public static final String FOLLOWERS_COUNT = "followers_count";
+        
+        public static final String FOLLOWINGS_COUNT = "followings_count";
+
+        public static final String FULL_NAME = "full_name";
+        
+        public static final String MYSPACE_NAME = "myspace_name";
+        
+        public static final String TRACK_COUNT = "track_count";
+        
+        public static final String WEBSITE = "website";
+        
+        public static final String WEBSITE_TITLE = "website_title";
+        
+        public static final String DESCRIPTION = "description";
+        
     }
 
 }

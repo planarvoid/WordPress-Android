@@ -1615,10 +1615,14 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
 
+                Log.i(TAG,"ON COMPLETE ");
+                
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
 
+                    Log.i(TAG,"ON COMPLETE resetting");
+                    
                     mMediaPlayer.reset();
                     mIsInitialized = false;
                     mPlayingPath = "";
@@ -1632,6 +1636,8 @@ public class CloudPlaybackService extends Service {
 
                     return;
                 }
+                
+                Log.i(TAG,"ON COMPLETE done ");
 
                 // Acquire a temporary wakelock, since when we return from
                 // this callback the MediaPlayer will release its wakelock

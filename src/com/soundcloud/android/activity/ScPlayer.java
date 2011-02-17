@@ -387,7 +387,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
-        Log.i(TAG, "Text view for container " + tv);
         if (tv == null) {
             return false;
         }
@@ -456,7 +455,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 return true;
             }
         }
-        Log.i(TAG, "Returning false");
         return false;
     }
 
@@ -567,7 +565,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         LoadDetailsTask lt = new LoadTrackDetailsTask();
         lt.loadModel = CloudUtils.Model.track;
         lt.setActivity(this);
-        Log.i(TAG, "New Load Track Details Task");
         return lt;
     }
 
@@ -870,7 +867,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                Log.i(TAG,"MMMMETA CHANGED");
                 mCurrentTrackError = false;
                 
                 updateTrackInfo();
@@ -968,8 +964,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             mCurrentTrackId = mPlayingTrack.id;
 
-            Log.i(TAG,"~~~~~~~ looking for comments in cache " + mCurrentTrackId);
-            
             mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
             if (mCurrentComments != null){
               refreshComments(true);
@@ -1271,12 +1265,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private void toggleFavorite() {
         
-        Log.i(TAG,"Toggle Favorite ");
-
         if (mPlayingTrack == null)
             return;
 
-        Log.i(TAG,"Toggle Favorite 2 " + mPlayingTrack.user_favorite);
         mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
@@ -1303,7 +1294,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             if (newItems != null) {
                 mCurrentComments = newItems;
-                Log.i(TAG,"+++++++++++++Storing Comments in cache from load task " + track_id);
                 getSoundCloudApplication().cacheComments(track_id, mCurrentComments);
                 refreshComments(true);
             }
@@ -1392,13 +1382,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mCurrentComments = new ArrayList<Comment>();
                 
                 mCurrentComments.add(mAddComment);
-                Log.i(TAG,"+++++++++++++Storing Comments in cache");
                 getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
                 refreshComments(true);
                 
             } else
                 handleException();
-            Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
         }
     };
     

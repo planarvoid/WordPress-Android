@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 
 import android.text.format.DateFormat;
 import android.widget.*;
-import android.widget.Button;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -26,6 +25,7 @@ import android.graphics.BitmapFactory.Options;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
@@ -105,6 +105,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private String mDurationFormatShort;
 
     private String mCurrentDurationString;
+    
+    private String mPendingArtworkPath;
 
     public static int REC_SAMPLE_RATE = 44100;
 
@@ -113,6 +115,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     public static int REC_BITS_PER_SAMPLE = 16;
 
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+    
     WakeLock mWakeLock;
 
 
@@ -129,7 +132,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mActivity = activity;
 
         // go straight to upload if running in emulator, since we can't record anyway
-        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : mCurrentState == null ? CreateState.IDLE_RECORD : mCurrentState;
+        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : CreateState.IDLE_RECORD;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -414,17 +417,17 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super.onStart();
 
         try {
+            
+            Log.i(TAG,"On Start " + mRecordFile); 
+            
             if (mActivity.getCreateService() != null && mActivity.getCreateService().isUploading()) {
+                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
+                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.IDLE_RECORD;
-            } else if (mCurrentState == null) {
-
-                if (!mRecordFile.exists()) {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                } else {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                }
+            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
+                mCurrentState = CreateState.IDLE_PLAYBACK;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -453,6 +456,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
+            if (mArtwork.getWidth() == 0){
+                mPendingArtworkPath = imageUri;
+                return;
+            }
+            
             Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
                     .getHeight());
             mArtworkUri = imageUri;
@@ -460,13 +468,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
+            
+            BitmapFactory.Options resample = new BitmapFactory.Options();
+            resample.inSampleSize = opt.inSampleSize;
 
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri);
+            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
             mArtwork.setImageBitmap(mArtworkBitmap);
             mArtwork.setVisibility(View.VISIBLE);
+            mPendingArtworkPath = "";
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
+    }
+    
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l,t,r,b);
+        
+        if (changed){
+           if (!TextUtils.isEmpty(mPendingArtworkPath))
+               setPickedImage(mPendingArtworkPath);
+        }
+        
     }
 
     public void clearArtwork() {

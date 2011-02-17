@@ -33,7 +33,7 @@ public class DBAdapter {
 
     private static final int DATABASE_VERSION = 3;
 
-    private static final String DATABASE_CREATE_TRACKS = "create table Tracks (id string primary key, "
+    private static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id string primary key, "
             + "permalink string null, "
             + "duration string null, "
             + "tag_list string null, "
@@ -51,7 +51,7 @@ public class DBAdapter {
             + "user_played boolean false, "
             + "filelength integer null);";
 
-    private static final String DATABASE_CREATE_USERS = "create table Users (id string primary key, "
+    private static final String DATABASE_CREATE_USERS = "create table Users (_id string primary key, "
             + "username string null, "
             + "avatar_url string null, "
             + "permalink string null, "
