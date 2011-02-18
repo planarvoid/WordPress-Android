@@ -154,6 +154,13 @@ public class CloudCreateService extends Service {
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
+
+        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("defaultRecordingQuality", "high").contentEquals("high"),
+                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
+                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        mRecorder.setRecordService(this);
+
     }
 
     @Override
@@ -212,11 +219,7 @@ public class CloudCreateService extends Service {
         mRecordFile = new File(path);
         frameCount = 0;
 
-        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultRecordingQuality", "high").contentEquals("high"),
-                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        mRecorder.setRecordService(this);
+        mRecorder.reset();
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
         mRecorder.start();
@@ -265,14 +268,13 @@ public class CloudCreateService extends Service {
 
         mRecorder.stop();
         mRecorder.release();
-        mRecorder = null;
         mRecording = false;
 
         nm.cancel(CREATE_NOTIFY_ID);
         gotoIdleState();
     }
 
-    private Boolean isRecording() {
+    private boolean isRecording() {
         return mRecording;
     }
 
