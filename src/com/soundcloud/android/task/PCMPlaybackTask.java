@@ -13,7 +13,7 @@ import android.media.AudioTrack;
 import android.os.AsyncTask;
 
 import android.util.Log;
-import com.soundcloud.android.view.ScCreate;
+import com.soundcloud.android.activity.ScCreate;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 

@@ -1,17 +1,21 @@
+package com.soundcloud.android.activity;
 
-package com.soundcloud.android.view;
-
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.media.AudioTrack;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -19,18 +23,18 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.LocationPicker;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.view.AccessList;
+import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.utils.AnimUtils;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
@@ -46,7 +50,7 @@ import java.util.Map;
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class ScCreate extends ScTabView implements PlaybackListener {
+public class ScCreate extends ScActivity implements PlaybackListener {
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions, txtRecordStatus;
@@ -72,7 +76,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private int mArtworkInSampleSize;
 
-    private ScActivity mActivity;
 
     private CreateState mLastState, mCurrentState;
 
@@ -120,9 +123,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     private Long pcmTime;
 
-    public ScCreate(ScActivity activity) {
-        super(activity);
-        mActivity = activity;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         if (EMULATOR) {
             // go straight to upload if running in emulator, since we can't record anyway
@@ -131,12 +136,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             mCurrentState = CreateState.IDLE_RECORD;
         }
 
-        LayoutInflater inflater = (LayoutInflater) activity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.sc_create, this);
+        setContentView(R.layout.sc_create);
 
-        mDurationFormatLong = mActivity.getString(R.string.durationformatlong);
-        mDurationFormatShort = mActivity.getString(R.string.durationformatshort);
+        mDurationFormatLong = getString(R.string.durationformatlong);
+        mDurationFormatShort = getString(R.string.durationformatshort);
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
@@ -146,12 +149,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         updateUi(false);
         mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.mp4");
         mRecordErrorMessage = "";
+
+        // XXX do in manifest
+        IntentFilter uploadFilter = new IntentFilter();
+        uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
+        uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
+        uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
+        uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+        this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(mUploadStatusListener);
     }
 
     /*
-     * Whenever the UI is re-created (due f.ex. to orientation change) we have
-     * to reinitialize references to the views.
-     */
+    * Whenever the UI is re-created (due f.ex. to orientation change) we have
+    * to reinitialize references to the views.
+    */
     private void initResourceRefs() {
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
@@ -207,12 +226,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
-        mWhereText.setOnClickListener(new OnClickListener() {
+        mWhereText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mActivity, LocationPicker.class);
+                Intent intent = new Intent(ScCreate.this, LocationPicker.class);
                 intent.putExtra("name", ((TextView)v).getText().toString());
-                mActivity.startActivityForResult(intent, LocationPicker.PICK_VENUE);
+                startActivityForResult(intent, LocationPicker.PICK_VENUE);
             }
         });
 
@@ -237,15 +256,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 if (TextUtils.isEmpty(mArtworkUri)){
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/*");
-                    mActivity.startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                    startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
                 } else {
-                    mActivity.showToast(R.string.cloud_upload_clear_artwork);
+                    showToast(R.string.cloud_upload_clear_artwork);
                 }
 
             }
         });
 
-        mArtwork.setOnLongClickListener(new OnLongClickListener() {
+        mArtwork.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 clearArtwork();
@@ -254,12 +273,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         });
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mPowerGauge = new PowerGauge(mActivity);
+        mPowerGauge = new PowerGauge(this);
         mGaugeHolder.addView(mPowerGauge);
 
         mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
         mConnectionList.setAdapter(
-            new ConnectionList.Adapter(mActivity.getSoundCloudApplication())
+            new ConnectionList.Adapter(this.getSoundCloudApplication())
             .load());
 
         mAccessList = (AccessList) findViewById(R.id.accessList);
@@ -277,9 +296,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mConnectionList.getAdapter().clear();
     }
 
-    @Override
     public void onRefresh(boolean all) {
-        super.onRefresh(all);
         onReauthenticate();
         onAuthenticated();
     }
@@ -329,9 +346,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     @Override
     public void onStart() {
+        super.onStart();
+
         Log.d(TAG, "onStart()");
         try {
-            if (mActivity.getCreateService() != null && mActivity.getCreateService().isUploading()) {
+            if (getCreateService() != null && getCreateService().isUploading()) {
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
                 mCurrentState = CreateState.IDLE_RECORD;
@@ -415,7 +434,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 goToView(0);
                 if (takeAction) clearPlaybackTrack();
 
-                btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(
+                btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_states));
                 mFileLayout.setVisibility(View.GONE);
 
@@ -441,7 +460,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 if (mViewFlipper.getDisplayedChild() != 0)
                     mViewFlipper.setDisplayedChild(0);
 
-                btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(
+                btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_stop_states));
                 txtInstructions.setVisibility(View.GONE);
                 txtRecordStatus.setText("");
@@ -470,7 +489,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     }
                 }
 
-                btnAction.setBackgroundDrawable(mActivity.getResources().getDrawable(
+                btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_play_states));
                 txtInstructions.setVisibility(View.GONE);
                 mFileLayout.setVisibility(View.VISIBLE);
@@ -490,7 +509,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mPowerGauge.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
-                btnAction.setBackgroundDrawable(mActivity.getResources()
+                btnAction.setBackgroundDrawable(getResources()
                         .getDrawable(R.drawable.btn_rec_stop_states));
 
                 if (takeAction) startPlayback();
@@ -577,7 +596,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     private void startRecording() {
-        mActivity.forcePause();
+        forcePause();
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
@@ -602,15 +621,15 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, REC_MAX_FILE_SIZE);
             }
 
-            mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
+            setRequestedOrientation(getResources().getConfiguration().orientation);
             try {
-                (mActivity).getCreateService().startRecording(mRecordFile.getAbsolutePath());
+                getCreateService().startRecording(mRecordFile.getAbsolutePath());
                 mRecordingStarted.setToNow();
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
             }
 
-            mActivity.getSoundCloudApplication().setRecordListener(recListener);
+            getSoundCloudApplication().setRecordListener(recListener);
         }
     }
 
@@ -644,7 +663,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             return;
         }
 
-        Resources res = mActivity.getResources();
+        Resources res = getResources();
         String timeStr = "";
 
         if (t < 60) {
@@ -669,11 +688,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     };
 
     private void stopRecording() {
-        mActivity.getSoundCloudApplication().setRecordListener(null);
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        getSoundCloudApplication().setRecordListener(null);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         try {
-            (mActivity).getCreateService().stopRecording();
+            getCreateService().stopRecording();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -709,11 +728,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     void startUpload() {
-        if (mActivity.getCreateService() == null) return;
+        if (getCreateService() == null) return;
 
         boolean uploading;
         try {
-            uploading = (mActivity).getCreateService().isUploading();
+            uploading = getCreateService().isUploading();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
             uploading = true;
@@ -757,7 +776,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             if (mLong != 0) tags.add("geo:long="+mLong);
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
-            data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), generateFilename(title)));
+            data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
             data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
@@ -767,7 +786,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             }
 
             try {
-                (mActivity).getCreateService().uploadTrack(data);
+                getCreateService().uploadTrack(data);
             } catch (RemoteException ignored) {
                 Log.e(TAG, "error", ignored);
             } finally {
@@ -776,7 +795,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 clearArtwork();
             }
         } else {
-            mActivity.showToast(R.string.wait_for_upload_to_finish);
+            showToast(R.string.wait_for_upload_to_finish);
             mCurrentState = CreateState.IDLE_UPLOAD;
             updateUi(true);
         }
@@ -895,6 +914,74 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+    }
+
+    private BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(CloudCreateService.UPLOAD_ERROR)
+                    || action.equals(CloudCreateService.UPLOAD_CANCELLED))
+                onCreateComplete(false);
+            else if (action.equals(CloudCreateService.UPLOAD_SUCCESS))
+                onCreateComplete(true);
+            else if (action.equals(CloudCreateService.RECORD_ERROR))
+                onRecordingError();
+        }
+    };
+
+
+
+    protected void onCreateComplete(boolean success) {
+        unlock(success);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+
+        switch (requestCode) {
+            case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
+                if (resultCode == RESULT_OK) {
+                    Uri selectedImage = result.getData();
+                    String[] filePathColumn = {
+                            MediaStore.MediaColumns.DATA
+                    };
+
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null,
+                            null, null);
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+
+                    setPickedImage(filePath);
+
+
+                }
+                break;
+
+            case EmailPicker.PICK_EMAILS:
+                if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
+                    String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
+                    if (emails != null) {
+                        Log.d(TAG, "got emails " + Arrays.asList(emails));
+                        setPrivateShareEmails(emails);
+                    }
+                }
+                break;
+            case LocationPicker.PICK_VENUE:
+                if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
+                    setWhere(result.getStringExtra("name"),
+                            result.getStringExtra("id"),
+                            result.getDoubleExtra("longitude", 0),
+                            result.getDoubleExtra("latitude", 0));
+                }
+                break;
+
         }
     }
 }

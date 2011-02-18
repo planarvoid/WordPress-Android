@@ -25,7 +25,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;

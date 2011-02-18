@@ -6,9 +6,9 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
-import com.soundcloud.android.view.ScCreate;
 import com.soundcloud.utils.record.CloudRecorder;
 
 import android.app.Notification;

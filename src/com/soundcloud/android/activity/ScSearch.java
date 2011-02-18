@@ -1,22 +1,11 @@
-
-package com.soundcloud.android.view;
-
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
+package com.soundcloud.android.activity;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,11 +14,19 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.view.LazyList;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class ScSearch extends ScTabView {
+public class ScSearch extends ScActivity {
 
     // Debugging tag.
     @SuppressWarnings("unused")
@@ -39,7 +36,6 @@ public class ScSearch extends ScTabView {
     // Private Data.
     // ******************************************************************** //
 
-    private ScActivity mActivity;
 
     private Button btnSearch;
 
@@ -78,14 +74,12 @@ public class ScSearch extends ScTabView {
      *            Otherwise it is null.
      */
 
-    public ScSearch(ScActivity activity) {
-        super(activity);
+    @Override
+    public void onCreate(Bundle state) {
+        super.onCreate(state);
 
-        mActivity = activity;
+        setContentView(R.layout.sc_search);
 
-        LayoutInflater inflater = (LayoutInflater) activity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.sc_search, this);
 
         rdoType = (RadioGroup) findViewById(R.id.rdo_search_type);
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
@@ -107,29 +101,26 @@ public class ScSearch extends ScTabView {
         // account for special handling of this list if we are in a tab with
         // regards
         // to checking for data type (user/track) when restoring list data
-        if (mActivity instanceof Dashboard)
-            mList = ((Dashboard) mActivity).buildList(true);
-        else
-            mList = CloudUtils.createList(mActivity);
+            mList = CloudUtils.createList(this);
 
         ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
         // mList.setFocusable(false);
 
-        LazyBaseAdapter adpTrack = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
-        mTrackAdpWrapper = new LazyEndlessAdapter(mActivity, adpTrack, "", CloudUtils.Model.track);
+        LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>());
+        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "", CloudUtils.Model.track);
 
-        LazyBaseAdapter adpUser = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
-        mUserAdpWrapper = new LazyEndlessAdapter(mActivity, adpUser, "", CloudUtils.Model.user);
+        LazyBaseAdapter adpUser = new UserlistAdapter(this, new ArrayList<Parcelable>());
+        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "", CloudUtils.Model.user);
 
         mList.setAdapter(mTrackAdpWrapper);
         mList.setId(android.R.id.list);
 
         btnSearch.setNextFocusDownId(android.R.id.list);
 
-        this.setOnFocusChangeListener(keyboardHideFocusListener);
-        this.setOnClickListener(keyboardHideClickListener);
-        this.setOnTouchListener(keyboardHideTouchListener);
+        findViewById(R.id.search_root).setOnFocusChangeListener(keyboardHideFocusListener);
+        findViewById(R.id.search_root).setOnClickListener(keyboardHideClickListener);
+        findViewById(R.id.search_root).setOnTouchListener(keyboardHideTouchListener);
 
         txtQuery.setOnFocusChangeListener(queryFocusListener);
         txtQuery.setOnClickListener(queryClickListener);
@@ -159,10 +150,13 @@ public class ScSearch extends ScTabView {
 
     }
 
+    @Override
+    public void onRefresh(boolean b) {
+    }
+
     private void doSearch() {
 
-        InputMethodManager mgr = (InputMethodManager) mActivity
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null)
             mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
@@ -200,7 +194,7 @@ public class ScSearch extends ScTabView {
         }
     }
 
-    private OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
+    private View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
                 rdoTrack.setVisibility(View.VISIBLE);
@@ -212,17 +206,17 @@ public class ScSearch extends ScTabView {
         }
     };
 
-    private OnClickListener queryClickListener = new View.OnClickListener() {
+    private View.OnClickListener queryClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             rdoTrack.setVisibility(View.VISIBLE);
             rdoUser.setVisibility(View.VISIBLE);
         }
     };
 
-    private OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
+    private View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
-            InputMethodManager mgr = (InputMethodManager) mActivity
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager mgr = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
             if (hasFocus == true && mgr != null)
                 mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
@@ -231,10 +225,10 @@ public class ScSearch extends ScTabView {
         }
     };
 
-    private OnClickListener keyboardHideClickListener = new View.OnClickListener() {
+    private View.OnClickListener keyboardHideClickListener = new View.OnClickListener() {
         public void onClick(View v) {
-            InputMethodManager mgr = (InputMethodManager) mActivity
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager mgr = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
             if (mgr != null)
                 mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
@@ -243,10 +237,10 @@ public class ScSearch extends ScTabView {
         }
     };
 
-    private OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
+    private View.OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
-            InputMethodManager mgr = (InputMethodManager) mActivity
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager mgr = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
             if (mgr != null)
                 mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);

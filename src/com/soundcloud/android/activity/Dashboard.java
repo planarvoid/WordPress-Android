@@ -4,20 +4,14 @@ package com.soundcloud.android.activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore.MediaColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -42,18 +36,12 @@ import com.soundcloud.android.objects.BaseObj;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScCreate;
-import com.soundcloud.android.view.ScSearch;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserBrowser;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -63,10 +51,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 public class Dashboard extends ScActivity implements AdapterView.OnItemClickListener {
     protected ScTabView mLastTab;
 
-    private UserBrowser mUserBrowser;
-    private ScCreate mScCreate;
-    private ScSearch mScSearch;
-
     protected LinearLayout mHolder;
 
     protected Parcelable mDetailsData;
@@ -75,9 +59,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     protected SoundCloudAPI.State mLastCloudState;
 
-    private MenuItem menuCurrentPlayingItem;
-
-    private MenuItem menuCurrentUploadingItem;
 
     protected LinearLayout mMainHolder;
 
@@ -91,9 +72,9 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     protected ArrayList<LazyList> mLists;
 
-    protected Boolean mIgnorePlaybackStatus = false;
 
     protected Integer setTabIndex = -1;
+    private boolean mIgnorePlaybackStatus;
 
 
     @Override
@@ -108,18 +89,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         mLists = new ArrayList<LazyList>();
 
         // XXX do in manifest
-        IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
-
-        // XXX do in manifest
-        IntentFilter uploadFilter = new IntentFilter();
-        uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
-        uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
-        uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
-        uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
-        this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
 
         handleIntent();
 
@@ -140,14 +109,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         super.onResume();
     }
 
-    protected void onRecordingError() {
-        if (mScCreate != null) mScCreate.onRecordingError();
-    }
-
-    protected void onCreateComplete(boolean success) {
-        if (mScCreate != null) mScCreate.unlock(success);
-    }
-
 
     private void build() {
         mHolder = (LinearLayout) findViewById(R.id.main_holder);
@@ -163,9 +124,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         // setup must be called if you are not initialising the tabhost from XML
         createIncomingTab();
         createExclusiveTab();
-        createYouTab();
-        createRecordTab();
-        createSearchTab();
+
 
         CloudUtils.setTabTextStyle(this, tabWidget);
 
@@ -217,108 +176,34 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     }
 
-    protected void createYouTab() {
-        mUserBrowser = new UserBrowser(this);
-        mUserBrowser.loadYou();
-
-        CloudUtils.createTab(tabHost, "you",
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you),
-                mUserBrowser);
-
-    }
-
-    protected void createRecordTab() {
-        this.mScCreate = new ScCreate(this);
-        CloudUtils.createTab(tabHost, "record",
-                getString(R.string.tab_record),
-                getResources().getDrawable(R.drawable.ic_tab_record),
-                mScCreate);
-    }
-
-    protected void createSearchTab() {
-        this.mScSearch = new ScSearch(this);
-        CloudUtils.createTab(tabHost, "search", getString(R.string.tab_search),
-                getResources().getDrawable(R.drawable.ic_tab_search), mScSearch);
-    }
-
-    protected Object[] saveLoadTasks() {
-        return mUserBrowser != null ? mUserBrowser.saveLoadTasks() : null;
-    }
-
-    protected void restoreLoadTasks(Object[] taskObject) {
-        if (mUserBrowser != null) mUserBrowser.restoreLoadTasks(taskObject);
-
-    }
-
-    protected Parcelable saveParcelable() {
-        return mUserBrowser != null ? mUserBrowser.saveParcelable() : null;
-
-    }
-
-
-    protected void restoreParcelable(Parcelable p) {
-        if (mUserBrowser != null)
-            mUserBrowser.restoreParcelable(p);
-
-        mDetailsData = p;
-    }
 
 
 
-    /**
-     * Prepare the options menu based on the current class and current play
-     * state
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")) {
-            menuCurrentPlayingItem.setVisible(true);
-        } else {
-            menuCurrentPlayingItem.setVisible(false);
-        }
+//    protected Object[] saveLoadTasks() {
+//        return mUserBrowser != null ? mUserBrowser.saveLoadTasks() : null;
+//    }
+//
+//    protected void restoreLoadTasks(Object[] taskObject) {
+//        if (mUserBrowser != null) mUserBrowser.restoreLoadTasks(taskObject);
+//
+//    }
+//
+//    protected Parcelable saveParcelable() {
+//        return mUserBrowser != null ? mUserBrowser.saveParcelable() : null;
+//
+//    }
+//
+//
+//    protected void restoreParcelable(Parcelable p) {
+//        if (mUserBrowser != null)
+//            mUserBrowser.restoreParcelable(p);
+//
+//        mDetailsData = p;
+//    }
 
-        try {
-            if (mCreateService.isUploading()) {
-                menuCurrentUploadingItem.setVisible(true);
-            } else {
-                menuCurrentUploadingItem.setVisible(false);
-            }
-        } catch (Exception e) {
-            menuCurrentUploadingItem.setVisible(false);
-        }
 
-        return true;
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
 
-           menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(
-                R.drawable.ic_menu_info_details);
-        menuCurrentUploadingItem = menu.add(menu.size(),
-                CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
-                R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
-
-        menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-                .setIcon(R.drawable.ic_menu_preferences);
-
-        menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                R.drawable.context_refresh);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case CloudUtils.OptionsMenu.REFRESH:
-                Log.i(TAG,"Get Current Tab " + tabHost.getCurrentView());
-                ((ScTabView) tabHost.getCurrentView()).onRefresh(false);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
 
 
@@ -326,13 +211,28 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     protected void onDestroy() {
         super.onDestroy();
 
-        this.unregisterReceiver(mUploadStatusListener);
         this.unregisterReceiver(mPlaybackStatusListener);
 
         for (ListView mList : mLists) {
             CloudUtils.cleanupList(mList);
         }
     }
+
+    private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mIgnorePlaybackStatus)
+                return;
+
+            String action = intent.getAction();
+            if (action.equals(CloudPlaybackService.META_CHANGED)) {
+                setPlayingTrack(intent.getIntExtra("trackId", -1));
+            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
+                setPlayingTrack(-1);
+            }
+        }
+    };
+
 
     protected void configureListToData(ArrayList<Parcelable> mAdapterData, int listIndex) {
         /**
@@ -343,7 +243,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
          */
 
         if (mSearchListIndex == listIndex && mAdapterData.size() > 0) {
-            mScSearch.setAdapterType(mAdapterData.get(0) instanceof User);
+            //mScSearch.setAdapterType(mAdapterData.get(0) instanceof User);
 
             mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
             mLists.get(mSearchListIndex).setFocusable(true);
@@ -353,7 +253,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     protected void configureListToTask(AppendTask task, int listIndex) {
         if (mSearchListIndex == listIndex && task != null) {
-            mScSearch.setAdapterType(task.loadModel == CloudUtils.Model.user);
+            //mScSearch.setAdapterType(task.loadModel == CloudUtils.Model.user);
 
             mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
             mLists.get(mSearchListIndex).setFocusable(true);
@@ -362,9 +262,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        mScCreate.onSaveInstanceState(state);
-        mUserBrowser.onSaveInstanceState(state);
-        mScSearch.onSaveInstanceState(state);
 
         if (tabHost != null) {
                  state.putString("currentTabIndex", Integer.toString(tabHost.getCurrentTab()));
@@ -377,9 +274,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     @Override
     public void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
-        mScCreate.onRestoreInstanceState(state);
-        mUserBrowser.onRestoreInstanceState(state);
-        mScSearch.onRestoreInstanceState(state);
 
 
         if (setTabIndex == -1) {
@@ -398,31 +292,24 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     public Object onRetainNonConfigurationInstance() {
         return new Object[] {
                 super.onRetainNonConfigurationInstance(),
-                saveLoadTasks(),
-                saveParcelable(),
                 saveListTasks(),
                 saveListConfigs(),
                 saveListExtras(),
                 saveListAdapters(),
                 // mScCreate.getRecordTask(),
-                mScCreate.getPlaybackTask()
         };
     }
 
-    @Override
     protected void restoreState() {
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();
 
         if (saved != null) {
-            restoreLoadTasks((Object[]) saved[1]);
-            restoreParcelable((Parcelable) saved[2]);
             restoreListTasks(saved[3]);
             restoreListConfigs(saved[4]);
             restoreListExtras(saved[5]);
             restoreListAdapters(saved[6]);
             // mScCreate.setRecordTask((PCMRecordTask) saved[7]);
-            mScCreate.setPlaybackTask((PCMPlaybackTask) saved[7]);
         }
     }
 
@@ -446,59 +333,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        super.onActivityResult(requestCode, resultCode, result);
-        Log.i(TAG, "onActivityResult("+requestCode+", "+resultCode+", "+result+")");
-
-        switch (requestCode) {
-            case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = result.getData();
-                    String[] filePathColumn = {
-                        MediaColumns.DATA
-                    };
-
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null,
-                            null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-
-                    if (mScCreate != null) {
-                        mScCreate.setPickedImage(filePath);
-                    }
-
-                }
-                break;
-
-            case CloudUtils.RequestCodes.REAUTHORIZE:
-                break;
-
-            case EmailPicker.PICK_EMAILS:
-                if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
-                    String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
-                    if (emails != null) {
-                        Log.d(TAG, "got emails " + Arrays.asList(emails));
-                        mScCreate.setPrivateShareEmails(emails);
-                    }
-                }
-                break;
-            case LocationPicker.PICK_VENUE:
-                if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
-                    mScCreate.setWhere(result.getStringExtra("name"),
-                            result.getStringExtra("id"),
-                            result.getDoubleExtra("longitude", 0),
-                            result.getDoubleExtra("latitude",  0));
-                }
-                break;
-
-        }
-    }
-
-
     private void setPlayingTrack(long l) {
 
         if (mLists == null || mLists.size() == 0)
@@ -517,35 +351,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
 
-    private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (mIgnorePlaybackStatus)
-                return;
-
-            String action = intent.getAction();
-            if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                setPlayingTrack(intent.getIntExtra("trackId", -1));
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
-                setPlayingTrack(-1);
-            }
-        }
-    };
 
 
-    private BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(CloudCreateService.UPLOAD_ERROR)
-                    || action.equals(CloudCreateService.UPLOAD_CANCELLED))
-                onCreateComplete(false);
-            else if (action.equals(CloudCreateService.UPLOAD_SUCCESS))
-                onCreateComplete(true);
-            else if (action.equals(CloudCreateService.RECORD_ERROR))
-                onRecordingError();
-        }
-    };
 
 
 
@@ -637,6 +444,10 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         for (int i=0; i<tabContent.getChildCount(); i++) {
             ((ScTabView)tabContent.getChildAt(i)).onReauthenticate();
         }
+    }
+
+    @Override
+    public void onRefresh(boolean b) {
     }
 
     public void configureListMenu(ListView list) {
@@ -831,7 +642,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User) {
 
             // user clicked
-            Intent i = new Intent(this, ScProfile.class);
+            Intent i = new Intent(this, UserBrowser.class);
             i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
             startActivity(i);
 

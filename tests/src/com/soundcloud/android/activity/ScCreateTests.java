@@ -1,8 +1,9 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -62,7 +63,7 @@ public class ScCreateTests
             }
         };
 
-        create = new ScCreate(activity);
+        create = new ScCreate();
     }
 
     private Map upload() throws Exception {

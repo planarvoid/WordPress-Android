@@ -14,11 +14,6 @@
       android:name="SoundCloudApplication">
 
 
-        <activity android:name="com.soundcloud.android.activity.ScTabActivity"
-                  android:label="SoundCloud 2"
-                  android:windowSoftInputMode="adjustPan">
-        </activity>
-
 
         <activity android:name="com.soundcloud.android.activity.Dashboard"
                   android:label="@string/app_name"
@@ -28,6 +23,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.soundcloud.android.activity.ScTabActivity"
+                  android:label="SoundCloud 2"
+                  android:windowSoftInputMode="adjustPan">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
 
         <activity android:name="com.soundcloud.android.activity.Authorize"
             android:label="Authorize"
@@ -53,9 +60,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.soundcloud.android.activity.ScSearch" android:label="Search" />
+        <activity android:name="com.soundcloud.android.activity.ScCreate" android:label="Upload" />
+
         <activity android:name="com.soundcloud.android.activity.Settings" android:label="Settings" />
         <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player"/>
-        <activity android:name="com.soundcloud.android.activity.ScProfile" android:label="Profile" />
+
+        <activity android:name="com.soundcloud.android.activity.UserBrowser" android:label="Profile"/>
+
         <activity android:name="com.soundcloud.android.activity.EmailPicker"/>
         <activity android:name="com.soundcloud.android.activity.LocationPicker"/>
 

@@ -230,7 +230,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         return;
                     }
 
-                    Intent intent = new Intent(ScPlayer.this, ScProfile.class);
+                    Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
                     intent.putExtra("userId", mPlayingTrack.user_id);
                     startActivity(intent);
                 }
@@ -339,6 +339,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mCurrentArtBindResult == BindResult.ERROR) {
             updateArtwork();
         }
+    }
+
+    @Override
+    public void onRefresh(boolean b) {
     }
 
     /**
@@ -1131,7 +1135,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         };
     }
 
-    @Override protected void restoreState() {
+     protected void restoreState() {
 
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();

@@ -497,6 +497,5 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    protected void restoreState() {
-    }
+    public abstract void onRefresh(boolean b);
 }

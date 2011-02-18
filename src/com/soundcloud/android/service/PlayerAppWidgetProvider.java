@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ScPlaybackActivityStarter;
 import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.activity.ScProfile;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.objects.Track;
 
 import android.app.PendingIntent;
@@ -209,7 +209,7 @@ import android.widget.RemoteViews;
             views.setOnClickPendingIntent(R.id.title_txt, pendingIntent);
             
             if (track != null){
-                intent = new Intent(context, ScProfile.class);
+                intent = new Intent(context, UserBrowser.class);
                 intent.putExtra("userId", track.user.id);
                 pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
                 views.setOnClickPendingIntent(R.id.user_txt, pendingIntent);    

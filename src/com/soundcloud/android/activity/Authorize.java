@@ -61,6 +61,10 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
     }
 
     @Override
+    public void onRefresh(boolean b) {
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
             mWebView.goBack();

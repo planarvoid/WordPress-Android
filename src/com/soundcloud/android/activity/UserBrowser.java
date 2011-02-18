@@ -1,27 +1,10 @@
-
-package com.soundcloud.android.view;
-
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScProfile;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.LoadDetailsTask;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.utils.WorkspaceView;
-import com.soundcloud.utils.WorkspaceView.OnScrollListener;
+package com.soundcloud.android.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -39,14 +22,29 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadDetailsTask;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.utils.WorkspaceView;
+import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 
 import java.util.ArrayList;
 
-public class UserBrowser extends ScTabView {
+public class UserBrowser extends ScActivity {
+
 
     private static String TAG = "UserBrowser";
-
-    private ScActivity mActivity;
 
     protected ImageView mIcon;
 
@@ -110,14 +108,18 @@ public class UserBrowser extends ScTabView {
         tracks
     }
 
-    public UserBrowser(ScActivity c) {
-        super(c);
+    @Override public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
 
-        mActivity = c;
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        LayoutInflater inflater = (LayoutInflater) c
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.user_view, this);
+        setContentView(R.layout.user_view);
+
+
+
+        //setLayoutParams(new LinearLayout.LayoutParams(FILL_PARENT, FILL_PARENT));
+
         mDetailsView = (FrameLayout) inflater.inflate(R.layout.user_details, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
@@ -133,7 +135,7 @@ public class UserBrowser extends ScTabView {
         mDescription = (TextView) mDetailsView.findViewById(R.id.description);
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
+        if (getResources().getDisplayMetrics().density > 1) {
             mIcon.getLayoutParams().width = 67;
             mIcon.getLayoutParams().height = 67;
         }
@@ -147,9 +149,39 @@ public class UserBrowser extends ScTabView {
 
         mFavorite.setVisibility(View.GONE);
         mLastTabIndex = 0;
+
+
+            Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
+        if (extras != null) {
+
+            if (extras.getParcelable("user") != null) {
+                loadUserByObject((User) extras.getParcelable("user"));
+                extras.remove("user");
+            }
+            if (extras.containsKey("userId")) {
+                loadUserById(extras.getLong("userId"));
+                extras.remove("serId");
+            }
+
+        } else {
+          loadYou();
+        }
+
+        initLoadTasks();
     }
 
+
     @Override
+    protected void onResume() {
+        tracker.trackPageView("/profile");
+        tracker.dispatch();
+
+        super.onResume();
+    }
+
+
     public void onRefresh(boolean all) {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
@@ -182,7 +214,7 @@ public class UserBrowser extends ScTabView {
 
     public void loadYou() {
         mIsOtherUser = false;
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         User userInfo;
 
         if (!(preferences.getString("currentUserId", "-1").contentEquals("-1") ||
@@ -190,9 +222,9 @@ public class UserBrowser extends ScTabView {
 
             try {
                 userInfo = CloudUtils.resolveUserById(
-                       mActivity.getSoundCloudApplication(),
+                       getSoundCloudApplication(),
                        Integer.parseInt(preferences.getString("currentUserId", "-1")),
-                       CloudUtils.getCurrentUserId(mActivity));
+                       CloudUtils.getCurrentUserId(this));
 
 
                 if (userInfo != null && userInfo.id != null) mapUser(userInfo);
@@ -218,8 +250,8 @@ public class UserBrowser extends ScTabView {
     public void loadUserById(long userId) {
         mIsOtherUser = true;
         User userInfo;
-        userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), userId,
-                CloudUtils.getCurrentUserId(mActivity));
+        userInfo = CloudUtils.resolveUserById(getSoundCloudApplication(), userId,
+                CloudUtils.getCurrentUserId(this));
         mUserLoadId = userId;
 
         if (userInfo != null)
@@ -235,7 +267,7 @@ public class UserBrowser extends ScTabView {
         build();
     }
 
-    @Override
+
     public void onStart() {
         super.onStart();
 
@@ -256,7 +288,7 @@ public class UserBrowser extends ScTabView {
         if (mLoadDetailsTask == null)
             initLoadTasks();
         else if (!mIsOtherUser
-                && PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
+                && PreferenceManager.getDefaultSharedPreferences(this).getString(
                         "currentUserId", "-1").contentEquals("-1") && mLoadDetailsTask != null
                 && !CloudUtils.isTaskPending(mLoadDetailsTask))
             refreshDetailsTask();
@@ -273,13 +305,13 @@ public class UserBrowser extends ScTabView {
         if (mLoadDetailsTask == null) {
             try {
                 mLoadDetailsTask = newLoadDetailsTask();
-                mLoadDetailsTask.execute(mActivity.getSoundCloudApplication().getPreparedRequest(
+                mLoadDetailsTask.execute(getSoundCloudApplication().getPreparedRequest(
                         getDetailsUrl()));
             } catch (Exception e) {
                 Log.e(TAG, "error", e);
             }
         } else {
-            mLoadDetailsTask.setActivity(mActivity);
+            mLoadDetailsTask.setActivity(this);
             if (CloudUtils.isTaskPending(mLoadDetailsTask))
                 mLoadDetailsTask.execute();
         }
@@ -291,7 +323,7 @@ public class UserBrowser extends ScTabView {
     protected LoadTask newLoadDetailsTask() {
         LoadTask lt = new LoadUserDetailsTask();
         lt.loadModel = CloudUtils.Model.user;
-        lt.setActivity(mActivity);
+        lt.setActivity(this);
         return lt;
     }
 
@@ -340,58 +372,59 @@ public class UserBrowser extends ScTabView {
         
         // ((FrameLayout) findViewById(R.id.tab_holder)).addView(tabLayout);
 
-        final ScTabView emptyView = new ScTabView(mActivity);
+        final ScTabView emptyView = new ScTabView(this);
 
-        LazyBaseAdapter adp = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(mActivity, adp, getUserTracksUrl(),
+        LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(),
                 CloudUtils.Model.track);
 
-        final ScTabView tracksView = mTracksView = new ScTabView(mActivity, adpWrap);
-        CloudUtils.createTabList(mActivity, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
-        CloudUtils.createTab(mTabHost, "tracks", mActivity
+        final ScTabView tracksView = mTracksView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
+        CloudUtils.createTab(mTabHost, "tracks", this
                 .getString(R.string.tab_tracks), null, emptyView);
 
-        adp = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(mActivity, adp, getFavoritesUrl(), CloudUtils.Model.track);
+        adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
+        adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
 
-        final ScTabView favoritesView = mFavoritesView = new ScTabView(mActivity, adpWrap);
-        CloudUtils.createTabList(mActivity, favoritesView, adpWrap,
+        final ScTabView favoritesView = mFavoritesView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, favoritesView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FAVORITES);
-        CloudUtils.createTab(mTabHost, "favorites", mActivity
+
+        CloudUtils.createTab(mTabHost, "favorites", this
                 .getString(R.string.tab_favorites), null, emptyView);
 
-        final ScTabView detailsView = new ScTabView(mActivity);
+        final ScTabView detailsView = new ScTabView(this);
         detailsView.addView(mDetailsView);
         
         CloudUtils.createTab(mTabHost, "details",
-                mActivity.getString(R.string.tab_info), null, emptyView);
+                this.getString(R.string.tab_info), null, emptyView);
 
-        adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowingsUrl(), CloudUtils.Model.user);
+        adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
+        adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
-        final ScTabView followingsView = new ScTabView(mActivity);
-        CloudUtils.createTabList(mActivity, followingsView, adpWrap,
+        final ScTabView followingsView = new ScTabView(this);
+        CloudUtils.createTabList(this, followingsView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWINGS);
-        CloudUtils.createTab(mTabHost, "followings", mActivity
+        CloudUtils.createTab(mTabHost, "followings", this
                 .getString(R.string.tab_followings), null, emptyView);
 
-        adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowersUrl(), CloudUtils.Model.user);
+        adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
+        adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), CloudUtils.Model.user);
 
-        final ScTabView followersView = mFollowersView = new ScTabView(mActivity);
-        CloudUtils.createTabList(mActivity, followersView, adpWrap,
+        final ScTabView followersView = mFollowersView = new ScTabView(this);
+        CloudUtils.createTabList(this, followersView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWERS);
-        CloudUtils.createTab(mTabHost, "followers", mActivity
+        CloudUtils.createTab(mTabHost, "followers", this
                 .getString(R.string.tab_followers), null, emptyView);
         
 
-        CloudUtils.configureTabs(mActivity, mTabWidget, 30, -1, true);
-        CloudUtils.setTabTextStyle(mActivity, mTabWidget, true);
+        CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);
+        CloudUtils.setTabTextStyle(this, mTabWidget, true);
         
 
         if (!mIsOtherUser){
-            mWorkspaceView.initWorkspace(0, PreferenceManager.getDefaultSharedPreferences(mActivity ).getInt("lastProfileIndex",0));
-            mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(mActivity ).getInt("lastProfileIndex",0));
+            mWorkspaceView.initWorkspace(0, PreferenceManager.getDefaultSharedPreferences(this ).getInt("lastProfileIndex",0));
+            mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this ).getInt("lastProfileIndex",0));
         } else {
             mWorkspaceView.initWorkspace(0, 0);
         }
@@ -404,49 +437,47 @@ public class UserBrowser extends ScTabView {
         
         mTabWidget.invalidate();
         setTabTextInfo();
-        
-        if (mActivity instanceof ScProfile){
 
-            // XXX
-           ((ScProfile) mActivity).setTabHost(mTabHost);
-        }
-        
         mTabHost.setOnTabChangedListener(tabListener);
         
+    }
+
+    private int getWidth() {
+        return findViewById(R.id.user_details_root).getWidth();
     }
 
     protected void setTabTextInfo() {
         if (mTabWidget != null && mUserData != null) {
             if (!TextUtils.isEmpty(mUserData.track_count))
-                CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 0, getString(
                         R.string.tab_tracks)
                         + " (" + mUserData.track_count + ")");
             else
-                CloudUtils.setTabText(mTabWidget, 0, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 0, getString(
                         R.string.tab_tracks));
 
             if (!TextUtils.isEmpty(mUserData.public_favorites_count))
-                CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 1, getString(
                         R.string.tab_favorites)
                         + " (" + mUserData.public_favorites_count + ")");
             else
-                CloudUtils.setTabText(mTabWidget, 1, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 1, getString(
                         R.string.tab_favorites));
             
             if (!TextUtils.isEmpty(mUserData.followings_count))
-                CloudUtils.setTabText(mTabWidget, 3, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 3, getString(
                         R.string.tab_followings)
                         + " (" + mUserData.followings_count + ")");
             else
-                CloudUtils.setTabText(mTabWidget, 3, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 3, getString(
                         R.string.tab_followings));
             
             if (!TextUtils.isEmpty(mUserData.followers_count))
-                CloudUtils.setTabText(mTabWidget, 4, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 4, getString(
                         R.string.tab_followers)
                         + " (" + mUserData.followers_count + ")");
             else
-                CloudUtils.setTabText(mTabWidget, 4, mActivity.getResources().getString(
+                CloudUtils.setTabText(mTabWidget, 4, getString(
                         R.string.tab_followers));
             
             findViewById(R.id.tab_scroller).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
@@ -463,7 +494,7 @@ public class UserBrowser extends ScTabView {
             mLastTab = (ScTabView) mTabHost.getCurrentView();
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!mIsOtherUser)
-                PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(
+                PreferenceManager.getDefaultSharedPreferences(UserBrowser.this).edit().putInt(
                         "lastProfileIndex", mLastTabIndex).commit();
             
             
@@ -498,21 +529,21 @@ public class UserBrowser extends ScTabView {
             public void run() {
                 try {
                     if (_isFollowing)
-                        mFollowResult = mActivity
-                                .getSoundCloudApplication().putContent(
+                        mFollowResult =
+                                getSoundCloudApplication().putContent(
                                         CloudAPI.Enddpoints.MY_USERS + "/"
                                                 + mUserData.id, null).getStatusLine().getStatusCode();
                     else
-                        mFollowResult = mActivity
-                                .getSoundCloudApplication().deleteContent(
+                        mFollowResult =
+                                getSoundCloudApplication().deleteContent(
                                         CloudAPI.Enddpoints.MY_USERS + "/"
                                                 + mUserData.id).getStatusLine().getStatusCode();
 
                 } catch (Exception e) {
                     Log.e(TAG, "error", e);
-                    mActivity.setException(e);
+                    setException(e);
                 }
-                mActivity.mHandler.post(mSetFollowingResult);
+                mHandler.post(mSetFollowingResult);
             }
         };
         t.start();
@@ -521,10 +552,10 @@ public class UserBrowser extends ScTabView {
     // Create runnable for posting since we update the following asynchronously
     final Runnable mSetFollowingResult = new Runnable() {
         public void run() {
-            if (mActivity != null){
-                mActivity.handleException();
-                mActivity.handleError();
-            }
+
+            handleException();
+            handleError();
+
             boolean success = false;
             if (mFollowResult != 0) {
                 if (mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404) {
@@ -551,7 +582,7 @@ public class UserBrowser extends ScTabView {
         }
 
         if (mUserData != null
-                && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity)
+                && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this)
                         .getString("currentUserId", "-1")) == mUserData.id) {
             return;
         }
@@ -586,7 +617,7 @@ public class UserBrowser extends ScTabView {
         // CloudUtils.buildLocalAvatarUrl(mUserData.getPermalink());
         // File avatarFile = new File(localAvatarPath);
         String remoteUrl;
-        if (getContext().getResources().getDisplayMetrics().density > 1)
+        if (getResources().getDisplayMetrics().density > 1)
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
         else
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
@@ -656,7 +687,7 @@ public class UserBrowser extends ScTabView {
 
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(_iconURL)) {
-            if ((avatarResult = ImageLoader.get(mActivity).bind(mIcon, _iconURL, null)) != BindResult.OK) {
+            if ((avatarResult = ImageLoader.get(this).bind(mIcon, _iconURL, null)) != BindResult.OK) {
                 mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
             }
         }
@@ -694,7 +725,7 @@ public class UserBrowser extends ScTabView {
     }
 
     private String getTrackOrder() {
-        return PreferenceManager.getDefaultSharedPreferences(mActivity)
+        return PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("defaultTrackSorting", "");
     }
 
@@ -716,7 +747,7 @@ public class UserBrowser extends ScTabView {
 
     private String getUserOrder() {
 
-        return PreferenceManager.getDefaultSharedPreferences(mActivity)
+        return PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("defaultUserSorting", "");
 
     }
@@ -734,7 +765,7 @@ public class UserBrowser extends ScTabView {
         protected String doInBackground(String... urls) {
             try {
                 return CloudUtils.streamToString(
-                        mActivity.getSoundCloudApplication()
+                        getSoundCloudApplication()
                                 .executeRequest(urls[0]));
             } catch (Exception e) {
                 Log.e(TAG, "error", e);
