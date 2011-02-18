@@ -14,8 +14,7 @@
       android:name="SoundCloudApplication">
 
 
-
-        <activity android:name="com.soundcloud.android.activity.ScTabActivity"
+        <activity android:name=".activity.ScTabActivity"
                   android:label="@string/app_name"
                   android:windowSoftInputMode="adjustPan">
 
@@ -27,7 +26,7 @@
         </activity>
 
 
-        <activity android:name="com.soundcloud.android.activity.Authorize"
+        <activity android:name=".activity.Authorize"
             android:label="Authorize"
             android:configChanges="orientation|keyboardHidden">
 
@@ -51,27 +50,27 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.soundcloud.android.activity.Dashboard"/>
-        <activity android:name="com.soundcloud.android.activity.ScSearch"/>
-        <activity android:name="com.soundcloud.android.activity.ScCreate"/>
-        <activity android:name="com.soundcloud.android.activity.Settings"/>
-        <activity android:name="com.soundcloud.android.activity.ScPlayer"/>
-        <activity android:name="com.soundcloud.android.activity.UserBrowser"/>
-        <activity android:name="com.soundcloud.android.activity.EmailPicker"/>
-        <activity android:name="com.soundcloud.android.activity.LocationPicker"/>
+        <activity android:name=".activity.Dashboard"/>
+        <activity android:name=".activity.ScSearch"/>
+        <activity android:name=".activity.ScCreate"/>
+        <activity android:name=".activity.Settings"/>
+        <activity android:name=".activity.ScPlayer"/>
+        <activity android:name=".activity.UserBrowser"/>
+        <activity android:name=".activity.EmailPicker"/>
+        <activity android:name=".activity.LocationPicker"/>
 
-        <service android:name="com.soundcloud.android.service.CloudPlaybackService"
+        <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
           <intent-filter>
-            <action android:name="com.soundcloud.android.service.ICloudPlaybackService" />
+            <action android:name=".service.CloudPlaybackService" />
           </intent-filter>
         </service>
 
-        <service class="com.soundcloud.android.service.CloudCreateService"
+        <service
             android:name=".service.CloudCreateService"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.soundcloud.android.service.ICloudCreateService" />
+                <action android:name=".service.ICloudCreateService" />
             </intent-filter>
         </service>
 
@@ -82,7 +81,7 @@
             android:finishOnTaskLaunch="true" />
 
         <receiver android:label="SoundCloud Player"
-                  android:name="com.soundcloud.android.service.PlayerAppWidgetProvider">
+                  android:name=".service.PlayerAppWidgetProvider">
           <intent-filter>
               <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
           </intent-filter>
@@ -91,7 +90,7 @@
                      android:resource="@xml/widget_player" />
         </receiver>
         <receiver android:label="SoundCloud Recorder"
-              android:name="com.soundcloud.android.service.RecordAppWidgetProvider">
+              android:name=".service.RecordAppWidgetProvider">
 
              <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
