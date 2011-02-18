@@ -82,7 +82,7 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
         runOnUiThread(new Runnable() {
             public void run() {
                 if (status == AuthorizationStatus.SUCCESSFUL) {
-                    Intent intent = new Intent(Authorize.this, Dashboard.class);
+                    Intent intent = new Intent(Authorize.this, ScTabActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
