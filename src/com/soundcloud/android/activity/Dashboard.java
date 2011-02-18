@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
 import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.objects.BaseObj;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
@@ -833,6 +835,29 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
             startActivity(i);
 
+        }
+    }
+
+    public void mapDetails(Parcelable p) {
+        // XXX this should only happen once, after authorizing w/ soundcloud
+        if (((User) p).id != null) {
+
+            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, BaseObj.WriteState.all, ((User) p).id);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+            String lastUserId = preferences.getString("currentUserId", null);
+
+            Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
+
+            if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
+
+                Log.i(TAG, "--------- new user");
+
+                preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
+
+                        .putString("currentUsername", ((User) p).username).commit();
+
+            }
         }
     }
 }

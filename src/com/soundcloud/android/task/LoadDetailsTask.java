@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 
 import android.util.Log;
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
@@ -55,10 +56,10 @@ public class LoadDetailsTask extends LoadTask {
 
     @Override
     protected void onProgressUpdate(Parcelable... updates) {
-        /*
-        if (mActivityReference.get() != null)
-            (mActivityReference.get()).mapDetails(updates[0]);
-        */
+        if (mActivityReference.get() instanceof Dashboard) {
+          ((Dashboard)  (mActivityReference.get())).mapDetails(updates[0]);
+        }
+
         mapDetails(updates[0]);
     }
 

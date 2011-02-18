@@ -5,13 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
+import android.widget.TabHost;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.UserBrowser;
 
 public class ScProfile extends ScActivity {
 
     private UserBrowser userBrowser;
+    private TabHost mTabHost;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -27,6 +30,16 @@ public class ScProfile extends ScActivity {
         tracker.dispatch();
 
         super.onResume();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mTabHost!=null) {
+            ((ScTabView)mTabHost.getCurrentView()).onStart();
+        }
     }
 
     protected void build() {
@@ -53,4 +66,7 @@ public class ScProfile extends ScActivity {
         }
     }
 
+    public void setTabHost(TabHost tabHost) {
+        mTabHost = tabHost;
+    }
 }

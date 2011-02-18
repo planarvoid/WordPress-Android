@@ -184,21 +184,27 @@ public class UserBrowser extends ScTabView {
         mIsOtherUser = false;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
         User userInfo;
+
         if (!(preferences.getString("currentUserId", "-1").contentEquals("-1") ||
               preferences.getString("currentUserId", "-1").contentEquals(""))){
 
             try {
-                userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer
-                        .parseInt(preferences.getString("currentUserId", "-1")), CloudUtils
-                        .getCurrentUserId(mActivity));
+                userInfo = CloudUtils.resolveUserById(
+                       mActivity.getSoundCloudApplication(),
+                       Integer.parseInt(preferences.getString("currentUserId", "-1")),
+                       CloudUtils.getCurrentUserId(mActivity));
+
 
                 if (userInfo != null && userInfo.id != null) mapUser(userInfo);
-                build();
+
+
             }
             catch (NumberFormatException nfe) {
                 // bad data - user has a corrupted value, and will be corrected on load
             }
         }
+
+        build();
     }
 
     /*
@@ -232,7 +238,11 @@ public class UserBrowser extends ScTabView {
     @Override
     public void onStart() {
         super.onStart();
-        
+
+
+        Log.d(TAG, "UserBrowser onStart()");
+
+
         if (mWorkspaceView != null)
             ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
         else  if (mTabHost != null)
@@ -288,7 +298,10 @@ public class UserBrowser extends ScTabView {
     protected class LoadUserDetailsTask extends LoadDetailsTask {
         @Override
         protected void mapDetails(Parcelable update) {
+
             mapUser(update);
+
+
         }
     }
 
@@ -393,7 +406,9 @@ public class UserBrowser extends ScTabView {
         setTabTextInfo();
         
         if (mActivity instanceof ScProfile){
-            //XXX ((ScProfile) mActivity).setTabHost(mTabHost);
+
+            // XXX
+           ((ScProfile) mActivity).setTabHost(mTabHost);
         }
         
         mTabHost.setOnTabChangedListener(tabListener);
