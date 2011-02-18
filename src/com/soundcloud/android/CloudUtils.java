@@ -427,21 +427,16 @@ public class CloudUtils {
         }
     }
 
-    public static FrameLayout createTabLayout(Context c) {
-        return createTabLayout(c, false);
-    }
 
-    public static FrameLayout createTabLayout(Context context, Boolean scrolltabs) {
+    public static FrameLayout createTabLayout(Context context) {
         FrameLayout tabLayout = new FrameLayout(context);
         tabLayout.setLayoutParams(new LayoutParams(FILL_PARENT,
                 FILL_PARENT));
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (scrolltabs)
-            inflater.inflate(R.layout.cloudscrolltabs, tabLayout);
-        else
-            inflater.inflate(R.layout.cloudtabs, tabLayout);
+
+        inflater.inflate(R.layout.cloudtabs, tabLayout);
 
         // construct the tabhost
         final TabHost tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
