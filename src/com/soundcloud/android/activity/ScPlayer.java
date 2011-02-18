@@ -7,7 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -41,7 +41,6 @@ import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,7 +64,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1344,7 +1342,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mAddComment.track_id = track_id;
         mAddComment.created_at = new Date(System.currentTimeMillis());
         mAddComment.user_id = CloudUtils.getCurrentUserId(this);
-        mAddComment.user = CloudUtils.resolveUserById(this.getSoundCloudApplication(), mAddComment.user_id, mAddComment.user_id);
+        
+        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id, mAddComment.user_id);
         mAddComment.timestamp = timestamp;
         mAddComment.body = commentBody;
         

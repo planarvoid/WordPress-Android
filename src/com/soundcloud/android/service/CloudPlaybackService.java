@@ -19,8 +19,9 @@ package com.soundcloud.android.service;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -618,12 +619,9 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
         
-        try {
-            CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), track,
+        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), track,
                 WriteState.all, CloudUtils.getCurrentUserId(this));
-        } catch (SQLiteException ex){
-        }
-
+        
         // meta has changed
         notifyChange(META_CHANGED);
     }
@@ -678,11 +676,8 @@ public class CloudPlaybackService extends Service {
     }
 
     public void commitTrackToDb(Track t) {
-        try {
-            CloudUtils.resolveTrack((SoundCloudApplication) this.getApplication(), t, WriteState.all,
-                CloudUtils.getCurrentUserId(this));
-        } catch (SQLiteException ex){
-        }
+        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t,
+                WriteState.all, CloudUtils.getCurrentUserId(this));
     }
 
     private void startNextTrack() {

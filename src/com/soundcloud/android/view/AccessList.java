@@ -1,6 +1,8 @@
 package com.soundcloud.android.view;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,12 +12,14 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.EmailPicker;
 
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class AccessList extends LinearLayout {
+@SuppressWarnings({"UnusedDeclaration"})
+public class AccessList extends LinearLayout implements View.OnClickListener {
     private Adapter listAdapter;
 
     public AccessList(Context context) {
@@ -34,22 +38,18 @@ public class AccessList extends LinearLayout {
         removeAllViews();
 
         if (listAdapter.getCount() == 0) {
-            /*
-            TextView view = new TextView(getContext());
-            view.setText("With Access Only you");
-            view.setTextColor(getResources().getColor(R.color.bright_foreground_light));
-            addView(view);
+            TextView view = new TextView(getContext(), null, R.style.txt_record_rdo);
+            view.setText("With Access - Only you");
+            view.setTextSize(20f);
+            view.setTextColor(getResources().getColor(R.color.white)); // XXX hardcoded styles
 
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "set access");
-                }
-            });
-            */
+            addView(view);
+            view.setOnClickListener(this);
         } else {
             for (int i = 0; i < listAdapter.getCount(); i++) {
                 View item = listAdapter.getView(i, null, this);
+                item.setOnClickListener(this);
+
                 addView(item);
                 addView(getSeparator());
             }
@@ -81,8 +81,23 @@ public class AccessList extends LinearLayout {
                 LayoutParams.FILL_PARENT,
                 1));
 
-        v.setBackgroundColor(getResources().getColor(R.color.background_light));
+        v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
         return v;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (getContext() instanceof  Activity) {
+            List<String> accessList = getAdapter().getAccessList();
+            Intent intent = new Intent(getContext(), EmailPicker.class);
+            if (accessList != null) {
+                intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
+                intent.putExtra(EmailPicker.SELECTED, ((TextView)v).getText());
+            }
+            ((Activity)getContext()).startActivityForResult(
+                    intent,
+                    EmailPicker.PICK_EMAILS);
+        }
     }
 
     public static class Adapter extends BaseAdapter {
@@ -106,6 +121,8 @@ public class AccessList extends LinearLayout {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             TextView text = new TextView(parent.getContext());
+            text.setTextSize(20f);
+            text.setTextColor(parent.getResources().getColor(R.color.white)); // XXX hardcoded color
             text.setText(getItem(position).toString());
             return text;
         }
@@ -113,6 +130,10 @@ public class AccessList extends LinearLayout {
         public void setAccessList(List<String> accessList) {
             this.mAccessList = accessList;
             notifyDataSetChanged();
+        }
+
+        public List<String> getAccessList() {
+            return mAccessList;
         }
     }
 }

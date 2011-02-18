@@ -6,7 +6,6 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.android.view.ScCreate;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
@@ -86,7 +84,9 @@ public class CloudCreateService extends Service {
     private boolean mCurrentUploadCancelled = false;
 
     private int mCurrentState = 0;
-    
+    private int frameCount;
+
+
     public interface States {
         
         int IDLE_RECORDING = 0;
@@ -133,31 +133,34 @@ public class CloudCreateService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (isUploading() || isRecording()) {
+        if (!isUploading() && !isRecording()) {
+            // No active playlist, OK to stop the service right now
+            stopSelf(mServiceStartId);
+            return true;
+        } else {
             // something is currently uploading so don't stop the service now.
             return true;
         }
-
-        // No active playlist, OK to stop the service right now
-        stopSelf(mServiceStartId);
-        return true;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         // init the service here
-        _startService();
+        Log.i(TAG, "upload service started started");
 
         // get notification manager
         nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
-    }
 
-    private void _startService() {
-        Log.i(getClass().getSimpleName(), "upload Service Started started!!!");
+        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("defaultRecordingQuality", "high").contentEquals("high"),
+                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
+                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        mRecorder.setRecordService(this);
+
     }
 
     @Override
@@ -165,7 +168,7 @@ public class CloudCreateService extends Service {
         super.onDestroy();
 
         if (isUploading()) {
-            Log.e(getClass().getSimpleName(), "Service being destroyed while still playing.");
+            Log.e(TAG, "Service being destroyed while still playing.");
         }
 
         _shutdownService();
@@ -216,11 +219,7 @@ public class CloudCreateService extends Service {
         mRecordFile = new File(path);
         frameCount = 0;
 
-        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultRecordingQuality", "high").contentEquals("high"),
-                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        mRecorder.setRecordService(this);
+        mRecorder.reset();
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
         mRecorder.start();
@@ -239,7 +238,7 @@ public class CloudCreateService extends Service {
         Intent i = (new Intent(this, Dashboard.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabIndex", Dashboard.TabIndexes.TAB_RECORD);
+            .putExtra("tabIndex", 3 /* XXX */);
 
         mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -258,7 +257,6 @@ public class CloudCreateService extends Service {
 
     }
 
-    private int frameCount;
 
     public void onRecordFrameUpdate(float maxAmplitude) {
         ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
@@ -270,14 +268,13 @@ public class CloudCreateService extends Service {
 
         mRecorder.stop();
         mRecorder.release();
-        mRecorder = null;
         mRecording = false;
 
         nm.cancel(CREATE_NOTIFY_ID);
         gotoIdleState();
     }
 
-    private Boolean isRecording() {
+    private boolean isRecording() {
         return mRecording;
     }
 
@@ -588,9 +585,7 @@ public class CloudCreateService extends Service {
 
         @Override
         public boolean isUploading() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().isUploading();
-            return false;
+            return mService.get() != null && mService.get().isUploading();
         }
 
         @Override

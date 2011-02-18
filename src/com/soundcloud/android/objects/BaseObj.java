@@ -20,10 +20,6 @@ public class BaseObj implements Parcelable {
         track, user, comment
     }
 
-    public enum WriteState {
-        none, insert_only, update_only, all
-    }
-
     public BaseObj() {
         
     }

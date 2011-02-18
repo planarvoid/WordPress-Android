@@ -40,9 +40,6 @@ public class CloudRecorder {
     // Recorder used for compressed recording
     private MediaRecorder mRecorder = null;
 
-    // Stores current amplitude (only in uncompressed mode)
-    private int cAmplitude = 0;
-
     // Output file path
     private String fPath = null;
 
@@ -94,7 +91,6 @@ public class CloudRecorder {
             if (state != State.RECORDING)
                 return;
 
-            cAmplitude = 0;
             int shortValue;
             float maxAmplitude = 0;
 
@@ -110,13 +106,9 @@ public class CloudRecorder {
                 }
 
                 if (service != null) {
-
-                    // hack for not having a proper median. using a square root
-                    // normalizes
-                    // the amplitude and makes a better looking wave
-                    // representation
+                    // hack for not having a proper median. using a square root normalizes
+                    // the amplitude and makes a better looking wave representation
                     service.onRecordFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
-                    // service.onRecordFrameUpdate((maxAmplitude) / MAX_AMPLITUDE);
                 }
 
             } catch (IOException e) {
@@ -185,11 +177,10 @@ public class CloudRecorder {
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
             }
-            cAmplitude = 0;
             fPath = null;
             state = State.INITIALIZING;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
             if (e.getMessage() != null) {
                 Log.e(CloudRecorder.class.getName(), e.getMessage());
             } else {
@@ -221,30 +212,6 @@ public class CloudRecorder {
                         "Unknown error occured while setting output path");
             }
             state = State.ERROR;
-        }
-    }
-
-    /**
-     * Returns the largest amplitude sampled since the last call to this method.
-     * 
-     * @return returns the largest amplitude since the last call, or 0 when not
-     *         in recording state.
-     */
-    public int getMaxAmplitude() {
-        if (state == State.RECORDING) {
-            if (rUncompressed) {
-                int result = cAmplitude;
-                cAmplitude = 0;
-                return result;
-            } else {
-                try {
-                    return mRecorder.getMaxAmplitude();
-                } catch (IllegalStateException e) {
-                    return 0;
-                }
-            }
-        } else {
-            return 0;
         }
     }
 
@@ -333,7 +300,6 @@ public class CloudRecorder {
             if (state != State.ERROR) {
                 release();
                 fPath = null; // Reset file path
-                cAmplitude = 0; // Reset amplitude
                 if (rUncompressed) {
                     aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
                     if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
@@ -419,8 +385,6 @@ public class CloudRecorder {
 
     private int mLastMax = 0;
 
-    private int mCurrentMax;
-
     private final Handler refreshHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -428,7 +392,7 @@ public class CloudRecorder {
                 case REFRESH:
 
                     if (service != null) {
-                        mCurrentMax = mRecorder.getMaxAmplitude();
+                        int mCurrentMax = mRecorder.getMaxAmplitude();
 
                         // max amplitude returns false 0's sometimes, so just
                         // use the last value. It is usually only for a frame
@@ -463,16 +427,11 @@ public class CloudRecorder {
         }
     };
 
-    final float MAX_AMPLITUDE = (float) 32768.0;
-
     final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
 
     // ******************************************************************** //
     // Constants.
     // ******************************************************************** //
-
-    // Maximum signal amplitude for 16-bit data.
-    private static final float MAX_16_BIT = 32768;
 
     private void queueNextRefresh(long delay) {
         Message msg = refreshHandler.obtainMessage(REFRESH);

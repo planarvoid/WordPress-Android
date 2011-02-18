@@ -1,16 +1,26 @@
 
 package com.soundcloud.android;
 
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.net.ParseException;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -28,21 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -77,11 +72,7 @@ public class CloudUtils {
     public interface RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
 
-        public static final int REUATHORIZE = 9001;
-    }
-
-    public enum LoadType {
-        incoming, exclusive, favorites
+        public static final int REAUTHORIZE = 9001;
     }
 
     public enum Model {
@@ -340,16 +331,16 @@ public class CloudUtils {
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+            for (String aChildren : children) {
+                boolean success = deleteDir(new File(dir, aChildren));
                 if (!success) {
                     return false;
                 }
             }
+            // The directory is now empty so delete it
+            return dir.delete();
         }
-
-        // The directory is now empty so delete it
-        return dir.delete();
+        return false;
     }
     
 
@@ -361,11 +352,9 @@ public class CloudUtils {
             byte messageDigest[] = digest.digest();
 
             // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++)
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            StringBuilder hexString = new StringBuilder();
+            for (byte aMessageDigest : messageDigest) hexString.append(Integer.toHexString(0xFF & aMessageDigest));
             return hexString.toString();
-
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";
@@ -387,11 +376,6 @@ public class CloudUtils {
     }
 
     public static void createTabList(LazyActivity activity, FrameLayout listHolder,
-            LazyEndlessAdapter adpWrap) {
-        createTabList(activity, listHolder, adpWrap, -1, null);
-    }
-
-    public static void createTabList(LazyActivity activity, FrameLayout listHolder,
             LazyEndlessAdapter adpWrap, int listId) {
         createTabList(activity, listHolder, adpWrap, listId, null);
     }
@@ -407,7 +391,7 @@ public class CloudUtils {
         if (touchListener != null)
             lv.setOnTouchListener(touchListener);
         lv.setAdapter(adpWrap);
-        activity.configureListMenu(lv, CloudUtils.LoadType.incoming);
+        activity.configureListMenu(lv);
         listHolder.addView(lv);
         adpWrap.createListEmptyView(lv);
     }
@@ -440,14 +424,6 @@ public class CloudUtils {
 
     }
 
-    public static void configureTabs(Context context, TabWidget tabWidget, int height) {
-        configureTabs(context, tabWidget, height, -1, false);
-    }
-
-    public static void configureTabs(Context context, TabWidget tabWidget, int height, int width) {
-        configureTabs(context, tabWidget, height, -1, false);
-    }
-
     public static void configureTabs(Context context, TabWidget tabWidget, int height, int width,
             boolean scrolltabs) {
 
@@ -469,16 +445,16 @@ public class CloudUtils {
         tabWidget.getLayoutParams().height = height;
     }
 
-    public static void createTab(Context context, TabHost tabHost, String tabId,
-            String indicatorText, Drawable indicatorIcon, final ScTabView tabView,
-            Boolean scrolltabs) {
+    public static void createTab(TabHost tabHost, String tabId,
+                                 String indicatorText, Drawable indicatorIcon, final ScTabView tabView) {
         TabHost.TabSpec spec;
 
         spec = tabHost.newTabSpec(tabId);
-        if (indicatorIcon == null)
+        if (indicatorIcon == null) {
             spec.setIndicator(indicatorText);
-        else
+        } else {
             spec.setIndicator(indicatorText, indicatorIcon);
+        }
 
         spec.setContent(new TabHost.TabContentFactory() {
             public View createTabContent(String tag) {
@@ -504,8 +480,8 @@ public class CloudUtils {
                         ((TextView) relativeLayout.getChildAt(j)).setTextAppearance(context,
                                 R.style.TabWidgetTextAppearance);
                         if (textOnly) {
-                            ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().width = LayoutParams.FILL_PARENT;
-                            ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().height = LayoutParams.FILL_PARENT;
+                            relativeLayout.getChildAt(j).getLayoutParams().width = LayoutParams.FILL_PARENT;
+                            relativeLayout.getChildAt(j).getLayoutParams().height = LayoutParams.FILL_PARENT;
                             ((TextView) relativeLayout.getChildAt(j)).setGravity(Gravity.CENTER);
                         }
 
@@ -549,19 +525,14 @@ public class CloudUtils {
     }
 
     public static boolean checkIconShouldLoad(String url) {
-        if (url == null || url.contentEquals("") || url.toLowerCase().contentEquals("null")
-                || url.contains("default_avatar"))
-            return false;
-        return true;
+        return !(url == null ||
+                  url.contentEquals("") || url.toLowerCase().contentEquals("null")
+                || url.contains("default_avatar"));
     }
 
     public static ICloudPlaybackService sService = null;
 
     private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
-
-    public static boolean bindToService(Context context) {
-        return bindToService(context, null);
-    }
 
     public static boolean bindToService(Context context, ServiceConnection callback) {
         context.startService(new Intent(context, CloudPlaybackService.class));
@@ -610,130 +581,6 @@ public class CloudUtils {
         }
     }
 
-    public static void resolveTrack(SoundCloudApplication context, Track track,
-            WriteState writeState, long currentUserId) {
-        resolveTrack(context, track, writeState, currentUserId, null);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static void resolveTrack(SoundCloudApplication context, Track track,
-            WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
-            DBAdapter db;
-            if (openAdapter == null) {
-                db = new DBAdapter(context);
-                db.open();
-            } else
-                db = openAdapter;
-    
-            Cursor result = db.getTrackById(track.id, currentUserId);
-            if (result.getCount() != 0) {
-                // add local urls and update database
-                result.moveToFirst();
-    
-                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1;
-    
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    db.updateTrack(track);
-    
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                db.insertTrack(track);
-            }
-            result.close();
-    
-            if (openAdapter == null) db.close();
-
-
-        // write with insert only because a track will never come in with
-            resolveUser(context, track.user, WriteState.insert_only, currentUserId, openAdapter);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static Track resolveTrackById(SoundCloudApplication context, long l, long currentUserId) {
-        DBAdapter db = new DBAdapter(context);
-        db.open();
-
-        Cursor result = db.getTrackById(l, currentUserId);
-        if (result.getCount() != 0) {
-            Track track = new Track(result);
-            // track = resolvePlayUrl(track);
-            // track = resolveTrackFavorite(track);
-
-            result.close();
-            result = db.getUserById(track.user_id, currentUserId);
-
-            if (result.getCount() != 0) {
-                track.user = new User(result);
-                track.user_id = track.user.id;
-            }
-
-            result.close();
-            db.close();
-
-            return track;
-        }
-
-        result.close();
-        db.close();
-
-        return null;
-
-    }
-
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
-            Long userId) {
-        resolveUser(context, user, writeState, userId, null);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
-            Long currentUserId, DBAdapter openAdapter) {
-        DBAdapter db;
-        if (openAdapter == null) {
-            db = new DBAdapter(context);
-            db.open();
-        } else
-            db = openAdapter;
-
-        Cursor result = db.getUserById(user.id, currentUserId);
-        if (result.getCount() != 0) {
-
-            user.update(result); // update the parcelable with values from the db
-
-            if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateUser(user, currentUserId.compareTo(user.id) == 0);
-
-        } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertUser(user, currentUserId.compareTo(user.id) == 0);
-        }
-        result.close();
-
-        if (openAdapter == null) db.close();
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static User resolveUserById(SoundCloudApplication context, long userId,
-            long currentUserId) {
-        DBAdapter db = new DBAdapter(context);
-        db.open();
-
-        Cursor result = db.getUserById(userId, currentUserId);
-
-        if (result.getCount() != 0) {
-
-            User user = new User(result);
-            result.close();
-            db.close();
-
-            return user;
-        }
-
-        result.close();
-        db.close();
-
-        return null;
-
-    }
-
     public static String getLocationString(String city, String country) {
         if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
             return city + ", " + country;
@@ -747,41 +594,22 @@ public class CloudUtils {
 
     }
 
-    static String getContentCharSet(final HttpEntity entity) throws ParseException {
-
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        String charset = null;
-        if (entity.getContentType() != null) {
-            HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
-                NameValuePair param = values[0].getParameterByName("charset");
-                if (param != null) {
-                    charset = param.getValue();
-                }
-            }
-        }
-        return charset;
-
-    }
-
     public static String buildRequestPath(String mUrl, String order) {
         return buildRequestPath(mUrl, order, false);
     }
 
     public static String buildRequestPath(String mUrl, String order, boolean refresh) {
-
         String refreshAppend = "";
         if (refresh)
             refreshAppend = "&rand=" + Math.round(10000 * Math.random());
 
-        if (order == null)
-            if (refresh)
+        if (order == null) {
+            if (refresh) {
                 return mUrl + "?rand=" + (10000 * Math.random());
-            else
+            } else {
                 return mUrl;
-
+            }
+        }
         return String.format(mUrl + "?order=%s", URLEncoder.encode(order) + refreshAppend);
 
     }
@@ -791,10 +619,6 @@ public class CloudUtils {
     }
 
     public static String formatGraphicsUrl(String url, String targetSize) {
-        // Log.i(TAG,"Format Graphics URL " + url);
-        // for (String size : GraphicsSizesLib){
-        // url = url.replace(size, targetSize);
-        // }
         return url.replace("large", targetSize);
     }
 
@@ -912,22 +736,10 @@ public class CloudUtils {
         }
     }
 
-    public static String toCamelCase(String s) {
-        String[] parts = s.split("_");
-        String camelCaseString = "";
-        for (String part : parts) {
-            camelCaseString = camelCaseString + toProperCase(part);
-        }
-        return camelCaseString;
-    }
-
-    static String toProperCase(String s) {
-        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
-    }
-
     /**
      * Check if a thread is alive accounting for nulls
      * 
+     * @param t
      * @return boolean : is the thread alive
      */
     public static Boolean checkThreadAlive(Thread t) {

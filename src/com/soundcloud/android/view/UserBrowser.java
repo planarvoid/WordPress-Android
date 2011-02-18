@@ -7,6 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -81,8 +82,6 @@ public class UserBrowser extends ScTabView {
     private ScTabView mFavoritesView;
     
     private ScTabView mFollowersView;
-    
-    private ScTabView mFollowingsView;
 
     private WorkspaceView mWorkspaceView;
 
@@ -109,19 +108,7 @@ public class UserBrowser extends ScTabView {
     private ImageLoader.BindResult avatarResult;
 
     public enum UserTabs {
-        tracks, favorites, info
-    }
-
-    public interface TabIndexes {
-        public final static int TAB_TRACKS = 0;
-
-        public final static int TAB_FAVORITES = 1;
-
-        public final static int TAB_INFO = 2;
-
-        public final static int TAB_FOLLOWINGS = 3;
-
-        public final static int TAB_FOLLOWERS = 4;
+        tracks
     }
 
     public UserBrowser(LazyActivity c) {
@@ -181,7 +168,7 @@ public class UserBrowser extends ScTabView {
                 mLoadDetailsTask = null;
             }
         } else if (mWorkspaceView != null) {
-            if (mWorkspaceView.getDisplayedChild() == TabIndexes.TAB_INFO) {
+            if (mWorkspaceView.getDisplayedChild() == 2 /* XXX */) {
                 this.refreshDetailsTask();
             }
             if (mWorkspaceView != null){
@@ -196,26 +183,23 @@ public class UserBrowser extends ScTabView {
 
     public void loadYou() {
         mIsOtherUser = false;
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        User userInfo = null;
-        if (!(preferences.getString("currentUserId", "-1").contentEquals("-1") || preferences.getString("currentUserId", "-1").contentEquals(""))){
-            try
-            {
-                userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer
+        User userInfo;
+        if (!(preferences.getString("currentUserId", "-1").contentEquals("-1") ||
+              preferences.getString("currentUserId", "-1").contentEquals(""))){
+
+            try {
+                userInfo = SoundCloudDB.getInstance().resolveUserById(mActivity.getContentResolver(), Integer
                         .parseInt(preferences.getString("currentUserId", "-1")), CloudUtils
                         .getCurrentUserId(mActivity));
+
+                if (userInfo != null && userInfo.id != null) mapUser(userInfo);
+                build();
             }
-            catch (NumberFormatException nfe)
-            {
-               // bad data - user has a corrupted value, and will be corrected on load
+            catch (NumberFormatException nfe) {
+                // bad data - user has a corrupted value, and will be corrected on load
             }
         }
-
-        if (userInfo != null && userInfo.id != null)
-            mapUser(userInfo);
-
-        build();
     }
 
     /*
@@ -229,8 +213,8 @@ public class UserBrowser extends ScTabView {
     public void loadUserById(long userId) {
         mIsOtherUser = true;
         User userInfo;
-        userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), userId,
-                CloudUtils.getCurrentUserId(mActivity));
+        userInfo = SoundCloudDB.getInstance().resolveUserById(mActivity.getContentResolver(), userId, CloudUtils
+                .getCurrentUserId(mActivity));
         mUserLoadId = userId;
 
         if (userInfo != null)
@@ -352,8 +336,8 @@ public class UserBrowser extends ScTabView {
 
         final ScTabView tracksView = mTracksView = new ScTabView(mActivity, adpWrap);
         CloudUtils.createTabList(mActivity, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
-        CloudUtils.createTab(mActivity, mTabHost, "tracks", mActivity
-                .getString(R.string.tab_tracks), null, emptyView, true);
+        CloudUtils.createTab(mTabHost, "tracks", mActivity
+                .getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFavoritesUrl(), CloudUtils.Model.track);
@@ -361,23 +345,23 @@ public class UserBrowser extends ScTabView {
         final ScTabView favoritesView = mFavoritesView = new ScTabView(mActivity, adpWrap);
         CloudUtils.createTabList(mActivity, favoritesView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FAVORITES);
-        CloudUtils.createTab(mActivity, mTabHost, "favorites", mActivity
-                .getString(R.string.tab_favorites), null, emptyView, true);
+        CloudUtils.createTab(mTabHost, "favorites", mActivity
+                .getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(mActivity);
         detailsView.addView(mDetailsView);
         
-        CloudUtils.createTab(mActivity, mTabHost, "details",
-                mActivity.getString(R.string.tab_info), null, emptyView, true);
+        CloudUtils.createTab(mTabHost, "details",
+                mActivity.getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
-        final ScTabView followingsView = mFollowingsView = new ScTabView(mActivity);
+        final ScTabView followingsView = new ScTabView(mActivity);
         CloudUtils.createTabList(mActivity, followingsView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWINGS);
-        CloudUtils.createTab(mActivity, mTabHost, "followings", mActivity
-                .getString(R.string.tab_followings), null, emptyView, true);
+        CloudUtils.createTab(mTabHost, "followings", mActivity
+                .getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowersUrl(), CloudUtils.Model.user);
@@ -385,8 +369,8 @@ public class UserBrowser extends ScTabView {
         final ScTabView followersView = mFollowersView = new ScTabView(mActivity);
         CloudUtils.createTabList(mActivity, followersView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWERS);
-        CloudUtils.createTab(mActivity, mTabHost, "followers", mActivity
-                .getString(R.string.tab_followers), null, emptyView, true);
+        CloudUtils.createTab(mTabHost, "followers", mActivity
+                .getString(R.string.tab_followers), null, emptyView);
         
 
         CloudUtils.configureTabs(mActivity, mTabWidget, 30, -1, true);
@@ -451,7 +435,7 @@ public class UserBrowser extends ScTabView {
                 CloudUtils.setTabText(mTabWidget, 4, mActivity.getResources().getString(
                         R.string.tab_followers));
             
-            ((HorizontalScrollView) findViewById(R.id.tab_scroller)).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
+            findViewById(R.id.tab_scroller).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
                     + mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getWidth() / 2 - getWidth() / 2, 0);
         }
     }
@@ -459,10 +443,6 @@ public class UserBrowser extends ScTabView {
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String arg0) {
-            if (mLastTab != null) {
-                mLastTab.onStop();
-            }
-
             if (mWorkspaceView != null)
                 mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(),(Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
             

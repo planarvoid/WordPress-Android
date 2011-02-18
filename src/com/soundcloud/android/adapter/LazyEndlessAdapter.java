@@ -51,7 +51,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private String mQuery;
 
-    private CloudUtils.Model mLoadModel;
+    private CloudUtils.Model mLoadModel;  // XXX replace with Class<? super Model> etc
 
     private String mCollectionKey = "";
 

@@ -1,12 +1,18 @@
 
 package com.soundcloud.android.activity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadTask;
 
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,28 +21,19 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.task.LoadTask;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class LazyActivity extends ScActivity implements OnItemClickListener {
     private static final String TAG = "LazyActivity";
@@ -49,99 +46,49 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 
     protected SoundCloudAPI.State mLastCloudState;
 
-    protected String mFilter = "";
-
     private int mPageSize;
 
     private String mTrackOrder;
 
     private String mUserOrder;
 
-    protected DBAdapter db;
-
     protected SharedPreferences mPreferences;
-
-    protected Comment addComment;
 
     private MenuItem menuCurrentPlayingItem;
 
     private MenuItem menuCurrentUploadingItem;
 
-    protected Parcelable menuParcelable;
-
-    protected Parcelable dialogParcelable;
-
-    protected String dialogUsername;
-
     protected LoadTask mLoadTask;
-
-    private ProgressDialog mProgressDialog;
 
     protected LinearLayout mMainHolder;
 
     protected int mSearchListIndex;
 
-    /**
-     * @param savedInstanceState
-     * @param layoutResId
-     */
     protected void onCreate(Bundle savedInstanceState, int layoutResId) {
         super.onCreate(savedInstanceState);
-
         setContentView(layoutResId);
-
         build();
         restoreState();
         initLoadTasks();
-
     }
 
     /**
      * A parcelable object has just been retrieved by an async task somewhere,
      * so perform any mapping necessary on that object, for example:
      * {@link com.soundcloud.android.activity.Dashboard}
-     * 
-     * @param p
      */
     public void mapDetails(Parcelable p) {
-
     }
 
-    /**
-     * Get a progress dialog that has been created. Used primarily to update
-     * dialog as necessary
-     * 
-     * @return the current progress dialog, or null if one doesnt exist
-     */
-    public ProgressDialog getProgressDialog() {
-        return mProgressDialog;
-    }
-
-    /**
-     * Set the current progress dialog
-     * 
-     * @param progressDialog : the progress dialog that shoudld be set as
-     *            current
-     */
-    public void setProgressDialog(ProgressDialog progressDialog) {
-        mProgressDialog = progressDialog;
-    }
-
-    /**
-     * @return
-     */
     public String getTrackOrder() {
         return mTrackOrder;
     }
 
-    /**
-     * @return
-     */
     public String getUserOrder() {
         return mUserOrder;
     }
 
-    public void configureListMenu(ListView list, CloudUtils.LoadType type) {
+    public void configureListMenu(ListView list) {
 
         list.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override
@@ -185,20 +132,20 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
      */
     public void resolveParcelable(Parcelable p) {
         if (p instanceof Track) {
-            CloudUtils.resolveTrack(getSoundCloudApplication(), (Track) p, WriteState.none,
+            SoundCloudDB.getInstance().resolveTrack(this.getContentResolver(), (Track) p, WriteState.none,
                     CloudUtils.getCurrentUserId(this));
         } else if (p instanceof Event) {
             if (((Event) p).getTrack() != null)
-                CloudUtils.resolveTrack(getSoundCloudApplication(), ((Event) p).getTrack(),
-                        WriteState.none, CloudUtils.getCurrentUserId(this));
+                SoundCloudDB.getInstance().resolveTrack(this.getContentResolver(), ((Event) p).getTrack(), WriteState.none,
+                        CloudUtils.getCurrentUserId(this));
         } else if (p instanceof User) {
-            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.none,
+            SoundCloudDB.getInstance().resolveUser(this.getContentResolver(), (User) p, WriteState.none,
                     CloudUtils.getCurrentUserId(this));
         }
     }
 
     /**
-     * Track has been clicked in a list, enqueu the list of tracks if necessary
+     * Track has been clicked in a list, enqueue the list of tracks if necessary
      * and send the user to the player
      * 
      * @param list
@@ -219,22 +166,19 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         try {
             if (t != null && mService != null && mService.getTrackId() != -1
                     && mService.getTrackId() == (t.id)) {
-                // skip the enquing, its already playing
+                // skip the enqueuing, its already playing
                 Intent intent = new Intent(this, ScPlayer.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 return;
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
 
-        // pass the tracklist to the application. This is the quckest way to get
-        // it to the service
-        // another option would be to pass the parcelables through the intent,
-        // but that has the
-        // unnecessary overhead of unmarshalling/marshallingi them in to
-        // bundles. This way
+        // pass the tracklist to the application. This is the quickest way to get it to the service
+        // another option would be to pass the parcelables through the intent, but that has the
+        // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
         this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
 
@@ -242,7 +186,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
             Log.i(TAG, "Play from app cache call");
             mService.playFromAppCache(playPos);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
         
         Intent intent = new Intent(this, ScPlayer.class);
@@ -254,7 +198,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
      * A list item has been clicked
      */
     public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-
+        // XXX WTF
         if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
                 || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
             return; // bad list item clicked (possibly loading item)
@@ -291,10 +235,6 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         return super.onCreateOptionsMenu(menu);
     }
 
-    public long getCurrentUserId() {
-        return CloudUtils.getCurrentUserId(this);
-    }
-
     /**
      * Prepare the options menu based on the current class and current play
      * state
@@ -320,14 +260,6 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         return true;
     }
 
-    public void leftSwipe() {
-        Toast.makeText(this, "Left Swipe", Toast.LENGTH_SHORT).show();
-    }
-
-    public void rightSwipe() {
-        Toast.makeText(this, "Right Swipe", Toast.LENGTH_SHORT).show();
-    }
-
     public void setPageSize(int mPageSize) {
         this.mPageSize = mPageSize;
     }
@@ -336,45 +268,15 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         return mPageSize;
     }
 
-    /***** State saving/restoring *****/
 
-    /**
-     * Restore the state of this activity from a previous state, if one exists
-     */
     protected void restoreState() {
-
     }
 
-    /***** Build and Lifecycle *****/
 
-    /**
-     * Build any components we need to for this activity
-     */
+    // Build any components we need to for this activity
     protected void build() {
-
     }
 
-    /**
-     * Bind our services
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    /**
-     * Unbind our services
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-    }
-
-    /**
-	 * 
-	 */
     @Override
     protected void onResume() {
         super.onResume();

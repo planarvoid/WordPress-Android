@@ -147,7 +147,7 @@ public class Track extends BaseObj implements Parcelable {
         }
 
         public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/tracks");
+                + ScContentProvider.AUTHORITY + "/Tracks");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
 
@@ -200,6 +200,8 @@ public class Track extends BaseObj implements Parcelable {
 
             String[] keys = cursor.getColumnNames();
             for (String key : keys) {
+                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
+                else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {

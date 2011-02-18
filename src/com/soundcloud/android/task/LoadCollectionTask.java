@@ -29,7 +29,7 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
 
         protected ArrayList<T> newItems;
 
-        public CloudUtils.Model loadModel;
+        public CloudUtils.Model loadModel;  // XXX replace with class
         
         public int pageSize;
 

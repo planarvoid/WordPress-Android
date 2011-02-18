@@ -89,6 +89,8 @@ public class User extends BaseObj implements Parcelable {
 
             String[] keys = cursor.getColumnNames();
             for (String key : keys) {
+                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
+                else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {
@@ -122,6 +124,8 @@ public class User extends BaseObj implements Parcelable {
             cursor.moveToFirst();
             String[] keys = cursor.getColumnNames();
             for (String key : keys) {
+                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
+                else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {
@@ -178,7 +182,7 @@ public class User extends BaseObj implements Parcelable {
         }
 
         public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/users");
+                + ScContentProvider.AUTHORITY + "/Users");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.users";
 

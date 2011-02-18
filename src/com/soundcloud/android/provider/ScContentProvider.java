@@ -15,8 +15,12 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class ScContentProvider extends ContentProvider {
 
@@ -26,9 +30,9 @@ public class ScContentProvider extends ContentProvider {
 
     private static final int DATABASE_VERSION = 3;
 
-    private static final String TRACKS_TABLE_NAME = "Tracks";
+    public static final String TRACKS_TABLE_NAME = "Tracks";
     
-    private static final String USERS_TABLE_NAME = "Users";
+    public static final String USERS_TABLE_NAME = "Users";
 
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
 
@@ -95,35 +99,40 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Log.w(TAG, "Upgrading database from version " + oldVersion +
-        // " to " + newVersion);
+        Log.w(TAG, "Upgrading database from version " + oldVersion +
+         " to " + newVersion);
 
         if (newVersion > oldVersion) {
             db.beginTransaction();
 
-            boolean success = true;
-            for (int i = oldVersion; i < newVersion; ++i) {
-                int nextVersion = i + 1;
-                switch (nextVersion) {
-                    case 4:
-                        upgradeTo4(db);
-                        break;
-                    default: 
-                        db.execSQL("DROP TABLE IF EXISTS Tracks");
-                        db.execSQL("DROP TABLE IF EXISTS Users");
-                        db.execSQL("DROP TABLE IF EXISTS Followings");
-                        db.execSQL("DROP TABLE IF EXISTS Favorites");
-                        onCreate(db);
-                        break;
-                }
+            boolean success = false;
+            if (oldVersion >= 3){
+                for (int i = oldVersion; i < newVersion; ++i) {
+                    int nextVersion = i + 1;
+                    switch (nextVersion) {
+                        case 4:
+                            success = upgradeTo4(db);
+                            break;
+                        default: 
+                            break;
+                    }
 
-                if (!success) {
-                    break;
+                    if (!success) {
+                        break;
+                    }
                 }
+    
             }
-
+            
             if (success) {
+                Log.i(TAG,"SUCCESSFUL UPGRADE");
                 db.setTransactionSuccessful();
+            } else {
+                db.execSQL("DROP TABLE IF EXISTS Tracks");
+                db.execSQL("DROP TABLE IF EXISTS Users");
+                db.execSQL("DROP TABLE IF EXISTS Followings");
+                db.execSQL("DROP TABLE IF EXISTS Favorites");
+                onCreate(db);
             }
             db.endTransaction();
         } else {
@@ -136,9 +145,29 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private void upgradeTo4(SQLiteDatabase db) {
-        //db.execSQL("UPDATE Tracks set user_played = 1 where user_played = '1' ");
+    private boolean upgradeTo4(SQLiteDatabase db) {
+        try {
+         // rename id to _id for content resolver
+            db.execSQL("DROP TABLE IF EXISTS bck_Tracks");
+            db.execSQL(DATABASE_CREATE_TRACKS.replace("create table Tracks",
+                    "create table bck_Tracks"));
+            List<String> columns = GetColumns(db, "bck_Tracks");
+            columns.retainAll(GetColumns(db, "Tracks"));
+            String cols = join(columns, ",");
+            db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s",
+                    TRACKS_TABLE_NAME, cols+",_id", cols+"id", TRACKS_TABLE_NAME));
+            db.execSQL("DROP table  '" + TRACKS_TABLE_NAME + "'");
+            db.execSQL(DATABASE_CREATE_TRACKS);
+            db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
+                    TRACKS_TABLE_NAME, cols, cols, TRACKS_TABLE_NAME));
+            db.execSQL("DROP table bck_" + TRACKS_TABLE_NAME);
+            return true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
+            
 }
 
     private DatabaseHelper dbHelper;
@@ -305,7 +334,74 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         
     }
     
-    
+    public static List<String> GetColumns(SQLiteDatabase db, String tableName) {
+        List<String> ar = null;
+        Cursor c = null;
+        try {
+            c = db.rawQuery("select * from " + tableName + " limit 1", null);
+            if (c != null) {
+                ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
+            }
+        } catch (Exception e) {
+            Log.v(tableName, e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return ar;
+    }
+
+    public static String[] GetColumnsArray(SQLiteDatabase db, String tableName) {
+        String[] ar = null;
+        Cursor c = null;
+        try {
+            c = db.rawQuery("select * from " + tableName + " limit 1", null);
+            if (c != null) {
+                ar = c.getColumnNames();
+            }
+        } catch (Exception e) {
+            Log.v(tableName, e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        return ar;
+    }
+
+    public static String join(List<String> list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.size();
+        for (int i = 0; i < num; i++) {
+            if (i != 0)
+                buf.append(delim);
+            buf.append((String) list.get(i));
+        }
+        return buf.toString();
+    }
+
+    public static String joinArray(String[] list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.length;
+        for (int i = 0; i < num; i++) {
+            if (i != 0)
+                buf.append(delim);
+            buf.append((String) list[i]);
+        }
+        return buf.toString();
+    }
+
+    private String joinArray(long[] list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.length;
+        for (int i = 0; i < num; i++) {
+            if (i != 0)
+                buf.append(delim);
+            buf.append((String) Long.toString(list[i]));
+        }
+        return buf.toString();
+    }
     
     
     
