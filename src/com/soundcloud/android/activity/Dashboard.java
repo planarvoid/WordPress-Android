@@ -14,7 +14,6 @@ import android.view.ContextMenu;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
@@ -33,24 +32,16 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.view.LazyList;
 import com.soundcloud.android.view.ScTabView;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Dashboard extends ScActivity implements AdapterView.OnItemClickListener {
     protected long mCurrentTrackId = -1;
-    protected SoundCloudAPI.State mLastCloudState;
-    protected LinearLayout mMainHolder;
-
     protected LazyList mList;
-
-
     private boolean mIgnorePlaybackStatus;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,23 +57,16 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         Log.d(TAG, "onCreate " + this.getIntent());
 
 
-
         if (getIntent().hasExtra("tab")) {
-
             String tab = getIntent().getStringExtra("tab");
-
             if ("incoming".equalsIgnoreCase(tab)) {
-
                 setContentView(
                         createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
                                 CloudUtils.Model.event,
                                 R.string.empty_incoming_text,
                                 CloudUtils.ListId.LIST_INCOMING)
                 );
-
-
             } else if ("exclusive".equalsIgnoreCase(tab)) {
-
                 setContentView(
                         createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
                                 CloudUtils.Model.event,
@@ -92,7 +76,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
-
         } else {
             throw new IllegalArgumentException("no tab extra");
         }
@@ -127,10 +110,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         this.unregisterReceiver(mPlaybackStatusListener);
-
-
         CloudUtils.cleanupList(mList);
     }
 
@@ -148,22 +128,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             }
         }
     };
-
-
-    protected void configureListToData(ArrayList<Parcelable> mAdapterData, int listIndex) {
-        /**
-         * we have to make sure that the search view has the right adapter set
-         * on its list view so grab the first element out of the data we are
-         * restoring and see if its a user. If it is then tell the search list
-         * to use the user adapter, otherwise use the track adapter
-         */
-
-        //if (mSearchListIndex == listIndex && mAdapterData.size() > 0) {
-
-        mList.setVisibility(View.VISIBLE);
-        mList.setFocusable(true);
-        //}
-    }
 
 
     @Override
@@ -188,13 +152,11 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             restoreListConfigs(saved[1]);
             restoreListExtras(saved[2]);
             restoreListAdapters(saved[3]);
-            // mScCreate.setRecordTask((PCMRecordTask) saved[7]);
         }
     }
 
     private void setPlayingTrack(long l) {
-
-        if (mList == null)
+        if (mList != null)
             return;
 
         mCurrentTrackId = l;
@@ -215,24 +177,16 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             return;
 
         ArrayList<ArrayList<Parcelable>> mAdapterDatas = (ArrayList<ArrayList<Parcelable>>) adapterObject;
-        Iterator<ArrayList<Parcelable>> mAdapterDataIterator = mAdapterDatas.iterator();
-        int i = 0;
-        while (mAdapterDataIterator.hasNext()) {
-
-            ArrayList<Parcelable> mAdapterData = mAdapterDataIterator.next();
-
-            configureListToData(mAdapterData, i);
-
-            if (mAdapterData != null) {
-                ((LazyBaseAdapter) mList.getAdapter()).getData().addAll(mAdapterData);
+        for (ArrayList<Parcelable> data : mAdapterDatas) {
+            if (data != null) {
+                ((LazyBaseAdapter) mList.getAdapter()).getData().addAll(data);
                 ((LazyBaseAdapter) mList.getAdapter()).notifyDataSetChanged();
             }
-            i++;
         }
     }
 
 
-    public LazyList buildList(boolean isSearchList) {
+    public LazyList buildList() {
         mList = CloudUtils.createList(this);
         return mList;
     }
@@ -241,7 +195,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     protected void onServiceBound() {
         super.onServiceBound();
         try {
-            setPlayingTrack(mService.getTrackId());
+            setPlayingTrack(mPlaybackService.getTrackId());
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -251,25 +205,19 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     protected void onStart() {
         super.onStart();
 
-        if (mService != null)
+        if (mPlaybackService != null) {
             try {
-                setPlayingTrack(mService.getTrackId());
+                setPlayingTrack(mPlaybackService.getTrackId());
             } catch (Exception e) {
                 Log.e(TAG, "error", e);
             }
+        }
     }
 
     @Override
     protected void onStop() {
         mIgnorePlaybackStatus = false;
         super.onStop();
-    }
-
-    @Override
-    protected void onAuthenticated() {
-        super.onAuthenticated();
-        mLastCloudState = getSoundCloudApplication().getState();
-
     }
 
     @Override
@@ -296,8 +244,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
     public void playTrack(final List<Parcelable> list, final int playPos) {
-
-
         Track t = null;
 
         // is this a track of a list
@@ -309,8 +255,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         // find out if this track is already playing. If it is, just go to the
         // player
         try {
-            if (t != null && mService != null && mService.getTrackId() != -1
-                    && mService.getTrackId() == (t.id)) {
+            if (t != null && mPlaybackService != null && mPlaybackService.getTrackId() != -1
+                    && mPlaybackService.getTrackId() == (t.id)) {
                 // skip the enqueuing, its already playing
                 Intent intent = new Intent(this, ScPlayer.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -329,7 +275,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
         try {
             Log.i(TAG, "Play from app cache call");
-            mService.playFromAppCache(playPos);
+            mPlaybackService.playFromAppCache(playPos);
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -427,7 +373,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     public void mapDetails(Parcelable p) {
         // XXX this should only happen once, after authorizing w/ soundcloud
         if (((User) p).id != null) {
-
             CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, BaseObj.WriteState.all, ((User) p).id);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -436,11 +381,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
 
             if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
-
                 Log.i(TAG, "--------- new user");
-
                 preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
-
                         .putString("currentUsername", ((User) p).username).commit();
 
             }

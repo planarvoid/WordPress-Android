@@ -14,11 +14,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
@@ -35,20 +34,13 @@ import org.urbanstew.soundcloudapi.SoundCloudAPI;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 public abstract class ScActivity extends Activity {
-    private static final String TAG = "ScActivity";
-
-    protected LinearLayout mHolder;
-
     private Exception mException = null;
-
     private String mError = null;
 
-    protected String dialogUsername;
-
-    protected ICloudPlaybackService mService = null;
-
-
+    protected ICloudPlaybackService mPlaybackService;
     protected NetworkConnectivityListener connectivityListener;
 
     protected static final int CONNECTIVITY_MSG = 0;
@@ -57,7 +49,6 @@ public abstract class ScActivity extends Activity {
     public final Handler mHandler = new Handler();
 
     protected GoogleAnalyticsTracker tracker;
-
 
     /**
      * Get an instance of our communicator
@@ -84,17 +75,16 @@ public abstract class ScActivity extends Activity {
     private ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
-            mService = ICloudPlaybackService.Stub.asInterface(obj);
+            mPlaybackService = ICloudPlaybackService.Stub.asInterface(obj);
             onServiceBound();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName classname) {
             onServiceUnbound();
-            mService = null;
+            mPlaybackService = null;
         }
     };
-
 
 
     @Override
@@ -111,7 +101,6 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
     }
@@ -149,7 +138,7 @@ public abstract class ScActivity extends Activity {
 
 
         CloudUtils.unbindFromService(this);
-        mService = null;
+        mPlaybackService = null;
 
     }
 
@@ -157,11 +146,7 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (getSoundCloudApplication().getState() == SoundCloudAPI.State.AUTHORIZED) {
-            onAuthenticated();
-        } else {
-            if (mHolder != null)
-                mHolder.setVisibility(View.GONE);
+        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
             forcePause();
 
             if (!(this instanceof Authorize)) {
@@ -176,21 +161,18 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    protected void onAuthenticated() {
-    }
-
     protected void onReauthenticate() {
     }
 
 
     public void forcePause() {
         try {
-            if (mService != null) {
-                if (mService.isPlaying()) {
-                    mService.forcePause();
+            if (mPlaybackService != null) {
+                if (mPlaybackService.isPlaying()) {
+                    mPlaybackService.forcePause();
                 }
             }
-        } catch (Exception e) {
+        } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
     }
@@ -314,7 +296,6 @@ public abstract class ScActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-
                     if (connectivityListener != null) {
                         NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
                         if (networkInfo != null) {

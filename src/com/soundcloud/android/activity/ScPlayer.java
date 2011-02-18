@@ -300,8 +300,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     protected void onServiceBound() {
         super.onServiceBound();
         try {
-            if (mService.getTrack() != null) {
-                if (mService.isBuffering()) {
+            if (mPlaybackService.getTrack() != null) {
+                if (mPlaybackService.isBuffering()) {
                     mWaveformController.showConnectingLayout();
                 } else
                     mWaveformController.hideConnectingLayout();
@@ -447,17 +447,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mService == null) {
+            if (mPlaybackService == null) {
                 return;
             }
             try {
-                if (mService.position() < 2000) {
-                    mService.prev();
+                if (mPlaybackService.position() < 2000) {
+                    mPlaybackService.prev();
                 } else if (isSeekable()) {
-                    mService.seek(0);
+                    mPlaybackService.seek(0);
                     // mService.play();
                 } else {
-                    mService.restart();
+                    mPlaybackService.restart();
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -467,11 +467,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mService == null) {
+            if (mPlaybackService == null) {
                 return;
             }
             try {
-                mService.next();
+                mPlaybackService.next();
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
             }
@@ -480,11 +480,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void doPauseResume() {
         try {
-            if (mService != null) {
-                if (mService.isPlaying()) {
-                    mService.pause();
+            if (mPlaybackService != null) {
+                if (mPlaybackService.isPlaying()) {
+                    mPlaybackService.pause();
                 } else {
-                    mService.play();
+                    mPlaybackService.play();
                 }
                 long next = refreshNow();
                 queueNextRefresh(next);
@@ -746,7 +746,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void setPauseButtonImage() {
         try {
-            if (mService != null && mService.isPlaying()) {
+            if (mPlaybackService != null && mPlaybackService.isPlaying()) {
                 mPauseButton.setImageResource(R.drawable.ic_pause_states);
             } else {
                 mPauseButton.setImageResource(R.drawable.ic_play_states);
@@ -768,14 +768,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         try {
 
-            if (mService == null)
+            if (mPlaybackService == null)
                 return 500;
 
-            if (mService.loadPercent() > 0 && !_isPlaying) {
+            if (mPlaybackService.loadPercent() > 0 && !_isPlaying) {
                 _isPlaying = true;
             }
 
-            long pos = mService.position();
+            long pos = mPlaybackService.position();
             long remaining = 1000 - pos % 1000;
 
             if (pos >= 0 && mDuration > 0) {
@@ -783,7 +783,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         : mDurationFormatLong, pos / 1000)
                         + " / " + mCurrentDurationString);
                 mWaveformController.setProgress(pos);
-                mWaveformController.setSecondaryProgress(mService.loadPercent() * 10);
+                mWaveformController.setSecondaryProgress(mPlaybackService.loadPercent() * 10);
             } else {
                 mCurrentTime.setText("--:--/--:--");
                 mWaveformController.setProgress(0);
@@ -891,15 +891,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void updateTrackInfo() {
 
-        if (mService != null) {
+        if (mPlaybackService != null) {
             try {
-                if (mService.getTrack() == null){
+                if (mPlaybackService.getTrack() == null){
                     mWaveformController.clearTrack();
                     return;
                 }
 
-                if (mPlayingTrack == null || mPlayingTrack.id != mService.getTrackId())
-                    mPlayingTrack = mService.getTrack();
+                if (mPlayingTrack == null || mPlayingTrack.id != mPlaybackService.getTrackId())
+                    mPlayingTrack = mPlaybackService.getTrack();
 
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -999,7 +999,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public Boolean isSeekable() {
         try {
-            return !(mService == null || !mService.isSeekable());
+            return !(mPlaybackService == null || !mPlaybackService.isSeekable());
         } catch (RemoteException e) {
             return false;
         }
@@ -1011,24 +1011,24 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public long setSeekMarker(float seekPercent) {
         try {
-            if (mService != null) {
+            if (mPlaybackService != null) {
 
-                if (!mService.isSeekable()) {
+                if (!mPlaybackService.isSeekable()) {
                     mSeekPos = -1;
-                    return mService.position();
+                    return mPlaybackService.position();
                 } else {
                     if (mPlayingTrack != null) {
                         long now = SystemClock.elapsedRealtime();
                         if ((now - mLastSeekEventTime) > 250) {
                             mLastSeekEventTime = now;
                             try {
-                                mSeekPos = mService.seek((long) (mPlayingTrack.duration * seekPercent));
+                                mSeekPos = mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
                             } catch (RemoteException e) {
                                 Log.e(TAG, "error", e);
                             }
                         } else {
                             // where would we be if we had seeked
-                            mSeekPos = mService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
+                            mSeekPos = mPlaybackService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
                         }
                         return mSeekPos;
                     }
@@ -1042,11 +1042,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public void sendSeek() {
         try {
-            if (mService == null || !mService.isSeekable()) {
+            if (mPlaybackService == null || !mPlaybackService.isSeekable()) {
                 return;
             }
 
-            mService.seek(mSeekPos);
+            mPlaybackService.seek(mSeekPos);
             mSeekPos = -1;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -1186,7 +1186,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         paused = true;
         mHandler.removeMessages(REFRESH);
         unregisterReceiver(mStatusListener);
-        mService = null;
+        mPlaybackService = null;
 
     }
 
@@ -1217,10 +1217,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mFavoriteButton.setEnabled(false);
         try {
             if (mPlayingTrack.user_favorite) {
-                    mService.setFavoriteStatus(mPlayingTrack.id, false);
+                    mPlaybackService.setFavoriteStatus(mPlayingTrack.id, false);
                 mFavoriteTrack.user_favorite = false;
             } else {
-                mService.setFavoriteStatus(mPlayingTrack.id, true);
+                mPlaybackService.setFavoriteStatus(mPlayingTrack.id, true);
                 mFavoriteTrack.user_favorite = true;
             }
         } catch (RemoteException e) {

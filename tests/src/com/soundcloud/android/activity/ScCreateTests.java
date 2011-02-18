@@ -38,6 +38,8 @@ public class ScCreateTests
         addPendingHttpResponse(401, "Error");  // load connections
 
         create = new ScCreate();
+        create.mCreateService = service;
+        create.onCreate(null);
     }
 
     private Map upload() throws Exception {

@@ -3,7 +3,6 @@ package com.soundcloud.android;
 
 import android.app.Activity;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -38,8 +37,6 @@ import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.view.LazyList;
 import com.soundcloud.android.view.ScTabView;
 import org.json.JSONException;
@@ -109,94 +106,11 @@ public class CloudUtils {
     }
 
     public interface Dialogs {
-        public static final int DIALOG_GENERAL_ERROR = 9;
+        int DIALOG_ERROR_LOADING = 1;
+        int DIALOG_UNAUTHORIZED  = 2;
+        int DIALOG_CANCEL_UPLOAD = 3;
+        int DIALOG_AUTHENTICATION_CONTACTING = 4;
 
-        public static final int DIALOG_ERROR_LOADING = 10;
-
-        public static final int DIALOG_UNAUTHORIZED = 11;
-
-        public static final int DIALOG_ADD_COMMENT = 12;
-
-        public static final int DIALOG_FOLLOWING = 13;
-
-        public static final int DIALOG_UNFOLLOWING = 14;
-
-        public static final int DIALOG_ALREADY_FOLLOWING = 15;
-
-        public static final int DIALOG_FAVORITED = 16;
-
-        public static final int DIALOG_UNFAVORITED = 17;
-
-        public static final int DIALOG_ERROR_STREAM_NOT_SEEKABLE = 18;
-
-        public static final int DIALOG_ERROR_NO_DOWNLOADS = 19;
-
-        public static final int DIALOG_ERROR_TRACK_ERROR = 20;
-
-        public static final int DIALOG_ERROR_TRACK_DOWNLOAD_ERROR = 21;
-
-        public static final int DIALOG_ADD_COMMENT_ERROR = 22;
-
-        public static final int DIALOG_SC_CONNECT_ERROR = 23;
-
-        public static final int DIALOG_ERROR_CHANGE_FOLLOWING_STATUS_ERROR = 24;
-
-        public static final int DIALOG_ERROR_CHANGE_FAVORITE_STATUS_ERROR = 25;
-
-        public static final int DIALOG_CONFIRM_DELETE_TRACK = 26;
-
-        public static final int DIALOG_CONFIRM_RE_DOWNLOAD_TRACK = 27;
-
-        public static final int DIALOG_CONFIRM_REMOVE_FAVORITE = 28;
-
-        public static final int DIALOG_CONFIRM_REMOVE_FOLLOWING = 29;
-
-        public static final int DIALOG_CONFIRM_CLEAR_PLAYLIST = 30;
-
-        public static final int DIALOG_PROCESSING = 31;
-
-        public static final int DIALOG_CANCEL_UPLOAD = 32;
-
-        public static final int DIALOG_ERROR_RECORDING = 37;
-
-        public static final int DIALOG_ERROR_MAKING_CONNECTION = 36;
-
-        public static final int DIALOG_AUTHENTICATION_CONTACTING = 33;
-
-        public static final int DIALOG_AUTHENTICATION_ERROR = 34;
-
-        public static final int DIALOG_AUTHENTICATION_RETRY = 35;
-    }
-
-    public interface Defs {
-        public final static int OPEN_URL = 0;
-
-        public final static int ADD_TO_PLAYLIST = 1;
-
-        public final static int USE_AS_RINGTONE = 2;
-
-        public final static int PLAYLIST_SELECTED = 3;
-
-        public final static int NEW_PLAYLIST = 4;
-
-        public final static int PLAY_SELECTION = 5;
-
-        public final static int GOTO_START = 6;
-
-        public final static int GOTO_PLAYBACK = 7;
-
-        public final static int PARTY_SHUFFLE = 8;
-
-        public final static int SHUFFLE_ALL = 9;
-
-        public final static int DELETE_ITEM = 10;
-
-        public final static int SCAN_DONE = 11;
-
-        public final static int QUEUE = 12;
-
-        public final static int CHILD_MENU_BASE = 13; // this should be the last
-        // item
     }
 
     public interface OptionsMenu {
@@ -207,52 +121,6 @@ public class CloudUtils {
         public static final int REFRESH = 202;
 
         public static final int CANCEL_CURRENT_UPLOAD = 203;
-    }
-
-    public interface ContextMenu {
-
-        public static final int CLOSE = 100;
-
-        // basic track functions
-        public static final int VIEW_TRACK = 110;
-
-        public static final int PLAY_TRACK = 111;
-
-        public static final int ADD_TO_PLAYLIST = 112;
-
-        public static final int VIEW_UPLOADER = 113;
-
-        public static final int DELETE = 114;
-
-        public static final int RE_DOWNLOAD = 115;
-
-        // pending download functions
-        public static final int CANCEL_DOWNLOAD = 120;
-
-        public static final int RESTART_DOWNLOAD = 121;
-
-        public static final int FORCE_DOWNLOAD = 132;
-
-        // downloaded functions
-        public static final int DELETE_TRACK = 130;
-
-        public static final int REFRESH_TRACK_DATA = 131;
-
-        // comment functions
-        public static final int PLAY_FROM_COMMENT_POSITION = 140;
-
-        public static final int REPLY_TO_COMMENT = 141;
-
-        public static final int VIEW_COMMENTER = 142;
-
-        // playlist functions
-        public static final int REMOVE_TRACK = 151;
-
-        public static final int REMOVE_OTHER_TRACKS = 152;
-
-        // basic user functions
-        public static final int VIEW_USER = 160;
-
     }
 
     public interface GraphicsSizes {
@@ -291,8 +159,6 @@ public class CloudUtils {
         public final static int LIST_USER_TRACKS = 1003;
 
         public final static int LIST_USER_FAVORITES = 1004;
-
-        public final static int LIST_SEARCH = 1005;
 
         public final static int LIST_USER_FOLLOWINGS = 1006;
 
@@ -416,7 +282,7 @@ public class CloudUtils {
 
         listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
         if (activity instanceof Dashboard) {
-            LazyList lv = ((Dashboard) activity).buildList(false);
+            LazyList lv = ((Dashboard) activity).buildList();
             if (listId != -1)
                 lv.setId(listId);
             if (touchListener != null)
@@ -557,26 +423,17 @@ public class CloudUtils {
                 || url.contains("default_avatar"));
     }
 
-    public static ICloudPlaybackService sService = null;
-
-    private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
+    private static HashMap<Context, ServiceConnection> sConnectionMap = new HashMap<Context, ServiceConnection>();
 
     public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
-        if (context.getParent() != null)
-            context = context.getParent();
-
-
         context.startService(new Intent(context, service));
-        ServiceBinder sb = new ServiceBinder(callback);
-        sConnectionMap.put(context, sb);
+        sConnectionMap.put(context, callback);
         Log.i(TAG, "Binding service " + sConnectionMap.size());
 
-
-
-        boolean success =  context.bindService(
+        boolean success =  context.getApplicationContext().bindService(
                 (new Intent()).setClass(context, service),
-                sb,
+                callback,
                 0);
 
         if (!success) Log.w(TAG, "BIND TO SERVICE " + service.getSimpleName() + " FAILED");
@@ -584,45 +441,12 @@ public class CloudUtils {
     }
 
     public static void unbindFromService(Activity context) {
-        if (context.getParent() != null)
-            context = context.getParent();
-
         Log.i(TAG, "Unbind From Service " + context);
-        ServiceBinder sb = sConnectionMap.remove(context);
-        if (sb == null) {
-            return;
-        }
-        context.unbindService(sb);
+        ServiceConnection sb = sConnectionMap.remove(context);
+        if (sb != null) context.getApplicationContext().unbindService(sb);
         Log.i(TAG, "Connetcion map empty? " + sConnectionMap.isEmpty());
-        if (sConnectionMap.isEmpty()) {
-            // presumably there is nobody interested in the service at this
-            // point,
-            // so don't hang on to the ServiceConnection
-            sService = null;
-        }
     }
 
-    private static class ServiceBinder implements ServiceConnection {
-        ServiceConnection mCallback;
-
-        ServiceBinder(ServiceConnection callback) {
-            mCallback = callback;
-        }
-
-        public void onServiceConnected(ComponentName className, android.os.IBinder service) {
-            sService = ICloudPlaybackService.Stub.asInterface(service);
-            if (mCallback != null) {
-                mCallback.onServiceConnected(className, service);
-            }
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            if (mCallback != null) {
-                mCallback.onServiceDisconnected(className);
-            }
-            sService = null;
-        }
-    }
 
     public static void resolveTrack(Context context, Track track,
             WriteState writeState, long currentUserId) {

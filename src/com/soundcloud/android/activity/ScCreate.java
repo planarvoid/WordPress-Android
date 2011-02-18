@@ -80,7 +80,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private int mArtworkInSampleSize;
 
-    private ICloudCreateService mCreateService;
+    /* package */ ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
 
     private TextView mChrono;
@@ -152,12 +152,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         setContentView(R.layout.sc_create);
 
-        mDurationFormatLong = getString(R.string.durationformatlong);
-        mDurationFormatShort = getString(R.string.durationformatshort);
-
-        mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
-
         initResourceRefs();
 
         updateUi(false);
@@ -171,7 +165,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
         uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
-
     }
 
 
@@ -186,6 +179,12 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     * to reinitialize references to the views.
     */
     private void initResourceRefs() {
+        mDurationFormatLong = getString(R.string.durationformatlong);
+        mDurationFormatShort = getString(R.string.durationformatshort);
+
+        mRemainingTimeCalculator = new RemainingTimeCalculator();
+        mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
+
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
         mFileLayout = (LinearLayout) findViewById(R.id.file_layout);
@@ -291,9 +290,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mGaugeHolder.addView(mPowerGauge);
 
         mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-        mConnectionList.setAdapter(
-            new ConnectionList.Adapter(this.getSoundCloudApplication())
-            .load());
+        mConnectionList.setAdapter(new ConnectionList.Adapter(this.getSoundCloudApplication()));
 
         mAccessList = (AccessList) findViewById(R.id.accessList);
         mAccessList.setAdapter(new AccessList.Adapter());
@@ -301,18 +298,20 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     }
 
     @Override
-    public void onAuthenticated() {
+    protected void onResume() {
+        super.onResume();
         mConnectionList.getAdapter().loadIfNecessary();
     }
 
     @Override
     public void onReauthenticate() {
-        mConnectionList.getAdapter().clear();
+        onRefresh(true);
     }
 
     public void onRefresh(boolean all) {
-        onReauthenticate();
-        onAuthenticated();
+        mConnectionList.getAdapter().clear();
+        mConnectionList.getAdapter().loadIfNecessary();
+
     }
 
     @Override
@@ -361,8 +360,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     @Override
     public void onStart() {
         super.onStart();
-
-
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         Log.d(TAG, "onStart()");
