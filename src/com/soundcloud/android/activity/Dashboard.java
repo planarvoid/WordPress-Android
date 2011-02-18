@@ -178,15 +178,16 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         };
     }
 
+
     protected void restoreState() {
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();
 
         if (saved != null) {
-            restoreListTasks(saved[3]);
-            restoreListConfigs(saved[4]);
-            restoreListExtras(saved[5]);
-            restoreListAdapters(saved[6]);
+            restoreListTasks(saved[0]);
+            restoreListConfigs(saved[1]);
+            restoreListExtras(saved[2]);
+            restoreListAdapters(saved[3]);
             // mScCreate.setRecordTask((PCMRecordTask) saved[7]);
         }
     }
@@ -273,6 +274,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     @Override
     public void onRefresh(boolean b) {
+        // XXX TODO
     }
 
     public void configureListMenu(ListView list) {

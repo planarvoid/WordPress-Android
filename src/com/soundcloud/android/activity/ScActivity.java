@@ -28,6 +28,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
@@ -150,13 +151,8 @@ public abstract class ScActivity extends Activity {
 
         connectivityListener.startListening(this);
 
-        // start it so it is persistent outside this activity, then bind it
-        startService(new Intent(this, CloudCreateService.class));
-        bindService(new Intent(this, CloudCreateService.class), createOsc, 0);
-
-        if (!CloudUtils.bindToService(this, osc)) {
-            Log.i(TAG, "BIND TO SERVICE FAILED");
-        }
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
+        CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
     }
 
     /**
@@ -173,7 +169,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener.stopListening();
 
         if (mCreateService != null) {
-            this.unbindService(createOsc);
+            //XXX this.unbindService(createOsc);
             mCreateService = null;
         }
 

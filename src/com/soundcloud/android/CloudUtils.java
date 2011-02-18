@@ -2,6 +2,7 @@
 package com.soundcloud.android;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -560,26 +561,32 @@ public class CloudUtils {
 
     private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
 
-    public static boolean bindToService(Activity context, ServiceConnection callback) {
+    public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         if (context.getParent() != null)
             context = context.getParent();
 
 
-        context.startService(new Intent(context, CloudPlaybackService.class));
+        context.startService(new Intent(context, service));
         ServiceBinder sb = new ServiceBinder(callback);
         sConnectionMap.put(context, sb);
         Log.i(TAG, "Binding service " + sConnectionMap.size());
 
 
 
-        return context.bindService(
-                (new Intent()).setClass(context, CloudPlaybackService.class),
+        boolean success =  context.bindService(
+                (new Intent()).setClass(context, service),
                 sb,
                 0);
+
+        if (!success) Log.w(TAG, "BIND TO SERVICE " + service.getSimpleName() + " FAILED");
+        return success;
     }
 
-    public static void unbindFromService(Context context) {
+    public static void unbindFromService(Activity context) {
+        if (context.getParent() != null)
+            context = context.getParent();
+
         Log.i(TAG, "Unbind From Service " + context);
         ServiceBinder sb = sConnectionMap.remove(context);
         if (sb == null) {
