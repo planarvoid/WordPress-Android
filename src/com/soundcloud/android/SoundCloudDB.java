@@ -59,15 +59,24 @@ public class SoundCloudDB {
         
         // ---Make sure the database is up to date with this track info---
         public Track resolveTrackById(ContentResolver contentResolver, long TrackId,
-                long currentTrackId) {
+                long currentUserId) {
 
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + TrackId + "'", null, null);
 
             if (cursor.getCount() != 0) {
 
-                Track Track = new Track(cursor);
+                Track track = new Track(cursor);
                 cursor.close();
-                return Track;
+                cursor.close();
+                
+                User user = resolveUserById(contentResolver, track.user_id, currentUserId);
+                if (user != null){
+                    track.user = user;
+                    track.user_id = user.id;
+                }
+                
+                
+                return track;
             }
 
             cursor.close();
