@@ -42,8 +42,6 @@ import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 import java.util.ArrayList;
 
 public class UserBrowser extends ScActivity {
-
-
     private static String TAG = "UserBrowser";
 
     protected ImageView mIcon;

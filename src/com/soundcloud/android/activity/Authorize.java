@@ -2,6 +2,8 @@
 package com.soundcloud.android.activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -148,5 +150,25 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
                 .putString("oauth_access_token", token)
                 .putString("oauth_access_token_secret", secret)
                 .commit();
+    }
+
+
+    @Override
+    protected Dialog onCreateDialog(int which) {
+        switch (which) {
+            case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING:
+                ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setTitle(R.string.authentication_contacting_title);
+                dialog.setMessage(getResources().getString(
+                        R.string.authentication_contacting_message));
+                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                dialog.setIndeterminate(true);
+                dialog.setCancelable(false);
+                return dialog;
+
+            default:
+                return super.onCreateDialog(which);
+
+        }
     }
 }

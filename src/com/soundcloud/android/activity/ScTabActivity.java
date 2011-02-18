@@ -102,8 +102,7 @@ public class ScTabActivity extends TabActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-           menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
+        menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
                 menu.size(), R.string.menu_view_current_track).setIcon(
                 R.drawable.ic_menu_info_details);
         menuCurrentUploadingItem = menu.add(menu.size(),
@@ -124,12 +123,6 @@ public class ScTabActivity extends TabActivity {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!this.getClass().getName().contentEquals("com.soundcloud.android.ScPlayer")) {
-            menuCurrentPlayingItem.setVisible(true);
-        } else {
-            menuCurrentPlayingItem.setVisible(false);
-        }
-
         try {
             /* if (mCreateService.isUploading()) { XXX */
             if (false) {

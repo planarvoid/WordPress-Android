@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -14,6 +16,7 @@ import android.media.AudioTrack;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -30,6 +33,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
@@ -76,7 +80,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private int mArtworkInSampleSize;
 
-
+    private ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
 
     private TextView mChrono;
@@ -87,6 +91,16 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private String mFourSquareVenueId;
     private double mLong, mLat;
+
+    private ServiceConnection createOsc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            mCreateService = (ICloudCreateService) binder;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+        }
+    };
+
 
     public void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
@@ -348,9 +362,12 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     public void onStart() {
         super.onStart();
 
+
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
+
         Log.d(TAG, "onStart()");
         try {
-            if (getCreateService() != null && getCreateService().isUploading()) {
+            if (mCreateService!= null && mCreateService.isUploading()) {
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
                 mCurrentState = CreateState.IDLE_RECORD;
@@ -375,16 +392,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             mCurrentState =  finished ? CreateState.IDLE_RECORD : CreateState.IDLE_PLAYBACK;
             updateUi(false);
         }
-    }
-
-    public PCMPlaybackTask getPlaybackTask() {
-        return mPlaybackTask;
-    }
-
-    public void setPlaybackTask(PCMPlaybackTask playbackTask) {
-        mPlaybackTask = playbackTask;
-        if (mPlaybackTask != null)
-            mPlaybackTask.setPlaybackListener(this);
     }
 
 
@@ -623,7 +630,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
             setRequestedOrientation(getResources().getConfiguration().orientation);
             try {
-                getCreateService().startRecording(mRecordFile.getAbsolutePath());
+                mCreateService.startRecording(mRecordFile.getAbsolutePath());
                 mRecordingStarted.setToNow();
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -692,7 +699,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         try {
-            getCreateService().stopRecording();
+            mCreateService.stopRecording();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -728,11 +735,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     }
 
     void startUpload() {
-        if (getCreateService() == null) return;
+        if (mCreateService == null) return;
 
         boolean uploading;
         try {
-            uploading = getCreateService().isUploading();
+            uploading = mCreateService.isUploading();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
             uploading = true;
@@ -786,7 +793,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             }
 
             try {
-                getCreateService().uploadTrack(data);
+                mCreateService.uploadTrack(data);
             } catch (RemoteException ignored) {
                 Log.e(TAG, "error", ignored);
             } finally {
@@ -984,4 +991,15 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         }
     }
+
+
+    protected void cancelCurrentUpload() {
+        try {
+            mCreateService.cancelUpload();
+        } catch (RemoteException e) {
+            setException(e);
+            handleException();
+        }
+    }
+
 }

@@ -1332,8 +1332,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
                 refreshComments(true);
                 
-            } else
+            } else {
                 handleException();
+            }
             Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
         }
     };
