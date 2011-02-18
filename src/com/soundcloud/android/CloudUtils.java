@@ -560,13 +560,23 @@ public class CloudUtils {
 
     private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
 
-    public static boolean bindToService(Context context, ServiceConnection callback) {
+    public static boolean bindToService(Activity context, ServiceConnection callback) {
+        //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
+        if (context.getParent() != null)
+            context = context.getParent();
+
+
         context.startService(new Intent(context, CloudPlaybackService.class));
         ServiceBinder sb = new ServiceBinder(callback);
         sConnectionMap.put(context, sb);
-        Log.i(TAG, "Bindingi service " + sConnectionMap.size());
-        return context.bindService((new Intent()).setClass(context, CloudPlaybackService.class),
-                sb, 0);
+        Log.i(TAG, "Binding service " + sConnectionMap.size());
+
+
+
+        return context.bindService(
+                (new Intent()).setClass(context, CloudPlaybackService.class),
+                sb,
+                0);
     }
 
     public static void unbindFromService(Context context) {

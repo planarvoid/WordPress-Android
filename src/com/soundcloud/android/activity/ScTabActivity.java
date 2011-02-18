@@ -5,11 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -31,8 +34,24 @@ public class ScTabActivity extends TabActivity {
         super.onCreate(state);
         setContentView(R.layout.cloudtabs);
 
-        TabHost host = getTabHost();
+        final TabHost host = getTabHost();
         TabHost.TabSpec spec;
+
+        spec = host.newTabSpec("incoming").setIndicator(
+                getString(R.string.tab_incoming),
+                getResources().getDrawable(R.drawable.ic_tab_incoming));
+
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("exclusive").setIndicator(
+                getString(R.string.tab_exclusive),
+                getResources().getDrawable(R.drawable.ic_tab_incoming));
+
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
+        host.addTab(spec);
+
+
         spec = host.newTabSpec("profile").setIndicator(
                 getString(R.string.tab_you),
                 getResources().getDrawable(R.drawable.ic_tab_you));
@@ -58,7 +77,25 @@ public class ScTabActivity extends TabActivity {
         host.addTab(spec);
 
 
+
+
         host.setCurrentTab(0);
+
+        CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
+
+        host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                PreferenceManager.getDefaultSharedPreferences(ScTabActivity.this).edit()
+                        .putInt("lastDashboardIndex", host.getCurrentTab())
+                        .commit();
+            }
+        });
+
+
+//        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this)
+//                .getInt("lastDashboardIndex", 0));
+
     }
 
 
@@ -124,4 +161,29 @@ public class ScTabActivity extends TabActivity {
 
     }
 
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+
+//        if (setTabIndex == -1) {
+//            String setTabIndexString = state.getString("currentTabIndex");
+//            if (!TextUtils.isEmpty(setTabIndexString)) {
+//                setTabIndex = Integer.parseInt(setTabIndexString);
+//            } else
+//                setTabIndex = 0;
+//        }
+//        if (tabHost != null)
+//            tabHost.setCurrentTab(setTabIndex);
+
+        super.onRestoreInstanceState(state);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+//        if (tabHost != null) {
+//                 state.putString("currentTabIndex", Integer.toString(tabHost.getCurrentTab()));
+//             }
+
+    }
 }

@@ -13,13 +13,10 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import static android.view.ViewGroup.LayoutParams.*;
 
 public class ScTabView extends FrameLayout {
-    private Activity mActivity;
-
     private ListAdapter mAdapter;
 
     public ScTabView(Activity l) {
         super(l);
-        mActivity = l;
         setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
     }
 

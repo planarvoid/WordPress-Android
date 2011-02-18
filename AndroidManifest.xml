@@ -15,17 +15,8 @@
 
 
 
-        <activity android:name="com.soundcloud.android.activity.Dashboard"
-                  android:label="@string/app_name"
-                  android:windowSoftInputMode="adjustPan">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
         <activity android:name="com.soundcloud.android.activity.ScTabActivity"
-                  android:label="SoundCloud 2"
+                  android:label="@string/app_name"
                   android:windowSoftInputMode="adjustPan">
 
             <intent-filter>
@@ -60,14 +51,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.soundcloud.android.activity.ScSearch" android:label="Search" />
-        <activity android:name="com.soundcloud.android.activity.ScCreate" android:label="Upload" />
-
-        <activity android:name="com.soundcloud.android.activity.Settings" android:label="Settings" />
-        <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player"/>
-
-        <activity android:name="com.soundcloud.android.activity.UserBrowser" android:label="Profile"/>
-
+        <activity android:name="com.soundcloud.android.activity.Dashboard"/>
+        <activity android:name="com.soundcloud.android.activity.ScSearch"/>
+        <activity android:name="com.soundcloud.android.activity.ScCreate"/>
+        <activity android:name="com.soundcloud.android.activity.Settings"/>
+        <activity android:name="com.soundcloud.android.activity.ScPlayer"/>
+        <activity android:name="com.soundcloud.android.activity.UserBrowser"/>
         <activity android:name="com.soundcloud.android.activity.EmailPicker"/>
         <activity android:name="com.soundcloud.android.activity.LocationPicker"/>
 
@@ -85,6 +74,7 @@
                 <action android:name="com.soundcloud.android.service.ICloudCreateService" />
             </intent-filter>
         </service>
+
         <activity android:name="org.acra.CrashReportDialog"
             android:theme="@android:style/Theme.Dialog"
             android:launchMode="singleInstance"

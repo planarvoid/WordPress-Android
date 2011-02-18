@@ -1,27 +1,21 @@
-
 package com.soundcloud.android.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TabHost;
-import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TabWidget;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.DBAdapter;
@@ -45,35 +39,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Dashboard extends ScActivity implements AdapterView.OnItemClickListener {
-    protected ScTabView mLastTab;
-
-    protected LinearLayout mHolder;
-
-    protected Parcelable mDetailsData;
-
     protected long mCurrentTrackId = -1;
-
     protected SoundCloudAPI.State mLastCloudState;
-
-
     protected LinearLayout mMainHolder;
 
-    protected int mSearchListIndex;
-
-    protected TabHost tabHost;
-
-    protected TabWidget tabWidget;
-
-    protected FrameLayout tabContent;
-
-    protected ArrayList<LazyList> mLists;
+    protected LazyList mList;
 
 
-    protected Integer setTabIndex = -1;
     private boolean mIgnorePlaybackStatus;
 
 
@@ -83,23 +58,49 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
         //initialize the db here in case it needs to be created, it won't result in locks
         new DBAdapter(this.getSoundCloudApplication());
-        
+
         super.onCreate(savedInstanceState);
-
-        mLists = new ArrayList<LazyList>();
-
-        // XXX do in manifest
-
-        handleIntent();
 
         setContentView(R.layout.main_holder);
 
         Log.d(TAG, "onCreate " + this.getIntent());
 
-        build();
 
-        mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
-        mHolder.setVisibility(View.GONE);
+
+        if (getIntent().hasExtra("tab")) {
+
+            String tab = getIntent().getStringExtra("tab");
+
+            if ("incoming".equalsIgnoreCase(tab)) {
+
+                setContentView(
+                        createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
+                                CloudUtils.Model.event,
+                                R.string.empty_incoming_text,
+                                CloudUtils.ListId.LIST_INCOMING)
+                );
+
+
+            } else if ("exclusive".equalsIgnoreCase(tab)) {
+
+                setContentView(
+                        createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
+                                CloudUtils.Model.event,
+                                -1,
+                                CloudUtils.ListId.LIST_EXCLUSIVE)
+                );
+            } else {
+                throw new IllegalArgumentException("no valid tab extra");
+            }
+
+        } else {
+            throw new IllegalArgumentException("no tab extra");
+        }
+
+        IntentFilter playbackFilter = new IntentFilter();
+        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
+        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+        this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
     }
 
     @Override
@@ -110,102 +111,18 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
 
-    private void build() {
-        mHolder = (LinearLayout) findViewById(R.id.main_holder);
-        mHolder.setVisibility(View.GONE);
+    protected View createList(String endpoint, CloudUtils.Model model, int emptyText, int listId) {
+        LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
+        LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
 
-        FrameLayout tabLayout = CloudUtils.createTabLayout(this);
-        tabLayout.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        mHolder.addView(tabLayout);
-
-        tabHost = (TabHost) tabLayout.findViewById(android.R.id.tabhost);
-        tabWidget = (TabWidget) tabLayout.findViewById(android.R.id.tabs);
-
-        // setup must be called if you are not initialising the tabhost from XML
-        createIncomingTab();
-        createExclusiveTab();
-
-
-        CloudUtils.setTabTextStyle(this, tabWidget);
-
-        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this)
-                .getInt("lastDashboardIndex", 0));
-
-        tabHost.setOnTabChangedListener(tabListener);
-    }
-
-    private OnTabChangeListener tabListener = new OnTabChangeListener() {
-        @Override
-        public void onTabChanged(String s) {
-            ((ScTabView) tabHost.getCurrentView()).onStart();
-            mLastTab = (ScTabView) tabHost.getCurrentView();
-
-            PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
-                    .putInt("lastDashboardIndex", tabHost.getCurrentTab())
-                    .commit();
+        if (emptyText != -1) {
+            adpWrap.setEmptyViewText(getResources().getString(emptyText));
         }
-    };
 
-    protected void createIncomingTab() {
-        LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                CloudAPI.Enddpoints.MY_ACTIVITIES, CloudUtils.Model.event, "collection");
-        adpWrap.setEmptyViewText(getResources().getString(R.string.empty_incoming_text));
-
-        final ScTabView incomingView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, incomingView, adpWrap, CloudUtils.ListId.LIST_INCOMING);
-        CloudUtils.createTab(tabHost, "incoming", getString(R.string.tab_incoming),
-                getResources().getDrawable(R.drawable.ic_tab_incoming), incomingView);
+        final ScTabView view = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, view, adpWrap, listId);
+        return view;
     }
-
-    protected void createExclusiveTab() {
-        LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp,
-                CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
-                CloudUtils.Model.event,
-                "collection");
-
-        final ScTabView exclusiveView = new ScTabView(this, adpWrap);
-
-        CloudUtils.createTabList(this, exclusiveView, adpWrap, CloudUtils.ListId.LIST_EXCLUSIVE);
-        CloudUtils.createTab(tabHost,
-                "exclusive",
-                getString(R.string.tab_exclusive),
-                getResources().getDrawable(R.drawable.ic_tab_incoming),
-                exclusiveView);
-
-    }
-
-
-
-
-//    protected Object[] saveLoadTasks() {
-//        return mUserBrowser != null ? mUserBrowser.saveLoadTasks() : null;
-//    }
-//
-//    protected void restoreLoadTasks(Object[] taskObject) {
-//        if (mUserBrowser != null) mUserBrowser.restoreLoadTasks(taskObject);
-//
-//    }
-//
-//    protected Parcelable saveParcelable() {
-//        return mUserBrowser != null ? mUserBrowser.saveParcelable() : null;
-//
-//    }
-//
-//
-//    protected void restoreParcelable(Parcelable p) {
-//        if (mUserBrowser != null)
-//            mUserBrowser.restoreParcelable(p);
-//
-//        mDetailsData = p;
-//    }
-
-
-
-
-
-
 
     @Override
     protected void onDestroy() {
@@ -213,9 +130,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
         this.unregisterReceiver(mPlaybackStatusListener);
 
-        for (ListView mList : mLists) {
-            CloudUtils.cleanupList(mList);
-        }
+
+        CloudUtils.cleanupList(mList);
     }
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
@@ -242,55 +158,17 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
          * to use the user adapter, otherwise use the track adapter
          */
 
-        if (mSearchListIndex == listIndex && mAdapterData.size() > 0) {
-            //mScSearch.setAdapterType(mAdapterData.get(0) instanceof User);
+        //if (mSearchListIndex == listIndex && mAdapterData.size() > 0) {
 
-            mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
-            mLists.get(mSearchListIndex).setFocusable(true);
-        }
+        mList.setVisibility(View.VISIBLE);
+        mList.setFocusable(true);
+        //}
     }
 
-
-    protected void configureListToTask(AppendTask task, int listIndex) {
-        if (mSearchListIndex == listIndex && task != null) {
-            //mScSearch.setAdapterType(task.loadModel == CloudUtils.Model.user);
-
-            mLists.get(mSearchListIndex).setVisibility(View.VISIBLE);
-            mLists.get(mSearchListIndex).setFocusable(true);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-
-        if (tabHost != null) {
-                 state.putString("currentTabIndex", Integer.toString(tabHost.getCurrentTab()));
-             }
-
-
-        super.onSaveInstanceState(state);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-
-
-        if (setTabIndex == -1) {
-            String setTabIndexString = state.getString("currentTabIndex");
-            if (!TextUtils.isEmpty(setTabIndexString)) {
-                setTabIndex = Integer.parseInt(setTabIndexString);
-            } else
-                setTabIndex = 0;
-        }
-        if (tabHost != null)
-            tabHost.setCurrentTab(setTabIndex);
-
-    }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[] {
+        return new Object[]{
                 super.onRetainNonConfigurationInstance(),
                 saveListTasks(),
                 saveListConfigs(),
@@ -313,48 +191,21 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         }
     }
 
-      @Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        handleIntent();
-        super.onNewIntent(intent);
-    }
-
-
-    private void handleIntent() {
-        if (getIntent() != null && getIntent().getExtras() != null
-                && getIntent().getIntExtra("tabIndex", -1) != -1) {
-            if (this.tabHost != null) {
-                tabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
-            } else {
-                setTabIndex = getIntent().getIntExtra("tabIndex", -1);
-            }
-            getIntent().getExtras().clear();
-        }
-    }
-
     private void setPlayingTrack(long l) {
 
-        if (mLists == null || mLists.size() == 0)
+        if (mList == null)
             return;
 
         mCurrentTrackId = l;
 
-        for (LazyList mList1 : mLists) {
-            if (mList1.getAdapter() != null) {
-                if (mList1.getAdapter() instanceof TracklistAdapter)
-                    ((TracklistAdapter) mList1.getAdapter()).setPlayingId(mCurrentTrackId);
-                else if (mList1.getAdapter() instanceof EventsAdapter)
-                    ((EventsAdapter) mList1.getAdapter()).setPlayingId(mCurrentTrackId);
-            }
+
+        if (mList.getAdapter() != null) {
+            if (mList.getAdapter() instanceof TracklistAdapter)
+                ((TracklistAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
+            else if (mList.getAdapter() instanceof EventsAdapter)
+                ((EventsAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
         }
     }
-
-
-
-
-
-
 
 
     @SuppressWarnings("unchecked")
@@ -372,8 +223,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             configureListToData(mAdapterData, i);
 
             if (mAdapterData != null) {
-                ((LazyBaseAdapter) mLists.get(i).getAdapter()).getData().addAll(mAdapterData);
-                ((LazyBaseAdapter) mLists.get(i).getAdapter()).notifyDataSetChanged();
+                ((LazyBaseAdapter) mList.getAdapter()).getData().addAll(mAdapterData);
+                ((LazyBaseAdapter) mList.getAdapter()).notifyDataSetChanged();
             }
             i++;
         }
@@ -381,11 +232,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
 
     public LazyList buildList(boolean isSearchList) {
-        if (isSearchList) {
-            mSearchListIndex = mLists.size();
-        }
-        mLists.add(CloudUtils.createList(this));
-        return mLists.get(mLists.size() - 1);
+        mList = CloudUtils.createList(this);
+        return mList;
     }
 
     @Override
@@ -408,7 +256,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             } catch (Exception e) {
                 Log.e(TAG, "error", e);
             }
-       ((ScTabView) tabHost.getCurrentView()).onStart();
     }
 
     @Override
@@ -420,30 +267,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     @Override
     protected void onAuthenticated() {
         super.onAuthenticated();
-        if (tabContent == null) {
-            tabContent = (FrameLayout) findViewById(android.R.id.tabcontent);
-        }
-
-        for (int i=0; i<tabContent.getChildCount(); i++) {
-            ((ScTabView)tabContent.getChildAt(i)).onAuthenticated();
-        }
-
-        if (mHolder != null)
-            mHolder.setVisibility(View.VISIBLE);
         mLastCloudState = getSoundCloudApplication().getState();
 
-    }
-
-    @Override
-    protected void onReauthenticate() {
-        super.onReauthenticate();
-        if (tabContent == null) {
-            tabContent = (FrameLayout) findViewById(android.R.id.tabcontent);
-        }
-
-        for (int i=0; i<tabContent.getChildCount(); i++) {
-            ((ScTabView)tabContent.getChildAt(i)).onReauthenticate();
-        }
     }
 
     @Override
@@ -467,6 +292,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
             }
         });
     }
+
     public void playTrack(final List<Parcelable> list, final int playPos) {
 
 
@@ -515,113 +341,60 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
 
-
     // ******************************************************************** //
     // State Controls
     // ******************************************************************** //
 
 
-
-
     protected Object saveListTasks() {
-        if (mLists == null || mLists.size() == 0)
+        if (mList == null)
             return null;
-
-        AppendTask[] appendTasks = new AppendTask[mLists.size()];
-        for (int i = 0; i < mLists.size(); i++) {
-            if (mLists.get(i).getWrapper() != null)
-                appendTasks[i] = (mLists.get(i).getWrapper()).getTask();
-        }
-        return appendTasks;
+        return mList.getWrapper().getTask();
     }
 
     protected Object saveListConfigs() {
-        if (mLists == null || mLists.size() == 0)
+        if (mList == null)
             return null;
 
-        int[][] configArrays = new int[mLists.size()][2];
-        for (int i = 0; i < mLists.size(); i++) {
-            if (mLists.get(i).getWrapper() != null)
-                configArrays[i] = (mLists.get(i).getWrapper()).savePagingData();
-        }
-        return configArrays;
+        return mList.getWrapper().savePagingData();
     }
 
     protected Object saveListExtras() {
-        if (mLists == null || mLists.size() == 0)
+        if (mList == null)
             return null;
-
-        String[] extraArray = new String[mLists.size()];
-        for (int i = 0; i < mLists.size(); i++) {
-            if (mLists.get(i).getWrapper() != null)
-                extraArray[i] = (mLists.get(i).getWrapper()).saveExtraData();
-        }
-        return extraArray;
+        return mList.getWrapper().saveExtraData();
     }
 
     protected Object saveListAdapters() {
-        if (mLists == null || mLists.size() == 0)
+        if (mList == null)
             return null;
-
-        // store the data for current lists
-        ArrayList<ArrayList<Parcelable>> mAdapterDatas = new ArrayList<ArrayList<Parcelable>>();
-        for (LazyList list : mLists) {
-            if (list.getAdapter() != null)
-                mAdapterDatas.add((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter())
-                        .getData());
-            else
-                mAdapterDatas.add(null);
-        }
-
-        return mAdapterDatas;
+        return mList.getWrapper().getData();
     }
 
 
     protected void restoreListTasks(Object taskObject) {
-        AppendTask[] appendTasks = (AppendTask[]) taskObject;
+        AppendTask appendTask = (AppendTask) taskObject;
 
-        if (appendTasks == null)
+        if (appendTask == null)
             return;
 
-        int i = 0;
-        for (AppendTask task : appendTasks) {
-
-            configureListToTask(task, i);
-
-            if (mLists.get(i).getWrapper() != null)
-                (mLists.get(i).getWrapper()).restoreTask(task);
-            i++;
-        }
+        mList.getWrapper().restoreTask(appendTask);
     }
 
 
-
     protected void restoreListConfigs(Object configObject) {
-        int[][] configArrays = (int[][]) configObject;
+        int[] config = (int[]) configObject;
 
-        if (configArrays == null)
-            return;
-
-        int i = 0;
-        for (int[] config : configArrays) {
-            if (mLists.get(i).getWrapper() != null)
-                (mLists.get(i).getWrapper()).restorePagingData(config);
-            i++;
+        if (config != null) {
+            mList.getWrapper().restorePagingData(config);
         }
     }
 
     protected void restoreListExtras(Object extraObject) {
-        String[] extraArrays = (String[]) extraObject;
-
-        if (extraArrays == null)
+        if (extraObject == null)
             return;
 
-        int i = 0;
-        for (String extra : extraArrays) {
-            if (mLists.get(i).getWrapper() != null)
-                (mLists.get(i).getWrapper()).restoreExtraData(extra);
-            i++;
-        }
+        mList.getWrapper().restoreExtraData(extraObject.toString());
     }
 
 

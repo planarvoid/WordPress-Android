@@ -37,32 +37,6 @@ public class ScCreateTests
         service = mock(ICloudCreateService.class);
         addPendingHttpResponse(401, "Error");  // load connections
 
-        final ScActivity activity = new ScActivity() {
-            @Override
-            public SoundCloudApplication getSoundCloudApplication() {
-                return new SoundCloudApplication() {
-                    {
-                        onCreate();
-                    }
-
-                    @Override
-                    public String getConsumerKey(boolean b) {
-                        return "xxx";
-                    }
-
-                    @Override
-                    public String getConsumerSecret(boolean b) {
-                        return "xxx";
-                    }
-                };
-            }
-
-            @Override
-            public ICloudCreateService getCreateService() {
-                return service;
-            }
-        };
-
         create = new ScCreate();
     }
 
