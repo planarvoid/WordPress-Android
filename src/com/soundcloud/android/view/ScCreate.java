@@ -66,6 +66,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
+    
+    private static final String TAG = "ScCreate";
+    
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions, txtRecordStatus;
@@ -133,8 +136,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private String mDurationFormatShort;
     private String mCurrentDurationString;
     
-    private String mPendingArtworkPath;
-
     public static int REC_SAMPLE_RATE = 44100;
     public static int REC_CHANNELS = 2;
     public static int REC_BITS_PER_SAMPLE = 16;
@@ -279,7 +280,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                                 File(UPLOAD_TEMP_PICTURE_PATH)));
                                 mActivity.startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                             }
-                        }).setNegativeButton("From the gallery", new DialogInterface.OnClickListener() {
+                        }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                                 intent.setType("image/*");
@@ -374,16 +375,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     @Override
     public void onStart() {
-        Log.d(TAG, "onStart()");
         try {
-            
-            Log.i(TAG,"On Start " + mRecordFile); 
-            
             if (mActivity.getCreateService() != null && mActivity.getCreateService().isUploading()) {
-                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
-                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.IDLE_RECORD;
             } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
                 mCurrentState = CreateState.IDLE_PLAYBACK;
@@ -424,13 +419,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
-            if (mArtwork.getWidth() == 0){
-                mPendingArtworkPath = imageUri;
-                return;
-            }
             
-            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
-                    .getHeight());
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), 
+                    (int) getContext().getResources().getDisplayMetrics().density * 100, 
+                    (int) getContext().getResources().getDisplayMetrics().density * 100);
+            
             mArtworkUri = imageUri;
 
             if (mArtworkBitmap != null)
@@ -457,9 +450,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     
     public void setTakenImage() {
         try {
-            Log.i(TAG,"artwork bg " + mArtworkBg.getWidth());
             ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
-            Log.i(TAG,"orientation " + exif.getAttribute(ExifInterface.TAG_ORIENTATION));
             String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
             
             Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH), (int) getContext().getResources().getDisplayMetrics().density * 100,(int)
@@ -483,23 +474,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
             mArtwork.setImageBitmap(mArtworkBitmap);
             mArtwork.setVisibility(View.VISIBLE);
-            mPendingArtworkPath = "";
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
     }
     
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l,t,r,b);
-        
-        if (changed){
-           if (!TextUtils.isEmpty(mPendingArtworkPath))
-               setPickedImage(mPendingArtworkPath);
-        }
-        
-    }
-
     public void clearArtwork() {
         mArtworkUri = null;
         mArtwork.setVisibility(View.GONE);
@@ -611,7 +590,6 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
             case IDLE_UPLOAD:
                 goToView(1);
-                Log.i(TAG,"Idle Upload " + mRdoPrivacy.getCheckedRadioButtonId());
                 if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
                     mShareOptions.setText(mActivity.getResources().getString(R.string.cloud_uploader_share_options_private));
                 } else {

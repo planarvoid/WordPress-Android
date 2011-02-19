@@ -42,6 +42,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Dashboard extends LazyTabActivity {
+    
+    private static final String TAG = "Dashboard";
+    
     protected ScTabView mLastTab;
 
     private UserBrowser mUserBrowser;
@@ -82,9 +85,7 @@ public class Dashboard extends LazyTabActivity {
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String lastUserId = preferences.getString("currentUserId", null);
-            Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
             if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
-                Log.i(TAG, "--------- new user");
                 preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
                         .putString("currentUsername", ((User) p).username).commit();
             }
@@ -288,7 +289,6 @@ public class Dashboard extends LazyTabActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         super.onActivityResult(requestCode, resultCode, result);
-        Log.i(TAG, "onActivityResult("+requestCode+", "+resultCode+", "+result+")");
 
         switch (requestCode) {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
@@ -305,7 +305,7 @@ public class Dashboard extends LazyTabActivity {
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
-
+                    
                     if (mScCreate != null) {
                         mScCreate.setPickedImage(filePath);
                     }
@@ -314,7 +314,6 @@ public class Dashboard extends LazyTabActivity {
                 break;
                 
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
-                Log.i(TAG,"Result Code " + resultCode);
                 if (mScCreate != null) {
                     mScCreate.setTakenImage();
                 }

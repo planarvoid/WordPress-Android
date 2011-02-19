@@ -172,7 +172,6 @@ public class UserBrowser extends ScTabView {
                 this.refreshDetailsTask();
             }
             if (mWorkspaceView != null){
-                Log.i(TAG,"ON Refresh " +  mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()));
                 ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()))
                         .onRefresh(all);
             } else
@@ -312,14 +311,10 @@ public class UserBrowser extends ScTabView {
         final HorizontalScrollView hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
         hsv.setBackgroundColor(0xFF555555);
 
-        
-        
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-        Log.i(TAG,"WORKSPACE VIEW " + mWorkspaceView);
         mWorkspaceView.setOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollToView(int index) {
-                Log.i(TAG,"On Scroll to veiw " + index);
                 mTabHost.setCurrentTab(index);
                 // if (!mIsOtherUser)
                 // PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt("lastProfileIndex",mLastTabIndex).commit();
