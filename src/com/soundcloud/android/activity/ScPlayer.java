@@ -7,7 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -41,7 +41,6 @@ import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,7 +64,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -387,7 +385,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
-        Log.i(TAG, "Text view for container " + tv);
         if (tv == null) {
             return false;
         }
@@ -456,7 +453,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                 return true;
             }
         }
-        Log.i(TAG, "Returning false");
         return false;
     }
 
@@ -567,7 +563,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         LoadDetailsTask lt = new LoadTrackDetailsTask();
         lt.loadModel = CloudUtils.Model.track;
         lt.setActivity(this);
-        Log.i(TAG, "New Load Track Details Task");
         return lt;
     }
 
@@ -870,7 +865,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                Log.i(TAG,"MMMMETA CHANGED");
                 mCurrentTrackError = false;
                 
                 updateTrackInfo();
@@ -968,8 +962,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             mCurrentTrackId = mPlayingTrack.id;
 
-            Log.i(TAG,"~~~~~~~ looking for comments in cache " + mCurrentTrackId);
-            
             mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
             if (mCurrentComments != null){
               refreshComments(true);
@@ -1271,12 +1263,9 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
     private void toggleFavorite() {
         
-        Log.i(TAG,"Toggle Favorite ");
-
         if (mPlayingTrack == null)
             return;
 
-        Log.i(TAG,"Toggle Favorite 2 " + mPlayingTrack.user_favorite);
         mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
@@ -1303,7 +1292,6 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
             if (newItems != null) {
                 mCurrentComments = newItems;
-                Log.i(TAG,"+++++++++++++Storing Comments in cache from load task " + track_id);
                 getSoundCloudApplication().cacheComments(track_id, mCurrentComments);
                 refreshComments(true);
             }
@@ -1354,7 +1342,8 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
         mAddComment.track_id = track_id;
         mAddComment.created_at = new Date(System.currentTimeMillis());
         mAddComment.user_id = CloudUtils.getCurrentUserId(this);
-        mAddComment.user = CloudUtils.resolveUserById(this.getSoundCloudApplication(), mAddComment.user_id, mAddComment.user_id);
+        
+        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id, mAddComment.user_id);
         mAddComment.timestamp = timestamp;
         mAddComment.body = commentBody;
         
@@ -1392,13 +1381,11 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
                     mCurrentComments = new ArrayList<Comment>();
                 
                 mCurrentComments.add(mAddComment);
-                Log.i(TAG,"+++++++++++++Storing Comments in cache");
                 getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
                 refreshComments(true);
                 
             } else
                 handleException();
-            Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
         }
     };
     

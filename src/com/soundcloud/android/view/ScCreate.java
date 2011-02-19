@@ -132,11 +132,14 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
+    
+    private String mPendingArtworkPath;
 
     public static int REC_SAMPLE_RATE = 44100;
     public static int REC_CHANNELS = 2;
     public static int REC_BITS_PER_SAMPLE = 16;
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
     
     WakeLock mWakeLock;
@@ -150,12 +153,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         super(activity);
         mActivity = activity;
 
-        if (EMULATOR) {
-            // go straight to upload if running in emulator, since we can't record anyway
-            mCurrentState = CreateState.IDLE_UPLOAD;
-        } else {
-            mCurrentState = CreateState.IDLE_RECORD;
-        }
+        // go straight to upload if running in emulator, since we can't record anyway
+        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : CreateState.IDLE_RECORD;
 
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -377,17 +376,17 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     public void onStart() {
         Log.d(TAG, "onStart()");
         try {
+            
+            Log.i(TAG,"On Start " + mRecordFile); 
+            
             if (mActivity.getCreateService() != null && mActivity.getCreateService().isUploading()) {
+                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
+                Log.i(TAG,"On Start uploading");
                 mCurrentState = CreateState.IDLE_RECORD;
-            } else if (mCurrentState == null) {
-
-                if (!mRecordFile.exists()) {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                } else {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                }
+            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
+                mCurrentState = CreateState.IDLE_PLAYBACK;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -425,8 +424,13 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
-            Options opt = CloudUtils.determineResizeOptions(new File(imageUri),  (int) getContext().getResources().getDisplayMetrics().density * 100,(int)
-                    getContext().getResources().getDisplayMetrics().density * 100);
+            if (mArtwork.getWidth() == 0){
+                mPendingArtworkPath = imageUri;
+                return;
+            }
+            
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
+                    .getHeight());
             mArtworkUri = imageUri;
 
             if (mArtworkBitmap != null)
@@ -472,20 +476,28 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
+            
+            BitmapFactory.Options resample = new BitmapFactory.Options();
+            resample.inSampleSize = opt.inSampleSize;
 
-            try {
-                Options sampleOpt = new BitmapFactory.Options();
-                sampleOpt.inSampleSize = opt.inSampleSize;
-                
-                mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
-                mArtwork.setImageBitmap(mArtworkBitmap);
-                mArtwork.setVisibility(View.VISIBLE);
-            }  catch (Exception e){
-                //temp
-            }
+            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
+            mArtwork.setImageBitmap(mArtworkBitmap);
+            mArtwork.setVisibility(View.VISIBLE);
+            mPendingArtworkPath = "";
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
+    }
+    
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l,t,r,b);
+        
+        if (changed){
+           if (!TextUtils.isEmpty(mPendingArtworkPath))
+               setPickedImage(mPendingArtworkPath);
+        }
+        
     }
 
     public void clearArtwork() {

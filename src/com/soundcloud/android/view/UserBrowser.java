@@ -7,6 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.ScProfile;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -189,7 +190,7 @@ public class UserBrowser extends ScTabView {
               preferences.getString("currentUserId", "-1").contentEquals(""))){
 
             try {
-                userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), Integer
+                userInfo = SoundCloudDB.getInstance().resolveUserById(mActivity.getContentResolver(), Integer
                         .parseInt(preferences.getString("currentUserId", "-1")), CloudUtils
                         .getCurrentUserId(mActivity));
 
@@ -213,8 +214,8 @@ public class UserBrowser extends ScTabView {
     public void loadUserById(long userId) {
         mIsOtherUser = true;
         User userInfo;
-        userInfo = CloudUtils.resolveUserById(mActivity.getSoundCloudApplication(), userId,
-                CloudUtils.getCurrentUserId(mActivity));
+        userInfo = SoundCloudDB.getInstance().resolveUserById(mActivity.getContentResolver(), userId, CloudUtils
+                .getCurrentUserId(mActivity));
         mUserLoadId = userId;
 
         if (userInfo != null)

@@ -1,11 +1,15 @@
 
 package com.soundcloud.android.objects;
 
+import com.soundcloud.android.provider.ScContentProvider;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.BaseColumns;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -136,6 +140,52 @@ public class Track extends BaseObj implements Parcelable {
     public Long filelength;
 
     public String mSignedUri;
+    
+    public static final class Tracks implements BaseColumns {
+        
+        private Tracks() {
+        }
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScContentProvider.AUTHORITY + "/Tracks");
+
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
+
+        public static final String ID = "_id";
+
+        public static final String PERMALINK = "permalink";
+
+        public static final String DURATION = "duration";
+        
+        public static final String TAG_LIST = "tag_list";
+        
+        public static final String TRACK_TYPE = "track_type";
+        
+        public static final String TITLE = "title";
+        
+        public static final String PERMALINK_URL = "permalink_url";
+        
+        public static final String ARTWORK_URL = "artwork_url";
+        
+        public static final String WAVEFORM_URL = "waveform_url";
+        
+        public static final String DOWNLOADABLE = "downloadable";
+        
+        public static final String DOWNLOAD_URL = "download_url";
+        
+        public static final String STREAM_URL = "stream_url";
+        
+        public static final String STREAMABLE = "streamable";
+        
+        public static final String USER_ID = "user_id";
+        
+        public static final String USER_FAVORITE = "user_favorite";
+        
+        public static final String USER_PLAYED = "user_played";
+        
+        public static final String FILELENGTH = "filelength";
+        
+    }
 
     public Track() {
     }
@@ -150,6 +200,8 @@ public class Track extends BaseObj implements Parcelable {
 
             String[] keys = cursor.getColumnNames();
             for (String key : keys) {
+                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
+                else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {

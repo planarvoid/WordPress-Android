@@ -382,7 +382,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         if (mPlayer != null) mPlayer.sendSeek();
                         break;
                     case COMMENT_DRAG :
-                        Log.i(TAG,"Finger up " + mBubbleAnimation);
                         if (mBubbleAnimation == null){
                             if (Math.abs(mPlayerCommentBar.getTop() - (int) event.getY()) < 200)
                                 mPlayer.addNewComment(mPlayingTrack,stampFromPosition(mTouchX));
@@ -415,8 +414,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         float offsetX = mCommentBubble.setPosition(xPos,yPos,getWidth());
         mCommentBubble.closing = false;
         
-        Log.i(TAG,"SHOW BUBBLE");
-        
         if (mCommentBubble.getParent() != mPlayer.getCommentHolder() || forceAnimation){
             if (mCommentBubble.getParent() != mPlayer.getCommentHolder())
                     mPlayer.getCommentHolder().addView(mCommentBubble);
@@ -432,7 +429,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 @Override
                 public void onAnimationEnd(Animation arg0) {
                     mBubbleAnimation = null;
-                    Log.i(TAG,"On Animation end " + mode + " " + mCurrentShowingComment);
                     if (mode == NONE && mCurrentShowingComment == null)
                         removeBubble();
                 }

@@ -1,12 +1,23 @@
 
 package com.soundcloud.android;
 
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.activity.LazyTabActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.ScTabView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -27,18 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import com.soundcloud.android.activity.LazyActivity;
-import com.soundcloud.android.activity.LazyTabActivity;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.view.LazyList;
-import com.soundcloud.android.view.ScTabView;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -583,130 +582,6 @@ public class CloudUtils {
             }
             sService = null;
         }
-    }
-
-    public static void resolveTrack(SoundCloudApplication context, Track track,
-            WriteState writeState, long currentUserId) {
-        resolveTrack(context, track, writeState, currentUserId, null);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static void resolveTrack(SoundCloudApplication context, Track track,
-            WriteState writeState, Long currentUserId, DBAdapter openAdapter) {
-            DBAdapter db;
-            if (openAdapter == null) {
-                db = new DBAdapter(context);
-                db.open();
-            } else
-                db = openAdapter;
-    
-            Cursor result = db.getTrackById(track.id, currentUserId);
-            if (result.getCount() != 0) {
-                // add local urls and update database
-                result.moveToFirst();
-    
-                track.user_played = result.getInt(result.getColumnIndex("user_played")) == 1;
-    
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    db.updateTrack(track);
-    
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                db.insertTrack(track);
-            }
-            result.close();
-    
-            if (openAdapter == null) db.close();
-
-
-        // write with insert only because a track will never come in with
-            resolveUser(context, track.user, WriteState.insert_only, currentUserId, openAdapter);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static Track resolveTrackById(SoundCloudApplication context, long l, long currentUserId) {
-        DBAdapter db = new DBAdapter(context);
-        db.open();
-
-        Cursor result = db.getTrackById(l, currentUserId);
-        if (result.getCount() != 0) {
-            Track track = new Track(result);
-            // track = resolvePlayUrl(track);
-            // track = resolveTrackFavorite(track);
-
-            result.close();
-            result = db.getUserById(track.user_id, currentUserId);
-
-            if (result.getCount() != 0) {
-                track.user = new User(result);
-                track.user_id = track.user.id;
-            }
-
-            result.close();
-            db.close();
-
-            return track;
-        }
-
-        result.close();
-        db.close();
-
-        return null;
-
-    }
-
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
-            Long userId) {
-        resolveUser(context, user, writeState, userId, null);
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static void resolveUser(SoundCloudApplication context, User user, WriteState writeState,
-            Long currentUserId, DBAdapter openAdapter) {
-        DBAdapter db;
-        if (openAdapter == null) {
-            db = new DBAdapter(context);
-            db.open();
-        } else
-            db = openAdapter;
-
-        Cursor result = db.getUserById(user.id, currentUserId);
-        if (result.getCount() != 0) {
-
-            user.update(result); // update the parcelable with values from the db
-
-            if (writeState == WriteState.update_only || writeState == WriteState.all)
-                db.updateUser(user, currentUserId.compareTo(user.id) == 0);
-
-        } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-            db.insertUser(user, currentUserId.compareTo(user.id) == 0);
-        }
-        result.close();
-
-        if (openAdapter == null) db.close();
-    }
-
-    // ---Make sure the database is up to date with this track info---
-    public static User resolveUserById(SoundCloudApplication context, long userId,
-            long currentUserId) {
-        DBAdapter db = new DBAdapter(context);
-        db.open();
-
-        Cursor result = db.getUserById(userId, currentUserId);
-
-        if (result.getCount() != 0) {
-
-            User user = new User(result);
-            result.close();
-            db.close();
-
-            return user;
-        }
-
-        result.close();
-        db.close();
-
-        return null;
-
     }
 
     public static String getLocationString(String city, String country) {

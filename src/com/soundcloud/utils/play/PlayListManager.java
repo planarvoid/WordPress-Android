@@ -1,19 +1,20 @@
 
 package com.soundcloud.utils.play;
 
-import java.util.List;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.CommitTracksTask;
 
+import android.content.ContentResolver;
 import android.content.SharedPreferences.Editor;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.task.CommitTracksTask;
+import java.util.List;
 
 public class PlayListManager {
 
@@ -60,8 +61,7 @@ public class PlayListManager {
             if (mPlayListCache != null) {
                 return mPlayListCache[pos];
             } else {
-                return CloudUtils.resolveTrackById((SoundCloudApplication) mPlaybackService
-                        .getApplication(), mPlayList[pos], CloudUtils
+                return SoundCloudDB.getInstance().resolveTrackById(mPlaybackService.getContentResolver(),  mPlayList[pos], CloudUtils
                         .getCurrentUserId(mPlaybackService));
             }
         } else
@@ -112,8 +112,8 @@ public class PlayListManager {
     public class CommitPlaylistTask extends CommitTracksTask {
         private long[] currentPlaylist;
 
-        public CommitPlaylistTask(SoundCloudApplication scApp, Long long1, long[] currentPlaylist) {
-            super(scApp, long1);
+        public CommitPlaylistTask(ContentResolver contentResolver, Long long1, long[] currentPlaylist) {
+            super(contentResolver, long1);
             this.currentPlaylist = currentPlaylist;
         }
 
@@ -127,11 +127,6 @@ public class PlayListManager {
             super.onPostExecute(result);
             synchronized (PlayListManager.this) {
                 mPlayListCache = null;
-
-                db.open();
-                Log.i(TAG, "Trimmed track count: " + db.trimTracks(currentPlaylist));
-                db.close();
-
             }
         }
     }

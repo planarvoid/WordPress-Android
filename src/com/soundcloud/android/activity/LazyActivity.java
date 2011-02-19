@@ -1,6 +1,18 @@
 
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadTask;
+
+import org.urbanstew.soundcloudapi.SoundCloudAPI;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,15 +31,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.LoadTask;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,14 +132,14 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
      */
     public void resolveParcelable(Parcelable p) {
         if (p instanceof Track) {
-            CloudUtils.resolveTrack(getSoundCloudApplication(), (Track) p, WriteState.none,
+            SoundCloudDB.getInstance().resolveTrack(this.getContentResolver(), (Track) p, WriteState.none,
                     CloudUtils.getCurrentUserId(this));
         } else if (p instanceof Event) {
             if (((Event) p).getTrack() != null)
-                CloudUtils.resolveTrack(getSoundCloudApplication(), ((Event) p).getTrack(),
-                        WriteState.none, CloudUtils.getCurrentUserId(this));
+                SoundCloudDB.getInstance().resolveTrack(this.getContentResolver(), ((Event) p).getTrack(), WriteState.none,
+                        CloudUtils.getCurrentUserId(this));
         } else if (p instanceof User) {
-            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.none,
+            SoundCloudDB.getInstance().resolveUser(this.getContentResolver(), (User) p, WriteState.none,
                     CloudUtils.getCurrentUserId(this));
         }
     }

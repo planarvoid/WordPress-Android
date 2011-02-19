@@ -1,16 +1,19 @@
 
 package com.soundcloud.android.activity;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
-import com.soundcloud.android.objects.BaseObj.WriteState;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.view.ScCreate;
@@ -38,9 +41,6 @@ import android.widget.TabWidget;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 public class Dashboard extends LazyTabActivity {
     protected ScTabView mLastTab;
 
@@ -52,12 +52,7 @@ public class Dashboard extends LazyTabActivity {
     public void onCreate(Bundle savedInstanceState) {
         CloudUtils.checkState(this);
 
-        //initialize the db here in case it needs to be created, it won't result in locks
-        new DBAdapter(this.getSoundCloudApplication());
-        
         super.onCreate(savedInstanceState, R.layout.main_holder);
-
-        Log.d(TAG, "onCreate " + this.getIntent());
 
         mMainHolder = ((LinearLayout) findViewById(R.id.main_holder));
         mHolder.setVisibility(View.GONE);
@@ -83,7 +78,7 @@ public class Dashboard extends LazyTabActivity {
     @Override
     public void mapDetails(Parcelable p) {
         if (((User) p).id != null) {
-            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, WriteState.all, ((User) p).id);
+            SoundCloudDB.getInstance().resolveUser(this.getContentResolver(), (User) p, WriteState.all, ((User) p).id);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String lastUserId = preferences.getString("currentUserId", null);

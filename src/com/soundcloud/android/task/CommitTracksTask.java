@@ -1,29 +1,27 @@
 
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.objects.Track;
+
+import android.content.ContentResolver;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.BaseObj.WriteState;
-
 public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
 
-    private SoundCloudApplication scApp;
+    private ContentResolver contentResolver;
 
     private long currentUserId;
 
-    protected DBAdapter db;
 
     protected Track[] tracks;
 
-    public CommitTracksTask(SoundCloudApplication scApp, Long userId) {
-        this.scApp = scApp;
+    public CommitTracksTask(ContentResolver contentResolver, Long userId) {
+        this.contentResolver = contentResolver;
 
         if (userId != null)
             this.currentUserId = userId;
@@ -32,8 +30,6 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
     @Override
     protected void onPreExecute() {
         Log.i(getClass().getName(), "Starting playlist commit");
-        db = new DBAdapter(scApp);
-        db.open();
     }
 
     @Override
@@ -44,10 +40,8 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
     protected Boolean doInBackground(Track... params) {
 
         for (int i = 0; i < params.length; i++) {
-            try{
-                CloudUtils.resolveTrack(scApp, params[i], WriteState.all, currentUserId);
-            } catch (SQLiteException ex){
-            }
+                SoundCloudDB.getInstance().resolveTrack(contentResolver, params[i],
+                        WriteState.all, currentUserId);
         }
 
         afterCommitInBg();
@@ -57,12 +51,10 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
     }
 
     protected void afterCommitInBg() {
-
     }
 
     @Override
     protected void onPostExecute(Boolean result) {
-        db.close();
         Log.i(getClass().getName(), "Done playlist commit");
     }
 

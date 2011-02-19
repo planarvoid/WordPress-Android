@@ -67,8 +67,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private static final HashMap<Long, ArrayList<Comment>> mCommentCache =
         new HashMap<Long, ArrayList<Comment>>();
 
-    private HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -109,10 +107,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
 
         mCloudApi.unauthorize();
-    }
-    
-    public HashMap<String, String[]> getDBColumns() {
-        return dbColumns;
     }
     
     public ContentHandler getBitmapHandler(){
