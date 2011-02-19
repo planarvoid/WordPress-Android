@@ -10,9 +10,10 @@
             <FrameLayout android:id="@+id/artwork_layout" android:layout_height="100dip" 
                 android:layout_width="100dip" android:layout_below="@id/file_layout" android:layout_marginLeft="5dip">
                 <TextView android:layout_height="fill_parent" android:background="@drawable/rec_upload_image_bg"
-                        android:layout_width="fill_parent" style="@style/txt_record_add_image" 
+                        android:layout_width="fill_parent" style="@style/txt_record_add_image"
+                        android:clickable="true" android:id="@+id/txt_artwork_bg"
                         android:gravity="center" android:padding="10dip" android:text="Add\nImage"/>
-	            <ImageView android:id="@+id/artwork" android:layout_height="100dip" android:layout_width="100dip"
+	            <ImageView android:id="@+id/artwork" android:visibility="gone" android:layout_height="100dip" android:layout_width="100dip"
 	                       android:scaleType="centerCrop" android:clickable="true"/>
             </FrameLayout>
             <TextView android:layout_height="wrap_content" android:id="@+id/where"

@@ -181,6 +181,7 @@ public class UserBrowser extends ScTabView {
 
 
     public void loadYou() {
+        
         mIsOtherUser = false;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
         User userInfo;
@@ -193,12 +194,12 @@ public class UserBrowser extends ScTabView {
                         .getCurrentUserId(mActivity));
 
                 if (userInfo != null && userInfo.id != null) mapUser(userInfo);
-                build();
             }
             catch (NumberFormatException nfe) {
                 // bad data - user has a corrupted value, and will be corrected on load
             }
         }
+        build();
     }
 
     /*
@@ -310,7 +311,10 @@ public class UserBrowser extends ScTabView {
         final HorizontalScrollView hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
         hsv.setBackgroundColor(0xFF555555);
 
+        
+        
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
+        Log.i(TAG,"WORKSPACE VIEW " + mWorkspaceView);
         mWorkspaceView.setOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollToView(int index) {

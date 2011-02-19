@@ -433,5 +433,7 @@ public class LazyTabActivity extends LazyActivity {
         for (ListView mList : mLists) {
             CloudUtils.cleanupList(mList);
         }
+        
+        ((ScTabView) tabHost.getCurrentView()).onDestroy();
     }
 }

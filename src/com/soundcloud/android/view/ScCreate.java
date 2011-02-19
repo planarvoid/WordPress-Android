@@ -1,27 +1,9 @@
 
 package com.soundcloud.android.view;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.media.AudioTrack;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.RemoteException;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
-import android.text.format.Time;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.*;
+import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -32,8 +14,48 @@ import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.record.CloudRecorder;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
+import android.graphics.Matrix;
+import android.media.AudioTrack;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
+import android.text.format.Time;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +64,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ScCreate extends ScTabView implements PlaybackListener {
     private ViewFlipper mViewFlipper, mSharingFlipper;
@@ -62,19 +81,23 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     /* package */  RadioButton mRdoPrivate, mRdoPublic;
     /* package */  EditText mWhatText;
     /* package */  TextView mWhereText;
+    
+    private TextView mShareOptions;
 
     private ImageView mArtwork;
+    private TextView mArtworkBg;
+    
     private ImageButton btnAction;
 
     private File mRecordFile;
     private String mArtworkUri;
     private Bitmap mArtworkBitmap;
 
-    private int mArtworkInSampleSize;
-
     private LazyActivity mActivity;
 
     private CreateState mLastState, mCurrentState;
+    
+    private int mRecProgressCounter = 0;
 
     private TextView mChrono;
 
@@ -114,6 +137,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     public static int REC_CHANNELS = 2;
     public static int REC_BITS_PER_SAMPLE = 16;
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+    private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
+    
+    WakeLock mWakeLock;
 
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
@@ -164,6 +190,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
+        
+        mShareOptions = (TextView) findViewById(R.id.txt_record_options);
 
         RelativeLayout mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
         mProgressFrame.setVisibility(View.GONE);
@@ -204,6 +232,9 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
+        mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
+        
+        
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
@@ -234,14 +265,29 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (TextUtils.isEmpty(mArtworkUri)){
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("image/*");
-                    mActivity.startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                } else {
-                    mActivity.showToast(R.string.cloud_upload_clear_artwork);
-                }
-
+                mActivity.showToast(R.string.cloud_upload_clear_artwork);
+            }
+        });
+        
+        mArtworkBg.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(mActivity)
+                .setMessage("Where would you like to get the image?").setPositiveButton(
+                        "Take a new picture", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(new
+                                File(UPLOAD_TEMP_PICTURE_PATH)));
+                                mActivity.startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
+                            }
+                        }).setNegativeButton("From the gallery", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("image/*");
+                                mActivity
+                                       .startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                            }
+                        }).create().show();
             }
         });
 
@@ -349,6 +395,14 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
         updateUi(false);
     }
+    
+    @Override
+    public void onDestroy() {
+        super.onStart();
+
+        clearArtwork();
+        updateUi(false);
+    }
 
     public void unlock(boolean finished) {
         // not currently uploading anything, so allow recording
@@ -371,17 +425,64 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
-            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
-                    .getHeight());
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri),  (int) getContext().getResources().getDisplayMetrics().density * 100,(int)
+                    getContext().getResources().getDisplayMetrics().density * 100);
             mArtworkUri = imageUri;
-            mArtworkInSampleSize = opt.inSampleSize;
+
+            if (mArtworkBitmap != null)
+                CloudUtils.clearBitmap(mArtworkBitmap);
+            
+            Matrix mat = new Matrix();
+            mArtwork.setImageMatrix(mat);
+            
+            Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
+
+            try {
+                
+                mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
+                mArtwork.setImageBitmap(mArtworkBitmap);
+                mArtwork.setVisibility(View.VISIBLE);
+            } catch (Exception e){
+                //temp
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        }
+    }
+    
+    public void setTakenImage() {
+        try {
+            Log.i(TAG,"artwork bg " + mArtworkBg.getWidth());
+            ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
+            Log.i(TAG,"orientation " + exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+            String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+            
+            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH), (int) getContext().getResources().getDisplayMetrics().density * 100,(int)
+                    getContext().getResources().getDisplayMetrics().density * 100);
+            mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
+            
+            Matrix mat = new Matrix();
+            
+            if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6){
+                mat.postRotate(90);
+            } 
+            
+            mArtwork.setImageMatrix(mat);
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
 
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri);
-            mArtwork.setImageBitmap(mArtworkBitmap);
-            mArtwork.setVisibility(View.VISIBLE);
+            try {
+                Options sampleOpt = new BitmapFactory.Options();
+                sampleOpt.inSampleSize = opt.inSampleSize;
+                
+                mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
+                mArtwork.setImageBitmap(mArtworkBitmap);
+                mArtwork.setVisibility(View.VISIBLE);
+            }  catch (Exception e){
+                //temp
+            }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
@@ -498,6 +599,12 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
             case IDLE_UPLOAD:
                 goToView(1);
+                Log.i(TAG,"Idle Upload " + mRdoPrivacy.getCheckedRadioButtonId());
+                if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
+                    mShareOptions.setText(mActivity.getResources().getString(R.string.cloud_uploader_share_options_private));
+                } else {
+                    mShareOptions.setText(mActivity.getResources().getString(R.string.cloud_uploader_share_options_public));
+                }
                 break;
 
             case UPLOAD:
@@ -581,6 +688,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
+        
+        mRecProgressCounter = 0;
 
         mRemainingTimeCalculator.reset();
         mPowerGauge.clear();
@@ -740,7 +849,7 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                 Log.v(TAG, "private track upload");
 
                 final List<String> sharedEmails = mAccessList.getAdapter().getAccessList();
-                if (!sharedEmails.isEmpty()) {
+                if (sharedEmails != null && !sharedEmails.isEmpty()) {
                     data.put(CloudAPI.Params.SHARED_EMAILS, sharedEmails);
                 }
             }
@@ -760,11 +869,8 @@ public class ScCreate extends ScTabView implements PlaybackListener {
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this.getContext(), generateFilename(title)));
             data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
-            if (!TextUtils.isEmpty(mArtworkUri)) {
+            if (!TextUtils.isEmpty(mArtworkUri))
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
-                // XXX used?
-                data.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
-            }
 
             try {
                 (mActivity).getCreateService().uploadTrack(data);
@@ -864,11 +970,16 @@ public class ScCreate extends ScTabView implements PlaybackListener {
     }
 
     public void onRecProgressUpdate(int position) {
-        pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
+        if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0){
+            pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
                 REC_BITS_PER_SAMPLE);
-        mChrono.setText(CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
+            mChrono.setText(CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
                 : mDurationFormatLong, pcmTime));
-        updateTimeRemaining();
+            updateTimeRemaining();
+            mRecProgressCounter = 0;
+        } 
+        mRecProgressCounter++;
+
     }
 
     private String getMinsSecsString(File file) {

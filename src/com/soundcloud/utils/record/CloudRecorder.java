@@ -147,7 +147,7 @@ public class CloudRecorder {
                 } else {
                     nChannels = 2;
                 }
-
+                
                 aSource = audioSource;
                 sRate = sampleRate;
                 aFormat = audioFormat;

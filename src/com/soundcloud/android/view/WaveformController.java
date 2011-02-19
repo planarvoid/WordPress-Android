@@ -508,7 +508,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     
     final Runnable mAutoCloseBubble = new Runnable() {
         public void run() {
-            Log.i(TAG,"AUTO CLOSE BUBBLE " + mCommentBubble + " " + mCurrentShowingComment);
             if (mCommentBubble != null && mCurrentShowingComment != null)
             if (mCurrentShowingComment == mCommentBubble.mComment &&  mCommentBubble.interacted == false){
                 closeComment();

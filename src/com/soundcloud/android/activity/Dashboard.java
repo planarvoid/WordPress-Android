@@ -317,8 +317,12 @@ public class Dashboard extends LazyTabActivity {
 
                 }
                 break;
-
-            case CloudUtils.RequestCodes.REAUTHORIZE:
+                
+            case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
+                Log.i(TAG,"Result Code " + resultCode);
+                if (mScCreate != null) {
+                    mScCreate.setTakenImage();
+                }
                 break;
 
             case EmailPicker.PICK_EMAILS:

@@ -57,4 +57,9 @@ public class ScTabView extends FrameLayout {
 
     public void onRestoreInstanceState(Bundle state) {
     }
+    
+    public void onDestroy(){
+        
+    }
+
 }
