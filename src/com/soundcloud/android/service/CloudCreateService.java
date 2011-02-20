@@ -486,8 +486,6 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
-        mNotification = new Notification(icon, tickerText, when);
-        mNotification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         Intent i = (new Intent(this, Dashboard.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -500,6 +498,8 @@ public class CloudCreateService extends Service {
         // the next two lines initialize the Notification, using the
         // configurations above
         Notification notification = new Notification(icon, tickerText, when);
+        notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
+        
         if (params.isSuccess()) {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(

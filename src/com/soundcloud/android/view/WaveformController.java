@@ -189,8 +189,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         super.onLayout(changed, l,t,r,b);
         
         if (changed && mLandscape){
-            if (mCommentBubble == null)
-                mCommentBubble = new CommentBubble(mPlayer, this);
             
             int[] calc = new int[2];
             
@@ -324,11 +322,19 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (v == mPlayerAvatarBar){
+                    if (mCommentBubble == null)
+                        mCommentBubble = new CommentBubble(mPlayer, this);
+                    
+                    
                     if (mCurrentComments != null){
                         mode = AVATAR_DRAG;
                         calcAvatarHit(event.getX());    
                     }
                 } else if (v == mPlayerCommentBar){
+                    if (mCommentBubble == null)
+                        mCommentBubble = new CommentBubble(mPlayer, this);
+                    
+                    
                     mode = COMMENT_DRAG;
                     
                     mCurrentShowingComment = null;
