@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,6 +42,7 @@ import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -1016,6 +1018,7 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
+                mArtwork.setScaleType(ScaleType.CENTER_CROP);
                 mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
             } else {
                 // load artwork as necessary
@@ -1032,11 +1035,31 @@ public class ScPlayer extends LazyActivity implements OnTouchListener {
 
                                 @Override
                                 public void onImageLoaded(ImageView view, String url) {
+                                    setArtworkMatrix();
                                 }
-                            })) != BindResult.OK)
+                            })) != BindResult.OK){
                         mArtwork.setImageDrawable(getResources().getDrawable(
                                 R.drawable.artwork_player));
+                        mArtwork.setScaleType(ScaleType.CENTER_CROP);
+                    }else
+                        setArtworkMatrix();
             }
+    }
+    
+    private void setArtworkMatrix(){
+        if (mArtwork.getWidth() == 0)
+            return;
+        
+        Matrix m = new Matrix();
+        float scale = 1;
+        if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
+            scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
+        } else {
+            scale = ((float)mArtwork.getHeight())/((float) mArtwork.getDrawable().getMinimumHeight());
+        }
+        m.setScale(scale,scale);
+        m.setTranslate((mArtwork.getWidth() - mArtwork.getDrawable().getMinimumHeight()*scale)/2, mArtwork.getDrawable().getMinimumHeight()*scale - mArtwork.getHeight());
+        mArtwork.setScaleType(ScaleType.MATRIX);
     }
 
     public Boolean isSeekable() {

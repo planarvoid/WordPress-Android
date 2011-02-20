@@ -7,12 +7,8 @@
 	 android:layout_width="fill_parent" android:layout_height="wrap_content">
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent" >
-		<ImageView
-			android:layout_alignParentTop="true" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true"
-			android:id="@+id/artwork" />
 		<LinearLayout android:id="@+id/track_menu"
-			android:background="@color/playerControlBackground"
+			android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
 			android:paddingTop="5dip" android:paddingBottom="5dip"
 			android:orientation="vertical" android:layout_height="wrap_content"
 			android:layout_width="fill_parent">
@@ -35,12 +31,16 @@
 				</TableRow>
 			</TableLayout>
 		</LinearLayout>
+		<ImageView android:layout_width="fill_parent"
+            android:layout_below="@id/track_menu"
+            android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true"
+            android:id="@+id/artwork" />
 		<RelativeLayout android:layout_width="fill_parent" android:id="@+id/playable_layout"
 			android:layout_marginBottom="-40dip" android:layout_height="100dip"
 			android:layout_alignParentBottom="true">
 			<com.soundcloud.android.view.WaveformController
 				android:id="@+id/waveform_controller" android:layout_width="fill_parent"
-				android:orientation="horizontal" android:layout_height="80dip" />
+				android:orientation="horizontal" android:layout_height="100dip" />
 			<TextView android:id="@+id/currenttime" style="@style/txt_player_time"
 				android:layout_alignParentTop="true" />
 		</RelativeLayout>

@@ -576,7 +576,10 @@ public class UserBrowser extends ScTabView {
         else
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
 
+        Log.i(TAG,"ICON URL " + remoteUrl);
+        
         if (!remoteUrl.equals(_iconURL)) {
+            Log.i(TAG,"Setting icon url");
             _iconURL = remoteUrl;
             reloadAvatar();
         }
