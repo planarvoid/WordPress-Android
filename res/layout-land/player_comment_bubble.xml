@@ -26,9 +26,9 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:singleLine="true" android:ellipsize="marquee"
 			android:layout_alignBottom="@id/txt_username" style="@style/txt_comment_bubble_gray"
-			android:text="13 hours ago" android:layout_toRightOf="@id/txt_show_date" android:layout_toLeftOf="@+id/btn_close"/>
+			android:text="13 hours ago" android:layout_toRightOf="@id/txt_show_date" android:layout_toLeftOf="@+id/btn_close" android:layout_marginRight="-20dip"/>
 	   <ImageButton android:id="@+id/btn_close" 
-	       android:paddingLeft="5dip" android:background="@android:color/transparent" android:src="@drawable/ic_x_states" android:layout_alignParentRight="true" android:layout_width="30dip" android:layout_height="20dip" android:scaleType="center"/>
+	       android:background="@android:color/transparent" android:src="@drawable/ic_x_states" android:layout_alignParentRight="true" android:scaleType="center" android:paddingBottom="20dip" android:layout_height="40dip" android:layout_width="45dip" android:paddingLeft="25dip"/>
 		<TextView android:id="@+id/txt_comment"
 			android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerHorizontal="true" style="@style/txt_comment_bubble_gray" android:text="Robert Owens - I'll be your friend (? remix)"
 			android:layout_below="@id/txt_username" android:layout_centerVertical="true" android:layout_above="@+id/btn_reply" android:gravity="center_vertical"/>
