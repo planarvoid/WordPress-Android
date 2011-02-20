@@ -168,10 +168,14 @@ public class UserBrowser extends ScTabView {
                 mLoadDetailsTask = null;
             }
         } else if (mWorkspaceView != null) {
+            
+            Log.i(TAG,"ON REFRESH " + mWorkspaceView.getDisplayedChild());
+            
             if (mWorkspaceView.getDisplayedChild() == 2 /* XXX */) {
                 this.refreshDetailsTask();
             }
             if (mWorkspaceView != null){
+                Log.i(TAG,"REFRESHING WORKSPACE VIEW " + mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()));
                 ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()))
                         .onRefresh(all);
             } else
@@ -356,7 +360,7 @@ public class UserBrowser extends ScTabView {
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
-        final ScTabView followingsView = new ScTabView(mActivity);
+        final ScTabView followingsView = new ScTabView(mActivity, adpWrap);
         CloudUtils.createTabList(mActivity, followingsView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWINGS);
         CloudUtils.createTab(mTabHost, "followings", mActivity
@@ -365,7 +369,7 @@ public class UserBrowser extends ScTabView {
         adp = new UserlistAdapter(mActivity, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(mActivity, adp, getFollowersUrl(), CloudUtils.Model.user);
 
-        final ScTabView followersView = mFollowersView = new ScTabView(mActivity);
+        final ScTabView followersView = mFollowersView = new ScTabView(mActivity, adpWrap);
         CloudUtils.createTabList(mActivity, followersView, adpWrap,
                 CloudUtils.ListId.LIST_USER_FOLLOWERS);
         CloudUtils.createTab(mTabHost, "followers", mActivity
@@ -377,8 +381,9 @@ public class UserBrowser extends ScTabView {
         
 
         if (!mIsOtherUser){
-            mWorkspaceView.initWorkspace(0, PreferenceManager.getDefaultSharedPreferences(mActivity ).getInt("lastProfileIndex",0));
-            mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(mActivity ).getInt("lastProfileIndex",0));
+            mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(mActivity ).getInt("lastProfileIndex",0);
+            mWorkspaceView.initWorkspace(0, mLastTabIndex);
+            mTabHost.setCurrentTab(mLastTabIndex);
         } else {
             mWorkspaceView.initWorkspace(0, 0);
         }
