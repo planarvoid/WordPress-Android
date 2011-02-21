@@ -61,8 +61,9 @@ public class SoundCloudDB {
         public Track resolveTrackById(ContentResolver contentResolver, long TrackId,
                 long currentUserId) {
 
+            Log.i("DB","Getting track by id " + TrackId);
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + TrackId + "'", null, null);
-
+            Log.i("DB","Got track cursor " + cursor.getCount());
             if (cursor.getCount() != 0) {
 
                 Track track = new Track(cursor);

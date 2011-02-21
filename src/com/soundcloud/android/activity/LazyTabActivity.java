@@ -206,6 +206,23 @@ public class LazyTabActivity extends LazyActivity {
             }
         }
     }
+    
+    @Override
+    protected void onFavoriteStatusSet(long trackId, boolean isFavorite){
+
+        if (mLists == null || mLists.size() == 0)
+            return;
+
+        for (LazyList mList1 : mLists) {
+            if (mList1.getAdapter() != null) {
+                if (mList1.getAdapter() instanceof TracklistAdapter)
+                    ((TracklistAdapter) mList1.getAdapter()).setFavoriteStatus(trackId, isFavorite);
+                else if (mList1.getAdapter() instanceof EventsAdapter)
+                    ((EventsAdapter) mList1.getAdapter()).setFavoriteStatus(trackId, isFavorite);
+            }
+        }
+    }
+
 
     // ******************************************************************** //
     // State Controls

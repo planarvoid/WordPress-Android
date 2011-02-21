@@ -1,35 +1,43 @@
 
 package com.soundcloud.android.view;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.LazyActivity;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.utils.AnimUtils;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewStub;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
 
 public class LazyRow extends RelativeLayout {
     private static final String TAG = "LazyRow";
 
-    protected Context mContext;
+    protected LazyActivity mActivity;
+    
+    protected LazyBaseAdapter mAdapter;
 
     protected ImageView mIcon;
+    
+    protected int mCurrentPosition;
 
-    public LazyRow(Context _context) {
-        super(_context);
-        mContext = _context;
+    public LazyRow(LazyActivity _activity, LazyBaseAdapter _adapter) {
+        super(_activity);
+        mActivity = _activity;
+        mAdapter = _adapter;
 
-        LayoutInflater inflater = (LayoutInflater) mContext
+        LayoutInflater inflater = (LayoutInflater) mActivity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
-
-        // if (findViewById(R.id.on_selected) != null)
-        // AnimUtils.setLayoutAnim_slidedownfromtop((ViewGroup)
-        // findViewById(R.id.on_selected), mAppContextReference);
     }
 
     protected int getRowResourceId() {
@@ -37,20 +45,42 @@ public class LazyRow extends RelativeLayout {
     }
 
     /** update the views with the data corresponding to selection index */
-    public void display(Parcelable p, boolean selected) {
+    public void display(int position) {
+        
+        mCurrentPosition = position;
 
-        /*
-         * if (selected && findViewById(R.id.on_selected) != null){ if
-         * (findViewById(R.id.on_selected).getVisibility() != View.VISIBLE){
-         * findViewById(R.id.on_selected).setVisibility(View.VISIBLE);
-         * findViewById(R.id.on_selected).forceLayout(); } } else if
-         * (findViewById(R.id.on_selected) != null)
-         * findViewById(R.id.on_selected).setVisibility(View.GONE);
-         */
-
-        // if (findViewById(R.id.on_selected) != null)
-        // findViewById(R.id.on_selected).forceLayout();
+        if (position == mAdapter.submenuIndex){
+            if (findViewById(R.id.row_submenu) != null){
+                ((LinearLayout) findViewById(R.id.row_submenu)).setVisibility(View.VISIBLE);
+            } else {
+                ((ViewStub) findViewById(R.id.stub_submenu)).setVisibility(View.VISIBLE);
+                initSubmenu();
+            }
+            
+            configureSubmenu();
+            
+            if (position == mAdapter.animateSubmenuIndex){
+                mAdapter.animateSubmenuIndex = -1;
+                Animation inFromRight = AnimUtils.inFromRightAnimation();
+                ((LinearLayout) findViewById(R.id.row_submenu)).startAnimation(inFromRight);    
+            }
+            
+            
+            
+        } else {
+            if (findViewById(R.id.row_submenu) != null){
+                ((LinearLayout) findViewById(R.id.row_submenu)).setVisibility(View.GONE);
+            }
+        }
     }
+    
+    protected void initSubmenu() {
+    }
+
+    protected void configureSubmenu() {
+    }
+
+
 
     public ImageView getRowIcon() {
         return null;
@@ -80,7 +110,7 @@ public class LazyRow extends RelativeLayout {
     }
 
     protected Drawable getTemporaryDrawable() {
-        return mContext.getResources().getDrawable(R.drawable.artwork_badge);
+        return mActivity.getResources().getDrawable(R.drawable.artwork_badge);
     }
 
 }

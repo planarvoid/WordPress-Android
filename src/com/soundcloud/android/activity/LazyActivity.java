@@ -3,12 +3,16 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadTask;
 
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
@@ -20,22 +24,21 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class LazyActivity extends ScActivity implements OnItemClickListener {
+public abstract class LazyActivity extends ScActivity implements OnItemClickListener, OnItemLongClickListener, OnItemSelectedListener {
     private static final String TAG = "LazyActivity";
 
     protected LinearLayout mHolder;
@@ -89,7 +92,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
     }
 
     public void configureListMenu(ListView list) {
-
+/*
         list.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -105,6 +108,7 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 
             }
         });
+        */
     }
 
     /**
@@ -183,7 +187,6 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
 
         try {
-            Log.i(TAG, "Play from app cache call");
             mService.playFromAppCache(playPos);
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -217,7 +220,37 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
 
         }
     }
+    
+    /**
+     * A list item has been long clicked
+     * @return 
+     */
+    public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
+        // XXX WTF
+        if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
+                || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
+            return false; // bad list item clicked (possibly loading item)
 
+        ((LazyBaseAdapter) list.getAdapter()).submenuIndex = ((LazyBaseAdapter) list.getAdapter()).animateSubmenuIndex = position;
+        ((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
+        return true;
+    }
+    
+    public void onItemSelected(AdapterView<?> listView, View view, int position, long id)
+    {
+        if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position)
+            listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        else
+            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+    }
+
+    public void onNothingSelected(AdapterView<?> listView)
+    {
+        // This happens when you start scrolling, so we need to prevent it from staying
+        // in the afterDescendants mode if the EditText was focused 
+        listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+    }
+    
     /**
      * Handle common options menu building
      */
@@ -296,4 +329,53 @@ public abstract class LazyActivity extends ScActivity implements OnItemClickList
         initLoadTasks();
         mLastCloudState = getSoundCloudApplication().getState();
     }
+    
+    public void setFavoriteStatus(Track t, Boolean favoriteStatus) {
+        synchronized (this) {
+            if (favoriteStatus)
+                addFavorite(t);
+            else
+                removeFavorite(t);
+        }
+        
+    }
+    
+    public void addFavorite(Track t) {
+        FavoriteAddTask f = (FavoriteAddTask) new FavoriteAddTask((SoundCloudApplication) this.getApplication());
+        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+            @Override
+            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+                onFavoriteStatusSet(trackId, isFavorite);
+            }
+
+            @Override
+            public void onException(long trackId, Exception e) {
+                onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
+            }
+
+        });
+        f.execute(t);
+    }
+    
+    public void removeFavorite(Track t) {
+        FavoriteRemoveTask f = (FavoriteRemoveTask) new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
+        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
+            @Override
+            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+                onFavoriteStatusSet(trackId, isFavorite);
+            }
+
+            @Override
+            public void onException(long trackId, Exception e) {
+                onFavoriteStatusSet(trackId, true); //failed, so it should still be a favorite
+            }
+
+        });
+        f.execute(t);
+    }
+    
+    protected void onFavoriteStatusSet(long trackId, boolean isFavorite){
+        
+    }
+
 }

@@ -10,7 +10,14 @@
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
 	   />
-    <FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/row_holder" >
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/row_holder" >
     	<include layout="@layout/track_list_item_common" />
-    </FrameLayout>
+    	<ViewStub
+	      android:id="@+id/stub_submenu"
+	      android:inflatedId="@+id/row_submenu"
+	      android:layout="@layout/track_list_item_submenu"
+	      android:layout_below="@id/track_info_row"
+	      android:layout_width="fill_parent"
+	      android:layout_height="wrap_content" />
+    </RelativeLayout>
 </FrameLayout>

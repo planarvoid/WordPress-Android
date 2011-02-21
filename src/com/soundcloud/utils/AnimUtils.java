@@ -10,6 +10,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
 
@@ -83,7 +84,7 @@ public class AnimUtils {
                 Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         inFromRight.setDuration(250);
-        inFromRight.setInterpolator(new AccelerateInterpolator());
+        inFromRight.setInterpolator(new DecelerateInterpolator());
         return inFromRight;
     }
 
@@ -102,7 +103,7 @@ public class AnimUtils {
                 Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         inFromLeft.setDuration(250);
-        inFromLeft.setInterpolator(new AccelerateInterpolator());
+        inFromLeft.setInterpolator(new DecelerateInterpolator());
         return inFromLeft;
     }
 

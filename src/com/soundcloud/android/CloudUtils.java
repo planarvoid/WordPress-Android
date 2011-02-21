@@ -30,6 +30,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -369,6 +370,8 @@ public class CloudUtils {
         LazyList mList = new LazyList(activity);
         mList.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         mList.setOnItemClickListener(activity);
+        mList.setOnItemLongClickListener(activity);
+        mList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         mList.setFastScrollEnabled(true);
         mList.setTextFilterEnabled(true);
         mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));

@@ -24,38 +24,8 @@ public class UserlistAdapter extends LazyBaseAdapter {
     }
 
     @Override
-    public View getView(int index, View row, ViewGroup parent) {
-
-        UserlistRow rowView = null;
-
-        if (row == null) {
-            rowView = (UserlistRow) createRow();
-        } else {
-            rowView = (UserlistRow) row;
-        }
-
-        // update the cell renderer, and handle selection state
-        rowView.display(mData.get(index), mSelectedIndex == index);
-
-        BindResult result = BindResult.ERROR;
-        try { // put the bind in a try catch to catch any loading error (or the
-            // occasional bad url)
-            if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
-                result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
-            else
-                mImageLoader.unbind(rowView.getRowIcon());
-        } catch (Exception e) {
-        }
-        ;
-        rowView.setTemporaryDrawable(result);
-
-        return rowView;
-
-    }
-
-    @Override
     protected LazyRow createRow() {
-        return new UserlistRow(mActivity);
+        return new UserlistRow(mActivity, this);
     }
 
 }
