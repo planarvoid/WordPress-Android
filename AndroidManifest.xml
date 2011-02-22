@@ -20,6 +20,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"></action>
+                <data android:mimeType="audio/*"></data>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name="com.soundcloud.android.activity.Authorize"
@@ -49,7 +54,7 @@
         <activity android:name="com.soundcloud.android.activity.Settings" android:label="Settings" />
         <activity android:name="com.soundcloud.android.activity.ScPlayer" android:label="SoundCloud Player"/>
         <activity android:name="com.soundcloud.android.activity.ScProfile" android:label="Profile" />
-        <activity android:name="com.soundcloud.android.activity.EmailPicker"/>
+        <activity android:name="com.soundcloud.android.activity.EmailPicker" android:theme="@style/ScDark" />
         <activity android:name="com.soundcloud.android.activity.LocationPicker"/>
 
         <service android:name="com.soundcloud.android.service.CloudPlaybackService"

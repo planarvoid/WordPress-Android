@@ -2,12 +2,12 @@
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.EmailPicker;
 import com.soundcloud.android.activity.LazyActivity;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.task.PCMPlaybackTask;
@@ -45,6 +45,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -260,6 +261,11 @@ public class ScCreate extends ScTabView implements PlaybackListener {
                     case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
 
                 }
+                if (checkedId == R.id.rdo_private){
+                    mShareOptions.setText(mActivity.getResources().getString(R.string.cloud_uploader_share_options_private));
+                } else {
+                    mShareOptions.setText(mActivity.getResources().getString(R.string.cloud_uploader_share_options_public));
+                }
             }
         });
 
@@ -311,6 +317,22 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         mAccessList = (AccessList) findViewById(R.id.accessList);
         mAccessList.setAdapter(new AccessList.Adapter());
         mAccessList.getAdapter().setAccessList(null);
+        
+        ((Button) findViewById(R.id.btn_add_emails)).setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                List<String> accessList = mAccessList.getAdapter().getAccessList();
+                Intent intent = new Intent(getContext(), EmailPicker.class);
+                if (accessList != null) {
+                    intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
+                    intent.putExtra(EmailPicker.SELECTED, ((TextView)v).getText());
+                }
+                
+                mActivity.startActivityForResult(
+                        intent,
+                        EmailPicker.PICK_EMAILS);
+                
+            }});
     }
 
     @Override
@@ -364,6 +386,10 @@ public class ScCreate extends ScTabView implements PlaybackListener {
         }
 
         super.onRestoreInstanceState(state);
+    }
+    
+    public void setFileUri(String uri){
+        
     }
 
     public void onRecordingError() {
