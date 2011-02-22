@@ -76,6 +76,15 @@ public class LazyTabActivity extends LazyActivity {
     }
 
     private void handleIntent() {
+        Log.i(TAG,"Handle intent " + getIntent());
+        
+        /*if(getIntent() != null && getIntent().getAction() != null)
+        {
+                if(getIntent().getAction().equals(Intent.ACTION_SEND) && getIntent().getExtras().containsKey(Intent.EXTRA_STREAM))
+                        setFileUri((Uri)getIntent().getExtras().get(Intent.EXTRA_STREAM));
+        }*/
+        
+        
         if (getIntent() != null && getIntent().getExtras() != null
                 && getIntent().getIntExtra("tabIndex", -1) != -1) {
             if (this.tabHost != null) {

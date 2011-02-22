@@ -5,6 +5,11 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
+    <style name="ScDark">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
     <!-- The default system theme. This is the theme used for activities
          that have not explicitly set their own theme.
          

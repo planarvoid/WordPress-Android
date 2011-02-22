@@ -61,7 +61,7 @@
 	<string name="cloud_uploader_event_uploading">Uploading: %d\%%%</string>
 	
 	<string name="cloud_uploader_share_options_public">Share Options</string>
-	<string name="cloud_uploader_share_options_private">Private sharing only</string>
+	<string name="cloud_uploader_share_options_private">Privately shared with</string>
 	
 	<string name="dialog_cancel_upload_title"></string>
 	<string name="dialog_cancel_upload_message">Cancel upload?</string>
