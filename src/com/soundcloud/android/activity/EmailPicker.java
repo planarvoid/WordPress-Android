@@ -78,6 +78,7 @@ public class EmailPicker extends ListActivity {
         mEmailAdp.notifyDataSetChanged();
 
         mEmail = (EditText) findViewById(R.id.email);
+        mEmail.setMaxLines(5);
 
         final StringBuilder sb = new StringBuilder();
         mTextWatcher = new TextWatcher() {
@@ -214,7 +215,7 @@ public class EmailPicker extends ListActivity {
                                 ContactsContract.Contacts.DISPLAY_NAME,
                                 ContactsContract.CommonDataKinds.Email._ID,
                                 ContactsContract.CommonDataKinds.Email.DATA
-                        }, "UPPER(" + ContactsContract.CommonDataKinds.Email.DATA + ") GLOB ?",
+                        }, "UPPER(" + ContactsContract.Contacts.DISPLAY_NAME + ") GLOB ?",
                         new String[] {
                             constraint.toString().toUpperCase() + "*"
                         }, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
