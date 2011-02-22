@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.service;
 
+import static com.soundcloud.android.CloudUtils.isTaskFinished;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -19,14 +21,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.AudioFormat;
+import android.media.ExifInterface;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -37,8 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-
-import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
 public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
@@ -154,6 +157,13 @@ public class CloudCreateService extends Service {
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
+
+        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("defaultRecordingQuality", "high").contentEquals("high"),
+                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
+                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        mRecorder.setRecordService(this);
+
     }
 
     @Override
@@ -212,17 +222,11 @@ public class CloudCreateService extends Service {
         mRecordFile = new File(path);
         frameCount = 0;
 
-        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultRecordingQuality", "high").contentEquals("high"),
-                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        mRecorder.setRecordService(this);
+        mRecorder.reset();
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
         mRecorder.start();
 
-        Log.i(TAG,"RECORD GET STATE " + mRecorder.getState());
-        
         if (mRecorder.getState() == CloudRecorder.State.ERROR) {
             notifyChange(RECORD_ERROR);
             return;
@@ -265,14 +269,13 @@ public class CloudCreateService extends Service {
 
         mRecorder.stop();
         mRecorder.release();
-        mRecorder = null;
         mRecording = false;
 
         nm.cancel(CREATE_NOTIFY_ID);
         gotoIdleState();
     }
 
-    private Boolean isRecording() {
+    private boolean isRecording() {
         return mRecording;
     }
 
@@ -389,9 +392,17 @@ public class CloudCreateService extends Service {
                 BitmapFactory.Options options =
                         CloudUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
+                
+                ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
+                String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+                int rotate = 0;
+                if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6)
+                    rotate = 90;
+                
+                
                 int sampleSize = options.inSampleSize;
-
-                if (sampleSize > 1) {
+                
+                if (sampleSize > 1 || rotate != 0) {
                     Log.v(TAG, "resizing " + param.artworkFile);
                     InputStream is = new FileInputStream(param.artworkFile);
 
@@ -399,7 +410,15 @@ public class CloudCreateService extends Service {
                     options.inSampleSize = sampleSize;
                     Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
                     is.close();
-
+                    
+                    if (rotate != 0){
+                        Bitmap preRotate = bitmap;
+                        Matrix mat = new Matrix();
+                        mat.postRotate(rotate);
+                        bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
+                        preRotate.recycle();
+                    }
+                    
                     if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
                     File resized = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
@@ -467,8 +486,6 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
-        mNotification = new Notification(icon, tickerText, when);
-        mNotification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         Intent i = (new Intent(this, Dashboard.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -481,6 +498,8 @@ public class CloudCreateService extends Service {
         // the next two lines initialize the Notification, using the
         // configurations above
         Notification notification = new Notification(icon, tickerText, when);
+        notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
+        
         if (params.isSuccess()) {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(

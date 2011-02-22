@@ -14,7 +14,7 @@
 				android:layout_marginTop="20dip"
 				android:id="@+id/progress_overlay" android:src="@drawable/player_wave_bg"
 				android:layout_alignParentTop="true" android:layout_width="fill_parent"
-				android:layout_height="80dip" android:scaleType="fitXY" />
+				android:layout_height="fill_parent" android:scaleType="fitXY" />
 			<RelativeLayout 
 				android:layout_marginTop="20dip" android:id="@+id/track_touch_bar"
 				 android:background="#00000000"

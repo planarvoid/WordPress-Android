@@ -17,8 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.DBAdapter;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -46,9 +46,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         CloudUtils.checkState(this);
-
-        //initialize the db here in case it needs to be created, it won't result in locks
-        new DBAdapter(this.getSoundCloudApplication());
 
         super.onCreate(savedInstanceState);
 
@@ -373,7 +370,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     public void mapDetails(Parcelable p) {
         // XXX this should only happen once, after authorizing w/ soundcloud
         if (((User) p).id != null) {
-            CloudUtils.resolveUser(getSoundCloudApplication(), (User) p, BaseObj.WriteState.all, ((User) p).id);
+            SoundCloudDB.getInstance().resolveUser(getContentResolver(), (User) p, SoundCloudDB.WriteState.all, ((User) p).id);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             String lastUserId = preferences.getString("currentUserId", null);

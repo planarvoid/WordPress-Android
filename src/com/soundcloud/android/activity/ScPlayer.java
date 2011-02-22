@@ -7,6 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -26,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -97,6 +99,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private Long mCurrentTrackId = null;
 
     private Track mPlayingTrack;
+    private Track mFavoriteTrack;
 
     private ViewFlipper mTrackFlipper;
 
@@ -282,7 +285,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     boolean mDraggingLabel = false;
 
     /**
-     * Right now, the only draggable textview is the track, but this function
+     * Right now, the only draggable ashtextview is the track, but this function
      * can be changed to easily add more later.
      * 
      * @param v
@@ -352,7 +355,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
-        Log.i(TAG, "Text view for container " + tv);
         if (tv == null) {
             return false;
         }
@@ -419,7 +421,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 return true;
             }
         }
-        Log.i(TAG, "Returning false");
         return false;
     }
 
@@ -530,7 +531,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         LoadDetailsTask lt = new LoadTrackDetailsTask();
         lt.loadModel = CloudUtils.Model.track;
         lt.setActivity(this);
-        Log.i(TAG, "New Load Track Details Task");
         return lt;
     }
 
@@ -820,7 +820,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                Log.i(TAG,"MMMMETA CHANGED");
                 mCurrentTrackError = false;
                 
                 updateTrackInfo();
@@ -918,8 +917,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             mCurrentTrackId = mPlayingTrack.id;
 
-            Log.i(TAG,"~~~~~~~ looking for comments in cache " + mCurrentTrackId);
-            
             mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
             if (mCurrentComments != null){
               refreshComments(true);
@@ -974,6 +971,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
+                mArtwork.setScaleType(ScaleType.CENTER_CROP);
                 mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
             } else {
                 // load artwork as necessary
@@ -990,11 +988,31 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
                                 @Override
                                 public void onImageLoaded(ImageView view, String url) {
+                                    setArtworkMatrix();
                                 }
-                            })) != BindResult.OK)
+                            })) != BindResult.OK){
                         mArtwork.setImageDrawable(getResources().getDrawable(
                                 R.drawable.artwork_player));
+                        mArtwork.setScaleType(ScaleType.CENTER_CROP);
+                    }else
+                        setArtworkMatrix();
             }
+    }
+    
+    private void setArtworkMatrix(){
+        if (mArtwork.getWidth() == 0)
+            return;
+        
+        Matrix m = new Matrix();
+        float scale = 1;
+        if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
+            scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
+        } else {
+            scale = ((float)mArtwork.getHeight())/((float) mArtwork.getDrawable().getMinimumHeight());
+        }
+        m.setScale(scale,scale);
+        m.setTranslate((mArtwork.getWidth() - mArtwork.getDrawable().getMinimumHeight()*scale)/2, mArtwork.getDrawable().getMinimumHeight()*scale - mArtwork.getHeight());
+        mArtwork.setScaleType(ScaleType.MATRIX);
     }
 
     public Boolean isSeekable() {
@@ -1207,13 +1225,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void toggleFavorite() {
         
-        Log.i(TAG,"Toggle Favorite ");
-
         if (mPlayingTrack == null)
             return;
 
-        Log.i(TAG,"Toggle Favorite 2 " + mPlayingTrack.user_favorite);
-        Track mFavoriteTrack = mPlayingTrack;
+        mFavoriteTrack = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
             if (mPlayingTrack.user_favorite) {
@@ -1239,7 +1254,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             if (newItems != null) {
                 mCurrentComments = newItems;
-                Log.i(TAG,"+++++++++++++Storing Comments in cache from load task " + track_id);
                 getSoundCloudApplication().cacheComments(track_id, mCurrentComments);
                 refreshComments(true);
             }
@@ -1290,7 +1304,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mAddComment.track_id = track_id;
         mAddComment.created_at = new Date(System.currentTimeMillis());
         mAddComment.user_id = CloudUtils.getCurrentUserId(this);
-        mAddComment.user = CloudUtils.resolveUserById(this.getSoundCloudApplication(), mAddComment.user_id, mAddComment.user_id);
+        
+        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id, mAddComment.user_id);
         mAddComment.timestamp = timestamp;
         mAddComment.body = commentBody;
         
@@ -1328,14 +1343,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     mCurrentComments = new ArrayList<Comment>();
                 
                 mCurrentComments.add(mAddComment);
-                Log.i(TAG,"+++++++++++++Storing Comments in cache");
                 getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
                 refreshComments(true);
                 
             } else {
                 handleException();
             }
-            Log.i(TAG,"Handle Comment Result " + mAddCommentResult.getStatusLine().getStatusCode());
         }
     };
     

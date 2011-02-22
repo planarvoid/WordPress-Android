@@ -20,7 +20,6 @@ public class CommentBubble extends RelativeLayout {
 
     private CommentBubbleArrow mArrow;
     
-    
     private static int NEW_MODE_WIDTH = 170;
     private static int NEW_MODE_HEIGHT = 150;
     
@@ -31,10 +30,6 @@ public class CommentBubble extends RelativeLayout {
     public static int CORNER_MARGIN = 20;
     
     private int mRealWidth = 1;
-    
-    // 0 = add
-    // 1 = show
-    private int mCurrentMode = 0;
     
     public Comment mComment;
     
@@ -220,6 +215,7 @@ public class CommentBubble extends RelativeLayout {
         HARD_WIDTH = newWidth;
         HARD_WIDTH *= getContext().getResources().getDisplayMetrics().density;
         mRealWidth = HARD_WIDTH+CORNER_MARGIN*2;
+        
         this.setLayoutParams(new RelativeLayout.LayoutParams(mRealWidth, newHeight));
     }
     

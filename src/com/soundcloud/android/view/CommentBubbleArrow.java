@@ -26,7 +26,6 @@ public class CommentBubbleArrow extends View {
     private Bitmap mCurrentArrow;
     
     private static int LEFT_ARROW_MARGIN = 2;
-    
     private static int RIGHT_ARROW_MARGIN = 11;
 
     public CommentBubbleArrow(Context context) {
@@ -43,7 +42,7 @@ public class CommentBubbleArrow extends View {
         mArrowMatrix = new Matrix();        
         mRightArrow = BitmapFactory.decodeResource(context.getResources(), R.drawable.comment_bubble_arrow_r);
         mLeftArrow = BitmapFactory.decodeResource(context.getResources(), R.drawable.comment_bubble_arrow_l);
-        
+
         this.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, mRightArrow.getHeight()));
         ((RelativeLayout.LayoutParams)this.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
     }
@@ -57,9 +56,7 @@ public class CommentBubbleArrow extends View {
     
     
     public void setPosition(float x) {
-        x = Math.min(Math.max(CommentBubble.CORNER_MARGIN, x), getWidth() - CommentBubble.CORNER_MARGIN);
-        
-        Log.i("arrow","Setting arrow " + mRightArrow + " " + mLeftArrow);
+        x = Math.min(Math.max(CommentBubble.CORNER_MARGIN + LEFT_ARROW_MARGIN, x), CommentBubble.HARD_WIDTH - RIGHT_ARROW_MARGIN - 5);
         
         if (x > CommentBubble.HARD_WIDTH/2 - RIGHT_ARROW_MARGIN){
             mCurrentArrow = mRightArrow;

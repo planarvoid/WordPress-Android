@@ -1,8 +1,10 @@
 package com.soundcloud.android.activity;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -12,11 +14,14 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Matrix;
 import android.media.AudioTrack;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -40,6 +45,8 @@ import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.record.CloudRecorder;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
 
@@ -52,9 +59,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ScCreate extends ScActivity implements PlaybackListener {
+    private static final String TAG = "ScCreate";
+    
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions, txtRecordStatus;
@@ -70,18 +78,23 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     /* package */  RadioButton mRdoPrivate, mRdoPublic;
     /* package */  EditText mWhatText;
     /* package */  TextView mWhereText;
+    
+    private TextView mShareOptions;
 
     private ImageView mArtwork;
+    private TextView mArtworkBg;
+    
     private ImageButton btnAction;
 
     private File mRecordFile;
     private String mArtworkUri;
     private Bitmap mArtworkBitmap;
 
-    private int mArtworkInSampleSize;
 
     /* package */ ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
+    
+    private int mRecProgressCounter = 0;
 
     private TextView mChrono;
 
@@ -126,11 +139,15 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
-
+    
     public static int REC_SAMPLE_RATE = 44100;
     public static int REC_CHANNELS = 2;
     public static int REC_BITS_PER_SAMPLE = 16;
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+
+    private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
+    
+    WakeLock mWakeLock;
 
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
@@ -143,12 +160,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (EMULATOR) {
-            // go straight to upload if running in emulator, since we can't record anyway
-            mCurrentState = CreateState.IDLE_UPLOAD;
-        } else {
-            mCurrentState = CreateState.IDLE_RECORD;
-        }
+        // go straight to upload if running in emulator, since we can't record anyway
+        mCurrentState = EMULATOR ? CreateState.IDLE_UPLOAD : CreateState.IDLE_RECORD;
 
         setContentView(R.layout.sc_create);
 
@@ -168,11 +181,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        this.unregisterReceiver(mUploadStatusListener);
-    }
 
     /*
     * Whenever the UI is re-created (due f.ex. to orientation change) we have
@@ -196,6 +204,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
+        
+        mShareOptions = (TextView) findViewById(R.id.txt_record_options);
 
         RelativeLayout mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
         mProgressFrame.setVisibility(View.GONE);
@@ -236,6 +246,9 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
+        mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
+        
+        
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
@@ -261,19 +274,38 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                     case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
 
                 }
+                if (checkedId == R.id.rdo_private){
+                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
+                } else {
+                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
+                }
             }
         });
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (TextUtils.isEmpty(mArtworkUri)){
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("image/*");
-                    startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                } else {
-                    showToast(R.string.cloud_upload_clear_artwork);
-                }
-
+                showToast(R.string.cloud_upload_clear_artwork);
+            }
+        });
+        
+        mArtworkBg.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(ScCreate.this)
+                .setMessage("Where would you like to get the image?").setPositiveButton(
+                        "Take a new picture", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(new
+                                File(UPLOAD_TEMP_PICTURE_PATH)));
+                                startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
+                            }
+                        }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("image/*");
+                                startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                            }
+                        }).create().show();
             }
         });
 
@@ -295,6 +327,20 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mAccessList = (AccessList) findViewById(R.id.accessList);
         mAccessList.setAdapter(new AccessList.Adapter());
         mAccessList.getAdapter().setAccessList(null);
+        
+        findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<String> accessList = mAccessList.getAdapter().getAccessList();
+                Intent intent = new Intent(ScCreate.this, EmailPicker.class);
+                if (accessList != null) {
+                    intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
+                    intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
+                }
+                startActivityForResult(intent, EmailPicker.PICK_EMAILS);
+
+            }
+        });
     }
 
     @Override
@@ -349,6 +395,10 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         super.onRestoreInstanceState(state);
     }
+    
+    public void setFileUri(String uri){
+        
+    }
 
     public void onRecordingError() {
         mSampleInterrupted = true;
@@ -363,23 +413,28 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         Log.d(TAG, "onStart()");
+
         try {
             if (mCreateService!= null && mCreateService.isUploading()) {
                 mCurrentState = CreateState.UPLOAD;
             } else if (mCurrentState == CreateState.UPLOAD) {
                 mCurrentState = CreateState.IDLE_RECORD;
-            } else if (mCurrentState == null) {
-
-                if (!mRecordFile.exists()) {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                } else {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                }
+            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
+                mCurrentState = CreateState.IDLE_PLAYBACK;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
             mCurrentState = CreateState.IDLE_RECORD;
         }
+        updateUi(false);
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onStart();
+
+        this.unregisterReceiver(mUploadStatusListener);
+        clearArtwork();
         updateUi(false);
     }
 
@@ -394,22 +449,67 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
-            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), mArtwork.getWidth(), mArtwork
-                    .getHeight());
+            
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), 
+                    (int) getResources().getDisplayMetrics().density * 100,
+                    (int) getResources().getDisplayMetrics().density * 100);
+            
             mArtworkUri = imageUri;
-            mArtworkInSampleSize = opt.inSampleSize;
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
+            
+            Matrix mat = new Matrix();
+            mArtwork.setImageMatrix(mat);
+            
+            Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
 
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri);
+            try {
+                
+                mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
+                mArtwork.setImageBitmap(mArtworkBitmap);
+                mArtwork.setVisibility(View.VISIBLE);
+            } catch (Exception e){
+                //temp
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        }
+    }
+    
+    public void setTakenImage() {
+        try {
+            ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
+            String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+            
+            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
+                    (int) getResources().getDisplayMetrics().density * 100,
+                    (int) getResources().getDisplayMetrics().density * 100);
+            mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
+            
+            Matrix mat = new Matrix();
+            
+            if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6){
+                mat.postRotate(90);
+            } 
+            
+            mArtwork.setImageMatrix(mat);
+
+            if (mArtworkBitmap != null)
+                CloudUtils.clearBitmap(mArtworkBitmap);
+            
+            BitmapFactory.Options resample = new BitmapFactory.Options();
+            resample.inSampleSize = opt.inSampleSize;
+
+            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
             mArtwork.setImageBitmap(mArtworkBitmap);
             mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
     }
-
+    
     public void clearArtwork() {
         mArtworkUri = null;
         mArtwork.setVisibility(View.GONE);
@@ -521,6 +621,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
             case IDLE_UPLOAD:
                 goToView(1);
+                if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
+                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
+                } else {
+                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
+                }
                 break;
 
             case UPLOAD:
@@ -604,6 +709,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
+        
+        mRecProgressCounter = 0;
 
         mRemainingTimeCalculator.reset();
         mPowerGauge.clear();
@@ -763,7 +870,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                 Log.v(TAG, "private track upload");
 
                 final List<String> sharedEmails = mAccessList.getAdapter().getAccessList();
-                if (!sharedEmails.isEmpty()) {
+                if (sharedEmails != null && !sharedEmails.isEmpty()) {
                     data.put(CloudAPI.Params.SHARED_EMAILS, sharedEmails);
                 }
             }
@@ -783,11 +890,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
             data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
 
-            if (!TextUtils.isEmpty(mArtworkUri)) {
+            if (!TextUtils.isEmpty(mArtworkUri))
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
-                // XXX used?
-                data.put("artwork_in_sample_size", Integer.toString(mArtworkInSampleSize));
-            }
 
             try {
                 mCreateService.uploadTrack(data);
@@ -887,11 +991,16 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     }
 
     public void onRecProgressUpdate(int position) {
-        pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
+        if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0){
+            pcmTime = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS,
                 REC_BITS_PER_SAMPLE);
-        mChrono.setText(CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
+            mChrono.setText(CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
                 : mDurationFormatLong, pcmTime));
-        updateTimeRemaining();
+            updateTimeRemaining();
+            mRecProgressCounter = 0;
+        } 
+        mRecProgressCounter++;
+
     }
 
     private String getMinsSecsString(File file) {
