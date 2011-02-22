@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,8 +25,11 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.view.LazyList;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 import oauth.signpost.exception.OAuthCommunicationException;
 import org.json.JSONException;
@@ -33,6 +37,8 @@ import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -42,6 +48,10 @@ public abstract class ScActivity extends Activity {
 
     protected ICloudPlaybackService mPlaybackService;
     protected NetworkConnectivityListener connectivityListener;
+    
+    protected long mCurrentTrackId = -1;
+    protected LazyList mList;
+    boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
 
@@ -162,6 +172,51 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onReauthenticate() {
+    }
+    
+    public void playTrack(final List<Parcelable> list, final int playPos) {
+        Track t = null;
+
+        // is this a track of a list
+        if (list.get(playPos) instanceof Track)
+            t = ((Track) list.get(playPos));
+        else if (list.get(playPos) instanceof Event)
+            t = ((Event) list.get(playPos)).getTrack();
+
+        // find out if this track is already playing. If it is, just go to the
+        // player
+        try {
+            if (t != null && mPlaybackService != null && mPlaybackService.getTrackId() != -1
+                    && mPlaybackService.getTrackId() == (t.id)) {
+                // skip the enqueuing, its already playing
+                Intent intent = new Intent(this, ScPlayer.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                return;
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
+
+        // pass the tracklist to the application. This is the quickest way to get it to the service
+        // another option would be to pass the parcelables through the intent, but that has the
+        // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
+        // we are just passing pointers
+        this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
+
+        try {
+            Log.i(TAG, "Play from app cache call");
+            mPlaybackService.playFromAppCache(playPos);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
+
+        Intent intent = new Intent(this, ScPlayer.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+
+
+        mIgnorePlaybackStatus = true;
     }
 
 

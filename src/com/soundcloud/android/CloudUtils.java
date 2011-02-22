@@ -24,9 +24,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -252,12 +254,15 @@ public class CloudUtils {
         if (activity instanceof AdapterView.OnItemClickListener) {
             mList.setOnItemClickListener((AdapterView.OnItemClickListener) activity);
         }
+        if (activity instanceof AdapterView.OnItemLongClickListener) {
+            mList.setOnItemLongClickListener((OnItemLongClickListener) activity);    
+        }
+        mList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         mList.setFastScrollEnabled(true);
         mList.setTextFilterEnabled(true);
         mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));
         mList.setDividerHeight(1);
         activity.registerForContextMenu(mList);
-
         return mList;
     }
 

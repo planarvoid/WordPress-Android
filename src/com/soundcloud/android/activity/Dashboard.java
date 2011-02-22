@@ -39,9 +39,6 @@ import java.util.List;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Dashboard extends ScActivity implements AdapterView.OnItemClickListener {
-    protected long mCurrentTrackId = -1;
-    protected LazyList mList;
-    private boolean mIgnorePlaybackStatus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -238,51 +235,6 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
             }
         });
-    }
-
-    public void playTrack(final List<Parcelable> list, final int playPos) {
-        Track t = null;
-
-        // is this a track of a list
-        if (list.get(playPos) instanceof Track)
-            t = ((Track) list.get(playPos));
-        else if (list.get(playPos) instanceof Event)
-            t = ((Event) list.get(playPos)).getTrack();
-
-        // find out if this track is already playing. If it is, just go to the
-        // player
-        try {
-            if (t != null && mPlaybackService != null && mPlaybackService.getTrackId() != -1
-                    && mPlaybackService.getTrackId() == (t.id)) {
-                // skip the enqueuing, its already playing
-                Intent intent = new Intent(this, ScPlayer.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                return;
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
-
-        // pass the tracklist to the application. This is the quickest way to get it to the service
-        // another option would be to pass the parcelables through the intent, but that has the
-        // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
-        // we are just passing pointers
-        this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
-
-        try {
-            Log.i(TAG, "Play from app cache call");
-            mPlaybackService.playFromAppCache(playPos);
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
-
-        Intent intent = new Intent(this, ScPlayer.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-
-
-        mIgnorePlaybackStatus = true;
     }
 
 

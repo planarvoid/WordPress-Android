@@ -573,6 +573,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void openCurrent() {
+        Log.i(TAG,"Open Current " + mPlayListManager.getCurrentLength());
         if (mPlayListManager.getCurrentLength() == 0) {
             return;
         }
@@ -582,6 +583,7 @@ public class CloudPlaybackService extends Service {
     Thread mStopThread = null;
 
     public void openAsync(Track track) {
+        Log.i(TAG,"TRACK " + track);
         if (track == null) {
             return;
         }
@@ -595,6 +597,8 @@ public class CloudPlaybackService extends Service {
         mLoadPercent = 0;
         mCurrentBuffer = 0;
 
+        Log.i(TAG,"Playing Data " + mPlayingData);
+        
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id.compareTo(track.id) == 0) {
 
@@ -1129,6 +1133,7 @@ public class CloudPlaybackService extends Service {
 
     public void next(boolean force) {
         synchronized (this) {
+            
             if (mPlayListManager.next())
                 openCurrent();
         }

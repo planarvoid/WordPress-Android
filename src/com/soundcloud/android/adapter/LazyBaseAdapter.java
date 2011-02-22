@@ -1,25 +1,27 @@
 
 package com.soundcloud.android.adapter;
 
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.view.LazyRow;
+
 import android.content.Context;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.view.LazyRow;
 
 import java.util.List;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 public class LazyBaseAdapter extends BaseAdapter {
 
-    protected int mSelectedIndex = -1;
+    public int submenuIndex = -1;
+    
+    public int animateSubmenuIndex = -1;
 
-    protected Context mActivity;
+    protected ScActivity mActivity;
 
     protected List<Parcelable> mData;
 
@@ -30,10 +32,10 @@ public class LazyBaseAdapter extends BaseAdapter {
     protected ImageLoader mImageLoader;
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(Context context, List<? extends Parcelable> data) {
+    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {
         mData = (List<Parcelable>) data;
-        mActivity = context;
-        mImageLoader = ImageLoader.get(context);
+        mActivity = activity;
+        mImageLoader = ImageLoader.get(activity);
     }
 
     public List<Parcelable> getData() {
@@ -62,29 +64,28 @@ public class LazyBaseAdapter extends BaseAdapter {
         }
 
         // update the cell renderer, and handle selection state
-        rowView.display(mData.get(index), mSelectedIndex == index);
+        rowView.display(index);
+                
 
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
             // occasional bad url)
-            result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+            if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
+                result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
+            else
+                mImageLoader.unbind(rowView.getRowIcon());
         } catch (Exception e) {
-            Log.e(TAG, "error", e);
         }
+        
         rowView.setTemporaryDrawable(result);
 
         return rowView;
-
     }
 
     protected LazyRow createRow() {
-        return new LazyRow(mActivity);
+        return new LazyRow(mActivity, this);
     }
-
-    public void setSelected(int position) {
-        mSelectedIndex = position;
-    }
-
+    
     public void clear() {
         mData.clear();
         reset();
@@ -92,7 +93,8 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     public void reset() {
         mPage = 1;
-        mSelectedIndex = -1;
+        submenuIndex = -1;
+        animateSubmenuIndex = -1;
     }
 
 

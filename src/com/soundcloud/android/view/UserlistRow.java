@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.User;
 
 public class UserlistRow extends LazyRow {
@@ -32,8 +34,8 @@ public class UserlistRow extends LazyRow {
 
     protected Boolean _isFollowing;
 
-    public UserlistRow(Context _context) {
-        super(_context);
+    public UserlistRow(ScActivity _activity,LazyBaseAdapter _adapter) {
+        super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
         mLocation = (TextView) findViewById(R.id.location);
@@ -54,9 +56,9 @@ public class UserlistRow extends LazyRow {
 
     /** update the views with the data corresponding to selection index */
     @Override
-    public void display(Parcelable p, boolean selected) {
-        super.display(p, selected);
-        mUser = (User) p;
+    public void display(int position) {
+        super.display(position);
+        mUser = (User) mAdapter.getData().get(position);
         mUsername.setText(mUser.username);
         setLocation();
         setTrackCount();
@@ -74,7 +76,7 @@ public class UserlistRow extends LazyRow {
 
     @Override
     protected Drawable getTemporaryDrawable() {
-        return mContext.getResources().getDrawable(R.drawable.artwork_badge);
+        return mActivity.getResources().getDrawable(R.drawable.artwork_badge);
     }
 
     @Override
@@ -99,13 +101,13 @@ public class UserlistRow extends LazyRow {
     }
 
     protected void setTrackCount() {
-        String trackCount = mContext.getResources().getQuantityString(R.plurals.user_track_count,
+        String trackCount = mActivity.getResources().getQuantityString(R.plurals.user_track_count,
                 Integer.parseInt(mUser.track_count), Integer.parseInt(mUser.track_count));
         mTracks.setText(trackCount);
     }
 
     protected void setFollowerCount() {
-        String followerCount = mContext.getResources().getQuantityString(
+        String followerCount = mActivity.getResources().getQuantityString(
                 R.plurals.user_follower_count, Integer.parseInt(mUser.followers_count),
                 Integer.parseInt(mUser.followers_count));
         mFollowers.setText(followerCount);

@@ -1,18 +1,14 @@
 
 package com.soundcloud.android.adapter;
 
-import java.util.ArrayList;
-
-import android.content.Context;
-import android.os.Parcelable;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
+
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 
 public class TracklistAdapter extends LazyBaseAdapter {
 
@@ -24,41 +20,13 @@ public class TracklistAdapter extends LazyBaseAdapter {
 
     protected int _playingPosition = -1;
 
-    public TracklistAdapter(Context context, ArrayList<Parcelable> data) {
-        super(context, data);
-    }
-
-    @Override
-    public View getView(int index, View row, ViewGroup parent) {
-
-        TracklistRow rowView = null;
-
-        if (row == null) {
-            rowView = (TracklistRow) createRow();
-        } else {
-            rowView = (TracklistRow) row;
-        }
-
-        rowView.display(mData.get(index), mSelectedIndex == index, (_playingId != -1 && getTrackAt(
-        index).id == _playingId));
-
-        BindResult result = BindResult.ERROR;
-        try { // put the bind in a try catch to catch any loading error (or the
-            // occasional bad url)
-            if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
-                result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
-            else
-                mImageLoader.unbind(rowView.getRowIcon());
-        } catch (Exception e) {
-        }
-        ;
-        rowView.setTemporaryDrawable(result);
-        return rowView;
+    public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
+        super(activity, data);
     }
 
     @Override
     protected LazyRow createRow() {
-        return new TracklistRow(mActivity);
+        return new TracklistRow(mActivity, this);
     }
 
     public Track getTrackAt(int index) {
@@ -75,6 +43,20 @@ public class TracklistAdapter extends LazyBaseAdapter {
         }
 
         notifyDataSetChanged();
+    }
+    
+    public void setFavoriteStatus(long trackId, boolean isFavorite) {
+        for (int i = 0; i < mData.size(); i++) {
+            if (getTrackAt(i).id.compareTo(trackId) == 0) {
+                getTrackAt(i).user_favorite = isFavorite;
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+    
+    public long getPlayingId(){
+        return _playingId;
     }
 
     public void setPlayingPosition(int position) {

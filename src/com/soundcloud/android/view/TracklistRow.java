@@ -1,18 +1,21 @@
 
 package com.soundcloud.android.view;
 
-import android.content.Context;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.objects.Track;
+
 import android.content.Intent;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.objects.Track;
 
 public class TracklistRow extends LazyRow {
 
@@ -36,22 +39,14 @@ public class TracklistRow extends LazyRow {
 
     protected ImageButton mFavoriteBtn;
 
-    protected ImageButton mDownloadBtn;
+    protected ImageButton mProfileBtn;
 
-    protected ImageButton mDetailsBtn;
-
-    protected Boolean _isPlaying = false;
+    protected ImageButton mShareBtn;
 
     protected Boolean _isFavorite = false;
-
-    private String _iconURL;
-
-    private String _playURL;
-
-    private int mCurrentIndex = -1;
-
-    public TracklistRow(Context _context) {
-        super(_context);
+    
+    public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
+        super(_activity, _adapter);
 
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
@@ -66,28 +61,104 @@ public class TracklistRow extends LazyRow {
         return R.layout.track_list_item;
     }
 
-    public void display(Parcelable p, boolean selected, boolean isPlaying) {
+    @Override
+    protected void initSubmenu() {
+        mProfileBtn = (ImageButton) findViewById(R.id.btn_profile);
+        mProfileBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(mActivity, UserBrowser.class);
+                intent.putExtra("userId", mTrack.user.id);
+                mActivity.startActivity(intent);
+            }
+        });
 
-        _isPlaying = isPlaying;
-        display(p, selected);
+        mPlayBtn = (ImageButton) findViewById(R.id.btn_play);
+        mPlayBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mActivity.playTrack(mAdapter.getData(),mCurrentPosition);
+            }
+        });
+
+        
+        mFavoriteBtn = (ImageButton) findViewById(R.id.btn_favorite);
+        mFavoriteBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleFavorite();
+            }
+        });
+        
+        mShareBtn = (ImageButton) findViewById(R.id.btn_share);
+        mShareBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Check this track out");
+                shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
+                mActivity.startActivity(Intent.createChooser(shareIntent, "Share this track: " + mTrack.title));
+            }
+        });
+        
+        
+        
     }
+    
+    @Override
+    protected void configureSubmenu() {
+        setFavoriteStatus();
+        mFavoriteBtn.setEnabled(true);
+    }
+
+    
+    private void setFavoriteStatus() {
+
+        if (mTrack == null) {
+            return;
+        }
+
+        if (mTrack.user_favorite) {
+            mFavoriteBtn.setImageDrawable(getResources().getDrawable(
+                    R.drawable.ic_favorited_states));
+        } else {
+            mFavoriteBtn.setImageDrawable(getResources().getDrawable(
+                    R.drawable.ic_favorite_states));
+        }
+    }
+
+    private void toggleFavorite() {
+        
+        if (mTrack == null)
+            return;
+        
+        mFavoriteBtn.setEnabled(false);
+
+        if (mTrack.user_favorite) {
+            mTrack.user_favorite = false;
+            //mActivity.setFavoriteStatus(mTrack, false);
+        } else {
+            mTrack.user_favorite = true;
+            //mActivity.setFavoriteStatus(mTrack, true);
+        }
+        setFavoriteStatus();
+    }
+
 
     /** update the views with the data corresponding to selection index */
     @Override
-    public void display(Parcelable p, boolean selected) {
-        super.display(p, selected);
-
-        mTrack = getTrackFromParcelable(p);
+    public void display(int position) {
+        mTrack = getTrackFromParcelable(mAdapter.getData().get(position));
+        
+        super.display(position);
+        
         if (mTrack == null)
             return;
-
+        
         mTitle.setText(mTrack.title);
         mUser.setText(mTrack.user.username);
 
         if (!CloudUtils.isTrackPlayable(mTrack)) {
-            mTitle.setTextAppearance(mContext, R.style.txt_list_main_inactive);
+            mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);
         } else {
-            mTitle.setTextAppearance(mContext, R.style.txt_list_main);
+            mTitle.setTextAppearance(mActivity, R.style.txt_list_main);
         }
 
         if (mTrack.sharing.contentEquals("public")) {
@@ -101,16 +172,16 @@ public class TracklistRow extends LazyRow {
             _isFavorite = false;
         }
         
-        if (_isPlaying) {
-            mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
+        if (mTrack.id == ((TracklistAdapter) mAdapter).getPlayingId()) {
+            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
                     R.drawable.list_playing));
             mPlayIndicator.setVisibility(View.VISIBLE);
         } else if (_isFavorite) {
-            mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
+            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
                     R.drawable.list_favorite));
             mPlayIndicator.setVisibility(View.VISIBLE);
         } else if ((mTrack.user_played == null ? false : mTrack.user_played) == false) {
-            mPlayIndicator.setImageDrawable(mContext.getResources().getDrawable(
+            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
                     R.drawable.list_unlistened));
             mPlayIndicator.setVisibility(View.VISIBLE);
         } else {
@@ -135,9 +206,9 @@ public class TracklistRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(getTrackFromParcelable(mAdapter.getData().get(mCurrentPosition)).artwork_url, GraphicsSizes.large);
         } else
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(getTrackFromParcelable(mAdapter.getData().get(mCurrentPosition)).artwork_url, GraphicsSizes.badge);
 
     }
 
