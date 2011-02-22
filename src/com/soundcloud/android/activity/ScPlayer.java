@@ -594,9 +594,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mLoadTrackDetailsTask == null || CloudUtils.isTaskFinished(mLoadTrackDetailsTask)) {
                 try {
                     mLoadTrackDetailsTask = newLoadTrackDetailsTask();
-                    mLoadTrackDetailsTask.execute(getSoundCloudApplication().getPreparedRequest(
+                    mLoadTrackDetailsTask.execute(getSoundCloudApplication().getRequest(
                             CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
-                                    Long.toString(mPlayingTrack.id))));
+                                    Long.toString(mPlayingTrack.id)), null));
 
                 } catch (Exception e) {
                     Log.e(TAG, "error", e);
@@ -961,9 +961,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mLoadCommentsTask.loadModel = CloudUtils.Model.comment;
         mLoadCommentsTask.pageSize = 50;
         mLoadCommentsTask.setContext(this);
-        mLoadCommentsTask.execute(getSoundCloudApplication().getPreparedRequest(
+        mLoadCommentsTask.execute(getSoundCloudApplication().getRequest(
                 CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}",
-                        Long.toString(mPlayingTrack.id))));
+                        Long.toString(mPlayingTrack.id)), null));
     }
 
     private void updateArtwork() {
@@ -1305,7 +1305,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mAddComment.created_at = new Date(System.currentTimeMillis());
         mAddComment.user_id = CloudUtils.getCurrentUserId(this);
         
-        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id, mAddComment.user_id);
+        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id);
         mAddComment.timestamp = timestamp;
         mAddComment.body = commentBody;
         

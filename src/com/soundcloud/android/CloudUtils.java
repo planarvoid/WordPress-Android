@@ -396,7 +396,7 @@ public class CloudUtils {
         return track.streamable;
     }
 
-    public static Long getCurrentUserId(Context context) {
+    public static long getCurrentUserId(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return Long.parseLong(preferences.getString("currentUserId", "-1"));
     }

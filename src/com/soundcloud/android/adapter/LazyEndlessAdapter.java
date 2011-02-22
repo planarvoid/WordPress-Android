@@ -2,7 +2,6 @@
 package com.soundcloud.android.adapter;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -16,18 +15,10 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.EventsWrapper;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.view.LazyList;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -363,7 +354,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @SuppressWarnings("unchecked")
     public void onPostTaskExecute(Boolean keepgoing) {
-        keepOnAppending.set(keepgoing);
+        if (keepgoing != null) {
+            keepOnAppending.set(keepgoing);
+        } else {
+            mException = true;
+        }
+
         rebindPendingView(pendingPosition, pendingView);
         pendingView = null;
         pendingPosition = -1;
@@ -428,15 +424,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     /**
-     * Set the current load model for this adapter
-     * 
-     * @param loadModel : the load model
-     */
-    protected void setLoadModel(CloudUtils.Model loadModel) {
-        mLoadModel = loadModel;
-    }
-
-    /**
      * Get the current url for this adapter
      * 
      * @return the url
@@ -467,7 +454,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @param e : the exception
      */
     public void setException(Exception e) {
-        e.printStackTrace();
         mException = true;
     }
 
@@ -476,7 +462,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @SuppressWarnings("unchecked")
     public void clear() {
-
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
         if (mListView != null)
@@ -527,150 +512,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
                 R.string.consumer_key));
 
-       return mActivity.getSoundCloudApplication().getPreparedRequest(builder.build().toString());
+       return mActivity.getSoundCloudApplication().getRequest(builder.build().toString(), null);
     }
 
-    /**
-     * A background task that will be run when there is a need to append more
-     * data. Mostly, this code delegates to the subclass, to append the data in
-     * the background thread and rebind the pending view once that is done.
-     */
-    public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
-        private static final String TAG = "AppendTask";
-
-        private WeakReference<LazyEndlessAdapter> mAdapterReference;
-
-        private WeakReference<ScActivity> mActivityReference;
-
-        private Boolean keepGoing = true;
-        
-        private ArrayList<Parcelable> newItems;
-
-        public CloudUtils.Model loadModel;
-        
-        public int pageSize;
-
-        /**
-         * Set the activity and adapter that this task now belong to. This will
-         * be set as new context is destroyed and created in response to
-         * orientation changes
-         * 
-         * @param lazyEndlessAdapter
-         * @param activity
-         */
-        public void setContext(LazyEndlessAdapter lazyEndlessAdapter, ScActivity activity) {
-            mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
-            mActivityReference = new WeakReference<ScActivity>(activity);
-        }
-
-        /**
-         * Do any task preparation we need to on the UI thread
-         */
-        @Override
-        protected void onPreExecute() {
-            if (mAdapterReference.get() != null)
-                mAdapterReference.get().onPreTaskExecute();
-        }
-
-        /**
-         * Add all new items that have been retrieved, now that we are back on a
-         * UI thread
-         */
-        @Override
-        protected void onPostExecute(Boolean keepGoing) {
-            if (mAdapterReference.get() != null) {
-                if (newItems != null && newItems.size() > 0) {
-                    for (Parcelable newitem : newItems) {
-                        mAdapterReference.get().getData().add(newitem);
-                    }
-                }
-
-                mAdapterReference.get().onPostTaskExecute(keepGoing);
-            }
-            if (mActivityReference.get() != null) {
-                mActivityReference.get().handleError();
-                mActivityReference.get().handleException();
-            }
-        }
-
-        /**
-         * Perform our background loading
-         */
-        @SuppressWarnings("unchecked")
-        @Override
-        protected Boolean doInBackground(HttpUriRequest... params) {
-
-            // make sure we have a valid url
-            HttpUriRequest req = params[0];
-            if (req == null)
-                return false;
-
-            Boolean keep_appending = true;
-
-            try {
-
-                InputStream is = mActivityReference.get().getSoundCloudApplication()
-                        .executeRequest(req);
-                ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
-
-                if (newItems != null)
-                    newItems.clear();
-                switch (mAdapterReference.get().getLoadModel()) {
-                    case track:
-                        newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class,
-                                Track.class));
-                        break;
-                    case user:
-                        newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class,
-                                User.class));
-                        break;
-                    /*
-                     * case comment: newItems = mapper.readValue(is,
-                     * TypeFactory.collectionType(ArrayList.class,
-                     * Comment.class)); break;
-                     */
-                    case event:
-                        EventsWrapper evtWrapper = mapper.readValue(is, EventsWrapper.class);
-                        newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
-                        for (Event evt : evtWrapper.getCollection())
-                            newItems.add(evt);
-
-                        if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null) 
-                            ((EventsAdapterWrapper) mAdapterReference.get())
-                                    .onNextEventsParam(evtWrapper.getNext_href());
-                        break;
-                }
-
-                // resolve data
-                for (Parcelable p : newItems)
-                    if (mActivityReference.get() != null)
-                        CloudUtils.resolveParcelable(mActivityReference.get(), p);
-
-                // we have less than the requested number of items, so we are
-                // done grabbing items for this list
-                if (mActivityReference.get() != null)
-                    if (newItems == null
-                            || newItems.size() < pageSize)
-                        keep_appending = false;
-
-                // we were successful, so increment the adapter
-                if (mAdapterReference.get() != null)
-                    mAdapterReference.get().incrementPage();
-
-                return keep_appending;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                mException = true;
-                // if (mActivityReference != null) mActivityReference.setException(e);
-                if (mAdapterReference.get() != null)
-                    mAdapterReference.get().setException(e);
-            }
-
-            // there was an exception of some kind, return failure
-            return false;
-
-        }
-
-    }
 }

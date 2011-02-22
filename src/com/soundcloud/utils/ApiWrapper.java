@@ -1,15 +1,18 @@
 package com.soundcloud.utils;
 
+import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.ProgressListener;
-
 import oauth.signpost.exception.OAuthException;
-
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -18,14 +21,14 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
-import android.util.Log;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.List;
 
 public class ApiWrapper implements CloudAPI {
@@ -48,27 +51,19 @@ public class ApiWrapper implements CloudAPI {
                       boolean production) {
 
         mSoundCloudApi = new SoundCloudAPI(
-            consumerKey,
-            consumerSecret,
+                consumerKey,
+                consumerSecret,
 
-            token,
-            secret,
+                token,
+                secret,
 
-            production ? SoundCloudAPI.USE_PRODUCTION : SoundCloudAPI.USE_SANDBOX);
+                production ? SoundCloudAPI.USE_PRODUCTION : SoundCloudAPI.USE_SANDBOX);
 
         this.production = production;
         this.mConsumerKey = consumerKey;
     }
 
-    @Override
-    public HttpUriRequest getPreparedRequest(String path) {
-        HttpUriRequest req = getRequest(path, null);
-        req.getParams().setParameter("consumer_key", mConsumerKey);
-        req.addHeader("Accept", "application/json");
-        return req;
-    }
-
-    public HttpClient getHttpClient() {
+    private HttpClient getHttpClient() {
         if (httpClient == null) {
             HttpClient client = new DefaultHttpClient();
             httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(client.getParams(),
@@ -77,34 +72,69 @@ public class ApiWrapper implements CloudAPI {
         return httpClient;
     }
 
-    @Override
-    public InputStream executeRequest(String req) throws IOException {
-        return executeRequest(getRequest(req, null));
-    }
 
     @Override
-    // XXX needed?
-    public InputStream executeRequest(HttpUriRequest req) throws IOException {
-        HttpResponse response = getHttpClient().execute(req);
-        return response.getEntity().getContent();
-    }
+    public int resolve(String uri) throws IOException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        // XXX WTF
+        client.setRedirectHandler(new RedirectHandler() {
+            @Override
+            public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
+                return false;
+            }
 
-    @Override
-    public InputStream getContent(String path) throws IOException {
-        return executeRequest(getPreparedRequest(path));
+            @Override
+            public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
+                return null;
+            }
+        });
+
+        HttpResponse resp = client.execute(getRequest("resolve?url=" +
+                URLEncoder.encode(uri, "UTF-8"), null));
+
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+            Header location = resp.getFirstHeader("Location");
+            if (location != null) {
+                String s = location.getValue();
+                if (s.indexOf("/") != -1) {
+                    return Integer.parseInt(s.substring(s.lastIndexOf("/") + 1, s.length()));
+                }
+            }
+        }
+        return -1;
     }
 
     @Override
     public HttpUriRequest getRequest(String path, List<NameValuePair> params) {
         try {
-            return mSoundCloudApi.getRequest(path, params);
+            HttpUriRequest req = mSoundCloudApi.getRequest(path, params);
+
+            req.getParams().setParameter("consumer_key", mConsumerKey);
+            req.addHeader("Accept", "application/json");
+            return req;
+
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public HttpResponse execute(HttpUriRequest request) throws IOException {
+        try {
+            return mSoundCloudApi.performRequest(request);
+        } catch (OAuthException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
     private String getDomain() {
         return production ? "http://api.soundcloud.com/" : "http://api.sandbox-soundcloud.com/";
+    }
+
+
+    @Override
+    public HttpResponse getContent(String path) throws IOException {
+        return getHttpClient().execute(getRequest(path, null));
     }
 
 
@@ -132,16 +162,16 @@ public class ApiWrapper implements CloudAPI {
     @Override
     public HttpResponse putContent(String path, List<NameValuePair> params) throws IOException {
         try {
-            return mSoundCloudApi.put(path,params);
+            return mSoundCloudApi.put(path, params);
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public HttpResponse postContent(String path, List<NameValuePair> params) throws IOException {
         try {
-            return mSoundCloudApi.post(path,params);
+            return mSoundCloudApi.post(path, params);
         } catch (OAuthException e) {
             throw new RuntimeException(e);
         }
@@ -165,7 +195,8 @@ public class ApiWrapper implements CloudAPI {
     @Override
     public void authorizeWithoutCallback(final Client client) {
         (new Thread() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 SoundCloudAuthorizationClient.AuthorizationStatus status =
                         SoundCloudAuthorizationClient.AuthorizationStatus.FAILED;
 
@@ -244,7 +275,6 @@ public class ApiWrapper implements CloudAPI {
         return params == null ? resourceUrl : resourceUrl + "?"
                 + URLEncodedUtils.format(params, "UTF-8");
     }
-
 
     static class StringBodyNoHeaders extends StringBody {
         public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {

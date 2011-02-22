@@ -22,8 +22,8 @@ public class LoadDetailsTask extends LoadTask {
     @Override
     protected Boolean doInBackground(HttpUriRequest... params) {
         try {
-            InputStream is = mActivityReference.get().getSoundCloudApplication().executeRequest(
-                    params[0]);
+            InputStream is = mActivityReference.get().getSoundCloudApplication().execute(
+                    params[0]).getEntity().getContent(); //XXX
 
             if (isCancelled()) {
                 return false;

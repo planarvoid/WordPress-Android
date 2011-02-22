@@ -77,7 +77,8 @@ public class LoadCommentsTask extends AsyncTask<String, Parcelable, Boolean> {
 
                 String jsonRaw = "";
                 try {
-                    InputStream is = soundcloudApplication.getContent(mUrl);
+                    InputStream is = soundcloudApplication.getContent(mUrl).getEntity().getContent(); //XXX
+
                     jsonRaw = CloudUtils.streamToString(is);
                     // jsonRaw = mCloudComm.getContent(mUrl);
                     if (CloudUtils.getErrorFromJSONResponse(jsonRaw) != "") {

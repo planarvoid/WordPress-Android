@@ -29,13 +29,14 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected Boolean mDone = false;
 
+    // XXX assumes images
     protected ImageLoader mImageLoader;
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {
         mData = (List<Parcelable>) data;
         mActivity = activity;
-        mImageLoader = ImageLoader.get(activity);
+        if (activity != null) mImageLoader = ImageLoader.get(activity);
     }
 
     public List<Parcelable> getData() {
@@ -96,6 +97,4 @@ public class LazyBaseAdapter extends BaseAdapter {
         submenuIndex = -1;
         animateSubmenuIndex = -1;
     }
-
-
 }

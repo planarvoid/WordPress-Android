@@ -39,7 +39,8 @@ public class SoundCloudDB {
         public void resolveTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
             
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + track.id + "'", null, null);
-                if (cursor.getCount() != 0) {
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
                     // add local urls and update database
                     cursor.moveToFirst();
         
@@ -53,8 +54,9 @@ public class SoundCloudDB {
                 }
                 cursor.close();
         
-            // write with insert only because a track will never come in with
+                // write with insert only because a track will never come in with
                 resolveUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
+            }
         }
         
         // ---Make sure the database is up to date with this track info---
@@ -70,7 +72,7 @@ public class SoundCloudDB {
                 cursor.close();
                 cursor.close();
                 
-                User user = resolveUserById(contentResolver, track.user_id, currentUserId);
+                User user = resolveUserById(contentResolver, track.user_id);
                 if (user != null){
                     track.user = user;
                     track.user_id = user.id;
@@ -122,23 +124,23 @@ public class SoundCloudDB {
                 Long currentUserId) {
 
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + user.id + "'", null, null);
-            
-            if (cursor.getCount() != 0) {
-                user.update(cursor); // update the parcelable with values from the db
 
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    updateUser(contentResolver, user, currentUserId.compareTo(user.id) == 0);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    user.update(cursor); // update the parcelable with values from the db
 
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                insertUser(contentResolver, user, currentUserId.compareTo(user.id) == 0);
+                    if (writeState == WriteState.update_only || writeState == WriteState.all)
+                        updateUser(contentResolver, user, currentUserId.compareTo(user.id) == 0);
+
+                } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                    insertUser(contentResolver, user, currentUserId.compareTo(user.id) == 0);
+                }
+                cursor.close();
             }
-            cursor.close();
-
         }
         
         // ---Make sure the database is up to date with this track info---
-        public User resolveUserById(ContentResolver contentResolver, long userId,
-                long currentUserId) {
+        public User resolveUserById(ContentResolver contentResolver, long userId) {
 
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
 

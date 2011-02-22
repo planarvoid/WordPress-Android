@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+
+// XXX Only used for comments at the moment
 public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     
         private static final String TAG = "LoadCollectionTask";
@@ -79,8 +81,9 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
 
             try {
 
-                InputStream is = mActivityReference.get().getSoundCloudApplication()
-                        .executeRequest(req);
+                InputStream is = mActivityReference.get()
+                        .getSoundCloudApplication()
+                        .execute(req).getEntity().getContent();
                 ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 
                 if (newItems != null)

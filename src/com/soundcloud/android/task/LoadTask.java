@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.task;
 
 import java.lang.ref.WeakReference;
@@ -15,10 +14,7 @@ import com.soundcloud.android.CloudUtils;
 public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     protected WeakReference<ScActivity> mActivityReference;
 
-    protected WeakReference<Context> mAppContextReference;
-
     public CloudUtils.Model loadModel;
-
     protected boolean mCancelled;
 
     @Override
@@ -30,10 +26,8 @@ public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boo
 
     public void setActivity(ScActivity activity) {
 
-        mActivityReference = new WeakReference<ScActivity>(activity);
-
         if (activity != null) {
-            mAppContextReference = new WeakReference<Context>(activity.getApplicationContext());
+            mActivityReference = new WeakReference<ScActivity>(activity);
             activity.setException(null);
         }
     }

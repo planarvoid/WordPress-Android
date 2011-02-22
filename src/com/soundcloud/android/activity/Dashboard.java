@@ -23,9 +23,8 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter.AppendTask;
+import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.objects.BaseObj;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
@@ -216,7 +215,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
     @Override
     public void onRefresh(boolean b) {
-        // XXX TODO
+        mList.getWrapper().clear();
     }
 
     public void configureListMenu(ListView list) {

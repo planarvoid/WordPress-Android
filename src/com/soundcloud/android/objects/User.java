@@ -18,6 +18,7 @@ import android.util.Log;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.provider.ScContentProvider;
 
+@SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseObj implements Parcelable {
 
@@ -67,8 +68,8 @@ public class User extends BaseObj implements Parcelable {
 
     public String plan;
 
+    // XXX is this used?
     public String user_following;
-
     public String user_following_id;
 
     public void resolveLocation() {

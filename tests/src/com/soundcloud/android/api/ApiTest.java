@@ -6,9 +6,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.utils.ApiWrapper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.internal.Implements;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +34,7 @@ public abstract class ApiTest implements CloudAPI.Enddpoints {
     }
 
     public void fakeApi(String request, Throwable e) throws IOException {
-        when(api.executeRequest(request)).thenThrow(e);
+        when(api.getContent(request)).thenThrow(e);
     }
     public void fakeApi(String request, String resource) throws IOException {
         InputStream is = getClass().getResourceAsStream(resource);
@@ -38,7 +42,16 @@ public abstract class ApiTest implements CloudAPI.Enddpoints {
     }
 
     public void fakeApi(String request, InputStream data) throws IOException {
-        when(api.executeRequest(request)).thenReturn(data);
+        HttpResponse resp = mock(HttpResponse.class);
+        HttpEntity ent = mock(HttpEntity.class);
+        StatusLine line = mock(StatusLine.class);
+
+        when(ent.getContent()).thenReturn(data);
+        when(resp.getEntity()).thenReturn(ent);
+        when(line.getStatusCode()).thenReturn(200);
+        when(resp.getStatusLine()).thenReturn(line);
+
+        when(api.getContent(request)).thenReturn(resp);
     }
 
     public ObjectMapper getMapper() {
@@ -51,7 +64,7 @@ public abstract class ApiTest implements CloudAPI.Enddpoints {
 
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})
     @Implements(Log.class)
-    static class ShadowLog {
+    public static class ShadowLog {
         public static int v(java.lang.String tag, java.lang.String msg) {
             System.out.println("[" + tag + "] " + msg);
             return 0;

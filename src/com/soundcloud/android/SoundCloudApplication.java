@@ -1,6 +1,7 @@
 
 package com.soundcloud.android;
 
+import android.util.Log;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
@@ -28,7 +29,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
@@ -73,7 +73,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     @Override
     public void onCreate() {
         super.onCreate();
-        ACRA.init(this);
+
+        try {
+            ACRA.init(this);
+        } catch (Exception ignored) {
+            Log.e(TAG, "error", ignored);
+        }
 
         mImageLoader = createImageLoader(this);
 
@@ -104,7 +109,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .remove("oauth_access_token_secret")
                 .remove("lastDashboardIndex")
                 .remove("lastProfileIndex")
-                .putString("currentUserId", "-1")
+                .putLong("currentUserId", -1)
                 .putString("currentUsername", "")
                 .commit();
 
@@ -194,11 +199,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.getMapper();
     }
 
-    public InputStream executeRequest(String req) throws IOException {
-        return mCloudApi.executeRequest(req);
-    }
-
-    public InputStream getContent(String path) throws IOException {
+    public HttpResponse getContent(String path) throws IOException {
         return mCloudApi.getContent(path);
     }
 
@@ -242,14 +243,16 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.getState();
     }
 
-    public HttpUriRequest getPreparedRequest(String path) {
-        return mCloudApi.getPreparedRequest(path);
+    @Override
+    public int resolve(String uri) throws IOException {
+        return mCloudApi.resolve(uri);
     }
 
-    public InputStream executeRequest(HttpUriRequest req) throws IOException {
-        return mCloudApi.executeRequest(req);
+    @Override
+    public HttpResponse execute(HttpUriRequest request) throws IOException {
+        return mCloudApi.execute(request);
     }
-    
+
     public void cacheComments(long track_id, ArrayList<Comment> comments){
         mCommentCache.put(track_id, comments);
     }
