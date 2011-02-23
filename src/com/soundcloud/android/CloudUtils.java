@@ -371,7 +371,15 @@ public class CloudUtils {
 
     public static long getCurrentUserId(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return Long.parseLong(preferences.getString("currentUserId", "-1"));
+        try {
+            return preferences.getLong(SoundCloudApplication.USER_ID, -1);
+        } catch (ClassCastException e) {
+            long id = Long.parseLong(preferences.getString(SoundCloudApplication.USER_ID, "-1"));
+            if (id != -1) {
+                preferences.edit().putLong(SoundCloudApplication.USER_ID, id).commit();
+            }
+            return id;
+        }
     }
 
     public static boolean checkIconShouldLoad(String url) {

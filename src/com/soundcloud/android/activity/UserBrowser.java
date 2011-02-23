@@ -117,17 +117,13 @@ public class UserBrowser extends ScActivity {
         mLastTabIndex = 0;
 
         Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
 
-        if (extras != null) {
-            if (extras.getParcelable("user") != null) {
-                loadUserByObject((User) extras.getParcelable("user"));
-                extras.remove("user");
-            }
-            if (extras.containsKey("userId")) {
-                loadUserById(extras.getLong("userId"));
-                extras.remove("userId");
-            }
+        if (intent.hasExtra("user")) {
+            loadUserByObject((User) intent.getParcelableExtra("user"));
+            intent.removeExtra("user");
+        } else if (intent.hasExtra("userId")) {
+            loadUserById(intent.getLongExtra("userId", -1));
+            intent.removeExtra("userId");
         } else {
             loadYou();
         }
@@ -185,15 +181,11 @@ public class UserBrowser extends ScActivity {
 
     private void loadYou() {
         if (getUserId() != -1) {
-            try {
-                mUserLoadId = getUserId();
+            mapUser(SoundCloudDB.getInstance().resolveUserById(
+                    getContentResolver(),
+                    getUserId()));
 
-                mapUser(SoundCloudDB.getInstance().resolveUserById(
-                        getContentResolver(),
-                        getUserId()));
-            } catch (NumberFormatException nfe) {
-                // bad data - user has a corrupted value, and will be corrected on load
-            }
+            mUserLoadId = getUserId();
         }
         build();
     }
@@ -209,7 +201,6 @@ public class UserBrowser extends ScActivity {
         mapUser(userInfo);
         build();
     }
-
 
 
     private void loadDetails() {
@@ -291,10 +282,10 @@ public class UserBrowser extends ScActivity {
 
         if (!isOtherUser()) {
             mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this).getInt("lastProfileIndex", 0);
-            mWorkspaceView.initWorkspace(0, mLastTabIndex);
+            mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
-            mWorkspaceView.initWorkspace(0, 0);
+            mWorkspaceView.initWorkspace(0);
         }
 
         mWorkspaceView.addView(mTracksView);

@@ -46,6 +46,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     static final boolean API_PRODUCTION = true;
 
+    public static final String USERNAME = "currentUsername";
+    public static final String USER_ID  = "currentUserId";
+    public static final String TOKEN    = "oauth_access_token";
+    public static final String SECRET   = "oauth_access_token_secret";
+
+
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
@@ -84,8 +90,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi = new ApiWrapper(
             getConsumerKey(API_PRODUCTION),
             getConsumerSecret(API_PRODUCTION),
-            preferences.getString("oauth_access_token", ""),
-            preferences.getString("oauth_access_token_secret", ""),
+            preferences.getString(TOKEN, ""),
+            preferences.getString(SECRET, ""),
             API_PRODUCTION);
     }
 
@@ -103,23 +109,21 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .remove("oauth_access_token")
-                .remove("oauth_access_token_secret")
+                .remove(TOKEN)
+                .remove(SECRET)
                 .remove("lastDashboardIndex")
                 .remove("lastProfileIndex")
-                .putLong("currentUserId", -1)
-                .putString("currentUsername", "")
+                .putLong(USER_ID, -1)
+                .putString(USERNAME, "")
                 .commit();
 
 
         mCloudApi.unauthorize();
     }
 
-
     public static HashMap<String, String[]> getDBColumns() {
         return dbColumns;
     }
-
 
     public ContentHandler getBitmapHandler(){
         return mBitmapHandler;

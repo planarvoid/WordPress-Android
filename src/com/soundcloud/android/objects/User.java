@@ -81,6 +81,7 @@ public class User extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
+
     public User(Cursor cursor) {
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();

@@ -92,24 +92,4 @@ public class Dashboard extends ScActivity {
     public void onRefresh() {
         mTracklistView.onRefresh();
     }
-
-    public void mapDetails(Parcelable p) {
-        // XXX this should only happen once, after authorizing w/ soundcloud
-        if (((User) p).id != null) {
-            SoundCloudDB.getInstance().resolveUser(getContentResolver(), (User) p, SoundCloudDB.WriteState.all, ((User) p).id);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-            String lastUserId = preferences.getString("currentUserId", null);
-
-            Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
-
-            if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
-                Log.i(TAG, "--------- new user");
-                preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
-                .putString("currentUsername", ((User) p).username).commit();
-
-            }
-        }
-    }
-
 }

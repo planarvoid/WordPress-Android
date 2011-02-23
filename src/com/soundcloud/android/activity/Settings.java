@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -9,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 import android.view.Menu;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -71,7 +74,7 @@ public class Settings extends PreferenceActivity {
                             startActivity(new Intent(
                                     android.provider.Settings.ACTION_WIRELESS_SETTINGS));
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         }
                         return true;
                     }
@@ -132,7 +135,6 @@ public class Settings extends PreferenceActivity {
                                 }).setNegativeButton("Cancel",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-
                                     }
                                 }).create();
         }

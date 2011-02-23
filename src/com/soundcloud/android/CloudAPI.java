@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpResponse;
@@ -87,9 +88,7 @@ public interface CloudAPI {
 
     SoundCloudAPI.State getState();
 
-
-
     static interface Client extends SoundCloudAuthorizationClient {
-        void storeKeys(String token , String secret);
+        void storeKeys(User user, String token, String secret);
     }
 }

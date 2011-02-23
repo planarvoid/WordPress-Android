@@ -84,12 +84,6 @@ public class ScTabActivity extends TabActivity {
                         .commit();
             }
         });
-
-
-//        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this)
-//                .getInt("lastDashboardIndex", 0));
-
-
         handleIntent();
     }
 
@@ -101,8 +95,7 @@ public class ScTabActivity extends TabActivity {
     }
 
     private void handleIntent() {
-        if (getIntent() != null && getIntent().getExtras() != null
-                && getIntent().getIntExtra("tabIndex", -1) != -1) {
+        if (getIntent() != null && getIntent().hasExtra("tabIndex")) {
             mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
             getIntent().getExtras().clear();
         }
@@ -150,7 +143,6 @@ public class ScTabActivity extends TabActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.REFRESH:
-
                 ((ScActivity)getCurrentActivity()).onRefresh();
                 return true;
         }

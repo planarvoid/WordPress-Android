@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.CloudUtils.getCurrentUserId;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -164,7 +165,6 @@ public abstract class ScActivity extends Activity {
     }
 
 
-
     /**
      * Bind our services
      */
@@ -191,7 +191,6 @@ public abstract class ScActivity extends Activity {
 
 
     }
-
 
 
     /**
@@ -221,15 +220,13 @@ public abstract class ScActivity extends Activity {
         if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
             pause(true);
 
-            if (!(this instanceof Authorize)) {
-                onReauthenticate();
+            onReauthenticate();
 
-                Intent intent = new Intent(this, Authorize.class);
-                intent.putExtra("reauthorize", true);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-            }
+            Intent intent = new Intent(this, Authorize.class);
+            intent.putExtra("reauthorize", true);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -276,7 +273,7 @@ public abstract class ScActivity extends Activity {
             Log.e(TAG, "error", e);
         }
 
-        if (goToPlayer){
+        if (goToPlayer) {
             Intent intent = new Intent(this, ScPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
@@ -344,14 +341,13 @@ public abstract class ScActivity extends Activity {
         f.execute(t);
     }
 
-    protected void onFavoriteStatusSet(long trackId, boolean isFavorite){
+    protected void onFavoriteStatusSet(long trackId, boolean isFavorite) {
 
     }
 
 
-
     public LazyListView buildList() {
-        LazyListView lv  = new LazyListView(this);
+        LazyListView lv = new LazyListView(this);
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setOnItemClickListener(mOnItemClickListener);
         lv.setOnItemLongClickListener(mOnItemLongClickListener);
@@ -402,16 +398,14 @@ public abstract class ScActivity extends Activity {
 
     };
     protected AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        public void onItemSelected(AdapterView<?> listView, View view, int position, long id)
-        {
+        public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
             if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position)
                 listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             else
                 listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         }
 
-        public void onNothingSelected(AdapterView<?> listView)
-        {
+        public void onNothingSelected(AdapterView<?> listView) {
             // This happens when you start scrolling, so we need to prevent it from staying
             // in the afterDescendants mode if the EditText was focused
             listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -422,16 +416,16 @@ public abstract class ScActivity extends Activity {
     public void addNewComment(final Track track, final long timestamp) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScActivity.this)
-        .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
-        .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                sendComment(track.id,timestamp,input.getText().toString(),0);
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Do nothing.
-            }
-        }).create();
+                .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
+                .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        sendComment(track.id, timestamp, input.getText().toString(), 0);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Do nothing.
+                    }
+                }).create();
 
         input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -446,12 +440,13 @@ public abstract class ScActivity extends Activity {
 
     private HttpResponse mAddCommentResult;
     private Comment mAddComment;
+
     void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
 
         mAddComment = new Comment();
         mAddComment.track_id = track_id;
         mAddComment.created_at = new Date(System.currentTimeMillis());
-        mAddComment.user_id = CloudUtils.getCurrentUserId(this);
+        mAddComment.user_id = getCurrentUserId(this);
 
         mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id);
         mAddComment.timestamp = timestamp;
@@ -484,7 +479,7 @@ public abstract class ScActivity extends Activity {
     final Runnable mOnCommentAdd = new Runnable() {
         public void run() {
 
-            if (mAddCommentResult != null && mAddCommentResult.getStatusLine().getStatusCode() == 201){
+            if (mAddCommentResult != null && mAddCommentResult.getStatusLine().getStatusCode() == 201) {
                 onCommentAdded(mAddComment);
             } else {
                 handleException();
@@ -492,7 +487,7 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    protected void onCommentAdded(Comment c){
+    protected void onCommentAdded(Comment c) {
         getSoundCloudApplication().uncacheComments(c.track_id);
     }
 
@@ -508,7 +503,7 @@ public abstract class ScActivity extends Activity {
                 setPlayingTrack(intent.getLongExtra("id", -1), true);
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPlayingTrack(-1, false);
-            }  else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), intent.getBooleanExtra("isPlaying", false));
             }
         }
@@ -518,7 +513,7 @@ public abstract class ScActivity extends Activity {
         if (mAdapters == null || mAdapters.size() == 0)
             return;
 
-        for (LazyBaseAdapter adp : mAdapters){
+        for (LazyBaseAdapter adp : mAdapters) {
             if (TracklistAdapter.class.isAssignableFrom(adp.getClass()))
                 ((TracklistAdapter) adp).setPlayingId(id, isPlaying);
         }
@@ -554,8 +549,8 @@ public abstract class ScActivity extends Activity {
         setException(null);
     }
 
-    public void safeShowDialog(int dialogId){
-        if (!isFinishing()){
+    public void safeShowDialog(int dialogId) {
+        if (!isFinishing()) {
             showDialog(dialogId);
         }
     }
@@ -582,36 +577,36 @@ public abstract class ScActivity extends Activity {
         switch (which) {
             case CloudUtils.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
-                .setMessage(R.string.error_unauthorized_message).setPositiveButton(
-                        android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
-                            }
-                        }).create();
+                        .setMessage(R.string.error_unauthorized_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
+                                    }
+                                }).create();
             case CloudUtils.Dialogs.DIALOG_ERROR_LOADING:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
-                .setMessage(R.string.error_loading_message).setPositiveButton(
-                        android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-                            }
-                        }).create();
+                        .setMessage(R.string.error_loading_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+                                    }
+                                }).create();
             case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
-                .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                        getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                //XXX cancelCurrentUpload();
-                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        //XXX cancelCurrentUpload();
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
 
-                            }
-                        }).setNegativeButton(getString(R.string.btn_no),
+                                    }
+                                }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-                            }
-                        }).create();
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).create();
             default:
                 return super.onCreateDialog(which);
         }
@@ -656,12 +651,9 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getUserId() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        // XXX
-        return Long.parseLong(preferences.getString("currentUserId", "-1"));
+        return getCurrentUserId(this);
     }
 
     public void onRefresh() {
     }
-
 }

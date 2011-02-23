@@ -1,4 +1,3 @@
-
 package com.soundcloud.utils;
 
 /**
@@ -26,7 +25,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
@@ -47,9 +45,6 @@ public class WorkspaceView extends ViewGroup {
     // The velocity at which a fling gesture will cause us to snap to the next
     // screen
     private static final int SNAP_VELOCITY = 1000;
-
-    // the default screen index
-    private int defaultScreen;
 
     // The current screen index
     private int currentScreen;
@@ -74,12 +69,10 @@ public class WorkspaceView extends ViewGroup {
 
     private static final int TAB_INDICATOR_HEIGHT_PCT = 2;
 
-    private RectF selectedTab;
-
     // The scroller which scroll each view
     private Scroller scroller;
 
-    // A tracker which to calculate the velocity of a mouvement
+    // A tracker which to calculate the velocity of a movement
     private VelocityTracker mVelocityTracker;
 
     // Tha last known values of X and Y
@@ -103,17 +96,24 @@ public class WorkspaceView extends ViewGroup {
     // A flag to know if touch event have to be ignored. Used also in internal
     private boolean locked;
 
-    private WorkspaceOvershootInterpolator mScrollInterpolator;
-
     private int mMaximumVelocity;
 
     private Paint selectedTabPaint;
 
-    private Canvas canvas;
-
-    private RectF bar;
-
     private Paint tabIndicatorBackgroundPaint;
+
+
+    public WorkspaceView(Context context) {
+        super(context);
+    }
+
+    public WorkspaceView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public WorkspaceView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
 
     private static class WorkspaceOvershootInterpolator implements Interpolator {
         private static final float DEFAULT_TENSION = 1.0f;
@@ -124,55 +124,21 @@ public class WorkspaceView extends ViewGroup {
             mTension = DEFAULT_TENSION;
         }
 
-        public void setDistance(int distance) {
-            mTension = distance > 0 ? DEFAULT_TENSION / distance : DEFAULT_TENSION;
-        }
-
-        public void disableSettle() {
-            mTension = 0.f;
-        }
-
         public float getInterpolation(float t) {
-            // _o(t) = t * t * ((tension + 1) * t + tension)
-            // o(t) = _o(t - 1) + 1
             t -= 1.0f;
             return t * t * ((mTension + 1) * t + mTension) + 1.0f;
         }
     }
 
-    /**
-     * Used to inflate the Workspace from XML.
-     * 
-     * @param context The application's context.
-     * @param attrs The attribtues set containing the Workspace's customization
-     *            values.
-     */
-    public WorkspaceView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
 
-    /**
-     * Used to inflate the Workspace from XML.
-     * 
-     * @param context The application's context.
-     * @param attrs The attribtues set containing the Workspace's customization
-     *            values.
-     * @param defStyle Unused.
-     */
-    public WorkspaceView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        defaultScreen = 0;
-    }
-    
     /**
      * Initializes various states for this workspace.
      */
-    public void initWorkspace(int defaultScreen, int initialScreen) {
-        mScrollInterpolator = new WorkspaceOvershootInterpolator();
+    public void initWorkspace(int initialScreen) {
+        WorkspaceOvershootInterpolator mScrollInterpolator = new WorkspaceOvershootInterpolator();
         scroller = new Scroller(getContext(), mScrollInterpolator);
 
         this.currentScreen = initialScreen;
-        this.defaultScreen = defaultScreen;
 
         paint = new Paint();
         paint.setDither(false);
@@ -189,35 +155,13 @@ public class WorkspaceView extends ViewGroup {
         tabIndicatorBackgroundPaint = new Paint();
         tabIndicatorBackgroundPaint.setColor(getResources().getColor(R.color.background_dark));
         tabIndicatorBackgroundPaint.setStyle(Paint.Style.FILL);
-    }
 
-    /**
-     * Set a new distance that a touch can wander before we think the user is
-     * scrolling in pixels slop<br/>
-     * 
-     * @param touchSlopP
-     */
-    public void setTouchSlop(int touchSlopP) {
-        touchSlop = touchSlopP;
-    }
 
-    /**
-     * Set the background's wallpaper.
-     */
-    public void loadWallpaper(Bitmap bitmap) {
-        wallpaper = bitmap;
-        wallpaperLoaded = true;
-        requestLayout();
-        invalidate();
-    }
-
-    boolean isDefaultScreenShowing() {
-        return currentScreen == defaultScreen;
     }
 
     /**
      * Returns the index of the currently displayed screen.
-     * 
+     *
      * @return The index of the currently displayed screen.
      */
     int getCurrentScreen() {
@@ -225,31 +169,9 @@ public class WorkspaceView extends ViewGroup {
     }
 
     /**
-     * Sets the current screen.
-     * 
-     * @param currentScreen
-     */
-    public void setCurrentScreen(int currentScreen) {
-
-        if (!scroller.isFinished())
-            scroller.abortAnimation();
-        currentScreen = Math.max(0, Math.min(currentScreen, getChildCount()));
-        scrollTo(currentScreen * getWidth(), 0);
-        Log.d("workspace", "setCurrentScreen: width is " + getWidth());
-        invalidate();
-    }
-
-    /**
-     * Shows the default screen (defined by the firstScreen attribute in XML.)
-     */
-    void showDefaultScreen() {
-        setCurrentScreen(defaultScreen);
-    }
-
-    /**
      * Registers the specified listener on each screen contained in this
      * workspace.
-     * 
+     *
      * @param l The listener used to respond to long clicks.
      */
     @Override
@@ -349,7 +271,7 @@ public class WorkspaceView extends ViewGroup {
         // Compute wallpaper
         if (wallpaperLoaded) {
             wallpaperLoaded = false;
-            wallpaper = centerToFit(wallpaper, width, height, getContext());
+            wallpaper = centerToFit(wallpaper, width, height);
             wallpaperWidth = wallpaper.getWidth();
             wallpaperHeight = wallpaper.getHeight();
         }
@@ -360,39 +282,35 @@ public class WorkspaceView extends ViewGroup {
             firstWallpaperLayout = false;
         }
 
-        // Log.d("workspace","Top is "+getTop()+", bottom is "+getBottom()+", left is "+getLeft()+", right is "+getRight());
-
         updateTabIndicator();
         invalidate();
     }
 
     Bitmap bitmap;
 
-    // private OnLoadListener load;
-
-    private int lastEvHashCode;
 
     private void updateTabIndicator() {
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
 
         // For drawing in its own bitmap:
-        bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT * height / 100));
+        RectF bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
         int startPos = getScrollX() / (getChildCount());
-        selectedTab = new RectF(startPos, 0, startPos + width / getChildCount(),
+        RectF selectedTab = new RectF(startPos, 0, startPos + width / getChildCount(),
                 (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
+
+        // XXX ye gods, no, don't create bitmaps in loops
         bitmap = Bitmap.createBitmap(width, (TAB_INDICATOR_HEIGHT_PCT * height / 100),
                 Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(bitmap);
+
+        Canvas canvas = new Canvas(bitmap);
         canvas.drawRoundRect(bar, 0, 0, tabIndicatorBackgroundPaint);
         canvas.drawRoundRect(selectedTab, 5, 5, selectedTabPaint);
     }
 
-    /**
-     * Overrided method to layout child
-     */
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int childLeft = 0;
@@ -687,11 +605,7 @@ public class WorkspaceView extends ViewGroup {
         scrollToScreen(whichScreen);
     }
 
-    /**
-     * Scroll to a specific screen
-     * 
-     * @param whichScreen
-     */
+
     public void scrollToScreen(int whichScreen) {
         scrollToScreen(whichScreen, false);
     }
@@ -719,13 +633,7 @@ public class WorkspaceView extends ViewGroup {
         }
     }
 
-    public void scrollToScreenImmediate(int whichScreen) {
-        scrollToScreen(whichScreen, true);
-    }
 
-    /**
-     * Return the parceable instance to be saved
-     */
     @Override
     protected Parcelable onSaveInstanceState() {
         final SavedState state = new SavedState(super.onSaveInstanceState());
@@ -733,134 +641,28 @@ public class WorkspaceView extends ViewGroup {
         return state;
     }
 
-    /**
-     * Restore the previous saved current screen
-     */
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        Log.i("workspace","On Restore Instance Sta " + state);
-        
+        Log.i("workspace", "On Restore Instance Sta " + state);
+
         SavedState savedState = (SavedState) state;
-        
-        Log.i("workspace","On Restore Instance State 2 " + savedState.getSuperState());
+
+        Log.i("workspace", "On Restore Instance State 2 " + savedState.getSuperState());
         super.onRestoreInstanceState(savedState.getSuperState());
         if (savedState.currentScreen != -1) {
             currentScreen = savedState.currentScreen;
         }
     }
 
-    /**
-     * Scroll to the left right screen
-     */
-    public void scrollLeft() {
-        if (nextScreen == INVALID_SCREEN && currentScreen > 0 && scroller.isFinished()) {
-            scrollToScreen(currentScreen - 1);
-        }
-    }
 
-    /**
-     * Scroll to the next right screen
-     */
-    public void scrollRight() {
-        if (nextScreen == INVALID_SCREEN && currentScreen < getChildCount() - 1
-                && scroller.isFinished()) {
-            scrollToScreen(currentScreen + 1);
-        }
-    }
-
-    /**
-     * Return the screen's index where a view has been added to.
-     * 
-     * @param v
-     * @return
-     */
-    public int getScreenForView(View v) {
-        int result = -1;
-        if (v != null) {
-            ViewParent vp = v.getParent();
-            int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                if (vp == getChildAt(i)) {
-                    return i;
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Return a view instance according to the tag parameter or null if the view
-     * could not be found
-     * 
-     * @param tag
-     * @return
-     */
-    public View getViewForTag(Object tag) {
-        int screenCount = getChildCount();
-        for (int screen = 0; screen < screenCount; screen++) {
-            View child = getChildAt(screen);
-            if (child.getTag() == tag) {
-                return child;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Unlocks the SlidingDrawer so that touch events are processed.
-     * 
-     * @see #lock()
-     */
-    public void unlock() {
-        locked = false;
-    }
-
-    /**
-     * Locks the SlidingDrawer so that touch events are ignores.
-     * 
-     * @see #unlock()
-     */
-    public void lock() {
-        locked = true;
-    }
-
-    /**
-     * @return True is long presses are still allowed for the current touch
-     */
-    public boolean allowLongPress() {
-        return allowLongPress;
-    }
-
-    /**
-     * Move to the default screen
-     */
-    public void moveToDefaultScreen() {
-        scrollToScreen(defaultScreen);
-        getChildAt(defaultScreen).requestFocus();
-    }
-
-    // ========================= INNER CLASSES ==============================
-
-    /**
-     * A SavedState which save and load the current screen
-     */
     public static class SavedState extends BaseSavedState {
         int currentScreen = -1;
 
-        /**
-         * Internal constructor
-         * 
-         * @param superState
-         */
+
         SavedState(Parcelable superState) {
             super(superState);
         }
 
-        /**
-         * Private constructor
-         * 
-         * @param in
-         */
         private SavedState(Parcel in) {
             super(in);
             currentScreen = in.readInt();
@@ -889,49 +691,20 @@ public class WorkspaceView extends ViewGroup {
         };
     }
 
-    // Added for "flipper" compatibility
     public int getDisplayedChild() {
         return getCurrentScreen();
     }
 
-    public void setDisplayedChild(int i) {
-        setDisplayedChild(i, false);
-    }
-    
     public void setDisplayedChild(int i, boolean immediate) {
-        // setCurrentScreen(i);
-        scrollToScreen(i,immediate);
+        scrollToScreen(i, immediate);
         getChildAt(i).requestFocus();
     }
-
-    // public void setOnLoadListener(OnLoadListener load){
-    // this.load = load;
-    // }
 
     public void setOnScrollListener(OnScrollListener listener) {
         this.scrollListener = listener;
     }
 
-    public void flipLeft() {
-        scrollLeft();
-    }
-
-    public void flipRight() {
-        scrollRight();
-    }
-
-    // ======================== UTILITIES METHODS ==========================
-
-    /**
-     * Return a centered Bitmap
-     * 
-     * @param bitmap
-     * @param width
-     * @param height
-     * @param context
-     * @return
-     */
-    static Bitmap centerToFit(Bitmap bitmap, int width, int height, Context context) {
+    static Bitmap centerToFit(Bitmap bitmap, int width, int height) {
         final int bitmapWidth = bitmap.getWidth();
         final int bitmapHeight = bitmap.getHeight();
 
@@ -949,11 +722,8 @@ public class WorkspaceView extends ViewGroup {
         return bitmap;
     }
 
-    // ======================== SCROLL LISTENER ==========================
-
     private OnScrollListener scrollListener;
 
-    // Define our custom Listener interface
     public interface OnScrollListener {
         public abstract void onScrollToView(int index);
     }

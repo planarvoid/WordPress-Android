@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -18,6 +19,8 @@ import android.webkit.WebViewClient;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.objects.User;
 
 import java.util.concurrent.Semaphore;
 
@@ -28,7 +31,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
  * 
  * @http://code.google.com/p/soundclouddroid/
  */
-public class Authorize extends ScActivity implements CloudAPI.Client {
+public class Authorize extends Activity implements CloudAPI.Client {
     private WebView mWebView;
     private Exception mAuthorizationException;
     private Semaphore mVerificationCodeAvailable;
@@ -58,12 +61,8 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
 
         mVerificationCodeAvailable = new Semaphore(0);
 
-        this.getSoundCloudApplication().authorizeWithoutCallback(this);
-        safeShowDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
-    }
-
-    @Override
-    public void onRefresh() {
+        ((SoundCloudApplication) getApplication()).authorizeWithoutCallback(this);
+        showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
     }
 
     @Override
@@ -115,18 +114,17 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
     public void exceptionOccurred(Exception e) {
         Log.i(TAG, "Exception Occured " + e.toString());
         mAuthorizationException = e;
-
     }
 
     @Override
     public String getVerificationCode() {
         try {
             mVerificationCodeAvailable.acquire();
+            return mVerificationCode;
         } catch (InterruptedException e) {
             Log.v(Authorize.class.getSimpleName(), Log.getStackTraceString(e));
             return null;
         }
-        return mVerificationCode;
     }
 
     @Override
@@ -144,11 +142,13 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
     };
 
     @Override
-    public void storeKeys(String token, String secret) {
+    public void storeKeys(User me, String token, String secret) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferences.edit()
-                .putString("oauth_access_token", token)
-                .putString("oauth_access_token_secret", secret)
+                .putLong(SoundCloudApplication.USER_ID, me.id)
+                .putString(SoundCloudApplication.USERNAME, me.username)
+                .putString(SoundCloudApplication.TOKEN, token)
+                .putString(SoundCloudApplication.TOKEN, secret)
                 .commit();
     }
 
