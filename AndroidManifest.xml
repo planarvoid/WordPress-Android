@@ -14,7 +14,7 @@
         android:authorities="com.soundcloud.android.providers.ScContentProvider" />
 
 
-        <activity android:name=".activity.ScTabActivity"
+        <activity android:name=".activity.Main"
                   android:label="@string/app_name"
                   android:windowSoftInputMode="adjustPan">
 

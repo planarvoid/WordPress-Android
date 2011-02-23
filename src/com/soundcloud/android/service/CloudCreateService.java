@@ -7,8 +7,8 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.activity.ScTabActivity;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.utils.record.CloudRecorder;
@@ -236,7 +236,7 @@ public class CloudCreateService extends Service {
                 .getResources().getString(R.string.cloud_recorder_notification_ticker), System
                 .currentTimeMillis());
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .putExtra("tabIndex", 3 /* XXX */);
@@ -297,7 +297,7 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = getString(R.string.cloud_uploader_notification_ticker);
         mNotification = new Notification(icon, tickerText, System.currentTimeMillis());
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -487,7 +487,7 @@ public class CloudCreateService extends Service {
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
-public class ScTabActivity extends TabActivity {
+public class Main extends TabActivity {
 
     protected boolean mIgnorePlaybackStatus = false;
 
@@ -79,7 +79,7 @@ public class ScTabActivity extends TabActivity {
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
-                PreferenceManager.getDefaultSharedPreferences(ScTabActivity.this).edit()
+                PreferenceManager.getDefaultSharedPreferences(Main.this).edit()
                         .putInt("lastDashboardIndex", mTabHost.getCurrentTab())
                         .commit();
             }
