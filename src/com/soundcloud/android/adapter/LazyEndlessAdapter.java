@@ -1,6 +1,16 @@
 
 package com.soundcloud.android.adapter;
 
+
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.view.LazyListView;
+
+import org.apache.http.client.methods.HttpUriRequest;
+
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.Html;
@@ -11,22 +21,10 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.view.LazyListView;
-import org.apache.http.client.methods.HttpUriRequest;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-/**
- * A background task that will be run when there is a need to append more data.
- * Mostly, this code delegates to the subclass, to append the data in the
- * background thread and rebind the pending view once that is done.
- */
 
 public class LazyEndlessAdapter extends AdapterWrapper {
 
@@ -105,7 +103,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     /**
      * Create an empty view for the list this adapter will control. This is done
      * here because this adapter will control the visibility of the list
-     * 
+     *
      * @param lv
      */
     public void createListEmptyView(LazyListView lv) {
@@ -181,10 +179,29 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         return (LazyBaseAdapter) super.getWrappedAdapter();
     }
 
+
+    public Object saveState(){
+        return new Object[] {
+                getData(),
+                getTask(),
+                savePagingData(),
+                saveExtraData()
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    public void restoreState(Object[] state){
+        if (state[0] != null) this.getData().addAll((Collection<? extends Parcelable>) state[0]);
+        if (state[1] != null) this.restoreTask((AppendTask) state[1]);
+        if (state[2] != null) this.restorePagingData((int[]) state[2]);
+        if (state[3] != null) this.restoreExtraData((String) state[3]);
+    }
+
+
     /**
      * Restore a possibly still running task that could have been passed in on
      * creation
-     * 
+     *
      * @param ap
      */
     public void restoreTask(AppendTask ap) {
@@ -196,7 +213,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get a possibly currently running task to save
-     * 
+     *
      * @return
      */
     public AppendTask getTask() {
@@ -205,7 +222,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Save the current paging data
-     * 
+     *
      * @return an integer list {whether to keep retrieving data, the current
      *         page the adapter is on}
      */
@@ -222,7 +239,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Restore the current paging data
-     * 
+     *
      * @return an integer list {whether to keep retrieving data, the current
      *         page the adapter is on}
      */
@@ -240,7 +257,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Save the current extra data
-     * 
+     *
      * @return a string representing any extra data pertaining to this adapter
      */
     public String saveExtraData() {
@@ -249,7 +266,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Restore the extra data
-     * 
+     *
      * @param restore : the string data to restore
      */
     public void restoreExtraData(String restore) {
@@ -257,7 +274,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the collection key associated with this adapter
-     * 
+     *
      * @return
      */
     public String getCollectionKey() {
@@ -266,7 +283,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the Load Model associated with this adapter
-     * 
+     *
      * @return
      */
     public CloudUtils.Model getLoadModel() {
@@ -275,7 +292,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the current page of this adapter
-     * 
+     *
      * @return
      */
     public int getCurrentPage() {
@@ -284,7 +301,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the data of this adapter by getting the wrapped data
-     * 
+     *
      * @return
      */
     public List<Parcelable> getData() {
@@ -310,7 +327,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * set. In this case, if we are at the end of the list and we are still in
      * append mode, we ask for a pending view and return it, plus kick off the
      * background task to append more data to the wrapped adapter.
-     * 
+     *
      * @param position Position of the item whose data we want
      * @param convertView View to recycle, if not null
      * @param parent ViewGroup containing the returned View
@@ -349,7 +366,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * A load task has just executed, set the current adapter in response
-     * 
+     *
      * @param keepgoing
      */
     @SuppressWarnings("unchecked")
@@ -376,7 +393,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     /**
      * Create a row for displaying a loading message by getting a row from the
      * wrapped adapter and displaying the loading views of that row
-     * 
+     *
      * @param parent
      * @return
      */
@@ -393,7 +410,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Turn the loading view into a real view
-     * 
+     *
      * @param position
      * @param row
      */
@@ -413,7 +430,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Set the url for this adapter
-     * 
+     *
      * @param url : url this adapter will use to get data from
      * @param query : if this adapter is performing a search, this is the user's
      *            search query
@@ -425,7 +442,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the current url for this adapter
-     * 
+     *
      * @return the url
      */
     protected String getUrl() {
@@ -434,7 +451,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the current search query for this adapter
-     * 
+     *
      * @return the query
      */
     protected String getQuery() {
@@ -450,7 +467,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * There was an exception during the load task
-     * 
+     *
      * @param e : the exception
      */
     public void setException(Exception e) {
@@ -491,7 +508,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the current url for this adapter
-     * 
+     *
      * @return the url
      */
     private HttpUriRequest buildRequest() {

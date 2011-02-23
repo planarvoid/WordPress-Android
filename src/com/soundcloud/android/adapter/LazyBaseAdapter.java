@@ -7,8 +7,8 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
-import android.content.Context;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,7 +18,7 @@ import java.util.List;
 public class LazyBaseAdapter extends BaseAdapter {
 
     public int submenuIndex = -1;
-    
+
     public int animateSubmenuIndex = -1;
 
     protected ScActivity mActivity;
@@ -64,9 +64,11 @@ public class LazyBaseAdapter extends BaseAdapter {
             rowView = (LazyRow) row;
         }
 
+        Log.i(getClass().getSimpleName(),"GET VIEW");
+
         // update the cell renderer, and handle selection state
         rowView.display(index);
-                
+
 
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
@@ -77,7 +79,7 @@ public class LazyBaseAdapter extends BaseAdapter {
                 mImageLoader.unbind(rowView.getRowIcon());
         } catch (Exception e) {
         }
-        
+
         rowView.setTemporaryDrawable(result);
 
         return rowView;
@@ -86,7 +88,7 @@ public class LazyBaseAdapter extends BaseAdapter {
     protected LazyRow createRow() {
         return new LazyRow(mActivity, this);
     }
-    
+
     public void clear() {
         mData.clear();
         reset();

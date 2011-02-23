@@ -7,6 +7,7 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
 
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -16,9 +17,11 @@ public class TracklistAdapter extends LazyBaseAdapter {
 
     public static final String TAG = "TracklistAdapter";
 
-    protected long _playingId = -1;
+    public long playingId = -1;
 
-    protected int _playingPosition = -1;
+    public boolean isPlaying = false;
+
+    public int playingPosition = -1;
 
     public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
@@ -33,8 +36,11 @@ public class TracklistAdapter extends LazyBaseAdapter {
         return (Track) mData.get(index);
     }
 
-    public void setPlayingId(long currentTrackId) {
-        _playingId = currentTrackId;
+    public void setPlayingId(long currentTrackId, boolean isPlaying) {
+        this.playingId = currentTrackId;
+        this.isPlaying = isPlaying;
+
+        Log.i(TAG,"IS Playing " + isPlaying);
 
         for (int i = 0; i < mData.size(); i++) {
             if (getTrackAt(i).id.compareTo(currentTrackId) == 0) {
@@ -43,8 +49,9 @@ public class TracklistAdapter extends LazyBaseAdapter {
         }
 
         notifyDataSetChanged();
+        Log.i(TAG,"Notified change " + isPlaying);
     }
-    
+
     public void setFavoriteStatus(long trackId, boolean isFavorite) {
         for (int i = 0; i < mData.size(); i++) {
             if (getTrackAt(i).id.compareTo(trackId) == 0) {
@@ -54,13 +61,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
         }
         notifyDataSetChanged();
     }
-    
-    public long getPlayingId(){
-        return _playingId;
-    }
 
-    public void setPlayingPosition(int position) {
-        _playingPosition = position;
-    }
 
 }

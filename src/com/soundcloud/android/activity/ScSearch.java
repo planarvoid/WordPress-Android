@@ -1,20 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -24,10 +9,25 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.view.LazyListView;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class ScSearch extends ScActivity implements AdapterView.OnItemClickListener {
+public class ScSearch extends ScActivity {
 
     // Debugging tag.
     @SuppressWarnings("unused")
@@ -102,7 +102,7 @@ public class ScSearch extends ScActivity implements AdapterView.OnItemClickListe
         // account for special handling of this list if we are in a tab with
         // regards
         // to checking for data type (user/track) when restoring list data
-        mList = CloudUtils.createList(this);
+        mList = buildList();
 
         ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
@@ -251,8 +251,4 @@ public class ScSearch extends ScActivity implements AdapterView.OnItemClickListe
         }
     };
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        handleListItemClicked(parent, position);
-    }
 }

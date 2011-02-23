@@ -1,6 +1,19 @@
 
 package com.soundcloud.android;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScTabView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -23,27 +36,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.ScTabView;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,8 +57,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
-
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 public class CloudUtils {
 
@@ -227,7 +225,7 @@ public class CloudUtils {
         }
         return false;
     }
-    
+
 
     public static String md5(String s) {
         try {
@@ -246,24 +244,6 @@ public class CloudUtils {
         }
     }
 
-    public static LazyListView createList(Activity activity) {
-
-        LazyListView mList = new LazyListView(activity);
-        mList.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        if (activity instanceof AdapterView.OnItemClickListener) {
-            mList.setOnItemClickListener((AdapterView.OnItemClickListener) activity);
-        }
-        if (activity instanceof AdapterView.OnItemLongClickListener) {
-            mList.setOnItemLongClickListener((OnItemLongClickListener) activity);    
-        }
-        mList.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        mList.setFastScrollEnabled(true);
-        mList.setTextFilterEnabled(true);
-        mList.setDivider(activity.getResources().getDrawable(R.drawable.list_separator));
-        mList.setDividerHeight(1);
-        activity.registerForContextMenu(mList);
-        return mList;
-    }
 
     public static LazyListView createTabList(ScActivity activity,
                                    FrameLayout listHolder,
@@ -271,7 +251,7 @@ public class CloudUtils {
                                    int listId, OnTouchListener touchListener) {
 
         listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        LazyListView lv = CloudUtils.createList(activity);
+        LazyListView lv = activity.buildList();
         if (listId != -1) lv.setId(listId);
         if (touchListener != null) lv.setOnTouchListener(touchListener);
         lv.setAdapter(adpWrap);
@@ -510,7 +490,7 @@ public class CloudUtils {
         bmp.recycle();
         System.gc();
     }
-    
+
 
     public static String formatTimestamp(long pos){
         return CloudUtils.makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
@@ -578,7 +558,7 @@ public class CloudUtils {
 
     /**
      * Check if a thread is alive accounting for nulls
-     * 
+     *
      * @param t
      * @return boolean : is the thread alive
      */
@@ -623,7 +603,7 @@ public class CloudUtils {
         sb.append("]");
         Log.d(TAG, sb.toString());
     }
-    
+
     public static TextView buildEmptyView(Context context, CharSequence emptyText) {
         TextView emptyView = new TextView(context);
         emptyView.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
@@ -633,8 +613,8 @@ public class CloudUtils {
         emptyView.setId(android.R.id.empty);
         return emptyView;
     }
-    
-   
+
+
 
     public static void cleanupList(ListView list) {
         list.setOnItemClickListener(null);
@@ -644,7 +624,7 @@ public class CloudUtils {
         list.setOnItemSelectedListener(null);
 
     }
-    
+
     public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
         Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
         InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);

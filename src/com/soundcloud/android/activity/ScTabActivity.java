@@ -1,5 +1,8 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
 import android.widget.TabWidget;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
 
 public class ScTabActivity extends TabActivity {
 
@@ -19,66 +20,67 @@ public class ScTabActivity extends TabActivity {
 
     private MenuItem menuCurrentUploadingItem;
 
+    private TabHost mTabHost;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.cloudtabs);
 
-        final TabHost host = getTabHost();
+        mTabHost = getTabHost();
         TabHost.TabSpec spec;
 
-        spec = host.newTabSpec("incoming").setIndicator(
+        spec = mTabHost.newTabSpec("incoming").setIndicator(
                 getString(R.string.tab_incoming),
                 getResources().getDrawable(R.drawable.ic_tab_incoming));
 
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
-        host.addTab(spec);
+        mTabHost.addTab(spec);
 
-        spec = host.newTabSpec("exclusive").setIndicator(
+        spec = mTabHost.newTabSpec("exclusive").setIndicator(
                 getString(R.string.tab_exclusive),
                 getResources().getDrawable(R.drawable.ic_tab_incoming));
 
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
-        host.addTab(spec);
+        mTabHost.addTab(spec);
 
 
-        spec = host.newTabSpec("profile").setIndicator(
+        spec = mTabHost.newTabSpec("profile").setIndicator(
                 getString(R.string.tab_you),
                 getResources().getDrawable(R.drawable.ic_tab_you));
         spec.setContent(new Intent(this, UserBrowser.class));
 
-        host.addTab(spec);
+        mTabHost.addTab(spec);
 
-        spec = host.newTabSpec("record").setIndicator(
+        spec = mTabHost.newTabSpec("record").setIndicator(
                 getString(R.string.tab_record),
                 getResources().getDrawable(R.drawable.ic_tab_record));
 
         spec.setContent(new Intent(this, ScCreate.class));
 
-        host.addTab(spec);
+        mTabHost.addTab(spec);
 
 
-        spec = host.newTabSpec("search").setIndicator(
+        spec = mTabHost.newTabSpec("search").setIndicator(
                 getString(R.string.tab_search),
                 getResources().getDrawable(R.drawable.ic_tab_search));
 
         spec.setContent(new Intent(this, ScSearch.class));
 
-        host.addTab(spec);
+        mTabHost.addTab(spec);
 
 
 
 
-        host.setCurrentTab(0);
+        mTabHost.setCurrentTab(0);
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
-        host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+        mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
                 PreferenceManager.getDefaultSharedPreferences(ScTabActivity.this).edit()
-                        .putInt("lastDashboardIndex", host.getCurrentTab())
+                        .putInt("lastDashboardIndex", mTabHost.getCurrentTab())
                         .commit();
             }
         });
@@ -87,8 +89,24 @@ public class ScTabActivity extends TabActivity {
 //        tabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(Dashboard.this)
 //                .getInt("lastDashboardIndex", 0));
 
+
+        handleIntent();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent();
+        super.onNewIntent(intent);
+    }
+
+    private void handleIntent() {
+        if (getIntent() != null && getIntent().getExtras() != null
+                && getIntent().getIntExtra("tabIndex", -1) != -1) {
+            mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
+            getIntent().getExtras().clear();
+        }
+    }
 
 
     @Override

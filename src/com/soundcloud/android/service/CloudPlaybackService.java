@@ -46,7 +46,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.sqlite.SQLiteException;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -73,7 +72,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -119,7 +117,7 @@ public class CloudPlaybackService extends Service {
     public static final int MAX_RECONNECT_COUNT = 1;
 
     public static final String PROGRESS_UPDATE = "com.soundcloud.android.progressupdate";
-    
+
     public static final String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
 
     public static final String META_CHANGED = "com.soundcloud.android.metachanged";
@@ -135,9 +133,9 @@ public class CloudPlaybackService extends Service {
     public static final String COMMENTS_LOADED = "com.soundcloud.android.commentsloaded";
 
     public static final String FAVORITE_SET = "com.soundcloud.android.favoriteset";
-    
+
     public static final String ADD_FAVORITE = "com.soundcloud.android.addfavorite";
-    
+
     public static final String REMOVE_FAVORITE = "com.soundcloud.android.removefavorite";
 
     public static final String SEEK_START = "com.soundcloud.android.seekstart";
@@ -217,7 +215,7 @@ public class CloudPlaybackService extends Service {
     private boolean mResumeAfterCall = false;
 
     private boolean mIsSupposedToBePlaying = false;
-    
+
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     // interval after which we stop the service when idle
@@ -244,7 +242,7 @@ public class CloudPlaybackService extends Service {
     private int mCurrentPlugState;
 
     private boolean isStagefright = false;
-    
+
     private int mUpdateWidgetCounter = 0;
 
     public CloudPlaybackService() {
@@ -264,7 +262,7 @@ public class CloudPlaybackService extends Service {
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
         connectivityListener.startListening(this);
-        
+
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(SERVICECMD);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -390,7 +388,7 @@ public class CloudPlaybackService extends Service {
         connectivityListener.stopListening();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
-        
+
         unregisterReceiver(mIntentReceiver);
 
         if (mWakeLock.isHeld())
@@ -506,7 +504,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Called when we receive a ACTION_MEDIA_EJECT notification.
-     * 
+     *
      * @param storagePath path to mount point for the removed media
      */
     public void closeExternalStorageFiles(String storagePath) {
@@ -542,6 +540,7 @@ public class CloudPlaybackService extends Service {
      */
     private void notifyChange(String what) {
 
+        Log.i(TAG,"Notify Change " + what + " " +  getTrackId() + " " + isPlaying());
         Intent i = new Intent(what);
         i.putExtra("id", getTrackId());
         i.putExtra("track", getTrackName());
@@ -555,7 +554,7 @@ public class CloudPlaybackService extends Service {
         } else {
             mPlayListManager.saveQueue(false);
         }
-        
+
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, what);
     }
@@ -598,7 +597,7 @@ public class CloudPlaybackService extends Service {
         mCurrentBuffer = 0;
 
         Log.i(TAG,"Playing Data " + mPlayingData);
-        
+
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id.compareTo(track.id) == 0) {
 
@@ -622,10 +621,10 @@ public class CloudPlaybackService extends Service {
 
         // tell the db we played it
         track.user_played = true;
-        
+
         SoundCloudDB.getInstance().resolveTrack(getContentResolver(), track,
                 WriteState.all, CloudUtils.getCurrentUserId(this));
-        
+
         // meta has changed
         notifyChange(META_CHANGED);
     }
@@ -697,7 +696,7 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright) {
                     pausedForBuffering = true;
                     initialBuffering = true;
-                    
+
                     if (checkNetworkStatus())
                         prepareDownload(mPlayingData);
                     else
@@ -764,7 +763,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Manage the buffering status.
-     * 
+     *
      * @return
      */
     private boolean checkBuffer() {
@@ -852,7 +851,7 @@ public class CloudPlaybackService extends Service {
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -864,7 +863,7 @@ public class CloudPlaybackService extends Service {
     /**
      * queue a buffer check if we aren't paused and call one right away
      * depending on the param
-     * 
+     *
      * @param instant
      */
     private void assertBufferCheck(boolean instant) {
@@ -898,7 +897,7 @@ public class CloudPlaybackService extends Service {
                     else {
                         int j = 0;
                         while (j < orderedFiles.size()
-                                && ((File) orderedFiles.get(j)).lastModified() < fileList[i]
+                                && (orderedFiles.get(j)).lastModified() < fileList[i]
                                         .lastModified()) {
                             j++;
                         }
@@ -914,7 +913,7 @@ public class CloudPlaybackService extends Service {
                     long trimmed = 0;
                     while (j < orderedFiles.size() && trimmed < toTrim) {
                         if (orderedFiles.get(j) != keepFile)
-                            ((File) orderedFiles.get(j)).delete();
+                            (orderedFiles.get(j)).delete();
                     }
                 }
             }
@@ -939,7 +938,7 @@ public class CloudPlaybackService extends Service {
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
-                
+
                 // we are able to buffer something, see if we need to download
                 // the current track
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
@@ -955,7 +954,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * See if a track has been fully cached
-     * 
+     *
      * @param track
      * @return
      */
@@ -966,7 +965,7 @@ public class CloudPlaybackService extends Service {
     /**
      * Check to see if we have any errors, have hit a high water mark, or are
      * paused and not supposed to be caching
-     * 
+     *
      * @return
      */
     public Boolean keepCaching() {
@@ -1116,7 +1115,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Returns whether something is currently playing
-     * 
+     *
      * @return true if something is playing (or will be playing shortly, in case
      *         we're currently transitioning between tracks), false if not.
      */
@@ -1133,7 +1132,7 @@ public class CloudPlaybackService extends Service {
 
     public void next(boolean force) {
         synchronized (this) {
-            
+
             if (mPlayListManager.next())
                 openCurrent();
         }
@@ -1171,7 +1170,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Returns the position in the queue
-     * 
+     *
      * @return the position in the queue
      */
     public int getQueuePosition() {
@@ -1182,7 +1181,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Starts playing the track at the given position in the queue.
-     * 
+     *
      * @param pos The position in the queue of the track that will be played.
      */
     public void setQueuePosition(int pos) {
@@ -1203,11 +1202,11 @@ public class CloudPlaybackService extends Service {
                     removeFavorite();
             }
         }
-        
+
     }
-    
+
     public void addFavorite() {
-        FavoriteAddTask f = (FavoriteAddTask) new FavoriteAddTask((SoundCloudApplication) this.getApplication());
+        FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
             public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
@@ -1222,9 +1221,9 @@ public class CloudPlaybackService extends Service {
         });
         f.execute(mPlayingData);
     }
-    
+
     public void removeFavorite() {
-        FavoriteRemoveTask f = (FavoriteRemoveTask) new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
+        FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
             public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
@@ -1239,7 +1238,7 @@ public class CloudPlaybackService extends Service {
         });
         f.execute(mPlayingData);
     }
-    
+
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite){
         if (mPlayingData.id.compareTo(trackId) == 0) {
@@ -1379,7 +1378,7 @@ public class CloudPlaybackService extends Service {
 
     /**
      * Seeks to the position specified.
-     * 
+     *
      * @param pos The position to seek to, in milliseconds
      */
     public long seek(long pos) {
@@ -1400,7 +1399,7 @@ public class CloudPlaybackService extends Service {
     /**
      * Gets the actual seek value based on a desired value. Simulates the result
      * of an actual seek
-     * 
+     *
      * @param pos The position to seek to, in milliseconds
      */
     public long getSeekResult(long pos) {
@@ -1616,13 +1615,13 @@ public class CloudPlaybackService extends Service {
             public void onCompletion(MediaPlayer mp) {
 
                 Log.i(TAG,"ON COMPLETE ");
-                
+
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
 
                     Log.i(TAG,"ON COMPLETE resetting");
-                    
+
                     mMediaPlayer.reset();
                     mIsInitialized = false;
                     mPlayingPath = "";
@@ -1636,7 +1635,7 @@ public class CloudPlaybackService extends Service {
 
                     return;
                 }
-                
+
                 Log.i(TAG,"ON COMPLETE done ");
 
                 // Acquire a temporary wakelock, since when we return from
@@ -1699,13 +1698,13 @@ public class CloudPlaybackService extends Service {
         };
 
     }
-    
+
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
-            
+
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
                 next(true);
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
@@ -1941,11 +1940,6 @@ public class CloudPlaybackService extends Service {
 
         private boolean killed = false;
 
-        public DownloadThread(CloudPlaybackService service, InputStream is, OutputStream os,
-                int trackId, long toSkip) {
-
-        }
-
         public DownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(cloudPlaybackService);
             this.track = track;
@@ -1959,6 +1953,7 @@ public class CloudPlaybackService extends Service {
             killed = true;
         }
 
+        @Override
         public void run() {
             InputStream is = null;
             FileOutputStream os = null;
@@ -1978,7 +1973,7 @@ public class CloudPlaybackService extends Service {
                         Log.i(TAG,"Getting signed uri " + track.mSignedUri );
                         HttpHead request = new HttpHead(track.mSignedUri);
                         httpResponse = client.execute(request);
-                        
+
                         if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
                             // status
                             Log.i(TAG, "invalid status received: "
@@ -2015,10 +2010,10 @@ public class CloudPlaybackService extends Service {
                         if (track.filelength != Long.parseLong(httpResponse
                                 .getHeaders("content-length")[0].getValue())
                                 + track.mCacheFile.length()) { // rare case
-                            serviceRef.get().fileLengthUpdated(track, true); 
+                            serviceRef.get().fileLengthUpdated(track, true);
                             return; // a new download thread will be started
                         } else {
-                            serviceRef.get().assertBufferCheck(); 
+                            serviceRef.get().assertBufferCheck();
                         }
                     }
 
@@ -2061,21 +2056,21 @@ public class CloudPlaybackService extends Service {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                
+
                 if (os != null)
                     try {
                         os.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    
+
                 if (is != null)
                     try {
                         is.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    
+
                 if (serviceRef.get() != null)
                     serviceRef.get().queueBufferCheck();
             }

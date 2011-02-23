@@ -1,25 +1,6 @@
 package com.soundcloud.android.activity;
 
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.text.Html;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TabHost;
-import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TabWidget;
-import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudAPI;
@@ -39,10 +20,29 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.utils.WorkspaceView;
 import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabWidget;
+import android.widget.TextView;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class UserBrowser extends ScActivity implements AdapterView.OnItemClickListener {
+public class UserBrowser extends ScActivity {
     private static String TAG = "UserBrowser";
 
     private ImageView mIcon;
@@ -162,7 +162,6 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
     public void onRefresh() {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
-
 
         mTracksView.onRefresh();
         mFavoritesView.onRefresh();
@@ -570,11 +569,5 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
     private String getTrackOrder() {
         return PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("defaultTrackSorting", "");
-    }
-
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        handleListItemClicked(parent, position);
     }
 }

@@ -1,5 +1,24 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.ICloudCreateService;
+import com.soundcloud.android.task.PCMPlaybackTask;
+import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
+import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.view.AccessList;
+import com.soundcloud.android.view.ConnectionList;
+import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.utils.CloudCache;
+import com.soundcloud.utils.record.CloudRecorder;
+import com.soundcloud.utils.record.PowerGauge;
+import com.soundcloud.utils.record.RemainingTimeCalculator;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -32,23 +51,17 @@ import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.ICloudCreateService;
-import com.soundcloud.android.task.PCMPlaybackTask;
-import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
-import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.view.AccessList;
-import com.soundcloud.android.view.ConnectionList;
-import com.soundcloud.utils.AnimUtils;
-import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.record.CloudRecorder;
-import com.soundcloud.utils.record.PowerGauge;
-import com.soundcloud.utils.record.RemainingTimeCalculator;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,11 +71,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-
 public class ScCreate extends ScActivity implements PlaybackListener {
     private static final String TAG = "ScCreate";
-    
+
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
     private TextView txtInstructions, txtRecordStatus;
@@ -78,12 +89,12 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     /* package */  RadioButton mRdoPrivate, mRdoPublic;
     /* package */  EditText mWhatText;
     /* package */  TextView mWhereText;
-    
+
     private TextView mShareOptions;
 
     private ImageView mArtwork;
     private TextView mArtworkBg;
-    
+
     private ImageButton btnAction;
 
     private File mRecordFile;
@@ -93,7 +104,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     /* package */ ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
-    
+
     private int mRecProgressCounter = 0;
 
     private TextView mChrono;
@@ -139,14 +150,14 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
-    
+
     public static int REC_SAMPLE_RATE = 44100;
     public static int REC_CHANNELS = 2;
     public static int REC_BITS_PER_SAMPLE = 16;
     public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
 
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
-    
+
     WakeLock mWakeLock;
 
     private boolean mSampleInterrupted = false;
@@ -204,7 +215,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
-        
+
         mShareOptions = (TextView) findViewById(R.id.txt_record_options);
 
         RelativeLayout mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
@@ -247,8 +258,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
-        
-        
+
+
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
@@ -287,7 +298,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                 showToast(R.string.cloud_upload_clear_artwork);
             }
         });
-        
+
         mArtworkBg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new AlertDialog.Builder(ScCreate.this)
@@ -327,7 +338,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mAccessList = (AccessList) findViewById(R.id.accessList);
         mAccessList.setAdapter(new AccessList.Adapter());
         mAccessList.getAdapter().setAccessList(null);
-        
+
         findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -354,10 +365,10 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         onRefresh();
     }
 
+    @Override
     public void onRefresh() {
         mConnectionList.getAdapter().clear();
         mConnectionList.getAdapter().loadIfNecessary();
-
     }
 
     @Override
@@ -395,9 +406,9 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         super.onRestoreInstanceState(state);
     }
-    
+
     public void setFileUri(String uri){
-        
+
     }
 
     public void onRecordingError() {
@@ -428,7 +439,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         }
         updateUi(false);
     }
-    
+
     @Override
     public void onDestroy() {
         super.onStart();
@@ -449,24 +460,24 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     public void setPickedImage(String imageUri) {
         try {
-            
-            Options opt = CloudUtils.determineResizeOptions(new File(imageUri), 
+
+            Options opt = CloudUtils.determineResizeOptions(new File(imageUri),
                     (int) getResources().getDisplayMetrics().density * 100,
                     (int) getResources().getDisplayMetrics().density * 100);
-            
+
             mArtworkUri = imageUri;
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
-            
+
             Matrix mat = new Matrix();
             mArtwork.setImageMatrix(mat);
-            
+
             Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
 
             try {
-                
+
                 mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
                 mArtwork.setImageBitmap(mArtworkBitmap);
                 mArtwork.setVisibility(View.VISIBLE);
@@ -477,28 +488,28 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             Log.e(TAG, "error", e);
         }
     }
-    
+
     public void setTakenImage() {
         try {
             ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
             String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-            
+
             Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
                     (int) getResources().getDisplayMetrics().density * 100,
                     (int) getResources().getDisplayMetrics().density * 100);
             mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
-            
+
             Matrix mat = new Matrix();
-            
+
             if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6){
                 mat.postRotate(90);
-            } 
-            
+            }
+
             mArtwork.setImageMatrix(mat);
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
-            
+
             BitmapFactory.Options resample = new BitmapFactory.Options();
             resample.inSampleSize = opt.inSampleSize;
 
@@ -509,7 +520,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             Log.e(TAG, "error", e);
         }
     }
-    
+
     public void clearArtwork() {
         mArtworkUri = null;
         mArtwork.setVisibility(View.GONE);
@@ -705,11 +716,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     }
 
     private void startRecording() {
-        forcePause();
+        pause(true);
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
-        
+
         mRecProgressCounter = 0;
 
         mRemainingTimeCalculator.reset();
@@ -998,7 +1009,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                 : mDurationFormatLong, pcmTime));
             updateTimeRemaining();
             mRecProgressCounter = 0;
-        } 
+        }
         mRecProgressCounter++;
 
     }

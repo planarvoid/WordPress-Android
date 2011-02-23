@@ -1,7 +1,6 @@
 
 package com.soundcloud.android;
 
-import android.util.Log;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
@@ -27,6 +26,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -59,16 +59,14 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
     public static final Map<String, Throwable> mBitmapErrors =
             Collections.synchronizedMap(new LruCache<String, Throwable>());
-    
+
     private static final HashMap<Long, SoftReference<ArrayList<Comment>>> mCommentSoftCache =
         new HashMap<Long, SoftReference<ArrayList<Comment>>>();
-    
+
     private static final HashMap<Long, ArrayList<Comment>> mCommentCache =
         new HashMap<Long, ArrayList<Comment>>();
 
-
     private static HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
-
 
     @Override
     public void onCreate() {
@@ -116,7 +114,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
         mCloudApi.unauthorize();
     }
-    
+
 
     public static HashMap<String, String[]> getDBColumns() {
         return dbColumns;
@@ -171,7 +169,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public List<Parcelable> flushCachePlaylist() {
         if (mCommentCache.size() > 10)
             mCommentCache.clear();
-        
+
         ArrayList<Parcelable> playlistRef = mPlaylistCache;
         mPlaylistCache = null;
         return playlistRef;
@@ -218,7 +216,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public HttpResponse putContent(String path, List<NameValuePair> params) throws IOException {
         return mCloudApi.putContent(path, params);
     }
-    
+
     public HttpResponse postContent(String path, List<NameValuePair> params) throws IOException {
         return mCloudApi.postContent(path, params);
     }
@@ -256,7 +254,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public void cacheComments(long track_id, ArrayList<Comment> comments){
         mCommentCache.put(track_id, comments);
     }
-    
+
+    public void uncacheComments(long track_id){
+        mCommentCache.remove(track_id);
+    }
+
+
     public ArrayList<Comment> getCommentsFromCache(long track_id){
         if (mCommentCache.get(track_id) != null)
             return mCommentCache.get(track_id);

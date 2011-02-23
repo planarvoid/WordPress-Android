@@ -1,15 +1,18 @@
 
 package com.soundcloud.android.view;
 
-import android.app.Activity;
-import android.widget.FrameLayout;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.FrameLayout;
+import android.widget.ListAdapter;
 
 public class ScTabView extends FrameLayout {
-    private LazyEndlessAdapter mAdapter;
+    public ListAdapter adapter;
 
     public ScTabView(Activity l) {
         super(l);
@@ -18,7 +21,7 @@ public class ScTabView extends FrameLayout {
 
     public ScTabView(ScActivity l, LazyEndlessAdapter adpWrap) {
         this(l);
-        mAdapter = adpWrap;
+        adapter = adpWrap;
     }
 
     public void onStart() {
@@ -33,13 +36,24 @@ public class ScTabView extends FrameLayout {
                     ((TracklistAdapter) ((LazyEndlessAdapter) mAdapter).getWrappedAdapter())
                             .setPlayingId(mActivity.getCurrentTrackId());
         }
-        */
+         */
     }
 
 
     public void onRefresh() {
-        if (mAdapter != null) {
-            mAdapter.clear();
+        if (adapter instanceof LazyEndlessAdapter) {
+            ((LazyEndlessAdapter) adapter).clear();
         }
     }
+
+    public void onSaveInstanceState(Bundle state) {
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+    }
+
+    public void onDestroy(){
+
+    }
+
 }

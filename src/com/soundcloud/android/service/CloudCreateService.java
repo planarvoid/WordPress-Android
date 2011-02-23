@@ -7,8 +7,8 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.activity.ScTabActivity;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.utils.record.CloudRecorder;
@@ -53,7 +53,7 @@ public class CloudCreateService extends Service {
     public static final String RECORD_STOPPED   = "com.soundcloud.android.recordstopped";
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
     public static final String SERVICECMD       = "com.soundcloud.android.createservicecommand";
-    
+
     public static final String CMDNAME = "command";
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
@@ -91,17 +91,17 @@ public class CloudCreateService extends Service {
 
 
     public interface States {
-        
+
         int IDLE_RECORDING = 0;
-        
+
         int RECORDING = 1;
-        
+
         int IDLE_PLAYBACK = 2;
-        
+
         int PLAYBACK = 3;
-        
+
         int PRE_UPLOAD = 4;
-        
+
         int UPLOAD = 5;
     }
 
@@ -236,7 +236,7 @@ public class CloudCreateService extends Service {
                 .getResources().getString(R.string.cloud_recorder_notification_ticker), System
                 .currentTimeMillis());
 
-        Intent i = (new Intent(this, Dashboard.class))
+        Intent i = (new Intent(this, ScTabActivity.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .putExtra("tabIndex", 3 /* XXX */);
@@ -297,7 +297,7 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = getString(R.string.cloud_uploader_notification_ticker);
         mNotification = new Notification(icon, tickerText, System.currentTimeMillis());
 
-        Intent i = (new Intent(this, Dashboard.class))
+        Intent i = (new Intent(this, ScTabActivity.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -392,16 +392,16 @@ public class CloudCreateService extends Service {
                 BitmapFactory.Options options =
                         CloudUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
-                
+
                 ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
                 String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
                 int rotate = 0;
                 if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6)
                     rotate = 90;
-                
-                
+
+
                 int sampleSize = options.inSampleSize;
-                
+
                 if (sampleSize > 1 || rotate != 0) {
                     Log.v(TAG, "resizing " + param.artworkFile);
                     InputStream is = new FileInputStream(param.artworkFile);
@@ -410,7 +410,7 @@ public class CloudCreateService extends Service {
                     options.inSampleSize = sampleSize;
                     Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
                     is.close();
-                    
+
                     if (rotate != 0){
                         Bitmap preRotate = bitmap;
                         Matrix mat = new Matrix();
@@ -418,7 +418,7 @@ public class CloudCreateService extends Service {
                         bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
                         preRotate.recycle();
                     }
-                    
+
                     if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
                     File resized = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
@@ -487,7 +487,7 @@ public class CloudCreateService extends Service {
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
 
-        Intent i = (new Intent(this, Dashboard.class))
+        Intent i = (new Intent(this, ScTabActivity.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -499,7 +499,7 @@ public class CloudCreateService extends Service {
         // configurations above
         Notification notification = new Notification(icon, tickerText, when);
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
-        
+
         if (params.isSuccess()) {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
@@ -548,11 +548,11 @@ public class CloudCreateService extends Service {
         gotoIdleState();
         notifyChange(UPLOAD_CANCELLED);
     }
-    
+
     public void setCurrentState(int currentState) {
         mCurrentState = currentState;
     }
-    
+
     public int getCurrentState() {
         return mCurrentState;
     }
@@ -610,12 +610,12 @@ public class CloudCreateService extends Service {
             if (mService.get() != null)
                 mService.get().cancelUpload();
         }
-        
+
         @Override
         public int getCurrentState() throws RemoteException {
             if (mService.get() != null)
                 return mService.get().getCurrentState();
-            
+
             return 0;
         }
 

@@ -7,7 +7,6 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -15,10 +14,6 @@ import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -64,11 +59,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class ScPlayer extends ScActivity implements OnTouchListener {
 
@@ -130,7 +122,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private boolean paused;
 
     private boolean mTrackInfoFilled = false;
-    
+
     private boolean mTrackInfoCommentsFilled = false;
 
     private LoadCommentsTask mLoadCommentsTask;
@@ -153,7 +145,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      * activity lifecycle executing. Derived classes must call through to the
      * super class's implementation of this method. If they do not, an exception
      * will be thrown.
-     * 
+     *
      * @param icicle If the activity is being re-initialised after previously
      *            being shut down then this Bundle contains the data it most
      *            recently supplied@Override protected void onLayout(boolean
@@ -287,7 +279,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     /**
      * Right now, the only draggable ashtextview is the track, but this function
      * can be changed to easily add more later.
-     * 
+     *
      * @param v
      * @return
      */
@@ -495,16 +487,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             Log.e(TAG, "error", e);
         }
     }
-    
+
     public boolean waveformVisible(){
         return (mTrackFlipper.getDisplayedChild() == 0);
-            
+
     }
 
     private void onTrackInfoFlip() {
         if (mTrackFlipper.getDisplayedChild() == 0) {
             mWaveformController.closeComment();
-            
+
             if (mTrackInfo == null) {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
             }
@@ -620,15 +612,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 .fromHtml(generateTrackInfoString()));
 
         fillTrackInfoComments();
-        
+
         mTrackInfoFilled = true;
     }
-    
+
     private void fillTrackInfoComments(){
         if (mTrackInfo == null)
             return;
-        
-        
+
+
         LinearLayout commentsList;
         if (mTrackInfo.findViewById(R.id.comments_list) == null){
             commentsList = (LinearLayout) ((ViewStub) mTrackInfo.findViewById(R.id.stub_comments_list)).inflate();
@@ -648,46 +640,46 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         if (mCurrentComments == null)
             return;
-        
+
         //sort by created date descending for this list
         Collections.sort(mCurrentComments, new Comment.CompareCreatedAt());
-                
-        
-        
+
+
+
         final SpannableStringBuilder commentText = new SpannableStringBuilder();
         final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.commentGray));
         final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
-        
+
         int spanStartIndex;
         int spanEndIndex;
 
         for (Comment comment : mCurrentComments){
             commentText.clear();
-            
+
             View v = new View(this);
             v.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,1));
             v.setBackgroundColor(R.color.background_dark);
             commentsList.addView(v);
-            
+
             TextView tv = new TextView(this);
             tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
             tv.setPadding(10, 5, 10, 5);
             //((LinearLayout.LayoutParams) tv.getLayoutParams()).
             tv.setTextSize(14);
             tv.setLineSpacing(5, 1);
-            
+
             commentText.append(comment.user.username).append(" ");
             spanEndIndex = commentText.length();
             commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            
+
             if (comment.timestamp != 0)
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
-            
+
             spanStartIndex = commentText.length();
             commentText.append(" said ");
-            
+
             long elapsed = (System.currentTimeMillis() - comment.created_at.getTime())/1000;
-            
+
             if (elapsed < 60)
                 commentText.append(getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed));
             else if (elapsed < 3600)
@@ -698,26 +690,26 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 commentText.append(getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400)));
             else if (elapsed < 31536000)
                 commentText.append(getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000)));
-            else 
+            else
                 commentText.append(getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000)));
-            
+
             spanEndIndex = commentText.length();
             commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             commentText.append("\n").append(comment.body);
-            
+
             tv.setText(commentText);
             commentsList.addView(tv);
         }
-        
+
         //restore default sort
         Collections.sort(mCurrentComments, new Comment.CompareTimestamp());
-        
+
     }
 
     private String generateTrackInfoString() {
         String str = "";
-        
-        if (!TextUtils.isEmpty(mPlayingTrack.description)) 
+
+        if (!TextUtils.isEmpty(mPlayingTrack.description))
                 str+= mPlayingTrack.description + "<br /><br />";
         if (!TextUtils.isEmpty(mPlayingTrack.tag_list))
             str += mPlayingTrack.tag_list + "<br />";
@@ -821,7 +813,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 mCurrentTrackError = false;
-                
+
                 updateTrackInfo();
                 setPauseButtonImage();
                 mWaveformController.showConnectingLayout();
@@ -946,7 +938,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             mTrackInfoFilled = false;
             mTrackInfoCommentsFilled = false;
-            
+
             setFavoriteStatus();
             mDuration = Long.parseLong(Integer.toString(mPlayingTrack.duration));
             mCurrentDurationString = CloudUtils.makeTimeString(
@@ -998,11 +990,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         setArtworkMatrix();
             }
     }
-    
+
     private void setArtworkMatrix(){
         if (mArtwork.getWidth() == 0)
             return;
-        
+
         Matrix m = new Matrix();
         float scale = 1;
         if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
@@ -1125,7 +1117,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      * killed so that the state can be restored in onCreate(Bundle) or
      * onRestoreInstanceState(Bundle) (the Bundle populated by this method will
      * be passed to both).
-     * 
+     *
      * @param state A Bundle in which to place any state information you wish
      *            to save.
      */
@@ -1224,7 +1216,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void toggleFavorite() {
-        
+
         if (mPlayingTrack == null)
             return;
 
@@ -1260,99 +1252,34 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         }
     }
-    
+
     private void refreshComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
-        
+
         if (mTrackFlipper.getDisplayedChild() == 1)
             fillTrackInfoComments();
-        
+
         mWaveformController.setComments(mCurrentComments, animateIn);
-        
+
     }
 
-    public void addNewComment(final Track track, final long timestamp) {
-        final EditText input = new EditText(this);
-        final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
-                .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
-                .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        sendComment(track.id,timestamp,input.getText().toString(),0);
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
-                    }
-                }).create();
-        
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        commentDialog.show();
-    }
-    
-    private HttpResponse mAddCommentResult;
-    private Comment mAddComment;
-    private void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
-        
-        mAddComment = new Comment();
-        mAddComment.track_id = track_id;
-        mAddComment.created_at = new Date(System.currentTimeMillis());
-        mAddComment.user_id = CloudUtils.getCurrentUserId(this);
-        
-        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id);
-        mAddComment.timestamp = timestamp;
-        mAddComment.body = commentBody;
-        
-        final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
-        apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
-        if (timestamp > -1) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
-        if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
+    @Override
+    protected void onCommentAdded(Comment c){
+        super.onCommentAdded(c);
 
-        
-        // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    mAddCommentResult = getSoundCloudApplication().postContent(
-                            CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                    ScPlayer.this.setException(e);
-                }
-                mHandler.post(mOnCommentAdd);
-            }
-        };
-        t.start();
+        if (c.track_id != mPlayingTrack.id)
+            return;
+
+        if (mCurrentComments == null)
+            mCurrentComments = new ArrayList<Comment>();
+
+        mCurrentComments.add(c);
+        getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
+        refreshComments(true);
     }
-    
- // Create runnable for posting
-    final Runnable mOnCommentAdd = new Runnable() {
-        public void run() {
-            
-            if (mAddCommentResult != null && mAddCommentResult.getStatusLine().getStatusCode() == 201){
-                if (mAddComment.track_id != mPlayingTrack.id)
-                    return;
-                
-                if (mCurrentComments == null)
-                    mCurrentComments = new ArrayList<Comment>();
-                
-                mCurrentComments.add(mAddComment);
-                getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
-                refreshComments(true);
-                
-            } else {
-                handleException();
-            }
-        }
-    };
-    
-    
+
+
+
 
     public void replyToComment(final Comment comment) {
         final EditText input = new EditText(this);
@@ -1367,7 +1294,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 }).create();
-        
+
         input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {

@@ -10,24 +10,22 @@ import com.soundcloud.utils.AnimUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 public class LazyRow extends RelativeLayout {
-    private static final String TAG = "LazyRow";
-
     protected ScActivity mActivity;
-    
+
     protected LazyBaseAdapter mAdapter;
 
     protected ImageView mIcon;
-    
+
     protected int mCurrentPosition;
 
     public LazyRow(ScActivity _activity, LazyBaseAdapter _adapter) {
@@ -36,7 +34,7 @@ public class LazyRow extends RelativeLayout {
         mAdapter = _adapter;
 
         LayoutInflater inflater = (LayoutInflater) mActivity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
     }
 
@@ -46,38 +44,45 @@ public class LazyRow extends RelativeLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-        
+
         mCurrentPosition = position;
+
+        Log.i(getClass().getSimpleName(),"DDDISPLAY ");
 
         if (position == mAdapter.submenuIndex){
             if (findViewById(R.id.row_submenu) != null){
-                ((LinearLayout) findViewById(R.id.row_submenu)).setVisibility(View.VISIBLE);
+                ((FrameLayout) findViewById(R.id.row_submenu)).setVisibility(View.VISIBLE);
             } else {
                 ((ViewStub) findViewById(R.id.stub_submenu)).setVisibility(View.VISIBLE);
                 initSubmenu();
             }
-            
-            configureSubmenu();
-            
+
+            onSubmenu();
+
             if (position == mAdapter.animateSubmenuIndex){
                 mAdapter.animateSubmenuIndex = -1;
                 Animation inFromRight = AnimUtils.inFromRightAnimation();
-                ((LinearLayout) findViewById(R.id.row_submenu)).startAnimation(inFromRight);    
+                ((FrameLayout) findViewById(R.id.row_submenu)).startAnimation(inFromRight);
             }
-            
-            
-            
+
+
+
         } else {
+            onNoSubmenu();
+
             if (findViewById(R.id.row_submenu) != null){
-                ((LinearLayout) findViewById(R.id.row_submenu)).setVisibility(View.GONE);
+                ((FrameLayout) findViewById(R.id.row_submenu)).setVisibility(View.GONE);
             }
         }
     }
-    
+
     protected void initSubmenu() {
     }
 
-    protected void configureSubmenu() {
+    protected void onSubmenu() {
+    }
+
+    protected void onNoSubmenu() {
     }
 
 
