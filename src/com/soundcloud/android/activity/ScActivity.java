@@ -21,6 +21,7 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -79,7 +80,7 @@ public abstract class ScActivity extends Activity {
     protected ICloudPlaybackService mPlaybackService;
     protected NetworkConnectivityListener connectivityListener;
 
-    protected long mCurrentTrackId = -1;
+    protected ArrayList<LazyListView> mLists;
     protected ArrayList<LazyBaseAdapter> mAdapters;
 
     boolean mIgnorePlaybackStatus;
@@ -89,6 +90,7 @@ public abstract class ScActivity extends Activity {
     private static final int DELAY_SHOW_LIST_ICONS = 550;
 
     private final Handler mScrollHandler = new ScrollHandler();
+    private boolean mPendingIconsUpdate;
     private int mScrollState = ScScrollManager.SCROLL_STATE_IDLE;
     private boolean mFingerUp = true;
 
@@ -108,6 +110,14 @@ public abstract class ScActivity extends Activity {
 
     public void showToast(int stringId) {
         showToast(getResources().getString(stringId));
+    }
+
+    public int getScrollState() {
+        return mScrollState;
+    }
+
+    public boolean isPendingCoversUpdate() {
+        return mPendingIconsUpdate;
     }
 
     protected void onServiceBound() {
@@ -157,6 +167,7 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
+        mLists = new ArrayList<LazyListView>();
         mAdapters = new ArrayList<LazyBaseAdapter>();
     }
 
@@ -373,6 +384,7 @@ public abstract class ScActivity extends Activity {
         lv.setDividerHeight(1);
         // lv.setCacheColorHint(getResources().getColor(R.color.transparent));
         lv.setCacheColorHint(Color.TRANSPARENT);
+        mLists.add(lv);
         return lv;
     }
 
@@ -466,12 +478,33 @@ public abstract class ScActivity extends Activity {
         public boolean onTouch(View v, MotionEvent event) {
             final int action = event.getAction();
             mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+            if (mFingerUp && mScrollState != ScScrollManager.SCROLL_STATE_FLING) {
+                postUpdateListIcons();
+            }
             return false;
         }
     }
 
+    private void postUpdateListIcons() {
+        Handler handler = mScrollHandler;
+        Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS, ScActivity.this);
+        handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+        mPendingIconsUpdate = true;
+        handler.sendMessage(message);
+    }
+
     private void updateListIcons(){
+        mPendingIconsUpdate = false;
         Log.i(TAG,"UPDATE LIST ICONSSSS");
+        for (LazyListView lv : mLists){
+            for (int i = 0; i < lv.getChildCount(); i++){
+                if (LazyRow.class.isAssignableFrom(lv.getChildAt(i).getClass())){
+                    if (((LazyRow) lv.getChildAt(i)).pendingIcon)
+                        ((LazyRow) lv.getChildAt(i)).loadPendingIcon();
+                }
+                Log.i(TAG,"List Child " + lv.getChildAt(i));
+            }
+        }
     }
 
     public void addNewComment(final Track track, final long timestamp) {

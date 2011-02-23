@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
+import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,6 +30,8 @@ public class LazyRow extends RelativeLayout {
     protected ImageView mIcon;
 
     protected int mCurrentPosition;
+
+    public boolean pendingIcon = false;
 
     public LazyRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity);
@@ -77,7 +80,16 @@ public class LazyRow extends RelativeLayout {
             }
         }
 
+        if (mActivity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || mActivity.isPendingCoversUpdate()){
+            pendingIcon = true;
+            setTemporaryDrawable(BindResult.ERROR);
+        } else {
+            loadPendingIcon();
+        }
+    }
 
+    public void loadPendingIcon(){
+        pendingIcon = false;
         BindResult result = BindResult.ERROR;
         try { // put the bind in a try catch to catch any loading error (or the
             // occasional bad url)
@@ -87,9 +99,7 @@ public class LazyRow extends RelativeLayout {
                 mImageLoader.unbind(getRowIcon());
         } catch (Exception e) {
         }
-
         setTemporaryDrawable(result);
-
     }
 
     protected void initSubmenu() {

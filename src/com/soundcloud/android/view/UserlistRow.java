@@ -1,18 +1,16 @@
 
 package com.soundcloud.android.view;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.User;
+
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class UserlistRow extends LazyRow {
 
@@ -65,11 +63,6 @@ public class UserlistRow extends LazyRow {
         setFollowerCount();
 
         _isFollowing = false;
-
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
-            mIcon.getLayoutParams().height = 67;
-        }
     }
 
     @Override
@@ -79,6 +72,10 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public ImageView getRowIcon() {
+        if (getContext().getResources().getDisplayMetrics().density > 1) {
+            mIcon.getLayoutParams().width = 67;
+            mIcon.getLayoutParams().height = 67;
+        }
         return mIcon;
     }
 
