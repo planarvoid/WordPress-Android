@@ -11,12 +11,10 @@ import com.soundcloud.utils.AnimUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -71,8 +69,6 @@ public class LazyRow extends RelativeLayout {
                 ((FrameLayout) findViewById(R.id.row_submenu)).startAnimation(inFromRight);
             }
 
-
-
         } else {
             onNoSubmenu();
 
@@ -81,32 +77,17 @@ public class LazyRow extends RelativeLayout {
             }
         }
 
-        if (TextUtils.isEmpty(getIconRemoteUri())){
-            pendingIcon = false;
-            setTemporaryDrawable(BindResult.ERROR);
-            return;
-        }
-
-        if (mActivity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || mActivity.pendingIconsUpdate){
-            pendingIcon = true;
-            setTemporaryDrawable(BindResult.ERROR);
-        } else {
-            loadPendingIcon();
-        }
+        loadPendingIcon();
     }
 
     public void loadPendingIcon(){
         pendingIcon = false;
         BindResult result = BindResult.ERROR;
-        try { // put the bind in a try catch to catch any loading error (or the
-            // occasional bad url)
-            if (CloudUtils.checkIconShouldLoad(getIconRemoteUri()))
-                result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
-            else
-                mImageLoader.unbind(getRowIcon());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri()))
+            result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
+        else
+            mImageLoader.unbind(getRowIcon());
+
         setTemporaryDrawable(result);
     }
 
