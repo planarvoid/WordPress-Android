@@ -25,8 +25,7 @@ import java.util.ArrayList;
 public class Dashboard extends ScActivity {
     protected LazyListView mListView;
     private Object[] mPreviousState;
-    private ScTabView mIncomingView;
-    private ScTabView mExclusiveView;
+    private ScTabView mTracklistView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,31 +38,27 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             if ("incoming".equalsIgnoreCase(tab)) {
-                mIncomingView = createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
+                mTracklistView = createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
                         CloudUtils.Model.event,
                         R.string.empty_incoming_text,
                         CloudUtils.ListId.LIST_INCOMING);
-                setContentView(mIncomingView);
-
             } else if ("exclusive".equalsIgnoreCase(tab)) {
-                mExclusiveView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
+                mTracklistView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
                         CloudUtils.Model.event,
                         -1,
                         CloudUtils.ListId.LIST_EXCLUSIVE);
 
-                setContentView(mExclusiveView);
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
+            setContentView(mTracklistView);
         } else {
             throw new IllegalArgumentException("no tab extra");
         }
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null && mPreviousState.length > 0) {
-            if (mPreviousState[0] != null) ((LazyEndlessAdapter) mIncomingView.adapter).restoreState((Object[]) mPreviousState[0]);
-            if (mPreviousState[1] != null) ((LazyEndlessAdapter) mExclusiveView.adapter).restoreState((Object[]) mPreviousState[1]);
-        }
+        if (mPreviousState != null)
+            ((LazyEndlessAdapter) mTracklistView.adapter).restoreState(mPreviousState);
     }
 
     @Override
@@ -90,19 +85,12 @@ public class Dashboard extends ScActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[] {
-                mIncomingView != null ? ((LazyEndlessAdapter) mIncomingView.adapter).saveState()
-                        : (mPreviousState != null && mPreviousState.length > 0) ? mPreviousState[0]
-                                : null,
-                mExclusiveView != null ? ((LazyEndlessAdapter) mExclusiveView.adapter).saveState()
-                        : (mPreviousState != null && mPreviousState.length > 1) ? mPreviousState[1]
-                                : null
-        };
+        return ((LazyEndlessAdapter) mTracklistView.adapter).saveState();
     }
 
     @Override
     public void onRefresh() {
-        if (mIncomingView != null) mIncomingView.onRefresh();
+        mTracklistView.onRefresh();
     }
 
     public void mapDetails(Parcelable p) {
