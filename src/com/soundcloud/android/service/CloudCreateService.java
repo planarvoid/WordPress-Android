@@ -160,8 +160,10 @@ public class CloudCreateService extends Service {
 
         mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("defaultRecordingQuality", "high").contentEquals("high"),
-                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+                MediaRecorder.AudioSource.MIC,
+                ScCreate.REC_SAMPLE_RATE,
+                AudioFormat.CHANNEL_CONFIGURATION_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT);
         mRecorder.setRecordService(this);
 
     }
@@ -317,7 +319,7 @@ public class CloudCreateService extends Service {
         startForeground(CREATE_NOTIFY_ID, mNotification);
 
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(new UploadTask.Params[]{new UploadTask.Params(trackdata)});
+        mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
     }
 
     private class EncodeOggTask extends VorbisEncoderTask<UploadTask.Params, UploadTask.Params> {
@@ -332,7 +334,11 @@ public class CloudCreateService extends Service {
         @Override
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             UploadTask.Params param = params[0];
-            if (!encode(param.trackFile, param.encodedFile)) param.fail();
+            if (param.external) {
+                Log.v(TAG, "skipping encoding for external files");
+            } else if (!encode(param.trackFile, param.encodedFile)) {
+                param.fail();
+            }
             return param;
         }
 
@@ -350,7 +356,9 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
-                if (param.trackFile.delete()) Log.v(TAG, "deleted file " + param.trackFile);
+                if (!param.external && param.trackFile.delete()) {
+                    Log.v(TAG, "deleted file " + param.trackFile);
+                }
 
                 mUploadTask = new UploadOggTask((CloudAPI) getApplication());
 

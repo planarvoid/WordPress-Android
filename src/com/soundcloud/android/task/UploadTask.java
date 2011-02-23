@@ -24,11 +24,14 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     private CloudAPI api;
 
     public static class Params {
-        public static final String PCM_PATH = "pcm_path";
+        public static final String SOURCE_PATH  = "source_path";
         public static final String OGG_FILENAME = "ogg_filename";
         public static final String ARTWORK_PATH = "artwork_path";
+        public static final String EXTERNAL     = "external";
 
         private boolean failed;
+
+        public final boolean external;
 
         public final File trackFile, encodedFile;
         public final File artworkFile;
@@ -43,15 +46,15 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         public Params(Map<String, ?> map) {
             this.map = map;
+            this.external    = map.remove(EXTERNAL) != null;
 
-            if (!map.containsKey(PCM_PATH) || !map.containsKey(OGG_FILENAME)) {
+            if (!external && (!map.containsKey(SOURCE_PATH) || !map.containsKey(OGG_FILENAME))) {
                 throw new IllegalArgumentException("Need to specify both "
-                        + PCM_PATH + " and " + OGG_FILENAME);
+                        + SOURCE_PATH + " and " + OGG_FILENAME);
             }
 
-            this.trackFile   = new File(String.valueOf(map.remove(PCM_PATH)));
+            this.trackFile   = new File(String.valueOf(map.remove(SOURCE_PATH)));
             this.encodedFile = new File(String.valueOf(map.remove(OGG_FILENAME)));
-
 
             if (map.containsKey(ARTWORK_PATH)) {
                 artworkFile = new File(String.valueOf(map.remove(ARTWORK_PATH)));
@@ -96,16 +99,17 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     @Override
     protected Params doInBackground(final Params... params) {
         final Params param = params[0];
+        final File toUpload = param.external ? param.trackFile : param.encodedFile;
 
-        if (!param.encodedFile.exists()) {
-            throw new IllegalArgumentException("Encoded file does not exist");
+        if (!toUpload.exists()) {
+            throw new IllegalArgumentException("File to be uploaded does not exist");
         }
 
-        if (param.encodedFile.length() == 0) {
-            throw new IllegalArgumentException("Encoded file is empty");
+        if (toUpload.length() == 0) {
+            throw new IllegalArgumentException("File to be uploaded is empty");
         }
 
-        final FileBody track = new FileBody(param.encodedFile);
+        final FileBody track = new FileBody(toUpload);
         final FileBody artwork = param.artworkFile() == null ? null : new FileBody(param.artworkFile());
 
         long totalTransfer = track.getContentLength() +
@@ -115,7 +119,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         final Thread uploadThread = new Thread(new Runnable() {
             public void run() {
                 try {
-                    Log.v(TAG, "starting upload of " + param.encodedFile);
+                    Log.v(TAG, "starting upload of " + toUpload);
 
                     HttpResponse response = api.upload(track, artwork, param.getApiParams(), UploadTask.this);
                     StatusLine status = response.getStatusLine();

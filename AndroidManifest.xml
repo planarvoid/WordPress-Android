@@ -22,11 +22,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <data android:mimeType="audio/*"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
         </activity>
 
 
@@ -56,12 +51,18 @@
 
         <activity android:name=".activity.Dashboard"/>
         <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.ScCreate"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
         <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player"/>
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
+        <activity android:name=".activity.ScCreate">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="audio/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">

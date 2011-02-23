@@ -38,12 +38,11 @@ public class UploadTaskTests extends ApiTest {
         task = new UploadTask(api);
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowWhenFileIsMissing() {
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.PCM_PATH, "/tmp/in");
+        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, "/tmp/missing");
         UploadTask.Params params = new UploadTask.Params(map);
 
@@ -55,7 +54,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = File.createTempFile("temp", ".ogg");
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.PCM_PATH, "/tmp/in");
+        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsoluteFile());
         UploadTask.Params params = new UploadTask.Params(map);
 
@@ -67,7 +66,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.PCM_PATH, "/tmp/in");
+        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
         map.put("foo", "bar");
         map.put("multi", Arrays.asList("1", "2", "3"));
@@ -88,11 +87,11 @@ public class UploadTaskTests extends ApiTest {
     }
 
     @Test
-    public void shouldSucceed() throws Exception {
+    public void shouldSucceedWhenUploadSucceeds() throws Exception {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.PCM_PATH, "/tmp/in");
+        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
 
 
@@ -127,7 +126,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.PCM_PATH, "/tmp/in");
+        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
 
         UploadTask.Params params = new UploadTask.Params(map);
@@ -144,5 +143,26 @@ public class UploadTaskTests extends ApiTest {
         task.execute(params);
 
         assertFalse(params.isSuccess());
+    }
+
+    @Test
+    public void shouldUploadOriginalFileForExternalUploads() throws Exception {
+        File tmp = getTestFile();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
+        map.put(UploadTask.Params.EXTERNAL, "true");
+
+        UploadTask.Params params = new UploadTask.Params(map);
+
+        HttpResponse response = mock(HttpResponse.class);
+        StatusLine status = mock(StatusLine.class);
+        when(response.getStatusLine()).thenReturn(status);
+        when(status.getStatusCode()).thenReturn(201);
+
+        when(api.upload(Matchers.<ContentBody>any(),
+                Matchers.<ContentBody>any(),
+                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
+
+        task.execute(params);
     }
 }

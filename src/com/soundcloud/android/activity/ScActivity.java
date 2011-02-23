@@ -197,8 +197,6 @@ public abstract class ScActivity extends Activity {
                 Log.e(TAG, "error", e);
             }
         }
-
-
     }
 
     /**

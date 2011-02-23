@@ -40,7 +40,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -116,6 +115,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private String mFourSquareVenueId;
     private double mLong, mLat;
 
+    private boolean mExternalUpload;
+
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mCreateService = (ICloudCreateService) binder;
@@ -176,7 +177,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         initResourceRefs();
 
         updateUi(false);
-        mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.mp4");
+
+        mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.pcm");
         mRecordErrorMessage = "";
 
         // XXX do in manifest
@@ -193,19 +195,31 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         super.onStart();
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
-        Log.d(TAG, "onStart()");
-
-        try {
-            if (mCreateService != null && mCreateService.isUploading()) {
-                mCurrentState = CreateState.UPLOAD;
-            } else if (mCurrentState == CreateState.UPLOAD) {
-                mCurrentState = CreateState.IDLE_RECORD;
-            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
-                mCurrentState = CreateState.IDLE_PLAYBACK;
+        File streamFile = null;
+        if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
+            Uri stream = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+            if ("file".equals(stream.getScheme())) {
+                streamFile = new File(stream.getPath());
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-            mCurrentState = CreateState.IDLE_RECORD;
+        }
+
+        if (streamFile != null && streamFile.exists()) {
+            mRecordFile = streamFile;
+            mCurrentState = CreateState.IDLE_UPLOAD;
+            mExternalUpload = true;
+        } else {
+            try {
+                if (mCreateService != null && mCreateService.isUploading()) {
+                    mCurrentState = CreateState.UPLOAD;
+                } else if (mCurrentState == CreateState.UPLOAD) {
+                    mCurrentState = CreateState.IDLE_RECORD;
+                } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
+                mCurrentState = CreateState.IDLE_RECORD;
+            }
         }
         updateUi(false);
     }
@@ -276,8 +290,13 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.IDLE_PLAYBACK;
-                updateUi(true);
+                if (mExternalUpload) {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                } else {
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                    updateUi(true);
+                }
             }
         });
 
@@ -285,6 +304,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             public void onClick(View v) {
                 mCurrentState = CreateState.UPLOAD;
                 updateUi(true);
+
+                if (mExternalUpload) {
+                    setResult(RESULT_OK);
+                    finish();
+                }
             }
         });
 
@@ -893,10 +917,13 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
-            data.put(UploadTask.Params.PCM_PATH, mRecordFile.getAbsolutePath());
+            data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
 
-            if (!TextUtils.isEmpty(mArtworkUri))
+            if (mExternalUpload) data.put(UploadTask.Params.EXTERNAL, mExternalUpload);
+
+            if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
+            }
 
             try {
                 mCreateService.uploadTrack(data);

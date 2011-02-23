@@ -154,15 +154,13 @@ public class CloudRecorder {
 
                 framePeriod = sampleRate * TIMER_INTERVAL / 1000;
                 bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
-                if (bufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig,
-                        audioFormat)) { // Check to make sure buffer size is not
-                    // smaller than the smallest allowed one
+                if (bufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) {
+                    // Check to make sure buffer size is not smaller than the smallest allowed one
                     bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
                             audioFormat);
                     // Set frame period and timer interval accordingly
                     framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-                    Log.w(TAG, "Increasing buffer size to "
-                            + Integer.toString(bufferSize));
+                    Log.w(TAG, "Increasing buffer size to " + Integer.toString(bufferSize));
                 }
 
                 aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
@@ -175,7 +173,6 @@ public class CloudRecorder {
                 mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-
             }
             fPath = null;
             state = State.INITIALIZING;

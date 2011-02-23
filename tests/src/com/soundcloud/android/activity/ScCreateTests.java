@@ -1,9 +1,6 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -27,16 +24,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-public class ScCreateTests
-        implements CloudAPI.Params {
+public class ScCreateTests implements CloudAPI.Params {
     ScCreate create;
     ICloudCreateService service;
 
     @Before
     public void setup() {
         service = mock(ICloudCreateService.class);
-        addPendingHttpResponse(401, "Error");  // load connections
-
         create = new ScCreate();
         create.mCreateService = service;
         create.onCreate(null);
@@ -136,7 +130,7 @@ public class ScCreateTests
         assertEquals("", arguments.get(POST_TO_EMPTY));
         assertEquals(PUBLIC, arguments.get(SHARING));
 
-        assertNotNull(arguments.get(UploadTask.Params.PCM_PATH));
+        assertNotNull(arguments.get(UploadTask.Params.SOURCE_PATH));
         assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
         assertNull(arguments.get(UploadTask.Params.ARTWORK_PATH));
     }
