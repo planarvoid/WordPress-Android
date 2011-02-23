@@ -146,7 +146,7 @@ public class ApiWrapper implements CloudAPI {
         try {
             return mSoundCloudApi.put(path, params);
         } catch (OAuthException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ public class ApiWrapper implements CloudAPI {
         try {
             return mSoundCloudApi.post(path, params);
         } catch (OAuthException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -164,7 +164,7 @@ public class ApiWrapper implements CloudAPI {
         try {
             return mSoundCloudApi.delete(path);
         } catch (OAuthException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -239,7 +239,7 @@ public class ApiWrapper implements CloudAPI {
         try {
             return mSoundCloudApi.performRequest(post);
         } catch (OAuthException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e.getMessage());
         }
     }
 

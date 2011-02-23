@@ -49,7 +49,8 @@ public class Http {
         public void transferred(long amount);
     }
 
-    // perform a request with following redirects
+    // perform a request *without* following redirects
+    // useful for checking status codes like 302/303
     public static HttpResponse noRedirect(HttpUriRequest req) throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         client.setRedirectHandler(new RedirectHandler() {
