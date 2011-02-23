@@ -8,7 +8,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -63,8 +62,6 @@ public class LazyBaseAdapter extends BaseAdapter {
         } else {
             rowView = (LazyRow) row;
         }
-
-        Log.i(getClass().getSimpleName(),"GET VIEW");
 
         // update the cell renderer, and handle selection state
         rowView.display(index);

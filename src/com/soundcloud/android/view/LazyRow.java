@@ -10,7 +10,6 @@ import com.soundcloud.utils.AnimUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
@@ -46,8 +45,6 @@ public class LazyRow extends RelativeLayout {
     public void display(int position) {
 
         mCurrentPosition = position;
-
-        Log.i(getClass().getSimpleName(),"DDDISPLAY ");
 
         if (position == mAdapter.submenuIndex){
             if (findViewById(R.id.row_submenu) != null){
