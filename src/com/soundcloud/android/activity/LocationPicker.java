@@ -55,7 +55,7 @@ public class LocationPicker extends ListActivity {
 
     private static final int LOADING = 0;
 
-    private String provider;
+    private String mProvider;
 
     private LocationManager getManager() {
         return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -88,20 +88,23 @@ public class LocationPicker extends ListActivity {
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 
         Criteria c = new Criteria();
-        this.provider = getManager().getBestProvider(c, true);
-        Log.v(TAG, "best provider: " + provider);
+        mProvider = getManager().getBestProvider(c, true);
 
         FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
-        Location loc = getManager().getLastKnownLocation(provider);
-        adapter.onLocationChanged(loc);
+
+        if (mProvider != null) {
+            Log.v(TAG, "best provider: " + mProvider);
+            Location loc = getManager().getLastKnownLocation(mProvider);
+            adapter.onLocationChanged(loc);
+        }
         setListAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (provider != null) {
-            getManager().requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
+        if (mProvider != null) {
+            getManager().requestLocationUpdates(mProvider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
         }
     }
 
