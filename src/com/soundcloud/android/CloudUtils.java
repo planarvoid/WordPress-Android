@@ -334,7 +334,7 @@ public class CloudUtils {
         setTabTextStyle(context, tabWidget, false);
     }
 
-    public static void setTabTextStyle(Context context, TabWidget tabWidget, Boolean textOnly) {
+    public static void setTabTextStyle(Context context, TabWidget tabWidget, boolean textOnly) {
         // a hacky way of setting the font of the indicator texts
         for (int i = 0; i < tabWidget.getChildCount(); i++) {
             if (tabWidget.getChildAt(i) instanceof RelativeLayout) {
@@ -365,7 +365,7 @@ public class CloudUtils {
     }
 
 
-    public static Boolean isTrackPlayable(Track track) {
+    public static boolean isTrackPlayable(Track track) {
         return track.streamable;
     }
 
@@ -562,7 +562,7 @@ public class CloudUtils {
      * @param t
      * @return boolean : is the thread alive
      */
-    public static Boolean checkThreadAlive(Thread t) {
+    public static boolean checkThreadAlive(Thread t) {
         return (!(t == null || !t.isAlive()));
     }
 

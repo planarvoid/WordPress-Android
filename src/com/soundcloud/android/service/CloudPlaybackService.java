@@ -198,7 +198,7 @@ public class CloudPlaybackService extends Service {
 
     private DownloadThread mDownloadThread;
 
-    private Boolean mMediaplayerError = false;
+    private boolean mMediaplayerError = false;
 
     private RemoteViews mNotificationView;
 
@@ -655,7 +655,7 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    public void fileLengthUpdated(Track t, Boolean changed) {
+    public void fileLengthUpdated(Track t, boolean changed) {
         if (t.id.compareTo(mPlayingData.id) == 0) {
             if (changed) {
 
@@ -958,7 +958,7 @@ public class CloudPlaybackService extends Service {
      * @param track
      * @return
      */
-    private Boolean checkIfTrackCached(Track track) {
+    private boolean checkIfTrackCached(Track track) {
         return (track != null && track.mCacheFile != null && track.filelength != null && track.mCacheFile.length() >= track.filelength);
     }
 
@@ -968,7 +968,7 @@ public class CloudPlaybackService extends Service {
      *
      * @return
      */
-    public Boolean keepCaching() {
+    public boolean keepCaching() {
         // we aren't playing and are not supposed to be caching during pause
         if (!mIsSupposedToBePlaying && !mCacheOnPause)
             return false;
@@ -1091,7 +1091,7 @@ public class CloudPlaybackService extends Service {
         stop(true);
     }
 
-    private Boolean mCacheOnPause = true;
+    private boolean mCacheOnPause = true;
 
     public void pause() {
         pause(false);
@@ -1100,7 +1100,7 @@ public class CloudPlaybackService extends Service {
     /**
      * Pauses playback (call play() to resume)
      */
-    public void pause(Boolean force) {
+    public void pause(boolean force) {
         synchronized (this) {
             if (isPlaying()) {
                 mCacheOnPause = force ? true : PreferenceManager.getDefaultSharedPreferences(this)
@@ -1192,7 +1192,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public void setFavoriteStatus(long trackId, Boolean favoriteStatus) {
+    public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
             Log.i(TAG,"Set Favorite Status " + mPlayingData.id + " " + trackId);
             if (mPlayingData.id.compareTo(trackId) == 0) {
@@ -1274,7 +1274,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public Boolean getDownloadable() {
+    public boolean getDownloadable() {
         synchronized (this) {
 
             if (mPlayingData == null) {
@@ -1311,7 +1311,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public Boolean isBuffering() {
+    public boolean isBuffering() {
         synchronized (this) {
             return pausedForBuffering;
         }
@@ -1532,7 +1532,7 @@ public class CloudPlaybackService extends Service {
             return seek(whereto, false);
         }
 
-        public long seek(long whereto, Boolean resumeSeek) {
+        public long seek(long whereto, boolean resumeSeek) {
             mPlayer.setVolume(0);
             whereto = (int) getSeekResult(whereto, resumeSeek);
             mMediaPlayer.seekTo((int) whereto);
@@ -1543,7 +1543,7 @@ public class CloudPlaybackService extends Service {
             return getSeekResult(whereto, false);
         }
 
-        public long getSeekResult(long whereto, Boolean resumeSeek) {
+        public long getSeekResult(long whereto, boolean resumeSeek) {
             long maxSeek = mPlayer.position();
 
             if (!resumeSeek) {

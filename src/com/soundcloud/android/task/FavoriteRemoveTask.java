@@ -25,7 +25,7 @@ public class FavoriteRemoveTask extends FavoriteTask {
     }
     
     @Override
-    protected Boolean processResponse(int responseCode){
+    protected boolean processResponse(int responseCode){
         Log.i("RemoveFavorite","process response " + responseCode);
         boolean favorite = true;
         if (responseCode != 0) {

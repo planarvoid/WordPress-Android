@@ -76,7 +76,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private ImageButton mPauseButton;
 
-    protected Boolean mLandscape;
+    protected boolean mLandscape;
 
     private ImageView mArtwork;
 
@@ -101,7 +101,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private FrameLayout mUnplayableLayout;
 
-    private Boolean mCurrentTrackError = false;
+    private boolean mCurrentTrackError = false;
 
     private BindResult mCurrentArtBindResult;
 
@@ -322,7 +322,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     @Override
-    protected void onDataConnectionChanged(Boolean isConnected) {
+    protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         if (mPlayingTrack == null)
             return;
@@ -540,7 +540,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    private void onDetailsResult(Boolean success) {
+    private void onDetailsResult(boolean success) {
         if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
             mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
         }
@@ -1007,7 +1007,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mArtwork.setScaleType(ScaleType.MATRIX);
     }
 
-    public Boolean isSeekable() {
+    public boolean isSeekable() {
         try {
             return !(mPlaybackService == null || !mPlaybackService.isSeekable());
         } catch (RemoteException e) {

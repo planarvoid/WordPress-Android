@@ -26,7 +26,7 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected int mPage = 1;
 
-    protected Boolean mDone = false;
+    protected boolean mDone = false;
 
     // XXX assumes images
     protected ImageLoader mImageLoader;

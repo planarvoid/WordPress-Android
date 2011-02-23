@@ -185,7 +185,7 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    public void setAdapterType(Boolean isUser) {
+    public void setAdapterType(boolean isUser) {
         if (isUser) {
             mList.setAdapter(mUserAdpWrapper);
             mUserAdpWrapper.createListEmptyView(mList);

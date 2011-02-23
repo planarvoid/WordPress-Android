@@ -58,7 +58,7 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
         mException = e;
     }
     
-    protected Boolean processResponse(int i){
+    protected boolean processResponse(int i){
         return false;
     }
     

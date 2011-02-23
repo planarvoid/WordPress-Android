@@ -29,7 +29,7 @@ public class Track extends BaseObj implements Parcelable {
 
     public Float bpm;
 
-    public Boolean commentable;
+    public boolean commentable;
 
     public Integer comment_count;
 
@@ -39,7 +39,7 @@ public class Track extends BaseObj implements Parcelable {
 
     public String description;
 
-    public Boolean downloadable;
+    public boolean downloadable;
 
     public Integer download_count;
 
@@ -95,7 +95,7 @@ public class Track extends BaseObj implements Parcelable {
 
     public String state;
 
-    public Boolean streamable;
+    public boolean streamable;
 
     public String stream_url;
 
@@ -107,11 +107,11 @@ public class Track extends BaseObj implements Parcelable {
 
     public String uri;
 
-    public Boolean user_played;
+    public boolean user_played;
 
     public String user_playback_count;
 
-    public Boolean user_favorite;
+    public boolean user_favorite;
 
     public Integer user_favorite_id;
 
