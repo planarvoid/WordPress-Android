@@ -50,6 +50,7 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -61,6 +62,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
@@ -93,14 +95,12 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private TextView mShareOptions;
 
     private ImageView mArtwork;
-    private TextView mArtworkBg;
 
     private ImageButton btnAction;
 
     private File mRecordFile;
     private String mArtworkUri;
     private Bitmap mArtworkBitmap;
-
 
     /* package */ ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
@@ -158,13 +158,10 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
 
-    WakeLock mWakeLock;
-
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
 
     private Long pcmTime;
-
 
 
     @Override
@@ -191,7 +188,42 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
+        Log.d(TAG, "onStart()");
+
+        try {
+            if (mCreateService != null && mCreateService.isUploading()) {
+                mCurrentState = CreateState.UPLOAD;
+            } else if (mCurrentState == CreateState.UPLOAD) {
+                mCurrentState = CreateState.IDLE_RECORD;
+            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
+                mCurrentState = CreateState.IDLE_PLAYBACK;
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+            mCurrentState = CreateState.IDLE_RECORD;
+        }
+        updateUi(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mConnectionList.getAdapter().loadIfNecessary();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onStart();
+
+        this.unregisterReceiver(mUploadStatusListener);
+        clearArtwork();
+        updateUi(false);
+    }
 
     /*
     * Whenever the UI is re-created (due f.ex. to orientation change) we have
@@ -257,7 +289,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
+        TextView mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
 
 
         mWhatText = (EditText) findViewById(R.id.what);
@@ -302,21 +334,21 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mArtworkBg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new AlertDialog.Builder(ScCreate.this)
-                .setMessage("Where would you like to get the image?").setPositiveButton(
+                        .setMessage("Where would you like to get the image?").setPositiveButton(
                         "Take a new picture", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(new
-                                File(UPLOAD_TEMP_PICTURE_PATH)));
+                                        File(UPLOAD_TEMP_PICTURE_PATH)));
                                 startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                             }
                         }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                intent.setType("image/*");
-                                startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                            }
-                        }).create().show();
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                    }
+                }).create().show();
             }
         });
 
@@ -354,11 +386,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mConnectionList.getAdapter().loadIfNecessary();
-    }
+
 
     @Override
     public void onReauthenticate() {
@@ -407,10 +435,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         super.onRestoreInstanceState(state);
     }
 
-    public void setFileUri(String uri){
-
-    }
-
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = getResources().getString(R.string.error_recording_message);
@@ -418,36 +442,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         updateUi(true);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
-        Log.d(TAG, "onStart()");
-
-        try {
-            if (mCreateService!= null && mCreateService.isUploading()) {
-                mCurrentState = CreateState.UPLOAD;
-            } else if (mCurrentState == CreateState.UPLOAD) {
-                mCurrentState = CreateState.IDLE_RECORD;
-            } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
-                mCurrentState = CreateState.IDLE_PLAYBACK;
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-            mCurrentState = CreateState.IDLE_RECORD;
-        }
-        updateUi(false);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onStart();
-
-        this.unregisterReceiver(mUploadStatusListener);
-        clearArtwork();
-        updateUi(false);
-    }
 
     public void unlock(boolean finished) {
         // not currently uploading anything, so allow recording
@@ -456,7 +451,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             updateUi(false);
         }
     }
-
 
     public void setPickedImage(String imageUri) {
         try {
@@ -1092,7 +1086,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                 if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
                     String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
                     if (emails != null) {
-                        Log.d(TAG, "got emails " + Arrays.asList(emails));
                         setPrivateShareEmails(emails);
                     }
                 }
@@ -1105,7 +1098,18 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                             result.getDoubleExtra("latitude", 0));
                 }
                 break;
+            case Connect.MAKE_CONNECTION:
+                if (resultCode == RESULT_OK) {
+                    boolean success = result.getBooleanExtra("success", false);
+                    String msg = getString(
+                            success ? R.string.connect_success : R.string.connect_failure,
+                            result.getStringExtra("service"));
+                    Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.BOTTOM, 0, 0);
+                    toast.show();
 
+                    if (success) mConnectionList.getAdapter().load();
+                }
         }
     }
 

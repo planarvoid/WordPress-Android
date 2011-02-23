@@ -95,12 +95,17 @@ public class ScTabActivity extends TabActivity {
     }
 
     private void handleIntent() {
-        if (getIntent() != null && getIntent().hasExtra("tabIndex")) {
-            mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
-            getIntent().getExtras().clear();
+        if (getIntent() != null) {
+            if (getIntent().hasExtra("tabIndex")) {
+                mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
+                getIntent().removeExtra("tabIndex");
+            } else if (getIntent().hasExtra("tabTag")) {
+                mTabHost.setCurrentTabByTag(getIntent().getStringExtra("tabTag"));
+                getIntent().removeExtra("tabTag");
+
+            }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -158,26 +163,15 @@ public class ScTabActivity extends TabActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle state) {
-
-//        if (setTabIndex == -1) {
-//            String setTabIndexString = state.getString("currentTabIndex");
-//            if (!TextUtils.isEmpty(setTabIndexString)) {
-//                setTabIndex = Integer.parseInt(setTabIndexString);
-//            } else
-//                setTabIndex = 0;
-//        }
-//        if (tabHost != null)
-//            tabHost.setCurrentTab(setTabIndex);
-
         super.onRestoreInstanceState(state);
+        if (state.containsKey("tabTag")) {
+            mTabHost.setCurrentTabByTag(state.getString("tabTag"));
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
+        state.putString("tabTag", mTabHost.getCurrentTabTag());
         super.onSaveInstanceState(state);
-//        if (tabHost != null) {
-//                 state.putString("currentTabIndex", Integer.toString(tabHost.getCurrentTab()));
-//             }
-
     }
 }

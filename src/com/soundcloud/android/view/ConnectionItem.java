@@ -1,17 +1,15 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.objects.Connection;
+
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Connection;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ConnectionItem extends RelativeLayout {
     private CheckBox post_publish;
@@ -62,6 +60,14 @@ public class ConnectionItem extends RelativeLayout {
     }
 
     public void configureService(Connection.Service service) {
+    }
+
+    public void progress(boolean finished) {
+        TextView configure = (TextView) findViewById(R.id.txt_configure);
+        configure.setTextColor(finished ?
+                getResources().getColor(R.color.white) :
+                getResources().getColor(R.color.darker_gray)
+        );
     }
 
     public boolean isEnabled() {

@@ -716,4 +716,7 @@
 
     <string name="sharing_options">Sharing options</string>
     <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
+    <string name="connect_progress">Loading</string>
+    <string name="connect_success">Successfully connected with %1$s</string>
+    <string name="connect_failure">Failed connecting with %1$s</string>
 </resources>

@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ConnectActivity"
+        <activity android:name=".activity.Connect"
             android:label="Connect"
             android:configChanges="orientation|keyboardHidden">
 

@@ -1,12 +1,18 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Connect;
+import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.NewConnectionTask;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +20,9 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ConnectActivity;
-import com.soundcloud.android.objects.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
-import com.soundcloud.android.task.NewConnectionTask;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 
 public class ConnectionList extends LinearLayout {
@@ -44,8 +42,6 @@ public class ConnectionList extends LinearLayout {
 
 
     protected void handleDataChanged() {
-        Log.d(TAG, "handleDataChanged()");
-
         removeAllViews();
 
         for (int i = 0; i < listAdapter.getCount(); i++) {
@@ -143,15 +139,24 @@ public class ConnectionList extends LinearLayout {
         @Override
         public View getView(int position, View convertView, final ViewGroup parent) {
             return new ConnectionItem(parent.getContext(), getItem(position)) {
+
                 @Override
-                public void configureService(Connection.Service service) {
-                    Log.d(TAG, "configure service " + service);
+                public void configureService(final Connection.Service service) {
                     new NewConnectionTask(api) {
                         @Override
+                        protected void onPreExecute() {
+                            progress(false);
+                        }
+
+                        @Override
                         protected void onPostExecute(Uri uri) {
+                            progress(true);
                             if (uri != null) {
-                                parent.getContext().startActivity(
-                                        (new Intent(parent.getContext(), ConnectActivity.class)).setData(uri));
+                                ((Activity)parent.getContext()).startActivityForResult(
+                                    (new Intent(parent.getContext(), Connect.class))
+                                            .putExtra("service", service.name())
+                                            .setData(uri),
+                                    Connect.MAKE_CONNECTION);
                             } else {
                                 Toast toast = Toast.makeText(parent.getContext(),
                                         parent.getResources().getString(R.string.new_connection_error),
@@ -178,7 +183,6 @@ public class ConnectionList extends LinearLayout {
             new LoadConnectionsTask(api) {
                 @Override
                 protected void onPreExecute() {
-                    Log.v(TAG, "loading connections");
                 }
 
                 @Override
