@@ -21,7 +21,7 @@ public class ConnectionItem extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        inflater.inflate(R.layout.connection_item, this);
+        inflater.inflate(R.layout.connection_list_item, this);
 
         this.connection = c;
 

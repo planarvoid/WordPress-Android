@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import java.util.List;
 
 public class ConnectionList extends LinearLayout {
     private Adapter listAdapter;
-    private AttributeSet attrs;
+    private View footer;
 
     public ConnectionList(Context context) {
         super(context);
@@ -36,7 +35,6 @@ public class ConnectionList extends LinearLayout {
 
     public ConnectionList(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.attrs = attrs;
         setOrientation(LinearLayout.VERTICAL);
     }
 
@@ -96,9 +94,9 @@ public class ConnectionList extends LinearLayout {
     }
 
     protected View getFooter() {
-        TextView footer = new TextView(getContext(), attrs, R.style.connection_list_header);
-        footer.setText(R.string.connection_list_footer);
-        footer.setTextColor(getResources().getColor(R.color.background_light));
+        if (footer == null) {
+            footer = inflate(getContext(), R.layout.connection_list_footer, null);
+        }
         return footer;
     }
 
@@ -152,11 +150,11 @@ public class ConnectionList extends LinearLayout {
                         protected void onPostExecute(Uri uri) {
                             progress(true);
                             if (uri != null) {
-                                ((Activity)parent.getContext()).startActivityForResult(
-                                    (new Intent(parent.getContext(), Connect.class))
-                                            .putExtra("service", service.name())
-                                            .setData(uri),
-                                    Connect.MAKE_CONNECTION);
+                                ((Activity) parent.getContext()).startActivityForResult(
+                                        (new Intent(parent.getContext(), Connect.class))
+                                                .putExtra("service", service.name())
+                                                .setData(uri),
+                                        Connect.MAKE_CONNECTION);
                             } else {
                                 Toast toast = Toast.makeText(parent.getContext(),
                                         parent.getResources().getString(R.string.new_connection_error),

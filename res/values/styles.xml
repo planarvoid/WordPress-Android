@@ -75,7 +75,12 @@
 		<item name="android:paddingLeft">5dip</item>
 		<item name="android:paddingRight">5dip</item>
 	</style>
-	
+
+    <style name="txt_connection_footer">
+        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 	<style name="txt_not_streamable">
 		<item name="android:textColor">@color/listTxtSecondary</item>
 		<item name="android:textSize">16sp</item>
