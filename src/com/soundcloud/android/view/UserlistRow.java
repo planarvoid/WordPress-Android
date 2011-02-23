@@ -8,7 +8,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.User;
 
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -66,11 +65,6 @@ public class UserlistRow extends LazyRow {
     }
 
     @Override
-    protected Drawable getTemporaryDrawable() {
-        return mActivity.getResources().getDrawable(R.drawable.artwork_badge);
-    }
-
-    @Override
     public ImageView getRowIcon() {
         if (getContext().getResources().getDisplayMetrics().density > 1) {
             mIcon.getLayoutParams().width = 67;
@@ -81,6 +75,8 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
+        if (mUser.avatar_url == null)
+            return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
             return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.large);
         } else

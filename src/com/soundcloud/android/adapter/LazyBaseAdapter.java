@@ -1,9 +1,13 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.utils.FastBitmapDrawable;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +29,25 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected boolean mDone = false;
 
+    private final Bitmap mDefaultIconBitmap;
+    private final FastBitmapDrawable mDefaultIcon;
+
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {
         mData = (List<Parcelable>) data;
         mActivity = activity;
+
+        mDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),getDefaultIconResource());
+        mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
+
+    }
+
+    public FastBitmapDrawable getDefaultIcon() {
+        return mDefaultIcon;
+    }
+
+    protected int getDefaultIconResource() {
+        return R.drawable.artwork_badge;
     }
 
     public List<Parcelable> getData() {

@@ -195,7 +195,6 @@ public class PlayListManager {
         String q = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).getString(
                 "queue", "");
 
-        boolean newstyle = false;
         int qlen = q != null ? q.length() : 0;
         if (qlen > 1) {
             Log.i("@@@@ service", "loaded queue: " + q + " " + qlen);

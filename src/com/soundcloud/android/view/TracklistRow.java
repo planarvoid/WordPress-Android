@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class TracklistRow extends LazyRow {
 
     protected Track mTrack;
@@ -79,7 +81,7 @@ public class TracklistRow extends LazyRow {
                 if (mTrack.id == ((TracklistAdapter) mAdapter).playingId && ((TracklistAdapter) mAdapter).isPlaying) {
                     mActivity.pause(false);
                 } else {
-                    mActivity.playTrack(mAdapter.getData(),mCurrentPosition, false);
+                    mActivity.playTrack(mTrack.id, (ArrayList<Parcelable>) mAdapter.getData(),mCurrentPosition, false);
                 }
             }
         });
@@ -224,10 +226,12 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
+        if (mTrack.artwork_url == null)
+            return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(getTrackFromParcelable(mAdapter.getData().get(mCurrentPosition)).artwork_url, GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.large);
         } else
-            return CloudUtils.formatGraphicsUrl(getTrackFromParcelable(mAdapter.getData().get(mCurrentPosition)).artwork_url, GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.badge);
 
     }
 

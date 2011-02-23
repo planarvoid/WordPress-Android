@@ -11,6 +11,7 @@ import com.soundcloud.utils.AnimUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
@@ -80,7 +81,13 @@ public class LazyRow extends RelativeLayout {
             }
         }
 
-        if (mActivity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || mActivity.isPendingCoversUpdate()){
+        if (TextUtils.isEmpty(getIconRemoteUri())){
+            pendingIcon = false;
+            setTemporaryDrawable(BindResult.ERROR);
+            return;
+        }
+
+        if (mActivity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || mActivity.pendingIconsUpdate){
             pendingIcon = true;
             setTemporaryDrawable(BindResult.ERROR);
         } else {
@@ -98,6 +105,7 @@ public class LazyRow extends RelativeLayout {
             else
                 mImageLoader.unbind(getRowIcon());
         } catch (Exception e) {
+            e.printStackTrace();
         }
         setTemporaryDrawable(result);
     }
@@ -126,7 +134,8 @@ public class LazyRow extends RelativeLayout {
             return;
 
         if (result != BindResult.OK)
-            mIcon.setImageDrawable(this.getTemporaryDrawable());
+            mIcon.setImageDrawable(mAdapter.getDefaultIcon());
+
 
         mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
         mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());

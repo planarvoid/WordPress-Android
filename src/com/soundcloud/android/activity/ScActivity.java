@@ -15,14 +15,12 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -43,7 +41,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -53,17 +50,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -87,13 +81,8 @@ public abstract class ScActivity extends Activity {
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
-    private static final int MESSAGE_UPDATE_LIST_ICONS = 1;
-    private static final int DELAY_SHOW_LIST_ICONS = 550;
 
-    private final Handler mScrollHandler = new ScrollHandler();
-    private boolean mPendingIconsUpdate;
-    private int mScrollState = ScScrollManager.SCROLL_STATE_IDLE;
-    private boolean mFingerUp = true;
+    public boolean pendingIconsUpdate;
 
     // Need handler for callbacks to the UI thread
     public final Handler mHandler = new Handler();
@@ -114,12 +103,13 @@ public abstract class ScActivity extends Activity {
     }
 
     public int getScrollState() {
-        return mScrollState;
+        int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
+        for (LazyListView lv : mLists){
+            if (lv.getScrollState() > scrollState) scrollState = lv.getScrollState();
+        }
+        return scrollState;
     }
 
-    public boolean isPendingCoversUpdate() {
-        return mPendingIconsUpdate;
-    }
 
     protected void onServiceBound() {
         if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
@@ -211,7 +201,6 @@ public abstract class ScActivity extends Activity {
 
     }
 
-
     /**
      * Unbind our services
      */
@@ -219,10 +208,8 @@ public abstract class ScActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
-        Log.v(TAG, "KILLING THE TRACKER " + tracker);
         tracker.stop();
         tracker = null;
-        Log.v(TAG, "KILLED THE TRACKER " + tracker);
         connectivityListener.stopListening();
 
 
@@ -252,20 +239,13 @@ public abstract class ScActivity extends Activity {
     protected void onReauthenticate() {
     }
 
-    public void playTrack(final List<Parcelable> list, final int playPos, boolean goToPlayer) {
-        Track t = null;
-
-        // is this a track of a list
-        if (list.get(playPos) instanceof Track)
-            t = ((Track) list.get(playPos));
-        else if (list.get(playPos) instanceof Event)
-            t = ((Event) list.get(playPos)).getTrack();
+    public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
 
         // find out if this track is already playing. If it is, just go to the
         // player
         try {
-            if (t != null && mPlaybackService != null && mPlaybackService.getTrackId() != -1
-                    && mPlaybackService.getTrackId() == (t.id)) {
+            if (mPlaybackService != null && mPlaybackService.getTrackId() != -1
+                    && mPlaybackService.getTrackId() == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
                     Intent intent = new Intent(this, ScPlayer.class);
@@ -284,7 +264,7 @@ public abstract class ScActivity extends Activity {
         // another option would be to pass the parcelables through the intent, but that has the
         // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
-        this.getSoundCloudApplication().cachePlaylist((ArrayList<Parcelable>) list);
+        this.getSoundCloudApplication().cachePlaylist(list);
 
         try {
             mPlaybackService.playFromAppCache(playPos);
@@ -368,12 +348,8 @@ public abstract class ScActivity extends Activity {
     public LazyListView buildList() {
         LazyListView lv = new LazyListView(this);
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        lv.setOnItemClickListener(mOnItemClickListener);
-        lv.setOnItemLongClickListener(mOnItemLongClickListener);
-        lv.setOnItemSelectedListener(mOnItemSelectedListener);
-        lv.setOnScrollListener(new ScScrollManager());
-        lv.setOnTouchListener(new FingerTracker());
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        lv.setLazyListListener(mLazyListListener);
         lv.setFastScrollEnabled(true);
         lv.setTextFilterEnabled(true);
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
@@ -384,122 +360,6 @@ public abstract class ScActivity extends Activity {
         return lv;
     }
 
-
-    protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
-
-        public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
-                    || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
-                return; // bad list item clicked (possibly loading item)
-
-            if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track
-                    || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event) {
-                ScActivity.this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(), position, true);
-
-            } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User) {
-                Intent i = new Intent(ScActivity.this, UserBrowser.class);
-                i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
-                startActivity(i);
-
-            }
-        }
-
-    };
-
-    protected AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-
-        public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
-            if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
-                    || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
-                return false; // bad list item clicked (possibly loading item)
-
-            ((LazyBaseAdapter) list.getAdapter()).submenuIndex = ((LazyBaseAdapter) list.getAdapter()).animateSubmenuIndex = position;
-            ((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
-            return true;
-        }
-
-    };
-    protected AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
-            if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position)
-                listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-            else
-                listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-        }
-
-        public void onNothingSelected(AdapterView<?> listView) {
-            // This happens when you start scrolling, so we need to prevent it from staying
-            // in the afterDescendants mode if the EditText was focused
-            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-        }
-    };
-
-    private class ScScrollManager implements AbsListView.OnScrollListener {
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-            if (mScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
-                final Handler handler = mScrollHandler;
-                final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS,
-                        ScActivity.this);
-                handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
-                handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_LIST_ICONS);
-            } else if (scrollState == SCROLL_STATE_FLING) {
-                mScrollHandler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
-            }
-            mScrollState = scrollState;
-        }
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-                int totalItemCount) {
-
-        }
-
-    }
-
-    private static class ScrollHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_UPDATE_LIST_ICONS:
-                    ((ScActivity) msg.obj).updateListIcons();
-                    break;
-            }
-        }
-    }
-
-    private class FingerTracker implements View.OnTouchListener {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            final int action = event.getAction();
-            mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
-            if (mFingerUp && mScrollState != ScScrollManager.SCROLL_STATE_FLING) {
-                postUpdateListIcons();
-            }
-            return false;
-        }
-    }
-
-    private void postUpdateListIcons() {
-        Handler handler = mScrollHandler;
-        Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS, ScActivity.this);
-        handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
-        mPendingIconsUpdate = true;
-        handler.sendMessage(message);
-    }
-
-    private void updateListIcons(){
-        mPendingIconsUpdate = false;
-        Log.i(TAG,"UPDATE LIST ICONSSSS");
-        for (LazyListView lv : mLists){
-            for (int i = 0; i < lv.getChildCount(); i++){
-                if (LazyRow.class.isAssignableFrom(lv.getChildAt(i).getClass())){
-                    if (((LazyRow) lv.getChildAt(i)).pendingIcon)
-                        ((LazyRow) lv.getChildAt(i)).loadPendingIcon();
-                }
-                Log.i(TAG,"List Child " + lv.getChildAt(i));
-            }
-        }
-    }
 
     public void addNewComment(final Track track, final long timestamp) {
         final EditText input = new EditText(this);
@@ -579,7 +439,6 @@ public abstract class ScActivity extends Activity {
         getSoundCloudApplication().uncacheComments(c.track_id);
     }
 
-
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -606,7 +465,6 @@ public abstract class ScActivity extends Activity {
                 ((TracklistAdapter) adp).setPlayingId(id, isPlaying);
         }
     }
-
 
     protected void showToast(String text) {
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
@@ -744,4 +602,30 @@ public abstract class ScActivity extends Activity {
 
     public void onRefresh() {
     }
+
+    private LazyListView.LazyListListener mLazyListListener = new LazyListView.LazyListListener() {
+
+        @Override
+        public void onUserClick(ArrayList<Parcelable> users, int position) {
+            Intent i = new Intent(ScActivity.this, UserBrowser.class);
+            i.putExtra("user", users.get(position));
+            startActivity(i);
+        }
+
+        @Override
+        public void onTrackClick(ArrayList<Parcelable> tracks, int position) {
+            playTrack(((Track)tracks.get(position)).id, tracks, position, true);
+        }
+
+        @Override
+        public void onEventClick(ArrayList<Parcelable> events, int position) {
+            playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+        }
+
+        @Override
+        public void onIconsShouldLoad() {
+
+        }
+    };
+
 }
