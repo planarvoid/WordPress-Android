@@ -23,21 +23,21 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Dashboard extends ScActivity implements AdapterView.OnItemClickListener {
+    protected LazyListView mListView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,7 +96,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         }
 
         final ScTabView view = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, view, adpWrap, listId);
+        mListView = CloudUtils.createTabList(this, view, adpWrap, listId, null);
         return view;
     }
 
@@ -104,7 +104,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(mPlaybackStatusListener);
-        CloudUtils.cleanupList(mList);
+        CloudUtils.cleanupList(mListView);
     }
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
@@ -149,17 +149,17 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
     private void setPlayingTrack(long l) {
-        if (mList != null)
+        if (mListView != null)
             return;
 
         mCurrentTrackId = l;
 
 
-        if (mList.getAdapter() != null) {
-            if (mList.getAdapter() instanceof TracklistAdapter)
-                ((TracklistAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
-            else if (mList.getAdapter() instanceof EventsAdapter)
-                ((EventsAdapter) mList.getAdapter()).setPlayingId(mCurrentTrackId);
+        if (mListView.getAdapter() != null) {
+            if (mListView.getAdapter() instanceof TracklistAdapter)
+                ((TracklistAdapter) mListView.getAdapter()).setPlayingId(mCurrentTrackId);
+            else if (mListView.getAdapter() instanceof EventsAdapter)
+                ((EventsAdapter) mListView.getAdapter()).setPlayingId(mCurrentTrackId);
         }
     }
 
@@ -172,16 +172,10 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         ArrayList<ArrayList<Parcelable>> mAdapterDatas = (ArrayList<ArrayList<Parcelable>>) adapterObject;
         for (ArrayList<Parcelable> data : mAdapterDatas) {
             if (data != null) {
-                ((LazyBaseAdapter) mList.getAdapter()).getData().addAll(data);
-                ((LazyBaseAdapter) mList.getAdapter()).notifyDataSetChanged();
+                ((LazyBaseAdapter) mListView.getAdapter()).getData().addAll(data);
+                ((LazyBaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
             }
         }
-    }
-
-
-    public LazyList buildList() {
-        mList = CloudUtils.createList(this);
-        return mList;
     }
 
     @Override
@@ -214,8 +208,8 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
     }
 
     @Override
-    public void onRefresh(boolean b) {
-        mList.getWrapper().clear();
+    public void onRefresh() {
+        mListView.getWrapper().clear();
     }
 
     public void configureListMenu(ListView list) {
@@ -243,28 +237,28 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
 
     protected Object saveListTasks() {
-        if (mList == null)
+        if (mListView == null)
             return null;
-        return mList.getWrapper().getTask();
+        return mListView.getWrapper().getTask();
     }
 
     protected Object saveListConfigs() {
-        if (mList == null)
+        if (mListView == null)
             return null;
 
-        return mList.getWrapper().savePagingData();
+        return mListView.getWrapper().savePagingData();
     }
 
     protected Object saveListExtras() {
-        if (mList == null)
+        if (mListView == null)
             return null;
-        return mList.getWrapper().saveExtraData();
+        return mListView.getWrapper().saveExtraData();
     }
 
     protected Object saveListAdapters() {
-        if (mList == null)
+        if (mListView == null)
             return null;
-        return mList.getWrapper().getData();
+        return mListView.getWrapper().getData();
     }
 
 
@@ -274,7 +268,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         if (appendTask == null)
             return;
 
-        mList.getWrapper().restoreTask(appendTask);
+        mListView.getWrapper().restoreTask(appendTask);
     }
 
 
@@ -282,7 +276,7 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         int[] config = (int[]) configObject;
 
         if (config != null) {
-            mList.getWrapper().restorePagingData(config);
+            mListView.getWrapper().restorePagingData(config);
         }
     }
 
@@ -290,33 +284,10 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
         if (extraObject == null)
             return;
 
-        mList.getWrapper().restoreExtraData(extraObject.toString());
+        mListView.getWrapper().restoreExtraData(extraObject.toString());
     }
 
 
-    /**
-     * A list item has been clicked
-     */
-    public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-        // XXX WTF
-        if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
-                || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
-            return; // bad list item clicked (possibly loading item)
-
-        if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track
-                || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event) {
-            // track clicked
-            this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(), position);
-
-        } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User) {
-
-            // user clicked
-            Intent i = new Intent(this, UserBrowser.class);
-            i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
-            startActivity(i);
-
-        }
-    }
 
     public void mapDetails(Parcelable p) {
         // XXX this should only happen once, after authorizing w/ soundcloud
@@ -335,5 +306,10 @@ public class Dashboard extends ScActivity implements AdapterView.OnItemClickList
 
             }
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        handleListItemClicked(parent, position);
     }
 }

@@ -9,7 +9,7 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.LruCache;
-import com.soundcloud.utils.http.ProgressListener;
+import com.soundcloud.utils.http.Http;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -227,7 +227,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.deleteContent(path);
     }
 
-    public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params, ProgressListener listener) throws IOException {
+    public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params, Http.ProgressListener listener) throws IOException {
         return mCloudApi.upload(trackBody, artworkBody, params, listener);
     }
 

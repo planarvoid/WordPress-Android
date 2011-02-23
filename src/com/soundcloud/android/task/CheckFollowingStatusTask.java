@@ -2,7 +2,9 @@ package com.soundcloud.android.task;
 
 import android.util.Log;
 import com.soundcloud.android.CloudAPI;
+import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
 
@@ -17,7 +19,10 @@ public class CheckFollowingStatusTask extends AsyncApiTask<Number, Void, Boolean
     protected Boolean doInBackground(Number... params) {
         Number id = params[0];
         try {
-            HttpResponse resp = api().getContent(MY_FOLLOWINGS + "/" + id);
+            Log.v(TAG, "checking following status for id " + id);
+
+            HttpUriRequest request = api().getRequest(MY_FOLLOWINGS + "/" + id, null);
+            HttpResponse resp = Http.noRedirect(request);
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_SEE_OTHER: return true;

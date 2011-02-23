@@ -4,15 +4,13 @@ import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
-import com.soundcloud.utils.http.ProgressListener;
+import com.soundcloud.utils.http.Http;
 import oauth.signpost.exception.OAuthException;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -21,15 +19,15 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.protocol.HttpContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.List;
+
+import static com.soundcloud.utils.http.Http.noRedirect;
 
 public class ApiWrapper implements CloudAPI {
     static final String TAG = CloudAPI.class.getSimpleName();
@@ -75,23 +73,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public int resolve(String uri) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        // XXX WTF
-        client.setRedirectHandler(new RedirectHandler() {
-            @Override
-            public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-                return false;
-            }
-
-            @Override
-            public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
-                return null;
-            }
-        });
-
-        HttpResponse resp = client.execute(getRequest("resolve?url=" +
-                URLEncoder.encode(uri, "UTF-8"), null));
-
+        HttpResponse resp = noRedirect(getRequest("resolve?url=" + URLEncoder.encode(uri, "UTF-8"), null));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
             if (location != null) {
@@ -235,7 +217,7 @@ public class ApiWrapper implements CloudAPI {
     public HttpResponse upload(ContentBody trackBody,
                                ContentBody artworkBody,
                                List<NameValuePair> params,
-                               ProgressListener listener)
+                               Http.ProgressListener listener)
             throws IOException {
 
         final HttpPost post = new HttpPost(urlEncode(Enddpoints.TRACKS, null));

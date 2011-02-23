@@ -63,7 +63,7 @@ public class Authorize extends ScActivity implements CloudAPI.Client {
     }
 
     @Override
-    public void onRefresh(boolean b) {
+    public void onRefresh() {
     }
 
     @Override

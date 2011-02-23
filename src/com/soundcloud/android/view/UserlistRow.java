@@ -63,11 +63,9 @@ public class UserlistRow extends LazyRow {
         setLocation();
         setTrackCount();
         setFollowerCount();
-        if (mUser.user_following != null && mUser.user_following.equalsIgnoreCase("true")) {
-            _isFollowing = true;
-        } else {
-            _isFollowing = false;
-        }
+
+        _isFollowing = false;
+
         if (getContext().getResources().getDisplayMetrics().density > 1) {
             mIcon.getLayoutParams().width = 67;
             mIcon.getLayoutParams().height = 67;

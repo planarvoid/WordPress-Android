@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -11,6 +10,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -42,21 +42,24 @@ import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class UserBrowser extends ScActivity {
+public class UserBrowser extends ScActivity implements AdapterView.OnItemClickListener {
     private static String TAG = "UserBrowser";
 
-    protected ImageView mIcon;
+    private ImageView mIcon;
 
-    protected FrameLayout mDetailsView;
+    private FrameLayout mDetailsView;
 
-    protected TextView mUser, mLocation, mTracks, mFollowers, mFullName, mWebsite, mDiscogsName,
-            mMyspaceName, mDescription;
+    private TextView mUser;
+    private TextView mLocation;
+    private TextView mFullName;
+    private TextView mWebsite;
+    private TextView mDiscogsName;
+    private TextView mMyspaceName;
+    private TextView mDescription;
 
-    protected boolean mFollowingChecked;
+    private ImageButton mFollow;
 
-    protected ImageButton mFavorite;
-
-    protected String _iconURL;
+    private String _iconURL;
 
     private ScTabView mTracksView;
     private ScTabView mFavoritesView;
@@ -64,28 +67,21 @@ public class UserBrowser extends ScActivity {
 
     private WorkspaceView mWorkspaceView;
 
-    protected Long mUserLoadId;
+    private long mUserLoadId;
 
-    protected boolean _isFollowing;
-    protected LoadTask mLoadDetailsTask;
+    private boolean _isFollowing;
+    private LoadTask mLoadDetailsTask;
 
-    protected int mFollowResult;
+    private int mFollowResult;
 
     private TabWidget mTabWidget;
     private TabHost mTabHost;
 
-    protected int mLastTabIndex;
+    private int mLastTabIndex;
 
     private User mUserData;
 
-    // TODO get rid od mIsOtherUser
-    private boolean mIsOtherUser;
-
     private ImageLoader.BindResult avatarResult;
-
-    public enum UserTabs {
-        tracks
-    }
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -97,8 +93,6 @@ public class UserBrowser extends ScActivity {
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUser = (TextView) findViewById(R.id.username);
         mLocation = (TextView) findViewById(R.id.location);
-        mTracks = (TextView) mDetailsView.findViewById(R.id.tracks);
-        mFollowers = (TextView) mDetailsView.findViewById(R.id.followers);
 
         mFullName = (TextView) mDetailsView.findViewById(R.id.fullname);
         mWebsite = (TextView) mDetailsView.findViewById(R.id.website);
@@ -112,20 +106,18 @@ public class UserBrowser extends ScActivity {
             mIcon.getLayoutParams().height = 67;
         }
 
-        mFavorite = (ImageButton) findViewById(R.id.btn_favorite);
-        mFavorite.setOnClickListener(new View.OnClickListener() {
+        mFollow = (ImageButton) findViewById(R.id.btn_favorite);
+        mFollow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 toggleFollowing();
             }
         });
 
-        mFavorite.setVisibility(View.GONE);
+        mFollow.setVisibility(View.GONE);
         mLastTabIndex = 0;
-
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-
 
         if (extras != null) {
             if (extras.getParcelable("user") != null) {
@@ -139,7 +131,8 @@ public class UserBrowser extends ScActivity {
         } else {
             loadYou();
         }
-        initLoadTasks();
+
+        loadDetails();
     }
 
 
@@ -154,52 +147,39 @@ public class UserBrowser extends ScActivity {
     }
 
 
-    public void onRefresh(boolean all) {
+    public void onRefresh() {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
 
-        if (all) {
-            mTracksView.onRefresh(all);
-            mFavoritesView.onRefresh(all);
-            mFollowersView.onRefresh(all);
-            mFavoritesView.onRefresh(all);
 
-            if (mLoadDetailsTask != null) {
-                if (!CloudUtils.isTaskFinished(mLoadDetailsTask))
-                    mLoadDetailsTask.cancel(true);
+        mTracksView.onRefresh();
+        mFavoritesView.onRefresh();
+        mFollowersView.onRefresh();
+        mFavoritesView.onRefresh();
 
-                mLoadDetailsTask = null;
+        if (mLoadDetailsTask != null) {
+            if (!CloudUtils.isTaskFinished(mLoadDetailsTask)) {
+                mLoadDetailsTask.cancel(true);
             }
-        } else if (mWorkspaceView != null) {
+        }
 
-            Log.i(TAG, "ON REFRESH " + mWorkspaceView.getDisplayedChild());
+        loadDetails();
 
-            if (mWorkspaceView.getDisplayedChild() == 2 /* XXX */) {
-                this.refreshDetailsTask();
-            }
-            if (mWorkspaceView != null) {
-                Log.i(TAG, "REFRESHING WORKSPACE VIEW " + mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()));
-                ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild()))
-                        .onRefresh(all);
-            } else
-                ((ScTabView) mTabHost.getCurrentView()).onRefresh(all);
+        if (mWorkspaceView != null) {
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
+        } else {
+            ((ScTabView) mTabHost.getCurrentView()).onRefresh();
         }
     }
 
-
     public void loadYou() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        User userInfo = null;
-
         if (getUserId() != -1) {
             try {
-                if (userInfo != null && userInfo.id != null) mapUser(userInfo);
-                userInfo = SoundCloudDB.getInstance().resolveUserById(
-                        getContentResolver(),
-                        getUserId()
-                );
+                mUserLoadId = getUserId();
 
-                if (userInfo != null && userInfo.id != null) mapUser(userInfo);
+                mapUser(SoundCloudDB.getInstance().resolveUserById(
+                        getContentResolver(),
+                        getUserId()));
             } catch (NumberFormatException nfe) {
                 // bad data - user has a corrupted value, and will be corrected on load
             }
@@ -209,17 +189,11 @@ public class UserBrowser extends ScActivity {
 
 
     public void loadUserById(long userId) {
-        mIsOtherUser = true;
-        User userInfo;
-        userInfo = SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId);
-        mUserLoadId = userId;
-
-        if (userInfo != null) mapUser(userInfo);
+        mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
         build();
     }
 
     public void loadUserByObject(User userInfo) {
-        mIsOtherUser = true;
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
@@ -236,46 +210,16 @@ public class UserBrowser extends ScActivity {
         } else if (mTabHost != null) {
             ((ScTabView) mTabHost.getCurrentView()).onStart();
         }
-
-        // if this is the profile of the main user and there is no user id and a
-        // task has already completed,
-        // that means the task either failed, or they just revoked access, so
-        // clear the details task so it will rerun
-
-        if (mLoadDetailsTask == null) {
-            initLoadTasks();
-
-        } else if (!mIsOtherUser
-                && getUserId() != -1 && mLoadDetailsTask != null
-                && !CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            refreshDetailsTask();
-        }
-
     }
 
-    private void refreshDetailsTask() {
-        mLoadDetailsTask = null;
-        initLoadTasks();
+    private void loadDetails() {
+        mLoadDetailsTask = new LoadUserDetailsTask();
+        mLoadDetailsTask.loadModel = CloudUtils.Model.user;
+        mLoadDetailsTask.setActivity(this);
+        mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(getDetailsUrl(), null));
     }
 
-    public void initLoadTasks() {
-        if (mLoadDetailsTask == null) {
-            LoadTask lt = new LoadUserDetailsTask();
-            lt.loadModel = CloudUtils.Model.user;
-            lt.setActivity(this);
-            mLoadDetailsTask = lt;
-            mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(
-                    getDetailsUrl(), null));
-        } else {
-            mLoadDetailsTask.setActivity(this);
-
-            if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-                mLoadDetailsTask.execute();
-            }
-        }
-    }
-
-    protected class LoadUserDetailsTask extends LoadDetailsTask {
+    private class LoadUserDetailsTask extends LoadDetailsTask {
         @Override
         protected void mapDetails(Parcelable update) {
             mapUser((User) update);
@@ -312,15 +256,15 @@ public class UserBrowser extends ScActivity {
         LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), CloudUtils.Model.track);
 
-        final ScTabView tracksView = mTracksView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS);
+        mTracksView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, mTracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
         CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
 
-        final ScTabView favoritesView = mFavoritesView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES);
+        mFavoritesView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, mFavoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
         CloudUtils.createTab(mTabHost, "favorites", getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
@@ -332,30 +276,29 @@ public class UserBrowser extends ScActivity {
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), CloudUtils.Model.user);
 
         final ScTabView followingsView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS);
+        CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null);
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), CloudUtils.Model.user);
 
         final ScTabView followersView = mFollowersView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS);
+        CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null);
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
         CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
-        if (!mIsOtherUser) {
+        if (!isOtherUser()) {
             mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this).getInt("lastProfileIndex", 0);
             mWorkspaceView.initWorkspace(0, mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
-
         } else {
             mWorkspaceView.initWorkspace(0, 0);
         }
 
-        mWorkspaceView.addView(tracksView);
-        mWorkspaceView.addView(favoritesView);
+        mWorkspaceView.addView(mTracksView);
+        mWorkspaceView.addView(mFavoritesView);
         mWorkspaceView.addView(detailsView);
         mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
@@ -417,20 +360,23 @@ public class UserBrowser extends ScActivity {
                 mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(), (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
 
             mLastTabIndex = mTabHost.getCurrentTab();
-            if (!mIsOtherUser)
+            if (!isOtherUser()) {
                 PreferenceManager.getDefaultSharedPreferences(UserBrowser.this).edit()
                         .putInt("lastProfileIndex", mLastTabIndex).commit();
-
-
+            }
         }
     };
 
+    private boolean isOtherUser() {
+        return mUserLoadId != getUserId();
+    }
+
     private void checkFollowingStatus() {
-        if (mIsOtherUser) {
+        if (isOtherUser()) {
             new CheckFollowingStatusTask(getSoundCloudApplication()) {
                 @Override
                 protected void onPostExecute(Boolean b) {
-                    _isFollowing = b == null ? false : b;
+                    _isFollowing = (b == null) ? false : b;
                     setFollowingButtonText();
                 }
             }.execute(mUserLoadId);
@@ -438,8 +384,7 @@ public class UserBrowser extends ScActivity {
     }
 
     private void toggleFollowing() {
-
-        mFavorite.setEnabled(false);
+        mFollow.setEnabled(false);
         _isFollowing = !_isFollowing;
         setFollowingButtonText();
         mFollowResult = 0;
@@ -466,6 +411,7 @@ public class UserBrowser extends ScActivity {
                     Log.e(TAG, "error", e);
                     setException(e);
                 }
+
                 mHandler.post(mSetFollowingResult);
             }
         };
@@ -475,65 +421,43 @@ public class UserBrowser extends ScActivity {
     // Create runnable for posting since we update the following asynchronously
     final Runnable mSetFollowingResult = new Runnable() {
         public void run() {
-
             handleException();
             handleError();
 
-            boolean success = false;
-            if (mFollowResult != 0) {
-                if (mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404) {
-                    success = true;
-                }
-            }
-
-            if (!success) {
+            if (!(mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404)) {
                 _isFollowing = !_isFollowing;
                 setFollowingButtonText();
             }
-            mFavorite.setEnabled(true);
+            mFollow.setEnabled(true);
         }
     };
 
     protected void setFollowingButtonText() {
-        if (!mIsOtherUser)
-            return;
+        if (isOtherUser()) {
+            mFollow.setImageResource(_isFollowing ?
+                    R.drawable.ic_unfollow_states : R.drawable.ic_follow_states);
 
-        if (_isFollowing) {
-            mFavorite.setImageResource(R.drawable.ic_unfollow_states);
-        } else {
-            mFavorite.setImageResource(R.drawable.ic_follow_states);
-        }
-
-        if (mUserData == null || getUserId() != mUserData.id) {
-            mFavorite.setVisibility(View.VISIBLE);
+            mFollow.setVisibility(View.VISIBLE);
         }
     }
 
-    private void mapUser(User p) {
-        mUserData = p; // save to details object for restoring state
-
-        if (mUserData.id == null)
+    private void mapUser(User user) {
+        if (user == null || user.id == null)
             return;
 
+        mUserData = user;
         mUserLoadId = mUserData.id;
-
-        if (mUserData.user_following != null)
-            if (mUserData.user_following.equalsIgnoreCase("true"))
-                _isFollowing = true;
 
         mUser.setText(mUserData.username);
         mLocation.setText(CloudUtils.getLocationString(mUserData.country, mUserData.country));
         setTabTextInfo();
 
-        // check for a local avatar and show it if it exists
-        // String localAvatarPath =
-        // CloudUtils.buildLocalAvatarUrl(mUserData.getPermalink());
-        // File avatarFile = new File(localAvatarPath);
         String remoteUrl;
-        if (getResources().getDisplayMetrics().density > 1)
+        if (getResources().getDisplayMetrics().density > 1) {
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
-        else
+        } else {
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
+        }
 
         Log.i(TAG, "ICON URL " + remoteUrl);
 
@@ -543,14 +467,13 @@ public class UserBrowser extends ScActivity {
             reloadAvatar();
         }
 
-        Boolean _showTable = false;
+        boolean _showTable = false;
 
         if (!TextUtils.isEmpty(mUserData.full_name)) {
             _showTable = true;
             mFullName.setText(mUserData.full_name);
             mDetailsView.findViewById(R.id.fullname_row).setVisibility(View.VISIBLE);
         } else {
-
             mDetailsView.findViewById(R.id.fullname_row).setVisibility(View.GONE);
         }
 
@@ -596,8 +519,9 @@ public class UserBrowser extends ScActivity {
 
         if (_showTable) {
             mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.GONE);
-        } else
+        } else {
             mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -609,37 +533,37 @@ public class UserBrowser extends ScActivity {
         }
     }
 
-    public Object[] saveLoadTasks() {
-        return new Object[]{
-                mLoadDetailsTask
-        };
+    private String getDetailsUrl() {
+        return CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}",
+                Long.toString(mUserLoadId));
     }
 
-    public void restoreLoadTasks(Object[] taskObject) {
-        mLoadDetailsTask = (LoadTask) taskObject[0];
-    }
-
-    public Parcelable saveParcelable() {
-        return mUserData;
-    }
-
-    public void restoreParcelable(Parcelable p) {
-        if (p != null)
-            mapUser((User) p);
-    }
-
-    protected String getDetailsUrl() {
-        return mIsOtherUser ? CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}",
-                Long.toString(mUserLoadId)) :
-                CloudAPI.Enddpoints.MY_DETAILS;
-    }
-
-    protected String getUserTracksUrl() {
-        return mIsOtherUser ? CloudUtils.buildRequestPath(
+    private String getUserTracksUrl() {
+        return CloudUtils.buildRequestPath(
                 CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}",
-                        Long.toString(mUserLoadId)), getTrackOrder()) :
-                CloudUtils.buildRequestPath(CloudAPI.Enddpoints.MY_TRACKS,
-                        getTrackOrder());
+                        Long.toString(mUserLoadId)), getTrackOrder());
+    }
+
+    private String getFavoritesUrl() {
+        return CloudUtils.buildRequestPath(
+                CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}",
+                        Long.toString(mUserLoadId)), "favorited_at");
+    }
+
+    private String getFollowersUrl() {
+        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}",
+                Long.toString(mUserLoadId)), getUserOrder());
+    }
+
+    private String getFollowingsUrl() {
+        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}",
+                Long.toString(mUserLoadId)), getUserOrder());
+    }
+
+    private String getUserOrder() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("defaultUserSorting", "");
+
     }
 
     private String getTrackOrder() {
@@ -647,36 +571,9 @@ public class UserBrowser extends ScActivity {
                 .getString("defaultTrackSorting", "");
     }
 
-    protected String getFavoritesUrl() {
-        return mIsOtherUser ? CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}",
-                        Long.toString(mUserLoadId)), "favorited_at") :
-                CloudUtils.buildRequestPath(CloudAPI.Enddpoints.MY_FAVORITES,
-                        getTrackOrder());
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        handleListItemClicked(parent, position);
     }
-
-    protected String getFollowersUrl() {
-        return mIsOtherUser ? CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}",
-                        Long.toString(mUserLoadId)), getUserOrder()) :
-                CloudUtils.buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWERS,
-                        getTrackOrder());
-    }
-
-    private String getUserOrder() {
-
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultUserSorting", "");
-
-    }
-
-    protected String getFollowingsUrl() {
-        return mIsOtherUser ?
-                CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}",
-                        Long.toString(mUserLoadId)), getUserOrder()) :
-                CloudUtils.buildRequestPath(CloudAPI.Enddpoints.MY_FOLLOWINGS,
-                        getTrackOrder());
-    }
-
-
 }

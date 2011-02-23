@@ -68,9 +68,6 @@ public class User extends BaseObj implements Parcelable {
 
     public String plan;
 
-    // XXX is this used?
-    public String user_following;
-    public String user_following_id;
 
     public void resolveLocation() {
         this.location = CloudUtils.getLocationString(city == null ? "" : city,

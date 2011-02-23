@@ -1,7 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
-import com.soundcloud.utils.http.ProgressListener;
+import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -79,7 +79,7 @@ public interface CloudAPI {
     HttpResponse upload(ContentBody trackBody,
                         ContentBody artworkBody,
                         List<NameValuePair> params,
-                        ProgressListener listener)
+                        Http.ProgressListener listener)
                     throws IOException;
 
     void unauthorize();

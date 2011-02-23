@@ -5,10 +5,8 @@ import com.soundcloud.android.objects.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 
@@ -22,7 +20,7 @@ public class LoadCollectionTaskTests {
 
         task.setContext(new ScActivity() {
             @Override
-            public void onRefresh(boolean b) {
+            public void onRefresh() {
             }
         });
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.utils.http.ProgressListener;
+import com.soundcloud.utils.http.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements ProgressListener {
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Http.ProgressListener {
     private static final String TAG = UploadTask.class.getSimpleName();
 
     private long transferred;

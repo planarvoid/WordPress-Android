@@ -345,7 +345,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     @Override
-    public void onRefresh(boolean b) {
+    public void onRefresh() {
     }
 
     /**

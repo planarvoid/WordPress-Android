@@ -21,7 +21,6 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +40,7 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -247,9 +246,9 @@ public class CloudUtils {
         }
     }
 
-    public static LazyList createList(Activity activity) {
+    public static LazyListView createList(Activity activity) {
 
-        LazyList mList = new LazyList(activity);
+        LazyListView mList = new LazyListView(activity);
         mList.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
         if (activity instanceof AdapterView.OnItemClickListener) {
             mList.setOnItemClickListener((AdapterView.OnItemClickListener) activity);
@@ -266,26 +265,20 @@ public class CloudUtils {
         return mList;
     }
 
-    public static void createTabList(ScActivity activity, FrameLayout listHolder,
-            LazyEndlessAdapter adpWrap, int listId) {
-        createTabList(activity, listHolder, adpWrap, listId, null);
-    }
-
-    public static void createTabList(ScActivity activity, FrameLayout listHolder,
-            LazyEndlessAdapter adpWrap, int listId, OnTouchListener touchListener) {
+    public static LazyListView createTabList(ScActivity activity,
+                                   FrameLayout listHolder,
+                                   LazyEndlessAdapter adpWrap,
+                                   int listId, OnTouchListener touchListener) {
 
         listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        if (activity instanceof Dashboard) {
-            LazyList lv = ((Dashboard) activity).buildList();
-            if (listId != -1)
-                lv.setId(listId);
-            if (touchListener != null)
-                lv.setOnTouchListener(touchListener);
-            lv.setAdapter(adpWrap);
-            ((Dashboard)activity).configureListMenu(lv);
-            listHolder.addView(lv);
-            adpWrap.createListEmptyView(lv);
-        }
+        LazyListView lv = CloudUtils.createList(activity);
+        if (listId != -1) lv.setId(listId);
+        if (touchListener != null) lv.setOnTouchListener(touchListener);
+        lv.setAdapter(adpWrap);
+        listHolder.addView(lv);
+        adpWrap.createListEmptyView(lv);
+
+        return lv;
     }
 
     public static void createTab(TabHost tabHost, String tabId,

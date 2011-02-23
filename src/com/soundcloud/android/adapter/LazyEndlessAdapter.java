@@ -16,7 +16,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.LazyListView;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private View mEmptyView;
 
-    private LazyList mListView;
+    private LazyListView mListView;
 
     private int mCurrentPage;
 
@@ -108,7 +108,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * 
      * @param lv
      */
-    public void createListEmptyView(LazyList lv) {
+    public void createListEmptyView(LazyListView lv) {
 
         mListView = lv;
 
@@ -332,7 +332,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
             }
 
-            return (pendingView);
+            return pendingView;
         } else if (convertView == pendingView) {
             // if we're not at the bottom, and we're getting the
             // pendingView back for recycling, skip the recycle

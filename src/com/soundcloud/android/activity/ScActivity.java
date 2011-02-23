@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.activity;
 
 import android.app.Activity;
@@ -21,17 +20,21 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 import oauth.signpost.exception.OAuthCommunicationException;
 import org.json.JSONException;
@@ -50,9 +53,9 @@ public abstract class ScActivity extends Activity {
 
     protected ICloudPlaybackService mPlaybackService;
     protected NetworkConnectivityListener connectivityListener;
-    
+
     protected long mCurrentTrackId = -1;
-    protected LazyList mList;
+
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
@@ -64,7 +67,7 @@ public abstract class ScActivity extends Activity {
 
     /**
      * Get an instance of our communicator
-     * 
+     *
      * @return the Cloud Communicator singleton
      */
     public SoundCloudApplication getSoundCloudApplication() {
@@ -175,7 +178,7 @@ public abstract class ScActivity extends Activity {
 
     protected void onReauthenticate() {
     }
-    
+
     public void playTrack(final List<Parcelable> list, final int playPos) {
         Track t = null;
 
@@ -234,6 +237,28 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+
+    protected void handleListItemClicked(AdapterView<?> list, int position) {
+        // XXX WTF
+        if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
+                || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
+            return; // bad list item clicked (possibly loading item)
+
+        if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track
+                || ((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event) {
+            // track clicked
+            this.playTrack(((LazyBaseAdapter) list.getAdapter()).getData(), position);
+
+        } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User) {
+
+            // user clicked
+            Intent i = new Intent(this, UserBrowser.class);
+            i.putExtra("user", ((LazyBaseAdapter) list.getAdapter()).getData().get(position));
+            startActivity(i);
+        }
+    }
+
+
     protected void showToast(String text) {
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -262,9 +287,9 @@ public abstract class ScActivity extends Activity {
         }
         setException(null);
     }
-    
-    public void safeShowDialog(int dialogId){
-        if (!isFinishing()){
+
+    public void safeShowDialog(int dialogId) {
+        if (!isFinishing()) {
             showDialog(dialogId);
         }
     }
@@ -364,11 +389,14 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    public void onRefresh(boolean b) {
+    public void onRefresh() {
     }
 
     public long getUserId() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // XXX
         return Long.parseLong(preferences.getString("currentUserId", "-1"));
     }
+
+
 }

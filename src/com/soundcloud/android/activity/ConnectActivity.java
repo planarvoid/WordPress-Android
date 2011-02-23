@@ -53,7 +53,7 @@ public class ConnectActivity extends ScActivity {
     }
 
     @Override
-    public void onRefresh(boolean b) {
+    public void onRefresh() {
     }
 
     @Override

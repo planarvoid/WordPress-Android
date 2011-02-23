@@ -1,24 +1,15 @@
 package com.soundcloud.android.activity;
 
 import android.app.TabActivity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.view.ScTabView;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ScTabActivity extends TabActivity {
 
@@ -142,7 +133,7 @@ public class ScTabActivity extends TabActivity {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.REFRESH:
 
-                ((ScActivity)getCurrentActivity()).onRefresh(false);
+                ((ScActivity)getCurrentActivity()).onRefresh();
                 return true;
         }
         return super.onOptionsItemSelected(item);

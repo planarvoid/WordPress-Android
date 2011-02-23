@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -21,12 +22,12 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.view.LazyList;
+import com.soundcloud.android.view.LazyListView;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class ScSearch extends ScActivity {
+public class ScSearch extends ScActivity implements AdapterView.OnItemClickListener {
 
     // Debugging tag.
     @SuppressWarnings("unused")
@@ -47,7 +48,7 @@ public class ScSearch extends ScActivity {
 
     private RadioButton rdoTrack;
 
-    private LazyList mList;
+    private LazyListView mList;
 
     private LazyEndlessAdapter mTrackAdpWrapper;
 
@@ -67,11 +68,11 @@ public class ScSearch extends ScActivity {
      * activity lifecycle executing. Derived classes must call through to the
      * super class's implementation of this method. If they do not, an exception
      * will be thrown.
-     * 
+     *
      * @param icicle If the activity is being re-initialised after previously
-     *            being shut down then this Bundle contains the data it most
-     *            recently supplied in onSaveInstanceState(Bundle). Note:
-     *            Otherwise it is null.
+     *               being shut down then this Bundle contains the data it most
+     *               recently supplied in onSaveInstanceState(Bundle). Note:
+     *               Otherwise it is null.
      */
 
     @Override
@@ -101,7 +102,7 @@ public class ScSearch extends ScActivity {
         // account for special handling of this list if we are in a tab with
         // regards
         // to checking for data type (user/track) when restoring list data
-            mList = CloudUtils.createList(this);
+        mList = CloudUtils.createList(this);
 
         ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
@@ -151,7 +152,7 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    public void onRefresh(boolean b) {
+    public void onRefresh() {
     }
 
     private void doSearch() {
@@ -249,4 +250,9 @@ public class ScSearch extends ScActivity {
             return false;
         }
     };
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        handleListItemClicked(parent, position);
+    }
 }

@@ -94,9 +94,7 @@ public class CloudAPITests implements CloudAPI.Params, CloudAPI.Enddpoints {
             byte[] b = new byte[8192];
             int n;
 
-            while ((n = is.read(b)) >= 0)
-                fos.write(b, 0, n);
-
+            while ((n = is.read(b)) >= 0) fos.write(b, 0, n);
             is.close();
             fos.close();
         } else {

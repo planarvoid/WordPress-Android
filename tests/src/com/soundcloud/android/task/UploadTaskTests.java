@@ -1,7 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.api.ApiTest;
-import com.soundcloud.utils.http.ProgressListener;
+import com.soundcloud.utils.http.Http;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -81,7 +81,7 @@ public class UploadTaskTests extends ApiTest {
         verify(api).upload(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
                 captor.capture(),
-                Matchers.<ProgressListener>any());
+                Matchers.<Http.ProgressListener>any());
 
         List<NameValuePair> pairs = captor.getValue();
         assertEquals(4, pairs.size());
@@ -105,7 +105,7 @@ public class UploadTaskTests extends ApiTest {
 
         when(api.upload(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
-                anyList(), Matchers.<ProgressListener>any())).thenReturn(response);
+                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
 
@@ -139,7 +139,7 @@ public class UploadTaskTests extends ApiTest {
 
         when(api.upload(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
-                anyList(), Matchers.<ProgressListener>any())).thenReturn(response);
+                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
 

@@ -351,10 +351,10 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     @Override
     public void onReauthenticate() {
-        onRefresh(true);
+        onRefresh();
     }
 
-    public void onRefresh(boolean all) {
+    public void onRefresh() {
         mConnectionList.getAdapter().clear();
         mConnectionList.getAdapter().loadIfNecessary();
 
