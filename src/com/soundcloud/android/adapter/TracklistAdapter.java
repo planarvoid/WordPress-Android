@@ -7,7 +7,6 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
 
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -40,8 +39,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
         this.playingId = currentTrackId;
         this.isPlaying = isPlaying;
 
-        Log.i(TAG,"IS Playing " + isPlaying);
-
         for (int i = 0; i < mData.size(); i++) {
             if (getTrackAt(i).id.compareTo(currentTrackId) == 0) {
                 getTrackAt(i).user_played = true;
@@ -49,7 +46,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
         }
 
         notifyDataSetChanged();
-        Log.i(TAG,"Notified change " + isPlaying);
     }
 
     public void setFavoriteStatus(long trackId, boolean isFavorite) {

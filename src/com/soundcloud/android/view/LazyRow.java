@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
@@ -23,6 +24,8 @@ public class LazyRow extends RelativeLayout {
 
     protected LazyBaseAdapter mAdapter;
 
+    protected ImageLoader mImageLoader;
+
     protected ImageView mIcon;
 
     protected int mCurrentPosition;
@@ -31,6 +34,8 @@ public class LazyRow extends RelativeLayout {
         super(_activity);
         mActivity = _activity;
         mAdapter = _adapter;
+
+        if (mActivity != null) mImageLoader = ImageLoader.get(mActivity);
 
         LayoutInflater inflater = (LayoutInflater) mActivity
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -71,6 +76,20 @@ public class LazyRow extends RelativeLayout {
                 ((FrameLayout) findViewById(R.id.row_submenu)).setVisibility(View.GONE);
             }
         }
+
+
+        BindResult result = BindResult.ERROR;
+        try { // put the bind in a try catch to catch any loading error (or the
+            // occasional bad url)
+            if (CloudUtils.checkIconShouldLoad(getIconRemoteUri()))
+                result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
+            else
+                mImageLoader.unbind(getRowIcon());
+        } catch (Exception e) {
+        }
+
+        setTemporaryDrawable(result);
+
     }
 
     protected void initSubmenu() {
