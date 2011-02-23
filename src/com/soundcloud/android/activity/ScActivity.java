@@ -55,10 +55,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -83,6 +85,12 @@ public abstract class ScActivity extends Activity {
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
+    private static final int MESSAGE_UPDATE_LIST_ICONS = 1;
+    private static final int DELAY_SHOW_LIST_ICONS = 550;
+
+    private final Handler mScrollHandler = new ScrollHandler();
+    private int mScrollState = ScScrollManager.SCROLL_STATE_IDLE;
+    private boolean mFingerUp = true;
 
     // Need handler for callbacks to the UI thread
     public final Handler mHandler = new Handler();
@@ -356,6 +364,8 @@ public abstract class ScActivity extends Activity {
         lv.setOnItemClickListener(mOnItemClickListener);
         lv.setOnItemLongClickListener(mOnItemLongClickListener);
         lv.setOnItemSelectedListener(mOnItemSelectedListener);
+        lv.setOnScrollListener(new ScScrollManager());
+        lv.setOnTouchListener(new FingerTracker());
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setFastScrollEnabled(true);
         lv.setTextFilterEnabled(true);
@@ -418,6 +428,51 @@ public abstract class ScActivity extends Activity {
         }
     };
 
+    private class ScScrollManager implements AbsListView.OnScrollListener {
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (mScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
+                final Handler handler = mScrollHandler;
+                final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS,
+                        ScActivity.this);
+                handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+                handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_LIST_ICONS);
+            } else if (scrollState == SCROLL_STATE_FLING) {
+                mScrollHandler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+            }
+            mScrollState = scrollState;
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                int totalItemCount) {
+
+        }
+
+    }
+
+    private static class ScrollHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_UPDATE_LIST_ICONS:
+                    ((ScActivity) msg.obj).updateListIcons();
+                    break;
+            }
+        }
+    }
+
+    private class FingerTracker implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            final int action = event.getAction();
+            mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+            return false;
+        }
+    }
+
+    private void updateListIcons(){
+        Log.i(TAG,"UPDATE LIST ICONSSSS");
+    }
 
     public void addNewComment(final Track track, final long timestamp) {
         final EditText input = new EditText(this);

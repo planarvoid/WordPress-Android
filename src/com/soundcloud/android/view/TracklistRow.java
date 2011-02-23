@@ -13,7 +13,6 @@ import com.soundcloud.android.objects.Track;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -112,8 +111,6 @@ public class TracklistRow extends LazyRow {
 
     @Override
     protected void onSubmenu() {
-        Log.i("row","ON SUBMENU " + mTrack.id + " and " + ((TracklistAdapter) mAdapter).playingId + " and " + ((TracklistAdapter) mAdapter).isPlaying);
-
         if (mTrack.id == ((TracklistAdapter) mAdapter).playingId && ((TracklistAdapter) mAdapter).isPlaying) {
             mPlayBtn.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.ic_submenu_pause_states));
         } else {

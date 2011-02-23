@@ -1,14 +1,10 @@
 
 package com.soundcloud.android.adapter;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -29,14 +25,10 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected Boolean mDone = false;
 
-    // XXX assumes images
-    protected ImageLoader mImageLoader;
-
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {
         mData = (List<Parcelable>) data;
         mActivity = activity;
-        if (activity != null) mImageLoader = ImageLoader.get(activity);
     }
 
     public List<Parcelable> getData() {
@@ -64,24 +56,8 @@ public class LazyBaseAdapter extends BaseAdapter {
             rowView = (LazyRow) row;
         }
 
-        Log.i(getClass().getSimpleName(),"GET VIEW");
-
         // update the cell renderer, and handle selection state
         rowView.display(index);
-
-
-        BindResult result = BindResult.ERROR;
-        try { // put the bind in a try catch to catch any loading error (or the
-            // occasional bad url)
-            if (CloudUtils.checkIconShouldLoad(rowView.getIconRemoteUri()))
-                result = mImageLoader.bind(this, rowView.getRowIcon(), rowView.getIconRemoteUri());
-            else
-                mImageLoader.unbind(rowView.getRowIcon());
-        } catch (Exception e) {
-        }
-
-        rowView.setTemporaryDrawable(result);
-
         return rowView;
     }
 
