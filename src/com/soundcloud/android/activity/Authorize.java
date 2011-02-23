@@ -148,7 +148,7 @@ public class Authorize extends Activity implements CloudAPI.Client {
                 .putLong(SoundCloudApplication.USER_ID, me.id)
                 .putString(SoundCloudApplication.USERNAME, me.username)
                 .putString(SoundCloudApplication.TOKEN, token)
-                .putString(SoundCloudApplication.TOKEN, secret)
+                .putString(SoundCloudApplication.SECRET, secret)
                 .commit();
     }
 
