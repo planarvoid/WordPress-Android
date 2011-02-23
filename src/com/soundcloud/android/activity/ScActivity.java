@@ -319,7 +319,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void setFavoriteStatus(Track t, Boolean favoriteStatus) {
+    public void setFavoriteStatus(Track t, boolean favoriteStatus) {
         synchronized (this) {
             if (favoriteStatus)
                 addFavorite(t);
@@ -658,7 +658,7 @@ public abstract class ScActivity extends Activity {
     }
 
 
-    protected void onDataConnectionChanged(Boolean isConnected) {
+    protected void onDataConnectionChanged(boolean isConnected) {
         if (isConnected) {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();

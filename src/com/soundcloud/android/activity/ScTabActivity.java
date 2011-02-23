@@ -14,7 +14,7 @@ import android.widget.TabWidget;
 
 public class ScTabActivity extends TabActivity {
 
-    protected Boolean mIgnorePlaybackStatus = false;
+    protected boolean mIgnorePlaybackStatus = false;
 
     private MenuItem menuCurrentPlayingItem;
 

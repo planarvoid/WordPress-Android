@@ -23,7 +23,7 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     protected int mPage = 1;
 
-    protected Boolean mDone = false;
+    protected boolean mDone = false;
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {

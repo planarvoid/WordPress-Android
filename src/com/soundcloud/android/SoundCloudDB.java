@@ -219,7 +219,7 @@ public class SoundCloudDB {
 
         }
         
-        private ContentValues buildUserArgs(ContentResolver contentResolver, User User, Boolean isCurrentUser) {
+        private ContentValues buildUserArgs(ContentResolver contentResolver, User User, boolean isCurrentUser) {
             ContentValues args = new ContentValues();
             Field f;
             for (String key : getDBCols(contentResolver, Users.CONTENT_URI)) {

@@ -35,8 +35,6 @@ public class TracklistRow extends LazyRow {
 
     protected ImageButton mPlayBtn;
 
-    protected ImageButton mPlaylistBtn;
-
     protected ImageButton mFavoriteBtn;
 
     protected ImageButton mProfileBtn;
@@ -190,11 +188,8 @@ public class TracklistRow extends LazyRow {
         } else {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
-        if (mTrack.user_favorite) {
-            _isFavorite = true;
-        } else {
-            _isFavorite = false;
-        }
+
+        _isFavorite = mTrack.user_favorite;
 
         if (mTrack.id == ((TracklistAdapter) mAdapter).playingId) {
             mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
@@ -204,7 +199,7 @@ public class TracklistRow extends LazyRow {
             mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
                     R.drawable.list_favorite));
             mPlayIndicator.setVisibility(View.VISIBLE);
-        } else if ((mTrack.user_played == null ? false : mTrack.user_played) == false) {
+        } else if (!mTrack.user_played) {
             mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
                     R.drawable.list_unlistened));
             mPlayIndicator.setVisibility(View.VISIBLE);

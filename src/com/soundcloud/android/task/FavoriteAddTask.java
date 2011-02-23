@@ -27,7 +27,7 @@ public class FavoriteAddTask extends FavoriteTask {
     }
 
     @Override
-    protected Boolean processResponse(int responseCode){
+    protected boolean processResponse(int responseCode){
         Log.i("AddFavorite","process response " + responseCode);
         return (responseCode == 200 || responseCode == 201);
     }
