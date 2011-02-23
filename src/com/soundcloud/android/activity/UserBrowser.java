@@ -146,7 +146,19 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
         super.onResume();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
 
+        if (mWorkspaceView != null) {
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
+        } else if (mTabHost != null) {
+            ((ScTabView) mTabHost.getCurrentView()).onStart();
+        }
+    }
+
+
+    @Override
     public void onRefresh() {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
@@ -172,7 +184,7 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
         }
     }
 
-    public void loadYou() {
+    private void loadYou() {
         if (getUserId() != -1) {
             try {
                 mUserLoadId = getUserId();
@@ -188,29 +200,18 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
     }
 
 
-    public void loadUserById(long userId) {
+    private void loadUserById(long userId) {
         mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
         build();
     }
 
-    public void loadUserByObject(User userInfo) {
+    private void loadUserByObject(User userInfo) {
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
     }
 
 
-    public void onStart() {
-        super.onStart();
-
-        Log.d(TAG, "UserBrowser onStart()");
-
-        if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
-        } else if (mTabHost != null) {
-            ((ScTabView) mTabHost.getCurrentView()).onStart();
-        }
-    }
 
     private void loadDetails() {
         mLoadDetailsTask = new LoadUserDetailsTask();
@@ -226,7 +227,7 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
         }
     }
 
-    protected void build() {
+    private void build() {
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         FrameLayout frameLayout = (FrameLayout) findViewById(android.R.id.tabcontent);
         frameLayout.setPadding(0, 0, 0, 0);
@@ -314,7 +315,7 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
         return findViewById(R.id.user_details_root).getWidth();
     }
 
-    protected void setTabTextInfo() {
+    private void setTabTextInfo() {
         if (mTabWidget != null && mUserData != null) {
             if (!TextUtils.isEmpty(mUserData.track_count)) {
                 CloudUtils.setTabText(mTabWidget, 0, getString(R.string.tab_tracks)
@@ -432,7 +433,7 @@ public class UserBrowser extends ScActivity implements AdapterView.OnItemClickLi
         }
     };
 
-    protected void setFollowingButtonText() {
+    private void setFollowingButtonText() {
         if (isOtherUser()) {
             mFollow.setImageResource(_isFollowing ?
                     R.drawable.ic_unfollow_states : R.drawable.ic_follow_states);
