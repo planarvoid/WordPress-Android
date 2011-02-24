@@ -261,7 +261,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         mHandler.postDelayed(mAutoCloseBubble, 3000);
                     }
                 }
-
             }
         }
     }
@@ -330,19 +329,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (v == mPlayerAvatarBar){
-                    if (mCommentBubble == null)
+                if (v == mPlayerAvatarBar) {
+                    if (mCommentBubble == null) {
                         mCommentBubble = new CommentBubble(mPlayer, this);
+                    }
 
 
-                    if (mCurrentComments != null){
+                    if (mCurrentComments != null) {
                         mode = AVATAR_DRAG;
                         calcAvatarHit(event.getX(), true);
                     }
                 } else if (v == mPlayerCommentBar){
-                    if (mCommentBubble == null)
+                    if (mCommentBubble == null) {
                         mCommentBubble = new CommentBubble(mPlayer, this);
-
+                    }
 
                     mode = COMMENT_DRAG;
 
@@ -362,8 +362,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     }
 
                 }
-
-
                 break;
 
             case MotionEvent.ACTION_MOVE:
