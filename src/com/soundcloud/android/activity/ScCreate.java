@@ -30,6 +30,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
@@ -395,6 +396,15 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mAccessList.setAdapter(new AccessList.Adapter());
         mAccessList.getAdapter().setAccessList(null);
 
+        mAccessList.getAdapter().registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                findViewById(R.id.btn_add_emails).setVisibility(
+                    mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
+                );
+            }
+        });
+
         findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -402,10 +412,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                 Intent intent = new Intent(ScCreate.this, EmailPicker.class);
                 if (accessList != null) {
                     intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                    intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
+                    if (v instanceof TextView) {
+                        intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
+                    }
                 }
                 startActivityForResult(intent, EmailPicker.PICK_EMAILS);
-
             }
         });
     }
