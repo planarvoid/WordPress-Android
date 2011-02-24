@@ -341,11 +341,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                     case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
 
                 }
-                if (checkedId == R.id.rdo_private){
-                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
-                } else {
-                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
-                }
+                //if (checkedId == R.id.rdo_private){
+                  //  mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
+                //} else {
+                  //  mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
+                //}
             }
         });
 
@@ -650,11 +650,11 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
             case IDLE_UPLOAD:
                 goToView(1);
-                if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
+                /*if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
                     mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
                 } else {
                     mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
-                }
+                }*/
                 break;
 
             case UPLOAD:

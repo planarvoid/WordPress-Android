@@ -81,7 +81,7 @@ public class BaseObj implements Parcelable {
                     else if (f.getType() == Long.class)
                         data.putLong(f.getName(),
                                 (Long) f.get(this));
-                    else if (f.getType() == Boolean.class)
+                    else if (f.getType() == boolean.class)
                         data.putBoolean(f.getName(),
                                 (Boolean) f.get(this));
                     else if (Parcelable.class.isAssignableFrom(f.getType())) {

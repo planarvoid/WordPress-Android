@@ -99,7 +99,7 @@ public class User extends BaseObj implements Parcelable {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.class) {
+                        } else if (f.getType() == boolean.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         }
                     }
@@ -136,7 +136,7 @@ public class User extends BaseObj implements Parcelable {
                                 f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.class) {
+                        } else if (f.getType() == boolean.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         }

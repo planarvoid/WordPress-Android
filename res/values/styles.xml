@@ -109,6 +109,23 @@
 		<item name="android:textColor">#ffffffff</item>
 		<item name="android:textSize">20sp</item>
 	</style>
+	
+	<style name="txt_record_email_access">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dip</item>
+    </style>
+    
+    <style name="txt_record_email_access_gray" parent="txt_record_email_access">
+        <item name="android:textColor">@color/darker_gray</item>
+    </style>
+	
+	<style name="txt_record_connections_footer">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">10dip</item>
+    </style>
 
 	<style name="txt_record_rdo">
 		<item name="android:textColor">#ffffffff</item>

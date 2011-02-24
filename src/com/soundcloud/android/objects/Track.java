@@ -132,7 +132,7 @@ public class Track extends BaseObj implements Parcelable {
 
         public String permalink_url;
     }
-    
+
     public boolean mIsPlaylist = false;
 
     public File mCacheFile;
@@ -140,9 +140,9 @@ public class Track extends BaseObj implements Parcelable {
     public Long filelength;
 
     public String mSignedUri;
-    
+
     public static final class Tracks implements BaseColumns {
-        
+
         private Tracks() {
         }
 
@@ -156,35 +156,35 @@ public class Track extends BaseObj implements Parcelable {
         public static final String PERMALINK = "permalink";
 
         public static final String DURATION = "duration";
-        
+
         public static final String TAG_LIST = "tag_list";
-        
+
         public static final String TRACK_TYPE = "track_type";
-        
+
         public static final String TITLE = "title";
-        
+
         public static final String PERMALINK_URL = "permalink_url";
-        
+
         public static final String ARTWORK_URL = "artwork_url";
-        
+
         public static final String WAVEFORM_URL = "waveform_url";
-        
+
         public static final String DOWNLOADABLE = "downloadable";
-        
+
         public static final String DOWNLOAD_URL = "download_url";
-        
+
         public static final String STREAM_URL = "stream_url";
-        
+
         public static final String STREAMABLE = "streamable";
-        
+
         public static final String USER_ID = "user_id";
-        
+
         public static final String USER_FAVORITE = "user_favorite";
-        
+
         public static final String USER_PLAYED = "user_played";
-        
+
         public static final String FILELENGTH = "filelength";
-        
+
     }
 
     public Track() {
@@ -211,7 +211,7 @@ public class Track extends BaseObj implements Parcelable {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Integer.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.class) {
+                        } else if (f.getType() == boolean.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)) == 0 ? false
                                     : true);
                         }
@@ -240,7 +240,8 @@ public class Track extends BaseObj implements Parcelable {
             return new Track[size];
         }
     };
-    
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         buildParcel(out,flags);
     }

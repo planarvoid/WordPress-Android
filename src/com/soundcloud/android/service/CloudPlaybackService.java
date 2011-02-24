@@ -1978,8 +1978,8 @@ public class CloudPlaybackService extends Service {
                             // status
                             Log.i(TAG, "invalid status received: "
                                     + httpResponse.getStatusLine().getStatusCode());
-                            if (serviceRef.get() != null)
-                                serviceRef.get().sendDownloadException();
+                            //if (serviceRef.get() != null)
+                              //  serviceRef.get().sendDownloadException();
                             return;
                         }
 
