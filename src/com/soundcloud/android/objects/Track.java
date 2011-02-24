@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -185,4 +186,45 @@ public class Track extends BaseObj implements Parcelable {
         return 0;
     }
 
+    public String trackInfo() {
+        StringBuilder str = new StringBuilder(200);
+
+        if (!TextUtils.isEmpty(this.description)) {
+            str.append(this.description).append("<br /><br />");
+        }
+
+        for (String t : this.humanTags()) {
+            str.append(t).append("<br />");
+        }
+
+        if (!TextUtils.isEmpty(this.key_signature)) {
+            str.append(this.key_signature).append("<br />");
+        }
+        if (!TextUtils.isEmpty(this.genre)) {
+            str.append(this.genre).append("<br />");
+        }
+
+        if (!(this.bpm == null))
+            str.append(this.bpm).append("<br />");
+
+
+        str.append("<br />");
+
+        if (!TextUtils.isEmpty(this.license)
+                && !this.license.toLowerCase().contentEquals("all rights reserved")
+                && !this.license.toLowerCase().contentEquals("all-rights-reserved")) {
+            str.append(this.license).append("<br /><br />");
+        }
+
+        if (!TextUtils.isEmpty(this.label_name)) {
+            str.append("<b>Released By</b><br />")
+               .append(this.label_name).append("<br />");
+
+            if (!TextUtils.isEmpty(this.release_year)) {
+                str.append(this.release_year).append("<br />");
+            }
+            str.append("<br />");
+        }
+        return str.toString();
+    }
 }

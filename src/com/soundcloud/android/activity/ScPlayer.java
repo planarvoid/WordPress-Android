@@ -63,6 +63,7 @@ import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class ScPlayer extends ScActivity implements OnTouchListener {
     @SuppressWarnings("unused")
@@ -221,8 +222,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     addNewComment(mPlayingTrack, -1, addCommentListener);
                 }
             });
-            // setCommentButtonImage();
-
         } else {
             mContainer = (RelativeLayout) findViewById(R.id.container);
         }
@@ -427,7 +426,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public boolean waveformVisible(){
         return (mTrackFlipper.getDisplayedChild() == 0);
-
     }
 
     private void onTrackInfoFlip() {
@@ -545,8 +543,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer
                 .toString(mPlayingTrack.comment_count));
 
-        ((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html
-                .fromHtml(generateTrackInfoString()));
+        ((TextView) mTrackInfo.findViewById(R.id.txtInfo))
+                .setText(Html.fromHtml(mPlayingTrack.trackInfo()));
 
         fillTrackInfoComments();
 
@@ -556,7 +554,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private void fillTrackInfoComments(){
         if (mTrackInfo == null)
             return;
-
 
         LinearLayout commentsList;
         if (mTrackInfo.findViewById(R.id.comments_list) == null){
@@ -643,47 +640,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     }
 
-    private String generateTrackInfoString() {
-        StringBuilder str = new StringBuilder(200);
-
-        if (!TextUtils.isEmpty(mPlayingTrack.description)) {
-            str.append(mPlayingTrack.description).append("<br /><br />");
-        }
-
-        for (String t : mPlayingTrack.humanTags()) {
-            str.append(t).append("<br />");
-        }
-
-        if (!TextUtils.isEmpty(mPlayingTrack.key_signature)) {
-            str.append(mPlayingTrack.key_signature).append("<br />");
-        }
-        if (!TextUtils.isEmpty(mPlayingTrack.genre)) {
-            str.append(mPlayingTrack.genre).append("<br />");
-        }
-
-        if (!(mPlayingTrack.bpm == null))
-            str.append(mPlayingTrack.bpm).append("<br />");
-
-
-        str.append("<br />");
-
-        if (!TextUtils.isEmpty(mPlayingTrack.license)
-                && !mPlayingTrack.license.toLowerCase().contentEquals("all rights reserved")
-                && !mPlayingTrack.license.toLowerCase().contentEquals("all-rights-reserved")) {
-            str.append(mPlayingTrack.license).append("<br /><br />");
-        }
-
-        if (!TextUtils.isEmpty(mPlayingTrack.label_name)) {
-            str.append("<b>Released By</b><br />")
-               .append(mPlayingTrack.label_name).append("<br />");
-
-            if (!TextUtils.isEmpty(mPlayingTrack.release_year)) {
-                str.append(mPlayingTrack.release_year).append("<br />");
-            }
-            str.append("<br />");
-        }
-        return str.toString();
-    }
 
     private void setPauseButtonImage() {
         try {
@@ -1058,6 +1014,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         queueNextRefresh(next);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        mWaveformController.onStop();
+        mPaused = true;
+        mHandler.removeMessages(REFRESH);
+        unregisterReceiver(mStatusListener);
+        mPlaybackService = null;
+    }
+
     /**
      * Called to retrieve per-instance state from an activity before being
      * killed so that the state can be restored in onCreate(Bundle) or
@@ -1116,34 +1083,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
 
             if (saved[3] != null
-                    && ((ArrayList<Comment>) saved[3]).size() > 0
-                    && !(mPlayingTrack != null && mPlayingTrack.id != ((ArrayList<Comment>) saved[3])
-                    .get(0).id)) {
+                    && ((List) saved[3]).size() > 0
+                    && !(mPlayingTrack != null
+                    && mPlayingTrack.id != ((List<Comment>) saved[3]).get(0).id)) {
                 mCurrentComments = (ArrayList<Comment>) saved[3];
                 mWaveformController.setComments(mCurrentComments, false);
             }
-
         }
     }
 
 
-
-    /**
-     * Called when you are no longer visible to the user. You will next receive
-     * either {@link #onStart}, {@link #onDestroy}, or nothing, depending on
-     * later user activity.
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        mWaveformController.onStop();
-        mPaused = true;
-        mHandler.removeMessages(REFRESH);
-        unregisterReceiver(mStatusListener);
-        mPlaybackService = null;
-
-    }
 
     private void setFavoriteStatus() {
 
@@ -1234,7 +1183,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     public AddCommentListener addCommentListener = new AddCommentListener(){
-
         @Override
         public void onCommentAdd(boolean success, Comment c) {
             if (c.track_id != mPlayingTrack.id)
@@ -1254,6 +1202,5 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             setException(e);
             handleException();
         }
-
     };
 }
