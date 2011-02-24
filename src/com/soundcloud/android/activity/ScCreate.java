@@ -36,7 +36,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.AudioTrack;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -91,8 +90,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     /* package */  RadioButton mRdoPrivate, mRdoPublic;
     /* package */  EditText mWhatText;
     /* package */  TextView mWhereText;
-
-    private TextView mShareOptions;
 
     private ImageView mArtwork;
 
@@ -263,8 +260,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
 
-        mShareOptions = (TextView) findViewById(R.id.txt_record_options);
-
         RelativeLayout mProgressFrame = (RelativeLayout) findViewById(R.id.progress_frame);
         mProgressFrame.setVisibility(View.GONE);
 
@@ -342,11 +337,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                     case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
 
                 }
-                //if (checkedId == R.id.rdo_private){
-                  //  mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
-                //} else {
-                  //  mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
-                //}
             }
         });
 
@@ -440,6 +430,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         state.putString("createWhatValue", mWhatText.getText().toString());
         state.putString("createWhereValue", mWhereText.getText().toString());
         state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
+        state.putLong("recordingStarted", mRecordingStarted.toMillis(false));
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
             state.putString("createArtworkPath", mArtworkUri);
@@ -454,6 +445,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             updateUi(false);
         }
 
+        mRecordingStarted.set(state.getLong("recordingStarted"));
         mWhatText.setText(state.getString("createWhatValue"));
         mWhereText.setText(state.getString("createWhereValue"));
 
@@ -513,38 +505,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             } catch (Exception e){
                 //temp
             }
-        } catch (IOException e) {
-            Log.e(TAG, "error", e);
-        }
-    }
-
-    public void setTakenImage() {
-        try {
-            ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
-            String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-
-            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
-                    (int) getResources().getDisplayMetrics().density * 100,
-                    (int) getResources().getDisplayMetrics().density * 100);
-            mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
-
-            Matrix mat = new Matrix();
-
-            if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6){
-                mat.postRotate(90);
-            }
-
-            mArtwork.setImageMatrix(mat);
-
-            if (mArtworkBitmap != null)
-                CloudUtils.clearBitmap(mArtworkBitmap);
-
-            BitmapFactory.Options resample = new BitmapFactory.Options();
-            resample.inSampleSize = opt.inSampleSize;
-
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
-            mArtwork.setImageBitmap(mArtworkBitmap);
-            mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
@@ -661,11 +621,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
             case IDLE_UPLOAD:
                 goToView(1);
-                /*if (mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private){
-                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_private));
-                } else {
-                    mShareOptions.setText(getString(R.string.cloud_uploader_share_options_public));
-                }*/
                 break;
 
             case UPLOAD:
@@ -952,19 +907,18 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         }
     }
 
-    private String dateString() {
-        String day = DateUtils.getDayOfWeekString(mRecordingStarted.weekDay + 1, DateUtils.LENGTH_LONG);
+    private static String dateString(Time time) {
+        String day = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
         String dayTime;
-        if (mRecordingStarted.hour <= 12) {
+        if (time.hour <= 12) {
             dayTime = "morning";
-        } else if (mRecordingStarted.hour <= 17) {
+        } else if (time.hour <= 17) {
             dayTime = "afternoon";
-        } else if (mRecordingStarted.hour <= 21) {
+        } else if (time.hour <= 21) {
            dayTime = "evening";
         } else {
            dayTime = "night";
         }
-
         return day + " " + dayTime;
     }
 
@@ -977,7 +931,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         } else if (mWhereText.length() > 0) {
             title = mWhereText.getText().toString();
         } else {
-            title = "recording on " + dateString();
+            title = "recording on " + dateString(mRecordingStarted);
         }
         return title;
     }
@@ -1000,7 +954,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             if (mWhereText.length() > 0) {
                 note = String.format("Sounds at %s", mWhereText.getText());
             } else {
-                note = String.format("Sounds from %s", dateString());
+                note = String.format("Sounds from %s", dateString(mRecordingStarted));
             }
         }
         return note;
@@ -1096,27 +1050,18 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-
         switch (requestCode) {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
                     Uri selectedImage = result.getData();
-                    String[] filePathColumn = {
-                            MediaStore.MediaColumns.DATA
-                    };
-
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null,
-                            null, null);
+                    String[] filePathColumn = { MediaStore.MediaColumns.DATA };
+                    Cursor cursor = getContentResolver().query(selectedImage,
+                            filePathColumn, null, null, null);
                     cursor.moveToFirst();
-
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
-
-
                     setPickedImage(filePath);
-
-
                 }
                 break;
 
@@ -1151,8 +1096,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         }
     }
 
-
-    protected void cancelCurrentUpload() {
+    private void cancelCurrentUpload() {
         try {
             mCreateService.cancelUpload();
         } catch (RemoteException e) {
