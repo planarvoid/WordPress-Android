@@ -18,6 +18,7 @@ import android.graphics.PointF;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,6 +62,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private ImageView mOverlay;
 
     private ProgressBar mProgressBar;
+
+    private RelativeLayout mTrackTouchBar;
 
     private WaveformHolder mWaveformHolder;
 
@@ -155,6 +158,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
         mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
+
+        mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
+        mTrackTouchBar.setOnTouchListener(this);
 
         if (mPlayerAvatarBar != null){
             mPlayerAvatarBar.setOnTouchListener(this);
@@ -356,6 +362,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                    showBubbleAt((int) event.getX(),mCommentBarOffsetY, true);
 
                 } else {
+                    Log.i(TAG,"SSSSEEK DRAG");
                     mode = SEEK_DRAG;
                     if (mPlayer != null && mPlayer.isSeekable()) {
                         mLastAutoComment = null; //reset auto comment in case they seek backward
@@ -380,6 +387,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 switch (mode){
                     case SEEK_DRAG :
+                        Log.i(TAG,"SSSSEEK DRAG " + mPlayer.isSeekable());
                         if (mPlayer != null && mPlayer.isSeekable()) {
                             if (mPlayer != null)
                                 setProgress(mPlayer.setSeekMarker(event.getX()
