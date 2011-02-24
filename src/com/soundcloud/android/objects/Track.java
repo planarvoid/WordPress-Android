@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -18,111 +19,59 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends BaseObj implements Parcelable {
-
     private static final String TAG = "Track";
 
-    public Long id;
-
+    public long id;
     public String artwork_url;
-
     public String attachments_uri;
-
     public String avatar_url;
-
     public Float bpm;
-
     public boolean commentable;
-
-    public Integer comment_count;
-
+    public int comment_count;
     public String created_at;
-
     public CreatedWith created_with;
-
     public String description;
-
     public boolean downloadable;
-
-    public Integer download_count;
-
+    public int download_count;
     public String download_url;
-
-    public Integer downloads_remaining;
-
-    public Integer duration;
-
+    public int downloads_remaining;
+    public int duration;
     public String duration_formatted;
-
-    public Integer favoritings_count;
-
+    public int favoritings_count;
     public String genre;
-
     public String isrc;
-
     public String key_signature;
-
     public User label;
-
     public String label_id;
-
     public String label_name;
-
     public String license;
-
     public String original_format;
-
     public String permalink;
-
     public String permalink_url;
-
     public String playback_count;
-
     public String purchase_url;
-
     public String release;
-
     public String release_day;
-
     public String release_month;
-
     public String release_year;
-
     public String secret_token;
-
     public String secret_uri;
-
-    public Integer shared_to_count;
-
+    public int shared_to_count;
     public String sharing;
-
     public String state;
-
     public boolean streamable;
-
     public String stream_url;
-
     public String tag_list;
-
     public String track_type;
-
     public String title;
-
     public String uri;
-
     public boolean user_played;
-
     public String user_playback_count;
-
     public boolean user_favorite;
-
-    public Integer user_favorite_id;
-
+    public long user_favorite_id;
     public User user;
-
-    public Long user_id;
-
+    public long user_id;
     public String video_url;
-
     public String waveform_url;
 
     public List<String> humanTags() {
@@ -137,25 +86,18 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public static class CreatedWith {
-        public Integer id;
-
+        public long id;
         public String name;
-
         public String uri;
-
         public String permalink_url;
     }
 
     public boolean mIsPlaylist = false;
-
     public File mCacheFile;
-
     public Long filelength;
-
     public String mSignedUri;
 
     public static final class Tracks implements BaseColumns {
-
         private Tracks() {
         }
 
@@ -163,41 +105,23 @@ public class Track extends BaseObj implements Parcelable {
                 + ScContentProvider.AUTHORITY + "/Tracks");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
-
         public static final String ID = "_id";
-
         public static final String PERMALINK = "permalink";
-
         public static final String DURATION = "duration";
-
         public static final String TAG_LIST = "tag_list";
-
         public static final String TRACK_TYPE = "track_type";
-
         public static final String TITLE = "title";
-
         public static final String PERMALINK_URL = "permalink_url";
-
         public static final String ARTWORK_URL = "artwork_url";
-
         public static final String WAVEFORM_URL = "waveform_url";
-
         public static final String DOWNLOADABLE = "downloadable";
-
         public static final String DOWNLOAD_URL = "download_url";
-
         public static final String STREAM_URL = "stream_url";
-
         public static final String STREAMABLE = "streamable";
-
         public static final String USER_ID = "user_id";
-
         public static final String USER_FAVORITE = "user_favorite";
-
         public static final String USER_PLAYED = "user_played";
-
         public static final String FILELENGTH = "filelength";
-
     }
 
     public Track() {
@@ -220,25 +144,22 @@ public class Track extends BaseObj implements Parcelable {
                     if (f != null) {
                         if (f.getType() == String.class) {
                             f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.class) {
+                        } else if (f.getType() == Long.TYPE) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.class) {
+                        } else if (f.getType() == Integer.TYPE) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == boolean.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) == 0 ? false
-                                    : true);
+                        } else if (f.getType() == Boolean.TYPE) {
+                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) == 0 ? false : true);
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (SecurityException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (NoSuchFieldException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
             }
         }

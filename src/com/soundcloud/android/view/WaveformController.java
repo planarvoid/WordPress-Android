@@ -55,8 +55,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private Comment mCurrentShowingComment;
 
-    private int mCurrentCommentDepth = 0;
-
     private boolean mShowingComments;
 
     private ImageView mOverlay;
@@ -110,8 +108,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private Comment mNextComment;
 
-    private ImageButton mToggleComments;
-
     static final int SEEK_TOLERANCE = 10;
 
     static final double TOUCH_MOVE_TOLERANCE = 2.0;
@@ -157,7 +153,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
-        mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
+        ImageButton mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
 
         mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
         mTrackTouchBar.setOnTouchListener(this);
@@ -185,11 +181,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mOverlay.setScaleType(ScaleType.FIT_XY);
 
         File dirFile = new File(CloudUtils.getCacheDirPath(mPlayer) + "/waves/");
-        dirFile.mkdirs();
-
-
-
-        // mOverlay.setImageDrawable(context.getResources().getDrawable(R.drawable.wave));
+        if (!dirFile.mkdirs()) Log.w(TAG, "error creating " + dirFile);
     }
 
     public void showConnectingLayout() {
@@ -279,18 +271,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void updateTrack(Track track) {
-        if (mPlayingTrack != null) {
-            if (mPlayingTrack.id.compareTo(track.id) == 0
-                    && waveformResult != BindResult.ERROR) {
-                return;
-            }
+        if (mPlayingTrack != null && mPlayingTrack.id == track.id && waveformResult != BindResult.ERROR) {
+            return;
         }
 
         mPlayingTrack = track;
         mDuration = mPlayingTrack.duration;
 
-        if (waveformResult != BindResult.ERROR) { // clear loader errors so we
-            // can try to reload
+        if (waveformResult != BindResult.ERROR) {
+            // clear loader errors so we can try to reload
             ImageLoader.get(mPlayer).clearErrors();
         }
 
@@ -305,18 +294,18 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+                        Log.d(TAG, "WaveForm loaded");
                         showWaveform();
                     }
                 });
 
-        if (waveformResult != BindResult.OK) { // otherwise, it succesfull
-            if (waveformResult == BindResult.LOADING)
-                mOverlay.setVisibility(View.INVISIBLE);
-            else
+        switch (waveformResult) {
+            case OK:      showWaveform(); break;
+            case LOADING: mOverlay.setVisibility(View.INVISIBLE); break;
+            case ERROR:
                 mOverlay.setImageDrawable(mPlayer.getResources()
                         .getDrawable(R.drawable.player_wave_bg));
-        } else {
-            showWaveform();
+                break;
         }
     }
 
@@ -476,7 +465,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private void moveBubbleTo(int xPos, int yPos){
         if (mCommentBubble == null) return;
         mCommentBubble.setPosition(xPos,yPos,getWidth());
-    };
+    }
 
     public void closeComment(){
         mCurrentShowingComment = null;
@@ -536,7 +525,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     final Runnable mAutoCloseBubble = new Runnable() {
         public void run() {
             if (mCommentBubble != null && mCurrentShowingComment != null)
-            if (mCurrentShowingComment == mCommentBubble.mComment &&  mCommentBubble.interacted == false){
+            if (mCurrentShowingComment == mCommentBubble.mComment && !mCommentBubble.interacted){
                 closeComment();
             }
         }

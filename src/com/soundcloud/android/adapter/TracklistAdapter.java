@@ -43,7 +43,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
         this.isPlaying = isPlaying;
 
         for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i).id.compareTo(currentTrackId) == 0) {
+            if (getTrackAt(i).id == currentTrackId) {
                 getTrackAt(i).user_played = true;
             }
         }
@@ -53,7 +53,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
 
     public void setFavoriteStatsus(long trackId, boolean isFavorite) {
         for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i).id.compareTo(trackId) == 0) {
+            if (getTrackAt(i).id == trackId) {
                 getTrackAt(i).user_favorite = isFavorite;
                 break;
             }

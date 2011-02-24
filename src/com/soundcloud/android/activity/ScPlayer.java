@@ -65,67 +65,50 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class ScPlayer extends ScActivity implements OnTouchListener {
-
-    // Debugging tag.
     @SuppressWarnings("unused")
-    private String TAG = "ScPlayer";
+    private static final String TAG = "ScPlayer";
+    private static final int REFRESH = 1;
 
-    // ******************************************************************** //
-    // Private Data.
-    // ******************************************************************** //
-
-    private boolean _isPlaying = false;
-
+    private boolean mIsPlaying = false;
     private ImageButton mPauseButton;
-
-    protected boolean mLandscape;
+    private boolean mLandscape;
 
     private ImageView mArtwork;
 
     private ImageButton mFavoriteButton;
-
     private ImageButton mInfoButton;
 
     private int mTouchSlop;
 
     private WaveformController mWaveformController;
 
-    private Long mCurrentTrackId = null;
+    private long mCurrentTrackId;
 
     private Track mPlayingTrack;
-    private Track mFavoriteTrack;
 
     private ViewFlipper mTrackFlipper;
 
     private RelativeLayout mTrackInfo;
-
     private RelativeLayout mPlayableLayout;
 
     private FrameLayout mUnplayableLayout;
 
-    private boolean mCurrentTrackError = false;
-
+    private boolean mCurrentTrackError;
     private BindResult mCurrentArtBindResult;
 
     private String mDurationFormatLong;
-
     private String mDurationFormatShort;
-
     private String mCurrentDurationString;
 
     private TextView mCurrentTime;
-
     private TextView mUserName;
-
     private TextView mTrackName;
 
     private long mDuration;
 
-    private boolean paused;
-
-    private boolean mTrackInfoFilled = false;
-
-    private boolean mTrackInfoCommentsFilled = false;
+    private boolean mPaused;
+    private boolean mTrackInfoFilled;
+    private boolean mTrackInfoCommentsFilled;
 
     private LoadCommentsTask mLoadCommentsTask;
 
@@ -133,32 +116,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private RelativeLayout mContainer;
 
-    private static final int REFRESH = 1;
+    private int mInitialX = -1;
+    private int mLastX = -1;
+    private int mTextWidth = 0;
+    private int mViewWidth = 0;
+    private boolean mDraggingLabel = false;
 
-    // ******************************************************************** //
-    // Activity Lifecycle.
-    // ******************************************************************** //
+    private LoadDetailsTask mLoadTrackDetailsTask;
 
-    /**
-     * Called when the activity is starting. This is where most initialisation
-     * should go: calling setContentView(int) to inflate the activity's UI, etc.
-     * You can call finish() from within this function, in which case
-     * onDestroy() will be immediately called without any of the rest of the
-     * activity lifecycle executing. Derived classes must call through to the
-     * super class's implementation of this method. If they do not, an exception
-     * will be thrown.
-     *
-     * @param icicle If the activity is being re-initialised after previously
-     *            being shut down then this Bundle contains the data it most
-     *            recently supplied@Override protected void onLayout(boolean
-     *            changed, int l, int t, int r, int b) { Log.d("test",
-     *            "In MainLayout.onLayout"); int childCount = getChildCount();
-     *            for (int childIndex = 0; childIndex < childCount;
-     *            childIndex++) { getChildAt(childIndex).setLayoutParams(new
-     *            LayoutParams(100, 100, 100, 100)); } super.onLayout(changed,
-     *            l, t, r, b); } in onSaveInstanceState(Bundle). Note: Otherwise
-     *            it is null.
-     */
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -168,7 +133,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mDurationFormatLong = getString(R.string.durationformatlong);
         mDurationFormatShort = getString(R.string.durationformatshort);
-
     }
 
     private void initControls() {
@@ -268,24 +232,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         return mContainer;
     }
 
-    int mInitialX = -1;
-
-    int mLastX = -1;
-
-    int mTextWidth = 0;
-
-    int mViewWidth = 0;
-
-    boolean mDraggingLabel = false;
-
-    /**
-     * Right now, the only draggable ashtextview is the track, but this function
-     * can be changed to easily add more later.
-     *
-     * @param v
-     * @return
-     */
-    TextView textViewForContainer(View v) {
+    private TextView textViewForContainer(View v) {
         View vv = v.findViewById(R.id.track);
         if (vv != null) {
             return (TextView) vv;
@@ -300,8 +247,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mPlaybackService.getTrack() != null) {
                 if (mPlaybackService.isBuffering()) {
                     mWaveformController.showConnectingLayout();
-                } else
+                } else {
                     mWaveformController.hideConnectingLayout();
+                }
 
                 updateTrackInfo();
                 setPauseButtonImage();
@@ -315,31 +263,20 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         } catch (RemoteException ignored) {
             Log.e(TAG, "error", ignored);
         }
-
-    }
-
-    @Override
-    protected void onServiceUnbound() {
-        super.onServiceUnbound();
     }
 
     @Override
     protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
-        if (mPlayingTrack == null)
-            return;
+        if (mPlayingTrack != null) {
+            if (mWaveformController.currentWaveformResult() == BindResult.ERROR) {
+                mWaveformController.updateTrack(mPlayingTrack);
+            }
 
-        if (mWaveformController.currentWaveformResult() == BindResult.ERROR) {
-            mWaveformController.updateTrack(mPlayingTrack);
+            if (mCurrentArtBindResult == BindResult.ERROR) {
+                updateArtwork();
+            }
         }
-
-        if (mCurrentArtBindResult == BindResult.ERROR) {
-            updateArtwork();
-        }
-    }
-
-    @Override
-    public void onRefresh() {
     }
 
     /**
@@ -395,8 +332,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     tv.setEllipsize(null);
                 }
                 Layout ll = tv.getLayout();
-                // layout might be null if the text just changed, or ellipsizing
-                // was just turned off
+                // layout might be null if the text just changed, or ellipsizing was just turned off
                 if (ll == null) {
                     return false;
                 }
@@ -462,13 +398,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlaybackService == null) {
-                return;
-            }
-            try {
-                mPlaybackService.next();
-            } catch (RemoteException e) {
-                Log.e(TAG, "error", e);
+            if (mPlaybackService != null) {
+                try {
+                    mPlaybackService.next();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "error", e);
+                }
             }
         }
     };
@@ -763,7 +698,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void queueNextRefresh(long delay) {
-        if (!paused) {
+        if (!mPaused) {
             Message msg = mHandler.obtainMessage(REFRESH);
             mHandler.removeMessages(REFRESH);
             mHandler.sendMessageDelayed(msg, delay);
@@ -777,8 +712,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mPlaybackService == null)
                 return 500;
 
-            if (mPlaybackService.loadPercent() > 0 && !_isPlaying) {
-                _isPlaying = true;
+            if (mPlaybackService.loadPercent() > 0 && !mIsPlaying) {
+                mIsPlaying = true;
             }
 
             long pos = mPlaybackService.position();
@@ -864,7 +799,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
                 mWaveformController.hideConnectingLayout();
                 setPauseButtonImage();
-                // showToast(getString(R.string.toast_error_stream_died));
             } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
                 updateTrackInfo();
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
@@ -918,7 +852,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mWaveformController.updateTrack(mPlayingTrack);
         updateArtwork();
-        if (mCurrentTrackId == null || mPlayingTrack.id.compareTo(mCurrentTrackId) != 0) {
+        if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
 
             mCurrentTrackId = mPlayingTrack.id;
@@ -926,9 +860,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
             if (mCurrentComments != null){
               refreshComments(true);
-            } else if (mLoadCommentsTask == null)
+            } else if (mLoadCommentsTask == null) {
                 startCommentLoading();
-            else if (mLoadCommentsTask != null && mLoadCommentsTask.track_id != mCurrentTrackId) {
+            } else if (mLoadCommentsTask.track_id != mCurrentTrackId) {
                 mLoadCommentsTask.cancel(true);
                 startCommentLoading();
             }
@@ -954,7 +888,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mTrackInfoCommentsFilled = false;
 
             setFavoriteStatus();
-            mDuration = Long.parseLong(Integer.toString(mPlayingTrack.duration));
+            mDuration = mPlayingTrack.duration;
             mCurrentDurationString = CloudUtils.makeTimeString(
                     mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
                     mDuration / 1000);
@@ -981,8 +915,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
             } else {
                 // load artwork as necessary
-                if (mCurrentTrackId == null || mPlayingTrack.id.compareTo(mCurrentTrackId) != 0
-                        || mCurrentArtBindResult == BindResult.ERROR)
+                if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
                             CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
@@ -996,12 +929,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                                 public void onImageLoaded(ImageView view, String url) {
                                     setArtworkMatrix();
                                 }
-                            })) != BindResult.OK){
-                        mArtwork.setImageDrawable(getResources().getDrawable(
-                                R.drawable.artwork_player));
+                            })) != BindResult.OK) {
+                        mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
                         mArtwork.setScaleType(ScaleType.CENTER_CROP);
-                    }else
+                    } else {
                         setArtworkMatrix();
+                    }
+                }
             }
     }
 
@@ -1010,7 +944,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             return;
 
         Matrix m = new Matrix();
-        float scale = 1;
+        float scale;
         if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
             scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
         } else {
@@ -1084,10 +1018,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      */
     @Override
     protected void onStart() {
-
         super.onStart();
 
-        paused = false;
+        mPaused = false;
 
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -1101,7 +1034,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
         this.registerReceiver(mStatusListener, new IntentFilter(f));
-
     }
 
     /**
@@ -1139,7 +1071,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
 
-        state.putBoolean("paused", paused);
+        state.putBoolean("paused", mPaused);
         state.putBoolean("currentTrackError", mCurrentTrackError);
 
         super.onSaveInstanceState(state);
@@ -1148,7 +1080,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     public void onRestoreInstanceState(Bundle state) {
         mCurrentTrackError = state.getBoolean("currentTrackError");
-        paused = state.getBoolean("paused");
+        mPaused = state.getBoolean("paused");
         super.onRestoreInstanceState(state);
     }
 
@@ -1194,7 +1126,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    private LoadDetailsTask mLoadTrackDetailsTask;
 
 
     /**
@@ -1207,7 +1138,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         super.onStop();
 
         mWaveformController.onStop();
-        paused = true;
+        mPaused = true;
         mHandler.removeMessages(REFRESH);
         unregisterReceiver(mStatusListener);
         mPlaybackService = null;
@@ -1234,15 +1165,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mPlayingTrack == null)
             return;
 
-        mFavoriteTrack = mPlayingTrack;
+        Track track = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
             if (mPlayingTrack.user_favorite) {
                     mPlaybackService.setFavoriteStatus(mPlayingTrack.id, false);
-                mFavoriteTrack.user_favorite = false;
+                track.user_favorite = false;
             } else {
                 mPlaybackService.setFavoriteStatus(mPlayingTrack.id, true);
-                mFavoriteTrack.user_favorite = true;
+                track.user_favorite = true;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -1325,6 +1256,4 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
     };
-
-
 }
