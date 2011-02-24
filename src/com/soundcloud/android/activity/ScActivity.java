@@ -5,11 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -17,14 +15,13 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
+import com.soundcloud.android.task.AddCommentTask;
+import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
@@ -58,12 +55,9 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ScActivity extends Activity {
     private Exception mException = null;
@@ -309,13 +303,13 @@ public abstract class ScActivity extends Activity {
     }
 
 
-    public void addNewComment(final Track track, final long timestamp) {
+    public void addNewComment(final Track track, final long timestamp, final AddCommentListener listener) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScActivity.this)
                 .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        sendComment(track.id, timestamp, input.getText().toString(), 0);
+                        new AddCommentTask(ScActivity.this,track.id, timestamp, input.getText().toString(), 0, listener == null ? mAddCommentListener : listener).execute();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -334,58 +328,20 @@ public abstract class ScActivity extends Activity {
         commentDialog.show();
     }
 
-    private HttpResponse mAddCommentResult;
-    private Comment mAddComment;
+    private AddCommentListener mAddCommentListener = new AddCommentListener(){
 
-    void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
-
-        mAddComment = new Comment();
-        mAddComment.track_id = track_id;
-        mAddComment.created_at = new Date(System.currentTimeMillis());
-        mAddComment.user_id = getCurrentUserId(this);
-
-        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id);
-        mAddComment.timestamp = timestamp;
-        mAddComment.body = commentBody;
-
-        final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
-        apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
-        if (timestamp > -1) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
-        if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
-
-
-        // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    mAddCommentResult = getSoundCloudApplication().postContent(
-                            CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                    ScActivity.this.setException(e);
-                }
-                mHandler.post(mOnCommentAdd);
-            }
-        };
-        t.start();
-    }
-
-    // Create runnable for posting
-    final Runnable mOnCommentAdd = new Runnable() {
-        public void run() {
-
-            if (mAddCommentResult != null && mAddCommentResult.getStatusLine().getStatusCode() == 201) {
-                onCommentAdded(mAddComment);
-            } else {
-                handleException();
-            }
+        @Override
+        public void onCommentAdd(boolean success, Comment c) {
         }
+
+        @Override
+        public void onException(Comment c, Exception e) {
+            setException(e);
+            handleException();
+        }
+
     };
 
-    protected void onCommentAdded(Comment c) {
-        getSoundCloudApplication().uncacheComments(c.track_id);
-    }
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
         @Override

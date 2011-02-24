@@ -54,8 +54,8 @@ public class UserlistRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
-        super.display(position);
         mUser = (User) mAdapter.getData().get(position);
+        super.display(position);
         mUsername.setText(mUser.username);
         setLocation();
         setTrackCount();

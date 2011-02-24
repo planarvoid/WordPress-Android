@@ -162,7 +162,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
         if (mPlayerCommentBar != null){
             mPlayerCommentBar.setOnTouchListener(this);
-            mPlayerCommentBar.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
         }
 
         if (mToggleComments != null)
@@ -231,7 +230,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             if (mCommentLines == null){
                 mCommentLines = new WaveformCommentLines(mPlayer, null);
-                mCommentLines.setVisibility(View.INVISIBLE);
+                mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
                 mWaveformHolder.addView(mCommentLines);
             }
         }
@@ -405,7 +404,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     case COMMENT_DRAG :
                         if (mBubbleAnimation == null){
                             if (Math.abs(mPlayerCommentBar.getTop() - (int) event.getY()) < 200)
-                                mPlayer.addNewComment(mPlayingTrack,stampFromPosition(mTouchX));
+                                mPlayer.addNewComment(mPlayingTrack,stampFromPosition(mTouchX), mPlayer.addCommentListener);
                         }
                         removeBubble();
                         break;
@@ -642,7 +641,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private void toggleComments(){
         mShowingComments = !mShowingComments;
-        mPreferences.getBoolean("playerShowingCOmments", mShowingComments);
+        mPreferences.edit().putBoolean("playerShowingCOmments", mShowingComments).commit();
         if (mShowingComments){
             mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mCommentLines.setVisibility(View.INVISIBLE);

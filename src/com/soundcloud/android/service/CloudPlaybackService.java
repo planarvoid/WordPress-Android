@@ -420,7 +420,6 @@ public class CloudPlaybackService extends Service {
         mServiceStartId = startId;
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
-        Log.i(TAG,"ON START COMMAND");
         if (intent != null) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
@@ -446,10 +445,8 @@ public class CloudPlaybackService extends Service {
                 pause();
                 seek(0);
             }else if (ADD_FAVORITE.equals(action)){
-                Log.i(TAG,"ADD FAVORITE " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1),true);
             }else if (REMOVE_FAVORITE.equals(action)){
-                Log.i(TAG,"REMOVE FAVORITE " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1),false);
             }
         }
@@ -1978,8 +1975,8 @@ public class CloudPlaybackService extends Service {
                             // status
                             Log.i(TAG, "invalid status received: "
                                     + httpResponse.getStatusLine().getStatusCode());
-                            //if (serviceRef.get() != null)
-                              //  serviceRef.get().sendDownloadException();
+                            if (serviceRef.get() != null)
+                                serviceRef.get().sendDownloadException();
                             return;
                         }
 

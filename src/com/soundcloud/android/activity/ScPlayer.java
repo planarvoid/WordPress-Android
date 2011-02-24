@@ -10,6 +10,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.AddCommentTask;
+import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
@@ -252,7 +254,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack, -1);
+                    addNewComment(mPlayingTrack, -1, addCommentListener);
                 }
             });
             // setCommentButtonImage();
@@ -627,7 +629,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             commentsList.findViewById(R.id.btn_info_comment).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack, -1);
+                    addNewComment(mPlayingTrack, -1, addCommentListener);
                 }
             });
         } else {
@@ -1275,24 +1277,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     }
 
-    @Override
-    protected void onCommentAdded(Comment c){
-        super.onCommentAdded(c);
-
-        if (c.track_id != mPlayingTrack.id)
-            return;
-
-        if (mCurrentComments == null)
-            mCurrentComments = new ArrayList<Comment>();
-
-        mCurrentComments.add(c);
-        getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
-        refreshComments(true);
-    }
-
-
-
-
     public void replyToComment(final Comment comment) {
         final EditText input = new EditText(this);
         final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
@@ -1300,7 +1284,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
                 .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        sendComment(comment.track_id,comment.timestamp,input.getText().toString(),comment.id);
+                        new AddCommentTask(ScPlayer.this,comment.track_id, comment.timestamp, input.getText().toString(), 0, addCommentListener).execute();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -1317,5 +1301,30 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         });
         commentDialog.show();
     }
+
+    public AddCommentListener addCommentListener = new AddCommentListener(){
+
+        @Override
+        public void onCommentAdd(boolean success, Comment c) {
+            if (c.track_id != mPlayingTrack.id)
+            return;
+
+            if (mCurrentComments == null)
+                mCurrentComments = new ArrayList<Comment>();
+
+            mCurrentComments.add(c);
+            getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
+            refreshComments(true);
+
+        }
+
+        @Override
+        public void onException(Comment c, Exception e) {
+            setException(e);
+            handleException();
+        }
+
+    };
+
 
 }
