@@ -3,6 +3,9 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
 
@@ -48,7 +51,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setFavoriteStatus(long trackId, boolean isFavorite) {
+    public void setFavoriteStatsus(long trackId, boolean isFavorite) {
         for (int i = 0; i < mData.size(); i++) {
             if (getTrackAt(i).id.compareTo(trackId) == 0) {
                 getTrackAt(i).user_favorite = isFavorite;
@@ -58,5 +61,29 @@ public class TracklistAdapter extends LazyBaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addFavorite(Track t) {
+        FavoriteAddTask f = new FavoriteAddTask(mActivity.getSoundCloudApplication());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(t);
+    }
+
+    public void removeFavorite(Track t) {
+        FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getSoundCloudApplication());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(t);
+    }
+
+    private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {
+        @Override
+        public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onException(long trackId, Exception e) {
+            notifyDataSetChanged();
+        }
+
+    };
 
 }

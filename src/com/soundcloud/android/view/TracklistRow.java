@@ -157,10 +157,10 @@ public class TracklistRow extends LazyRow {
 
         if (mTrack.user_favorite) {
             mTrack.user_favorite = false;
-            mActivity.setFavoriteStatus(mTrack, false);
+            ((TracklistAdapter) mAdapter).removeFavorite(mTrack);
         } else {
             mTrack.user_favorite = true;
-            mActivity.setFavoriteStatus(mTrack, true);
+            ((TracklistAdapter) mAdapter).addFavorite(mTrack);
         }
         setFavoriteStatus();
     }

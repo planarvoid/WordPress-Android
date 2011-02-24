@@ -17,9 +17,6 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.FavoriteAddTask;
-import com.soundcloud.android.task.FavoriteRemoveTask;
-import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
@@ -294,53 +291,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void setFavoriteStatus(Track t, boolean favoriteStatus) {
-        synchronized (this) {
-            if (favoriteStatus)
-                addFavorite(t);
-            else
-                removeFavorite(t);
-        }
 
-    }
-
-    public void addFavorite(Track t) {
-        FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
-            }
-
-            @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
-            }
-
-        });
-        f.execute(t);
-    }
-
-    public void removeFavorite(Track t) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
-            }
-
-            @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, true); //failed, so it should still be a favorite
-            }
-
-        });
-        f.execute(t);
-    }
-
-    protected void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-
-    }
 
 
     public LazyListView buildList() {
