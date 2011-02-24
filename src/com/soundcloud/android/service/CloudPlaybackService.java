@@ -165,6 +165,11 @@ public class CloudPlaybackService extends Service {
 
     private boolean isStagefright = false;
 
+    private int mBufferReportCounter = 0;
+
+    public CloudPlaybackService() {
+
+    }
 
     @Override
     public void onCreate() {
@@ -692,6 +697,12 @@ public class CloudPlaybackService extends Service {
                 // initial buffer measurement
                 mCurrentBuffer = mPlayingData.mCacheFile.length();
             }
+
+            if (mBufferReportCounter == 10){
+                Log.i(TAG,"[buffer size] " + mCurrentBuffer + " | [cachefile size] " + mPlayingData.mCacheFile.length() + " | [waiting on buffer:initialBuffer]" + pausedForBuffering + ":" + initialBuffering);
+                mBufferReportCounter = 0;
+            } else
+                mBufferReportCounter++;
 
             if (pausedForBuffering) {
 

@@ -445,7 +445,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
             mTrackFlipper.showNext();
-            mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
+            ImageLoader.get(this).bind(mInfoButton, CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
+                    GraphicsSizes.small), null);
+
         } else {
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
             mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
@@ -596,7 +598,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             spanEndIndex = commentText.length();
             commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            if (comment.timestamp != 0)
+            if (comment.timestamp > 0)
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
 
             spanStartIndex = commentText.length();
@@ -872,19 +874,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
                                 @Override
                                 public void onImageLoaded(ImageView view, String url) {
-                                    setArtworkMatrix();
+                                    onArtworkSet();
                                 }
                             })) != BindResult.OK) {
                         mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
                         mArtwork.setScaleType(ScaleType.CENTER_CROP);
-                    } else {
-                        setArtworkMatrix();
-                    }
+                    }else
+                        onArtworkSet();
                 }
             }
     }
 
-    private void setArtworkMatrix(){
+    private void onArtworkSet(){
         if (mArtwork.getWidth() == 0)
             return;
 

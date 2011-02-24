@@ -6,6 +6,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
+import com.soundcloud.utils.BitmapLoader;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.http.Http;
@@ -20,7 +21,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -57,6 +57,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
+    private BitmapLoader mBitmapLoader;
+
     static ContentHandler mBitmapHandler;
 
     public static enum Events {
@@ -86,7 +88,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             Log.e(TAG, "error", ignored);
         }
 
-        mImageLoader = createImageLoader(this);
+        createImageLoaders();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mCloudApi = new ApiWrapper(
@@ -136,9 +138,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
      * Create an instance of the imageloader. Library and examples of cacher and
      * code found at: {@link} http://code.google.com/p/libs-for-android/
      */
-    private static ImageLoader createImageLoader(Context context) {
+    private void createImageLoaders() {
         // Install the file cache (if it is not already installed)
-        CloudCache.install(context);
+        CloudCache.install(this);
 
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
@@ -157,16 +159,21 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         // Perform callbacks on the main thread
         Handler handler = null;
 
-        return new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
+        mImageLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
+        mBitmapLoader = new BitmapLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
+
 
     @Override
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
             return mImageLoader;
+        } else if (BitmapLoader.BITMAP_LOADER_SERVICE.equals(name)) {
+            return mBitmapLoader;
         } else {
             return super.getSystemService(name);
         }
+
     }
 
     public void cachePlaylist(ArrayList<Parcelable> playlistCache) {

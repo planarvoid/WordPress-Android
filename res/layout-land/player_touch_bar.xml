@@ -11,7 +11,7 @@
 	            android:layout_centerInParent="true" android:gravity="center" />
 	</RelativeLayout>
 	<ImageButton
-	    android:src="@drawable/comment_bubble_sm"
+	    android:src="@drawable/ic_hide_comments_states"
 	    android:layout_centerVertical="true"
 		android:layout_alignParentRight="true"
 		android:background="@color/transparent"
