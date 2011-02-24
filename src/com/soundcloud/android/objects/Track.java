@@ -13,6 +13,8 @@ import android.provider.BaseColumns;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends BaseObj implements Parcelable {
@@ -122,6 +124,17 @@ public class Track extends BaseObj implements Parcelable {
     public String video_url;
 
     public String waveform_url;
+
+    public List<String> humanTags() {
+        List<String> tags = new ArrayList<String>();
+        if (tag_list == null) return tags;
+        for (String t : tag_list.split("\\s")) {
+            if (t.indexOf(':') == -1 && t.indexOf('=') == -1) {
+                tags.add(t);
+            }
+        }
+        return tags;
+    }
 
     public static class CreatedWith {
         public Integer id;

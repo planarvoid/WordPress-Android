@@ -707,33 +707,45 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private String generateTrackInfoString() {
-        String str = "";
+        StringBuilder str = new StringBuilder(200);
 
-        if (!TextUtils.isEmpty(mPlayingTrack.description))
-                str+= mPlayingTrack.description + "<br /><br />";
-        if (!TextUtils.isEmpty(mPlayingTrack.tag_list))
-            str += mPlayingTrack.tag_list + "<br />";
-        if (!TextUtils.isEmpty(mPlayingTrack.key_signature))
-            str += mPlayingTrack.key_signature + "<br />";
-        if (!TextUtils.isEmpty(mPlayingTrack.genre))
-            str += mPlayingTrack.genre + "<br />";
-        if (!(mPlayingTrack.bpm == null))
-            str += mPlayingTrack.bpm + "<br />";
-        str += "<br />";
-        if (!TextUtils.isEmpty(mPlayingTrack.license)
-                && !mPlayingTrack.license.toLowerCase().contentEquals("all rights reserved")
-                && !mPlayingTrack.license.toLowerCase().contentEquals("all-rights-reserved"))
-            str += mPlayingTrack.license + "<br /><br />";
-
-        if (!TextUtils.isEmpty(mPlayingTrack.label_name)) {
-            str += "<b>Released By</b><br />";
-            str += mPlayingTrack.label_name + "<br />";
-            if (!TextUtils.isEmpty(mPlayingTrack.release_year))
-                str += mPlayingTrack.release_year + "<br />";
-            str += "<br />";
+        if (!TextUtils.isEmpty(mPlayingTrack.description)) {
+            str.append(mPlayingTrack.description).append("<br /><br />");
         }
 
-        return str;
+        for (String t : mPlayingTrack.humanTags()) {
+            str.append(t).append("<br />");
+        }
+
+        if (!TextUtils.isEmpty(mPlayingTrack.key_signature)) {
+            str.append(mPlayingTrack.key_signature).append("<br />");
+        }
+        if (!TextUtils.isEmpty(mPlayingTrack.genre)) {
+            str.append(mPlayingTrack.genre).append("<br />");
+        }
+
+        if (!(mPlayingTrack.bpm == null))
+            str.append(mPlayingTrack.bpm).append("<br />");
+
+
+        str.append("<br />");
+
+        if (!TextUtils.isEmpty(mPlayingTrack.license)
+                && !mPlayingTrack.license.toLowerCase().contentEquals("all rights reserved")
+                && !mPlayingTrack.license.toLowerCase().contentEquals("all-rights-reserved")) {
+            str.append(mPlayingTrack.license).append("<br /><br />");
+        }
+
+        if (!TextUtils.isEmpty(mPlayingTrack.label_name)) {
+            str.append("<b>Released By</b><br />")
+               .append(mPlayingTrack.label_name).append("<br />");
+
+            if (!TextUtils.isEmpty(mPlayingTrack.release_year)) {
+                str.append(mPlayingTrack.release_year).append("<br />");
+            }
+            str.append("<br />");
+        }
+        return str.toString();
     }
 
     private void setPauseButtonImage() {
