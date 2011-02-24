@@ -20,19 +20,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.utils.CloudCache;
 
 public class Settings extends PreferenceActivity {
-    private static final int MENU_CACHE = Menu.FIRST;
-
-    private static final int MENU_USER_CLEAR = 2;
-
-    private static final int MENU_USER_CONNECT = 3;
-
-    private static final int DIALOG_CACHE_DELETED = 10;
-
-    private static final int DIALOG_CACHE_DELETING = 11;
-
-    private static final int DIALOG_USER_DELETE_CONFIRM = 12;
-
-    private static final int DIALOG_USER_DELETED = 13;
+    private static final int DIALOG_CACHE_DELETED = 0;
+    private static final int DIALOG_CACHE_DELETING = 1;
+    private static final int DIALOG_USER_DELETE_CONFIRM = 2;
 
     private ProgressDialog mDeleteDialog;
 
@@ -104,8 +94,8 @@ public class Settings extends PreferenceActivity {
 
     private void setClearCacheTitle() {
         this.findPreference("clearCache").setTitle(
-                getResources().getString(R.string.pref_clear_cache) + " ["
-                        + CloudCache.cacheSizeInMbString(this) + " MB]");
+                getResources().getString(R.string.pref_clear_cache) +
+                " [" + CloudCache.cacheSizeInMbString(this) + " MB]");
     }
 
     @Override
@@ -145,13 +135,12 @@ public class Settings extends PreferenceActivity {
         ((SoundCloudApplication) getApplication()).clearSoundCloudAccount();
 
         Intent intent = new Intent(this, Authorize.class);
-        intent.putExtra("reauthorize", true);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        finish();
     }
 
     public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {
-
         @Override
         protected void onPreExecute() {
             if (mActivityRef.get() != null)
@@ -171,7 +160,7 @@ public class Settings extends PreferenceActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (mActivityRef.get() != null) {
-                ((Settings) mActivityRef.get()).removeDialog(DIALOG_CACHE_DELETING);
+                mActivityRef.get().removeDialog(DIALOG_CACHE_DELETING);
                 ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETED);
                 ((Settings) mActivityRef.get()).setClearCacheTitle();
             }

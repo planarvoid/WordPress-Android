@@ -84,7 +84,6 @@ public class Authorize extends Activity implements CloudAPI.Client {
             public void run() {
                 if (status == AuthorizationStatus.SUCCESSFUL) {
                     Intent intent = new Intent(Authorize.this, Main.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
                 } else {
@@ -142,13 +141,14 @@ public class Authorize extends Activity implements CloudAPI.Client {
     };
 
     @Override
-    public void storeKeys(User me, String token, String secret) {
+    public void storeUser(User me, String token, String secret) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferences.edit()
                 .putLong(SoundCloudApplication.USER_ID, me.id)
                 .putString(SoundCloudApplication.USERNAME, me.username)
                 .putString(SoundCloudApplication.TOKEN, token)
                 .putString(SoundCloudApplication.SECRET, secret)
+                .putBoolean(SoundCloudApplication.EMAIL_CONFIRMED, me.primary_email_confirmed)
                 .commit();
     }
 

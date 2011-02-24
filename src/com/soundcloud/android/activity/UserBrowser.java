@@ -7,6 +7,7 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -281,7 +282,8 @@ public class UserBrowser extends ScActivity {
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
         if (!isOtherUser()) {
-            mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this).getInt("lastProfileIndex", 0);
+            mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getInt(SoundCloudApplication.PROFILE_IDX, 0);
             mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
@@ -353,7 +355,7 @@ public class UserBrowser extends ScActivity {
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
                 PreferenceManager.getDefaultSharedPreferences(UserBrowser.this).edit()
-                        .putInt("lastProfileIndex", mLastTabIndex).commit();
+                        .putInt(SoundCloudApplication.PROFILE_IDX, mLastTabIndex).commit();
             }
         }
     };

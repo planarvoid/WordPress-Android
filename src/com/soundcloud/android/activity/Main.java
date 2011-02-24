@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 
 import android.app.TabActivity;
 import android.content.Intent;
@@ -80,7 +81,7 @@ public class Main extends TabActivity {
             @Override
             public void onTabChanged(String tabId) {
                 PreferenceManager.getDefaultSharedPreferences(Main.this).edit()
-                        .putInt("lastDashboardIndex", mTabHost.getCurrentTab())
+                        .putInt(SoundCloudApplication.DASHBOARD_IDX, mTabHost.getCurrentTab())
                         .commit();
             }
         });

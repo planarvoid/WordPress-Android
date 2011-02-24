@@ -50,7 +50,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public static final String USER_ID  = "currentUserId";
     public static final String TOKEN    = "oauth_access_token";
     public static final String SECRET   = "oauth_access_token_secret";
-
+    public static final String EMAIL_CONFIRMED = "email_confirmed";
+    public static final String DASHBOARD_IDX = "lastDashboardIndex";
+    public static final String PROFILE_IDX = "lastProfileIndex";
 
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
@@ -111,8 +113,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .remove(TOKEN)
                 .remove(SECRET)
-                .remove("lastDashboardIndex")
-                .remove("lastProfileIndex")
+                .remove(EMAIL_CONFIRMED)
+                .remove(DASHBOARD_IDX)
+                .remove(PROFILE_IDX)
                 .putLong(USER_ID, -1)
                 .putString(USERNAME, "")
                 .commit();

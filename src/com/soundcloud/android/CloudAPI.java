@@ -89,6 +89,6 @@ public interface CloudAPI {
     SoundCloudAPI.State getState();
 
     static interface Client extends SoundCloudAuthorizationClient {
-        void storeKeys(User user, String token, String secret);
+        void storeUser(User user, String token, String secret);
     }
 }

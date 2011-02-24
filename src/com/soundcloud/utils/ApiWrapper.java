@@ -196,7 +196,7 @@ public class ApiWrapper implements CloudAPI {
                         HttpResponse resp = getContent("me");
                         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                             User me = getMapper().readValue(resp.getEntity().getContent(), User.class);
-                            client.storeKeys(me, mSoundCloudApi.getToken(), mSoundCloudApi.getTokenSecret());
+                            client.storeUser(me, mSoundCloudApi.getToken(), mSoundCloudApi.getTokenSecret());
                         } else {
                             throw new IOException("Unable to request user information: " + resp.getStatusLine());
                         }

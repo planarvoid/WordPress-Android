@@ -1,73 +1,47 @@
 
 package com.soundcloud.android.objects;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.provider.ScContentProvider;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
-import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.provider.ScContentProvider;
+import java.lang.reflect.Field;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseObj implements Parcelable {
-
-    public Long id;
+    public Long id;  // XXX long
 
     public String username;
-
     public String track_count;
-
     public String discogs_name;
-
     public String city;
-
     public String uri;
-
     public String avatar_url;
-
     public String local_avatar_url;
-
     public String website_title;
-
     public String website;
-
     public String description;
-
     public String online;
-
     public String permalink;
-
     public String permalink_url;
-
     public String full_name;
-
-    public String followers_count;
-
-    public String followings_count;
-
-    public String public_favorites_count;
-
-    public String private_tracks_count;
-    
+    public String followers_count;    // XXX int
+    public String followings_count;   // XXX int
+    public String public_favorites_count; // XXX int
+    public String private_tracks_count; // XXX int
     public String myspace_name;
-
     public String country;
-
     public String location;
-
     public String plan;
 
+    public boolean primary_email_confirmed;
 
     public void resolveLocation() {
         this.location = CloudUtils.getLocationString(city == null ? "" : city,
