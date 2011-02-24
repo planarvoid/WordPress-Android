@@ -39,7 +39,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -79,10 +78,6 @@ public class CloudUtils {
     public interface RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
-    }
-
-    public enum LoadType {
-        incoming, exclusive, favorites
     }
 
     public enum Model {
@@ -129,28 +124,14 @@ public class CloudUtils {
         public final static String original = "original";
     }
 
-    public final static String[] GraphicsSizesLib = {
-            GraphicsSizes.t500, GraphicsSizes.crop, GraphicsSizes.t300, GraphicsSizes.large,
-            GraphicsSizes.t67, GraphicsSizes.badge, GraphicsSizes.small, GraphicsSizes.tiny,
-            GraphicsSizes.mini, GraphicsSizes.original
-    };
-
     public interface ListId {
         public final static int LIST_INCOMING = 1001;
-
         public final static int LIST_EXCLUSIVE = 1002;
-
         public final static int LIST_USER_TRACKS = 1003;
-
         public final static int LIST_USER_FAVORITES = 1004;
-
         public final static int LIST_SEARCH = 1005;
-
         public final static int LIST_USER_FOLLOWINGS = 1006;
-
         public final static int LIST_USER_FOLLOWERS = 1007;
-
-
     }
 
     public static File getCacheDir(Context c) {
@@ -184,14 +165,14 @@ public class CloudUtils {
         Log.i(TAG,"!!!!!!! looking for db " + f.exists());
         if (f.exists()) {
             File newDb = new File(NEW_DB_ABS_PATH);
-            if (newDb.exists())
+            if (newDb.exists()) {
                 newDb.delete();
+            }
             f.renameTo(newDb);
         }
     }
 
     public static void checkDirs(Context c) {
-
         // clear out old cache and make a new one
         if (!getCacheDir(c).exists()) {
             if (getCacheDir(c).getParentFile().exists())
@@ -206,9 +187,7 @@ public class CloudUtils {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
         }
-
         // do a check??
-
     }
 
     public static boolean deleteDir(File dir) {
@@ -523,10 +502,6 @@ public class CloudUtils {
     }
 
     public static String makeTimeString(String durationformat, long secs) {
-        /*
-         * Provide multiple arguments so the format can be changed easily by
-         * modifying the xml.
-         */
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
         timeArgs[0] = secs / 3600;
@@ -534,18 +509,9 @@ public class CloudUtils {
         timeArgs[2] = (secs / 60) % 60;
         timeArgs[3] = secs;
         timeArgs[4] = secs % 60;
+        // XXX perf optimise - run in player loop
         return sFormatter.format(durationformat, timeArgs).toString();
     }
-
-    /*
-     * public static String formatContent(InputStream is) throws IOException {
-     * if (is == null) return ""; StringBuilder sBuilder = new StringBuilder();
-     * BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
-     * String line = null; while ((line = buffer.readLine()) != null) {
-     * sBuilder.append(line).append("\n"); } buffer.close(); buffer = null;
-     * return sBuilder.toString().trim(); }
-     */
-
     public static String getErrorFromJSONResponse(String rawString) throws JSONException {
         if (rawString.startsWith("[")) {
             return ""; // arrays do not result from errors
@@ -564,12 +530,6 @@ public class CloudUtils {
         }
     }
 
-    /**
-     * Check if a thread is alive accounting for nulls
-     *
-     * @param t
-     * @return boolean : is the thread alive
-     */
     public static boolean checkThreadAlive(Thread t) {
         return (!(t == null || !t.isAlive()));
     }
@@ -622,16 +582,6 @@ public class CloudUtils {
         return emptyView;
     }
 
-
-
-    public static void cleanupList(ListView list) {
-        list.setOnItemClickListener(null);
-        list.setOnItemLongClickListener(null);
-        list.setOnCreateContextMenuListener(null);
-        list.setOnScrollListener(null);
-        list.setOnItemSelectedListener(null);
-
-    }
 
     public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
         Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);

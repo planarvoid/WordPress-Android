@@ -660,7 +660,6 @@ public class CloudPlaybackService extends Service {
                         trackToCache.mCacheFile.setLastModified(System.currentTimeMillis());
                     }
                 }.start();
-
                 (mDownloadThread = new DownloadThread(this, trackToCache)).start();
             }
         }
@@ -668,9 +667,8 @@ public class CloudPlaybackService extends Service {
 
     private boolean checkBuffer() {
         synchronized (this) {
+            if (mPlayingData == null || getDuration() == 0) return false;
 
-            if (mPlayingData == null || getDuration() == 0)
-                return false;
             if (mPlayingData.filelength == null || mPlayingData.mCacheFile == null) {
                 if (CloudUtils.checkThreadAlive(mDownloadThread))
                     return true;
@@ -681,24 +679,19 @@ public class CloudPlaybackService extends Service {
             }
 
             if (mPlayer != null && mPlayer.isInitialized()) {
-                // normal buffer measurement. size of cache file vs playback
-                // position
+                // normal buffer measurement. size of cache file vs playback position
                 mCurrentBuffer = mPlayingData.mCacheFile.length()
                         - mPlayingData.filelength * mPlayer.position() / getDuration();
 
             } else if (mResumeId == mPlayingData.id && mResumeTime > -1) {
                 // resume buffer measurement. if stream died due to lack of a
-                // buffer, measure the buffer from where we are supposed to
-                // resume
+                // buffer, measure the buffer from where we are supposed to resume
                 mCurrentBuffer = mPlayingData.mCacheFile.length()
                         - mPlayingData.filelength * mResumeTime / getDuration();
-            } else
+            } else {
                 // initial buffer measurement
                 mCurrentBuffer = mPlayingData.mCacheFile.length();
-
-            // Log.i(TAG,"Buffer: " + mCurrentBuffer + " | " +
-            // mPlayingData.getCacheFile().length() + " | " + pausedForBuffering
-            // + " | " + initialBuffering);
+            }
 
             if (pausedForBuffering) {
 
@@ -778,47 +771,55 @@ public class CloudPlaybackService extends Service {
 
     private void trimCache(File keepFile) throws IOException {
         long size = 0;
-        long maxSize = 200000000;
+        final long maxSize = 200000000;
 
         StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        Long spaceLeft = Long.parseLong(Integer.toString(fs.getBlockSize()))
-                * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
+        final int spaceLeft = fs.getBlockSize() * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
 
         File cacheDir = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY);
         if (cacheDir.exists()) {
             File[] fileList = cacheDir.listFiles();
             if (fileList != null) {
                 ArrayList<File> orderedFiles = new ArrayList<File>();
-                for (File aFileList : fileList) {
-                    if (!aFileList.isDirectory() && (keepFile == null || aFileList != keepFile))
-                        size += aFileList.length();
-                    if (orderedFiles.size() == 0)
-                        orderedFiles.add(aFileList);
-                    else {
+                for (File file : fileList) {
+                    if (!file.isDirectory() && (keepFile == null || !file.equals(keepFile))) {
+                        size += file.length();
+                    }
+
+                    if (orderedFiles.size() == 0) {
+                        orderedFiles.add(file);
+                    } else {
                         int j = 0;
                         while (j < orderedFiles.size()
-                                && (orderedFiles.get(j)).lastModified() < aFileList
-                                .lastModified()) {
+                                && (orderedFiles.get(j)).lastModified() < file.lastModified()) {
                             j++;
                         }
-                        orderedFiles.add(j, aFileList);
+                        orderedFiles.add(j, file);
                     }
                 }
 
-                Log.i(TAG, "Current Cache Size " + size);
+                Log.i(TAG, "Current Cache Size " + size + " (space left " + spaceLeft + ")");
 
                 if (size > maxSize || spaceLeft < 0) {
-                    Long toTrim = size - maxSize > 0 - spaceLeft ? size - maxSize : 0 - spaceLeft;
+                    final long toTrim = Math.max(size - maxSize, Math.abs(spaceLeft));
                     int j = 0;
                     long trimmed = 0;
+                    // XXX PUT THIS CODE UNDER TEST (INFINITE LOOPS)
                     while (j < orderedFiles.size() && trimmed < toTrim) {
-                        if (orderedFiles.get(j) != keepFile)
-                            (orderedFiles.get(j)).delete();
+                        final File moribund =  orderedFiles.get(j);
+                        if (!moribund.equals(keepFile)) {
+                            Log.v(TAG, "Trimming " + moribund);
+                            trimmed += moribund.length();
+                            if (!moribund.delete()) {
+                                Log.w(TAG, "error deleting " + moribund);
+                            }
+                        }
+                        j++;
                     }
                 }
             }
         } else {
-            cacheDir.mkdirs();
+            if (!cacheDir.mkdirs()) Log.w(TAG, "error creating " + cacheDir);
         }
     }
 
@@ -834,19 +835,15 @@ public class CloudPlaybackService extends Service {
      */
     private void checkBufferStatus() {
         synchronized (this) {
-
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
 
-                // we are able to buffer something, see if we need to download
-                // the current track
+                // we are able to buffer something, see if we need to download the current track
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-
                     Log.i(TAG, "Premature download death, open another stream and continue");
                     // need to cache the current track
                     prepareDownload(mPlayingData);
-
                 }
             }
         }
