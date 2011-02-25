@@ -506,49 +506,39 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mPlayingTrack == null)
             return;
 
-        if (mPlayingTrack.playback_count == null) {
-
-            if (mTrackInfo.findViewById(R.id.loading_layout) != null)
+        if (mPlayingTrack.uri == null) {
+            if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
                 mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-            else
+            } else {
                 mTrackInfo.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
+            }
 
             mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
 
-            if (mTrackInfo.findViewById(android.R.id.empty) != null)
+            if (mTrackInfo.findViewById(android.R.id.empty) != null) {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
+            }
 
             if (mLoadTrackDetailsTask == null || CloudUtils.isTaskFinished(mLoadTrackDetailsTask)) {
-                try {
-                    mLoadTrackDetailsTask = newLoadTrackDetailsTask();
-                    mLoadTrackDetailsTask.execute(getSoundCloudApplication().getRequest(
-                            CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
-                                    Long.toString(mPlayingTrack.id)), null));
-
-                } catch (Exception e) {
-                    Log.e(TAG, "error", e);
-                }
+                mLoadTrackDetailsTask = newLoadTrackDetailsTask();
+                mLoadTrackDetailsTask.execute(getSoundCloudApplication().getRequest(
+                        CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
+                                Long.toString(mPlayingTrack.id)), null));
             } else {
                 if (mTrackInfo.findViewById(R.id.loading_layout) != null)
                     mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
             }
-            return;
+        } else {
+            ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(Integer.toString(mPlayingTrack.playback_count));
+            ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.favoritings_count));
+            ((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer.toString(mPlayingTrack.download_count));
+            ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer.toString(mPlayingTrack.comment_count));
+            ((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html.fromHtml(mPlayingTrack.trackInfo()));
+
+            fillTrackInfoComments();
+
+            mTrackInfoFilled = true;
         }
-
-        ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(mPlayingTrack.playback_count);
-        ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer
-                .toString(mPlayingTrack.favoritings_count));
-        ((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer
-                .toString(mPlayingTrack.download_count));
-        ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer
-                .toString(mPlayingTrack.comment_count));
-
-        ((TextView) mTrackInfo.findViewById(R.id.txtInfo))
-                .setText(Html.fromHtml(mPlayingTrack.trackInfo()));
-
-        fillTrackInfoComments();
-
-        mTrackInfoFilled = true;
     }
 
     private void fillTrackInfoComments(){
@@ -801,7 +791,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
         }
 
-        if (mPlayingTrack == null){
+        if (mPlayingTrack == null) {
             mWaveformController.clearTrack();
             return;
         }
@@ -874,8 +864,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    GraphicsSizes.t500), new ImageLoader.Callback() {
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.t500), new ImageLoader.Callback() {
                                 @Override
                                 public void onImageError(ImageView view, String url, Throwable error) {
                                     mCurrentArtBindResult = BindResult.ERROR;

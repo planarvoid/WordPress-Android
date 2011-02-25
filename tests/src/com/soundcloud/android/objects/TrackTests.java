@@ -24,6 +24,19 @@ public class TrackTests {
         t.tag_list = "punk";
         t.description = "Cool track";
 
-        assertThat(t.trackInfo(), equalTo("Cool track<br /><br />punk<br /><br />"));
+        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/>"));
+    }
+
+    @Test
+    public void shouldDisplayNiceLicense() throws Exception {
+        Track t = new Track();
+
+        assertThat(t.license(), equalTo("all rights reserved"));
+
+        t.license = "cc-by-nd";
+        assertThat(t.license(), equalTo("attribution no derivative work"));
+
+        t.license = "no-rights-reserved";
+        assertThat(t.license(), equalTo("no rights reserved"));
     }
 }

@@ -18,62 +18,82 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends BaseObj implements Parcelable {
     private static final String TAG = "Track";
 
+    // API fields
+
     public long id;
-    public String artwork_url;
-    public String attachments_uri;
-    public String avatar_url;
-    public Float bpm;
-    public boolean commentable;
-    public int comment_count;
     public String created_at;
-    public CreatedWith created_with;
-    public String description;
-    public boolean downloadable;
-    public int download_count;
-    public String download_url;
-    public int downloads_remaining;
+    public long user_id;
     public int duration;
-    public String duration_formatted;
-    public int favoritings_count;
-    public String genre;
-    public String isrc;
-    public String key_signature;
-    public User label;
-    public String label_id;
-    public String label_name;
-    public String license;
-    public String original_format;
+    public boolean commentable;
+    public String state;
+    public String sharing;
+    public String tag_list;
     public String permalink;
-    public String permalink_url;
-    public String playback_count;
-    public String purchase_url;
+    public String description;
+    public boolean streamable;
+    public boolean downloadable;
+    public String genre;
     public String release;
-    public String release_day;
-    public String release_month;
+    public String purchase_url;
+    public String label_id;
+    public User label;
+    public String label_name;
+    public String isrc;
+    public String video_url;
+    public String track_type;
+    public String key_signature;
+    public float bpm;
+
+    public int playback_count;
+    public int download_count;
+    public int comment_count;
+    public int favoritings_count;
+
+    public String title;
+
     public String release_year;
+    public String release_month;
+    public String release_day;
+
+    public String original_format;
+    public String license;
+
+    public String uri;
+    public String permalink_url;
+    public String artwork_url;
+    public String waveform_url;
+
+    public User user;
+
+    public String stream_url; // if track is streamable
+
+    public int user_playback_count; // if user is logged in, 1 or 0
+    public boolean user_favorite;   // ditto, and has favorited track
+
+    public CreatedWith created_with;
+    public String attachments_uri;
+
+
+    public String download_url;  // if track downloadable or current user = owner
+
+    // only shown to owner of track
+    public int downloads_remaining;
     public String secret_token;
     public String secret_uri;
     public int shared_to_count;
-    public String sharing;
-    public String state;
-    public boolean streamable;
-    public String stream_url;
-    public String tag_list;
-    public String track_type;
-    public String title;
-    public String uri;
+
+    // Fields used by app
+
     public boolean user_played;
-    public String user_playback_count;
-    public boolean user_favorite;
-    public long user_favorite_id;
-    public User user;
-    public long user_id;
-    public String video_url;
-    public String waveform_url;
+    public File mCacheFile;
+    public Long filelength;
+    public String mSignedUri;
+
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -92,11 +112,6 @@ public class Track extends BaseObj implements Parcelable {
         public String uri;
         public String permalink_url;
     }
-
-    public boolean mIsPlaylist = false;
-    public File mCacheFile;
-    public Long filelength;
-    public String mSignedUri;
 
     public static final class Tracks implements BaseColumns {
         private Tracks() {
@@ -150,7 +165,7 @@ public class Track extends BaseObj implements Parcelable {
                         } else if (f.getType() == Integer.TYPE) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Boolean.TYPE) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) == 0 ? false : true);
+                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
                         }
                     }
                 } catch (IllegalArgumentException e) {
@@ -189,42 +204,54 @@ public class Track extends BaseObj implements Parcelable {
     public String trackInfo() {
         StringBuilder str = new StringBuilder(200);
 
-        if (!TextUtils.isEmpty(this.description)) {
-            str.append(this.description).append("<br /><br />");
+        if (!TextUtils.isEmpty(description)) {
+            str.append(description).append("<br/><br/>");
         }
 
-        for (String t : this.humanTags()) {
-            str.append(t).append("<br />");
+        for (String t : humanTags()) {
+            str.append(t).append("<br/>");
         }
 
-        if (!TextUtils.isEmpty(this.key_signature)) {
-            str.append(this.key_signature).append("<br />");
+        if (!TextUtils.isEmpty(key_signature)) {
+            str.append(key_signature).append("<br/>");
         }
-        if (!TextUtils.isEmpty(this.genre)) {
-            str.append(this.genre).append("<br />");
-        }
-
-        if (!(this.bpm == null))
-            str.append(this.bpm).append("<br />");
-
-
-        str.append("<br />");
-
-        if (!TextUtils.isEmpty(this.license)
-                && !this.license.toLowerCase().contentEquals("all rights reserved")
-                && !this.license.toLowerCase().contentEquals("all-rights-reserved")) {
-            str.append(this.license).append("<br /><br />");
+        if (!TextUtils.isEmpty(genre)) {
+            str.append(genre).append("<br/>");
         }
 
-        if (!TextUtils.isEmpty(this.label_name)) {
-            str.append("<b>Released By</b><br />")
-               .append(this.label_name).append("<br />");
+        if (bpm != 0) {
+            str.append(bpm).append("<br/>");
+        }
 
-            if (!TextUtils.isEmpty(this.release_year)) {
-                str.append(this.release_year).append("<br />");
+        str.append("<br/>").append(license()).append("<br/><br/>");
+
+        if (!TextUtils.isEmpty(label_name)) {
+            str.append("<b>Released By</b><br/>")
+               .append(label_name).append("<br/>");
+
+            if (!TextUtils.isEmpty(release_year)) {
+                str.append(release_year).append("<br/>");
             }
             str.append("<br />");
         }
         return str.toString();
+    }
+
+    public String license() {
+        final String license = TextUtils.isEmpty(this.license) ? "all-rights-reserved" : this.license;
+        if (license.startsWith("cc-")) {
+            List<String> l = new ArrayList<String>();
+            for (String s : license.split("-")) {
+                if ("by".equals(s)) l.add("attribution");
+                if ("nc".equals(s)) l.add("noncommercial");
+                if ("nd".equals(s)) l.add("no derivative work");
+                if ("sa".equals(s)) l.add("share alike");
+            }
+            return TextUtils.join(" ", l);
+        } else if ("no-rights-reserved".equals(license)) {
+            return "no rights reserved";
+        } else {
+            return "all rights reserved";
+        }
     }
 }

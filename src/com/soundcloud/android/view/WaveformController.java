@@ -270,7 +270,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void updateTrack(Track track) {
-        if (mPlayingTrack != null && mPlayingTrack.id == track.id && waveformResult != BindResult.ERROR) {
+        if (mPlayingTrack != null &&
+                mPlayingTrack.id == track.id
+                && waveformResult != BindResult.ERROR) {
             return;
         }
 
@@ -293,7 +295,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+
+
                         Log.d(TAG, "WaveForm loaded");
+
                         showWaveform();
                     }
                 });
@@ -308,7 +313,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void onStop(){
+    public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
@@ -333,7 +338,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     if (mCommentBubble == null) {
                         mCommentBubble = new CommentBubble(mPlayer, this);
                     }
-
 
                     if (mCurrentComments != null) {
                         mode = AVATAR_DRAG;
