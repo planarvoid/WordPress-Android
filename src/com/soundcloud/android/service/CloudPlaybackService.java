@@ -227,28 +227,28 @@ public class CloudPlaybackService extends Service {
      * we can
      */
     private void determineSdk8Framework() {
+        isStagefright = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean("isStagefright", false);
 
-        isStagefright = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                "isStagefright", false);
-
-        // check the build file, works in most cases and will catch cases for
-        // instant playback
+        // check the build file, works in most cases and will catch cases for instant playback
         try {
+            // XXX throws IllegalArgumentException since pathname contains separators
             InputStream instream = openFileInput("/system/build.prop");
             if (instream != null) {
-                BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
                 String line;
+                BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
                 while ((line = buffreader.readLine()) != null) {
                     if (line.contains("media.stagefright.enable-player")) {
-                        if (line.contains("true"))
+                        if (line.contains("true")) {
                             isStagefright = true;
+                        }
                         break;
                     }
                 }
             }
             instream.close();
-
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // really need to catch exception here
             Log.e(TAG, "error", e);
         }
 
