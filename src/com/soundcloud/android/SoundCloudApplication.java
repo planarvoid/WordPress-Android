@@ -4,11 +4,10 @@ package com.soundcloud.android;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.LruCache;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
-import com.soundcloud.utils.BitmapLoader;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.http.Http;
 
 import org.acra.ACRA;
@@ -57,7 +56,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
-    private BitmapLoader mBitmapLoader;
+    private ImageLoader mBitmapLoader;
 
     static ContentHandler mBitmapHandler;
 
@@ -160,7 +159,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         Handler handler = null;
 
         mImageLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
-        mBitmapLoader = new BitmapLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
+        mBitmapLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
 
 
@@ -168,11 +167,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
             return mImageLoader;
-        } else if (BitmapLoader.BITMAP_LOADER_SERVICE.equals(name)) {
-            return mBitmapLoader;
-        } else {
-            return super.getSystemService(name);
-        }
+        }   return super.getSystemService(name);
 
     }
 

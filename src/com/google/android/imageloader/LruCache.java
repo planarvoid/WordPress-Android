@@ -1,4 +1,4 @@
-package com.soundcloud.utils;
+package com.google.android.imageloader;
 
 /*-
  * Copyright (C) 2010 Google Inc.

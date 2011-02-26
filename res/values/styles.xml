@@ -207,6 +207,7 @@
 	
 	<style name="btn_sc_show_info" parent="btn_sc_transport">
         <item name="android:layout_width">50dip</item>
+        <item name="android:layout_height">50dip</item>
 	</style>
 	
 	<style name="btn_sc_transport_small" parent="btn_sc_transport">

@@ -445,8 +445,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
             mTrackFlipper.showNext();
-            ImageLoader.get(this).bind(mInfoButton, CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                    GraphicsSizes.small), null);
+            if (mPlayingTrack.artwork_url != null){
+                if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
+                        mInfoButton,
+                        CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
+                                GraphicsSizes.badge), null)) != BindResult.OK){
+                    mInfoButton.setImageDrawable(getResources().getDrawable(
+                            R.drawable.ic_info_states));
+                }
+            }
+            else
+                mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
 
         } else {
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
@@ -866,7 +875,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.t500), new ImageLoader.Callback() {
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
+                                    GraphicsSizes.t500), new ImageViewCallback() {
                                 @Override
                                 public void onImageError(ImageView view, String url, Throwable error) {
                                     mCurrentArtBindResult = BindResult.ERROR;

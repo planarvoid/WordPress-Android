@@ -10,7 +10,7 @@
       android:process="@string/app_name" android:debuggable="true"
       android:theme="@style/ScLight" android:configChanges="keyboard|keyboardHidden"
       android:name="SoundCloudApplication">
-      <provider android:name="com.soundcloud.android.provider.ScContentProvider" 
+      <provider android:name=".provider.ScContentProvider" 
         android:authorities="com.soundcloud.android.providers.ScContentProvider" />
 
 
@@ -72,7 +72,7 @@
         </service>
 
         <service
-            android:name=".service.CloudCreateService"
+            android:name="service.CloudCreateService"
             android:exported="true">
             <intent-filter>
                 <action android:name=".service.ICloudCreateService" />

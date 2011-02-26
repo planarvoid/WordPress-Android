@@ -283,9 +283,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             // clear loader errors so we can try to reload
             ImageLoader.get(mPlayer).clearErrors();
         }
-
         waveformResult = ImageLoader.get(mPlayer).bind(mOverlay, track.waveform_url,
-                new ImageLoader.Callback() {
+                new ImageLoader.ImageViewCallback() {
                     @Override
                     public void onImageError(ImageView view, String url, Throwable error) {
                         waveformResult = BindResult.ERROR;
@@ -295,10 +294,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
-
-
-                        Log.d(TAG, "WaveForm loaded");
-
                         showWaveform();
                     }
                 });
@@ -564,7 +559,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void setComments(ArrayList<Comment> comments, boolean animatIn) {
         mCurrentComments = comments;
 
-        if (!mShowingComments)
+        if (!mShowingComments || mCurrentComments == null)
             return;
 
         mCurrentTopComments = new ArrayList<Comment>();
