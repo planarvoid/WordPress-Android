@@ -20,6 +20,9 @@
              <ImageButton android:layout_alignWithParentIfMissing="true"
                  android:layout_weight="1" android:id="@+id/btn_comment" style="@style/btn_sc_transport"
                  android:src="@drawable/ic_comment_states" />
+             <ImageButton android:layout_alignWithParentIfMissing="true"
+                 android:layout_weight="1" android:id="@+id/btn_share" style="@style/btn_sc_transport"
+                 android:src="@drawable/ic_share_states" />
          </TableRow>
      </TableLayout>
  </FrameLayout>

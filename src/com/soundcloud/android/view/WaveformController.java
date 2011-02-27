@@ -71,6 +71,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private WaveformCommentLines mCommentLines;
 
+    private ImageButton mToggleComments;
+
     private ScPlayer mPlayer;
 
     private int mDuration;
@@ -153,7 +155,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
-        ImageButton mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
+        mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
 
         mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
         mTrackTouchBar.setOnTouchListener(this);
@@ -573,7 +575,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }else if (mCurrentComments.get(i).timestamp > 0)
                 mCurrentComments.get(i+1).nextComment = mCurrentComments.get(i);
 
-            if (getWidth() > 0 &&  mCurrentComments.get(i).xPos == -1)
+            if (getWidth() > 0 &&  mDuration > 0 && mCurrentComments.get(i).xPos == -1)
                 mCurrentComments.get(i).calculateXPos(getWidth(), mDuration);
         }
 

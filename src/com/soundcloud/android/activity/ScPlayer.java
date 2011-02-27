@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.google.android.imageloader.ImageLoader.ImageViewCallback;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
@@ -1087,7 +1088,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     && !(mPlayingTrack != null
                     && mPlayingTrack.id != ((List<Comment>) saved[3]).get(0).id)) {
                 mCurrentComments = (ArrayList<Comment>) saved[3];
-                mWaveformController.setComments(mCurrentComments, false);
             }
         }
     }

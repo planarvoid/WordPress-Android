@@ -43,6 +43,8 @@ public class TracklistRow extends LazyRow {
 
     protected ImageButton mCommentBtn;
 
+    protected ImageButton mShareBtn;
+
     protected RelativeLayout mTrackInfoRow;
 
     protected Boolean _isFavorite = false;
@@ -100,6 +102,22 @@ public class TracklistRow extends LazyRow {
                 mActivity.addNewComment(mTrack, -1, null);
             }
         });
+
+        mShareBtn = (ImageButton) findViewById(R.id.btn_share);
+        if (mTrack.sharing.contentEquals("public")) {
+            mShareBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Check this track out");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
+                    mActivity.startActivity(Intent.createChooser(shareIntent, "Share this track: " + mTrack.title));
+                }
+            });
+            mShareBtn.setVisibility(View.VISIBLE);
+        } else {
+            mShareBtn.setVisibility(View.GONE);
+        }
 
         mTrackInfoRow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
