@@ -159,9 +159,9 @@ public class Track extends BaseObj implements Parcelable {
                     if (f != null) {
                         if (f.getType() == String.class) {
                             f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE) {
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class){
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE) {
+                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Boolean.TYPE) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);

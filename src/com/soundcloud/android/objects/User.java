@@ -3,6 +3,7 @@ package com.soundcloud.android.objects;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.provider.ScContentProvider;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.database.Cursor;
@@ -69,9 +70,9 @@ public class User extends BaseObj implements Parcelable {
                     if (f != null) {
                         if (f.getType() == String.class) {
                             f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.class) {
+                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.class) {
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
                         } else if (f.getType() == boolean.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
@@ -105,10 +106,10 @@ public class User extends BaseObj implements Parcelable {
                         if (f.getType() == String.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.class) {
+                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.class) {
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
                         } else if (f.getType() == boolean.class) {
                             if (f.get(this) == null)
@@ -139,7 +140,8 @@ public class User extends BaseObj implements Parcelable {
             return new User[size];
         }
     };
-    
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         buildParcel(out,flags);
     }
@@ -148,9 +150,9 @@ public class User extends BaseObj implements Parcelable {
     public int describeContents() {
         return 0;
     }
-    
+
     public static final class Users implements BaseColumns {
-        
+
         private Users() {
         }
 
@@ -164,29 +166,29 @@ public class User extends BaseObj implements Parcelable {
         public static final String PERMALINK = "username";
 
         public static final String AVATAR_URL = "avatar_url";
-        
+
         public static final String CITY = "city";
-        
+
         public static final String COUNTRY = "country";
-        
+
         public static final String DISCOGS_NAME = "discogs_name";
-        
+
         public static final String FOLLOWERS_COUNT = "followers_count";
-        
+
         public static final String FOLLOWINGS_COUNT = "followings_count";
 
         public static final String FULL_NAME = "full_name";
-        
+
         public static final String MYSPACE_NAME = "myspace_name";
-        
+
         public static final String TRACK_COUNT = "track_count";
-        
+
         public static final String WEBSITE = "website";
-        
+
         public static final String WEBSITE_TITLE = "website_title";
-        
+
         public static final String DESCRIPTION = "description";
-        
+
     }
 
 }

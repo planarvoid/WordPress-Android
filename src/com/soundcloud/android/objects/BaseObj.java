@@ -1,18 +1,12 @@
 
 package com.soundcloud.android.objects;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
+import java.lang.reflect.Field;
 
 public class BaseObj implements Parcelable {
 
@@ -21,7 +15,7 @@ public class BaseObj implements Parcelable {
     }
 
     public BaseObj() {
-        
+
     }
 
     public BaseObj(Parcel in) {
@@ -71,27 +65,25 @@ public class BaseObj implements Parcelable {
         try {
             for (Field f : this.getClass().getDeclaredFields()) {
                     if (f.getType() == String.class)
-                        
                             data.putString(f.getName(),
                                     (String) f.get(this));
-                       
-                    else if (f.getType() == Integer.class)
+                    else if (f.getType() == Integer.TYPE || f.getType() == Integer.class)
                         data.putInt(f.getName(),
                                 (Integer) f.get(this));
-                    else if (f.getType() == Long.class)
+                    else if (f.getType() == Long.TYPE || f.getType() == Long.class)
                         data.putLong(f.getName(),
                                 (Long) f.get(this));
                     else if (f.getType() == boolean.class)
                         data.putBoolean(f.getName(),
                                 (Boolean) f.get(this));
                     else if (Parcelable.class.isAssignableFrom(f.getType())) {
-    
+
                         Parcelable p = (Parcelable) f.get(this);
                         data
                                 .putParcelable(f.getName(), p);
                     } else {
                         Log.i("BaseObj", "Ignoring " + f.getName() + " of type " + f.getType());
-                    }            
+                    }
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -103,7 +95,7 @@ public class BaseObj implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        buildParcel(dest,flags);        
+        buildParcel(dest,flags);
     }
 
 
