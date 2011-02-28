@@ -1530,8 +1530,12 @@ public class CloudPlaybackService extends Service {
                 // This temporary wakelock is released when the RELEASE_WAKELOCK
                 // message is processed, but just in case, put a timeout on it.
 
-                mWakeLock.acquire(30000);
-                mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+
+                if (!CloudUtils.checkThreadAlive(mDownloadThread)){
+                    mWakeLock.acquire(30000);
+                    mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+                }
+
 
                 if (!mMediaplayerError)
                     mHandler.sendEmptyMessage(TRACK_ENDED);
@@ -1759,6 +1763,8 @@ public class CloudPlaybackService extends Service {
             Message msg = mBufferHandler.obtainMessage(BUFFER_FILL_CHECK);
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
             mBufferHandler.sendMessageDelayed(msg, 100);
+        } else if (!isPlaying()){
+            mMediaplayerHandler.sendEmptyMessage(RELEASE_WAKELOCK);
         }
     }
 
