@@ -376,7 +376,6 @@ public class CloudUtils {
         context.startService(new Intent(context, service));
         if (sConnectionMap.get(context) == null) sConnectionMap.put(context, new HashMap<Class<? extends Service>,ServiceConnection>());
         sConnectionMap.get(context).put(service, callback);
-        Log.i(TAG, "Binding service " + context + " " + service + " " + callback + " " + sConnectionMap.get(context).size());
 
         boolean success =  context.getApplicationContext().bindService(
                 (new Intent()).setClass(context, service),
@@ -388,11 +387,9 @@ public class CloudUtils {
     }
 
     public static void unbindFromService(Activity context, Class<? extends Service> service) {
-        Log.i(TAG, "Unbind From Service " + context);
         ServiceConnection sb = sConnectionMap.get(context).remove(service);
         if (sConnectionMap.get(context).isEmpty()) sConnectionMap.remove(context);
         if (sb != null) context.getApplicationContext().unbindService(sb);
-        Log.i(TAG, "Connetcion map empty? " + sConnectionMap.isEmpty());
     }
 
 

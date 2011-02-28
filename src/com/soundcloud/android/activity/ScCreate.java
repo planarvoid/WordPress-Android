@@ -117,7 +117,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            Log.i(TAG,"ON SERVICE CONNECTED");
             mCreateService = (ICloudCreateService) binder;
         }
 
@@ -192,7 +191,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i(TAG,"BBBIND to service " + createOsc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         File streamFile = null;
@@ -654,8 +652,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     // View Flipping
     private void goToView(int child) {
-        Log.d(TAG, "goto view" + child + " current:" + mViewFlipper.getDisplayedChild());
-
         switch (mViewFlipper.getDisplayedChild()) {
             case 0:
                 switch (child) {

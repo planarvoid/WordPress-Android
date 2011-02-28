@@ -72,7 +72,7 @@
         </service>
 
         <service
-            android:name="service.CloudCreateService"
+            android:name=".service.CloudCreateService"
             android:exported="true">
             <intent-filter>
                 <action android:name=".service.ICloudCreateService" />
