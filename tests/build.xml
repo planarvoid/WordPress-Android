@@ -28,7 +28,7 @@
   </target>
 
   <target name="test" depends="compile">
-    <junit dir=".." forkMode="perBatch" printsummary="yes">
+    <junit dir=".." forkMode="perBatch" failureproperty="fail" printsummary="yes">
       <classpath refid="class.path"/>
       <formatter type="xml"/>
       <batchtest fork="true" todir="reports">
@@ -44,7 +44,7 @@
       </fileset>
       <report todir="reports/html"/>
     </junitreport>
+
+    <fail if="fail" message="test failures"/>
   </target>
-
-
 </project>
