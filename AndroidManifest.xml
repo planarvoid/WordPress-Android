@@ -56,6 +56,7 @@
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
+        <activity android:name=".activity.EmailConfirm"/>
         <activity android:name=".activity.ScCreate">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

@@ -245,7 +245,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     protected void onServiceBound() {
         super.onServiceBound();
+
         try {
+            Log.i(TAG,"On Service Bound player " + mPlaybackService.getTrack());
             if (mPlaybackService.getTrack() != null) {
                 if (mPlaybackService.isBuffering()) {
                     mWaveformController.showConnectingLayout();
@@ -753,6 +755,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 hideUnplayable();
                 mWaveformController.showConnectingLayout();
             } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
+                Log.i(TAG,"Buffering vcomplete, hide");
                 // clearSeekVars();
                 mWaveformController.hideConnectingLayout();
             } else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {

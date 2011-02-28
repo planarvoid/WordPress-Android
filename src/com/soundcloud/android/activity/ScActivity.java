@@ -123,6 +123,7 @@ public abstract class ScActivity extends Activity {
     private ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
+            Log.i(TAG,"On Playback COnnected");
             mPlaybackService = ICloudPlaybackService.Stub.asInterface(obj);
             onServiceBound();
         }

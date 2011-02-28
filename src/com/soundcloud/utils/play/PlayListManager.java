@@ -108,8 +108,8 @@ public class PlayListManager {
         mPlayPos = playPos;
         mPlayListLen = playlistCache.size();
 
-        //new CommitPlaylistTask((SoundCloudApplication) mPlaybackService.getApplication(),
-           //     CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
+        new CommitPlaylistTask(mPlaybackService.getContentResolver(),
+                CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
     }
 
     public class CommitPlaylistTask extends CommitTracksTask {

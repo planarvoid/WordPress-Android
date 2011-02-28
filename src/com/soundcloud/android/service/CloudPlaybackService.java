@@ -1159,10 +1159,7 @@ public class CloudPlaybackService extends Service {
 
     public Track getTrack() {
         synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData;
+            return mPlayingData == null ? mPlayListManager.getCurrentTrack() : mPlayingData;
         }
     }
 
