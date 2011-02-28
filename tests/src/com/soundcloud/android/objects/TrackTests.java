@@ -24,7 +24,7 @@ public class TrackTests {
         t.tag_list = "punk";
         t.description = "Cool track";
 
-        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/>"));
+        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/>all rights reserved<br/><br/>"));
     }
 
     @Test
