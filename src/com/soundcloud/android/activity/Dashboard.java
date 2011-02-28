@@ -1,24 +1,17 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -45,7 +38,7 @@ public class Dashboard extends ScActivity {
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
                         CloudUtils.Model.event,
-                        -1,
+                        R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE);
 
             } else {

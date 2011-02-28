@@ -83,7 +83,13 @@
 	<string name="commentslist_error">Unable to get comments</string>
 	<string name="activitieslist_error">Unable to get activities</string>
 	
-	<string name="empty_incoming_text">Welcome to SoundCloud.&lt;br/>&lt;br/>To get started, why not record and share something right now!&lt;br/>&lt;br/>If you’d prefer to take a look around first, try looking for friends or artists in the Search tab.  When you follow people, their tracks will start appearing in your feeds.</string>
+	<string name="empty_incoming_text">Your list of incoming tracks is empty.&lt;br/>&lt;br/>Find people whose tracks you like and start following them</string>
+	<string name="empty_exclusive_text">No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not record a personal shout-out and send it to someone and see if they reply?</string>
+	<string name="empty_my_tracks_text">You don\'t have any tracks yet.&lt;br/>&lt;br/>Record and share your favorite sound or leave a voice memo for yourself.</string>
+	<string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/>&lt;br/>Try searching for people or sounds that you might love.</string>
+	<string name="empty_user_tracks_text">{username} hasn\'t uploaded any public tracks yet.&lt;br/>&lt;br/>Why not record a personal shout-out to them and ask for a reply?</string>
+	<string name="empty_user_favorites_text">{username} hasn\'t chosen any favorites yet.&lt;br/>&lt;br/>Why not send them one of yours?</string>
+	
 	<string name="tracklist_empty">No tracks available</string>
 	<string name="userlist_empty">No users available</string>
 	<string name="commentslist_emopty">No comments available</string>

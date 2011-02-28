@@ -456,7 +456,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         (getResources().getDisplayMetrics().density > 1) ?
                             CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.badge)
                         :
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.small), null)) != BindResult.OK){
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.small), null)) == BindResult.ERROR){
                     mInfoButton.setImageDrawable(getResources().getDrawable(
                             R.drawable.artwork_player_sm));
                 }
@@ -464,11 +464,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             else
                 mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player_sm));
 
+            mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_info_artwork_states));
+            //mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent_rect));
+
         } else {
+            ImageLoader.get(this).unbind(mInfoButton);
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
             mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
             mTrackFlipper.showPrevious();
             mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
+            mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent_rect));
         }
     }
 

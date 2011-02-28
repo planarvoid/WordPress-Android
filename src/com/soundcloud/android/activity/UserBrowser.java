@@ -247,6 +247,11 @@ public class UserBrowser extends ScActivity {
 
         LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), CloudUtils.Model.track);
+        if (isOtherUser()){
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text).replace("{username}", mUserData.username));
+        } else {
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
+        }
 
         mTracksView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, mTracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
@@ -254,6 +259,12 @@ public class UserBrowser extends ScActivity {
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
+        if (isOtherUser()){
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text).replace("{username}", mUserData.username));
+        } else {
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
+        }
+
 
         mFavoritesView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, mFavoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
@@ -506,7 +517,7 @@ public class UserBrowser extends ScActivity {
 
         if (!TextUtils.isEmpty(mUserData.description)) {
             _showTable = true;
-            mDescription.setText((mUserData).description);
+            mDescription.setText(Html.fromHtml((mUserData).description.replace(System.getProperty("line.separator"), "<br/>")));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
