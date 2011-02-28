@@ -453,14 +453,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mPlayingTrack.artwork_url != null){
                 if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                         mInfoButton,
-                        CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                GraphicsSizes.badge), null)) != BindResult.OK){
+                        (getResources().getDisplayMetrics().density > 1) ?
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.badge)
+                        :
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.small), null)) != BindResult.OK){
                     mInfoButton.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_info_states));
+                            R.drawable.artwork_player_sm));
                 }
             }
             else
-                mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
+                mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player_sm));
 
         } else {
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
@@ -796,11 +798,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void updateTrackInfo() {
 
-        Log.i(TAG,"Update Track Info " + mPlaybackService);
 
         if (mPlaybackService != null) {
             try {
-                Log.i(TAG,"Update Track Info " + mPlaybackService.getTrack());
                 if (mPlaybackService.getTrack() == null){
                     mWaveformController.clearTrack();
                     return;
@@ -813,8 +813,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 Log.e(TAG, "error", e);
             }
         }
-
-        Log.i(TAG,"Update Track Info " + mPlayingTrack);
 
         if (mPlayingTrack == null) {
             mWaveformController.clearTrack();

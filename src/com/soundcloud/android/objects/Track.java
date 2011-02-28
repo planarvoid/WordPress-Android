@@ -91,7 +91,7 @@ public class Track extends BaseObj implements Parcelable {
 
     public boolean user_played;
     public File mCacheFile;
-    public Long filelength;
+    public long filelength;
 
 
     public List<String> humanTags() {

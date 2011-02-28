@@ -196,10 +196,10 @@ public class SoundCloudDB {
                             if (f.getType() == String.class)
                                 args.put(key, (String) f.get(track));
                             else if (f.getType() == Integer.TYPE || f.getType() == Integer.class)
-                                args.put(key, (Integer) f.get(track));
-                            else if (f.getType() == Long.TYPE || f.getType() == Long.class)
-                                args.put(key, (Long) f.get(track));
-                            else if (f.getType() == boolean.class)
+                                args.put(key, f.getInt(track));
+                            else if (f.getType() == Long.TYPE || f.getType() == Long.class){
+                                args.put(key, f.getLong(track));
+                            }else if (f.getType() == boolean.class)
                                 args.put(key, ((Boolean) f.get(track)) ? 1 : 0);
 
                         } catch (Exception e) {

@@ -672,7 +672,7 @@ public class CloudPlaybackService extends Service {
         synchronized (this) {
             if (mPlayingData == null || getDuration() == 0) return false;
 
-            if (mPlayingData.filelength == null || mPlayingData.mCacheFile == null) {
+            if (mPlayingData.filelength == 0 || mPlayingData.mCacheFile == null) {
                 if (CloudUtils.checkThreadAlive(mDownloadThread))
                     return true;
                 else {
@@ -861,7 +861,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private boolean checkIfTrackCached(Track track) {
-        return (track != null && track.mCacheFile != null && track.filelength != null && track.mCacheFile.length() >= track.filelength);
+        return (track != null && track.mCacheFile != null && track.filelength > 0 && track.mCacheFile.length() >= track.filelength);
     }
 
     public boolean keepCaching() {
@@ -878,7 +878,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
-        if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength != null)) {
+        if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
             if (!isStagefright || mPlayingData.mCacheFile.length() > PLAYBACK_MARK) {
 
@@ -1227,7 +1227,7 @@ public class CloudPlaybackService extends Service {
         synchronized (this) {
             if (mPlayer.isInitialized()) {
                 if (isStagefright) {
-                    if (mPlayingData.mCacheFile == null || mPlayingData.filelength == null
+                    if (mPlayingData.mCacheFile == null || mPlayingData.filelength <= 0
                             || mPlayingData.filelength == 0)
                         return 0;
 
@@ -1417,7 +1417,7 @@ public class CloudPlaybackService extends Service {
             long maxSeek;
 
             if (!resumeSeek) {
-                if (mPlayingData.filelength == null)
+                if (mPlayingData.filelength <= 0)
                     return mPlayer.position();
                 else
                     maxSeek = getDuration() * mPlayingData.mCacheFile.length()
@@ -1857,7 +1857,7 @@ public class CloudPlaybackService extends Service {
                 HttpResponse httpResponse;
 
                 // is this already cached at all with a valid size
-                if (track.mCacheFile.length() > 0 && track.filelength != null) {
+                if (track.mCacheFile.length() > 0 && track.filelength > 0) {
 
                     // already totally cached, supposedly, check length and
                     // return if its valid
