@@ -36,6 +36,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.AudioTrack;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -516,6 +517,38 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             } catch (Exception e){
                 //temp
             }
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        }
+    }
+
+    public void setTakenImage() {
+        try {
+            ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
+            String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+
+            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
+                    (int) getResources().getDisplayMetrics().density * 100, (int) getResources()
+                            .getDisplayMetrics().density * 100);
+            mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
+
+            Matrix mat = new Matrix();
+
+            if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6) {
+                mat.postRotate(90);
+            }
+
+            mArtwork.setImageMatrix(mat);
+
+            if (mArtworkBitmap != null)
+                CloudUtils.clearBitmap(mArtworkBitmap);
+
+            BitmapFactory.Options resample = new BitmapFactory.Options();
+            resample.inSampleSize = opt.inSampleSize;
+
+            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
+            mArtwork.setImageBitmap(mArtworkBitmap);
+            mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
@@ -1075,6 +1108,12 @@ public class ScCreate extends ScActivity implements PlaybackListener {
                     setPickedImage(filePath);
                 }
                 break;
+            case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
+                if (resultCode == RESULT_OK) {
+                    setTakenImage();
+                }
+                break;
+
 
             case EmailPicker.PICK_EMAILS:
                 if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
