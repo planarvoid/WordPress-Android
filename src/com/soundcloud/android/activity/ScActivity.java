@@ -48,10 +48,12 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -202,7 +204,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener.stopListening();
 
 
-        CloudUtils.unbindFromService(this);
+        CloudUtils.unbindFromService(this, CloudPlaybackService.class);
         mPlaybackService = null;
         mIgnorePlaybackStatus = false;
 
@@ -303,29 +305,54 @@ public abstract class ScActivity extends Activity {
     }
 
 
-    public void addNewComment(final Track track, final long timestamp, final AddCommentListener listener) {
-        final EditText input = new EditText(this);
-        final AlertDialog commentDialog = new AlertDialog.Builder(ScActivity.this)
-                .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
-                .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        new AddCommentTask(ScActivity.this,track.id, timestamp, input.getText().toString(), 0, listener == null ? mAddCommentListener : listener).execute();
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
-                    }
-                }).create();
+    public void addNewComment(final Comment comment, final AddCommentListener listener) {
 
+        // set up dialog
+        final Dialog dialog = new Dialog(this, android.R.style.Theme_Dialog);
+        dialog.setContentView(R.layout.add_comment_dialog);
+        dialog.setCancelable(true);
+        if (comment.reply_to_id > 0) {
+            dialog.setTitle("Reply to " + comment.user.username + " at "
+                    + CloudUtils.formatTimestamp(comment.timestamp));
+        } else {
+            dialog.setTitle((comment.timestamp == -1 ? "Add an untimed comment" : "Add comment at "
+                    + CloudUtils.formatTimestamp(comment.timestamp)));
+        }
+        final EditText input = (EditText) dialog.findViewById(R.id.comment_input);
+
+        ((Button) dialog.findViewById(R.id.positiveButton))
+                .setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        comment.body = input.getText().toString();
+                        new AddCommentTask(ScActivity.this, comment,
+                                listener == null ? mAddCommentListener : listener).execute();
+                        dialog.dismiss();
+                    }
+                });
+
+        ((Button) dialog.findViewById(R.id.negativeButton))
+                .setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+        // imm.showSoftInput(input,InputMethodManager.SHOW_FORCED);
         input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    Log.i(TAG, "HHHAS FOCUS");
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,
+                            InputMethodManager.HIDE_IMPLICIT_ONLY);
                 }
             }
         });
-        commentDialog.show();
+
+        // now that the dialog is set up, it's time to show it
+        dialog.show();
     }
 
     private AddCommentListener mAddCommentListener = new AddCommentListener(){

@@ -99,7 +99,10 @@ public class TracklistRow extends LazyRow {
         mCommentBtn = (ImageButton) findViewById(R.id.btn_comment);
         mCommentBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mActivity.addNewComment(mTrack, -1, null);
+                mActivity.addNewComment(CloudUtils.buildComment(
+                        mActivity,
+                        mTrack.id, -1, "",
+                        0), null);
             }
         });
 

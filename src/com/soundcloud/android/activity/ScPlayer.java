@@ -11,17 +11,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -49,9 +46,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
-import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -209,9 +204,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             ImageButton mShareButton = (ImageButton) findViewById(R.id.btn_share);
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    if (mPlayingTrack == null || !mPlayingTrack.sharing.contentEquals("public")) return;
+                    Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Check this track out");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mPlayingTrack.permalink_url);
+                    startActivity(Intent.createChooser(shareIntent, "Share this track: " + mPlayingTrack.title));
                 }
             });
-            mShareButton.setVisibility(View.GONE);
 
             mArtwork = (ImageView) findViewById(R.id.artwork);
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
@@ -220,7 +220,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(mPlayingTrack, -1, addCommentListener);
+                    addNewComment(
+                            CloudUtils.buildComment(ScPlayer.this, mPlayingTrack.id, -1, "", 0),
+                            addCommentListener);
                 }
             });
         } else {
@@ -256,7 +258,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 long next = refreshNow();
                 queueNextRefresh(next);
             } else {
-                Intent intent = new Intent(this, Dashboard.class);
+                Intent intent = new Intent(this, Main.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
@@ -558,17 +560,20 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             return;
 
         LinearLayout commentsList;
-        if (mTrackInfo.findViewById(R.id.comments_list) == null){
-            commentsList = (LinearLayout) ((ViewStub) mTrackInfo.findViewById(R.id.stub_comments_list)).inflate();
-            commentsList.findViewById(R.id.btn_info_comment).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    addNewComment(mPlayingTrack, -1, addCommentListener);
-                }
-            });
+        if (mTrackInfo.findViewById(R.id.comments_list) == null) {
+            commentsList = (LinearLayout) ((ViewStub) mTrackInfo
+                    .findViewById(R.id.stub_comments_list)).inflate();
+            commentsList.findViewById(R.id.btn_info_comment).setOnClickListener(
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addNewComment(CloudUtils.buildComment(ScPlayer.this, mPlayingTrack.id,
+                                    -1, "", 0), addCommentListener);
+                        }
+                    });
         } else {
             commentsList = (LinearLayout) mTrackInfo.findViewById(R.id.comments_list);
-            while (commentsList.getChildCount() > 1){
+            while (commentsList.getChildCount() > 1) {
                 commentsList.removeViewAt(1);
             }
         }
@@ -788,8 +793,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void updateTrackInfo() {
 
+        Log.i(TAG,"Update Track Info " + mPlaybackService);
+
         if (mPlaybackService != null) {
             try {
+                Log.i(TAG,"Update Track Info " + mPlaybackService.getTrack());
                 if (mPlaybackService.getTrack() == null){
                     mWaveformController.clearTrack();
                     return;
@@ -802,6 +810,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 Log.e(TAG, "error", e);
             }
         }
+
+        Log.i(TAG,"Update Track Info " + mPlayingTrack);
 
         if (mPlayingTrack == null) {
             mWaveformController.clearTrack();
@@ -831,6 +841,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
                 onTrackInfoFlip();
             }
+
+            Log.i(TAG,"Update Track Info " + mCurrentTrackError);
 
             if (mCurrentTrackError)
                 return;
@@ -1157,30 +1169,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     }
 
-    public void replyToComment(final Comment comment) {
-        final EditText input = new EditText(this);
-        final AlertDialog commentDialog = new AlertDialog.Builder(ScPlayer.this)
-                .setMessage("Reply to " + comment.user.username + " at "
-                        + CloudUtils.formatTimestamp(comment.timestamp)).setView(input)
-                .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        new AddCommentTask(ScPlayer.this,comment.track_id, comment.timestamp, input.getText().toString(), 0, addCommentListener).execute();
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                }).create();
-
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        commentDialog.show();
-    }
 
     public AddCommentListener addCommentListener = new AddCommentListener(){
         @Override

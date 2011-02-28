@@ -2,8 +2,6 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
 
@@ -15,7 +13,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,22 +25,15 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
     Exception mException;
     List<NameValuePair> mApiParams;
 
-    public AddCommentTask(ScActivity scActivity, final long track_id, long timestamp, final String commentBody, long replyTo, AddCommentListener addCommentListener) {
+    public AddCommentTask(ScActivity scActivity, Comment comment, AddCommentListener addCommentListener) {
         this.mActivity = new WeakReference<ScActivity>(scActivity);
 
-        mAddComment = new Comment();
-        mAddComment.track_id = track_id;
-        mAddComment.created_at = new Date(System.currentTimeMillis());
-        mAddComment.user_id = CloudUtils.getCurrentUserId(mActivity.get());
-
-        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(mActivity.get().getContentResolver(), mAddComment.user_id);
-        mAddComment.timestamp = timestamp;
-        mAddComment.body = commentBody;
+        mAddComment = comment;
 
         mApiParams = new ArrayList<NameValuePair>();
         mApiParams.add(new BasicNameValuePair("comment[body]", mAddComment.body));
         if (mAddComment.timestamp > -1) mApiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(mAddComment.timestamp)));
-        if (replyTo > 0) mApiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
+        if (mAddComment.reply_to_id > 0) mApiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(mAddComment.reply_to_id)));
 
         mAddCommentListener = addCommentListener;
     }

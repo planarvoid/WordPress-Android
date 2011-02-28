@@ -117,6 +117,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
+            Log.i(TAG,"ON SERVICE CONNECTED");
             mCreateService = (ICloudCreateService) binder;
         }
 
@@ -191,6 +192,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(TAG,"BBBIND to service " + createOsc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         File streamFile = null;
@@ -221,6 +223,17 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         }
         updateUi(false);
     }
+
+    /**
+     * Unbind our services
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        CloudUtils.unbindFromService(this, CloudCreateService.class);
+        mCreateService = null;
+    }
+
 
     @Override
     protected void onResume() {
@@ -718,6 +731,8 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             mRecordErrorMessage = getResources().getString(R.string.record_storage_is_full);
         }
 
+        Log.i(TAG,"START recording " + mCreateService);
+
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
@@ -1093,15 +1108,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
                     if (success) mConnectionList.getAdapter().load();
                 }
-        }
-    }
-
-    private void cancelCurrentUpload() {
-        try {
-            mCreateService.cancelUpload();
-        } catch (RemoteException e) {
-            setException(e);
-            handleException();
         }
     }
 

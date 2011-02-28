@@ -5,6 +5,7 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
@@ -53,6 +54,7 @@ import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -367,13 +369,14 @@ public class CloudUtils {
                 || url.contains("default_avatar"));
     }
 
-    private static HashMap<Context, ServiceConnection> sConnectionMap = new HashMap<Context, ServiceConnection>();
+    private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap = new HashMap<Context,HashMap<Class<? extends Service>, ServiceConnection>>();
 
     public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
-        sConnectionMap.put(context, callback);
-        Log.i(TAG, "Binding service " + sConnectionMap.size());
+        if (sConnectionMap.get(context) == null) sConnectionMap.put(context, new HashMap<Class<? extends Service>,ServiceConnection>());
+        sConnectionMap.get(context).put(service, callback);
+        Log.i(TAG, "Binding service " + context + " " + service + " " + callback + " " + sConnectionMap.get(context).size());
 
         boolean success =  context.getApplicationContext().bindService(
                 (new Intent()).setClass(context, service),
@@ -384,9 +387,10 @@ public class CloudUtils {
         return success;
     }
 
-    public static void unbindFromService(Activity context) {
+    public static void unbindFromService(Activity context, Class<? extends Service> service) {
         Log.i(TAG, "Unbind From Service " + context);
-        ServiceConnection sb = sConnectionMap.remove(context);
+        ServiceConnection sb = sConnectionMap.get(context).remove(service);
+        if (sConnectionMap.get(context).isEmpty()) sConnectionMap.remove(context);
         if (sb != null) context.getApplicationContext().unbindService(sb);
         Log.i(TAG, "Connetcion map empty? " + sConnectionMap.isEmpty());
     }
@@ -605,6 +609,18 @@ public class CloudUtils {
             SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p, SoundCloudDB.WriteState.none,
                     CloudUtils.getCurrentUserId(c));
         }
+    }
+
+    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId){
+        Comment comment = new Comment();
+        comment.track_id = trackId;
+        comment.created_at = new Date(System.currentTimeMillis());
+        comment.user_id = CloudUtils.getCurrentUserId(context);
+        comment.user = SoundCloudDB.getInstance().resolveUserById(context.getContentResolver(), comment.user_id);
+        comment.timestamp = timestamp;
+        comment.body = commentBody;
+        comment.reply_to_id = replyToId;
+        return comment;
     }
 
 

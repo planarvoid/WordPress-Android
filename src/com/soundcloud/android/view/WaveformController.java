@@ -399,8 +399,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         break;
                     case COMMENT_DRAG :
                         if (mBubbleAnimation == null){
-                            if (Math.abs(mPlayerCommentBar.getTop() - (int) event.getY()) < 200)
-                                mPlayer.addNewComment(mPlayingTrack,stampFromPosition(mTouchX), mPlayer.addCommentListener);
+                            if (Math.abs(mPlayerCommentBar.getTop() - (int) event.getY()) < 200){
+                                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer,
+                                        mPlayingTrack.id, stampFromPosition(mTouchX), "", 0),
+                                        mPlayer.addCommentListener);
+                            }
                         }
                         removeBubble();
                         break;

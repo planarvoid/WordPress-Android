@@ -620,7 +620,7 @@ public class CloudPlaybackService extends Service {
                 } else {
                     // commit updated track (user played update only)
                     commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(mPlayingData.mSignedUri);
+                    mPlayer.setDataSourceAsync(((SoundCloudApplication) getApplication()).signStreamUrlNaked(mPlayingData.stream_url));
                 }
                 return;
             }
@@ -630,8 +630,6 @@ public class CloudPlaybackService extends Service {
     }
 
     private void configureTrackData(Track t) {
-        if (t.mSignedUri == null)
-            t.mSignedUri = ((SoundCloudApplication) getApplication()).signStreamUrlNaked(t.stream_url);
 
         if (t.mCacheFile == null) {
             t.mCacheFile = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY
@@ -708,7 +706,7 @@ public class CloudPlaybackService extends Service {
 
                 // first round of buffering, special case where we set the
                 // playback file
-                if (mCurrentBuffer > PLAYBACK_MARK) {
+                if (mCurrentBuffer > PLAYBACK_MARK || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
 
                     pausedForBuffering = false;
 
@@ -846,10 +844,12 @@ public class CloudPlaybackService extends Service {
      */
     private void checkBufferStatus() {
         synchronized (this) {
+            Log.i(TAG,"Check Buffer Status " + CloudUtils.checkThreadAlive(mDownloadThread));
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
 
+                Log.i(TAG,"Check Buffer Status " + checkIfTrackCached(mPlayingData) + " " +  keepCaching());
                 // we are able to buffer something, see if we need to download the current track
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
                     Log.i(TAG, "Premature download death, open another stream and continue");
@@ -885,7 +885,7 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
                         // we are not allowed to play from wherever we are
-                        mPlayer.seek(0);
+                        //mPlayer.seek(0);
                     } else if (mPlayingData != null && mPlayingData.id == mResumeId && mResumeTime > -1) {
                         // we are supposed to resume somewhere in the middle
                         mPlayer.seek(mResumeTime, true);
@@ -1489,6 +1489,22 @@ public class CloudPlaybackService extends Service {
 
                 Log.i(TAG,"ON COMPLETE ");
 
+              //check for premature track end
+                if (mIsInitialized
+                        && mPlayingData != null //valid track playing
+                        && mMediaPlayer.getDuration()- mMediaPlayer.getCurrentPosition() > 3000){
+
+                    Log.i(TAG,"ON COMPLETE resume time is " + mMediaPlayer.getCurrentPosition());
+
+
+                    notifyChange(STREAM_DIED);
+                    mResumeTime = mMediaPlayer.getCurrentPosition();
+                    mResumeId = mPlayingData.id;
+                    openCurrent();
+                    return;
+                }
+
+
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
@@ -1831,6 +1847,8 @@ public class CloudPlaybackService extends Service {
             FileOutputStream os = null;
             try {
 
+                Log.i(TAG,"RUNNING DOWNLAOD THREAD " + track.mCacheFile.length() + " " + track.filelength);
+
                 // get the remote stream
                 HttpClient client = new DefaultHttpClient();
                 HttpResponse httpResponse;
@@ -1842,8 +1860,7 @@ public class CloudPlaybackService extends Service {
                     // return if its valid
 
                     if (track.mCacheFile.length() >= track.filelength) {
-                        Log.i(TAG,"Getting signed uri " + track.mSignedUri );
-                        HttpHead request = new HttpHead(track.mSignedUri);
+                        HttpHead request = new HttpHead(((SoundCloudApplication) serviceRef.get().getApplication()).signStreamUrlNaked(track.stream_url));
                         httpResponse = client.execute(request);
 
                         if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
@@ -1866,7 +1883,7 @@ public class CloudPlaybackService extends Service {
                     } else {
                         // already partially cached, check length and continue
                         // if its valid
-                        HttpGet request = new HttpGet(track.mSignedUri);
+                        HttpGet request = new HttpGet(((SoundCloudApplication) serviceRef.get().getApplication()).signStreamUrlNaked(track.stream_url));
                         request.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
                         httpResponse = client.execute(request);
 
@@ -1892,7 +1909,7 @@ public class CloudPlaybackService extends Service {
                 } else {
                     // file not cached at all
 
-                    HttpGet request = new HttpGet(track.mSignedUri);
+                    HttpGet request = new HttpGet(((SoundCloudApplication) serviceRef.get().getApplication()).signStreamUrlNaked(track.stream_url));
                     httpResponse = client.execute(request);
 
                     if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
