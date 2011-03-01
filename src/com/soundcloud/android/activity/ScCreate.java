@@ -913,7 +913,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
             List<String> tags = new ArrayList<String>();
 
             if (mExternalUpload) {
-                tags.add("soundcloud:source=android-3rdparty-record");
+                tags.add("soundcloud:source=android-3rdparty-upload");
             } else {
                 tags.add("soundcloud:source=android-record");
             }

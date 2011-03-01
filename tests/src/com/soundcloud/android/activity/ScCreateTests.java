@@ -132,7 +132,7 @@ public class ScCreateTests implements CloudAPI.Params {
 
         assertThat(args.get(TAG_LIST), not(is(nullValue())));
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags, hasItem("soundcloud:source=android-3rdparty-record"));
+        assertThat(tags, hasItem("soundcloud:source=android-3rdparty-upload"));
     }
 
     @Test
