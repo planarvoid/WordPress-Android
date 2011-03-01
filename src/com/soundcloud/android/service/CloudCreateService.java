@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.AudioFormat;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
@@ -31,7 +30,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -401,31 +399,17 @@ public class CloudCreateService extends Service {
                         CloudUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
 
-                ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
-                String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-                int rotate = 0;
-                if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6)
-                    rotate = 90;
-
+                new ExifInterface(param.artworkFile.getAbsolutePath());
 
                 int sampleSize = options.inSampleSize;
 
-                if (sampleSize > 1 || rotate != 0) {
-                    Log.v(TAG, "resizing " + param.artworkFile);
+                if (sampleSize > 1) {
                     InputStream is = new FileInputStream(param.artworkFile);
 
                     options = new BitmapFactory.Options();
                     options.inSampleSize = sampleSize;
                     Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
                     is.close();
-
-                    if (rotate != 0){
-                        Bitmap preRotate = bitmap;
-                        Matrix mat = new Matrix();
-                        mat.postRotate(rotate);
-                        bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
-                        preRotate.recycle();
-                    }
 
                     if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 

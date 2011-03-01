@@ -524,29 +524,20 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
     public void setTakenImage() {
         try {
-            ExifInterface exif = new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
-            String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+            new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
 
             Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
                     (int) getResources().getDisplayMetrics().density * 100, (int) getResources()
                             .getDisplayMetrics().density * 100);
             mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
 
-            Matrix mat = new Matrix();
-
-            if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6) {
-                mat.postRotate(90);
-            }
-
-            mArtwork.setImageMatrix(mat);
-
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
 
-            BitmapFactory.Options resample = new BitmapFactory.Options();
-            resample.inSampleSize = opt.inSampleSize;
+            Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
 
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, resample);
+            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
             mArtwork.setImageBitmap(mArtworkBitmap);
             mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
