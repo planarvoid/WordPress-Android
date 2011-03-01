@@ -114,7 +114,7 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private String mFourSquareVenueId;
     private double mLong, mLat;
 
-    private boolean mExternalUpload;
+    boolean mExternalUpload;
 
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -911,7 +911,13 @@ public class ScCreate extends ScActivity implements PlaybackListener {
 
             // add machine tags
             List<String> tags = new ArrayList<String>();
-            tags.add("soundcloud:source=web-record");
+
+            if (mExternalUpload) {
+                tags.add("soundcloud:source=android-3rdparty-record");
+            } else {
+                tags.add("soundcloud:source=android-record");
+            }
+
             if (mFourSquareVenueId != null) tags.add("foursquare:venue="+mFourSquareVenueId);
             if (mLat  != 0) tags.add("geo:lat="+mLat);
             if (mLong != 0) tags.add("geo:long="+mLong);

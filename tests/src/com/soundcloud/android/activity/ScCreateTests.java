@@ -93,7 +93,7 @@ public class ScCreateTests implements CloudAPI.Params {
     }
 
     @Test
-    public void shouldSetVenueMachineTagsIfPresent() throws Exception {
+    public void shouldSetFoursquareVenueMachineTagIfPresent() throws Exception {
         create.setWhere("Foo", "123", 0.1, 0.2);
         Map args = upload();
 
@@ -102,9 +102,37 @@ public class ScCreateTests implements CloudAPI.Params {
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
 
         assertThat(tags, hasItem("foursquare:venue=123"));
+    }
+
+    @Test
+    public void shouldSetGeoMachineTags() throws Exception {
+        create.setWhere("Foo", "123", 0.1, 0.2);
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
         assertThat(tags, hasItem("geo:long=0.1"));
         assertThat(tags, hasItem("geo:lat=0.2"));
-        assertThat(tags, hasItem("soundcloud:source=web-record"));
+    }
+
+    @Test
+    public void shouldSetSourceMachineTag() throws Exception {
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
+        assertThat(tags, hasItem("soundcloud:source=android-record"));
+    }
+
+    @Test
+    public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
+        create.mExternalUpload = true;
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
+        assertThat(tags, hasItem("soundcloud:source=android-3rdparty-record"));
     }
 
     @Test
