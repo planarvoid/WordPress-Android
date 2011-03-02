@@ -112,9 +112,9 @@ public class TracklistRow extends LazyRow {
                 public void onClick(View v) {
                     Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Check this track out");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.title + " by " + mTrack.user.username + " on #SoundCloud");
                     shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
-                    mActivity.startActivity(Intent.createChooser(shareIntent, "Share this track: " + mTrack.title));
+                    mActivity.startActivity(Intent.createChooser(shareIntent, "Share: " + mTrack.title));
                 }
             });
             mShareBtn.setVisibility(View.VISIBLE);

@@ -1,12 +1,15 @@
 package com.soundcloud.utils;
 
-import android.util.Log;
+import static com.soundcloud.utils.http.Http.noRedirect;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.Http;
+
 import oauth.signpost.exception.OAuthException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -23,12 +26,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-
-import static com.soundcloud.utils.http.Http.noRedirect;
 
 public class ApiWrapper implements CloudAPI {
     static final String TAG = CloudAPI.class.getSimpleName();

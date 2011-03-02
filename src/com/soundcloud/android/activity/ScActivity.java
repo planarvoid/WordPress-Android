@@ -13,7 +13,9 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
@@ -46,6 +48,7 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -66,11 +69,13 @@ public abstract class ScActivity extends Activity {
     private String mError = null;
 
     protected ICloudPlaybackService mPlaybackService;
+    protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
     protected ArrayList<LazyListView> mLists;
     protected ArrayList<LazyBaseAdapter> mAdapters;
 
+    private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
@@ -135,6 +140,16 @@ public abstract class ScActivity extends Activity {
         }
     };
 
+    private ServiceConnection createOsc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            mCreateService = (ICloudCreateService) binder;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+        }
+    };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +198,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener.startListening(this);
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         if (mPlaybackService != null) {
             try {
@@ -208,6 +224,9 @@ public abstract class ScActivity extends Activity {
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
         mPlaybackService = null;
         mIgnorePlaybackStatus = false;
+
+        CloudUtils.unbindFromService(this, CloudCreateService.class);
+        mCreateService = null;
 
     }
 
@@ -491,15 +510,62 @@ public abstract class ScActivity extends Activity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i(TAG,"PPPARENT " + this.getParent());
+        if (this.getParent() == null || this.getParent().getClass() != Main.class)
+            menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
+                menu.size(), R.string.menu_incoming).setIcon(
+                R.drawable.ic_menu_incoming);
+
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
+                menu.size(), R.string.menu_view_current_track).setIcon(
+                R.drawable.ic_menu_player);
+
+        menuCurrentUploadingItem = menu.add(menu.size(),
+                CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
+                R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+                .setIcon(R.drawable.ic_menu_preferences);
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+                R.drawable.context_refresh);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Prepare the options menu based on the current class and current play
+     * state
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        try {
+            menuCurrentUploadingItem.setVisible(mCreateService.isUploading() ? true : false);
+        } catch (Exception e) {
+            menuCurrentUploadingItem.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.SETTINGS:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
-
+                return true;
+            case CloudUtils.OptionsMenu.REFRESH:
+                onRefresh();
                 return true;
             case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
                 intent = new Intent(this, ScPlayer.class);
+                startActivity(intent);
+                return true;
+            case CloudUtils.OptionsMenu.INCOMING:
+                intent = new Intent(this, Main.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("tabTag", "incoming");
                 startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:

@@ -207,9 +207,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     if (mPlayingTrack == null || !mPlayingTrack.sharing.contentEquals("public")) return;
                     Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Check this track out");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mPlayingTrack.title + " by " + mPlayingTrack.user.username + " on SoundCloud");
                     shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mPlayingTrack.permalink_url);
-                    startActivity(Intent.createChooser(shareIntent, "Share this track: " + mPlayingTrack.title));
+                    startActivity(Intent.createChooser(shareIntent, "Share: " + mPlayingTrack.title));
                 }
             });
 
@@ -868,6 +868,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mCurrentDurationString = CloudUtils.makeTimeString(
                     mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
                     mDuration / 1000);
+        }
+    }
+
+    public void onWaveformLoaded(){
+        try {
+            mPlaybackService.setClearToPlay(true);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
         }
     }
 

@@ -102,6 +102,8 @@ public class CloudUtils {
         public static final int REFRESH = 202;
 
         public static final int CANCEL_CURRENT_UPLOAD = 203;
+
+        public static final int INCOMING = 204;
     }
 
     public interface GraphicsSizes {

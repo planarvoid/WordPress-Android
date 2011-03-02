@@ -7,7 +7,6 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.PCMPlaybackTask;
 import com.soundcloud.android.task.PCMPlaybackTask.PlaybackListener;
 import com.soundcloud.android.task.UploadTask;
@@ -21,12 +20,10 @@ import com.soundcloud.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -40,7 +37,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -100,7 +96,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private String mArtworkUri;
     private Bitmap mArtworkBitmap;
 
-    /* package */ ICloudCreateService mCreateService;
     private CreateState mLastState, mCurrentState;
 
     private int mRecProgressCounter = 0;
@@ -115,15 +110,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     private double mLong, mLat;
 
     boolean mExternalUpload;
-
-    private ServiceConnection createOsc = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            mCreateService = (ICloudCreateService) binder;
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-        }
-    };
 
 
     public void setPrivateShareEmails(String[] emails) {
@@ -192,7 +178,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
     @Override
     public void onStart() {
         super.onStart();
-        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         File streamFile = null;
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
@@ -222,17 +207,6 @@ public class ScCreate extends ScActivity implements PlaybackListener {
         }
         updateUi(false);
     }
-
-    /**
-     * Unbind our services
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        CloudUtils.unbindFromService(this, CloudCreateService.class);
-        mCreateService = null;
-    }
-
 
     @Override
     protected void onResume() {

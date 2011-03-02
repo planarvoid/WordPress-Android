@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ import java.util.Collections;
 
 public class WaveformController extends RelativeLayout implements OnTouchListener, OnLongClickListener {
     private static final String TAG = "WaveformController";
+
+    private static final int MAX_WAVEFORM_RETRIES = 3;
 
     private Track mPlayingTrack;
 
@@ -90,6 +93,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private Animation mBubbleAnimation;
 
     private Animation mConnectingAnimation;
+
+    private int mWaveformErrorCount;
 
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -166,6 +171,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
         if (mPlayerCommentBar != null){
             mPlayerCommentBar.setOnTouchListener(this);
+            if (!mShowingComments) ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
         }
 
         if (mToggleComments != null)
@@ -183,7 +189,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mOverlay.setScaleType(ScaleType.FIT_XY);
 
         File dirFile = new File(CloudUtils.getCacheDirPath(mPlayer) + "/waves/");
-        if (!dirFile.mkdirs()) Log.w(TAG, "error creating " + dirFile);
+        if (!dirFile.exists() && !dirFile.mkdirs()) Log.w(TAG, "error creating " + dirFile);
     }
 
     public void showConnectingLayout() {
@@ -278,20 +284,25 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
+        if (mPlayingTrack != track){
+            ImageLoader.get(mPlayer).unbind(mOverlay);
+        }
+
         mPlayingTrack = track;
         mDuration = mPlayingTrack.duration;
 
-        if (waveformResult != BindResult.ERROR) {
+        if (waveformResult == BindResult.ERROR) {
             // clear loader errors so we can try to reload
             ImageLoader.get(mPlayer).clearErrors();
+        } else {
+            mWaveformErrorCount = 0;
         }
         waveformResult = ImageLoader.get(mPlayer).bind(mOverlay, track.waveform_url,
                 new ImageLoader.ImageViewCallback() {
                     @Override
                     public void onImageError(ImageView view, String url, Throwable error) {
                         waveformResult = BindResult.ERROR;
-                        mOverlay.setImageDrawable(mPlayer.getResources()
-                                .getDrawable(R.drawable.player_wave_bg));
+                        onWaveformError();
                     }
 
                     @Override
@@ -299,6 +310,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         showWaveform();
                     }
                 });
+
+
 
         switch (waveformResult) {
             case OK:      showWaveform(); break;
@@ -310,11 +323,21 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    private void onWaveformError(){
+        mWaveformErrorCount++;
+        if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES){
+            updateTrack(mPlayingTrack);
+        } else {
+            mPlayer.onWaveformLoaded();
+        }
+    }
+
     public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
     private void showWaveform(){
+        mPlayer.onWaveformLoaded();
         if (mOverlay.getVisibility() == View.INVISIBLE){
             AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
             aa.setDuration(500);
@@ -341,6 +364,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         calcAvatarHit(event.getX(), true);
                     }
                 } else if (v == mPlayerCommentBar){
+                    if (!mShowingComments){
+                        toggleComments();
+                        return true;
+                    }
                     if (mCommentBubble == null) {
                         mCommentBubble = new CommentBubble(mPlayer, this);
                     }
@@ -375,7 +402,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 switch (mode){
                     case SEEK_DRAG :
-                        Log.i(TAG,"SSSSEEK DRAG " + mPlayer.isSeekable());
                         if (mPlayer != null && mPlayer.isSeekable()) {
                             if (mPlayer != null)
                                 setProgress(mPlayer.setSeekMarker(event.getX()
@@ -646,10 +672,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mCommentLines.setVisibility(View.INVISIBLE);
             setComments(mCurrentComments,true);
+            ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar));
         } else {
             mToggleComments.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
             mPlayerAvatarBar.setVisibility(View.GONE);
             mCommentLines.setVisibility(View.GONE);
+            ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
         }
 
     }

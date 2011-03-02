@@ -24,6 +24,7 @@
 	<string name="player_error">There was a playback error</string>
 	
 	<string name="player_touch_bar">Tap here to make a timed comment</string>
+	<string name="player_touch_bar_disabled">Comments disabled. Tap to enable.</string>
 	<string name="bubble_new_instructions">Release to enter a timed comment at</string>
 
 	<string name="cloud_player_service_label">Soundcloud: Playing</string>
@@ -458,6 +459,8 @@
 	<string name="menu_view_current_track">View Player</string>
 	<string name="menu_cancel_current_upload">Cancel Upload</string>
 	<string name="menu_refresh">Refresh</string>
+	<string name="menu_incoming">Incoming</string>
+
 	<string name="menu_view_playlist">Playlist</string>
 	<string name="menu_sort_by_track_name">Sort by track name</string>
 	<string name="menu_sort_by_user_name">Sort by username</string>

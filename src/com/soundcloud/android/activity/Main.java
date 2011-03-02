@@ -8,18 +8,12 @@ import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
 public class Main extends TabActivity {
 
     protected boolean mIgnorePlaybackStatus = false;
-
-    private MenuItem menuCurrentPlayingItem;
-
-    private MenuItem menuCurrentUploadingItem;
 
     private TabHost mTabHost;
 
@@ -106,53 +100,6 @@ public class Main extends TabActivity {
 
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menuCurrentPlayingItem = menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(
-                R.drawable.ic_menu_info_details);
-        menuCurrentUploadingItem = menu.add(menu.size(),
-                CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
-                R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
-
-        menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-                .setIcon(R.drawable.ic_menu_preferences);
-
-        menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                R.drawable.context_refresh);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Prepare the options menu based on the current class and current play
-     * state
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        try {
-            /* if (mCreateService.isUploading()) { XXX */
-            if (false) {
-                menuCurrentUploadingItem.setVisible(true);
-            } else {
-                menuCurrentUploadingItem.setVisible(false);
-            }
-        } catch (Exception e) {
-            menuCurrentUploadingItem.setVisible(false);
-        }
-
-        return true;
-    }
-
-@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case CloudUtils.OptionsMenu.REFRESH:
-                ((ScActivity)getCurrentActivity()).onRefresh();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
      @Override

@@ -147,6 +147,7 @@ public class CloudPlaybackService extends Service {
     private boolean mServiceInUse = false;
     private boolean mResumeAfterCall = false;
     private boolean mIsSupposedToBePlaying = false;
+    private boolean mClearToPlay = false;
 
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
@@ -530,6 +531,7 @@ public class CloudPlaybackService extends Service {
 
         // new play data
         mPlayingData = track;
+        mClearToPlay = false;
 
         setPlayingStatus();
 
@@ -713,9 +715,11 @@ public class CloudPlaybackService extends Service {
                     if (!initialBuffering) {
                         // normal buffering done
                         notifyChange(BUFFERING_COMPLETE);
-                        mPlayer.start();
 
-                    } else {
+                        if (mIsSupposedToBePlaying)
+                            mPlayer.start();
+
+                    } else if (mClearToPlay){
                         // initial buffering done
                         initialBuffering = false;
 
@@ -1067,6 +1071,10 @@ public class CloudPlaybackService extends Service {
                 openCurrent();
             }
         }
+    }
+
+    public void setClearToPlay(boolean clearToPlay){
+        mClearToPlay = clearToPlay;
     }
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
@@ -2092,6 +2100,11 @@ public class CloudPlaybackService extends Service {
         public void setFavoriteStatus(long trackId, boolean favoriteStatus) throws RemoteException {
             if (mService.get() != null)
                 mService.get().setFavoriteStatus(trackId, favoriteStatus);
+        }
+
+        public void setClearToPlay(boolean clearToPlay) throws RemoteException {
+            if (mService.get() != null)
+                mService.get().setClearToPlay(clearToPlay);
         }
 
     }
