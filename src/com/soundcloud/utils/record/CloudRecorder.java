@@ -32,7 +32,7 @@ public class CloudRecorder {
 
     // Toggles uncompressed recording on/off; RECORDING_UNCOMPRESSED /
     // RECORDING_COMPRESSED
-    private boolean rUncompressed;
+    private boolean mUncompressed;
 
     // Recorder used for uncompressed recording
     private AudioRecord aRecorder = null;
@@ -72,6 +72,65 @@ public class CloudRecorder {
 
     private CloudCreateService service;
 
+        /**
+     * Default constructor Instantiates a new recorder, in case of compressed
+     * recording the parameters can be left as 0. In case of errors, no
+     * exception is thrown, but the state is set to ERROR
+     */
+    public CloudRecorder(boolean uncompressed, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
+        try {
+            mUncompressed = uncompressed;
+            if (mUncompressed) {
+                if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
+                    bSamples = 16;
+                } else {
+                    bSamples = 8;
+                }
+
+                if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
+                    nChannels = 1;
+                } else {
+                    nChannels = 2;
+                }
+
+                aSource = audioSource;
+                sRate = sampleRate;
+                aFormat = audioFormat;
+
+                framePeriod = sampleRate * TIMER_INTERVAL / 1000;
+                bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
+                int minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
+                if (bufferSize < minBufferSize) {
+                    // Check to make sure buffer size is not smaller than the smallest allowed one
+                    bufferSize = minBufferSize;
+                    // Set frame period and timer interval accordingly
+                    framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
+                    Log.w(TAG, "Increasing buffer size to " + Integer.toString(bufferSize));
+                }
+
+                aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
+                aRecorder.setRecordPositionUpdateListener(updateListener);
+                aRecorder.setPositionNotificationPeriod(framePeriod);
+            } else {
+                mRecorder = new MediaRecorder();
+                mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+            }
+            fPath = null;
+            state = State.INITIALIZING;
+        } catch (Exception e) {
+            Log.e(TAG, "error", e);
+            if (e.getMessage() != null) {
+                Log.e(CloudRecorder.class.getName(), e.getMessage());
+            } else {
+                Log.e(CloudRecorder.class.getName(),
+                        "Unknown error occured while initializing recording");
+            }
+            state = State.ERROR;
+        }
+    }
+
     /**
      * Returns the state of the recorder in a RehearsalAudioRecord.State typed
      * object. Useful, as no exceptions are thrown.
@@ -88,8 +147,7 @@ public class CloudRecorder {
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         public void onPeriodicNotification(AudioRecord recorder) {
 
-            if (state != State.RECORDING)
-                return;
+            if (state != State.RECORDING) return;
 
             int shortValue;
             float maxAmplitude = 0;
@@ -100,9 +158,9 @@ public class CloudRecorder {
 
                 for (int i = 0; i < buffer.length / 2; i++) {
                     shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
-                    if (Math.abs(shortValue) > maxAmplitude)
+                    if (Math.abs(shortValue) > maxAmplitude) {
                         maxAmplitude = Math.abs(shortValue);
-
+                    }
                 }
 
                 if (service != null) {
@@ -126,67 +184,7 @@ public class CloudRecorder {
         this.service = service;
     }
 
-    /**
-     * Default constructor Instantiates a new recorder, in case of compressed
-     * recording the parameters can be left as 0. In case of errors, no
-     * exception is thrown, but the state is set to ERROR
-     */
-    public CloudRecorder(boolean uncompressed, int audioSource, int sampleRate, int channelConfig,
-            int audioFormat) {
-        try {
-            rUncompressed = uncompressed;
-            if (rUncompressed) { // RECORDING_UNCOMPRESSED
-                if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
-                    bSamples = 16;
-                } else {
-                    bSamples = 8;
-                }
 
-                if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
-                    nChannels = 1;
-                } else {
-                    nChannels = 2;
-                }
-                
-                aSource = audioSource;
-                sRate = sampleRate;
-                aFormat = audioFormat;
-
-                framePeriod = sampleRate * TIMER_INTERVAL / 1000;
-                bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
-                if (bufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) {
-                    // Check to make sure buffer size is not smaller than the smallest allowed one
-                    bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
-                            audioFormat);
-                    // Set frame period and timer interval accordingly
-                    framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-                    Log.w(TAG, "Increasing buffer size to " + Integer.toString(bufferSize));
-                }
-
-                aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
-                //if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-                  //  throw new Exception("AudioRecord initialization failed");
-                aRecorder.setRecordPositionUpdateListener(updateListener);
-                aRecorder.setPositionNotificationPeriod(framePeriod);
-            } else { // RECORDING_COMPRESSED
-                mRecorder = new MediaRecorder();
-                mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-            }
-            fPath = null;
-            state = State.INITIALIZING;
-        } catch (Exception e) {
-            Log.e(TAG, "error", e);
-            if (e.getMessage() != null) {
-                Log.e(CloudRecorder.class.getName(), e.getMessage());
-            } else {
-                Log.e(CloudRecorder.class.getName(),
-                        "Unknown error occured while initializing recording");
-            }
-            state = State.ERROR;
-        }
-    }
 
     /**
      * Sets output file path, call directly after construction/reset.
@@ -197,7 +195,7 @@ public class CloudRecorder {
         try {
             if (state == State.INITIALIZING) {
                 fPath = argPath;
-                if (!rUncompressed) {
+                if (!mUncompressed) {
                     mRecorder.setOutputFile(fPath);
                 }
             }
@@ -205,8 +203,7 @@ public class CloudRecorder {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             } else {
-                Log.e(TAG,
-                        "Unknown error occured while setting output path");
+                Log.e(TAG, "Unknown error occured while setting output path");
             }
             state = State.ERROR;
         }
@@ -222,7 +219,7 @@ public class CloudRecorder {
     public void prepare() {
         try {
             if (state == State.INITIALIZING) {
-                if (rUncompressed) {
+                if (mUncompressed) {
                     if ((aRecorder.getState() == AudioRecord.STATE_INITIALIZED) & (fPath != null)) {
                         // write file header
 
@@ -263,12 +260,11 @@ public class CloudRecorder {
         if (state == State.RECORDING) {
             stop();
         } else {
-            if ((state == State.READY) & (rUncompressed)) {
+            if ((state == State.READY) & (mUncompressed)) {
                 try {
                     fWriter.close(); // Remove prepared file
                 } catch (IOException e) {
-                    Log.e(TAG,
-                            "I/O exception occured while closing output file");
+                    Log.e(TAG, "I/O exception occured while closing output file");
                 }
                 if ((new File(fPath)).delete()) {
                     Log.v(TAG, "deleted " + fPath);
@@ -276,7 +272,7 @@ public class CloudRecorder {
             }
         }
 
-        if (rUncompressed) {
+        if (mUncompressed) {
             if (aRecorder != null) {
                 aRecorder.release();
             }
@@ -297,7 +293,7 @@ public class CloudRecorder {
             if (state != State.ERROR) {
                 release();
                 fPath = null; // Reset file path
-                if (rUncompressed) {
+                if (mUncompressed) {
                     aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
                     if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
                         throw new Exception("AudioRecord initialization failed");
@@ -323,7 +319,7 @@ public class CloudRecorder {
      */
     public void start() {
         if (state == State.READY) {
-            if (rUncompressed) {
+            if (mUncompressed) {
 
                 state = State.RECORDING;
                 aRecorder.startRecording();
@@ -348,7 +344,7 @@ public class CloudRecorder {
      */
     public void stop() {
         if (state == State.RECORDING) {
-            if (rUncompressed) {
+            if (mUncompressed) {
                 aRecorder.stop();
 
                 try {
@@ -442,5 +438,4 @@ public class CloudRecorder {
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
     }
-
 }

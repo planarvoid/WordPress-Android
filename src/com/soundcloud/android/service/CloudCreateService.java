@@ -156,14 +156,17 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultRecordingQuality", "high").contentEquals("high"),
+        final boolean uncompressed = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString("defaultRecordingQuality", "high")
+                    .contentEquals("high");
+
+        mRecorder = new CloudRecorder(
+                uncompressed,
                 MediaRecorder.AudioSource.MIC,
                 ScCreate.REC_SAMPLE_RATE,
                 AudioFormat.CHANNEL_CONFIGURATION_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
         mRecorder.setRecordService(this);
-
     }
 
     @Override
