@@ -538,8 +538,7 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), track,
-                WriteState.all, CloudUtils.getCurrentUserId(this));
+        commitTrackToDb(track);
 
         // meta has changed
         notifyChange(META_CHANGED);
@@ -592,9 +591,14 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public void commitTrackToDb(Track t) {
-        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t,
-                WriteState.all, CloudUtils.getCurrentUserId(this));
+    public void commitTrackToDb(final Track t) {
+        new Thread() {
+            @Override
+            public void run() {
+                SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t,
+                        WriteState.all, CloudUtils.getCurrentUserId(CloudPlaybackService.this));
+            }
+        }.start();
     }
 
     private void startNextTrack() {
