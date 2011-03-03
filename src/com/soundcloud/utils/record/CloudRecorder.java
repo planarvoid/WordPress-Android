@@ -93,7 +93,7 @@ public class CloudRecorder {
 
         switch (profile) {
             case Profile.RAW: {
-                nChannels = 2;
+                nChannels = 1;
                 mSamples = 16;
                 mSampleRate = ScCreate.REC_SAMPLE_RATE;
                 int audioFormat = AudioFormat.ENCODING_PCM_16BIT;

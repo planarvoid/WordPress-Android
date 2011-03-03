@@ -9,8 +9,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.utils.record.CloudRecorder;
 
 import android.app.Notification;
@@ -65,7 +65,7 @@ public class CloudCreateService extends Service {
 
     private boolean mRecording = false;
 
-    private VorbisEncoderTask mOggTask;
+    private OggEncoderTask mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
 
@@ -303,7 +303,7 @@ public class CloudCreateService extends Service {
         mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
     }
 
-    private class EncodeOggTask extends VorbisEncoderTask<UploadTask.Params, UploadTask.Params> {
+    private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
         private String eventString;
 
         @Override
