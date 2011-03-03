@@ -31,7 +31,7 @@ public class ScContentProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 4;
 
     public static final String TRACKS_TABLE_NAME = "Tracks";
-    
+
     public static final String USERS_TABLE_NAME = "Users";
 
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
@@ -39,13 +39,13 @@ public class ScContentProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher;
 
     private static final int TRACKS = 1;
-    
+
     private static final int USERS = 2;
 
     private static HashMap<String, String> tracksProjectionMap;
-    
+
     private static HashMap<String, String> usersProjectionMap;
-    
+
     private static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id string primary key, "
         + "permalink string null, "
         + "duration string null, "
@@ -113,7 +113,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                         case 4:
                             success = upgradeTo4(db);
                             break;
-                        default: 
+                        default:
                             break;
                     }
 
@@ -121,9 +121,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                         break;
                     }
                 }
-    
+
             }
-            
+
             if (success) {
                 Log.i(TAG,"SUCCESSFUL UPGRADE");
                 db.setTransactionSuccessful();
@@ -161,7 +161,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
                     TRACKS_TABLE_NAME, cols, cols, TRACKS_TABLE_NAME));
             db.execSQL("DROP table bck_" + TRACKS_TABLE_NAME);
-            
+
             //upgrade users table (switch column "id" to "_id" for content resolver)
             db.execSQL("DROP TABLE IF EXISTS bck_Users");
             db.execSQL(DATABASE_CREATE_USERS.replace("create table Users",
@@ -176,14 +176,14 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
                     USERS_TABLE_NAME, cols, cols, USERS_TABLE_NAME));
             db.execSQL("DROP table bck_" + USERS_TABLE_NAME);
-            
+
             return true;
         } catch (Exception e){
             e.printStackTrace();
         }
         return false;
     }
-            
+
 }
 
     private DatabaseHelper dbHelper;
@@ -331,7 +331,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         tracksProjectionMap.put(Tracks.USER_FAVORITE, Tracks.USER_FAVORITE);
         tracksProjectionMap.put(Tracks.USER_PLAYED, Tracks.USER_PLAYED);
         tracksProjectionMap.put(Tracks.FILELENGTH, Tracks.FILELENGTH);
-        
+
         usersProjectionMap = new HashMap<String, String>();
         usersProjectionMap.put(Users.ID, Users.ID);
         usersProjectionMap.put(Users.PERMALINK, Users.PERMALINK);
@@ -347,9 +347,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         usersProjectionMap.put(Users.WEBSITE, Users.WEBSITE);
         usersProjectionMap.put(Users.WEBSITE_TITLE, Users.WEBSITE_TITLE);
         usersProjectionMap.put(Users.DESCRIPTION, Users.DESCRIPTION);
-        
+
     }
-    
+
     public static List<String> GetColumns(SQLiteDatabase db, String tableName) {
         List<String> ar = null;
         Cursor c = null;
@@ -392,7 +392,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list.get(i));
+            buf.append(list.get(i));
         }
         return buf.toString();
     }
@@ -403,23 +403,12 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list[i]);
+            buf.append(list[i]);
         }
         return buf.toString();
     }
 
-    private String joinArray(long[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append((String) Long.toString(list[i]));
-        }
-        return buf.toString();
-    }
-    
-    
-    
-    
+
+
+
 }

@@ -38,24 +38,26 @@ public class SoundCloudDB {
         // ---Make sure the database is up to date with this track info---
         public void resolveTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
 
-            Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + track.id + "'", null, null);
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    // add local urls and update database
-                    cursor.moveToFirst();
+            synchronized(this){
+                Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + track.id + "'", null, null);
+                if (cursor != null) {
+                    if (cursor.getCount() > 0) {
+                        // add local urls and update database
+                        cursor.moveToFirst();
 
-                    track.user_played = cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
+                        track.user_played = cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
 
-                    if (writeState == WriteState.update_only || writeState == WriteState.all)
-                        updateTrack(contentResolver,track);
+                        if (writeState == WriteState.update_only || writeState == WriteState.all)
+                            updateTrack(contentResolver,track);
 
-                } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                    insertTrack(contentResolver, track);
+                    } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                        insertTrack(contentResolver, track);
+                    }
+                    cursor.close();
+
+                    // write with insert only because a track will never come in with
+                    resolveUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
                 }
-                cursor.close();
-
-                // write with insert only because a track will never come in with
-                resolveUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
             }
         }
 
