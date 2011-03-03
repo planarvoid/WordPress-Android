@@ -43,7 +43,7 @@
   android:summary="@string/pref_record_quality_desc"
   android:key="defaultRecordingQuality"
   android:defaultValue="high"
-  android:entries="@array/pref_record_quality"
-  android:entryValues="@array/pref_record_quality" />
+  android:entries="@array/pref_record_quality_entries"
+  android:entryValues="@array/pref_record_quality_values" />
 
 </PreferenceScreen>

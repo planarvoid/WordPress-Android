@@ -56,7 +56,14 @@
         <item>follower_count</item>
     </string-array>
 
-    <string-array name="pref_record_quality">
+
+
+    <string-array name="pref_record_quality_entries">
+        <item>@string/low</item>
+        <item>@string/high</item>
+    </string-array>
+
+    <string-array name="pref_record_quality_values">
         <item>low</item>
         <item>high</item>
     </string-array>

@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
@@ -41,14 +42,14 @@ public class Settings extends PreferenceActivity {
 
         setClearCacheTitle();
 
-        this.findPreference("revokeAccess").setOnPreferenceClickListener(
+        findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
                         return true;
                     }
                 });
-        this.findPreference("clearCache").setOnPreferenceClickListener(
+        findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         mDeleteTask = new DeleteCacheTask();
@@ -57,7 +58,7 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
                 });
-        this.findPreference("wireless").setOnPreferenceClickListener(
+        findPreference("wireless").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
@@ -70,6 +71,18 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
+        ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
+
+        recordingQuality.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        preference.setTitle(getString(R.string.pref_record_quality)+" ("+o+")");
+                        return true;
+                    }
+                }
+        );
+        recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
     }
     
     public void safeShowDialog(int dialogId){

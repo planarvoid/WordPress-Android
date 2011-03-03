@@ -520,9 +520,11 @@
   <string name="pref_clear_cache">Clear Cache</string>
   <string name="pref_clear_cache_desc">Clear the applications cache to free up memory</string>
 
-  <string name="pref_record_quality">Recording Format</string>
-  <string name="pref_record_quality_desc">Choose your preferred recording format</string>
+  <string name="pref_record_quality">Recording quality</string>
+  <string name="pref_record_quality_desc">Choose your preferred recording quality</string>
 
+  <string name="low">Low</string>
+  <string name="high">High</string>
 
   <!-- used in various places to indicate there is one song for a given artist or album -->
     <string name="onesong">1 song</string>
