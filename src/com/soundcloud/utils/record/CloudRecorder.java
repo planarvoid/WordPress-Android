@@ -8,6 +8,7 @@ import java.io.RandomAccessFile;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -18,6 +19,21 @@ import com.soundcloud.android.service.CloudCreateService;
 public class CloudRecorder {
     static final String TAG = CloudRecorder.class.getSimpleName();
 
+    public static class Profile {
+        public static final int ENCODED_LOW   = 0;
+        public static final int ENCODED_HIGH  = 1;
+        public static final int RAW           = 2;
+
+        // best available quality on device
+        public static int best() {
+            return Build.VERSION.SDK_INT >= 10 ? ENCODED_HIGH : RAW;
+        }
+
+        public static int low() {
+            return ENCODED_LOW;
+        }
+    }
+
     /**
      * INITIALIZING : recorder is initializing; READY : recorder has been
      * initialized, recorder not yet started RECORDING : recording ERROR :
@@ -26,6 +42,8 @@ public class CloudRecorder {
     public enum State {
         INITIALIZING, READY, RECORDING, ERROR, STOPPED
     }
+
+    public static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
 
     // The interval in which the recorded samples are output to the file
     // Used only in uncompressed mode
@@ -74,7 +92,7 @@ public class CloudRecorder {
         mAudioProfile = profile;
 
         switch (profile) {
-            case CloudCreateService.PROFILE_RAW: {
+            case Profile.RAW: {
                 nChannels = 2;
                 mSamples = 16;
                 mSampleRate = ScCreate.REC_SAMPLE_RATE;
@@ -98,14 +116,14 @@ public class CloudRecorder {
                 break;
             }
 
-            case CloudCreateService.PROFILE_ENCODED_HIGH:
-            case CloudCreateService.PROFILE_ENCODED_LOW:
+            case Profile.ENCODED_HIGH:
+            case Profile.ENCODED_LOW:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
                 mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
-                if (profile == CloudCreateService.PROFILE_ENCODED_LOW) {
+                if (profile == Profile.ENCODED_LOW) {
                     mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
                     mRecorder.setAudioEncodingBitRate(12200);
                 } else {
@@ -180,7 +198,7 @@ public class CloudRecorder {
         try {
             if (mState == State.INITIALIZING) {
                 mFilepath = argPath;
-                if (mAudioProfile != CloudCreateService.PROFILE_RAW) {
+                if (mAudioProfile != Profile.RAW) {
                     mRecorder.setOutputFile(mFilepath);
                 }
             }
@@ -204,7 +222,7 @@ public class CloudRecorder {
     public void prepare() {
         try {
             if (mState == State.INITIALIZING) {
-                if (mAudioProfile == CloudCreateService.PROFILE_RAW) {
+                if (mAudioProfile == Profile.RAW) {
                     if ((mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) & (mFilepath != null)) {
                         // write file header
                         mWriter = new RandomAccessFile(mFilepath, "rw");
@@ -257,7 +275,7 @@ public class CloudRecorder {
         if (mState == State.RECORDING) {
             stop();
         } else {
-            if (mState == State.READY && mAudioProfile == CloudCreateService.PROFILE_RAW) {
+            if (mState == State.READY && mAudioProfile == Profile.RAW) {
                 try {
                     mWriter.close();
                 } catch (IOException e) {
@@ -270,7 +288,7 @@ public class CloudRecorder {
         }
 
 
-        if (mAudioProfile == CloudCreateService.PROFILE_RAW) {
+        if (mAudioProfile == Profile.RAW) {
             if (mAudioRecord != null) {
                 mAudioRecord.release();
             }
@@ -287,7 +305,7 @@ public class CloudRecorder {
      */
     public void start() {
         if (mState == State.READY) {
-            if (mAudioProfile == CloudCreateService.PROFILE_RAW) {
+            if (mAudioProfile == Profile.RAW) {
 
                 mState = State.RECORDING;
                 mAudioRecord.startRecording();
@@ -312,7 +330,7 @@ public class CloudRecorder {
      */
     public void stop() {
         if (mState == State.RECORDING) {
-            if (mAudioProfile == CloudCreateService.PROFILE_RAW) {
+            if (mAudioProfile == Profile.RAW) {
                 mAudioRecord.stop();
                 try {
                     long length = mWriter.length();
@@ -371,7 +389,6 @@ public class CloudRecorder {
                         // root normalizes the amplitude and makes a better
                         // looking wave representation
                         service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
-                        //service.onRecordFrameUpdate((mCurrentMax) / MAX_AMPLITUDE);
                     }
 
                     long next = TIMER_INTERVAL;
@@ -392,7 +409,6 @@ public class CloudRecorder {
         }
     };
 
-    final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
 
 
     private void queueNextRefresh(long delay) {

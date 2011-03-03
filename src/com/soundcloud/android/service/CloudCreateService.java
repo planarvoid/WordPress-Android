@@ -53,10 +53,6 @@ public class CloudCreateService extends Service {
 
     public static final String CMDNAME = "command";
 
-    public static  final int PROFILE_ENCODED_LOW   = 0;
-    public static  final int PROFILE_ENCODED_HIGH  = 1;
-    public static  final int PROFILE_RAW           = 2;
-
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
 
     private static final int UPLOAD_NOTIFY_END_ID = R.layout.sc_upload;

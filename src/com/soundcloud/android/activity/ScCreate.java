@@ -1,9 +1,6 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-import static com.soundcloud.android.service.CloudCreateService.PROFILE_ENCODED_HIGH;
-import static com.soundcloud.android.service.CloudCreateService.PROFILE_ENCODED_LOW;
-import static com.soundcloud.android.service.CloudCreateService.PROFILE_RAW;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
@@ -37,7 +34,6 @@ import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
@@ -729,12 +725,7 @@ public class ScCreate extends ScActivity {
             .getString("defaultRecordingQuality", "high")
             .contentEquals("high");
 
-        if (hiQ) {
-            mAudioProfile =
-                    Build.VERSION.SDK_INT >= 10 ? PROFILE_ENCODED_HIGH : PROFILE_RAW;
-        } else {
-            mAudioProfile = PROFILE_ENCODED_LOW;
-        }
+        mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
@@ -941,7 +932,7 @@ public class ScCreate extends ScActivity {
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
             data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
 
-            if (mAudioProfile == PROFILE_RAW) data.put(UploadTask.Params.ENCODE, true);
+            if (mAudioProfile == CloudRecorder.Profile.RAW) data.put(UploadTask.Params.ENCODE, true);
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
@@ -1017,18 +1008,19 @@ public class ScCreate extends ScActivity {
     }
 
     public void onRecProgressUpdate(int position) {
-        if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0){
-            long pcmTime = CloudUtils.getPCMTime(position,
-                    REC_SAMPLE_RATE,
-                    REC_CHANNELS,
-                    REC_BITS_PER_SAMPLE);
-            mChrono.setText(CloudUtils.makeTimeString(pcmTime < 3600000 ? mDurationFormatShort
-                : mDurationFormatLong, pcmTime));
+        if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0) {
+            long time = 0;
+            switch (mAudioProfile) {
+                case CloudRecorder.Profile.RAW:
+                    time = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS, REC_BITS_PER_SAMPLE);
+                    break;
+            }
+            mChrono.setText(CloudUtils.makeTimeString(
+                time < 3600000 ? mDurationFormatShort : mDurationFormatLong, time));
             updateTimeRemaining();
             mRecProgressCounter = 0;
         }
         mRecProgressCounter++;
-
     }
 
     public static class Capitalizer implements TextWatcher {
