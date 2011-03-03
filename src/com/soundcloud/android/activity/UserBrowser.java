@@ -463,10 +463,7 @@ public class UserBrowser extends ScActivity {
             remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
         }
 
-        Log.i(TAG, "ICON URL " + remoteUrl);
-
-        if (!remoteUrl.equals(_iconURL)) {
-            Log.i(TAG, "Setting icon url");
+        if (_iconURL == null || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
             _iconURL = remoteUrl;
             reloadAvatar();
         }
