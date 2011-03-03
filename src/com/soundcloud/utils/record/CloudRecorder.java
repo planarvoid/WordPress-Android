@@ -54,12 +54,6 @@ public class CloudRecorder {
 
     private short mSamples;
 
-    private int bufferSize;
-
-    private int mAudioSource;
-
-    private int mAudioFormat;
-
     private int mAudioProfile;
 
     // Number of frames written to file on each output(only in uncompressed
@@ -77,7 +71,6 @@ public class CloudRecorder {
      * exception is thrown, but the state is set to ERROR
      */
     public CloudRecorder(int profile, int audioSource) {
-        mAudioSource = audioSource;
         mAudioProfile = profile;
 
         switch (profile) {
@@ -85,14 +78,12 @@ public class CloudRecorder {
                 nChannels = 2;
                 mSamples = 16;
                 mSampleRate = ScCreate.REC_SAMPLE_RATE;
-                mAudioFormat = AudioFormat.ENCODING_PCM_16BIT;
+                int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
                 framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
-                bufferSize = framePeriod * 2 * mSamples * nChannels / 8;
+                int bufferSize = framePeriod * 2 * mSamples * nChannels / 8;
 
-                int minBufferSize = AudioRecord.getMinBufferSize(mSampleRate,
-                        AudioFormat.CHANNEL_CONFIGURATION_STEREO,
-                        mAudioFormat);
+                int minBufferSize = AudioRecord.getMinBufferSize(mSampleRate, nChannels + 1, audioFormat);
 
                 if (bufferSize < minBufferSize) {
                     // Check to make sure buffer size is not smaller than the smallest allowed one
@@ -101,7 +92,7 @@ public class CloudRecorder {
                     framePeriod = bufferSize / (2 * mSamples * nChannels / 8);
                     Log.w(TAG, "Increasing buffer size to " + bufferSize);
                 }
-                mAudioRecord = new AudioRecord(mAudioSource, mSampleRate, nChannels + 1, mAudioFormat, bufferSize);
+                mAudioRecord = new AudioRecord(audioSource, mSampleRate, nChannels + 1, audioFormat, bufferSize);
                 mAudioRecord.setRecordPositionUpdateListener(updateListener);
                 mAudioRecord.setPositionNotificationPeriod(framePeriod);
                 break;
@@ -111,6 +102,7 @@ public class CloudRecorder {
             case CloudCreateService.PROFILE_ENCODED_LOW:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
+                mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
                 if (profile == CloudCreateService.PROFILE_ENCODED_LOW) {
@@ -286,36 +278,6 @@ public class CloudRecorder {
             if (mRecorder != null) {
                 mRecorder.release();
             }
-        }
-    }
-
-    /**
-     * Resets the recorder to the INITIALIZING state, as if it was just created.
-     * In case the class was in RECORDING state, the recording is stopped. In
-     * case of exceptions the class is set to the ERROR state.
-     */
-    public void reset() {
-        try {
-            if (mState != State.ERROR) {
-                release();
-                mFilepath = null; // Reset file path
-                if (mAudioProfile == CloudCreateService.PROFILE_RAW) {
-                    mAudioRecord = new AudioRecord(mAudioSource, mSampleRate, nChannels + 1, mAudioFormat, bufferSize);
-                    if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED)
-                        throw new Exception("AudioRecord initialization failed");
-                    mAudioRecord.setRecordPositionUpdateListener(updateListener);
-                    mAudioRecord.setPositionNotificationPeriod(framePeriod);
-                } else {
-                    mRecorder = new MediaRecorder();
-                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-                }
-                mState = State.INITIALIZING;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            mState = State.ERROR;
         }
     }
 

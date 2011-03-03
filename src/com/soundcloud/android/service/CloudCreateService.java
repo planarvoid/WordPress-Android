@@ -210,7 +210,6 @@ public class CloudCreateService extends Service {
         mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
         mRecorder.setRecordService(this);
 
-        mRecorder.reset();
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
         mRecorder.start();
