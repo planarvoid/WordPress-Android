@@ -37,12 +37,13 @@
     android:title="@string/wifi_settings"
     android:summary="@string/wifi_settings_summary">
   </PreferenceScreen>
-  <!-- <ListPreference
+
+  <ListPreference
   android:title="@string/pref_record_quality"
   android:summary="@string/pref_record_quality_desc"
   android:key="defaultRecordingQuality"
-  android:defaultValue="low"
+  android:defaultValue="high"
   android:entries="@array/pref_record_quality"
-  android:entryValues="@array/pref_record_quality" /> -->
+  android:entryValues="@array/pref_record_quality" />
 
 </PreferenceScreen>

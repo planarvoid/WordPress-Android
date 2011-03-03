@@ -119,6 +119,9 @@ import android.os.AsyncTask;
             int lastPercentReported = 0;
 
             Log.d(TAG, "Encoding.");
+
+             // skip WAV header
+            if (fin.skip(44) != 44) Log.w(TAG, "invalid header");
             while (!eos && !isCancelled()) {
 
                 int i;
@@ -128,7 +131,6 @@ import android.os.AsyncTask;
                 blocks++;
 
                 if (bytes == 0) {
-
                     // end of file. this can be done implicitly in the mainline,
                     // but it's easier to see here in non-clever fashion.
                     // Tell the library we're at end of stream so that it can
@@ -139,9 +141,7 @@ import android.os.AsyncTask;
                     vd.vorbis_analysis_wrote(0);
 
                 } else {
-
                     // data to encode
-
                     // expose the buffer to submit data
                     float[][] buffer = vd.vorbis_analysis_buffer(READ);
 

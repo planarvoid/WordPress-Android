@@ -146,11 +146,11 @@ public class UploadTaskTests extends ApiTest {
     }
 
     @Test
-    public void shouldUploadOriginalFileForExternalUploads() throws Exception {
+    public void shouldUploadOriginalFileWhenNotEncoding() throws Exception {
         File tmp = getTestFile();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
-        map.put(UploadTask.Params.EXTERNAL, "true");
+        map.put(UploadTask.Params.DONOTENCODE, "true");
 
         UploadTask.Params params = new UploadTask.Params(map);
 

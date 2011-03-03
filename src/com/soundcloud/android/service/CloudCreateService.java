@@ -60,7 +60,7 @@ public class CloudCreateService extends Service {
 
     private static WakeLock mWakeLock;
 
-    private com.soundcloud.utils.record.CloudRecorder mRecorder;
+    private CloudRecorder mRecorder;
 
     private File mRecordFile;
 
@@ -86,21 +86,14 @@ public class CloudCreateService extends Service {
 
     private int mCurrentState = 0;
     private int frameCount;
+    private boolean compressed;
 
+    public boolean isCompressed() {
+        return compressed;
+    }
 
     public interface States {
-
         int IDLE_RECORDING = 0;
-
-        int RECORDING = 1;
-
-        int IDLE_PLAYBACK = 2;
-
-        int PLAYBACK = 3;
-
-        int PRE_UPLOAD = 4;
-
-        int UPLOAD = 5;
     }
 
 
@@ -156,16 +149,19 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-        final boolean uncompressed = PreferenceManager.getDefaultSharedPreferences(this)
+        compressed = PreferenceManager.getDefaultSharedPreferences(this)
                     .getString("defaultRecordingQuality", "high")
-                    .contentEquals("high");
+                    .contentEquals("low");
+
+        Log.v(TAG, "recording " + (compressed ? "compressed" : "uncompressed"));
 
         mRecorder = new CloudRecorder(
-                uncompressed,
+                !compressed,
                 MediaRecorder.AudioSource.MIC,
                 ScCreate.REC_SAMPLE_RATE,
                 AudioFormat.CHANNEL_CONFIGURATION_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
+
         mRecorder.setRecordService(this);
     }
 
@@ -217,7 +213,6 @@ public class CloudCreateService extends Service {
     private void notifyChange(String what) {
         sendBroadcast(new Intent(what));
     }
-
 
     private void startRecording(String path) {
         acquireWakeLock();
@@ -335,9 +330,7 @@ public class CloudCreateService extends Service {
         @Override
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             UploadTask.Params param = params[0];
-            if (param.external) {
-                Log.v(TAG, "skipping encoding for external files");
-            } else if (!encode(param.trackFile, param.encodedFile)) {
+            if (param.encode && !encode(param.trackFile, param.encodedFile)) {
                 param.fail();
             }
             return param;
@@ -357,7 +350,7 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
-                if (!param.external && param.trackFile.delete()) {
+                if (param.encode && param.trackFile.delete()) {
                     Log.v(TAG, "deleted file " + param.trackFile);
                 }
 
@@ -572,9 +565,7 @@ public class CloudCreateService extends Service {
 
         @Override
         public boolean isRecording() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().isRecording();
-            return false;
+            return mService.get() != null && mService.get().isRecording();
         }
 
         @Override
@@ -612,6 +603,14 @@ public class CloudCreateService extends Service {
                 return mService.get().getCurrentState();
 
             return 0;
+        }
+
+        @Override
+        public boolean isCompressed() throws RemoteException {
+            if (mService.get() != null)
+                return mService.get().isCompressed();
+
+            return true;
         }
 
         @Override

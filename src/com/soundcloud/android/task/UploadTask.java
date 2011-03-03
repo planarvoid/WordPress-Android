@@ -27,11 +27,10 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public static final String SOURCE_PATH  = "source_path";
         public static final String OGG_FILENAME = "ogg_filename";
         public static final String ARTWORK_PATH = "artwork_path";
-        public static final String EXTERNAL     = "external";
+        public static final String DONOTENCODE  = "donotencode";
 
         private boolean failed;
-
-        public final boolean external;
+        public final boolean encode;
 
         public final File trackFile, encodedFile;
         public final File artworkFile;
@@ -46,9 +45,9 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         public Params(Map<String, ?> map) {
             this.map = map;
-            this.external    = map.remove(EXTERNAL) != null;
+            this.encode = map.remove(DONOTENCODE) == null;
 
-            if (!external && (!map.containsKey(SOURCE_PATH) || !map.containsKey(OGG_FILENAME))) {
+            if (encode && (!map.containsKey(SOURCE_PATH) || !map.containsKey(OGG_FILENAME))) {
                 throw new IllegalArgumentException("Need to specify both "
                         + SOURCE_PATH + " and " + OGG_FILENAME);
             }
@@ -99,7 +98,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     @Override
     protected Params doInBackground(final Params... params) {
         final Params param = params[0];
-        final File toUpload = param.external ? param.trackFile : param.encodedFile;
+        final File toUpload = param.encode ? param.encodedFile : param.trackFile;
 
         if (!toUpload.exists()) {
             throw new IllegalArgumentException("File to be uploaded does not exist");
