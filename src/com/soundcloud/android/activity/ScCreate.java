@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+import static com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
@@ -75,7 +76,7 @@ public class ScCreate extends ScActivity {
 
     private ViewFlipper mViewFlipper, mSharingFlipper;
 
-    private TextView txtInstructions, txtRecordStatus;
+    private TextView txtInstructions, txtRecordStatus, txtUploadingStatus;
 
     private LinearLayout mFileLayout;
 
@@ -242,6 +243,7 @@ public class ScCreate extends ScActivity {
         mProgressBar = (SeekBar) findViewById(R.id.progress_bar);
 
         txtRecordStatus = (TextView) findViewById(R.id.txt_record_status);
+        txtUploadingStatus = (TextView) findViewById(R.id.txt_currently_uploading);
 
         mChrono = (TextView) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.GONE);
@@ -725,7 +727,7 @@ public class ScCreate extends ScActivity {
             .getString("defaultRecordingQuality", "high")
             .contentEquals("high");
 
-        mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
+        mAudioProfile = hiQ ? Profile.best() : Profile.low();
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
@@ -932,7 +934,12 @@ public class ScCreate extends ScActivity {
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
             data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
 
-            if (mAudioProfile == CloudRecorder.Profile.RAW) data.put(UploadTask.Params.ENCODE, true);
+            if (mAudioProfile == Profile.RAW && !mExternalUpload) {
+                data.put(UploadTask.Params.ENCODE, true);
+                txtUploadingStatus.setText(R.string.record_currently_encoding_uploading);
+            } else {
+                txtUploadingStatus.setText(R.string.record_currently_uploading);
+            }
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
@@ -1011,7 +1018,7 @@ public class ScCreate extends ScActivity {
         if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0) {
             long time = 0;
             switch (mAudioProfile) {
-                case CloudRecorder.Profile.RAW:
+                case Profile.RAW:
                     time = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS, REC_BITS_PER_SAMPLE);
                     break;
             }

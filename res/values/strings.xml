@@ -192,7 +192,8 @@
     <string name="record_artwork_instructions_added">Hold to remove.</string>
     <string name="format_counter_mins">%02d</string>
     <string name="format_counter_secs">%02d</string>
-    <string name="record_currently_uploading">Your track is being encoded and uploaded. Please check the status bar to see its progress.</string>
+    <string name="record_currently_uploading">Your track is being uploaded. Please check the status bar to see its progress.</string>
+    <string name="record_currently_encoding_uploading">Your track is being encoded and uploaded. Please check the status bar to see its progress.</string>
 
     <string name="record_max_length_reached">Maximum filesize reached.</string>
     <string name="record_insert_sd_card">Please insert an SD card to record.</string>
