@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioFormat;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -29,7 +28,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -52,7 +50,12 @@ public class CloudCreateService extends Service {
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
     public static final String SERVICECMD       = "com.soundcloud.android.createservicecommand";
 
+
     public static final String CMDNAME = "command";
+
+    public static  final int PROFILE_ENCODED_LOW   = 0;
+    public static  final int PROFILE_ENCODED_HIGH  = 1;
+    public static  final int PROFILE_RAW           = 2;
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
 
@@ -86,11 +89,6 @@ public class CloudCreateService extends Service {
 
     private int mCurrentState = 0;
     private int frameCount;
-    private boolean compressed;
-
-    public boolean isCompressed() {
-        return compressed;
-    }
 
     public interface States {
         int IDLE_RECORDING = 0;
@@ -149,20 +147,7 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-        compressed = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getString("defaultRecordingQuality", "high")
-                    .contentEquals("low");
 
-        Log.v(TAG, "recording " + (compressed ? "compressed" : "uncompressed"));
-
-        mRecorder = new CloudRecorder(
-                !compressed,
-                MediaRecorder.AudioSource.MIC,
-                ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT);
-
-        mRecorder.setRecordService(this);
     }
 
     @Override
@@ -214,11 +199,16 @@ public class CloudCreateService extends Service {
         sendBroadcast(new Intent(what));
     }
 
-    private void startRecording(String path) {
+    private void startRecording(String path, int mode) {
+        Log.v(TAG, "startRecording("+path+", "+mode+")");
+
         acquireWakeLock();
 
         mRecordFile = new File(path);
         frameCount = 0;
+
+        mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
+        mRecorder.setRecordService(this);
 
         mRecorder.reset();
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
@@ -558,9 +548,9 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        public void startRecording(String path) throws RemoteException {
+        public void startRecording(String path, int mode) throws RemoteException {
             if (mService.get() != null)
-                mService.get().startRecording(path);
+                mService.get().startRecording(path, mode);
         }
 
         @Override
@@ -603,14 +593,6 @@ public class CloudCreateService extends Service {
                 return mService.get().getCurrentState();
 
             return 0;
-        }
-
-        @Override
-        public boolean isCompressed() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().isCompressed();
-
-            return true;
         }
 
         @Override

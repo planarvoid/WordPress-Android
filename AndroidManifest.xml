@@ -115,7 +115,7 @@
     </receiver>
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="9"/>
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>

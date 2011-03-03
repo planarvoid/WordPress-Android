@@ -1,6 +1,9 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
+import static com.soundcloud.android.service.CloudCreateService.PROFILE_ENCODED_HIGH;
+import static com.soundcloud.android.service.CloudCreateService.PROFILE_ENCODED_LOW;
+import static com.soundcloud.android.service.CloudCreateService.PROFILE_RAW;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
@@ -34,9 +37,11 @@ import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -110,7 +115,7 @@ public class ScCreate extends ScActivity {
     private double mLong, mLat;
 
     boolean mExternalUpload;
-
+    private int mAudioProfile;
 
     public void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
@@ -720,6 +725,17 @@ public class ScCreate extends ScActivity {
 
         Log.i(TAG,"START recording " + mCreateService);
 
+        final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("defaultRecordingQuality", "high")
+            .contentEquals("high");
+
+        if (hiQ) {
+            mAudioProfile =
+                    Build.VERSION.SDK_INT >= 10 ? PROFILE_ENCODED_HIGH : PROFILE_RAW;
+        } else {
+            mAudioProfile = PROFILE_ENCODED_LOW;
+        }
+
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
@@ -731,7 +747,7 @@ public class ScCreate extends ScActivity {
 
             setRequestedOrientation(getResources().getConfiguration().orientation);
             try {
-                mCreateService.startRecording(mRecordFile.getAbsolutePath());
+                mCreateService.startRecording(mRecordFile.getAbsolutePath(), mAudioProfile);
                 mRecordingStarted.setToNow();
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -925,13 +941,7 @@ public class ScCreate extends ScActivity {
             data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
             data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
 
-            boolean compressed = false;
-            try {
-                compressed = mCreateService.isCompressed();
-            } catch (RemoteException ignored) {
-            }
-
-            if (mExternalUpload || compressed) data.put(UploadTask.Params.DONOTENCODE, true);
+            if (mAudioProfile == PROFILE_RAW) data.put(UploadTask.Params.ENCODE, true);
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);

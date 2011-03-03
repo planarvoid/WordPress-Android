@@ -27,7 +27,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public static final String SOURCE_PATH  = "source_path";
         public static final String OGG_FILENAME = "ogg_filename";
         public static final String ARTWORK_PATH = "artwork_path";
-        public static final String DONOTENCODE  = "donotencode";
+        public static final String ENCODE       = "encode";
 
         private boolean failed;
         public final boolean encode;
@@ -45,11 +45,14 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         public Params(Map<String, ?> map) {
             this.map = map;
-            this.encode = map.remove(DONOTENCODE) == null;
+            this.encode = map.remove(ENCODE) != null;
 
-            if (encode && (!map.containsKey(SOURCE_PATH) || !map.containsKey(OGG_FILENAME))) {
-                throw new IllegalArgumentException("Need to specify both "
-                        + SOURCE_PATH + " and " + OGG_FILENAME);
+            if (!map.containsKey(SOURCE_PATH)) {
+                throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);
+            }
+
+            if (encode && !map.containsKey(OGG_FILENAME)) {
+                throw new IllegalArgumentException("Need to specify " + OGG_FILENAME);
             }
 
             this.trackFile   = new File(String.valueOf(map.remove(SOURCE_PATH)));

@@ -2,7 +2,7 @@ package com.soundcloud.android.service;
 
 interface ICloudCreateService
 {
-  void startRecording(String path);
+  void startRecording(String path, int mode);
   boolean isRecording();
   void stopRecording();
   void updateRecordTicker();
@@ -11,6 +11,5 @@ interface ICloudCreateService
   void cancelUpload();
   void setCurrentState(int newState);
   int getCurrentState();
-  boolean isCompressed();
 }
 

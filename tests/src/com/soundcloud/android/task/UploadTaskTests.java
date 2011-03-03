@@ -42,8 +42,6 @@ public class UploadTaskTests extends ApiTest {
     public void shouldThrowWhenFileIsMissing() {
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
-        map.put(UploadTask.Params.OGG_FILENAME, "/tmp/missing");
         UploadTask.Params params = new UploadTask.Params(map);
 
         task.execute(params);
@@ -54,8 +52,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = File.createTempFile("temp", ".ogg");
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
-        map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsoluteFile());
+        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsoluteFile());
         UploadTask.Params params = new UploadTask.Params(map);
 
         task.execute(params);
@@ -66,8 +63,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
-        map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
+        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
         map.put("foo", "bar");
         map.put("multi", Arrays.asList("1", "2", "3"));
 
@@ -91,9 +87,7 @@ public class UploadTaskTests extends ApiTest {
         File tmp = getTestFile();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
-        map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
-
+        map.put(UploadTask.Params.SOURCE_PATH,  tmp.getAbsolutePath());
 
         UploadTask.Params params = new UploadTask.Params(map);
 
@@ -128,6 +122,7 @@ public class UploadTaskTests extends ApiTest {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(UploadTask.Params.SOURCE_PATH, "/tmp/in");
         map.put(UploadTask.Params.OGG_FILENAME, tmp.getAbsolutePath());
+        map.put(UploadTask.Params.ENCODE, "true");
 
         UploadTask.Params params = new UploadTask.Params(map);
 
@@ -145,12 +140,22 @@ public class UploadTaskTests extends ApiTest {
         assertFalse(params.isSuccess());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRequireOggParameterWhenEncoding() throws Exception {
+        File tmp = getTestFile();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
+        map.put(UploadTask.Params.ENCODE, "true");
+
+        UploadTask.Params params = new UploadTask.Params(map);
+        task.execute(params);
+    }
+
     @Test
     public void shouldUploadOriginalFileWhenNotEncoding() throws Exception {
         File tmp = getTestFile();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
-        map.put(UploadTask.Params.DONOTENCODE, "true");
 
         UploadTask.Params params = new UploadTask.Params(map);
 
