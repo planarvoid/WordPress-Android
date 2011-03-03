@@ -85,7 +85,7 @@ public class CloudRecorder {
                 nChannels = 2;
                 mSamples = 16;
                 mSampleRate = ScCreate.REC_SAMPLE_RATE;
-                mAudioFormat = AudgioFormat.ENCODING_PCM_16BIT;
+                mAudioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
                 framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
                 bufferSize = framePeriod * 2 * mSamples * nChannels / 8;
