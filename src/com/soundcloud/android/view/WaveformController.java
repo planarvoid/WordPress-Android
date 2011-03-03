@@ -172,6 +172,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mPlayerCommentBar != null){
             mPlayerCommentBar.setOnTouchListener(this);
             if (!mShowingComments) ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
+            mToggleComments.setImageDrawable((mShowingComments) ? mPlayer.getResources().getDrawable(R.drawable.ic_hide_comments_states) : mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
         }
 
         if (mToggleComments != null)

@@ -88,9 +88,9 @@
   <string name="empty_exclusive_text">No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not record a personal shout-out and send it to someone and see if they reply?</string>
   <string name="empty_my_tracks_text">You don\'t have any tracks yet.&lt;br/>&lt;br/>Record and share your favorite sound or leave a voice memo for yourself.</string>
   <string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/>&lt;br/>Try searching for people or sounds that you might love.</string>
-  <string name="empty_user_tracks_text">{username} hasn\'t uploaded any public tracks yet.&lt;br/>&lt;br/>Why not record a personal shout-out to them and ask for a reply?</string>
-  <string name="empty_user_favorites_text">{username} hasn\'t chosen any favorites yet.&lt;br/>&lt;br/>Why not send them one of yours?</string>
-
+  <string name="empty_user_tracks_text">{username} hasn\'t uploaded any public tracks yet.</string>
+  <string name="empty_user_favorites_text">{username} hasn\'t chosen any favorites yet.</string>
+    
   <string name="tracklist_empty">No tracks available</string>
   <string name="userlist_empty">No users available</string>
   <string name="commentslist_emopty">No comments available</string>

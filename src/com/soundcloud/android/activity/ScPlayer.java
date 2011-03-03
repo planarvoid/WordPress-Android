@@ -873,7 +873,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public void onWaveformLoaded(){
         try {
-            mPlaybackService.setClearToPlay(true);
+            if (mPlaybackService != null) mPlaybackService.setClearToPlay(true);
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
