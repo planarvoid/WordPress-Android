@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.http.Http;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -51,6 +52,9 @@ public interface CloudAPI {
         String POST_TO_EMPTY  = "track[post_to][]";
         String TAG_LIST       = "track[tag_list]";
         String SHARING        = "track[sharing]";
+
+        String STREAMABLE     = "track[streamable]";
+        String DOWNLOADABLE   = "track[downloadable]";
 
         String SHARED_EMAILS  = "track[shared_to][emails][][address]";
         String SHARING_NOTE   = "track[sharing_note]";

@@ -1016,6 +1016,8 @@ public class ScCreate extends ScActivity {
             final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
             final Map<String, Object> data = new HashMap<String, Object>();
             data.put(CloudAPI.Params.SHARING, privateUpload ? CloudAPI.Params.PRIVATE : CloudAPI.Params.PUBLIC);
+            data.put(CloudAPI.Params.DOWNLOADABLE, false);
+            data.put(CloudAPI.Params.STREAMABLE, true);
 
 
             if (!privateUpload) {
