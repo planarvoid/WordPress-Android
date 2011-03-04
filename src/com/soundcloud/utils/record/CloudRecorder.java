@@ -1,9 +1,8 @@
 
 package com.soundcloud.utils.record;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.service.CloudCreateService;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -13,8 +12,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.service.CloudCreateService;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class CloudRecorder {
     static final String TAG = CloudRecorder.class.getSimpleName();
@@ -95,7 +95,7 @@ public class CloudRecorder {
             case Profile.RAW: {
                 nChannels = 1;
                 mSamples = 16;
-                mSampleRate = ScCreate.REC_SAMPLE_RATE;
+                mSampleRate = ScCreate.PCM_REC_SAMPLE_RATE;
                 int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
                 framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
@@ -120,7 +120,7 @@ public class CloudRecorder {
             case Profile.ENCODED_LOW:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
-                mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                mRecorder.setAudioSamplingRate(ScCreate.PCM_REC_SAMPLE_RATE);
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
                 if (profile == Profile.ENCODED_LOW) {
@@ -141,7 +141,7 @@ public class CloudRecorder {
     /**
      * Returns the state of the recorder in a RehearsalAudioRecord.State typed
      * object. Useful, as no exceptions are thrown.
-     * 
+     *
      * @return recorder state
      */
     public State getState() {
@@ -346,7 +346,7 @@ public class CloudRecorder {
                 }
             } else {
                 mRecorder.stop();
-                Message msg = refreshHandler.obtainMessage(REFRESH);
+                refreshHandler.obtainMessage(REFRESH);
                 refreshHandler.removeMessages(REFRESH);
                 mLastRefresh = 0;
 

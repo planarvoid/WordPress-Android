@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -143,7 +144,6 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-
     }
 
     @Override
@@ -265,8 +265,8 @@ public class CloudCreateService extends Service {
     private void updateRecordTicker() {
         mNotification.setLatestEventInfo(getApplicationContext(), mCreateEventTitle, CloudUtils
                 .formatString(mCreateEventMessage, CloudUtils.getPCMTime(mRecordFile,
-                        ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS,
-                        ScCreate.REC_BITS_PER_SAMPLE)), mPendingIntent);
+                        ScCreate.PCM_REC_SAMPLE_RATE, ScCreate.PCM_REC_CHANNELS,
+                        ScCreate.PCM_REC_BITS_PER_SAMPLE)), mPendingIntent);
 
         nm.notify(CREATE_NOTIFY_ID, mNotification);
     }
@@ -380,17 +380,47 @@ public class CloudCreateService extends Service {
                         CloudUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
 
-                new ExifInterface(param.artworkFile.getAbsolutePath());
-
                 int sampleSize = options.inSampleSize;
+                int degree = 0;
+                try {
+                    ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
+                    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+                    if (orientation != -1) {
+                        // We only recognize a subset of orientation tag values.
+                        switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            degree = 90;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            degree = 180;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            degree = 270;
+                            break;
+                        default:
+                            degree = 0;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                if (sampleSize > 1) {
+                if (sampleSize > 1 || degree > 0) {
                     InputStream is = new FileInputStream(param.artworkFile);
 
                     options = new BitmapFactory.Options();
                     options.inSampleSize = sampleSize;
                     Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
                     is.close();
+
+                    if (degree != 0){
+                        Bitmap preRotate = bitmap;
+                        Matrix mat = new Matrix();
+                        mat.postRotate(degree);
+                        bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
+                        preRotate.recycle();
+                    }
 
                     if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 

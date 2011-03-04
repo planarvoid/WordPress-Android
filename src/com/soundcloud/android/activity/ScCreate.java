@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
-import static com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
@@ -14,6 +13,7 @@ import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.utils.AnimUtils;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.record.CloudRecorder;
+import com.soundcloud.utils.record.CloudRecorder.Profile;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
 
@@ -38,6 +38,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -53,11 +54,13 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -104,6 +107,8 @@ public class ScCreate extends ScActivity {
 
     private TextView mChrono;
 
+    private long mLastSeekEventTime;
+
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
     /* package */ Time mRecordingStarted = new Time();
@@ -137,10 +142,11 @@ public class ScCreate extends ScActivity {
     private String mDurationFormatShort;
     private String mCurrentDurationString;
 
-    public static int REC_SAMPLE_RATE = 44100;
-    public static int REC_CHANNELS = 2;
-    public static int REC_BITS_PER_SAMPLE = 16;
-    public static int REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+    public static int PCM_REC_SAMPLE_RATE = 44100;
+    public static int PCM_REC_CHANNELS = 1;
+    public static int PCM_REC_BITS_PER_SAMPLE = 16;
+    public static int PCM_REC_MAX_FILE_SIZE = -1;
+    //public static int PCM_REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
 
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
 
@@ -200,6 +206,7 @@ public class ScCreate extends ScActivity {
                     mCurrentState = CreateState.IDLE_RECORD;
                 } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
+                    loadPlaybackTrack();
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -233,7 +240,7 @@ public class ScCreate extends ScActivity {
         mDurationFormatShort = getString(R.string.durationformatshort);
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
+        mRemainingTimeCalculator.setBitRate(PCM_REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
 
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
@@ -241,6 +248,7 @@ public class ScCreate extends ScActivity {
         FrameLayout mGaugeHolder = (FrameLayout) findViewById(R.id.gauge_holder);
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
         mProgressBar = (SeekBar) findViewById(R.id.progress_bar);
+        mProgressBar.setOnSeekBarChangeListener(mSeekListener);
 
         txtRecordStatus = (TextView) findViewById(R.id.txt_record_status);
         txtUploadingStatus = (TextView) findViewById(R.id.txt_currently_uploading);
@@ -444,7 +452,10 @@ public class ScCreate extends ScActivity {
         }
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
-            setPickedImage(state.getString("createArtworkPath"));
+            if (state.getString("createArtworkPath").contentEquals(UPLOAD_TEMP_PICTURE_PATH))
+                setTakenImage(); //account for rotation
+            else
+                setPickedImage(state.getString("createArtworkPath"));
         }
 
         super.onRestoreInstanceState(state);
@@ -500,12 +511,37 @@ public class ScCreate extends ScActivity {
 
     public void setTakenImage() {
         try {
-            new ExifInterface(UPLOAD_TEMP_PICTURE_PATH);
+
 
             Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
                     (int) getResources().getDisplayMetrics().density * 100, (int) getResources()
                             .getDisplayMetrics().density * 100);
             mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
+
+            int degree = 0;
+            try {
+                ExifInterface exif = new ExifInterface(mArtworkUri);
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+                if (orientation != -1) {
+                    // We only recognize a subset of orientation tag values.
+                    switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        degree = 90;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        degree = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        degree = 270;
+                        break;
+                    default:
+                        degree = 0;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             if (mArtworkBitmap != null)
                 CloudUtils.clearBitmap(mArtworkBitmap);
@@ -514,6 +550,30 @@ public class ScCreate extends ScActivity {
             sampleOpt.inSampleSize = opt.inSampleSize;
 
             mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
+
+            Log.i(TAG,"BITMAP WIDTH " + mArtworkBitmap.getWidth() + " " + mArtworkBitmap.getHeight());
+
+            Matrix m = new Matrix();
+            float scale;
+            float dx = 0, dy = 0;
+            int vwidth = (int) (getResources().getDisplayMetrics().density * 100);
+            int vheight = vwidth;
+
+            if (mArtworkBitmap.getWidth() > mArtworkBitmap.getHeight()) {
+                scale = (float) vheight / (float) mArtworkBitmap.getHeight();
+                dx = (vwidth -  mArtworkBitmap.getWidth() * scale) * 0.5f;
+            } else {
+                scale = (float) vwidth / (float) mArtworkBitmap.getWidth();
+                dy = (vheight - mArtworkBitmap.getHeight() * scale) * 0.5f;
+            }
+
+            m.setScale(scale, scale);
+            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+            if (degree != 0) m.postRotate(90, vwidth/2 , vheight/2); //pivot point in the middle, may need to change this
+
+            mArtwork.setScaleType(ScaleType.MATRIX);
+            mArtwork.setImageMatrix(m);
+
             mArtwork.setImageBitmap(mArtworkBitmap);
             mArtwork.setVisibility(View.VISIBLE);
         } catch (IOException e) {
@@ -554,8 +614,8 @@ public class ScCreate extends ScActivity {
                 mFileLayout.setVisibility(View.GONE);
 
                 if (TextUtils.isEmpty(mRecordErrorMessage)) {
-                    txtRecordStatus.setText(getResources().getString(
-                            R.string.cloud_recorder_experimental));
+                    //txtRecordStatus.setText(getResources().getString(
+                      //      R.string.cloud_recorder_experimental));
                 } else {
                     txtRecordStatus.setText(mRecordErrorMessage);
                 }
@@ -598,7 +658,7 @@ public class ScCreate extends ScActivity {
                     switch (mLastState) {
                         case RECORD: stopRecording(); break;
                         case PLAYBACK:
-                            if (mPlayer.isPlaying()) mPlayer.stop();
+                            if (mPlayer.isPlaying()) mPlayer.pause();
                             break;
                     }
                 }
@@ -733,9 +793,9 @@ public class ScCreate extends ScActivity {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
         } else {
-            mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * REC_CHANNELS * REC_BITS_PER_SAMPLE);
-            if (REC_MAX_FILE_SIZE != -1) {
-                mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, REC_MAX_FILE_SIZE);
+            mRemainingTimeCalculator.setBitRate(PCM_REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
+            if (PCM_REC_MAX_FILE_SIZE != -1) {
+                mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
 
             setRequestedOrientation(getResources().getConfiguration().orientation);
@@ -816,13 +876,14 @@ public class ScCreate extends ScActivity {
 
         // disable actions during processing and playback preparation
         btnAction.setEnabled(false);
+        loadPlaybackTrack();
     }
 
     private void clearPlaybackTrack() {
         mProgressBar.setProgress(0);
     }
 
-    private void startPlayback() {
+    private void loadPlaybackTrack(){
         mPlayer.reset();
 
         try {
@@ -835,9 +896,10 @@ public class ScCreate extends ScActivity {
             Log.e(TAG, "error", e);
         }
 
-        mProgressBar.setMax(mPlayer.getDuration());
         mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
                 mPlayer.getDuration() / 1000);
+
+        mProgressBar.setMax(mPlayer.getDuration());
 
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -845,10 +907,15 @@ public class ScCreate extends ScActivity {
                 mProgressBar.setProgress(0);
                 if (mCurrentState != CreateState.IDLE_UPLOAD) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
+                    loadPlaybackTrack();
                     updateUi(true);
                 }
             }
         });
+
+    }
+
+    private void startPlayback() {
 
         mPlayer.start();
         new Thread() {
@@ -875,6 +942,22 @@ public class ScCreate extends ScActivity {
             }
         }.start();
     }
+
+    private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
+        public void onStartTrackingTouch(SeekBar bar) {
+            mLastSeekEventTime = 0;
+        }
+        public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
+            if (!fromuser) return;
+            long now = SystemClock.elapsedRealtime();
+            if ((now - mLastSeekEventTime) > 250) {
+                mLastSeekEventTime = now;
+                mPlayer.seekTo(progress);
+            }
+        }
+        public void onStopTrackingTouch(SeekBar bar) { }
+    };
+
 
     void startUpload() {
         if (mCreateService == null) return;
@@ -998,13 +1081,16 @@ public class ScCreate extends ScActivity {
 
     private String generateSharingNote() {
         String note;
+        Log.i(TAG,"GENEREATING sharing note " + mWhatText.length());
         if (mWhatText.length() > 0) {
+            Log.i(TAG,"We have a what "  + mWhereText.length());
             if (mWhereText.length() > 0) {
                 note = String.format("%s at %s", mWhatText.getText(), mWhereText.getText());
             } else {
                 note = mWhatText.getText().toString();
             }
         } else {
+            Log.i(TAG,"No what " + mWhereText.length());
             if (mWhereText.length() > 0) {
                 note = String.format("Sounds at %s", mWhereText.getText());
             } else {
@@ -1019,7 +1105,7 @@ public class ScCreate extends ScActivity {
             long time = 0;
             switch (mAudioProfile) {
                 case Profile.RAW:
-                    time = CloudUtils.getPCMTime(position, REC_SAMPLE_RATE, REC_CHANNELS, REC_BITS_PER_SAMPLE);
+                    time = CloudUtils.getPCMTime(position, PCM_REC_SAMPLE_RATE, PCM_REC_CHANNELS, PCM_REC_BITS_PER_SAMPLE);
                     break;
             }
             mChrono.setText(CloudUtils.makeTimeString(
