@@ -84,6 +84,8 @@ public class CloudCreateService extends Service {
 
     private boolean mCurrentUploadCancelled = false;
 
+    private long mRecordStartTime;
+
     private int mCurrentState = 0;
     private int frameCount;
 
@@ -238,12 +240,12 @@ public class CloudCreateService extends Service {
 
         startForeground(CREATE_NOTIFY_ID, mNotification);
         mRecording = true;
-
+        mRecordStartTime = System.currentTimeMillis();
     }
 
 
     public void onRecordFrameUpdate(float maxAmplitude) {
-        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
+        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude, System.currentTimeMillis() - mRecordStartTime);
         // this should happen every second
         if (frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
     }
@@ -265,7 +267,7 @@ public class CloudCreateService extends Service {
     private void updateRecordTicker() {
         mNotification.setLatestEventInfo(getApplicationContext(), mCreateEventTitle, CloudUtils
                 .formatString(mCreateEventMessage, CloudUtils.getPCMTime(mRecordFile,
-                        ScCreate.PCM_REC_SAMPLE_RATE, ScCreate.PCM_REC_CHANNELS,
+                        ScCreate.REC_SAMPLE_RATE, ScCreate.PCM_REC_CHANNELS,
                         ScCreate.PCM_REC_BITS_PER_SAMPLE)), mPendingIntent);
 
         nm.notify(CREATE_NOTIFY_ID, mNotification);
@@ -335,9 +337,11 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
-                if (param.encode && param.trackFile.delete()) {
-                    Log.v(TAG, "deleted file " + param.trackFile);
+
+                if (param.encode && param.trackFile.exists() && param.trackFile.delete()) {
+                    Log.v(TAG, "deleted track file after encoding ");
                 }
+
 
                 mUploadTask = new UploadOggTask((CloudAPI) getApplication());
 
@@ -504,6 +508,7 @@ public class CloudCreateService extends Service {
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         if (params.isSuccess()) {
+
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
                             getString(R.string.cloud_uploader_notification_finished_message),

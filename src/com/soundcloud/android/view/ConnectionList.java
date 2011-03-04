@@ -183,8 +183,10 @@ public class ConnectionList extends LinearLayout {
                 protected void onPreExecute() {
                 }
 
+                @SuppressWarnings("unchecked")
                 @Override
                 protected void onPostExecute(List<Connection> connections) {
+
                     if (connections != null) {
                         mFailed = false;
                         setConnections(Connection.addUnused(connections));

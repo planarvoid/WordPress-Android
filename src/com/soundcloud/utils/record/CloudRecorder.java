@@ -26,6 +26,7 @@ public class CloudRecorder {
 
         // best available quality on device
         public static int best() {
+            Log.i(TAG,"Checking Best Quality by sdk " + Build.VERSION.SDK_INT);
             return Build.VERSION.SDK_INT >= 10 ? ENCODED_HIGH : RAW;
         }
 
@@ -95,7 +96,7 @@ public class CloudRecorder {
             case Profile.RAW: {
                 nChannels = 1;
                 mSamples = 16;
-                mSampleRate = ScCreate.PCM_REC_SAMPLE_RATE;
+                mSampleRate = ScCreate.REC_SAMPLE_RATE;
                 int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
                 framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
@@ -117,20 +118,20 @@ public class CloudRecorder {
             }
 
             case Profile.ENCODED_HIGH:
+                mRecorder = new MediaRecorder();
+                mRecorder.setAudioSource(audioSource);
+                mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mRecorder.setAudioEncodingBitRate(96000);
+                break;
             case Profile.ENCODED_LOW:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
-                mRecorder.setAudioSamplingRate(ScCreate.PCM_REC_SAMPLE_RATE);
-                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-
-                if (profile == Profile.ENCODED_LOW) {
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                    mRecorder.setAudioEncodingBitRate(12200);
-                } else {
-                    // only supported on API level => 10
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                    mRecorder.setAudioEncodingBitRate(96000);
-                }
+                mRecorder.setAudioSamplingRate(8000); //max functional sample rate for amr
+                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                mRecorder.setAudioEncodingBitRate(12200);
                 break;
         }
 
@@ -374,6 +375,7 @@ public class CloudRecorder {
             switch (msg.what) {
                 case REFRESH:
 
+                    Log.i(TAG,"RRREFRESH " + service);
                     if (service != null) {
                         int mCurrentMax = mRecorder.getMaxAmplitude();
 

@@ -186,9 +186,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     private RecordListener mRecListener = null;
 
-    public void onFrameUpdate(float maxAmplitude) {
+    public void onFrameUpdate(float maxAmplitude, long elapsed) {
         if (mRecListener != null) {
-            mRecListener.onFrameUpdate(maxAmplitude);
+            mRecListener.onFrameUpdate(maxAmplitude, elapsed);
         }
     }
 
@@ -198,7 +198,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     // Define our custom Listener interface
     public interface RecordListener {
-        public abstract void onFrameUpdate(float maxAmplitude);
+        public abstract void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
 

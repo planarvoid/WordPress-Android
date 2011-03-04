@@ -12,7 +12,6 @@ import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.utils.AnimUtils;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.record.CloudRecorder;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
@@ -73,6 +72,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScCreate extends ScActivity {
     private static final String TAG = "ScCreate";
@@ -97,13 +98,15 @@ public class ScCreate extends ScActivity {
 
     private ImageButton btnAction;
 
+    private File mRecordDir;
     private File mRecordFile;
+
     private String mArtworkUri;
     private Bitmap mArtworkBitmap;
 
     private CreateState mLastState, mCurrentState;
 
-    private int mRecProgressCounter = 0;
+    private long mLastDisplayedTime = 0;
 
     private TextView mChrono;
 
@@ -142,7 +145,7 @@ public class ScCreate extends ScActivity {
     private String mDurationFormatShort;
     private String mCurrentDurationString;
 
-    public static int PCM_REC_SAMPLE_RATE = 44100;
+    public static int REC_SAMPLE_RATE = 44100;
     public static int PCM_REC_CHANNELS = 1;
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
@@ -152,6 +155,11 @@ public class ScCreate extends ScActivity {
 
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
+
+    private static final String RAW_PATTERN = "([^\\s]+(\\.(?i)(2|pcm))$)";
+    private static final String COMPRESSED_PATTERN = "([^\\s]+(\\.(?i)(0|1|mp4|ogg))$)";
+    private Pattern pattern;
+    private Matcher matcher;
 
 
     @Override
@@ -167,7 +175,9 @@ public class ScCreate extends ScActivity {
 
         updateUi(false);
 
-        mRecordFile = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/rec.pcm");
+        mRecordDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
+        if (!mRecordDir.exists()) mRecordDir.mkdirs();
+
         mRecordErrorMessage = "";
 
         // XXX do in manifest
@@ -194,6 +204,7 @@ public class ScCreate extends ScActivity {
             }
         }
 
+        boolean takeAction = false;
         if (streamFile != null && streamFile.exists()) {
             mRecordFile = streamFile;
             mCurrentState = CreateState.IDLE_UPLOAD;
@@ -204,17 +215,35 @@ public class ScCreate extends ScActivity {
                     mCurrentState = CreateState.UPLOAD;
                 } else if (mCurrentState == CreateState.UPLOAD) {
                     mCurrentState = CreateState.IDLE_RECORD;
-                } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordFile.exists()) {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                    loadPlaybackTrack();
+                    takeAction = true;
+                } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordDir.list().length > 0) {
+                    // find the oldest valid record file in the directory
+                    for (File f : mRecordDir.listFiles()){
+                        Log.i(TAG,"Checking existing recording file " + f.getName());
+                        if ((mRecordFile == null || f.lastModified() < mRecordFile.lastModified()) && (isRawFilename(f.getName()) || isCompressedFilename(f.getName())))
+                            mRecordFile = f;
+                    }
+
+                    if (mRecordFile != null){
+                        mAudioProfile = isRawFilename(mRecordFile.getName()) ? 2 : 1;
+                        Log.i(TAG,"Found an older file, " + mRecordFile.getName() + ", profile set to "+ mAudioProfile);
+                        mCurrentState = CreateState.IDLE_PLAYBACK;
+                        loadPlaybackTrack();
+                    } else {
+                        // delete whatever is in the rec directory, we can't use it
+                        takeAction = true;
+                    }
+
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
                 mCurrentState = CreateState.IDLE_RECORD;
             }
         }
-        updateUi(false);
+        updateUi(takeAction);
     }
+
+
 
     @Override
     protected void onResume() {
@@ -240,7 +269,7 @@ public class ScCreate extends ScActivity {
         mDurationFormatShort = getString(R.string.durationformatshort);
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mRemainingTimeCalculator.setBitRate(PCM_REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
+        mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
 
         mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
@@ -474,7 +503,7 @@ public class ScCreate extends ScActivity {
         // not currently uploading anything, so allow recording
         if (mCurrentState == CreateState.UPLOAD) {
             mCurrentState =  finished ? CreateState.IDLE_RECORD : CreateState.IDLE_PLAYBACK;
-            updateUi(false);
+            updateUi(finished ? true : false);
         }
     }
 
@@ -551,8 +580,6 @@ public class ScCreate extends ScActivity {
 
             mArtworkBitmap = BitmapFactory.decodeFile(mArtworkUri, sampleOpt);
 
-            Log.i(TAG,"BITMAP WIDTH " + mArtworkBitmap.getWidth() + " " + mArtworkBitmap.getHeight());
-
             Matrix m = new Matrix();
             float scale;
             float dx = 0, dy = 0;
@@ -607,7 +634,7 @@ public class ScCreate extends ScActivity {
         switch (mCurrentState) {
             case IDLE_RECORD:
                 goToView(0);
-                if (takeAction) clearPlaybackTrack();
+                if (takeAction) clearCurrentFiles();
 
                 btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_states));
@@ -652,8 +679,6 @@ public class ScCreate extends ScActivity {
             case IDLE_PLAYBACK:
                 goToView(0);
 
-                mChrono.setText(mCurrentDurationString);
-
                 if (takeAction) {
                     switch (mLastState) {
                         case RECORD: stopRecording(); break;
@@ -662,6 +687,8 @@ public class ScCreate extends ScActivity {
                             break;
                     }
                 }
+
+                mChrono.setText(mCurrentDurationString);
 
                 btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_play_states));
@@ -694,7 +721,7 @@ public class ScCreate extends ScActivity {
 
             case UPLOAD:
                 goToView(2);
-                clearPlaybackTrack();
+                stopPlayback();
                 flipRight();
                 if (takeAction) startUpload();
                 break;
@@ -762,13 +789,21 @@ public class ScCreate extends ScActivity {
         }
     }
 
+    private void clearCurrentFiles() {
+        if (mRecordDir.exists()){
+            for (File f : mRecordDir.listFiles()){
+                f.delete();
+            }
+        }
+    }
+
     private void startRecording() {
         pause(true);
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
 
-        mRecProgressCounter = 0;
+        mLastDisplayedTime = 0;
 
         mRemainingTimeCalculator.reset();
         mPowerGauge.clear();
@@ -781,19 +816,19 @@ public class ScCreate extends ScActivity {
             mRecordErrorMessage = getResources().getString(R.string.record_storage_is_full);
         }
 
-        Log.i(TAG,"START recording " + mCreateService);
-
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(this)
             .getString("defaultRecordingQuality", "high")
             .contentEquals("high");
 
         mAudioProfile = hiQ ? Profile.best() : Profile.low();
 
+        mRecordFile = new File(mRecordDir,"tmp." + Integer.toString(mAudioProfile));
+
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
         } else {
-            mRemainingTimeCalculator.setBitRate(PCM_REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
+            mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
             if (PCM_REC_MAX_FILE_SIZE != -1) {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
@@ -855,11 +890,11 @@ public class ScCreate extends ScActivity {
 
     public SoundCloudApplication.RecordListener recListener = new SoundCloudApplication.RecordListener() {
         @Override
-        public void onFrameUpdate(float maxAmplitude) {
+        public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
                 mPowerGauge.updateAmplitude(maxAmplitude);
                 mPowerGauge.postInvalidate();
-                onRecProgressUpdate((int) mRecordFile.length());
+                onRecProgressUpdate(elapsed);
             }
         }
     };
@@ -877,10 +912,6 @@ public class ScCreate extends ScActivity {
         // disable actions during processing and playback preparation
         btnAction.setEnabled(false);
         loadPlaybackTrack();
-    }
-
-    private void clearPlaybackTrack() {
-        mProgressBar.setProgress(0);
     }
 
     private void loadPlaybackTrack(){
@@ -942,6 +973,17 @@ public class ScCreate extends ScActivity {
             }
         }.start();
     }
+
+    private void stopPlayback() {
+        try{
+            mPlayer.stop();
+        } catch (IllegalStateException e){
+            Log.e(TAG,"error " + e.toString());
+        }
+        mProgressBar.setProgress(0);
+    }
+
+
 
     private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
         public void onStartTrackingTouch(SeekBar bar) {
@@ -1014,15 +1056,20 @@ public class ScCreate extends ScActivity {
             if (mLong != 0) tags.add("geo:long="+mLong);
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
-            data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title)));
-            data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
-
             if (mAudioProfile == Profile.RAW && !mExternalUpload) {
+                data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title,"ogg")));
                 data.put(UploadTask.Params.ENCODE, true);
                 txtUploadingStatus.setText(R.string.record_currently_encoding_uploading);
             } else {
+                if (!mExternalUpload){
+                    File newRecFile = new File(mRecordFile.getParent()+"/"+generateFilename(title,"mp4"));
+                    if (mRecordFile.renameTo(newRecFile))
+                        mRecordFile = newRecFile;
+                }
                 txtUploadingStatus.setText(R.string.record_currently_uploading);
             }
+
+            data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
@@ -1073,26 +1120,22 @@ public class ScCreate extends ScActivity {
         return title;
     }
 
-    private String generateFilename(String title) {
-        return String.format("%s_%s.ogg", title,
-                DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false))
-        );
+    private String generateFilename(String title, String extension) {
+        return String.format("%s_%s." + extension, title,
+                DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false)));
     }
 
     private String generateSharingNote() {
         String note;
-        Log.i(TAG,"GENEREATING sharing note " + mWhatText.length());
         if (mWhatText.length() > 0) {
-            Log.i(TAG,"We have a what "  + mWhereText.length());
             if (mWhereText.length() > 0) {
                 note = String.format("%s at %s", mWhatText.getText(), mWhereText.getText());
             } else {
                 note = mWhatText.getText().toString();
             }
         } else {
-            Log.i(TAG,"No what " + mWhereText.length());
             if (mWhereText.length() > 0) {
-                note = String.format("Sounds at %s", mWhereText.getText());
+                note = String.format("Sounds from %s", mWhereText.getText());
             } else {
                 note = String.format("Sounds from %s", dateString(mRecordingStarted));
             }
@@ -1100,20 +1143,25 @@ public class ScCreate extends ScActivity {
         return note;
     }
 
-    public void onRecProgressUpdate(int position) {
-        if (mRecProgressCounter % (1000 / CloudRecorder.TIMER_INTERVAL) == 0) {
-            long time = 0;
-            switch (mAudioProfile) {
-                case Profile.RAW:
-                    time = CloudUtils.getPCMTime(position, PCM_REC_SAMPLE_RATE, PCM_REC_CHANNELS, PCM_REC_BITS_PER_SAMPLE);
-                    break;
-            }
+    private boolean isRawFilename(String filename){
+        pattern = Pattern.compile(RAW_PATTERN);
+        matcher = pattern.matcher(filename);
+        return matcher.matches();
+    }
+
+    private boolean isCompressedFilename(String filename){
+        pattern = Pattern.compile(COMPRESSED_PATTERN);
+        matcher = pattern.matcher(filename);
+        return matcher.matches();
+    }
+
+    public void onRecProgressUpdate(long elapsed) {
+        if (elapsed - mLastDisplayedTime > 1000) {
             mChrono.setText(CloudUtils.makeTimeString(
-                time < 3600000 ? mDurationFormatShort : mDurationFormatLong, time));
+                elapsed < 3600000 ? mDurationFormatShort : mDurationFormatLong, elapsed/1000));
             updateTimeRemaining();
-            mRecProgressCounter = 0;
+            mLastDisplayedTime = (elapsed / 1000)*1000;
         }
-        mRecProgressCounter++;
     }
 
     public static class Capitalizer implements TextWatcher {
