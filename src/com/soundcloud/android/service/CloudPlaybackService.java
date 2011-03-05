@@ -863,6 +863,8 @@ public class CloudPlaybackService extends Service {
             }
         }
 
+        if (mPlayingData.mCacheFile.length() >= mPlayingData.filelength) return false; //no need to keep buffering
+
         return true;
     }
 
@@ -892,7 +894,7 @@ public class CloudPlaybackService extends Service {
         final long maxSize = 200000000;
 
         StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final int spaceLeft = fs.getBlockSize()
+        final long spaceLeft = ((long) fs.getBlockSize())
                 * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
 
         File cacheDir = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY);
