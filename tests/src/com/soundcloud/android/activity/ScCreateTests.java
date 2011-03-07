@@ -52,7 +52,6 @@ public class ScCreateTests implements CloudAPI.Params {
         Map args = upload();
 
         assertEquals("my soundz", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz"));
     }
 
     @Test
@@ -60,7 +59,6 @@ public class ScCreateTests implements CloudAPI.Params {
         create.mWhereText.setText("home");
         Map args = upload();
         assertEquals("home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("home"));
     }
 
     @Test
@@ -69,7 +67,6 @@ public class ScCreateTests implements CloudAPI.Params {
         create.mWhereText.setText("home");
         Map args = upload();
         assertEquals("my soundz at home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz at home"));
     }
 
     @Test
@@ -159,7 +156,7 @@ public class ScCreateTests implements CloudAPI.Params {
         assertEquals(PUBLIC, arguments.get(SHARING));
 
         assertNotNull(arguments.get(UploadTask.Params.SOURCE_PATH));
-        assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
+        //assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
         assertNull(arguments.get(UploadTask.Params.ARTWORK_PATH));
     }
 

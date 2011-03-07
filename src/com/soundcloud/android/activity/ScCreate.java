@@ -503,7 +503,7 @@ public class ScCreate extends ScActivity {
         // not currently uploading anything, so allow recording
         if (mCurrentState == CreateState.UPLOAD) {
             mCurrentState =  finished ? CreateState.IDLE_RECORD : CreateState.IDLE_PLAYBACK;
-            updateUi(finished ? true : false);
+            updateUi(finished);
         }
     }
 
@@ -1058,20 +1058,25 @@ public class ScCreate extends ScActivity {
             if (mLong != 0) tags.add("geo:long="+mLong);
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
+
             if (mAudioProfile == Profile.RAW && !mExternalUpload) {
                 data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title,"ogg")));
                 data.put(UploadTask.Params.ENCODE, true);
                 txtUploadingStatus.setText(R.string.record_currently_encoding_uploading);
             } else {
                 if (!mExternalUpload){
-                    File newRecFile = new File(mRecordFile.getParent()+"/"+generateFilename(title,"mp4"));
-                    if (mRecordFile.renameTo(newRecFile))
+                    File newRecFile = new File(mRecordDir, generateFilename(title, "mp4"));
+                    if (mRecordFile == null || mRecordFile.renameTo(newRecFile)) {
                         mRecordFile = newRecFile;
+                    }
                 }
                 txtUploadingStatus.setText(R.string.record_currently_uploading);
             }
 
-            data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
+            // WTF
+            if (mRecordFile != null) {
+                data.put(UploadTask.Params.SOURCE_PATH, mRecordFile.getAbsolutePath());
+            }
 
             if (!TextUtils.isEmpty(mArtworkUri)) {
                 data.put(UploadTask.Params.ARTWORK_PATH, mArtworkUri);
@@ -1123,8 +1128,8 @@ public class ScCreate extends ScActivity {
     }
 
     private String generateFilename(String title, String extension) {
-        return String.format("%s_%s." + extension, title,
-                DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false)));
+        return String.format("%s_%s.%s", title,
+               DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false)), extension);
     }
 
     private String generateSharingNote() {
