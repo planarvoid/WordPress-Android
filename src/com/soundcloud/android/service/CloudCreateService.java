@@ -386,7 +386,6 @@ public class CloudCreateService extends Service {
 
                 int sampleSize = options.inSampleSize;
                 int degree = 0;
-                try {
                     ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
                     int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
                     if (orientation != -1) {
@@ -406,9 +405,7 @@ public class CloudCreateService extends Service {
                             break;
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+               
 
                 if (sampleSize > 1 || degree > 0) {
                     InputStream is = new FileInputStream(param.artworkFile);

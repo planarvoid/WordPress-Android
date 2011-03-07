@@ -34,6 +34,7 @@ import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
@@ -817,7 +818,7 @@ public class ScCreate extends ScActivity {
         }
 
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(this)
-            .getString("defaultRecordingQuality", "high")
+            .getString("defaultRecordingQuality", Build.VERSION.SDK_INT >= 10 ? "low" : "high")
             .contentEquals("high");
 
         mAudioProfile = hiQ ? Profile.best() : Profile.low();

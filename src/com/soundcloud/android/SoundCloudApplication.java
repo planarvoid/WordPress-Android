@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ReportsCrashes(formKey = "dEdsVnppQ0RyOS12d0lPa0dYWDZ4Wmc6MQ")
+@ReportsCrashes(formKey = "dF9FRzEzNnpENEVZdVRFbkNXUHYwLWc6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
