@@ -107,7 +107,7 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
 
             InputStream is = resp.getEntity().getContent();
 
-            if (mActivityReference.get() != null) return false;
+            if (mActivityReference.get() == null) return false;
 
             ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 
