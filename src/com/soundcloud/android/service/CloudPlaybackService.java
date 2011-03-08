@@ -210,6 +210,8 @@ public class CloudPlaybackService extends Service {
 
     private static final int LOW_WATER_MARK = 20000;
 
+    private boolean ignoreBuffer;
+
     private boolean pausedForBuffering;
 
     private boolean initialBuffering = true;
@@ -610,6 +612,7 @@ public class CloudPlaybackService extends Service {
 
         // new play data
         mPlayingData = track;
+        ignoreBuffer = true;
 
         setPlayingStatus();
 
@@ -693,6 +696,7 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright) {
                     pausedForBuffering = true;
                     initialBuffering = true;
+                    ignoreBuffer = false;
 
                     if (checkNetworkStatus())
                         prepareDownload(mPlayingData);
@@ -767,7 +771,7 @@ public class CloudPlaybackService extends Service {
                 return false;
 
             if (mPlayingData.filelength == 0 || mPlayingData.mCacheFile == null) {
-                if (CloudUtils.checkThreadAlive(mDownloadThread))
+                if (CloudUtils.checkThreadAlive(mDownloadThread) || ignoreBuffer)
                     return true;
                 else {
                     Log.i(TAG, "No Thread, No Cache, send exception");
