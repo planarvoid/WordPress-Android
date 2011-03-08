@@ -2,10 +2,12 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.ScContentProvider;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -91,6 +93,12 @@ public class User extends BaseObj implements Parcelable {
                 }
             }
         }
+    }
+
+    public User (SharedPreferences preferences){
+        id = preferences.getLong(SoundCloudApplication.USER_ID, -1);
+        username = preferences.getString(SoundCloudApplication.USERNAME, "");
+        primary_email_confirmed = preferences.getBoolean(SoundCloudApplication.EMAIL_CONFIRMED, false);
     }
 
     public void update(Cursor cursor) {

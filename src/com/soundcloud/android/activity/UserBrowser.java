@@ -182,11 +182,9 @@ public class UserBrowser extends ScActivity {
 
     private void loadYou() {
         if (getUserId() != -1) {
-            mapUser(SoundCloudDB.getInstance().resolveUserById(
-                    getContentResolver(),
-                    getUserId()));
-
-            mUserLoadId = getUserId();
+            User u = SoundCloudDB.getInstance().resolveUserById(getContentResolver(), getUserId());
+            mapUser(u == null ? new User(PreferenceManager.getDefaultSharedPreferences(this)) : u);
+            mUserLoadId = u.id;
         }
         build();
     }

@@ -1,6 +1,16 @@
 
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.objects.User;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -16,19 +26,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.User;
 
 import java.util.concurrent.Semaphore;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 /**
  * Adopted from UrbanStew's soundclouddroid authorization process
- * 
+ *
  * @http://code.google.com/p/soundclouddroid/
  */
 public class Authorize extends Activity implements CloudAPI.Client {
@@ -150,6 +153,8 @@ public class Authorize extends Activity implements CloudAPI.Client {
                 .putString(SoundCloudApplication.SECRET, secret)
                 .putBoolean(SoundCloudApplication.EMAIL_CONFIRMED, me.primary_email_confirmed)
                 .commit();
+
+        SoundCloudDB.getInstance().resolveUser(getContentResolver(), me, WriteState.all, me.id);
     }
 
 
