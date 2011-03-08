@@ -225,7 +225,7 @@ public class ScCreate extends ScActivity {
                     }
 
                     if (mRecordFile != null){
-                        mAudioProfile = isRawFilename(mRecordFile.getName()) ? 2 : 1;
+                        mAudioProfile = isRawFilename(mRecordFile.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
                         Log.i(TAG,"Found an older file, " + mRecordFile.getName() + ", profile set to "+ mAudioProfile);
                         mCurrentState = CreateState.IDLE_PLAYBACK;
                         loadPlaybackTrack();
@@ -822,7 +822,7 @@ public class ScCreate extends ScActivity {
 
         mAudioProfile = hiQ ? Profile.best() : Profile.low();
 
-        mRecordFile = new File(mRecordDir,"tmp." + Integer.toString(mAudioProfile));
+        mRecordFile = new File(mRecordDir,"tmp." + mAudioProfile);
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;

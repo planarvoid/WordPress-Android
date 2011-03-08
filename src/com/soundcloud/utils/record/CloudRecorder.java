@@ -75,6 +75,10 @@ public class CloudRecorder {
 
     private int mAudioProfile;
 
+    private float mCurrentMaxAmplitude = 0;
+
+    private Thread readerThread = null;
+
     // Number of frames written to file on each output(only in uncompressed
     // mode)
     private int framePeriod;
@@ -83,6 +87,12 @@ public class CloudRecorder {
     private byte[] buffer;
 
     private CloudCreateService service;
+
+    private static final int REFRESH = 1;
+
+    private long mLastRefresh = 0;
+
+    private int mLastMax = 0;
 
     /**
      * Default constructor Instantiates a new recorder, in case of compressed
@@ -112,8 +122,6 @@ public class CloudRecorder {
                     Log.w(TAG, "Increasing buffer size to " + bufferSize);
                 }
                 mAudioRecord = new AudioRecord(audioSource, mSampleRate, nChannels + 1, audioFormat, bufferSize);
-                mAudioRecord.setRecordPositionUpdateListener(updateListener);
-                mAudioRecord.setPositionNotificationPeriod(framePeriod);
                 break;
             }
 
@@ -149,44 +157,6 @@ public class CloudRecorder {
         return mState;
     }
 
-    /*
-     * Method used for recording.
-     */
-    private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
-        public void onPeriodicNotification(AudioRecord recorder) {
-
-            if (mState != State.RECORDING) return;
-
-            int shortValue;
-            float maxAmplitude = 0;
-
-            mAudioRecord.read(buffer, 0, buffer.length); // Fill buffer
-            try {
-                mWriter.write(buffer); // Write buffer to file
-
-                for (int i = 0; i < buffer.length / 2; i++) {
-                    shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
-                    if (Math.abs(shortValue) > maxAmplitude) {
-                        maxAmplitude = Math.abs(shortValue);
-                    }
-                }
-
-                if (service != null) {
-                    // hack for not having a proper median. using a square root normalizes
-                    // the amplitude and makes a better looking wave representation
-                    service.onRecordFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
-                }
-
-            } catch (IOException e) {
-                Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
-                stop();
-            }
-        }
-
-        public void onMarkerReached(AudioRecord recorder) {
-            // NOT USED
-        }
-    };
 
     public void setRecordService(CloudCreateService service) {
         this.service = service;
@@ -307,17 +277,18 @@ public class CloudRecorder {
     public void start() {
         if (mState == State.READY) {
             if (mAudioProfile == Profile.RAW) {
-
-                mState = State.RECORDING;
                 mAudioRecord.startRecording();
-                mAudioRecord.read(buffer, 0, buffer.length);
-
+                readerThread = new Thread(new Runnable() {
+                    public void run() { readerRun(); }
+                }, "Audio Reader");
+                readerThread.setPriority(Thread.MAX_PRIORITY);
+                readerThread.start();
             } else {
-                mState = State.RECORDING;
                 mRecorder.start();
-                queueNextRefresh(TIMER_INTERVAL);
             }
+            mState = State.RECORDING;
 
+            queueNextRefresh(TIMER_INTERVAL);
         } else {
             Log.e(TAG, "start() called on illegal state");
             mState = State.ERROR;
@@ -331,8 +302,16 @@ public class CloudRecorder {
      */
     public void stop() {
         if (mState == State.RECORDING) {
+            mState = State.STOPPED;
             if (mAudioProfile == Profile.RAW) {
                 mAudioRecord.stop();
+
+                try {
+                    if (readerThread != null)
+                        readerThread.join();
+                } catch (InterruptedException e) { }
+                readerThread = null;
+
                 try {
                     long length = mWriter.length();
                     // fill in missing header bytes
@@ -345,29 +324,66 @@ public class CloudRecorder {
                     Log.e(TAG, "I/O exception occured while closing output file");
                     mState = State.ERROR;
                 }
+
+
             } else {
                 mRecorder.stop();
-                refreshHandler.obtainMessage(REFRESH);
-                refreshHandler.removeMessages(REFRESH);
-                mLastRefresh = 0;
-
             }
-            mState = State.STOPPED;
+
+
+            refreshHandler.obtainMessage(REFRESH);
+            refreshHandler.removeMessages(REFRESH);
+            mLastRefresh = 0;
+
+
+
         } else {
             Log.e(TAG, "stop() called on illegal state");
             mState = State.ERROR;
         }
     }
 
+
     /**
-     * Refresh functions, used for compressed recording notifications
+     * Main loop of the audio reader.  This runs in its own thread.
      */
+    private void readerRun() {
+        while (mState == State.RECORDING) {
+            long stime = System.currentTimeMillis();
+            int shortValue;
 
-    private static final int REFRESH = 1;
+            synchronized (buffer) {
+                mAudioRecord.read(buffer, 0, buffer.length); // Fill buffer
+                try {
+                    mWriter.write(buffer); // Write buffer to file
 
-    private long mLastRefresh = 0;
+                    for (int i = 0; i < buffer.length / 2; i++) {
+                        shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
+                        if (Math.abs(shortValue) > mCurrentMaxAmplitude) {
+                            mCurrentMaxAmplitude = Math.abs(shortValue);
+                        }
+                    }
 
-    private int mLastMax = 0;
+                } catch (IOException e) {
+                    Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
+                    stop();
+                }
+
+                long etime = System.currentTimeMillis();
+                long sleep = TIMER_INTERVAL - (etime - stime);
+                if (sleep < 5)
+                    sleep = 5;
+                try {
+                    buffer.wait(sleep);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            }
+    }
+
+
+
 
     private final Handler refreshHandler = new Handler() {
         @Override
@@ -375,9 +391,22 @@ public class CloudRecorder {
             switch (msg.what) {
                 case REFRESH:
 
-                    Log.i(TAG,"RRREFRESH " + service);
+                    if (mState != State.RECORDING) return;
+
+                    int mCurrentMax = 0;
+                    switch (mAudioProfile) {
+                        case Profile.RAW:
+                            mCurrentMax = (int) mCurrentMaxAmplitude;
+                            mCurrentMaxAmplitude = 0;
+                            break;
+
+                        case Profile.ENCODED_HIGH :
+                        case Profile.ENCODED_LOW :
+                            mCurrentMax = mRecorder.getMaxAmplitude();
+                            break;
+                    }
+
                     if (service != null) {
-                        int mCurrentMax = mRecorder.getMaxAmplitude();
 
                         // max amplitude returns false 0's sometimes, so just
                         // use the last value. It is usually only for a frame
@@ -392,6 +421,8 @@ public class CloudRecorder {
                         // looking wave representation
                         service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
                     }
+
+
 
                     long next = TIMER_INTERVAL;
                     if (mLastRefresh == 0) {

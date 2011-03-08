@@ -410,6 +410,8 @@ public class CloudPlaybackService extends Service {
         mServiceStartId = startId;
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
+        Log.i(TAG,"ON START COMMAND " + intent.getLongExtra("trackId", -1));
+
         if (intent != null) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
@@ -418,7 +420,7 @@ public class CloudPlaybackService extends Service {
                 next(true);
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
-                    prev();
+                    prev(true);
                 } else {
                     seek(0);
                     play();
@@ -435,8 +437,10 @@ public class CloudPlaybackService extends Service {
                 pause();
                 seek(0);
             } else if (ADD_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got an add fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got a remove fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
@@ -556,16 +560,20 @@ public class CloudPlaybackService extends Service {
     }
 
     private void openCurrent() {
+        openCurrent(false);
+    }
+
+    private void openCurrent(boolean force) {
         Log.i(TAG, "Open Current " + mPlayListManager.getCurrentLength());
         if (mPlayListManager.getCurrentLength() == 0) {
             return;
         }
-        openAsync(mPlayListManager.getCurrentTrack());
+        openAsync(mPlayListManager.getCurrentTrack(), force);
     }
 
     Thread mStopThread = null;
 
-    public void openAsync(Track track) {
+    public void openAsync(Track track, boolean force) {
         Log.i(TAG, "TRACK " + track);
         if (track == null) {
             return;
@@ -579,6 +587,8 @@ public class CloudPlaybackService extends Service {
 
         mLoadPercent = 0;
         mCurrentBuffer = 0;
+
+        mClearToPlay = force; //otherwise it will wait for the waveform
 
         Log.i(TAG, "Playing Data " + mPlayingData);
 
@@ -600,7 +610,6 @@ public class CloudPlaybackService extends Service {
 
         // new play data
         mPlayingData = track;
-        mClearToPlay = false;
 
         setPlayingStatus();
 
@@ -616,7 +625,6 @@ public class CloudPlaybackService extends Service {
     private void stopStreaming(Long continueId) {
         synchronized (this) {
             // stop checking buffer
-            Log.i(TAG, "PPPAUSED stop streaming");
             pausedForBuffering = false;
 
             mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
@@ -808,8 +816,6 @@ public class CloudPlaybackService extends Service {
                 // playback file
                 if (mCurrentBuffer > PLAYBACK_MARK
                         || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
-
-                    Log.i(TAG, "PPPAUSED buffering done " + mClearToPlay);
 
                     if (!mClearToPlay)
                         return true;
@@ -1115,26 +1121,26 @@ public class CloudPlaybackService extends Service {
         return mIsSupposedToBePlaying;
     }
 
-    public void prev() {
+    public void prev(boolean force) {
         synchronized (this) {
             if (mPlayListManager.prev())
-                openCurrent();
+                openCurrent(force);
         }
+    }
+
+    public void prev() {
+        prev(false);
     }
 
     public void next(boolean force) {
         synchronized (this) {
-
             if (mPlayListManager.next())
-                openCurrent();
+                openCurrent(force);
         }
     }
 
     public void next() {
-        synchronized (this) {
-            if (mPlayListManager.next())
-                openCurrent();
-        }
+        next(false);
     }
 
     /**
@@ -1143,7 +1149,7 @@ public class CloudPlaybackService extends Service {
      */
     public void restart() {
         synchronized (this) {
-            openCurrent();
+            openCurrent(true);
         }
     }
 
@@ -1190,6 +1196,7 @@ public class CloudPlaybackService extends Service {
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
+            Log.i(TAG,"Set Favorite Status " + trackId + " " + mPlayingData.id);
             if (mPlayingData.id == trackId) {
                 if (favoriteStatus)
                     addFavorite();
@@ -1201,6 +1208,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void addFavorite() {
+        Log.i(TAG,"Adding favorite");
         FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1219,6 +1227,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
+        Log.i(TAG,"Removing favorite");
         FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1237,6 +1246,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
+        Log.i(TAG,"On Favorite Status Set " + trackId + " " + mPlayingData.id);
         if (mPlayingData.id == trackId) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
@@ -1714,7 +1724,7 @@ public class CloudPlaybackService extends Service {
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
                 next(true);
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
-                prev();
+                prev(true);
             } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
                 if (isPlaying()) {
                     pause();
@@ -1733,8 +1743,10 @@ public class CloudPlaybackService extends Service {
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
             } else if (ADD_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got an add fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got a remove fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
