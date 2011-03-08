@@ -17,6 +17,7 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.utils.WorkspaceView;
 import com.soundcloud.utils.WorkspaceView.OnScrollListener;
@@ -133,6 +134,8 @@ public class UserBrowser extends ScActivity {
 
             build();
 
+            restoreAdapterStates((Object[]) mPreviousState[4]);
+
         } else {
             Intent intent = getIntent();
             if (intent.hasExtra("user")) {
@@ -175,8 +178,28 @@ public class UserBrowser extends ScActivity {
                 super.onRetainNonConfigurationInstance(),
                 mLoadDetailsTask,
                 mUserData,
-                mCheckFollowingTask
+                mCheckFollowingTask,
+                getAdapterStates()
         };
+    }
+
+    private Object[] getAdapterStates() {
+        Object[] states = new Object[mLists.size()];
+        int i = 0;
+        for (LazyListView list : mLists) {
+            states[i] = LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()) ? (list
+                    .getWrapper()).saveState() : null;
+            i++;
+        }
+        return states;
+    }
+
+    private void restoreAdapterStates(Object[] adapterStates){
+        int i = 0;
+        for ( Object adapterState : adapterStates ){
+            if (adapterState != null) (mLists.get(i).getWrapper()).restoreState((Object[]) adapterState);
+            i++;
+        }
     }
 
 
