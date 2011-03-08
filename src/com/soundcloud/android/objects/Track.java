@@ -133,6 +133,7 @@ public class Track extends BaseObj implements Parcelable {
         public static final String DOWNLOAD_URL = "download_url";
         public static final String STREAM_URL = "stream_url";
         public static final String STREAMABLE = "streamable";
+        public static final String SHARING = "sharing";
         public static final String USER_ID = "user_id";
         public static final String USER_FAVORITE = "user_favorite";
         public static final String USER_PLAYED = "user_played";

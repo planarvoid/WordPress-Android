@@ -771,6 +771,7 @@ public class CloudPlaybackService extends Service {
                     return true;
                 else {
                     Log.i(TAG, "No Thread, No Cache, send exception");
+                    sendDownloadException();
                     return false;
                 }
             }
