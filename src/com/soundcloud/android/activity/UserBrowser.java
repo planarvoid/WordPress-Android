@@ -70,7 +70,7 @@ public class UserBrowser extends ScActivity {
 
     private long mUserLoadId;
 
-    private boolean _isFollowing;
+    private CheckFollowingStatusTask mCheckFollowingTask;
     private LoadTask mLoadDetailsTask;
 
     private int mFollowResult;
@@ -117,17 +117,35 @@ public class UserBrowser extends ScActivity {
         mFollow.setVisibility(View.GONE);
         mLastTabIndex = 0;
 
-        Intent intent = getIntent();
+        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        if (mPreviousState != null){
+            mLoadDetailsTask = (LoadTask) mPreviousState[1];
+            mLoadDetailsTask.setActivity(this);
 
-        if (intent.hasExtra("user")) {
-            loadUserByObject((User) intent.getParcelableExtra("user"));
-            intent.removeExtra("user");
-        } else if (intent.hasExtra("userId")) {
-            loadUserById(intent.getLongExtra("userId", -1));
-            intent.removeExtra("userId");
+            mapUser((User) mPreviousState[2]);
+
+            mCheckFollowingTask = (CheckFollowingStatusTask) mPreviousState[3];
+            if (CloudUtils.isTaskFinished(mCheckFollowingTask)){
+                setFollowingButtonText();
+            } else {
+                mCheckFollowingTask.setUserBrowser(this);
+            }
+
+            build();
+
         } else {
-            loadYou();
+            Intent intent = getIntent();
+            if (intent.hasExtra("user")) {
+                loadUserByObject((User) intent.getParcelableExtra("user"));
+                intent.removeExtra("user");
+            } else if (intent.hasExtra("userId")) {
+                loadUserById(intent.getLongExtra("userId", -1));
+                intent.removeExtra("userId");
+            } else {
+                loadYou();
+            }
         }
+
 
         loadDetails();
     }
@@ -137,9 +155,6 @@ public class UserBrowser extends ScActivity {
     protected void onResume() {
         tracker.trackPageView("/profile");
         tracker.dispatch();
-
-        checkFollowingStatus();
-
         super.onResume();
     }
 
@@ -152,6 +167,16 @@ public class UserBrowser extends ScActivity {
         } else if (mTabHost != null) {
             ((ScTabView) mTabHost.getCurrentView()).onStart();
         }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return new Object[] {
+                super.onRetainNonConfigurationInstance(),
+                mLoadDetailsTask,
+                mUserData,
+                mCheckFollowingTask
+        };
     }
 
 
@@ -193,20 +218,24 @@ public class UserBrowser extends ScActivity {
     private void loadUserById(long userId) {
         mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
         build();
+        checkFollowingStatus();
     }
 
     private void loadUserByObject(User userInfo) {
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
+        checkFollowingStatus();
     }
 
 
     private void loadDetails() {
-        mLoadDetailsTask = new LoadUserDetailsTask();
-        mLoadDetailsTask.loadModel = CloudUtils.Model.user;
-        mLoadDetailsTask.setActivity(this);
-        mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(getDetailsUrl(), null));
+        if (mLoadDetailsTask == null){
+            mLoadDetailsTask = new LoadUserDetailsTask();
+            mLoadDetailsTask.loadModel = CloudUtils.Model.user;
+            mLoadDetailsTask.setActivity(this);
+        }
+        if (CloudUtils.isTaskPending(mLoadDetailsTask)) mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(getDetailsUrl(), null));
     }
 
     private class LoadUserDetailsTask extends LoadDetailsTask {
@@ -375,19 +404,20 @@ public class UserBrowser extends ScActivity {
 
     private void checkFollowingStatus() {
         if (isOtherUser()) {
-            new CheckFollowingStatusTask(getSoundCloudApplication()) {
-                @Override
-                protected void onPostExecute(Boolean b) {
-                    _isFollowing = (b == null) ? false : b;
-                    setFollowingButtonText();
-                }
-            }.execute(mUserLoadId);
+            mCheckFollowingTask = new CheckFollowingStatusTask(getSoundCloudApplication());
+            mCheckFollowingTask.setUserBrowser(this);
+            mCheckFollowingTask.execute(mUserLoadId);
         }
+    }
+
+    public void onCheckFollowingStatus(boolean isFollowing){
+        mUserData.current_user_following = isFollowing;
+        setFollowingButtonText();
     }
 
     private void toggleFollowing() {
         mFollow.setEnabled(false);
-        _isFollowing = !_isFollowing;
+        mUserData.current_user_following = !mUserData.current_user_following;
         setFollowingButtonText();
         mFollowResult = 0;
 
@@ -397,7 +427,7 @@ public class UserBrowser extends ScActivity {
             @Override
             public void run() {
                 try {
-                    if (_isFollowing) {
+                    if (mUserData.current_user_following) {
                         mFollowResult =
                                 getSoundCloudApplication().putContent(
                                         CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
@@ -427,7 +457,7 @@ public class UserBrowser extends ScActivity {
             handleError();
 
             if (!(mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404)) {
-                _isFollowing = !_isFollowing;
+                mUserData.current_user_following = !mUserData.current_user_following;
                 setFollowingButtonText();
             }
             mFollow.setEnabled(true);
@@ -436,7 +466,7 @@ public class UserBrowser extends ScActivity {
 
     private void setFollowingButtonText() {
         if (isOtherUser()) {
-            mFollow.setImageResource(_isFollowing ?
+            mFollow.setImageResource(mUserData.current_user_following ?
                     R.drawable.ic_unfollow_states : R.drawable.ic_follow_states);
 
             mFollow.setVisibility(View.VISIBLE);
@@ -446,6 +476,9 @@ public class UserBrowser extends ScActivity {
     private void mapUser(User user) {
         if (user == null || user.id == null)
             return;
+
+        // need to maintain this variable in case we already checked following status
+        if (mUserData != null) user.current_user_following = mUserData.current_user_following;
 
         mUserData = user;
         mUserLoadId = mUserData.id;

@@ -97,6 +97,8 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
         try {
             Log.d(TAG, "Executing request " +req.getRequestLine().getUri());
 
+            if (mActivityReference.get() == null) return false;
+
             HttpResponse resp = mActivityReference.get()
                     .getSoundCloudApplication()
                     .execute(req);
@@ -107,7 +109,7 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
 
             InputStream is = resp.getEntity().getContent();
 
-            if (mActivityReference.get() == null) return false;
+            if (mActivityReference.get() == null || mAdapterReference.get() == null) return false;
 
             ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 

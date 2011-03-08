@@ -45,6 +45,7 @@ public class User extends BaseObj implements Parcelable {
     public String plan;
 
     public boolean primary_email_confirmed;
+    public boolean current_user_following;
 
     public void resolveLocation() {
         this.location = CloudUtils.getLocationString(city == null ? "" : city,

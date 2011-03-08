@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
     protected LazyListView mListView;
-    private Object[] mPreviousState;
     private ScTabView mTracklistView;
 
     @Override

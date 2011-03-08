@@ -64,6 +64,7 @@ public abstract class ScActivity extends Activity {
     private Exception mException = null;
     private String mError = null;
 
+    protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
     protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
