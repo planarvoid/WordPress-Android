@@ -151,6 +151,7 @@ public class Settings extends PreferenceActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
+        // TODO need to finish other activities since they might have references to old credentials
     }
 
     public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {
