@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +36,8 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -556,10 +559,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.favoritings_count));
             ((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer.toString(mPlayingTrack.download_count));
             ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer.toString(mPlayingTrack.comment_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtInfo)).setText(Html.fromHtml(mPlayingTrack.trackInfo()));
 
+            TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
+            txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
+
+            // for some reason this needs to be set to support links
+            // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
+            MovementMethod mm = txtInfo.getMovementMethod();
+            if (!(mm instanceof LinkMovementMethod)) {
+                txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+            }
             fillTrackInfoComments();
-
             mTrackInfoFilled = true;
         }
     }

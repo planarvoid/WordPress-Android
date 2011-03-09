@@ -241,13 +241,20 @@ public class Track extends BaseObj implements Parcelable {
         final StringBuilder sb = new StringBuilder(200);
         final String license = TextUtils.isEmpty(this.license) ? "all-rights-reserved" : this.license;
         if (license.startsWith("cc-")) {
+            String cc = license.substring(3, license.length());
+
             sb.append("Licensed under a Creative Commons License ");
-            sb.append('(').append(
-                license.substring(3, license.length()).toUpperCase()
-            ).append(')');
+            sb.append('(').append("<a href='").append(getCCLink(cc)).append("'>")
+               .append(cc.toUpperCase())
+               .append("</a>")
+               .append(')');
         } else if ("no-rights-reserved".equals(license)) {
             sb.append("No Rights Reserved");
         }
         return sb.toString();
+    }
+
+    private String getCCLink(String license) {
+        return "http://creativecommons.org/licenses/"+license+"/3.0";
     }
 }

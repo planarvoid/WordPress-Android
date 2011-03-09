@@ -40,7 +40,8 @@ public class TrackTests {
     public void shouldDisplayNiceCCLicensesWithLinks() throws Exception {
         Track t = new Track();
         t.license = "cc-by-nd";
-        assertThat(t.formattedLicense(), equalTo("Licensed under a Creative Commons License (BY-ND)"));
+        assertThat(t.formattedLicense(), equalTo("Licensed under a Creative Commons License " +
+                "(<a href='http://creativecommons.org/licenses/by-nd/3.0'>BY-ND</a>)"));
 
         t.license = "no-rights-reserved";
         assertThat(t.formattedLicense(), equalTo("No Rights Reserved"));

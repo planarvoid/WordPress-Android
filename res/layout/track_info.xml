@@ -72,10 +72,14 @@
           </RelativeLayout>
         </TableRow>
       </TableLayout>
-      <TextView android:layout_height="wrap_content"
-        style="@style/txt_player_track_info" android:id="@+id/txtInfo"
-        android:padding="3dip" android:text="" android:layout_below="@+id/tblStats"
-        android:layout_width="fill_parent" />
+      <TextView android:id="@+id/txtInfo"
+        android:layout_height="wrap_content"
+        style="@style/txt_player_track_info"
+        android:padding="3dip"
+        android:linksClickable="true"
+        android:text=""
+        android:layout_below="@+id/tblStats"
+        android:layout_width="fill_parent"/>
       <ViewStub
           android:id="@+id/stub_comments_list"
           android:inflatedId="@+id/comments_list"
