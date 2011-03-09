@@ -362,6 +362,7 @@ public class UserBrowser extends ScActivity {
         setTabTextInfo();
 
         mTabHost.setOnTabChangedListener(tabListener);
+        hsv.setFillViewport(true);
     }
 
 
@@ -371,6 +372,9 @@ public class UserBrowser extends ScActivity {
 
     private void setTabTextInfo() {
         if (mTabWidget != null && mUserData != null) {
+
+            CloudUtils.setTabText(mTabWidget, 2, getString(R.string.tab_info));
+
             if (!TextUtils.isEmpty(mUserData.track_count)) {
                 CloudUtils.setTabText(mTabWidget, 0, getString(R.string.tab_tracks)
                         + " (" + mUserData.track_count + ")");
@@ -405,6 +409,8 @@ public class UserBrowser extends ScActivity {
 
             findViewById(R.id.tab_scroller).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
                     + mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getWidth() / 2 - getWidth() / 2, 0);
+
+            ((HorizontalScrollView) findViewById(R.id.tab_scroller)).setFillViewport(true);
         }
     }
 

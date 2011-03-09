@@ -274,10 +274,15 @@ public class CloudUtils {
             RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(index);
             for (int j = 0; j < relativeLayout.getChildCount(); j++) {
                 if (relativeLayout.getChildAt(j) instanceof TextView) {
+                    ((TextView) relativeLayout.getChildAt(j)).setHorizontallyScrolling(false);
+                    ((TextView) relativeLayout.getChildAt(j)).setEllipsize(null);
+                    ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
                     ((TextView) relativeLayout.getChildAt(j)).setText(newText);
+                    ((TextView) relativeLayout.getChildAt(j)).requestLayout();
                 }
             }
-
+            relativeLayout.getLayoutParams().width =  LayoutParams.WRAP_CONTENT;
+            relativeLayout.forceLayout();
         }
 
     }
