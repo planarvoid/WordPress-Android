@@ -230,7 +230,7 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
+        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED || getUserId() == -1) {
             pause(true);
 
             onReauthenticate();

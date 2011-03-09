@@ -231,9 +231,9 @@ public class UserBrowser extends ScActivity {
     private void loadYou() {
         if (getUserId() != -1) {
             User u = SoundCloudDB.getInstance().resolveUserById(getContentResolver(), getUserId());
-            mapUser(u == null ? new User(PreferenceManager.getDefaultSharedPreferences(this)) : u);
-
-            if (u != null) mUserLoadId = u.id;
+            if (u == null) u = new User(PreferenceManager.getDefaultSharedPreferences(this));
+            mapUser(u);
+            mUserLoadId = u.id;
         }
         build();
     }
@@ -299,7 +299,7 @@ public class UserBrowser extends ScActivity {
         LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), CloudUtils.Model.track);
         if (isOtherUser()){
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text).replace("{username}", mUserData.username));
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text).replace("{username}", mUserData.username == null ? "" : mUserData.username));
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
         }
@@ -311,7 +311,7 @@ public class UserBrowser extends ScActivity {
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
         if (isOtherUser()){
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text).replace("{username}", mUserData.username));
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text).replace("{username}", mUserData.username == null ? "" : mUserData.username));
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
         }
