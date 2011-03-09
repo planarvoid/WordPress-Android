@@ -268,6 +268,7 @@ public abstract class ScActivity extends Activity {
         // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
         this.getSoundCloudApplication().cachePlaylist(list);
+        if (goToPlayer) getSoundCloudApplication().playerWaitForArtwork = true;
 
         try {
             mPlaybackService.playFromAppCache(playPos);
