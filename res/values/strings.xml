@@ -485,7 +485,7 @@
   <string name="menu_clear_cache">Clear cache</string>
   <string name="menu_clear_user">Clear user data</string>
   <string name="menu_clear_user_title">Clear user data?</string>
-  <string name="menu_clear_user_desc">You will have to re-connect your soundcloud account.</string>
+  <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
   <string name="menu_connect_user">Connect soundcloud account</string>
   <string name="menu_about">About</string>
 
