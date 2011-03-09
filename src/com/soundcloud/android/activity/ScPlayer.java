@@ -458,7 +458,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         (getResources().getDisplayMetrics().density > 1) ?
                             CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.badge)
                         :
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.small), null)) == BindResult.ERROR){
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.small), null)) != BindResult.OK){
                     mInfoButton.setImageDrawable(getResources().getDrawable(
                             R.drawable.artwork_player_sm));
                 }

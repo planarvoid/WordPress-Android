@@ -70,8 +70,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private RelativeLayout mWaveformFrame;
 
-    private RelativeLayout mConnectingBar;
-
     private WaveformCommentLines mCommentLines;
 
     private ImageButton mToggleComments;
@@ -91,8 +89,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private CommentBubble mCommentBubble;
 
     private Animation mBubbleAnimation;
-
-    private Animation mConnectingAnimation;
 
     private int mWaveformErrorCount;
 
@@ -151,7 +147,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.waveformcontroller, this);
 
-        mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
+
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -194,13 +190,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showConnectingLayout() {
-        if (mConnectingAnimation != null)
-            mConnectingAnimation.cancel();
-        mConnectingBar.setVisibility(View.VISIBLE);
+       mWaveformHolder.showConnectingLayout();
     }
 
     public void hideConnectingLayout() {
-        mConnectingBar.setVisibility(View.GONE);
+        mWaveformHolder.hideConnectingLayout();
 
 
     }

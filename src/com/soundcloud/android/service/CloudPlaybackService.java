@@ -562,7 +562,6 @@ public class CloudPlaybackService extends Service {
     }
 
     private void openCurrent() {
-        Log.i(TAG, "Open Current " + mPlayListManager.getCurrentLength());
         if (mPlayListManager.getCurrentLength() == 0) {
             return;
         }
@@ -572,7 +571,6 @@ public class CloudPlaybackService extends Service {
     Thread mStopThread = null;
 
     public void openAsync(Track track) {
-        Log.i(TAG, "TRACK " + track);
         if (track == null) {
             return;
         }
@@ -587,8 +585,6 @@ public class CloudPlaybackService extends Service {
         mCurrentBuffer = 0;
 
         mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork; //otherwise it will wait for the waveform
-
-        Log.i(TAG, "Playing Data " + mPlayingData);
 
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id == track.id) {
@@ -729,8 +725,6 @@ public class CloudPlaybackService extends Service {
         synchronized (this) {
             configureTrackData(trackToCache);
 
-            Log.i(TAG, "Prepare Download " + mDownloadThread + " "
-                    + (mDownloadThread != null ? mDownloadThread.isAlive() : ""));
             if (mDownloadThread != null && mDownloadThread.isAlive()
                     && trackToCache.id == mDownloadThread.getTrackId()) {
                 // we are already downloading this
@@ -837,10 +831,11 @@ public class CloudPlaybackService extends Service {
 
                         // set the media player data source
                         if (!mPlayer.getPlayingPath().equalsIgnoreCase(
-                                mPlayingData.mCacheFile.getAbsolutePath()))
+                                mPlayingData.mCacheFile.getAbsolutePath())){
                             mPlayer.setDataSourceAsync(mPlayingData.mCacheFile.getAbsolutePath());
-                        else
-                            Log.i(TAG, "Player already set??");
+                        } else {
+                            notifyChange(BUFFERING_COMPLETE);
+                        }
                     }
 
                 } else if (!checkNetworkStatus()) {
@@ -1108,7 +1103,7 @@ public class CloudPlaybackService extends Service {
                 if (mPlayer != null && mPlayer.isInitialized()) {
                     mPlayer.pause();
                 }
-                gotoIdleState();
+                gotoIdleState(false);
                 notifyChange(PLAYSTATE_CHANGED);
             }
         }
@@ -1149,10 +1144,17 @@ public class CloudPlaybackService extends Service {
     }
 
     private void gotoIdleState() {
+        gotoIdleState(true);
+    }
+
+    private void gotoIdleState(boolean killBuffer) {
+        if (killBuffer) {
+            mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
+            initialBuffering = false;
+            pausedForBuffering = false;
+        }
+
         mIsSupposedToBePlaying = false;
-        initialBuffering = false;
-        pausedForBuffering = false;
-        mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
         mBufferHandler.removeCallbacksAndMessages(BUFFER_FILL_CHECK);
         mBufferHandler.removeCallbacksAndMessages(START_NEXT_TRACK);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -1457,6 +1459,8 @@ public class CloudPlaybackService extends Service {
                 refreshMediaplayer();
 
             mIsAsyncOpening = true;
+
+            Log.i(TAG,"Setting data source to " + path);
 
             try {
                 if (isStagefright)
