@@ -412,8 +412,6 @@ public class CloudPlaybackService extends Service {
         mServiceStartId = startId;
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
-        Log.i(TAG,"ON START COMMAND " + intent.getLongExtra("trackId", -1));
-
         if (intent != null) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
