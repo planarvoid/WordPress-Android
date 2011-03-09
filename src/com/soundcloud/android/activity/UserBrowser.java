@@ -514,7 +514,7 @@ public class UserBrowser extends ScActivity {
         mUserLoadId = mUserData.id;
 
         mUser.setText(mUserData.username);
-        mLocation.setText(CloudUtils.getLocationString(mUserData.country, mUserData.country));
+        mLocation.setText(CloudUtils.getLocationString(mUserData.city, mUserData.country));
         setTabTextInfo();
 
         if (CloudUtils.checkIconShouldLoad(mUserData.avatar_url)) {
