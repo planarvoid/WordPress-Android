@@ -223,7 +223,7 @@ public class Track extends BaseObj implements Parcelable {
             str.append(bpm).append("<br/>");
         }
 
-        str.append("<br/>").append(license()).append("<br/><br/>");
+        str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")
@@ -237,21 +237,17 @@ public class Track extends BaseObj implements Parcelable {
         return str.toString();
     }
 
-    public String license() {
+    public String formattedLicense() {
+        final StringBuilder sb = new StringBuilder(200);
         final String license = TextUtils.isEmpty(this.license) ? "all-rights-reserved" : this.license;
         if (license.startsWith("cc-")) {
-            List<String> l = new ArrayList<String>();
-            for (String s : license.split("-")) {
-                if ("by".equals(s)) l.add("attribution");
-                if ("nc".equals(s)) l.add("noncommercial");
-                if ("nd".equals(s)) l.add("no derivative work");
-                if ("sa".equals(s)) l.add("share alike");
-            }
-            return TextUtils.join(" ", l);
+            sb.append("Licensed under a Creative Commons License ");
+            sb.append('(').append(
+                license.substring(3, license.length()).toUpperCase()
+            ).append(')');
         } else if ("no-rights-reserved".equals(license)) {
-            return "no rights reserved";
-        } else {
-            return "all rights reserved";
+            sb.append("No Rights Reserved");
         }
+        return sb.toString();
     }
 }
