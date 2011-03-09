@@ -45,7 +45,7 @@ public class SoundCloudDB {
                         // add local urls and update database
                         cursor.moveToFirst();
 
-                        track.user_played = cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
+                        track.user_played = track.user_played || cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
 
                         if (writeState == WriteState.update_only || writeState == WriteState.all)
                             updateTrack(contentResolver,track);
