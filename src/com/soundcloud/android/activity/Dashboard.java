@@ -10,6 +10,7 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -20,10 +21,11 @@ public class Dashboard extends ScActivity {
     private ScTabView mTracklistView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        CloudUtils.checkState(this);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        if (redirectToMain()) return;
 
-        super.onCreate(savedInstanceState);
+        CloudUtils.checkState(this);
 
         setContentView(R.layout.main_holder);
 
@@ -83,5 +85,17 @@ public class Dashboard extends ScActivity {
     @Override
     public void onRefresh() {
         mTracklistView.onRefresh();
+    }
+
+    // legacy action, redirect to Main
+    private boolean redirectToMain() {
+        if (Intent.ACTION_MAIN.equals(getIntent().getAction())) {
+            Intent intent = new Intent(this, Main.class);
+            startActivity(intent);
+            finish();
+            return true;
+        } else {
+            return false;
+        }
     }
 }
