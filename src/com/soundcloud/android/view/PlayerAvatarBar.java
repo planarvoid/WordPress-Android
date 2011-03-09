@@ -162,7 +162,6 @@ public class PlayerAvatarBar extends View {
                     CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small), true, new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
-                Log.i(TAG,"ON IMAGE LOADED " + mBitmap + " " + uri);
                 c.avatar = mBitmap;
                 if (c.topLevelComment){
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)){
@@ -174,6 +173,7 @@ public class PlayerAvatarBar extends View {
 
             @Override
             public void onImageError(String uri, Throwable error) {
+                Log.i(TAG,"Avatar Loading Error " + uri + " " + error.toString());
             }
         });
     }

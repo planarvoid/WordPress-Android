@@ -66,7 +66,6 @@ public class Dashboard extends ScActivity {
     protected ScTabView createList(String endpoint, CloudUtils.Model model, int emptyText, int listId) {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
-        mAdapters.add(adp);
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));

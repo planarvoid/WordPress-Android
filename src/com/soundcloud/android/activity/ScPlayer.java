@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -1015,6 +1014,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mPaused = false;
 
+        getSoundCloudApplication().playerWaitForArtwork = true;
+
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
@@ -1054,6 +1055,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     protected void onStop() {
         super.onStop();
+
+        // no longer have to wait for artwork to load
+        try {
+            if (mPlaybackService != null) mPlaybackService.setClearToPlay(true);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
+        getSoundCloudApplication().playerWaitForArtwork = false;
 
         mWaveformController.onStop();
         mPaused = true;

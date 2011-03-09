@@ -8,7 +8,6 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
@@ -70,7 +69,6 @@ public abstract class ScActivity extends Activity {
     protected NetworkConnectivityListener connectivityListener;
 
     protected ArrayList<LazyListView> mLists;
-    protected ArrayList<LazyBaseAdapter> mAdapters;
 
     private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;
@@ -164,7 +162,6 @@ public abstract class ScActivity extends Activity {
         this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         mLists = new ArrayList<LazyListView>();
-        mAdapters = new ArrayList<LazyBaseAdapter>();
     }
 
     @Override
@@ -360,12 +357,12 @@ public abstract class ScActivity extends Activity {
     };
 
     private void setPlayingTrack(long id, boolean isPlaying) {
-        if (mAdapters == null || mAdapters.size() == 0)
+        if (mLists == null || mLists.size() == 0)
             return;
 
-        for (LazyBaseAdapter adp : mAdapters) {
-            if (TracklistAdapter.class.isAssignableFrom(adp.getClass()))
-                ((TracklistAdapter) adp).setPlayingId(id, isPlaying);
+        for (LazyListView list : mLists) {
+            if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass()))
+                ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
         }
     }
 
@@ -538,6 +535,7 @@ public abstract class ScActivity extends Activity {
                     if (connectivityListener != null) {
                         NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
                         if (networkInfo != null) {
+                            if (networkInfo.isConnected()) ImageLoader.get(getApplicationContext()).clearErrors();
                             ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
                         }
                     }

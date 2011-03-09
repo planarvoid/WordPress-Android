@@ -197,7 +197,7 @@ public class CloudPlaybackService extends Service {
 
     private boolean mIsSupposedToBePlaying = false;
 
-    private boolean mClearToPlay = false;
+    private boolean mWaitingForArtwork = false;
 
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
@@ -220,7 +220,9 @@ public class CloudPlaybackService extends Service {
 
     private NetworkInfo mCurrentNetworkInfo;
 
-    private boolean isStagefright = false;
+    private boolean mDownloadException;
+
+    private boolean isStagefright;
 
     private int mBufferReportCounter = 0;
 
@@ -417,10 +419,10 @@ public class CloudPlaybackService extends Service {
             String cmd = intent.getStringExtra("command");
 
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
-                next(true);
+                next();
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
-                    prev(true);
+                    prev();
                 } else {
                     seek(0);
                     play();
@@ -560,20 +562,16 @@ public class CloudPlaybackService extends Service {
     }
 
     private void openCurrent() {
-        openCurrent(false);
-    }
-
-    private void openCurrent(boolean force) {
         Log.i(TAG, "Open Current " + mPlayListManager.getCurrentLength());
         if (mPlayListManager.getCurrentLength() == 0) {
             return;
         }
-        openAsync(mPlayListManager.getCurrentTrack(), force);
+        openAsync(mPlayListManager.getCurrentTrack());
     }
 
     Thread mStopThread = null;
 
-    public void openAsync(Track track, boolean force) {
+    public void openAsync(Track track) {
         Log.i(TAG, "TRACK " + track);
         if (track == null) {
             return;
@@ -588,7 +586,7 @@ public class CloudPlaybackService extends Service {
         mLoadPercent = 0;
         mCurrentBuffer = 0;
 
-        mClearToPlay = force; //otherwise it will wait for the waveform
+        mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork; //otherwise it will wait for the waveform
 
         Log.i(TAG, "Playing Data " + mPlayingData);
 
@@ -684,6 +682,7 @@ public class CloudPlaybackService extends Service {
     private void startNextTrack() {
         synchronized (this) {
             mStopThread = null;
+            mDownloadException = false;
 
             if (CloudUtils.isTrackPlayable(mPlayingData)) {
 
@@ -820,7 +819,7 @@ public class CloudPlaybackService extends Service {
                 if (mCurrentBuffer > PLAYBACK_MARK
                         || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
 
-                    if (!mClearToPlay)
+                    if (mWaitingForArtwork)
                         return true;
 
                     pausedForBuffering = false;
@@ -955,6 +954,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void sendDownloadException() {
+        mDownloadException = true;
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 
@@ -971,7 +971,7 @@ public class CloudPlaybackService extends Service {
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
                 // we are able to buffer something, see if we need to download
                 // the current track
-                if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
+                if (!checkIfTrackCached(mPlayingData) && keepCaching()  && !mDownloadException) {
                     // need to cache the current track
                     prepareDownload(mPlayingData);
                 }
@@ -1124,26 +1124,18 @@ public class CloudPlaybackService extends Service {
         return mIsSupposedToBePlaying;
     }
 
-    public void prev(boolean force) {
+    public void prev() {
         synchronized (this) {
             if (mPlayListManager.prev())
-                openCurrent(force);
-        }
-    }
-
-    public void prev() {
-        prev(false);
-    }
-
-    public void next(boolean force) {
-        synchronized (this) {
-            if (mPlayListManager.next())
-                openCurrent(force);
+                openCurrent();
         }
     }
 
     public void next() {
-        next(false);
+        synchronized (this) {
+            if (mPlayListManager.next())
+                openCurrent();
+        }
     }
 
     /**
@@ -1152,7 +1144,7 @@ public class CloudPlaybackService extends Service {
      */
     public void restart() {
         synchronized (this) {
-            openCurrent(true);
+            openCurrent();
         }
     }
 
@@ -1194,7 +1186,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void setClearToPlay(boolean clearToPlay) {
-        mClearToPlay = clearToPlay;
+        mWaitingForArtwork = !clearToPlay;
     }
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
@@ -1616,22 +1608,6 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
 
-                Log.i(TAG, "ON COMPLETE ");
-
-                // check for premature track end
-                if (mIsInitialized && mPlayingData != null // valid track
-                                                           // playing
-                        && mMediaPlayer.getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
-
-                    Log.i(TAG, "ON COMPLETE resume time is " + mMediaPlayer.getCurrentPosition());
-
-                    notifyChange(STREAM_DIED);
-                    mResumeTime = mMediaPlayer.getCurrentPosition();
-                    mResumeId = mPlayingData.id;
-                    openCurrent();
-                    return;
-                }
-
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
@@ -1642,7 +1618,7 @@ public class CloudPlaybackService extends Service {
                     mIsInitialized = false;
                     mPlayingPath = "";
 
-                    if (checkNetworkStatus())
+                    if (checkNetworkStatus() && !mDownloadException)
                         openCurrent();
                     else {
                         notifyChange(STREAM_DIED);
@@ -1725,9 +1701,9 @@ public class CloudPlaybackService extends Service {
             String cmd = intent.getStringExtra("command");
 
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
-                next(true);
+                next();
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
-                prev(true);
+                prev();
             } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
                 if (isPlaying()) {
                     pause();
@@ -1831,7 +1807,7 @@ public class CloudPlaybackService extends Service {
                     break;
                 case SERVER_DIED:
                     if (mIsSupposedToBePlaying) {
-                        next(true);
+                        next();
                     } else {
                         // the server died when we were idle, so just
                         // reopen the same song (it will start again
@@ -1846,7 +1822,7 @@ public class CloudPlaybackService extends Service {
                     notifyChange(PLAYBACK_COMPLETE);
                     break;
                 case TRACK_ENDED:
-                    next(false);
+                    next();
                     break;
                 case ACQUIRE_WAKELOCKS:
                     if (!mWakeLock.isHeld())
@@ -2261,7 +2237,7 @@ public class CloudPlaybackService extends Service {
 
         public void next() {
             if (mService.get() != null)
-                mService.get().next(true);
+                mService.get().next();
         }
 
         public void restart() {

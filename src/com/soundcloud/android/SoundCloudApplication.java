@@ -56,7 +56,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
-    private ImageLoader mBitmapLoader;
+
+    public boolean playerWaitForArtwork;
 
     static ContentHandler mBitmapHandler;
 
@@ -159,7 +160,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         Handler handler = null;
 
         mImageLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
-        mBitmapLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
 
 
