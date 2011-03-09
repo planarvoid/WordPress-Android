@@ -611,6 +611,10 @@ public class CloudUtils {
     }
 
     public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId){
+        return buildComment(context, replyToId, replyToId, commentBody, replyToId, "");
+    }
+
+    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
         Comment comment = new Comment();
         comment.track_id = trackId;
         comment.created_at = new Date(System.currentTimeMillis());
@@ -619,6 +623,7 @@ public class CloudUtils {
         comment.timestamp = timestamp;
         comment.body = commentBody;
         comment.reply_to_id = replyToId;
+        comment.reply_to_username = replyToUsername;
         return comment;
     }
 

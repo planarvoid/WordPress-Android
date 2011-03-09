@@ -102,7 +102,7 @@ public class CommentBubble extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mComment.track_id,
-                        mComment.timestamp, "", mComment.id), mPlayer.addCommentListener);
+                        mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
             }
 
         });

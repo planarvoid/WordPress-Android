@@ -18,6 +18,7 @@ public class Comment extends BaseObj implements Parcelable {
     public long timestamp;
 
     public long reply_to_id;
+    public String reply_to_username;
 
     public String body;
     public String uri;

@@ -43,7 +43,7 @@ public class AddCommentDialog extends Dialog {
 
         mInput = (EditText) findViewById(R.id.comment_input);
         if (comment.reply_to_id > 0) {
-            mInput.setHint("Reply to " + comment.user.username + " at "
+            mInput.setHint("Reply to " + comment.reply_to_username + " at "
                     + CloudUtils.formatTimestamp(comment.timestamp));
         } else {
             mInput.setHint((comment.timestamp == -1 ? "Add an untimed comment" : "Add comment at "
