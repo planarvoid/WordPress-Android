@@ -128,18 +128,22 @@ public class CloudRecorder {
             case Profile.ENCODED_HIGH:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
-                mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                if (Build.VERSION.SDK_INT >= 8) {
+                    mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                    mRecorder.setAudioEncodingBitRate(96000);
+                }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                mRecorder.setAudioEncodingBitRate(96000);
                 break;
             case Profile.ENCODED_LOW:
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
-                mRecorder.setAudioSamplingRate(8000); //max functional sample rate for amr
+                if (Build.VERSION.SDK_INT >= 8) {
+                    mRecorder.setAudioSamplingRate(8000); //max functional sample rate for amr
+                    mRecorder.setAudioEncodingBitRate(12200);
+                }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                mRecorder.setAudioEncodingBitRate(12200);
                 break;
         }
 
