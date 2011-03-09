@@ -611,7 +611,7 @@ public class CloudUtils {
     }
 
     public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId){
-        return buildComment(context, replyToId, replyToId, commentBody, replyToId, "");
+        return buildComment(context, trackId, timestamp, commentBody, replyToId, "");
     }
 
     public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
