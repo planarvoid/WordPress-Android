@@ -216,7 +216,12 @@ public class ScCreate extends ScActivity {
                 } else if (mCurrentState == CreateState.UPLOAD) {
                     mCurrentState = CreateState.IDLE_RECORD;
                     takeAction = true;
-                } else if (mCurrentState == CreateState.IDLE_RECORD && mRecordDir.list().length > 0) {
+                } else if (mCurrentState == CreateState.IDLE_RECORD) {
+
+                  if (!mRecordDir.exists()) {
+                      // can happen when there's no mounted sdcard
+                      btnAction.setEnabled(false);
+                  } else if (mRecordDir.list().length > 0) {
                     // find the oldest valid record file in the directory
                     for (File f : mRecordDir.listFiles()){
                         Log.i(TAG,"Checking existing recording file " + f.getName());
@@ -233,8 +238,8 @@ public class ScCreate extends ScActivity {
                         // delete whatever is in the rec directory, we can't use it
                         takeAction = true;
                     }
-
-                }
+                  }
+                } // IDLE_RECORD
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
                 mCurrentState = CreateState.IDLE_RECORD;

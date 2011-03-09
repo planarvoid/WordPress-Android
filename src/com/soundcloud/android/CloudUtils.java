@@ -429,7 +429,7 @@ public class CloudUtils {
     }
 
     public static String formatGraphicsUrl(String url, String targetSize) {
-        return url.replace("large", targetSize);
+        return url == null ? null : url.replace("large", targetSize);
     }
 
     @SuppressWarnings("unchecked")

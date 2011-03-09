@@ -58,7 +58,7 @@ import android.widget.Toast;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-;
+
 
 public abstract class ScActivity extends Activity {
     private Exception mException = null;
