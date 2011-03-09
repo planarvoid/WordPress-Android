@@ -168,14 +168,14 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         private boolean upgradeTo4(SQLiteDatabase db) {
             try {
                 alterTableColumns(db, DbTable.Tracks, new String[] {
-                    ",id"
+                    "id"
                 }, new String[] {
-                    ",_id"
+                    "_id"
                 });
                 alterTableColumns(db, DbTable.Users, new String[] {
-                    ",id"
+                    "id"
                 }, new String[] {
-                    ",_id"
+                    "_id"
                 });
                 return true;
             } catch (Exception e) {
