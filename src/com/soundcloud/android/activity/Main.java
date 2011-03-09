@@ -66,8 +66,7 @@ public class Main extends TabActivity {
 
 
 
-
-        mTabHost.setCurrentTab(0);
+        mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this).getInt(SoundCloudApplication.DASHBOARD_IDX,0));
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
