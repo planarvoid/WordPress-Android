@@ -510,16 +510,18 @@ public class UserBrowser extends ScActivity {
         mLocation.setText(CloudUtils.getLocationString(mUserData.country, mUserData.country));
         setTabTextInfo();
 
-        String remoteUrl;
-        if (getResources().getDisplayMetrics().density > 1) {
-            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
-        } else {
-            remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
-        }
+        if (CloudUtils.checkIconShouldLoad(mUserData.avatar_url)) {
+            String remoteUrl;
+            if (getResources().getDisplayMetrics().density > 1) {
+                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
+            } else {
+                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
+            }
 
-        if (_iconURL == null || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
-            _iconURL = remoteUrl;
-            reloadAvatar();
+            if (_iconURL == null || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
+                _iconURL = remoteUrl;
+                reloadAvatar();
+            }
         }
 
         boolean _showTable = false;
