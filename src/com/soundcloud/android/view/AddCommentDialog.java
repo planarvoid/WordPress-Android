@@ -10,6 +10,7 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -51,6 +52,8 @@ public class AddCommentDialog extends Dialog {
         ((Button) findViewById(R.id.positiveButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (TextUtils.isEmpty(mInput.getText())) return;
+
                 ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
                         .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
                 comment.body = mInput.getText().toString();
