@@ -46,6 +46,7 @@ public class SoundCloudDB {
                         cursor.moveToFirst();
 
                         track.user_played = track.user_played || cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
+                        track.filelength = track.filelength == 0 ? cursor.getInt(cursor.getColumnIndex("filelength")) : track.filelength;
 
                         if (writeState == WriteState.update_only || writeState == WriteState.all)
                             updateTrack(contentResolver,track);

@@ -662,6 +662,8 @@ public class CloudPlaybackService extends Service {
                 assertBufferCheck();
                 commitTrackToDb(t); // save info
             }
+        } else if (changed && t.mCacheFile != null && t.mCacheFile.exists()) {
+            t.mCacheFile.delete();
         }
     }
 
@@ -690,6 +692,10 @@ public class CloudPlaybackService extends Service {
                     pausedForBuffering = true;
                     initialBuffering = true;
                     ignoreBuffer = false;
+
+                    if (mPlayingData.filelength == 0 && mPlayingData.mCacheFile.length() > 0){
+                       mPlayingData.mCacheFile.delete();
+                    }
 
                     if (checkNetworkStatus())
                         prepareDownload(mPlayingData);
@@ -1620,8 +1626,6 @@ public class CloudPlaybackService extends Service {
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
 
-                    Log.i(TAG, "ON COMPLETE resetting");
-
                     mMediaPlayer.reset();
                     mIsInitialized = false;
                     mPlayingPath = "";
@@ -2054,6 +2058,7 @@ public class CloudPlaybackService extends Service {
 
             try {
 
+
                 if (track.mCacheFile.length() > 0 && track.filelength > 0) {
                     if (track.mCacheFile.length() >= track.filelength) {
                         mode = MODE_CHECK_COMPLETE;
@@ -2074,6 +2079,7 @@ public class CloudPlaybackService extends Service {
                         }
                         return;
                     } else {
+                        Log.i(TAG,"Resuming partial download of " + track.title);
                         mode = MODE_PARTIAL;
                         method = new HttpGet(((SoundCloudApplication) serviceRef.get()
                                 .getApplication()).signStreamUrlNaked(track.stream_url));
