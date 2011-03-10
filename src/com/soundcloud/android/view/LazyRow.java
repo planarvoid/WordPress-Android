@@ -53,11 +53,11 @@ public class LazyRow extends RelativeLayout {
 
         mCurrentPosition = position;
 
-        if (position == mAdapter.submenuIndex){
+        if (position == mAdapter.submenuIndex) {
             if (findViewById(R.id.row_submenu) != null){
-                ((FrameLayout) findViewById(R.id.row_submenu)).setVisibility(View.VISIBLE);
+                findViewById(R.id.row_submenu).setVisibility(View.VISIBLE);
             } else {
-                ((ViewStub) findViewById(R.id.stub_submenu)).setVisibility(View.VISIBLE);
+                findViewById(R.id.stub_submenu).setVisibility(View.VISIBLE);
                 initSubmenu();
             }
 
