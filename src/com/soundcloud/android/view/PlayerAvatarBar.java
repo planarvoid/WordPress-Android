@@ -14,7 +14,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -24,19 +23,10 @@ import android.view.View;
 import java.util.ArrayList;
 
 public class PlayerAvatarBar extends View {
-
     private static final String TAG = "PlayerCommentBar";
 
-    private static final int SDK = Integer.parseInt(Build.VERSION.SDK);
-
-    private static final int GINGERBREAD = 9;
-
-    public static final String BITMAP_LOADER_SERVICE = "com.soundcloud.utils.bitmaploader";
-
     private static final int REFRESH_AVATARS = 0;
-
     private static final int AVATARS_REFRESHED = 1;
-
     private static final int AVATAR_WIDTH = 32;
 
     private long mDuration;
@@ -67,7 +57,7 @@ public class PlayerAvatarBar extends View {
     private Context mContext;
 
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
-        super(context,attributeSet);
+        super(context, attributeSet);
 
         mContext = context;
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
@@ -95,45 +85,36 @@ public class PlayerAvatarBar extends View {
         return mAvatarWidth;
     }
 
-    public void onStart(){
-    }
-
     public void onStop(){
-        if (mCurrentComments != null)
-            for (Comment c : mCurrentComments){
+        if (mCurrentComments != null) {
+            for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
                         CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
                             CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small));
             }
-
+        }
     }
 
     public void clearTrackData(){
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
 
-       // mBitmapLoader.stopLoading();
-
-        if (mCurrentComments != null)
-        for (Comment c : mCurrentComments){
-            mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small));
-            if (c.avatar != null)
-                c.avatar.recycle();
-
-            c.avatar = null;
+        if (mCurrentComments != null) {
+            for (Comment c : mCurrentComments) {
+                mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
+                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
+                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small));
+                if (c.avatar != null) c.avatar.recycle();
+                c.avatar = null;
+            }
         }
 
         mCurrentComment = null;
         mCurrentComments = null;
         mDuration = -1;
 
-        if (mCanvasBmp != null)
-            mCanvasBmp.recycle();
-
-        if (mNextCanvasBmp != null)
-            mNextCanvasBmp.recycle();
+        if (mCanvasBmp != null) mCanvasBmp.recycle();
+        if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
 
         invalidate();
 
@@ -203,23 +184,21 @@ public class PlayerAvatarBar extends View {
 
         @Override
         public void run() {
-            if (mCurrentComments == null || getWidth() <= 0)
-                return;
+            if (mCurrentComments == null || getWidth() <= 0) return;
 
             mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 
             Canvas canvas = new Canvas(mNextCanvasBmp);
 
             for (Comment comment : mCurrentComments){
-                if (Thread.currentThread().isInterrupted())
-                    break;
+                if (Thread.currentThread().isInterrupted()) break;
                 if (comment.timestamp == 0) continue;
-                drawCommentOnCanvas(comment,canvas,mLinePaint);
+                drawCommentOnCanvas(comment, canvas, mLinePaint);
             }
 
-            if (Thread.currentThread().isInterrupted())
+            if (Thread.currentThread().isInterrupted()) {
                 mNextCanvasBmp.recycle();
-            else{
+            } else {
                 mUIHandler.removeMessages(AVATARS_REFRESHED);
                 Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
                 PlayerAvatarBar.this.mUIHandler.sendMessage(msg);
@@ -230,8 +209,7 @@ public class PlayerAvatarBar extends View {
     Handler mUIHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
-
+            switch (msg.what) {
                 case REFRESH_AVATARS:
                     if (mCurrentComments == null || mDuration == -1)
                         return;
@@ -264,13 +242,11 @@ public class PlayerAvatarBar extends View {
 
             if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
 
-        } else if (comment.avatar != null){
+        } else if (comment.avatar != null) {
             mMatrix.setScale(mAvatarScale, mAvatarScale);
             mMatrix.postTranslate(comment.xPos, 0);
             canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
-        } else {
-           // Log.i(TAG,"Bitmap not found " + comment.user.avatar_url);
         }
     }
 
@@ -278,19 +254,17 @@ public class PlayerAvatarBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mCanvasBmp != null)
+        if (mCanvasBmp != null) {
             canvas.drawBitmap(mCanvasBmp, new Matrix(), mImagePaint);
-        else if (mCurrentComments != null)
+        } else if (mCurrentComments != null) {
             for (Comment comment : mCurrentComments){
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);
             }
+        }
 
         if (mCurrentComment != null){
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
-
-
     }
-
 }
