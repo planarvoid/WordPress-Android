@@ -10,12 +10,9 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.utils.AnimUtils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewStub;
 import android.view.animation.Animation;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -66,14 +63,14 @@ public class LazyRow extends RelativeLayout {
             if (position == mAdapter.animateSubmenuIndex){
                 mAdapter.animateSubmenuIndex = -1;
                 Animation inFromRight = AnimUtils.inFromRightAnimation();
-                ((FrameLayout) findViewById(R.id.row_submenu)).startAnimation(inFromRight);
+                findViewById(R.id.row_submenu).startAnimation(inFromRight);
             }
 
         } else {
             onNoSubmenu();
 
             if (findViewById(R.id.row_submenu) != null){
-                ((FrameLayout) findViewById(R.id.row_submenu)).setVisibility(View.GONE);
+                findViewById(R.id.row_submenu).setVisibility(View.GONE);
             }
         }
 
@@ -128,10 +125,6 @@ public class LazyRow extends RelativeLayout {
 
     protected int getIconHeight() {
         return CloudUtils.GRAPHIC_DIMENSIONS_BADGE;
-    }
-
-    protected Drawable getTemporaryDrawable() {
-        return mActivity.getResources().getDrawable(R.drawable.artwork_badge);
     }
 
 }
