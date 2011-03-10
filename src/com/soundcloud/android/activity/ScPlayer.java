@@ -865,6 +865,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             Log.i(TAG,"Update Track Info " + mCurrentTrackError);
 
+            setFavoriteStatus();
+            mDuration = mPlayingTrack.duration;
+            mCurrentDurationString = CloudUtils.makeTimeString(
+                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
+                    mDuration / 1000);
+
             if (mCurrentTrackError)
                 return;
 
@@ -875,11 +881,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mWaveformController.hideConnectingLayout();
             }
 
-            setFavoriteStatus();
-            mDuration = mPlayingTrack.duration;
-            mCurrentDurationString = CloudUtils.makeTimeString(
-                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
-                    mDuration / 1000);
+
         }
     }
 
