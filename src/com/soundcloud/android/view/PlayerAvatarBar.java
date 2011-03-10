@@ -64,9 +64,12 @@ public class PlayerAvatarBar extends View {
 
     private ImageLoader mBitmapLoader;
 
+    private Context mContext;
+
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context,attributeSet);
 
+        mContext = context;
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
 
         mImagePaint = new Paint();
@@ -79,16 +82,12 @@ public class PlayerAvatarBar extends View {
         mActiveLinePaint= new Paint();
         mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.activeCommentLine));
 
-
-        mDefaultAvatar = BitmapFactory.decodeResource(context.getResources(), R.drawable.avatar_badge);
-
         mDensity = getContext().getResources().getDisplayMetrics().density;
 
         mMatrix = new Matrix();
         if (mDensity > 1) {
             mAvatarWidth = (int) (AVATAR_WIDTH*mDensity);
             mAvatarScale = ((float)mAvatarWidth)/47;
-            mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
         }
     }
 
@@ -100,6 +99,8 @@ public class PlayerAvatarBar extends View {
     }
 
     public void onStop(){
+        Log.i(TAG,"ON STOP " + (mCurrentComments != null ? mCurrentComments.size() : ""));
+
         if (mCurrentComments != null)
             for (Comment c : mCurrentComments){
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
@@ -115,6 +116,7 @@ public class PlayerAvatarBar extends View {
 
        // mBitmapLoader.stopLoading();
 
+        Log.i(TAG,"ON CLEAR TRACK DATA " + (mCurrentComments != null ? mCurrentComments.size() : ""));
         if (mCurrentComments != null)
         for (Comment c : mCurrentComments){
             mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
@@ -144,6 +146,7 @@ public class PlayerAvatarBar extends View {
         SoundCloudApplication.mBitmapErrors.clear();
         mDuration = duration;
         mCurrentComments = newItems;
+        Log.i(TAG,"ON SET TRACK DATA " + (mCurrentComments != null ? mCurrentComments.size() : ""));
         for (Comment c : newItems){
             loadAvatar(c);
         }
@@ -176,6 +179,13 @@ public class PlayerAvatarBar extends View {
                 Log.i(TAG,"Avatar Loading Error " + uri + " " + error.toString());
             }
         });
+    }
+
+    private void refreshDefaultAvatar(){
+        if (mDefaultAvatar == null || mDefaultAvatar.isRecycled()){
+            mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.avatar_badge);
+            if (mDensity > 1) mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
+        }
     }
 
     @Override
@@ -247,6 +257,7 @@ public class PlayerAvatarBar extends View {
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint){
         if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null){
+            refreshDefaultAvatar();
             mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
             mMatrix.postTranslate(comment.xPos, 0);
             canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
