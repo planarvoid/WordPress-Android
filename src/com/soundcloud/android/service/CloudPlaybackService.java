@@ -1553,6 +1553,8 @@ public class CloudPlaybackService extends Service {
             if (!resumeSeek) {
                 if (mPlayingData.filelength <= 0)
                     return mPlayer.position();
+                else if (mPlayingData.filelength <= mPlayingData.mCacheFile.length())
+                    maxSeek = getDuration();
                 else
                     maxSeek = getDuration() * mPlayingData.mCacheFile.length()
                             / mPlayingData.filelength - PLAYBACK_MARK / (128 / 8) - 3000;
