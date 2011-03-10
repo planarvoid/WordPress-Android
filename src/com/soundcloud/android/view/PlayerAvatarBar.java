@@ -99,8 +99,6 @@ public class PlayerAvatarBar extends View {
     }
 
     public void onStop(){
-        Log.i(TAG,"ON STOP " + (mCurrentComments != null ? mCurrentComments.size() : ""));
-
         if (mCurrentComments != null)
             for (Comment c : mCurrentComments){
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
@@ -116,7 +114,6 @@ public class PlayerAvatarBar extends View {
 
        // mBitmapLoader.stopLoading();
 
-        Log.i(TAG,"ON CLEAR TRACK DATA " + (mCurrentComments != null ? mCurrentComments.size() : ""));
         if (mCurrentComments != null)
         for (Comment c : mCurrentComments){
             mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
@@ -146,7 +143,6 @@ public class PlayerAvatarBar extends View {
         SoundCloudApplication.mBitmapErrors.clear();
         mDuration = duration;
         mCurrentComments = newItems;
-        Log.i(TAG,"ON SET TRACK DATA " + (mCurrentComments != null ? mCurrentComments.size() : ""));
         for (Comment c : newItems){
             loadAvatar(c);
         }
