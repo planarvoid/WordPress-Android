@@ -145,9 +145,9 @@ public class LocationPicker extends ListActivity {
     }
 
     static class FoursquareApiTask extends AsyncTask<Location, Integer, List<Venue>> {
-        // XXX replace with official SoundCloud API keys
-        public static final String client_id = "AOJ23GCHGN2C5OWX4OYLWMXKBKAKPS2BK3VE122CEACTY1KD";
-        public static final String client_secret = "BZ0MCMCYMUWMB1DPAJI40BLV3YTSQB4XRQKSR1ZMRM442F3R";
+        // registered w/ hannes@soundcloud.com
+        public static final String client_id     = "KO0RS1BR5VCXT4CR2GRCYA1Z2KSMM3QJVWJ35V2CVBUWFYWP";
+        public static final String client_secret = "MDAXDKVZRURKHDBRSW0KKTL4NNLQW1WEKUM2IDHELZKPJRWI";
         private static final ObjectMapper mapper = new ObjectMapper();
 
         @Override
