@@ -730,4 +730,6 @@
     <string name="connect_progress">Loading</string>
     <string name="connect_success">Successfully connected with %1$s</string>
     <string name="connect_failure">Failed connecting with %1$s</string>
+
+    <string name="authorization_failed">Authorization Failed</string>
 </resources>

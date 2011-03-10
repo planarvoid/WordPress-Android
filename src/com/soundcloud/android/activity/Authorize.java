@@ -100,8 +100,11 @@ public class Authorize extends Activity implements CloudAPI.Client {
                         }
                     }
                     if (!isFinishing()) {
-                        new AlertDialog.Builder(Authorize.this).setTitle("Authorization Failed")
-                                .setMessage(message).setCancelable(false).setPositiveButton("OK",
+                        new AlertDialog.Builder(Authorize.this)
+                                .setTitle(R.string.authorization_failed)
+                                .setMessage(message)
+                                .setCancelable(false)
+                                .setPositiveButton("OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         finish();
