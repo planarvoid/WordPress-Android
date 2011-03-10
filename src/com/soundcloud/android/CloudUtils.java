@@ -362,11 +362,15 @@ public class CloudUtils {
         try {
             return preferences.getLong(SoundCloudApplication.USER_ID, -1);
         } catch (ClassCastException e) {
-            long id = Long.parseLong(preferences.getString(SoundCloudApplication.USER_ID, "-1"));
-            if (id != -1) {
-                preferences.edit().putLong(SoundCloudApplication.USER_ID, id).commit();
+            try {
+                long id = Long.parseLong(preferences.getString(SoundCloudApplication.USER_ID, "-1"));
+                if (id != -1) {
+                    preferences.edit().putLong(SoundCloudApplication.USER_ID, id).commit();
+                }
+                return id;
+            } catch (NumberFormatException ignored) {
+                return -1;
             }
-            return id;
         }
     }
 
