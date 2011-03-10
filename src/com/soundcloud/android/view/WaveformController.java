@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -466,7 +467,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mCommentBubble.getParent() != mPlayer.getCommentHolder())
                     mPlayer.getCommentHolder().addView(mCommentBubble);
 
-            if (mBubbleAnimation != null)
+            if (mBubbleAnimation != null && Build.VERSION.SDK_INT > 7)
                 mBubbleAnimation.cancel();
 
             mBubbleAnimation = new ScaleAnimation((float).6, (float)1.0, (float).6, (float)1.0, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, (float) 1.0);
