@@ -629,7 +629,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             tv.setTextSize(14);
             tv.setLineSpacing(5, 1);
 
-            commentText.append(comment.user.username).append(" ");
+
+            if (comment.user != null && comment.user.username != null) {
+                commentText.append(comment.user.username).append(' ');
+            }
+
             spanEndIndex = commentText.length();
             commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
