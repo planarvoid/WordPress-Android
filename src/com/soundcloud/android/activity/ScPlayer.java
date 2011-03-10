@@ -1215,7 +1215,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     public AddCommentListener addCommentListener = new AddCommentListener(){
         @Override
         public void onCommentAdd(boolean success, Comment c) {
-            if (c.track_id != mPlayingTrack.id)
+            if (c.track_id != mPlayingTrack.id || !success)
             return;
 
             if (mCurrentComments == null)
