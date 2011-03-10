@@ -1209,7 +1209,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mTrackFlipper.getDisplayedChild() == 1)
             fillTrackInfoComments();
 
-        mWaveformController.setComments(mCurrentComments, animateIn);
+        if (mLandscape)
+            mWaveformController.setComments(mCurrentComments, animateIn);
 
     }
 
