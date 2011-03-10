@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -65,8 +64,6 @@ public class CommentBubbleArrow extends View {
             mCurrentArrow = mLeftArrow;
             mArrowMatrix.setTranslate(x - LEFT_ARROW_MARGIN, 0);
         }
-
-        Log.i("Arrow","" + mCurrentArrow);
 
         invalidate();
     }
