@@ -122,7 +122,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             public void run() {
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
-
+                    // TODO hold wifi lock during upload
                     HttpResponse response = api.upload(track, artwork, param.getApiParams(), UploadTask.this);
                     StatusLine status = response.getStatusLine();
 
