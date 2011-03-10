@@ -78,6 +78,9 @@ public class PlayerAvatarBar extends View {
         if (mDensity > 1) {
             mAvatarWidth = (int) (AVATAR_WIDTH*mDensity);
             mAvatarScale = ((float)mAvatarWidth)/47;
+        } else {
+            mAvatarWidth = AVATAR_WIDTH;
+            mAvatarScale = 1.0f;
         }
     }
 
@@ -164,7 +167,7 @@ public class PlayerAvatarBar extends View {
     private void refreshDefaultAvatar(){
         if (mDefaultAvatar == null || mDefaultAvatar.isRecycled()){
             mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.avatar_badge);
-            if (mDensity > 1) mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
+            mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
         }
     }
 
