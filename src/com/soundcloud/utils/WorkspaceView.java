@@ -296,7 +296,7 @@ public class WorkspaceView extends ViewGroup {
         // For drawing in its own bitmap:
         RectF bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
-        int startPos = getScrollX() / (getChildCount());
+        int startPos = getScrollX() / (getChildCount() == 0 ? 1 : getChildCount());
         RectF selectedTab = new RectF(startPos, 0, startPos + width / getChildCount(),
                 (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
