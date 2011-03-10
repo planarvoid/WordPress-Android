@@ -156,6 +156,9 @@ public class PlayerAvatarBar extends View {
     }
 
     private void loadAvatar(final Comment c){
+        if (!CloudUtils.checkIconShouldLoad(c.user.avatar_url))
+            return;
+
         mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
                 CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
                     CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small), true, new BitmapCallback() {
@@ -252,12 +255,15 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint){
-        if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null){
+        if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()){
             refreshDefaultAvatar();
             mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
             mMatrix.postTranslate(comment.xPos, 0);
             canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+
+            if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
+
         } else if (comment.avatar != null){
             mMatrix.setScale(mAvatarScale, mAvatarScale);
             mMatrix.postTranslate(comment.xPos, 0);

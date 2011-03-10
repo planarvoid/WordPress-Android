@@ -406,11 +406,9 @@ public class UserBrowser extends ScActivity {
                 CloudUtils.setTabText(mTabWidget, 4, getString(R.string.tab_followers));
             }
 
-
-            findViewById(R.id.tab_scroller).scrollTo(mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getLeft()
-                    + mTabWidget.getChildTabViewAt(mTabHost.getCurrentTab()).getWidth() / 2 - getWidth() / 2, 0);
-
             ((HorizontalScrollView) findViewById(R.id.tab_scroller)).setFillViewport(true);
+            mTabWidget.setCurrentTab(mTabHost.getCurrentTab()); //forces the tab lines to redraw
+
         }
     }
 
