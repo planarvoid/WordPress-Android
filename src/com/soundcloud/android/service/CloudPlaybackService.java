@@ -64,8 +64,6 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -794,10 +792,10 @@ public class CloudPlaybackService extends Service {
                 mCurrentBuffer = mPlayingData.mCacheFile.length();
             }
 
-            if (mBufferReportCounter == 10) {
-                Log.i(TAG, "[buffer size] " + mCurrentBuffer + " | [cachefile size] "
-                        + mPlayingData.mCacheFile.length() + " | [buffer:initialBuffer:waitingForArtwork]"
-                        + pausedForBuffering + ":" + initialBuffering + ":" + mWaitingForArtwork);
+            if (mBufferReportCounter == 20) {
+                Log.i(TAG, "[buffer size] " + mCurrentBuffer + " [cachefile] "
+                        + mPlayingData.mCacheFile.length() + " [waiting]"
+                        + pausedForBuffering);
                 if (CloudUtils.checkThreadAlive(mDownloadThread) && mDownloadThread.lastRead > 0
                         && System.currentTimeMillis() - mDownloadThread.lastRead > 10000) {
                     Log.i(TAG, "Download thread stale, rebooting it ");
@@ -1470,8 +1468,6 @@ public class CloudPlaybackService extends Service {
 
             mIsAsyncOpening = true;
 
-            Log.i(TAG,"Setting data source to " + path);
-
             try {
                 if (isStagefright)
                     mMediaPlayer.setDataSource(mPlayingData.mCacheFile.getAbsolutePath());
@@ -1640,8 +1636,6 @@ public class CloudPlaybackService extends Service {
                     return;
                 }
 
-                Log.i(TAG, "ON COMPLETE done ");
-
                 // Acquire a temporary wakelock, since when we return from
                 // this callback the MediaPlayer will release its wakelock
                 // and allow the device to go to sleep.
@@ -1662,7 +1656,6 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnPreparedListener preparedlistener = new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                Log.i(TAG, "Media player prepared");
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
 
@@ -1734,10 +1727,8 @@ public class CloudPlaybackService extends Service {
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
             } else if (ADD_FAVORITE.equals(action)) {
-                Log.i(TAG,"Got an add fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
-                Log.i(TAG,"Got a remove fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
@@ -1757,7 +1748,6 @@ public class CloudPlaybackService extends Service {
             CloudPlaybackService.this.batteryLevel = level;
             CloudPlaybackService.this.plugState = plugState;
 
-            Log.i(TAG, "Plugged state: " + plugState);
             Log.i(TAG, "Battery Level Remaining: " + level + "%");
         }
     };
@@ -1989,20 +1979,6 @@ public class CloudPlaybackService extends Service {
 
         public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(cloudPlaybackService);
-
-            try {
-                Log.i(TAG,
-                        "GETTING WIFI SETTINGS "
-                                + Settings.System.getInt(serviceRef.get().getContentResolver(),
-                                        Settings.System.WIFI_SLEEP_POLICY));
-            } catch (SettingNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            Settings.System.putInt(serviceRef.get().getContentResolver(),
-                    Settings.System.WIFI_SLEEP_POLICY, Settings.System.WIFI_SLEEP_POLICY_NEVER);
-
             this.track = track;
         }
 
