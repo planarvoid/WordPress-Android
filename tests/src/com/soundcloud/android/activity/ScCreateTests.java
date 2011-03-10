@@ -87,7 +87,7 @@ public class ScCreateTests implements CloudAPI.Params {
     }
 
     @Test
-    public void shouldGenerateASharingNote() throws Exception {
+    public void shouldGenerateANiceSharingNoteIfNoUserInputPresent() throws Exception {
         Map args = upload(true);
 
         assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
