@@ -7,7 +7,7 @@
 
     <application android:icon="@drawable/launcher"
       android:label="@string/app_name"
-      android:process="@string/app_name" android:debuggable="false"
+      android:process="@string/app_name"
       android:theme="@style/ScLight" android:configChanges="keyboard|keyboardHidden"
       android:name="SoundCloudApplication">
       <provider android:name=".provider.ScContentProvider" 
