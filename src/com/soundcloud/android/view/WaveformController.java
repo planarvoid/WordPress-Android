@@ -44,7 +44,7 @@ import java.util.Collections;
 public class WaveformController extends RelativeLayout implements OnTouchListener, OnLongClickListener {
     private static final String TAG = "WaveformController";
 
-    private static final int MAX_WAVEFORM_RETRIES = 3;
+    private static final int MAX_WAVEFORM_RETRIES = 2;
 
     private Track mPlayingTrack;
 
@@ -170,6 +170,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (!mShowingComments) ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
             mToggleComments.setImageDrawable((mShowingComments) ? mPlayer.getResources().getDrawable(R.drawable.ic_hide_comments_states) : mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
         }
+
+        mOverlay.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
 
         if (mToggleComments != null)
             mToggleComments.setOnClickListener(new View.OnClickListener() {
@@ -310,10 +313,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         switch (waveformResult) {
             case OK:      showWaveform(); break;
-            case LOADING: mOverlay.setVisibility(View.INVISIBLE); break;
+            case LOADING:
             case ERROR:
-                mOverlay.setImageDrawable(mPlayer.getResources()
-                        .getDrawable(R.drawable.player_wave_bg));
+                mOverlay.setVisibility(View.INVISIBLE);
+                mProgressBar.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -323,7 +326,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES){
             updateTrack(mPlayingTrack);
         } else {
-            mPlayer.onWaveformLoaded();
+            mOverlay.setImageDrawable(mPlayer.getResources()
+                    .getDrawable(R.drawable.player_wave_bg));
+            showWaveform();
         }
     }
 
@@ -339,6 +344,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
             mOverlay.startAnimation(aa);
             mOverlay.setVisibility(View.VISIBLE);
+
+            mProgressBar.startAnimation(aa);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
     }
 
