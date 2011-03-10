@@ -171,17 +171,18 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
+
             mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.PATH_TRACKS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
-
+            mList.enableLongClickListener();
         } else {
             mUserAdpWrapper.setPath(CloudAPI.Enddpoints.USERS, URLEncoder.encode(txtQuery
                     .getText().toString()));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);
-
+            mList.disableLongClickListener();
         }
     }
 

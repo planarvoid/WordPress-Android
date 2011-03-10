@@ -99,13 +99,15 @@ public class Authorize extends Activity implements CloudAPI.Client {
                                     + mAuthorizationException.getClass().getName();
                         }
                     }
-                    new AlertDialog.Builder(Authorize.this).setTitle("Authorization Failed")
-                            .setMessage(message).setCancelable(false).setPositiveButton("OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    finish();
-                                }
-                            }).create().show();
+                    if (!isFinishing()) {
+                        new AlertDialog.Builder(Authorize.this).setTitle("Authorization Failed")
+                                .setMessage(message).setCancelable(false).setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        finish();
+                                    }
+                                }).create().show();
+                    }
                 }
             }
         });
