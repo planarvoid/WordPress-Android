@@ -1118,23 +1118,15 @@ public class ScCreate extends ScActivity {
         return day + " " + dayTime;
     }
 
-    private String generateTitle() {
-        String title;
-        if (mWhatText.length() > 0 && mWhereText.length() > 0) {
-            title = mWhatText.getText() + " at " + mWhereText.getText();
-        } else if (mWhatText.length() > 0) {
-            title = mWhatText.getText().toString();
-        } else if (mWhereText.length() > 0) {
-            title = mWhereText.getText().toString();
-        } else {
-            title = "recording on " + dateString(mRecordingStarted);
-        }
-        return title;
-    }
+
 
     private String generateFilename(String title, String extension) {
         return String.format("%s_%s.%s", title,
                DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false)), extension);
+    }
+
+    private String generateTitle() {
+      return generateSharingNote();
     }
 
     private String generateSharingNote() {

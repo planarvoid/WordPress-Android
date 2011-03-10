@@ -1,5 +1,12 @@
 package com.soundcloud.android.activity;
 
+import static junit.framework.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -15,14 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 @RunWith(RobolectricTestRunner.class)
 public class ScCreateTests implements CloudAPI.Params {
     ScCreate create;
@@ -37,8 +36,19 @@ public class ScCreateTests implements CloudAPI.Params {
     }
 
     private Map upload() throws Exception {
+        return upload(false);
+    }
+
+    private Map upload(boolean share) throws Exception {
         // 14:31:01, 15/02/2011
         create.mRecordingStarted.set(1, 31, 14, 15, 2, 2011);
+        if (share) {
+            Connection c1 = new Connection();
+            c1.service = "twitter";
+            c1.post_publish = true;
+            c1.id = 1000;
+            create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
+        }
         create.startUpload();
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         verify(service).uploadTrack(captor.capture());
@@ -58,7 +68,7 @@ public class ScCreateTests implements CloudAPI.Params {
     public void shouldUseLocationIfPresent() throws Exception {
         create.mWhereText.setText("home");
         Map args = upload();
-        assertEquals("home", args.get(TITLE));
+        assertEquals("Sounds from home", args.get(TITLE));
     }
 
     @Test
@@ -72,21 +82,44 @@ public class ScCreateTests implements CloudAPI.Params {
     @Test
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
-        assertEquals("recording on null morning", args.get(TITLE));
+        // TODO should have date in here
+        assertEquals("Sounds from null morning", args.get(TITLE));
     }
 
     @Test
     public void shouldGenerateASharingNote() throws Exception {
-        Connection c1 = new Connection();
-        c1.service = "twitter";
-        c1.post_publish = true;
-        c1.id = 1000;
-        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
-
-        Map args = upload();
+        Map args = upload(true);
 
         assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
         assertEquals("Sounds from null morning", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNoteWithLocation() throws Exception {
+        create.mWhereText.setText("Mars");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Sounds from Mars", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
+        create.mWhatText.setText("Party");
+        create.mWhereText.setText("Mars");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Party at Mars", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNoteWithTitle() throws Exception {
+        create.mWhatText.setText("Party");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Party", args.get(SHARING_NOTE));
     }
 
     @Test
@@ -134,11 +167,6 @@ public class ScCreateTests implements CloudAPI.Params {
 
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
-        Connection c1 = new Connection();
-        c1.service = "twitter";
-        c1.post_publish = false;
-        c1.id = 1000;
-        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
         Map args = upload();
         assertNull("A sharing note should not be present", args.get(SHARING_NOTE));
     }
