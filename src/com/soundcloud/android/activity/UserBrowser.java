@@ -299,7 +299,7 @@ public class UserBrowser extends ScActivity {
         LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), CloudUtils.Model.track);
         if (isOtherUser()){
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text).replace("{username}", mUserData.username == null ? "" : mUserData.username));
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text, mUserData.username));
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
         }
