@@ -315,7 +315,9 @@ public class UserBrowser extends ScActivity {
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
         if (isOtherUser()){
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text).replace("{username}", mUserData.username == null ? "" : mUserData.username));
+            if (mUserData != null) {
+                adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text, mUserData.username));
+            }
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
         }

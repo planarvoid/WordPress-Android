@@ -293,6 +293,9 @@ public class WorkspaceView extends ViewGroup {
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
 
+        if (width == 0 || height == 0)
+            return;
+
         // For drawing in its own bitmap:
         RectF bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
