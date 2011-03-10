@@ -208,7 +208,7 @@ public class CloudPlaybackService extends Service {
 
     private static final int PLAYBACK_MARK = 60000;
 
-    private static final int LOW_WATER_MARK = 20000;
+    private static final int LOW_WATER_MARK = 40000;
 
     private boolean ignoreBuffer;
 
@@ -584,8 +584,6 @@ public class CloudPlaybackService extends Service {
         mLoadPercent = 0;
         mCurrentBuffer = 0;
 
-        mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork; //otherwise it will wait for the waveform
-
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id == track.id) {
 
@@ -595,6 +593,8 @@ public class CloudPlaybackService extends Service {
             return;
 
         }
+
+        mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork; //otherwise it will wait for the waveform
 
         // stop in a thread so the resetting (or releasing if we are
         // async opening) doesn't holdup the UI
@@ -790,15 +790,15 @@ public class CloudPlaybackService extends Service {
 
             if (mBufferReportCounter == 10) {
                 Log.i(TAG, "[buffer size] " + mCurrentBuffer + " | [cachefile size] "
-                        + mPlayingData.mCacheFile.length() + " | [buffer:initialBuffer:wifilock:wakelock]"
-                        + pausedForBuffering + ":" + initialBuffering + ":" + mWifiLock.isHeld() + ":" + mWakeLock.isHeld());
+                        + mPlayingData.mCacheFile.length() + " | [buffer:initialBuffer:waitingForArtwork]"
+                        + pausedForBuffering + ":" + initialBuffering + ":" + mWaitingForArtwork);
                 if (CloudUtils.checkThreadAlive(mDownloadThread) && mDownloadThread.lastRead > 0
                         && System.currentTimeMillis() - mDownloadThread.lastRead > 10000) {
                     Log.i(TAG, "Download thread stale, rebooting it ");
                     mDownloadThread.stopDownload();
                     mDownloadThread = null;
+                    checkBufferStatus();
                 }
-                checkBufferStatus();
                 mBufferReportCounter = 0;
             } else
                 mBufferReportCounter++;
@@ -961,9 +961,11 @@ public class CloudPlaybackService extends Service {
      */
     private void checkBufferStatus() {
         synchronized (this) {
+            //Log.i(TAG,"Check Buffer Status:" + CloudUtils.checkThreadAlive(mDownloadThread) + " " + checkNetworkStatus());
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
+                //Log.i(TAG,"Keep Caching?? " + checkIfTrackCached(mPlayingData) + " " + keepCaching() + " " + mDownloadException);
                 // we are able to buffer something, see if we need to download
                 // the current track
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()  && !mDownloadException) {
@@ -994,6 +996,8 @@ public class CloudPlaybackService extends Service {
     public void play() {
         if (mPlayingData == null)
             return;
+
+        mDownloadException = false;
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
@@ -1882,8 +1886,10 @@ public class CloudPlaybackService extends Service {
         mBufferHandler.sendMessageDelayed(msg, delay);
     }
 
-    public void onDownloadThreadDeath() {
+    public void onDownloadThreadDeath(StoppableDownloadThread stoppableDownloadThread) {
         mMediaplayerHandler.sendEmptyMessageDelayed(RELEASE_WAKELOCKS, 3000);
+        if (stoppableDownloadThread == mDownloadThread)
+            mDownloadThread = null;
 
         if (keepCaching()) {
             Message msg = mBufferHandler.obtainMessage(BUFFER_FILL_CHECK);
@@ -1972,6 +1978,8 @@ public class CloudPlaybackService extends Service {
         private static final int MODE_PARTIAL = 1;
 
         private static final int MODE_CHECK_COMPLETE = 2;
+
+        private long bytes = 0;
 
         private int mode;
 
@@ -2136,7 +2144,6 @@ public class CloudPlaybackService extends Service {
 
                     byte[] b = new byte[2048];
                     int n;
-                    long bytes = 0;
 
                     /*
                      * Note that for most applications, sending a handler
@@ -2150,6 +2157,7 @@ public class CloudPlaybackService extends Service {
                         os.write(b, 0, n);
                         lastRead = System.currentTimeMillis();
                     }
+                    return;
                 }
             } catch (Exception e) {
                 /*
@@ -2161,16 +2169,18 @@ public class CloudPlaybackService extends Service {
                     e.printStackTrace();
             } finally {
 
-                if (is != null)
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                    }
-                if (os != null)
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                    }
+                if (bytes > 0) {
+                    if (is != null)
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                        }
+                    if (os != null)
+                        try {
+                            os.close();
+                        } catch (IOException e) {
+                        }
+                }
 
                 synchronized (lock) {
                     mMethod = null;
@@ -2180,8 +2190,10 @@ public class CloudPlaybackService extends Service {
                 cli.getConnectionManager().shutdown();
 
                 if (serviceRef.get() != null)
-                    serviceRef.get().onDownloadThreadDeath();
+                    serviceRef.get().onDownloadThreadDeath(this);
+
             }
+
         }
     }
 

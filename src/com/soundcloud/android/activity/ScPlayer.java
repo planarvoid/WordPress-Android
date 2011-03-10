@@ -105,6 +105,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private long mDuration;
 
+    private boolean mWaveformLoaded;
+
     private boolean mPaused;
     private boolean mTrackInfoFilled;
     private boolean mTrackInfoCommentsFilled;
@@ -421,6 +423,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     mPlaybackService.pause();
                 } else {
                     mPlaybackService.play();
+                    if (mWaveformLoaded) mPlaybackService.setClearToPlay(true);
                 }
                 long next = refreshNow();
                 queueNextRefresh(next);
@@ -837,6 +840,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         updateArtwork();
         if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
+            mTrackInfoFilled = false;
+            mTrackInfoCommentsFilled = false;
+            mWaveformLoaded = false;
 
             mCurrentTrackId = mPlayingTrack.id;
 
@@ -869,9 +875,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mWaveformController.hideConnectingLayout();
             }
 
-            mTrackInfoFilled = false;
-            mTrackInfoCommentsFilled = false;
-
             setFavoriteStatus();
             mDuration = mPlayingTrack.duration;
             mCurrentDurationString = CloudUtils.makeTimeString(
@@ -881,6 +884,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     public void onWaveformLoaded(){
+        mWaveformLoaded = true;
+
         try {
             if (mPlaybackService != null) mPlaybackService.setClearToPlay(true);
         } catch (RemoteException e) {
@@ -1184,8 +1189,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             super.onPostExecute(keepGoing);
 
             if (newItems != null) {
+                getSoundCloudApplication().cacheComments(track_id, newItems);
+
+                if (track_id != mPlayingTrack.id)
+                    return;
+
                 mCurrentComments = newItems;
-                getSoundCloudApplication().cacheComments(track_id, mCurrentComments);
                 refreshComments(true);
             }
 
