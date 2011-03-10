@@ -270,11 +270,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
 
     public ArrayList<Comment> getCommentsFromCache(long track_id){
-        if (mCommentCache.get(track_id) != null)
+        if (mCommentCache.get(track_id) != null) {
             return mCommentCache.get(track_id);
-        else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
+        } else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
             return mCommentSoftCache.get(track_id).get();
-        } else
+        } else {
             return null;
+        }
     }
 }

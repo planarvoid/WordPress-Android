@@ -187,8 +187,8 @@ public class UserBrowser extends ScActivity {
         Object[] states = new Object[mLists.size()];
         int i = 0;
         for (LazyListView list : mLists) {
-            states[i] = LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()) ? (list
-                    .getWrapper()).saveState() : null;
+            states[i] = LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()) ?
+                    (list.getWrapper()).saveState() : null;
             i++;
         }
         return states;
@@ -246,6 +246,8 @@ public class UserBrowser extends ScActivity {
     }
 
     private void loadUserByObject(User userInfo) {
+        if (userInfo  == null)  return;
+
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
