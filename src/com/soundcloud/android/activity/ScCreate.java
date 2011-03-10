@@ -645,10 +645,7 @@ public class ScCreate extends ScActivity {
                         R.drawable.btn_rec_states));
                 mFileLayout.setVisibility(View.GONE);
 
-                if (TextUtils.isEmpty(mRecordErrorMessage)) {
-                    //txtRecordStatus.setText(getResources().getString(
-                      //      R.string.cloud_recorder_experimental));
-                } else {
+                if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                     txtRecordStatus.setText(mRecordErrorMessage);
                 }
 

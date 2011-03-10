@@ -42,7 +42,6 @@
   <!-- Do not translate. Format of the timer that shows how much has been recorded so far -->
     <string name="timer_format" translatable="false"><xliff:g id="format">%02d:%02d</xliff:g></string>
 
-  <string name="cloud_recorder_experimental">Max recording length: 15 min</string>
   <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
 
   <string name="cloud_recorder_notification_ticker">Recording started</string>
@@ -396,7 +395,7 @@
   <string name="error_general_message">Sorry, something went wrong during your request.</string>
 
   <string name="error_recording_title">Error</string>
-  <string name="error_recording_message">There was an error during recording. Your device may not support the current high quality recording configuration. Future iterations will include support for lower quality recordings </string>
+  <string name="error_recording_message">There was an error during recording. Your device may not support the current high quality recording configuration.</string>
 
   <string name="error_no_downloads_title">No Downloads</string>
   <string name="error_no_downloads_message">You haven\'t downloaded any music yet.</string>
