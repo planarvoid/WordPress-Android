@@ -1,15 +1,17 @@
 package com.soundcloud.android.task;
 
-import android.os.AsyncTask;
-import android.util.Log;
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.utils.http.Http;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
+
+import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -137,6 +139,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Error uploading", e);
+                    param.fail();
                 }
             }
         });

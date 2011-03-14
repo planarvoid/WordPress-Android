@@ -343,7 +343,7 @@ public class CloudCreateService extends Service {
                 }
 
 
-                mUploadTask = new UploadOggTask((CloudAPI) getApplication());
+                mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
 
                 if (param.artworkFile == null) {
                     mUploadTask.execute(param);
@@ -405,7 +405,7 @@ public class CloudCreateService extends Service {
                             break;
                         }
                     }
-               
+
 
                 if (sampleSize > 1 || degree > 0) {
                     InputStream is = new FileInputStream(param.artworkFile);
@@ -444,10 +444,10 @@ public class CloudCreateService extends Service {
 
     }
 
-    private class UploadOggTask extends UploadTask {
+    private class UploadTrackTask extends UploadTask {
         private String eventString;
 
-        public UploadOggTask(CloudAPI api) {
+        public UploadTrackTask(CloudAPI api) {
             super(api);
         }
 
