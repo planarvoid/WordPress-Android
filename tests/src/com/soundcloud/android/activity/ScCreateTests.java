@@ -142,7 +142,7 @@ public class ScCreateTests implements CloudAPI.Params {
         assertThat(args.get(TAG_LIST), not(is(nullValue())));
 
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags, hasItem("geo:long=0.1"));
+        assertThat(tags, hasItem("geo:lon=0.1"));
         assertThat(tags, hasItem("geo:lat=0.2"));
     }
 

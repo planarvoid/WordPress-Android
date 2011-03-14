@@ -1057,7 +1057,7 @@ public class ScCreate extends ScActivity {
 
             if (mFourSquareVenueId != null) tags.add("foursquare:venue="+mFourSquareVenueId);
             if (mLat  != 0) tags.add("geo:lat="+mLat);
-            if (mLong != 0) tags.add("geo:long="+mLong);
+            if (mLong != 0) tags.add("geo:lon="+mLong);
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
 
