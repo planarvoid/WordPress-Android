@@ -2,17 +2,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:background="@drawable/comment_touch_bar"
 	android:layout_height="35dip" android:gravity="center_vertical">
-	<TextView android:id="@+id/txt_instructions"
-            android:layout_centerHorizontal="true" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" style="@style/txt_player_touch_bar"
-            android:text="@string/player_touch_bar"
-            android:layout_centerInParent="true" android:gravity="center" />
-	<ImageView
-	    android:src="@drawable/comment_bubble_sm"
+	<RelativeLayout android:layout_height="fill_parent" 
+	   android:id="@+id/new_comment_bar" android:layout_width="fill_parent">
+		<TextView android:id="@+id/txt_instructions"
+	            android:layout_centerHorizontal="true" android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" style="@style/txt_player_touch_bar"
+	            android:text="@string/player_touch_bar"
+	            android:layout_centerInParent="true" android:gravity="center" />
+	</RelativeLayout>
+	<ImageButton
+	    android:src="@drawable/ic_hide_comments_states"
 	    android:layout_centerVertical="true"
 		android:layout_alignParentRight="true"
-		android:layout_marginRight="10dip"
+		android:background="@color/transparent"
+		android:paddingRight="10dip"
+		android:paddingLeft="10dip"
 		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:id="@+id/icon" />
+		android:layout_height="fill_parent"
+		android:id="@+id/btn_toggle" />
 </RelativeLayout>

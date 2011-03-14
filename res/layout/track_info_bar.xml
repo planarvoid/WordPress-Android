@@ -27,7 +27,9 @@
 				android:text="" android:singleLine="true" android:ellipsize="marquee"
 				android:layout_width="fill_parent" android:layout_below="@id/track" />
 		</RelativeLayout>
-		<ImageButton android:layout_marginTop="3dip" android:id="@+id/btn_info" style="@style/btn_sc_show_info" android:src="@drawable/ic_info_states" />
+		<ImageButton android:layout_marginTop="3dip"
+		android:scaleType="centerInside"
+		 android:id="@+id/btn_info" style="@style/btn_sc_show_info" android:src="@drawable/ic_info_states" />
 	</LinearLayout>
 
 </merge>

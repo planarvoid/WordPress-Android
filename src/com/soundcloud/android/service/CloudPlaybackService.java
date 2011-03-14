@@ -26,13 +26,14 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
-import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.utils.CloudCache;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 import com.soundcloud.utils.play.MediaFrameworkChecker;
 import com.soundcloud.utils.play.PlayListManager;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -50,6 +51,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
@@ -77,32 +80,14 @@ import java.util.ArrayList;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
- * switch between activities without stopping playback. ** Derived from the
- * androi 2.1 default media player
+ * switch between activities without stopping playback. Derived from the Android
+ * 2.1 default media player.
  */
 public class CloudPlaybackService extends Service {
 
     private static final String TAG = "CloudPlaybackService";
 
-    public static final int NOW = 1;
-
-    public static final int NEXT = 2;
-
-    public static final int LAST = 3;
-
     public static final int PLAYBACKSERVICE_STATUS = 1;
-
-    public static final int SHUFFLE_NONE = 0;
-
-    public static final int SHUFFLE_NORMAL = 1;
-
-    public static final int SHUFFLE_AUTO = 2;
-
-    public static final int REPEAT_NONE = 0;
-
-    public static final int REPEAT_CURRENT = 1;
-
-    public static final int REPEAT_ALL = 2;
 
     public static final int BUFFER_CHECK = 0;
 
@@ -111,12 +96,6 @@ public class CloudPlaybackService extends Service {
     public static final int START_NEXT_TRACK = 2;
 
     public static final int RESTART_TRACK = 3;
-
-    public static final int UPDATE_TRACK = 4;
-
-    public static final int MAX_RECONNECT_COUNT = 1;
-
-    public static final String PROGRESS_UPDATE = "com.soundcloud.android.progressupdate";
 
     public static final String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
 
@@ -137,8 +116,6 @@ public class CloudPlaybackService extends Service {
     public static final String ADD_FAVORITE = "com.soundcloud.android.addfavorite";
 
     public static final String REMOVE_FAVORITE = "com.soundcloud.android.removefavorite";
-
-    public static final String SEEK_START = "com.soundcloud.android.seekstart";
 
     public static final String SEEK_COMPLETE = "com.soundcloud.android.seekcomplete";
 
@@ -172,15 +149,15 @@ public class CloudPlaybackService extends Service {
 
     private static final int TRACK_ENDED = 1;
 
-    private static final int RELEASE_WAKELOCK = 2;
-
     private static final int SERVER_DIED = 3;
 
     private static final int FADEIN = 4;
 
     private static final int TRACK_EXCEPTION = 5;
 
-    private LoadCommentsTask mLoadCommentsTask;
+    private static final int ACQUIRE_WAKELOCKS = 6;
+
+    private static final int RELEASE_WAKELOCKS = 7;
 
     private MultiPlayer mPlayer;
 
@@ -196,15 +173,17 @@ public class CloudPlaybackService extends Service {
 
     private Track mPlayingData;
 
-    private DownloadThread mDownloadThread;
+    private StoppableDownloadThread mDownloadThread;
 
-    private boolean mMediaplayerError = false;
+    private boolean mMediaplayerError;
 
     private RemoteViews mNotificationView;
 
     private long mResumeTime = -1;
 
-    private Long mResumeId = null;
+    private long mResumeId = -1;
+
+    private WifiLock mWifiLock;
 
     private WakeLock mWakeLock;
 
@@ -216,20 +195,20 @@ public class CloudPlaybackService extends Service {
 
     private boolean mIsSupposedToBePlaying = false;
 
+    private boolean mWaitingForArtwork = false;
+
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
 
-    protected static final int MAX_CACHE_SIZE = 200000000;
+    private static final int HIGH_WATER_MARK = 8000000;
 
-    protected static final int WIFI_HIGH_WATER_MARK = 100000000;
+    private static final int PLAYBACK_MARK = 60000;
 
-    protected static final int HIGH_WATER_MARK = 8000000;
+    private static final int LOW_WATER_MARK = 40000;
 
-    protected static final int PLAYBACK_MARK = 60000;
-
-    protected static final int LOW_WATER_MARK = 20000;
+    private boolean ignoreBuffer;
 
     private boolean pausedForBuffering;
 
@@ -239,11 +218,15 @@ public class CloudPlaybackService extends Service {
 
     private NetworkInfo mCurrentNetworkInfo;
 
-    private int mCurrentPlugState;
+    private boolean mDownloadException;
 
-    private boolean isStagefright = false;
+    private boolean isStagefright;
 
-    private int mUpdateWidgetCounter = 0;
+    private int mBufferReportCounter = 0;
+
+    protected int batteryLevel;
+
+    protected int plugState;
 
     public CloudPlaybackService() {
 
@@ -278,14 +261,17 @@ public class CloudPlaybackService extends Service {
         tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, this.getClass().getName());
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
         mWakeLock.setReferenceCounted(false);
 
-        if (Build.VERSION.SDK_INT < 8) // 2.1 or earlier, opencore only, no
-            // stream seeking
+        WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mWifiLock = wm.createWifiLock("wifilock");
+
+        if (Build.VERSION.SDK_INT < 8)
+            // 2.1 or earlier, opencore only, no stream seeking
             isStagefright = false;
-        else if (Build.VERSION.SDK_INT == 8) { // 2.2, check to see if
-            // stagefright enabled
+        else if (Build.VERSION.SDK_INT == 8) {
+            // 2.2, check to see if stagefright enabled
             determineSdk8Framework();
         } else { // greater than 2.2, assume stagefright from here on out
             isStagefright = true;
@@ -303,8 +289,6 @@ public class CloudPlaybackService extends Service {
         mAutoPause = true;
         mPlayListManager.reloadQueue();
         mPlayingData = mPlayListManager.getCurrentTrack();
-        // openCurrent(true);
-
     }
 
     /**
@@ -312,31 +296,34 @@ public class CloudPlaybackService extends Service {
      * we can
      */
     private void determineSdk8Framework() {
-
         isStagefright = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
                 "isStagefright", false);
 
         // check the build file, works in most cases and will catch cases for
         // instant playback
         try {
+            // XXX throws IllegalArgumentException since pathname contains
+            // separators
             InputStream instream = openFileInput("/system/build.prop");
             if (instream != null) {
-                BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
                 String line;
+                BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
                 while ((line = buffreader.readLine()) != null) {
                     if (line.contains("media.stagefright.enable-player")) {
-                        if (line.contains("true"))
+                        if (line.contains("true")) {
                             isStagefright = true;
+                        }
                         break;
                     }
                 }
             }
             instream.close();
-
         } catch (Exception e) {
+            // really need to catch exception here
+            Log.e(TAG, "error", e);
         }
 
-        // check throgh a socket, only way to be sure, but takes a little time
+        // check through a socket, only way to be sure, but takes a little time
         final MediaFrameworkChecker mfc = new MediaFrameworkChecker();
         mfc.start();
         // Fire off a thread to do some work that we shouldn't do directly in
@@ -352,11 +339,12 @@ public class CloudPlaybackService extends Service {
                     while (mfc.isAlive()) {
                         Thread.sleep(100);
                     }
-                } catch (IOException e) {
-                } catch (InterruptedException e) {
+                } catch (IOException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 isStagefright = mfc.isStagefright();
-                PreferenceManager.getDefaultSharedPreferences(CloudPlaybackService.this).edit().putBoolean("isStagefright", isStagefright).commit();
+                PreferenceManager.getDefaultSharedPreferences(CloudPlaybackService.this).edit()
+                        .putBoolean("isStagefright", isStagefright).commit();
             }
         };
         t.start();
@@ -395,6 +383,10 @@ public class CloudPlaybackService extends Service {
             mWakeLock.release();
         mWakeLock = null;
 
+        if (mWifiLock.isHeld())
+            mWifiLock.release();
+        mWifiLock = null;
+
         super.onDestroy();
     }
 
@@ -420,13 +412,12 @@ public class CloudPlaybackService extends Service {
         mServiceStartId = startId;
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
-        Log.i(TAG,"ON START COMMAND");
         if (intent != null) {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
 
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
-                next(true);
+                next();
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
                     prev();
@@ -445,12 +436,12 @@ public class CloudPlaybackService extends Service {
             } else if (CMDSTOP.equals(cmd)) {
                 pause();
                 seek(0);
-            }else if (ADD_FAVORITE.equals(action)){
-                Log.i(TAG,"ADD FAVORITE " + intent.getLongExtra("trackId", -1));
-                setFavoriteStatus(intent.getLongExtra("trackId", -1),true);
-            }else if (REMOVE_FAVORITE.equals(action)){
-                Log.i(TAG,"REMOVE FAVORITE " + intent.getLongExtra("trackId", -1));
-                setFavoriteStatus(intent.getLongExtra("trackId", -1),false);
+            } else if (ADD_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got an add fave call " + intent.getLongExtra("trackId", -1));
+                setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
+            } else if (REMOVE_FAVORITE.equals(action)) {
+                Log.i(TAG,"Got a remove fave call " + intent.getLongExtra("trackId", -1));
+                setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
 
@@ -518,10 +509,7 @@ public class CloudPlaybackService extends Service {
             return false;
 
         mCurrentNetworkInfo = connectivityListener.getNetworkInfo();
-        if (mCurrentNetworkInfo != null)
-            return mCurrentNetworkInfo.isConnected();
-        else
-            return false;
+        return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
     }
 
     /**
@@ -540,13 +528,14 @@ public class CloudPlaybackService extends Service {
      */
     private void notifyChange(String what) {
 
-        Log.i(TAG,"Notify Change " + what + " " +  getTrackId() + " " + isPlaying());
+        Log.i(TAG, "Notify Change " + what + " " + getTrackId() + " " + isPlaying());
         Intent i = new Intent(what);
         i.putExtra("id", getTrackId());
         i.putExtra("track", getTrackName());
         i.putExtra("user", getUserName());
         i.putExtra("isPlaying", isPlaying());
-        if (what == FAVORITE_SET) i.putExtra("isFavorite", mPlayingData.user_favorite);
+        if (FAVORITE_SET.equals(what))
+            i.putExtra("isFavorite", mPlayingData.user_favorite);
         sendBroadcast(i);
 
         if (what.equals(QUEUE_CHANGED)) {
@@ -562,8 +551,7 @@ public class CloudPlaybackService extends Service {
     public void playFromAppCache(int playPos) {
         synchronized (this) {
             mPlayListManager.loadCachedPlaylist(
-                    ((SoundCloudApplication) this.getApplication()).flushCachePlaylist(),
-                    playPos);
+                    ((SoundCloudApplication) this.getApplication()).flushCachePlaylist(), playPos);
             stopStreaming(null);
             openCurrent();
             mIsSupposedToBePlaying = true;
@@ -572,7 +560,6 @@ public class CloudPlaybackService extends Service {
     }
 
     private void openCurrent() {
-        Log.i(TAG,"Open Current " + mPlayListManager.getCurrentLength());
         if (mPlayListManager.getCurrentLength() == 0) {
             return;
         }
@@ -582,7 +569,6 @@ public class CloudPlaybackService extends Service {
     Thread mStopThread = null;
 
     public void openAsync(Track track) {
-        Log.i(TAG,"TRACK " + track);
         if (track == null) {
             return;
         }
@@ -596,10 +582,8 @@ public class CloudPlaybackService extends Service {
         mLoadPercent = 0;
         mCurrentBuffer = 0;
 
-        Log.i(TAG,"Playing Data " + mPlayingData);
-
         // if we are already playing this track
-        if (mPlayingData != null && mPlayingData.id.compareTo(track.id) == 0) {
+        if (mPlayingData != null && mPlayingData.id == track.id) {
 
             mStopThread = new StreamStopper(this, mPlayingData.id);
             mStopThread.setPriority(Thread.MAX_PRIORITY);
@@ -608,30 +592,29 @@ public class CloudPlaybackService extends Service {
 
         }
 
+        mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork; //otherwise it will wait for the waveform
+
         // stop in a thread so the resetting (or releasing if we are
-        // asyncopening) doesn't holdup the UI
+        // async opening) doesn't holdup the UI
         mStopThread = new StreamStopper(this, track.id);
         mStopThread.setPriority(Thread.MAX_PRIORITY);
         mStopThread.start();
 
         // new play data
         mPlayingData = track;
+        ignoreBuffer = true;
 
         setPlayingStatus();
 
         // tell the db we played it
         track.user_played = true;
 
-        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), track,
-                WriteState.all, CloudUtils.getCurrentUserId(this));
+        commitTrackToDb(track);
 
         // meta has changed
         notifyChange(META_CHANGED);
     }
 
-    /**
-     * Stops the stream and media player
-     */
     private void stopStreaming(Long continueId) {
         synchronized (this) {
             // stop checking buffer
@@ -648,7 +631,7 @@ public class CloudPlaybackService extends Service {
             if (CloudUtils.checkThreadAlive(mDownloadThread)
                     && (continueId == null || mDownloadThread.getTrackId() != continueId)) {
                 mDownloadThread.interrupt();
-                mDownloadThread.kill();
+                mDownloadThread.stopDownload();
 
             }
         }
@@ -656,15 +639,17 @@ public class CloudPlaybackService extends Service {
     }
 
     public void fileLengthUpdated(Track t, boolean changed) {
-        if (t.id.compareTo(mPlayingData.id) == 0) {
+        if (t.id == mPlayingData.id) {
             if (changed) {
 
                 // stop the track if its playing
                 stopStreaming(t.id);
 
                 // get rid of the existing cache file
-                if (t.mCacheFile != null && t.mCacheFile.exists())
-                    t.mCacheFile.delete();
+                if (t.mCacheFile != null && t.mCacheFile.exists()) {
+                    if (!t.mCacheFile.delete())
+                        Log.w(TAG, "error deleting " + t.mCacheFile);
+                }
 
                 commitTrackToDb(t); // save info
 
@@ -675,17 +660,25 @@ public class CloudPlaybackService extends Service {
                 assertBufferCheck();
                 commitTrackToDb(t); // save info
             }
+        } else if (changed && t.mCacheFile != null && t.mCacheFile.exists()) {
+            t.mCacheFile.delete();
         }
     }
 
-    public void commitTrackToDb(Track t) {
-        SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t,
-                WriteState.all, CloudUtils.getCurrentUserId(this));
+    public void commitTrackToDb(final Track t) {
+        new Thread() {
+            @Override
+            public void run() {
+                SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t, WriteState.all,
+                        CloudUtils.getCurrentUserId(CloudPlaybackService.this));
+            }
+        }.start();
     }
 
     private void startNextTrack() {
         synchronized (this) {
             mStopThread = null;
+            mDownloadException = false;
 
             if (CloudUtils.isTrackPlayable(mPlayingData)) {
 
@@ -696,6 +689,11 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright) {
                     pausedForBuffering = true;
                     initialBuffering = true;
+                    ignoreBuffer = false;
+
+                    if (mPlayingData.filelength == 0 && mPlayingData.mCacheFile.length() > 0){
+                       mPlayingData.mCacheFile.delete();
+                    }
 
                     if (checkNetworkStatus())
                         prepareDownload(mPlayingData);
@@ -708,7 +706,8 @@ public class CloudPlaybackService extends Service {
                 } else {
                     // commit updated track (user played update only)
                     commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(mPlayingData.mSignedUri);
+                    mPlayer.setDataSourceAsync(((SoundCloudApplication) getApplication())
+                            .signStreamUrlNaked(mPlayingData.stream_url));
                 }
                 return;
             }
@@ -718,12 +717,10 @@ public class CloudPlaybackService extends Service {
     }
 
     private void configureTrackData(Track t) {
-        if (t.mSignedUri == null)
-            t.mSignedUri = ((SoundCloudApplication) getApplication()).signStreamUrlNaked(t.stream_url);
 
         if (t.mCacheFile == null) {
             t.mCacheFile = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY
-            + CloudUtils.md5(Long.toString(t.id)));
+                    + CloudUtils.md5(Long.toString(t.id)));
         }
 
     }
@@ -733,9 +730,8 @@ public class CloudPlaybackService extends Service {
             configureTrackData(trackToCache);
 
             if (mDownloadThread != null && mDownloadThread.isAlive()
-                    && trackToCache.id.compareTo(mDownloadThread.getTrackId()) == 0) {
+                    && trackToCache.id == mDownloadThread.getTrackId()) {
                 // we are already downloading this
-                //Log.i(TAG, "Alread downloading this track. Just wait for the buffer to play it.");
                 return;
             }
 
@@ -752,30 +748,29 @@ public class CloudPlaybackService extends Service {
 
                         }
                         trackToCache.mCacheFile.setLastModified(System.currentTimeMillis());
-
                     }
                 }.start();
+                mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
+                mMediaplayerHandler.sendEmptyMessage(ACQUIRE_WAKELOCKS);
 
-                (mDownloadThread = new DownloadThread(this, trackToCache)).start();
+                mDownloadThread = new StoppableDownloadThread(this, trackToCache);
+                mDownloadThread.setPriority(Thread.MAX_PRIORITY);
+                mDownloadThread.start();
             }
         }
     }
 
-    /**
-     * Manage the buffering status.
-     *
-     * @return
-     */
     private boolean checkBuffer() {
         synchronized (this) {
-
             if (mPlayingData == null || getDuration() == 0)
                 return false;
-            if (mPlayingData.filelength == null || mPlayingData.mCacheFile == null) {
-                if (CloudUtils.checkThreadAlive(mDownloadThread))
+
+            if (mPlayingData.filelength == 0 || mPlayingData.mCacheFile == null) {
+                if (CloudUtils.checkThreadAlive(mDownloadThread) || ignoreBuffer)
                     return true;
                 else {
                     Log.i(TAG, "No Thread, No Cache, send exception");
+                    sendDownloadException();
                     return false;
                 }
             }
@@ -783,35 +778,56 @@ public class CloudPlaybackService extends Service {
             if (mPlayer != null && mPlayer.isInitialized()) {
                 // normal buffer measurement. size of cache file vs playback
                 // position
-                mCurrentBuffer = mPlayingData.mCacheFile.length()
-                        - mPlayingData.filelength * mPlayer.position() / getDuration();
+                mCurrentBuffer = mPlayingData.mCacheFile.length() - mPlayingData.filelength
+                        * mPlayer.position() / getDuration();
 
-            } else if (mResumeId != null && mResumeId == mPlayingData.id && mResumeTime > -1) {
+            } else if (mResumeId == mPlayingData.id && mResumeTime > -1) {
                 // resume buffer measurement. if stream died due to lack of a
                 // buffer, measure the buffer from where we are supposed to
                 // resume
-                mCurrentBuffer = mPlayingData.mCacheFile.length()
-                        - mPlayingData.filelength * mResumeTime / getDuration();
-            } else
+                mCurrentBuffer = mPlayingData.mCacheFile.length() - mPlayingData.filelength
+                        * mResumeTime / getDuration();
+            } else {
                 // initial buffer measurement
                 mCurrentBuffer = mPlayingData.mCacheFile.length();
+            }
 
-            // Log.i(TAG,"Buffer: " + mCurrentBuffer + " | " +
-            // mPlayingData.getCacheFile().length() + " | " + pausedForBuffering
-            // + " | " + initialBuffering);
+            if (mBufferReportCounter == 20) {
+                Log.i(TAG, "[buffer size] " + mCurrentBuffer + " [cachefile] "
+                        + mPlayingData.mCacheFile.length() + " [waiting]"
+                        + pausedForBuffering);
+                if (CloudUtils.checkThreadAlive(mDownloadThread) && mDownloadThread.lastRead > 0
+                        && System.currentTimeMillis() - mDownloadThread.lastRead > 10000) {
+                    Log.i(TAG, "Download thread stale, rebooting it ");
+                    mDownloadThread.stopDownload();
+                    mDownloadThread = null;
+                    checkBufferStatus();
+                }
+                mBufferReportCounter = 0;
+            } else
+                mBufferReportCounter++;
 
             if (pausedForBuffering) {
 
+                // make sure we are trying to download
+                checkBufferStatus();
+
                 // first round of buffering, special case where we set the
                 // playback file
-                if (mCurrentBuffer > PLAYBACK_MARK) {
+                if (mCurrentBuffer > PLAYBACK_MARK
+                        || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
+
+                    if (mWaitingForArtwork)
+                        return true;
 
                     pausedForBuffering = false;
 
                     if (!initialBuffering) {
                         // normal buffering done
                         notifyChange(BUFFERING_COMPLETE);
-                        mPlayer.start();
+
+                        if (mIsSupposedToBePlaying)
+                            mPlayer.start();
 
                     } else {
                         // initial buffering done
@@ -819,9 +835,11 @@ public class CloudPlaybackService extends Service {
 
                         // set the media player data source
                         if (!mPlayer.getPlayingPath().equalsIgnoreCase(
-                                mPlayingData.mCacheFile.getAbsolutePath()))
-                            mPlayer.setDataSourceAsync(mPlayingData.mCacheFile
-                                    .getAbsolutePath());
+                                mPlayingData.mCacheFile.getAbsolutePath())){
+                            mPlayer.setDataSourceAsync(mPlayingData.mCacheFile.getAbsolutePath());
+                        } else {
+                            notifyChange(BUFFERING_COMPLETE);
+                        }
                     }
 
                 } else if (!checkNetworkStatus()) {
@@ -852,6 +870,8 @@ public class CloudPlaybackService extends Service {
             }
         }
 
+        if (mPlayingData.mCacheFile.length() >= mPlayingData.filelength) return false; //no need to keep buffering
+
         return true;
     }
 
@@ -878,10 +898,10 @@ public class CloudPlaybackService extends Service {
 
     private void trimCache(File keepFile) throws IOException {
         long size = 0;
-        long maxSize = 200000000;
+        final long maxSize = 200000000;
 
         StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        Long spaceLeft = Long.parseLong(Integer.toString(fs.getBlockSize()))
+        final long spaceLeft = ((long) fs.getBlockSize())
                 * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
 
         File cacheDir = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY);
@@ -889,40 +909,51 @@ public class CloudPlaybackService extends Service {
             File[] fileList = cacheDir.listFiles();
             if (fileList != null) {
                 ArrayList<File> orderedFiles = new ArrayList<File>();
-                for (int i = 0; i < fileList.length; i++) {
-                    if (!fileList[i].isDirectory() && (keepFile == null || fileList[i] != keepFile))
-                        size += fileList[i].length();
-                    if (orderedFiles.size() == 0)
-                        orderedFiles.add(fileList[i]);
-                    else {
+                for (File file : fileList) {
+                    if (!file.isDirectory() && (keepFile == null || !file.equals(keepFile))) {
+                        size += file.length();
+                    }
+
+                    if (orderedFiles.size() == 0) {
+                        orderedFiles.add(file);
+                    } else {
                         int j = 0;
                         while (j < orderedFiles.size()
-                                && (orderedFiles.get(j)).lastModified() < fileList[i]
-                                        .lastModified()) {
+                                && (orderedFiles.get(j)).lastModified() < file.lastModified()) {
                             j++;
                         }
-                        orderedFiles.add(j, fileList[i]);
+                        orderedFiles.add(j, file);
                     }
                 }
 
-                Log.i(TAG, "Current Cache Size " + size);
+                Log.i(TAG, "Current Cache Size " + size + " (space left " + spaceLeft + ")");
 
                 if (size > maxSize || spaceLeft < 0) {
-                    Long toTrim = size - maxSize > 0 - spaceLeft ? size - maxSize : 0 - spaceLeft;
+                    final long toTrim = Math.max(size - maxSize, Math.abs(spaceLeft));
                     int j = 0;
                     long trimmed = 0;
+                    // XXX PUT THIS CODE UNDER TEST (INFINITE LOOPS)
                     while (j < orderedFiles.size() && trimmed < toTrim) {
-                        if (orderedFiles.get(j) != keepFile)
-                            (orderedFiles.get(j)).delete();
+                        final File moribund = orderedFiles.get(j);
+                        if (!moribund.equals(keepFile)) {
+                            Log.v(TAG, "Trimming " + moribund);
+                            trimmed += moribund.length();
+                            if (!moribund.delete()) {
+                                Log.w(TAG, "error deleting " + moribund);
+                            }
+                        }
+                        j++;
                     }
                 }
             }
         } else {
-            cacheDir.mkdirs();
+            if (!cacheDir.mkdirs())
+                Log.w(TAG, "error creating " + cacheDir);
         }
     }
 
     public void sendDownloadException() {
+        mDownloadException = true;
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 
@@ -934,60 +965,33 @@ public class CloudPlaybackService extends Service {
      */
     private void checkBufferStatus() {
         synchronized (this) {
-
+            //Log.i(TAG,"Check Buffer Status:" + CloudUtils.checkThreadAlive(mDownloadThread) + " " + checkNetworkStatus());
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
-
+                //Log.i(TAG,"Keep Caching?? " + checkIfTrackCached(mPlayingData) + " " + keepCaching() + " " + mDownloadException);
                 // we are able to buffer something, see if we need to download
                 // the current track
-                if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-
-                    Log.i(TAG, "Premature download death, open another stream and continue");
+                if (!checkIfTrackCached(mPlayingData) && keepCaching()  && !mDownloadException) {
                     // need to cache the current track
                     prepareDownload(mPlayingData);
-
                 }
             }
         }
     }
 
-    /**
-     * See if a track has been fully cached
-     *
-     * @param track
-     * @return
-     */
     private boolean checkIfTrackCached(Track track) {
-        return (track != null && track.mCacheFile != null && track.filelength != null && track.mCacheFile.length() >= track.filelength);
+        return (track != null && track.mCacheFile != null && track.filelength > 0 && track.mCacheFile
+                .length() >= track.filelength);
     }
 
-    /**
-     * Check to see if we have any errors, have hit a high water mark, or are
-     * paused and not supposed to be caching
-     *
-     * @return
-     */
     public boolean keepCaching() {
         // we aren't playing and are not supposed to be caching during pause
         if (!mIsSupposedToBePlaying && !mCacheOnPause)
             return false;
 
-        if (mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-            return true;
-
-            // Haven't determined if we should base cache size on battery power
-            // yet
-            // we are on wifi, figure out our connection state
-            /*
-             * Double powerMult = 1.0; switch (mCurrentPlugState) { case 0 : //
-             * none powerMult = 0.3; break; case 1 : // a.c. adapter powerMult =
-             * 1.0; break; case 2 : // usb power powerMult = 0.6; break; }
-             * return mCurrentBuffer < WIFI_HIGH_WATER_MARK*powerMult;
-             */
-
-        }
-        return mCurrentBuffer < HIGH_WATER_MARK;
+        return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+                || mCurrentBuffer < HIGH_WATER_MARK;
     }
 
     /**
@@ -997,20 +1001,22 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
-        if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength != null)) {
+        mDownloadException = false;
+
+        if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
             if (!isStagefright || mPlayingData.mCacheFile.length() > PLAYBACK_MARK) {
 
                 if (isStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
                         // we are not allowed to play from wherever we are
-                        mPlayer.seek(0);
-                    } else if (mResumeId != null && mPlayingData != null
-                            && mPlayingData.id.compareTo(mResumeId) == 0 && mResumeTime > -1) {
-                        // we are supposed to resume somehwere in the middle
+                        // mPlayer.seek(0);
+                    } else if (mPlayingData != null && mPlayingData.id == mResumeId
+                            && mResumeTime > -1) {
+                        // we are supposed to resume somewhere in the middle
                         mPlayer.seek(mResumeTime, true);
                         mResumeTime = -1;
-                        mResumeId = null;
+                        mResumeId = -1;
                     }
 
                 mPlayer.start();
@@ -1027,8 +1033,6 @@ public class CloudPlaybackService extends Service {
                 notifyChange(BUFFERING);
                 assertBufferCheck();
             }
-
-            // } else if (mMediaplayerError || mDownloadError || mAutoPause){
         } else {
             // must have been a playback error
             this.restart();
@@ -1097,17 +1101,17 @@ public class CloudPlaybackService extends Service {
         pause(false);
     }
 
-    /**
-     * Pauses playback (call play() to resume)
-     */
+    // Pauses playback (call play() to resume)
     public void pause(boolean force) {
         synchronized (this) {
             if (isPlaying()) {
-                mCacheOnPause = force ? true : PreferenceManager.getDefaultSharedPreferences(this)
-                        .getBoolean("bufferOnPause", true);
-                if (mPlayer != null && mPlayer.isInitialized())
+                mCacheOnPause = force
+                        || PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+                                "bufferOnPause", true);
+                if (mPlayer != null && mPlayer.isInitialized()) {
                     mPlayer.pause();
-                gotoIdleState();
+                }
+                gotoIdleState(false);
                 notifyChange(PLAYSTATE_CHANGED);
             }
         }
@@ -1130,14 +1134,6 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public void next(boolean force) {
-        synchronized (this) {
-
-            if (mPlayListManager.next())
-                openCurrent();
-        }
-    }
-
     public void next() {
         synchronized (this) {
             if (mPlayListManager.next())
@@ -1156,10 +1152,17 @@ public class CloudPlaybackService extends Service {
     }
 
     private void gotoIdleState() {
+        gotoIdleState(true);
+    }
+
+    private void gotoIdleState(boolean killBuffer) {
+        if (killBuffer) {
+            mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
+            initialBuffering = false;
+            pausedForBuffering = false;
+        }
+
         mIsSupposedToBePlaying = false;
-        initialBuffering = false;
-        pausedForBuffering = false;
-        mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
         mBufferHandler.removeCallbacksAndMessages(BUFFER_FILL_CHECK);
         mBufferHandler.removeCallbacksAndMessages(START_NEXT_TRACK);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -1192,10 +1195,14 @@ public class CloudPlaybackService extends Service {
         }
     }
 
+    public void setClearToPlay(boolean clearToPlay) {
+        mWaitingForArtwork = !clearToPlay;
+    }
+
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
-            Log.i(TAG,"Set Favorite Status " + mPlayingData.id + " " + trackId);
-            if (mPlayingData.id.compareTo(trackId) == 0) {
+            Log.i(TAG,"Set Favorite Status " + trackId + " " + mPlayingData.id);
+            if (mPlayingData.id == trackId) {
                 if (favoriteStatus)
                     addFavorite();
                 else
@@ -1206,6 +1213,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void addFavorite() {
+        Log.i(TAG,"Adding favorite");
         FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1215,7 +1223,8 @@ public class CloudPlaybackService extends Service {
 
             @Override
             public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
+                onFavoriteStatusSet(trackId, false); // failed, so it shouldn't
+                                                     // be a favorite
             }
 
         });
@@ -1223,6 +1232,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
+        Log.i(TAG,"Removing favorite");
         FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1232,16 +1242,17 @@ public class CloudPlaybackService extends Service {
 
             @Override
             public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, true); //failed, so it should still be a favorite
+                onFavoriteStatusSet(trackId, true); // failed, so it should
+                                                    // still be a favorite
             }
 
         });
         f.execute(mPlayingData);
     }
 
-
-    private void onFavoriteStatusSet(long trackId, boolean isFavorite){
-        if (mPlayingData.id.compareTo(trackId) == 0) {
+    private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
+        Log.i(TAG,"On Favorite Status Set " + trackId + " " + mPlayingData.id);
+        if (mPlayingData.id == trackId) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
         }
@@ -1276,20 +1287,13 @@ public class CloudPlaybackService extends Service {
 
     public boolean getDownloadable() {
         synchronized (this) {
-
-            if (mPlayingData == null) {
-                return false;
-            }
-            return mPlayingData.downloadable;
+            return mPlayingData != null && mPlayingData.downloadable;
         }
     }
 
     public Track getTrack() {
         synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData;
+            return mPlayingData == null ? mPlayListManager.getCurrentTrack() : mPlayingData;
         }
     }
 
@@ -1357,7 +1361,7 @@ public class CloudPlaybackService extends Service {
         synchronized (this) {
             if (mPlayer.isInitialized()) {
                 if (isStagefright) {
-                    if (mPlayingData.mCacheFile == null || mPlayingData.filelength == null
+                    if (mPlayingData.mCacheFile == null || mPlayingData.filelength <= 0
                             || mPlayingData.filelength == 0)
                         return 0;
 
@@ -1474,7 +1478,7 @@ public class CloudPlaybackService extends Service {
                 mMediaPlayer.prepareAsync();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "error", e);
                 mIsInitialized = false;
             }
         }
@@ -1544,11 +1548,13 @@ public class CloudPlaybackService extends Service {
         }
 
         public long getSeekResult(long whereto, boolean resumeSeek) {
-            long maxSeek = mPlayer.position();
+            long maxSeek;
 
             if (!resumeSeek) {
-                if (mPlayingData.filelength == null)
+                if (mPlayingData.filelength <= 0)
                     return mPlayer.position();
+                else if (mPlayingData.filelength <= mPlayingData.mCacheFile.length())
+                    maxSeek = getDuration();
                 else
                     maxSeek = getDuration() * mPlayingData.mCacheFile.length()
                             / mPlayingData.filelength - PLAYBACK_MARK / (128 / 8) - 3000;
@@ -1614,19 +1620,15 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
 
-                Log.i(TAG,"ON COMPLETE ");
-
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
-
-                    Log.i(TAG,"ON COMPLETE resetting");
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
                     mPlayingPath = "";
 
-                    if (checkNetworkStatus())
+                    if (checkNetworkStatus() && !mDownloadException)
                         openCurrent();
                     else {
                         notifyChange(STREAM_DIED);
@@ -1636,16 +1638,16 @@ public class CloudPlaybackService extends Service {
                     return;
                 }
 
-                Log.i(TAG,"ON COMPLETE done ");
-
                 // Acquire a temporary wakelock, since when we return from
                 // this callback the MediaPlayer will release its wakelock
                 // and allow the device to go to sleep.
                 // This temporary wakelock is released when the RELEASE_WAKELOCK
                 // message is processed, but just in case, put a timeout on it.
 
-                mWakeLock.acquire(30000);
-                mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+                if (!CloudUtils.checkThreadAlive(mDownloadThread)) {
+                    mWakeLock.acquire(30000);
+                    mHandler.sendEmptyMessage(RELEASE_WAKELOCKS);
+                }
 
                 if (!mMediaplayerError)
                     mHandler.sendEmptyMessage(TRACK_ENDED);
@@ -1668,10 +1670,10 @@ public class CloudPlaybackService extends Service {
                         startAndFadeIn();
                     }
                 } else {
-                    if (mResumeId.compareTo(mPlayingData.id) == 0) {
+                    if (mResumeId == mPlayingData.id) {
                         mPlayer.seek(mResumeTime);
                         mResumeTime = -1;
-                        mResumeId = null;
+                        mResumeId = -1;
                     }
                 }
             }
@@ -1706,7 +1708,7 @@ public class CloudPlaybackService extends Service {
             String cmd = intent.getStringExtra("command");
 
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
-                next(true);
+                next();
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
                 prev();
             } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
@@ -1721,31 +1723,33 @@ public class CloudPlaybackService extends Service {
                 pause();
                 seek(0);
             } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
-                // Someone asked us to refresh a set of specific widgets, probably
+                // Someone asked us to refresh a set of specific widgets,
+                // probably
                 // because they were just added.
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
-            } else if (ADD_FAVORITE.equals(action)){
-                setFavoriteStatus(intent.getLongExtra("trackId", -1),true);
-            }else if (REMOVE_FAVORITE.equals(action)){
-                setFavoriteStatus(intent.getLongExtra("trackId", -1),false);
+            } else if (ADD_FAVORITE.equals(action)) {
+                setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
+            } else if (REMOVE_FAVORITE.equals(action)) {
+                setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
     };
 
-
     BroadcastReceiver batteryLevelReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mCurrentPlugState = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
-            // context.unregisterReceiver(this);
+            int plugState = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
             int rawlevel = intent.getIntExtra("level", -1);
             int scale = intent.getIntExtra("scale", -1);
             int level = -1;
             if (rawlevel >= 0 && scale > 0) {
                 level = (rawlevel * 100) / scale;
             }
-            Log.i(TAG, "Plugged state: " + mCurrentPlugState);
+
+            CloudPlaybackService.this.batteryLevel = level;
+            CloudPlaybackService.this.plugState = plugState;
+
             Log.i(TAG, "Battery Level Remaining: " + level + "%");
         }
     };
@@ -1807,7 +1811,7 @@ public class CloudPlaybackService extends Service {
                     break;
                 case SERVER_DIED:
                     if (mIsSupposedToBePlaying) {
-                        next(true);
+                        next();
                     } else {
                         // the server died when we were idle, so just
                         // reopen the same song (it will start again
@@ -1822,10 +1826,19 @@ public class CloudPlaybackService extends Service {
                     notifyChange(PLAYBACK_COMPLETE);
                     break;
                 case TRACK_ENDED:
-                    next(false);
+                    next();
                     break;
-                case RELEASE_WAKELOCK:
-                    mWakeLock.release();
+                case ACQUIRE_WAKELOCKS:
+                    if (!mWakeLock.isHeld())
+                        mWakeLock.acquire();
+                    if (!mWifiLock.isHeld())
+                        mWifiLock.acquire();
+                    break;
+                case RELEASE_WAKELOCKS:
+                    if (mWakeLock.isHeld())
+                        mWakeLock.release();
+                    if (mWifiLock.isHeld())
+                        mWifiLock.release();
                     break;
                 default:
                     break;
@@ -1869,7 +1882,11 @@ public class CloudPlaybackService extends Service {
         mBufferHandler.sendMessageDelayed(msg, delay);
     }
 
-    public void queueBufferCheck() {
+    public void onDownloadThreadDeath(StoppableDownloadThread stoppableDownloadThread) {
+        mMediaplayerHandler.sendEmptyMessageDelayed(RELEASE_WAKELOCKS, 3000);
+        if (stoppableDownloadThread == mDownloadThread)
+            mDownloadThread = null;
+
         if (keepCaching()) {
             Message msg = mBufferHandler.obtainMessage(BUFFER_FILL_CHECK);
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
@@ -1929,151 +1946,238 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    /**
-     * This thread pipes the remote stream to the cache file
-     */
-    private static class DownloadThread extends Thread {
+    public class StoppableDownloadThread extends Thread {
+        private String mURL;
+
+        private HttpGet mMethod = null;
+
+        /*
+         * Volatile stop flag used to coordinate state between the two threads
+         * involved in this example.
+         */
+        protected volatile boolean mStopped = false;
+
+        /*
+         * Synchronizes access to mMethod to prevent an unlikely race condition
+         * when stopDownload() is called before mMethod has been committed.
+         */
+        private Object lock = new Object();
 
         WeakReference<CloudPlaybackService> serviceRef;
 
         private Track track;
 
-        private boolean killed = false;
+        public long lastRead = -1;
 
-        public DownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
+        private static final int MODE_NEW = 0;
+
+        private static final int MODE_PARTIAL = 1;
+
+        private static final int MODE_CHECK_COMPLETE = 2;
+
+        private long bytes = 0;
+
+        private int mode;
+
+        public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(cloudPlaybackService);
             this.track = track;
         }
 
-        public Long getTrackId() {
+        public long getTrackId() {
             return track.id;
         }
 
-        public void kill() {
-            killed = true;
+        public void stopDownload() {
+            if (mStopped == true)
+                return;
+
+            /*
+             * Flag to instruct the downloading thread to halt at the next
+             * opportunity.
+             */
+            mStopped = true;
+
+            /*
+             * Interrupt the blocking thread. This won't break out of a blocking
+             * I/O request, but will break out of a wait or sleep call. While in
+             * this case we know that no such condition is possible, it is
+             * always a good idea to include an interrupt to avoid assumptions
+             * about the thread in question.
+             */
+            interrupt();
+
+            /*
+             * A synchronized lock is necessary to avoid catching mMethod in an
+             * uncommitted state from the download thread.
+             */
+            synchronized (lock) {
+                /*
+                 * This closes the socket handling our blocking I/O, which will
+                 * interrupt the request immediately. This is not the same as
+                 * closing the InputStream yieled by HttpEntity#getContent, as
+                 * the stream is synchronized in such a way that would starve
+                 * our main thread.
+                 */
+                if (mMethod != null)
+                    mMethod.abort();
+            }
         }
 
         @Override
         public void run() {
+            HttpClient cli = new DefaultHttpClient();
+            HttpGet method;
+
+            HttpResponse resp = null;
+            HttpEntity ent = null;
             InputStream is = null;
             FileOutputStream os = null;
+
             try {
 
-                // get the remote stream
-                HttpClient client = new DefaultHttpClient();
-                HttpResponse httpResponse;
 
-                // is this already cached at all with a valid size
-                if (track.mCacheFile.length() > 0 && track.filelength != null) {
-
-                    // already totally cached, supposedly, check length and
-                    // return if its valid
-
+                if (track.mCacheFile.length() > 0 && track.filelength > 0) {
                     if (track.mCacheFile.length() >= track.filelength) {
-                        Log.i(TAG,"Getting signed uri " + track.mSignedUri );
-                        HttpHead request = new HttpHead(track.mSignedUri);
-                        httpResponse = client.execute(request);
+                        mode = MODE_CHECK_COMPLETE;
 
-                        if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
-                            // status
+                        HttpHead request = new HttpHead(((SoundCloudApplication) serviceRef.get()
+                                .getApplication()).signStreamUrlNaked(track.stream_url));
+                        resp = cli.execute(request);
+
+                        if (resp.getStatusLine().getStatusCode() != 200) { // invalid
                             Log.i(TAG, "invalid status received: "
-                                    + httpResponse.getStatusLine().getStatusCode());
-                            if (serviceRef.get() != null)
-                                serviceRef.get().sendDownloadException();
+                                    + resp.getStatusLine().getStatusCode());
                             return;
                         }
-
                         // rare case, file length has changed for some reason
-                        if (track.filelength != Long.parseLong(httpResponse
-                                .getHeaders("content-length")[0].getValue())) {
+                        if (track.filelength != Long.parseLong(resp.getHeaders("content-length")[0]
+                                .getValue())) {
                             serviceRef.get().fileLengthUpdated(track, true); // tell
                         }
-
                         return;
-
                     } else {
-                        // already partially cached, check length and continue
-                        // if its valid
-                        HttpGet request = new HttpGet(track.mSignedUri);
-                        request.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
-                        httpResponse = client.execute(request);
+                        Log.i(TAG,"Resuming partial download of " + track.title);
+                        mode = MODE_PARTIAL;
+                        method = new HttpGet(((SoundCloudApplication) serviceRef.get()
+                                .getApplication()).signStreamUrlNaked(track.stream_url));
+                        method.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
+                    }
 
-                        if (httpResponse.getStatusLine().getStatusCode() != 206) { // invalid
+                } else {
+                    mode = MODE_NEW;
+                    method = new HttpGet(
+                            ((SoundCloudApplication) serviceRef.get().getApplication())
+                                    .signStreamUrlNaked(track.stream_url));
+                }
+
+                if (mStopped == true)
+                    return;
+
+                synchronized (lock) {
+                    mMethod = method;
+                }
+
+                resp = cli.execute(mMethod);
+
+                if (mStopped == true)
+                    return;
+
+                StatusLine status = resp.getStatusLine();
+
+                switch (mode) {
+                    case MODE_NEW:
+                        if (status.getStatusCode() != 200) { // invalid
                             // status
-                            Log.i(TAG, "invalid status received: "
-                                    + httpResponse.getStatusLine().getStatusCode());
+                            Log.i(TAG, "invalid status received: " + status.getStatusCode());
                             if (serviceRef.get() != null)
                                 serviceRef.get().sendDownloadException();
                             return;
                         }
+                        // is the stored length equal to the cached file length
+                        // plus
+                        track.filelength = Long.parseLong(resp.getHeaders("content-length")[0]
+                                .getValue());
+                        serviceRef.get().fileLengthUpdated(track, false);
 
-                        if (track.filelength != Long.parseLong(httpResponse
-                                .getHeaders("content-length")[0].getValue())
-                                + track.mCacheFile.length()) { // rare case
+                        break;
+
+                    case MODE_PARTIAL:
+                        if (status.getStatusCode() != 206) { // invalid
+                            // status
+                            Log.i(TAG, "invalid status received: " + status.getStatusCode());
+                            if (serviceRef.get() != null)
+                                serviceRef.get().sendDownloadException();
+                            return;
+                        }
+                        if (track.filelength != Long.parseLong(resp.getHeaders("content-length")[0]
+                                .getValue()) + track.mCacheFile.length()) { // rare
+                                                                            // case
                             serviceRef.get().fileLengthUpdated(track, true);
                             return; // a new download thread will be started
                         } else {
                             serviceRef.get().assertBufferCheck();
                         }
-                    }
-
-                } else {
-                    // file not cached at all
-
-                    HttpGet request = new HttpGet(track.mSignedUri);
-                    httpResponse = client.execute(request);
-
-                    if (httpResponse.getStatusLine().getStatusCode() != 200) { // invalid
-                        // status
-                        Log.i(TAG, "invalid status received: " + httpResponse.getStatusLine().getStatusCode());
-                        if (serviceRef.get() != null)
-                            serviceRef.get().sendDownloadException();
-                        return;
-                    }
-
-                    // is the stored length equal to the cached file length plus
-                    track.filelength = Long.parseLong(httpResponse.getHeaders("content-length")[0]
-                    .getValue());
-                    serviceRef.get().fileLengthUpdated(track, false); // changed
-                    // file
-                    // length
+                        break;
                 }
 
-                // get the streams
-                is = httpResponse.getEntity().getContent();
-                os = new FileOutputStream(track.mCacheFile, true);
+                if ((ent = resp.getEntity()) != null) {
+                    is = ent.getContent();
 
-                // Start streaming track body.
-                byte[] buff = new byte[1024 * 50];
-                int readBytes = 0;
-                while (!killed && !this.isInterrupted() && serviceRef.get().keepCaching()
-                        && (readBytes = is.read(buff, 0, buff.length)) != -1) {
-                    os.write(buff, 0, readBytes);
+                    os = new FileOutputStream(track.mCacheFile, true);
+
+                    byte[] b = new byte[2048];
+                    int n;
+
+                    /*
+                     * Note that for most applications, sending a handler
+                     * message after each read() would be unnecessary. Instead,
+                     * a timed approach should be utilized to send a message at
+                     * most every x seconds.
+                     */
+                    while (serviceRef.get() != null && serviceRef.get().keepCaching()
+                            && (n = is.read(b)) >= 0) {
+                        bytes += n;
+                        os.write(b, 0, n);
+                        lastRead = System.currentTimeMillis();
+                    }
+                    return;
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (Exception e) {
-                e.printStackTrace();
+                /*
+                 * We expect a SocketException on cancellation. Any other type
+                 * of exception that occurs during cancellation is ignored
+                 * regardless as there would be no need to handle it.
+                 */
+                if (mStopped == false)
+                    e.printStackTrace();
             } finally {
 
-                if (os != null)
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if (bytes > 0) {
+                    if (is != null)
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                        }
+                    if (os != null)
+                        try {
+                            os.close();
+                        } catch (IOException e) {
+                        }
+                }
 
-                if (is != null)
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                synchronized (lock) {
+                    mMethod = null;
+                }
+
+                /* Close the socket (if it's still open) and cleanup. */
+                cli.getConnectionManager().shutdown();
 
                 if (serviceRef.get() != null)
-                    serviceRef.get().queueBufferCheck();
+                    serviceRef.get().onDownloadThreadDeath(this);
+
             }
+
         }
     }
 
@@ -2133,7 +2237,7 @@ public class CloudPlaybackService extends Service {
 
         public void next() {
             if (mService.get() != null)
-                mService.get().next(true);
+                mService.get().next();
         }
 
         public void restart() {
@@ -2208,9 +2312,13 @@ public class CloudPlaybackService extends Service {
                 mService.get().setFavoriteStatus(trackId, favoriteStatus);
         }
 
+        public void setClearToPlay(boolean clearToPlay) throws RemoteException {
+            if (mService.get() != null)
+                mService.get().setClearToPlay(clearToPlay);
+        }
+
     }
 
     private final IBinder mBinder = new ServiceStub(this);
-
 
 }

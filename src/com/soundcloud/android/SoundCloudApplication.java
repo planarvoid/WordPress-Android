@@ -4,10 +4,10 @@ package com.soundcloud.android;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.LruCache;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.LruCache;
 import com.soundcloud.utils.http.Http;
 
 import org.acra.ACRA;
@@ -20,7 +20,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -38,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ReportsCrashes(formKey = "dEdsVnppQ0RyOS12d0lPa0dYWDZ4Wmc6MQ")
+@ReportsCrashes(formKey = "dF9FRzEzNnpENEVZdVRFbkNXUHYwLWc6MQ")
 public class SoundCloudApplication extends Application implements CloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
@@ -46,9 +45,20 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     static final boolean API_PRODUCTION = true;
 
+    public static final String USERNAME = "currentUsername";
+    public static final String USER_ID  = "currentUserId";
+    public static final String TOKEN    = "oauth_access_token";
+    public static final String SECRET   = "oauth_access_token_secret";
+    public static final String EMAIL_CONFIRMED = "email_confirmed";
+    public static final String DASHBOARD_IDX = "lastDashboardIndex";
+    public static final String PROFILE_IDX = "lastProfileIndex";
+
     private CloudAPI mCloudApi;
     private ArrayList<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
+
+    public boolean playerWaitForArtwork;
+
     static ContentHandler mBitmapHandler;
 
     public static enum Events {
@@ -78,14 +88,14 @@ public class SoundCloudApplication extends Application implements CloudAPI {
             Log.e(TAG, "error", ignored);
         }
 
-        mImageLoader = createImageLoader(this);
+        createImageLoaders();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mCloudApi = new ApiWrapper(
             getConsumerKey(API_PRODUCTION),
             getConsumerSecret(API_PRODUCTION),
-            preferences.getString("oauth_access_token", ""),
-            preferences.getString("oauth_access_token_secret", ""),
+            preferences.getString(TOKEN, ""),
+            preferences.getString(SECRET, ""),
             API_PRODUCTION);
     }
 
@@ -103,23 +113,22 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .remove("oauth_access_token")
-                .remove("oauth_access_token_secret")
-                .remove("lastDashboardIndex")
-                .remove("lastProfileIndex")
-                .putLong("currentUserId", -1)
-                .putString("currentUsername", "")
+                .remove(TOKEN)
+                .remove(SECRET)
+                .remove(EMAIL_CONFIRMED)
+                .remove(DASHBOARD_IDX)
+                .remove(PROFILE_IDX)
+                .putLong(USER_ID, -1)
+                .putString(USERNAME, "")
                 .commit();
 
 
         mCloudApi.unauthorize();
     }
 
-
     public static HashMap<String, String[]> getDBColumns() {
         return dbColumns;
     }
-
 
     public ContentHandler getBitmapHandler(){
         return mBitmapHandler;
@@ -129,9 +138,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
      * Create an instance of the imageloader. Library and examples of cacher and
      * code found at: {@link} http://code.google.com/p/libs-for-android/
      */
-    private static ImageLoader createImageLoader(Context context) {
+    private void createImageLoaders() {
         // Install the file cache (if it is not already installed)
-        CloudCache.install(context);
+        CloudCache.install(this);
 
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
@@ -150,16 +159,16 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         // Perform callbacks on the main thread
         Handler handler = null;
 
-        return new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
+        mImageLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
     }
+
 
     @Override
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
             return mImageLoader;
-        } else {
-            return super.getSystemService(name);
-        }
+        }   return super.getSystemService(name);
+
     }
 
     public void cachePlaylist(ArrayList<Parcelable> playlistCache) {
@@ -177,9 +186,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     private RecordListener mRecListener = null;
 
-    public void onFrameUpdate(float maxAmplitude) {
+    public void onFrameUpdate(float maxAmplitude, long elapsed) {
         if (mRecListener != null) {
-            mRecListener.onFrameUpdate(maxAmplitude);
+            mRecListener.onFrameUpdate(maxAmplitude, elapsed);
         }
     }
 
@@ -189,7 +198,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     // Define our custom Listener interface
     public interface RecordListener {
-        public abstract void onFrameUpdate(float maxAmplitude);
+        public abstract void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
 
@@ -261,11 +270,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
 
     public ArrayList<Comment> getCommentsFromCache(long track_id){
-        if (mCommentCache.get(track_id) != null)
+        if (mCommentCache.get(track_id) != null) {
             return mCommentCache.get(track_id);
-        else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
+        } else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
             return mCommentSoftCache.get(track_id).get();
-        } else
+        } else {
             return null;
+        }
     }
 }

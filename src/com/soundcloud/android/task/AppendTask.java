@@ -1,10 +1,8 @@
 package com.soundcloud.android.task;
 
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -12,18 +10,21 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -96,6 +97,8 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
         try {
             Log.d(TAG, "Executing request " +req.getRequestLine().getUri());
 
+            if (mActivityReference.get() == null) return false;
+
             HttpResponse resp = mActivityReference.get()
                     .getSoundCloudApplication()
                     .execute(req);
@@ -105,6 +108,8 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             }
 
             InputStream is = resp.getEntity().getContent();
+
+            if (mActivityReference.get() == null || mAdapterReference.get() == null) return false;
 
             ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
 

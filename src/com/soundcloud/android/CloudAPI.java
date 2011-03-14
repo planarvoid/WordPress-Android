@@ -1,7 +1,9 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.SoundCloudAuthorizationClient;
 import com.soundcloud.utils.http.Http;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -51,6 +53,9 @@ public interface CloudAPI {
         String TAG_LIST       = "track[tag_list]";
         String SHARING        = "track[sharing]";
 
+        String STREAMABLE     = "track[streamable]";
+        String DOWNLOADABLE   = "track[downloadable]";
+
         String SHARED_EMAILS  = "track[shared_to][emails][][address]";
         String SHARING_NOTE   = "track[sharing_note]";
 
@@ -87,9 +92,7 @@ public interface CloudAPI {
 
     SoundCloudAPI.State getState();
 
-
-
     static interface Client extends SoundCloudAuthorizationClient {
-        void storeKeys(String token , String secret);
+        void storeUser(User user, String token, String secret);
     }
 }

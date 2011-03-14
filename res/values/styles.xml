@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+	<style name="Theme.AddCommentDialog" parent="android:Theme.Dialog">
+	   <item name="android:layout_width">fill_parent</item>
+	    <item name="android:windowFrame">@null</item>
+         <item name="android:windowTitleStyle">@null</item>
+         <item name="android:windowBackground">@null</item>
+         <item name="android:windowIsFloating">true</item>
+         <item name="android:windowContentOverlay">@null</item>
+         <item name="android:windowAnimationStyle">@style/Animation.AddCommentDialog</item>
+         <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
+         <item name="android:windowNoTitle">true</item>	    
+	</style>
+	
+	<!-- Standard animations for a non-full-screen window or activity. -->
+	<style name="Animation" />
+    <style name="Animation.AddCommentDialog">
+        <item name="android:windowEnterAnimation">@anim/add_comment_enter</item>
+        <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
+    </style>
+
 	<style name="auth_input">
 		<item name="android:textColor">#ffffffff</item>
 		<item name="android:textSize">14sp</item>
@@ -75,7 +94,12 @@
 		<item name="android:paddingLeft">5dip</item>
 		<item name="android:paddingRight">5dip</item>
 	</style>
-	
+
+    <style name="txt_connection_footer">
+        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 	<style name="txt_not_streamable">
 		<item name="android:textColor">@color/listTxtSecondary</item>
 		<item name="android:textSize">16sp</item>
@@ -104,6 +128,23 @@
 		<item name="android:textColor">#ffffffff</item>
 		<item name="android:textSize">20sp</item>
 	</style>
+	
+	<style name="txt_record_email_access">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dip</item>
+    </style>
+    
+    <style name="txt_record_email_access_gray" parent="txt_record_email_access">
+        <item name="android:textColor">@color/darker_gray</item>
+    </style>
+	
+	<style name="txt_record_connections_footer">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">10dip</item>
+    </style>
 
 	<style name="txt_record_rdo">
 		<item name="android:textColor">#ffffffff</item>
@@ -185,6 +226,7 @@
 	
 	<style name="btn_sc_show_info" parent="btn_sc_transport">
         <item name="android:layout_width">50dip</item>
+        <item name="android:layout_height">50dip</item>
 	</style>
 	
 	<style name="btn_sc_transport_small" parent="btn_sc_transport">
@@ -367,6 +409,16 @@
      <style name="txt_comment_bubble_reply"  parent="txt_comment_bubble">
      <item name="android:textSize">12sp</item>
         <item name="android:textColor">#ffffffff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="DialogText">
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+ 
+    <style name="DialogText.Title">
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 

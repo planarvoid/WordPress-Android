@@ -122,6 +122,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 LayoutParams.FILL_PARENT));
         emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         emptyView.setVisibility(View.GONE);
+        emptyView.setPadding(5, 5, 5, 5);
         emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
         // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
         mEmptyView = emptyView;

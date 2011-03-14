@@ -7,10 +7,10 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.activity.ScTabActivity;
+import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.task.VorbisEncoderTask;
 import com.soundcloud.utils.record.CloudRecorder;
 
 import android.app.Notification;
@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.AudioFormat;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -30,8 +29,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -54,6 +51,7 @@ public class CloudCreateService extends Service {
     public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
     public static final String SERVICECMD       = "com.soundcloud.android.createservicecommand";
 
+
     public static final String CMDNAME = "command";
 
     private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
@@ -62,13 +60,13 @@ public class CloudCreateService extends Service {
 
     private static WakeLock mWakeLock;
 
-    private com.soundcloud.utils.record.CloudRecorder mRecorder;
+    private CloudRecorder mRecorder;
 
     private File mRecordFile;
 
     private boolean mRecording = false;
 
-    private VorbisEncoderTask mOggTask;
+    private OggEncoderTask mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
 
@@ -86,23 +84,13 @@ public class CloudCreateService extends Service {
 
     private boolean mCurrentUploadCancelled = false;
 
+    private long mRecordStartTime;
+
     private int mCurrentState = 0;
     private int frameCount;
 
-
     public interface States {
-
         int IDLE_RECORDING = 0;
-
-        int RECORDING = 1;
-
-        int IDLE_PLAYBACK = 2;
-
-        int PLAYBACK = 3;
-
-        int PRE_UPLOAD = 4;
-
-        int UPLOAD = 5;
     }
 
 
@@ -158,12 +146,6 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-        mRecorder = new CloudRecorder(PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultRecordingQuality", "high").contentEquals("high"),
-                MediaRecorder.AudioSource.MIC, ScCreate.REC_SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        mRecorder.setRecordService(this);
-
     }
 
     @Override
@@ -215,14 +197,17 @@ public class CloudCreateService extends Service {
         sendBroadcast(new Intent(what));
     }
 
+    private void startRecording(String path, int mode) {
+        Log.v(TAG, "startRecording("+path+", "+mode+")");
 
-    private void startRecording(String path) {
         acquireWakeLock();
 
         mRecordFile = new File(path);
         frameCount = 0;
 
-        mRecorder.reset();
+        mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
+        mRecorder.setRecordService(this);
+
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
         mRecorder.prepare();
         mRecorder.start();
@@ -236,10 +221,10 @@ public class CloudCreateService extends Service {
                 .getResources().getString(R.string.cloud_recorder_notification_ticker), System
                 .currentTimeMillis());
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabIndex", 3 /* XXX */);
+            .putExtra("tabTag", "record");
 
         mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -255,12 +240,12 @@ public class CloudCreateService extends Service {
 
         startForeground(CREATE_NOTIFY_ID, mNotification);
         mRecording = true;
-
+        mRecordStartTime = System.currentTimeMillis();
     }
 
 
     public void onRecordFrameUpdate(float maxAmplitude) {
-        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude);
+        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude, System.currentTimeMillis() - mRecordStartTime);
         // this should happen every second
         if (frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
     }
@@ -282,8 +267,8 @@ public class CloudCreateService extends Service {
     private void updateRecordTicker() {
         mNotification.setLatestEventInfo(getApplicationContext(), mCreateEventTitle, CloudUtils
                 .formatString(mCreateEventMessage, CloudUtils.getPCMTime(mRecordFile,
-                        ScCreate.REC_SAMPLE_RATE, ScCreate.REC_CHANNELS,
-                        ScCreate.REC_BITS_PER_SAMPLE)), mPendingIntent);
+                        ScCreate.REC_SAMPLE_RATE, ScCreate.PCM_REC_CHANNELS,
+                        ScCreate.PCM_REC_BITS_PER_SAMPLE)), mPendingIntent);
 
         nm.notify(CREATE_NOTIFY_ID, mNotification);
     }
@@ -297,7 +282,7 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = getString(R.string.cloud_uploader_notification_ticker);
         mNotification = new Notification(icon, tickerText, System.currentTimeMillis());
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -317,10 +302,10 @@ public class CloudCreateService extends Service {
         startForeground(CREATE_NOTIFY_ID, mNotification);
 
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(new UploadTask.Params[]{new UploadTask.Params(trackdata)});
+        mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
     }
 
-    private class EncodeOggTask extends VorbisEncoderTask<UploadTask.Params, UploadTask.Params> {
+    private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
         private String eventString;
 
         @Override
@@ -332,7 +317,9 @@ public class CloudCreateService extends Service {
         @Override
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             UploadTask.Params param = params[0];
-            if (!encode(param.trackFile, param.encodedFile)) param.fail();
+            if (param.encode && !encode(param.trackFile, param.encodedFile)) {
+                param.fail();
+            }
             return param;
         }
 
@@ -350,9 +337,13 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
-                if (param.trackFile.delete()) Log.v(TAG, "deleted file " + param.trackFile);
 
-                mUploadTask = new UploadOggTask((CloudAPI) getApplication());
+                if (param.encode && param.trackFile.exists() && param.trackFile.delete()) {
+                    Log.v(TAG, "deleted track file after encoding ");
+                }
+
+
+                mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
 
                 if (param.artworkFile == null) {
                     mUploadTask.execute(param);
@@ -393,17 +384,30 @@ public class CloudCreateService extends Service {
                         CloudUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
 
-                ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
-                String tagOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-                int rotate = 0;
-                if (TextUtils.isEmpty(tagOrientation) && Integer.parseInt(tagOrientation) >= 6)
-                    rotate = 90;
-
-
                 int sampleSize = options.inSampleSize;
+                int degree = 0;
+                    ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
+                    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+                    if (orientation != -1) {
+                        // We only recognize a subset of orientation tag values.
+                        switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            degree = 90;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            degree = 180;
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            degree = 270;
+                            break;
+                        default:
+                            degree = 0;
+                            break;
+                        }
+                    }
 
-                if (sampleSize > 1 || rotate != 0) {
-                    Log.v(TAG, "resizing " + param.artworkFile);
+
+                if (sampleSize > 1 || degree > 0) {
                     InputStream is = new FileInputStream(param.artworkFile);
 
                     options = new BitmapFactory.Options();
@@ -411,10 +415,10 @@ public class CloudCreateService extends Service {
                     Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
                     is.close();
 
-                    if (rotate != 0){
+                    if (degree != 0){
                         Bitmap preRotate = bitmap;
                         Matrix mat = new Matrix();
-                        mat.postRotate(rotate);
+                        mat.postRotate(degree);
                         bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
                         preRotate.recycle();
                     }
@@ -440,10 +444,10 @@ public class CloudCreateService extends Service {
 
     }
 
-    private class UploadOggTask extends UploadTask {
+    private class UploadTrackTask extends UploadTask {
         private String eventString;
 
-        public UploadOggTask(CloudAPI api) {
+        public UploadTrackTask(CloudAPI api) {
             super(api);
         }
 
@@ -487,7 +491,7 @@ public class CloudCreateService extends Service {
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
 
-        Intent i = (new Intent(this, ScTabActivity.class))
+        Intent i = (new Intent(this, Main.class))
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -501,6 +505,7 @@ public class CloudCreateService extends Service {
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         if (params.isSuccess()) {
+
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
                             getString(R.string.cloud_uploader_notification_finished_message),
@@ -570,16 +575,14 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        public void startRecording(String path) throws RemoteException {
+        public void startRecording(String path, int mode) throws RemoteException {
             if (mService.get() != null)
-                mService.get().startRecording(path);
+                mService.get().startRecording(path, mode);
         }
 
         @Override
         public boolean isRecording() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().isRecording();
-            return false;
+            return mService.get() != null && mService.get().isRecording();
         }
 
         @Override

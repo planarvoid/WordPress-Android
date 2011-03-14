@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="1.2.0RC1"
+      android:versionName="1.2.0"
       android:installLocation="auto"
-      android:versionCode="11">
+      android:versionCode="13">
 
     <application android:icon="@drawable/launcher"
       android:label="@string/app_name"
-      android:process="@string/app_name" android:debuggable="true"
+      android:process="@string/app_name"
       android:theme="@style/ScLight" android:configChanges="keyboard|keyboardHidden"
       android:name="SoundCloudApplication">
-      <provider android:name="com.soundcloud.android.provider.ScContentProvider" 
+      <provider android:name=".provider.ScContentProvider" 
         android:authorities="com.soundcloud.android.providers.ScContentProvider" />
 
 
-        <activity android:name=".activity.ScTabActivity"
+        <activity android:name=".activity.Main"
                   android:label="@string/app_name"
                   android:windowSoftInputMode="adjustPan">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <data android:mimeType="audio/*"/>
-                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
@@ -42,7 +37,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ConnectActivity"
+        <activity android:name=".activity.Connect"
             android:label="Connect"
             android:configChanges="orientation|keyboardHidden">
 
@@ -54,14 +49,27 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.Dashboard"/>
+        <activity android:name=".activity.Dashboard" >
+            <intent-filter>
+                <!-- not used anymore, but there are still some shortcuts around -->
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.ScCreate"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
         <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player"/>
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
+        <activity android:name=".activity.EmailConfirm"/>
+        <activity android:name=".activity.ScCreate">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="audio/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
@@ -113,7 +121,7 @@
     </receiver>
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="9"/>
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>

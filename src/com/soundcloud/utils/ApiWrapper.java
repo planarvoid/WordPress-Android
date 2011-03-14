@@ -1,11 +1,15 @@
 package com.soundcloud.utils;
 
-import android.util.Log;
+import static com.soundcloud.utils.http.Http.noRedirect;
+
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.mapper.CloudDateFormat;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
 import com.soundcloud.utils.http.Http;
+
 import oauth.signpost.exception.OAuthException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -22,12 +26,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-
-import static com.soundcloud.utils.http.Http.noRedirect;
 
 public class ApiWrapper implements CloudAPI {
     static final String TAG = CloudAPI.class.getSimpleName();
@@ -185,13 +189,25 @@ public class ApiWrapper implements CloudAPI {
                 try {
                     String url = mSoundCloudApi.obtainRequestToken("soundcloud://auth");
                     client.openAuthorizationURL(url);
+
+                    // this call blocks until the user has continued the authflow
                     String verificationCode = client.getVerificationCode();
                     if (verificationCode != null) {
                         mSoundCloudApi.obtainAccessToken(verificationCode);
+
+                        // fetch the current user data
+                        HttpResponse resp = getContent("me");
+                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                            User me = getMapper().readValue(resp.getEntity().getContent(), User.class);
+                            client.storeUser(me, mSoundCloudApi.getToken(), mSoundCloudApi.getTokenSecret());
+                        } else {
+                            throw new IOException("Unable to request user information: " + resp.getStatusLine());
+                        }
                         status = SoundCloudAuthorizationClient.AuthorizationStatus.SUCCESSFUL;
-                        client.storeKeys(mSoundCloudApi.getToken(), mSoundCloudApi.getTokenSecret());
                     }
-                } catch (Exception e) {
+                } catch (OAuthException e) {
+                    client.exceptionOccurred(e);
+                } catch (IOException e) {
                     client.exceptionOccurred(e);
                 } finally {
                     client.authorizationCompleted(status);

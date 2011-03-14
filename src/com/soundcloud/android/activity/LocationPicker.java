@@ -55,7 +55,7 @@ public class LocationPicker extends ListActivity {
 
     private static final int LOADING = 0;
 
-    private String provider;
+    private String mProvider;
 
     private LocationManager getManager() {
         return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -88,20 +88,23 @@ public class LocationPicker extends ListActivity {
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 
         Criteria c = new Criteria();
-        this.provider = getManager().getBestProvider(c, true);
-        Log.v(TAG, "best provider: " + provider);
+        mProvider = getManager().getBestProvider(c, true);
 
         FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
-        Location loc = getManager().getLastKnownLocation(provider);
-        adapter.onLocationChanged(loc);
+
+        if (mProvider != null) {
+            Log.v(TAG, "best provider: " + mProvider);
+            Location loc = getManager().getLastKnownLocation(mProvider);
+            adapter.onLocationChanged(loc);
+        }
         setListAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (provider != null) {
-            getManager().requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
+        if (mProvider != null) {
+            getManager().requestLocationUpdates(mProvider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
         }
     }
 
@@ -142,9 +145,9 @@ public class LocationPicker extends ListActivity {
     }
 
     static class FoursquareApiTask extends AsyncTask<Location, Integer, List<Venue>> {
-        // XXX replace with official SoundCloud API keys
-        public static final String client_id = "AOJ23GCHGN2C5OWX4OYLWMXKBKAKPS2BK3VE122CEACTY1KD";
-        public static final String client_secret = "BZ0MCMCYMUWMB1DPAJI40BLV3YTSQB4XRQKSR1ZMRM442F3R";
+        // registered w/ hannes@soundcloud.com
+        public static final String client_id     = "KO0RS1BR5VCXT4CR2GRCYA1Z2KSMM3QJVWJ35V2CVBUWFYWP";
+        public static final String client_secret = "MDAXDKVZRURKHDBRSW0KKTL4NNLQW1WEKUM2IDHELZKPJRWI";
         private static final ObjectMapper mapper = new ObjectMapper();
 
         @Override

@@ -25,7 +25,7 @@ public class LoadConnectionTaskTests extends ApiTest {
         // make sure date gets deserialized properly
         Connection conn = connections.get(0);
 
-        assertEquals("Wed Dec 16 19:52:56 CET 2009", conn.created_at.toString());
+        assertEquals("16 Dec 2009 18:52:56 GMT", conn.created_at.toGMTString());
         assertEquals("twitter", conn.service);
         assertEquals(Connection.Service.Twitter, conn.service());
         assertEquals("twitter", conn.service);

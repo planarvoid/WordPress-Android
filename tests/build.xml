@@ -1,0 +1,50 @@
+<project name="soundcloud-android-tests">
+  <property file="../local.properties"/>
+
+  <path id="class.path">
+    <pathelement location="classes"/>
+    <pathelement location="../bin/classes"/>
+    <fileset dir="../lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${sdk.dir}">
+      <include name="**/android.jar"/>
+    </fileset>
+  </path>
+
+  <target name="prepare">
+    <mkdir dir="classes"/>
+    <mkdir dir="reports"/>
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="src" destdir="classes" classpathref="class.path"/>
+    <copy todir="classes">
+      <fileset dir="src" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <target name="test" depends="compile">
+    <junit dir=".." forkMode="perBatch" failureproperty="fail" printsummary="yes">
+      <classpath refid="class.path"/>
+      <formatter type="xml"/>
+      <batchtest fork="true" todir="reports">
+        <fileset dir="src">
+          <include name="**/*.java"/>
+        </fileset>
+       </batchtest>
+    </junit>
+
+    <junitreport todir="reports">
+      <fileset dir="reports">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="reports/html"/>
+    </junitreport>
+
+    <fail if="fail" message="test failures"/>
+  </target>
+</project>

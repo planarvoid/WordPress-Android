@@ -48,6 +48,14 @@ public class LazyListView extends ListView {
 
     }
 
+    public void enableLongClickListener(){
+        setOnItemLongClickListener(mOnItemLongClickListener);
+    }
+
+    public void disableLongClickListener(){
+        setOnItemLongClickListener(null);
+    }
+
     public void setLazyListListener(LazyListListener listener){
         mListener = listener;
     }

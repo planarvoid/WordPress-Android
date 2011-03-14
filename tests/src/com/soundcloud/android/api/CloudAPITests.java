@@ -102,6 +102,25 @@ public class CloudAPITests implements CloudAPI.Params, CloudAPI.Enddpoints {
         }
     }
 
+    @Test @Ignore
+     public void readMe() throws Exception {
+         HttpResponse resp = api.getContent("me");
+
+         if (resp.getStatusLine().getStatusCode() == 200) {
+             FileOutputStream fos = new FileOutputStream("out.json");
+             InputStream is = resp.getEntity().getContent();
+             byte[] b = new byte[8192];
+             int n;
+
+             while ((n = is.read(b)) >= 0) fos.write(b, 0, n);
+             is.close();
+             fos.close();
+         } else {
+             throw new RuntimeException(resp.getStatusLine().toString());
+         }
+     }
+
+
 
     public static void main(String[] args) throws Exception {
         SoundCloudAPI api = new SoundCloudAPI(

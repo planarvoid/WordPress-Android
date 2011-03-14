@@ -32,4 +32,5 @@ interface ICloudPlaybackService
     void setFavoriteStatus(long trackId, boolean favoriteStatus);
     void setQueuePosition(int index);
     boolean getDownloadable();
+    void setClearToPlay(boolean clearToPlay);
 }
