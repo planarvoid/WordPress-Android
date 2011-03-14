@@ -1,33 +1,29 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.CloudUtils.getCurrentUserId;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.FavoriteAddTask;
-import com.soundcloud.android.task.FavoriteRemoveTask;
-import com.soundcloud.android.task.FavoriteTask;
+import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
+import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
@@ -41,7 +37,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
@@ -51,35 +46,32 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public abstract class ScActivity extends Activity {
     private Exception mException = null;
     private String mError = null;
 
+    protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
+    protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
     protected ArrayList<LazyListView> mLists;
-    protected ArrayList<LazyBaseAdapter> mAdapters;
 
+    private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
@@ -143,6 +135,16 @@ public abstract class ScActivity extends Activity {
         }
     };
 
+    private ServiceConnection createOsc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            mCreateService = (ICloudCreateService) binder;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+        }
+    };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +163,6 @@ public abstract class ScActivity extends Activity {
         this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         mLists = new ArrayList<LazyListView>();
-        mAdapters = new ArrayList<LazyBaseAdapter>();
     }
 
     @Override
@@ -174,7 +175,6 @@ public abstract class ScActivity extends Activity {
 
     protected void restoreState(Object[] saved) {
     }
-
 
 
     /**
@@ -192,6 +192,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener.startListening(this);
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
 
         if (mPlaybackService != null) {
             try {
@@ -200,8 +201,6 @@ public abstract class ScActivity extends Activity {
                 Log.e(TAG, "error", e);
             }
         }
-
-
     }
 
     /**
@@ -216,9 +215,12 @@ public abstract class ScActivity extends Activity {
         connectivityListener.stopListening();
 
 
-        CloudUtils.unbindFromService(this);
+        CloudUtils.unbindFromService(this, CloudPlaybackService.class);
         mPlaybackService = null;
         mIgnorePlaybackStatus = false;
+
+        CloudUtils.unbindFromService(this, CloudCreateService.class);
+        mCreateService = null;
 
     }
 
@@ -226,18 +228,15 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
+        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED || getUserId() == -1) {
             pause(true);
 
-            if (!(this instanceof Authorize)) {
-                onReauthenticate();
+            onReauthenticate();
 
-                Intent intent = new Intent(this, Authorize.class);
-                intent.putExtra("reauthorize", true);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-            }
+            Intent intent = new Intent(this, Authorize.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -270,6 +269,7 @@ public abstract class ScActivity extends Activity {
         // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
         this.getSoundCloudApplication().cachePlaylist(list);
+        if (goToPlayer) getSoundCloudApplication().playerWaitForArtwork = true;
 
         try {
             mPlaybackService.playFromAppCache(playPos);
@@ -277,7 +277,7 @@ public abstract class ScActivity extends Activity {
             Log.e(TAG, "error", e);
         }
 
-        if (goToPlayer){
+        if (goToPlayer) {
             Intent intent = new Intent(this, ScPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
@@ -301,58 +301,11 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void setFavoriteStatus(Track t, boolean favoriteStatus) {
-        synchronized (this) {
-            if (favoriteStatus)
-                addFavorite(t);
-            else
-                removeFavorite(t);
-        }
-
-    }
-
-    public void addFavorite(Track t) {
-        FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
-            }
-
-            @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, false); //failed, so it shouldn't be a favorite
-            }
-
-        });
-        f.execute(t);
-    }
-
-    public void removeFavorite(Track t) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
-        f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
-            @Override
-            public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
-                onFavoriteStatusSet(trackId, isFavorite);
-            }
-
-            @Override
-            public void onException(long trackId, Exception e) {
-                onFavoriteStatusSet(trackId, true); //failed, so it should still be a favorite
-            }
-
-        });
-        f.execute(t);
-    }
-
-    protected void onFavoriteStatusSet(long trackId, boolean isFavorite){
-
-    }
 
 
 
     public LazyListView buildList() {
-        LazyListView lv  = new LazyListView(this);
+        LazyListView lv = new LazyListView(this);
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -366,82 +319,25 @@ public abstract class ScActivity extends Activity {
         return lv;
     }
 
-    public void addNewComment(final Track track, final long timestamp) {
-        final EditText input = new EditText(this);
-        final AlertDialog commentDialog = new AlertDialog.Builder(ScActivity.this)
-        .setMessage(timestamp == -1 ? "Add an untimed comment" : "Add comment at " + CloudUtils.formatTimestamp(timestamp))
-        .setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                sendComment(track.id,timestamp,input.getText().toString(),0);
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Do nothing.
-            }
-        }).create();
-
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    commentDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        commentDialog.show();
+    public void addNewComment(final Comment comment, final AddCommentListener listener) {
+        final AddCommentDialog dialog = new AddCommentDialog(this, comment, listener);
+        dialog.show();
+        dialog.getWindow().setGravity(Gravity.TOP);
     }
 
-    private HttpResponse mAddCommentResult;
-    private Comment mAddComment;
-    void sendComment(final long track_id, long timestamp, final String commentBody, long replyTo) {
+    public AddCommentListener mAddCommentListener = new AddCommentListener(){
 
-        mAddComment = new Comment();
-        mAddComment.track_id = track_id;
-        mAddComment.created_at = new Date(System.currentTimeMillis());
-        mAddComment.user_id = CloudUtils.getCurrentUserId(this);
-
-        mAddComment.user = SoundCloudDB.getInstance().resolveUserById(this.getContentResolver(), mAddComment.user_id);
-        mAddComment.timestamp = timestamp;
-        mAddComment.body = commentBody;
-
-        final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
-        apiParams.add(new BasicNameValuePair("comment[body]", commentBody));
-        if (timestamp > -1) apiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(timestamp)));
-        if (replyTo > 0) apiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(replyTo)));
-
-
-        // Fire off a thread to do some work that we shouldn't do directly in the UI thread
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    mAddCommentResult = getSoundCloudApplication().postContent(
-                            CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)), apiParams);
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                    ScActivity.this.setException(e);
-                }
-                mHandler.post(mOnCommentAdd);
-            }
-        };
-        t.start();
-    }
-
-    // Create runnable for posting
-    final Runnable mOnCommentAdd = new Runnable() {
-        public void run() {
-
-            if (mAddCommentResult != null && mAddCommentResult.getStatusLine().getStatusCode() == 201){
-                onCommentAdded(mAddComment);
-            } else {
-                handleException();
-            }
+        @Override
+        public void onCommentAdd(boolean success, Comment c) {
         }
-    };
 
-    protected void onCommentAdded(Comment c){
-        getSoundCloudApplication().uncacheComments(c.track_id);
-    }
+        @Override
+        public void onException(Comment c, Exception e) {
+            setException(e);
+            handleException();
+        }
+
+    };
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
         @Override
@@ -454,19 +350,19 @@ public abstract class ScActivity extends Activity {
                 setPlayingTrack(intent.getLongExtra("id", -1), true);
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPlayingTrack(-1, false);
-            }  else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), intent.getBooleanExtra("isPlaying", false));
             }
         }
     };
 
     private void setPlayingTrack(long id, boolean isPlaying) {
-        if (mAdapters == null || mAdapters.size() == 0)
+        if (mLists == null || mLists.size() == 0)
             return;
 
-        for (LazyBaseAdapter adp : mAdapters){
-            if (TracklistAdapter.class.isAssignableFrom(adp.getClass()))
-                ((TracklistAdapter) adp).setPlayingId(id, isPlaying);
+        for (LazyListView list : mLists) {
+            if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass()))
+                ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
         }
     }
 
@@ -499,8 +395,8 @@ public abstract class ScActivity extends Activity {
         setException(null);
     }
 
-    public void safeShowDialog(int dialogId){
-        if (!isFinishing()){
+    public void safeShowDialog(int dialogId) {
+        if (!isFinishing()) {
             showDialog(dialogId);
         }
     }
@@ -527,39 +423,78 @@ public abstract class ScActivity extends Activity {
         switch (which) {
             case CloudUtils.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
-                .setMessage(R.string.error_unauthorized_message).setPositiveButton(
-                        android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
-                            }
-                        }).create();
+                        .setMessage(R.string.error_unauthorized_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
+                                    }
+                                }).create();
             case CloudUtils.Dialogs.DIALOG_ERROR_LOADING:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
-                .setMessage(R.string.error_loading_message).setPositiveButton(
-                        android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-                            }
-                        }).create();
+                        .setMessage(R.string.error_loading_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+                                    }
+                                }).create();
             case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
-                .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                        getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                //XXX cancelCurrentUpload();
-                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        //XXX cancelCurrentUpload();
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
 
-                            }
-                        }).setNegativeButton(getString(R.string.btn_no),
+                                    }
+                                }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-                            }
-                        }).create();
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).create();
             default:
                 return super.onCreateDialog(which);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i(TAG,"PPPARENT " + this.getParent());
+        if (this.getParent() == null || this.getParent().getClass() != Main.class)
+            menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
+                menu.size(), R.string.menu_incoming).setIcon(
+                R.drawable.ic_menu_incoming);
+
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
+                menu.size(), R.string.menu_view_current_track).setIcon(
+                R.drawable.ic_menu_player);
+
+        menuCurrentUploadingItem = menu.add(menu.size(),
+                CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
+                R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+                .setIcon(R.drawable.ic_menu_preferences);
+
+        menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+                R.drawable.context_refresh);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Prepare the options menu based on the current class and current play
+     * state
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        try {
+            menuCurrentUploadingItem.setVisible(mCreateService.isUploading() ? true : false);
+        } catch (Exception e) {
+            menuCurrentUploadingItem.setVisible(false);
+        }
+        return true;
     }
 
     @Override
@@ -568,10 +503,18 @@ public abstract class ScActivity extends Activity {
             case CloudUtils.OptionsMenu.SETTINGS:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
-
+                return true;
+            case CloudUtils.OptionsMenu.REFRESH:
+                onRefresh();
                 return true;
             case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
                 intent = new Intent(this, ScPlayer.class);
+                startActivity(intent);
+                return true;
+            case CloudUtils.OptionsMenu.INCOMING:
+                intent = new Intent(this, Main.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("tabTag", "incoming");
                 startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
@@ -592,6 +535,7 @@ public abstract class ScActivity extends Activity {
                     if (connectivityListener != null) {
                         NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
                         if (networkInfo != null) {
+                            if (networkInfo.isConnected()) ImageLoader.get(getApplicationContext()).clearErrors();
                             ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
                         }
                     }
@@ -601,9 +545,7 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getUserId() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        // XXX
-        return Long.parseLong(preferences.getString("currentUserId", "-1"));
+        return getCurrentUserId(this);
     }
 
     public void onRefresh() {

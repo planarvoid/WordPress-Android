@@ -1,9 +1,13 @@
 package com.soundcloud.android.activity;
 
+import static junit.framework.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -18,33 +22,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 @RunWith(RobolectricTestRunner.class)
-public class ScCreateTests
-        implements CloudAPI.Params {
+public class ScCreateTests implements CloudAPI.Params {
     ScCreate create;
     ICloudCreateService service;
 
     @Before
     public void setup() {
         service = mock(ICloudCreateService.class);
-        addPendingHttpResponse(401, "Error");  // load connections
-
         create = new ScCreate();
         create.mCreateService = service;
         create.onCreate(null);
     }
 
     private Map upload() throws Exception {
+        return upload(false);
+    }
+
+    private Map upload(boolean share) throws Exception {
         // 14:31:01, 15/02/2011
         create.mRecordingStarted.set(1, 31, 14, 15, 2, 2011);
+        if (share) {
+            Connection c1 = new Connection();
+            c1.service = "twitter";
+            c1.post_publish = true;
+            c1.id = 1000;
+            create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
+        }
         create.startUpload();
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         verify(service).uploadTrack(captor.capture());
@@ -58,15 +62,13 @@ public class ScCreateTests
         Map args = upload();
 
         assertEquals("my soundz", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz"));
     }
 
     @Test
     public void shouldUseLocationIfPresent() throws Exception {
         create.mWhereText.setText("home");
         Map args = upload();
-        assertEquals("home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("home"));
+        assertEquals("Sounds from home", args.get(TITLE));
     }
 
     @Test
@@ -75,31 +77,53 @@ public class ScCreateTests
         create.mWhereText.setText("home");
         Map args = upload();
         assertEquals("my soundz at home", args.get(TITLE));
-        assertTrue(args.get(UploadTask.Params.OGG_FILENAME).toString().contains("my soundz at home"));
     }
 
     @Test
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
-        assertEquals("recording on null morning", args.get(TITLE));
+        // TODO should have date in here
+        assertEquals("Sounds from null morning", args.get(TITLE));
     }
 
     @Test
-    public void shouldGenerateASharingNote() throws Exception {
-        Connection c1 = new Connection();
-        c1.service = "twitter";
-        c1.post_publish = true;
-        c1.id = 1000;
-        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
-
-        Map args = upload();
+    public void shouldGenerateANiceSharingNoteIfNoUserInputPresent() throws Exception {
+        Map args = upload(true);
 
         assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
         assertEquals("Sounds from null morning", args.get(SHARING_NOTE));
     }
 
     @Test
-    public void shouldSetVenueMachineTagsIfPresent() throws Exception {
+    public void shouldGenerateASharingNoteWithLocation() throws Exception {
+        create.mWhereText.setText("Mars");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Sounds from Mars", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
+        create.mWhatText.setText("Party");
+        create.mWhereText.setText("Mars");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Party at Mars", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldGenerateASharingNoteWithTitle() throws Exception {
+        create.mWhatText.setText("Party");
+        Map args = upload(true);
+
+        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
+        assertEquals("Party", args.get(SHARING_NOTE));
+    }
+
+    @Test
+    public void shouldSetFoursquareVenueMachineTagIfPresent() throws Exception {
         create.setWhere("Foo", "123", 0.1, 0.2);
         Map args = upload();
 
@@ -108,18 +132,41 @@ public class ScCreateTests
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
 
         assertThat(tags, hasItem("foursquare:venue=123"));
-        assertThat(tags, hasItem("geo:long=0.1"));
+    }
+
+    @Test
+    public void shouldSetGeoMachineTags() throws Exception {
+        create.setWhere("Foo", "123", 0.1, 0.2);
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
+        assertThat(tags, hasItem("geo:lon=0.1"));
         assertThat(tags, hasItem("geo:lat=0.2"));
-        assertThat(tags, hasItem("soundcloud:source=web-record"));
+    }
+
+    @Test
+    public void shouldSetSourceMachineTag() throws Exception {
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
+        assertThat(tags, hasItem("soundcloud:source=android-record"));
+    }
+
+    @Test
+    public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
+        create.mExternalUpload = true;
+        Map args = upload();
+
+        assertThat(args.get(TAG_LIST), not(is(nullValue())));
+        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
+        assertThat(tags, hasItem("soundcloud:source=android-3rdparty-upload"));
     }
 
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
-        Connection c1 = new Connection();
-        c1.service = "twitter";
-        c1.post_publish = false;
-        c1.id = 1000;
-        create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
         Map args = upload();
         assertNull("A sharing note should not be present", args.get(SHARING_NOTE));
     }
@@ -136,8 +183,8 @@ public class ScCreateTests
         assertEquals("", arguments.get(POST_TO_EMPTY));
         assertEquals(PUBLIC, arguments.get(SHARING));
 
-        assertNotNull(arguments.get(UploadTask.Params.PCM_PATH));
-        assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
+        assertNotNull(arguments.get(UploadTask.Params.SOURCE_PATH));
+        //assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
         assertNull(arguments.get(UploadTask.Params.ARTWORK_PATH));
     }
 

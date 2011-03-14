@@ -16,7 +16,7 @@ public class HttpTests {
     @Test
     public void shouldBuildAQueryString() throws Exception {
         assertThat(
-                new Http.Params("foo", 100, "baz", 22.3f, "met¿l", false).toString(),
+                new Http.Params("foo", 100, "baz", 22.3f, "met\u00f8l", false).toString(),
                 equalTo("foo=100&baz=22.3&met%C3%B8l=false"));
     }
 

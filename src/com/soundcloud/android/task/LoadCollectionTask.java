@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 // XXX Only used for comments at the moment
 public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
-    
+
         private static final String TAG = "LoadCollectionTask";
 
         private WeakReference<ScActivity> mActivityReference;
@@ -32,14 +32,14 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
         protected ArrayList<T> newItems;
 
         public CloudUtils.Model loadModel;  // XXX replace with class
-        
+
         public int pageSize;
 
         /**
          * Set the activity and adapter that this task now belong to. This will
          * be set as new context is destroyed and created in response to
          * orientation changes
-         * 
+         *
          * @param lazyEndlessAdapter
          * @param activity
          */
@@ -80,6 +80,8 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
                 return false;
 
             try {
+                if (mActivityReference.get() == null)
+                    return false;
 
                 InputStream is = mActivityReference.get()
                         .getSoundCloudApplication()
@@ -101,7 +103,7 @@ public class LoadCollectionTask<T extends Parcelable> extends AsyncTask<HttpUriR
                         newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class,
                                 Comment.class));
                         break;
-                        
+
                     case event:
                         EventsWrapper evtWrapper = mapper.readValue(is, EventsWrapper.class);
                         newItems = new ArrayList<T>(evtWrapper.getCollection().size());

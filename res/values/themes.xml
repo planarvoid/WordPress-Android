@@ -8,6 +8,12 @@
     <style name="ScDark">
         <item name="android:windowNoTitle">true</item>
     </style>
+    
+    <style name="Dialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
 
 
     <!-- The default system theme. This is the theme used for activities

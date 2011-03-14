@@ -28,24 +28,37 @@ public class ScContentProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "SoundCloud";
 
-    private static final int DATABASE_VERSION = 4;
-
-    public static final String TRACKS_TABLE_NAME = "Tracks";
-    
-    public static final String USERS_TABLE_NAME = "Users";
+    private static final int DATABASE_VERSION = 5;
 
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
 
     private static final UriMatcher sUriMatcher;
 
     private static final int TRACKS = 1;
-    
+
     private static final int USERS = 2;
 
     private static HashMap<String, String> tracksProjectionMap;
-    
+
     private static HashMap<String, String> usersProjectionMap;
-    
+
+    public enum DbTable {
+        Tracks(TRACKS,"Tracks",DATABASE_CREATE_TRACKS,tracksProjectionMap),
+        Users(USERS,"Users",DATABASE_CREATE_USERS,usersProjectionMap);
+
+        public final int tblId;
+        public final String tblName;
+        public final String createString;
+        public final HashMap<String,String> projectionMap;
+
+        DbTable(int tblId, String tblName, String createString, HashMap<String,String> projectionMap) {
+            this.tblId = tblId;
+            this.tblName = tblName;
+            this.createString = createString;
+            this.projectionMap  = projectionMap;
+        }
+    }
+
     private static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id string primary key, "
         + "permalink string null, "
         + "duration string null, "
@@ -59,6 +72,7 @@ public class ScContentProvider extends ContentProvider {
         + "download_url string null, "
         + "stream_url string null, "
         + "streamable string null, "
+        + "sharing string null, "
         + "user_id string null, "
         + "user_favorite boolean false, "
         + "user_played boolean false, "
@@ -113,7 +127,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                         case 4:
                             success = upgradeTo4(db);
                             break;
-                        default: 
+                        case 5:
+                            success = upgradeTo5(db);
+                            break;
+                        default:
                             break;
                     }
 
@@ -121,9 +138,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                         break;
                     }
                 }
-    
+
             }
-            
+
             if (success) {
                 Log.i(TAG,"SUCCESSFUL UPGRADE");
                 db.setTransactionSuccessful();
@@ -145,45 +162,62 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private boolean upgradeTo4(SQLiteDatabase db) {
-        try {
-            // upgrade users table (switch column "id" to "_id" for content resolver)
-            db.execSQL("DROP TABLE IF EXISTS bck_Tracks");
-            db.execSQL(DATABASE_CREATE_TRACKS.replace("create table Tracks",
-                    "create table bck_Tracks"));
-            List<String> columns = GetColumns(db, "bck_Tracks");
-            columns.retainAll(GetColumns(db, "Tracks"));
-            String cols = join(columns, ",");
-            db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s",
-                    TRACKS_TABLE_NAME, cols+",_id", cols+",id", TRACKS_TABLE_NAME));
-            db.execSQL("DROP table  '" + TRACKS_TABLE_NAME + "'");
-            db.execSQL(DATABASE_CREATE_TRACKS);
-            db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
-                    TRACKS_TABLE_NAME, cols, cols, TRACKS_TABLE_NAME));
-            db.execSQL("DROP table bck_" + TRACKS_TABLE_NAME);
-            
-            //upgrade users table (switch column "id" to "_id" for content resolver)
-            db.execSQL("DROP TABLE IF EXISTS bck_Users");
-            db.execSQL(DATABASE_CREATE_USERS.replace("create table Users",
-                    "create table bck_Users"));
-            columns = GetColumns(db, "bck_Users");
-            columns.retainAll(GetColumns(db, "Users"));
-            cols = join(columns, ",");
-            db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s",
-                    USERS_TABLE_NAME, cols+",_id", cols+",id", USERS_TABLE_NAME));
-            db.execSQL("DROP table  '" + USERS_TABLE_NAME + "'");
-            db.execSQL(DATABASE_CREATE_USERS);
-            db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
-                    USERS_TABLE_NAME, cols, cols, USERS_TABLE_NAME));
-            db.execSQL("DROP table bck_" + USERS_TABLE_NAME);
-            
-            return true;
-        } catch (Exception e){
-            e.printStackTrace();
+        /*
+         * altered id naming for content resolver
+         */
+        private boolean upgradeTo4(SQLiteDatabase db) {
+            try {
+                alterTableColumns(db, DbTable.Tracks, new String[] {
+                    "id"
+                }, new String[] {
+                    "_id"
+                });
+                alterTableColumns(db, DbTable.Users, new String[] {
+                    "id"
+                }, new String[] {
+                    "_id"
+                });
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
         }
-        return false;
-    }
-            
+
+        /*
+         * added sharing to database
+         */
+        private boolean upgradeTo5(SQLiteDatabase db) {
+            try {
+                alterTableColumns(db, DbTable.Tracks, null, null);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        private String alterTableColumns(SQLiteDatabase db, DbTable tbl, String[] fromAppendCols,
+                String[] toAppendCols) {
+            db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.tblName);
+            db.execSQL(tbl.createString.replace("create table " + tbl.tblName, "create table bck_"
+                    + tbl.tblName));
+            List<String> columns = GetColumns(db, "bck_" + tbl.tblName);
+            columns.retainAll(GetColumns(db, tbl.tblName));
+            String cols = join(columns, ",");
+            String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
+                    + joinArray(toAppendCols, ",") : cols;
+            String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
+                    + joinArray(fromAppendCols, ",") : cols;
+            db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s", tbl.tblName,
+                    toCols, fromCols, tbl.tblName));
+            db.execSQL("DROP table  '" + tbl.tblName + "'");
+            db.execSQL(tbl.createString);
+            db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s", tbl.tblName,
+                    cols, cols, tbl.tblName));
+            db.execSQL("DROP table bck_" + tbl.tblName);
+            return cols;
+        }
 }
 
     private DatabaseHelper dbHelper;
@@ -194,10 +228,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         int count;
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                count = db.delete(TRACKS_TABLE_NAME, where, whereArgs);
+                count = db.delete(DbTable.Tracks.tblName, where, whereArgs);
                 break;
             case USERS:
-                count = db.delete(USERS_TABLE_NAME, where, whereArgs);
+                count = db.delete(DbTable.Users.tblName, where, whereArgs);
                 break;
 
             default:
@@ -234,7 +268,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         long rowId;
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                rowId = db.insert(TRACKS_TABLE_NAME, Tracks.PERMALINK, values);
+                rowId = db.insert(DbTable.Tracks.tblName, Tracks.PERMALINK, values);
                 if (rowId > 0) {
                     Uri trackUri = ContentUris.withAppendedId(Tracks.CONTENT_URI, rowId);
                     getContext().getContentResolver().notifyChange(trackUri, null);
@@ -242,7 +276,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 break;
             case USERS:
-                rowId = db.insert(USERS_TABLE_NAME, Users.PERMALINK, values);
+                rowId = db.insert(DbTable.Users.tblName, Users.PERMALINK, values);
                 if (rowId > 0) {
                     Uri usersUri = ContentUris.withAppendedId(Users.CONTENT_URI, rowId);
                     getContext().getContentResolver().notifyChange(usersUri, null);
@@ -268,11 +302,11 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                qb.setTables(TRACKS_TABLE_NAME);
+                qb.setTables(DbTable.Tracks.tblName);
                 qb.setProjectionMap(tracksProjectionMap);
                 break;
             case USERS:
-                qb.setTables(USERS_TABLE_NAME);
+                qb.setTables(DbTable.Users.tblName);
                 qb.setProjectionMap(usersProjectionMap);
                 break;
 
@@ -293,11 +327,11 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         int count;
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                count = db.update(TRACKS_TABLE_NAME, values, where, whereArgs);
+                count = db.update(DbTable.Tracks.tblName, values, where, whereArgs);
                 break;
 
             case USERS:
-                count = db.update(USERS_TABLE_NAME, values, where, whereArgs);
+                count = db.update(DbTable.Users.tblName, values, where, whereArgs);
                 break;
 
             default:
@@ -310,8 +344,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(AUTHORITY, TRACKS_TABLE_NAME, TRACKS);
-        sUriMatcher.addURI(AUTHORITY, USERS_TABLE_NAME, USERS);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName, TRACKS);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName, USERS);
 
         tracksProjectionMap = new HashMap<String, String>();
         tracksProjectionMap.put(Tracks.ID, Tracks.ID);
@@ -327,11 +361,12 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         tracksProjectionMap.put(Tracks.DOWNLOAD_URL, Tracks.DOWNLOAD_URL);
         tracksProjectionMap.put(Tracks.STREAM_URL, Tracks.STREAM_URL);
         tracksProjectionMap.put(Tracks.STREAMABLE, Tracks.STREAMABLE);
+        tracksProjectionMap.put(Tracks.SHARING, Tracks.SHARING);
         tracksProjectionMap.put(Tracks.USER_ID, Tracks.USER_ID);
         tracksProjectionMap.put(Tracks.USER_FAVORITE, Tracks.USER_FAVORITE);
         tracksProjectionMap.put(Tracks.USER_PLAYED, Tracks.USER_PLAYED);
         tracksProjectionMap.put(Tracks.FILELENGTH, Tracks.FILELENGTH);
-        
+
         usersProjectionMap = new HashMap<String, String>();
         usersProjectionMap.put(Users.ID, Users.ID);
         usersProjectionMap.put(Users.PERMALINK, Users.PERMALINK);
@@ -347,9 +382,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         usersProjectionMap.put(Users.WEBSITE, Users.WEBSITE);
         usersProjectionMap.put(Users.WEBSITE_TITLE, Users.WEBSITE_TITLE);
         usersProjectionMap.put(Users.DESCRIPTION, Users.DESCRIPTION);
-        
+
     }
-    
+
     public static List<String> GetColumns(SQLiteDatabase db, String tableName) {
         List<String> ar = null;
         Cursor c = null;
@@ -392,7 +427,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list.get(i));
+            buf.append(list.get(i));
         }
         return buf.toString();
     }
@@ -403,23 +438,12 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list[i]);
+            buf.append(list[i]);
         }
         return buf.toString();
     }
 
-    private String joinArray(long[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append((String) Long.toString(list[i]));
-        }
-        return buf.toString();
-    }
-    
-    
-    
-    
+
+
+
 }

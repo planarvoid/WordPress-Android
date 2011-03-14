@@ -11,6 +11,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
+import org.junit.Ignore;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -20,7 +21,7 @@ import java.io.InputStream;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
+@Ignore
 public abstract class ApiTest implements CloudAPI.Enddpoints {
     public CloudAPI api;
     public ObjectMapper mapper;

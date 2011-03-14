@@ -1,73 +1,51 @@
 
 package com.soundcloud.android.objects;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.ScContentProvider;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
-import android.util.Log;
 
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.provider.ScContentProvider;
+import java.lang.reflect.Field;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseObj implements Parcelable {
-
-    public Long id;
+    public Long id;  // XXX long
 
     public String username;
-
     public String track_count;
-
     public String discogs_name;
-
     public String city;
-
     public String uri;
-
     public String avatar_url;
-
     public String local_avatar_url;
-
     public String website_title;
-
     public String website;
-
     public String description;
-
     public String online;
-
     public String permalink;
-
     public String permalink_url;
-
     public String full_name;
-
-    public String followers_count;
-
-    public String followings_count;
-
-    public String public_favorites_count;
-
-    public String private_tracks_count;
-    
+    public String followers_count;    // XXX int
+    public String followings_count;   // XXX int
+    public String public_favorites_count; // XXX int
+    public String private_tracks_count; // XXX int
     public String myspace_name;
-
     public String country;
-
     public String location;
-
     public String plan;
 
+    public boolean primary_email_confirmed;
+    public boolean current_user_following;
 
     public void resolveLocation() {
         this.location = CloudUtils.getLocationString(city == null ? "" : city,
@@ -80,6 +58,7 @@ public class User extends BaseObj implements Parcelable {
     public User(Parcel in) {
         readFromParcel(in);
     }
+
 
     public User(Cursor cursor) {
         if (cursor.getCount() != 0) {
@@ -94,11 +73,11 @@ public class User extends BaseObj implements Parcelable {
                     if (f != null) {
                         if (f.getType() == String.class) {
                             f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.class) {
+                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.class) {
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.class) {
+                        } else if (f.getType() == boolean.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         }
                     }
@@ -117,6 +96,12 @@ public class User extends BaseObj implements Parcelable {
         }
     }
 
+    public User (SharedPreferences preferences){
+        id = preferences.getLong(SoundCloudApplication.USER_ID, -1);
+        username = preferences.getString(SoundCloudApplication.USERNAME, "");
+        primary_email_confirmed = preferences.getBoolean(SoundCloudApplication.EMAIL_CONFIRMED, false);
+    }
+
     public void update(Cursor cursor) {
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -130,12 +115,12 @@ public class User extends BaseObj implements Parcelable {
                         if (f.getType() == String.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.class) {
+                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.class) {
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.class) {
+                        } else if (f.getType() == boolean.class) {
                             if (f.get(this) == null)
                                 f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         }
@@ -164,7 +149,8 @@ public class User extends BaseObj implements Parcelable {
             return new User[size];
         }
     };
-    
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         buildParcel(out,flags);
     }
@@ -173,9 +159,9 @@ public class User extends BaseObj implements Parcelable {
     public int describeContents() {
         return 0;
     }
-    
+
     public static final class Users implements BaseColumns {
-        
+
         private Users() {
         }
 
@@ -189,29 +175,29 @@ public class User extends BaseObj implements Parcelable {
         public static final String PERMALINK = "username";
 
         public static final String AVATAR_URL = "avatar_url";
-        
+
         public static final String CITY = "city";
-        
+
         public static final String COUNTRY = "country";
-        
+
         public static final String DISCOGS_NAME = "discogs_name";
-        
+
         public static final String FOLLOWERS_COUNT = "followers_count";
-        
+
         public static final String FOLLOWINGS_COUNT = "followings_count";
 
         public static final String FULL_NAME = "full_name";
-        
+
         public static final String MYSPACE_NAME = "myspace_name";
-        
+
         public static final String TRACK_COUNT = "track_count";
-        
+
         public static final String WEBSITE = "website";
-        
+
         public static final String WEBSITE_TITLE = "website_title";
-        
+
         public static final String DESCRIPTION = "description";
-        
+
     }
 
 }

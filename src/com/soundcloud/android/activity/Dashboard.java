@@ -1,37 +1,31 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
     protected LazyListView mListView;
-    private Object[] mPreviousState;
     private ScTabView mTracklistView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        CloudUtils.checkState(this);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        if (redirectToMain()) return;
 
-        super.onCreate(savedInstanceState);
+        CloudUtils.checkState(this);
 
         setContentView(R.layout.main_holder);
 
@@ -45,7 +39,7 @@ public class Dashboard extends ScActivity {
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
                         CloudUtils.Model.event,
-                        -1,
+                        R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE);
 
             } else {
@@ -72,7 +66,6 @@ public class Dashboard extends ScActivity {
     protected ScTabView createList(String endpoint, CloudUtils.Model model, int emptyText, int listId) {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
-        mAdapters.add(adp);
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));
@@ -93,23 +86,15 @@ public class Dashboard extends ScActivity {
         mTracklistView.onRefresh();
     }
 
-    public void mapDetails(Parcelable p) {
-        // XXX this should only happen once, after authorizing w/ soundcloud
-        if (((User) p).id != null) {
-            SoundCloudDB.getInstance().resolveUser(getContentResolver(), (User) p, SoundCloudDB.WriteState.all, ((User) p).id);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-            String lastUserId = preferences.getString("currentUserId", null);
-
-            Log.i(TAG, "Checking users " + ((User) p).id + " " + lastUserId);
-
-            if (lastUserId == null || !lastUserId.equals(Long.toString(((User) p).id))) {
-                Log.i(TAG, "--------- new user");
-                preferences.edit().putString("currentUserId", Long.toString(((User) p).id))
-                .putString("currentUsername", ((User) p).username).commit();
-
-            }
+    // legacy action, redirect to Main
+    private boolean redirectToMain() {
+        if (Intent.ACTION_MAIN.equals(getIntent().getAction())) {
+            Intent intent = new Intent(this, Main.class);
+            startActivity(intent);
+            finish();
+            return true;
+        } else {
+            return false;
         }
     }
-
 }

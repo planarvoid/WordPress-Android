@@ -64,7 +64,7 @@ public class PowerGauge extends View {
             // if (mSamples == null){
             // return;
             // }
-            //        	
+            //
             // for (int i = 0; i < samples.length; i++){
             // mSamples.add(samples[i]);
             // }
@@ -99,43 +99,11 @@ public class PowerGauge extends View {
 
     }
 
-    private void drawMeter(Canvas canvas) {
-        if (sqWidth == 0)
-            return;
-
-        int nextBufferX = 0;
-        for (int i = 0; i < METER_COLORS.length; i++) {
-            // mPaint.setColor(i <= mLastSquareOn ? METER_COLORS_ON[i] :
-            // METER_COLORS[i]);
-            mPaint.setColor(METER_COLORS[i]);
-            if (i > mLastSquareOn)
-                mPaint.setAlpha(50);
-            canvas.drawRect(nextBufferX, 0, nextBufferX + sqWidth, SQUARE_HEIGHT, mPaint);
-            nextBufferX += sqWidth + GUTTER_WIDTH;
-        }
-    }
-
-    private void calculatePowerFromBuffer(byte[] buffer) {
-        for (int i = 0; i < buffer.length / 2; i++) { // 16bit sample size
-
-            final long v = getShort(buffer[i * 2], buffer[i * 2 + 1]);
-            sum += v;
-            sqsum += v * v;
-        }
-
-        double power = (sqsum - sum * sum / (buffer.length / 2)) / (buffer.length / 2);
-
-        // Scale to the range 0 - 1.
-        power /= MAX_16_BIT * MAX_16_BIT;
-
-        // Convert to dB, with 0 being max power. Add a fudge factor to make
-        // a "real" fully saturated input come to 0 dB.
-        currentPower = Math.log10(power) * 10f + FUDGE;
-    }
-
     public void updateAmplitude(float maxAmplitude) {
-        // Log.i(TAG,"MAX AMP " + maxAmplitude);
+
         if (bitmap == null) {
+            if (getWidth() == 0 || getHeight() == 0) return;
+
             bitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
         } else if (nextBufferX + 1 > bitmap.getWidth()) {
 

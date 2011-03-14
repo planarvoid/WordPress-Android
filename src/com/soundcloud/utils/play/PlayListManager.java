@@ -57,13 +57,10 @@ public class PlayListManager {
     }
 
     public Track getTrackAt(int pos) {
-        Log.i(TAG,"Get track at "+ pos + " is "+ mPlayList + " " + mPlayListLen);
         if (mPlayList != null && mPlayListLen > pos) {
-            Log.i(TAG,"PlayList Cache " + mPlayListCache);
             if (mPlayListCache != null) {
                 return mPlayListCache[pos];
             } else {
-                Log.i(TAG,"Getting track from db " + mPlayList[pos]);
                 return SoundCloudDB.getInstance().resolveTrackById(mPlaybackService.getContentResolver(),  mPlayList[pos], CloudUtils
                         .getCurrentUserId(mPlaybackService));
             }
@@ -108,8 +105,8 @@ public class PlayListManager {
         mPlayPos = playPos;
         mPlayListLen = playlistCache.size();
 
-        //new CommitPlaylistTask((SoundCloudApplication) mPlaybackService.getApplication(),
-           //     CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
+        new CommitPlaylistTask(mPlaybackService.getContentResolver(),
+                CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
     }
 
     public class CommitPlaylistTask extends CommitTracksTask {

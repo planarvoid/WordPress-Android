@@ -1,14 +1,18 @@
 
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 import android.view.Menu;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -17,19 +21,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.utils.CloudCache;
 
 public class Settings extends PreferenceActivity {
-    private static final int MENU_CACHE = Menu.FIRST;
-
-    private static final int MENU_USER_CLEAR = 2;
-
-    private static final int MENU_USER_CONNECT = 3;
-
-    private static final int DIALOG_CACHE_DELETED = 10;
-
-    private static final int DIALOG_CACHE_DELETING = 11;
-
-    private static final int DIALOG_USER_DELETE_CONFIRM = 12;
-
-    private static final int DIALOG_USER_DELETED = 13;
+    private static final int DIALOG_CACHE_DELETED = 0;
+    private static final int DIALOG_CACHE_DELETING = 1;
+    private static final int DIALOG_USER_DELETE_CONFIRM = 2;
 
     private ProgressDialog mDeleteDialog;
 
@@ -48,14 +42,14 @@ public class Settings extends PreferenceActivity {
 
         setClearCacheTitle();
 
-        this.findPreference("revokeAccess").setOnPreferenceClickListener(
+        findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
                         return true;
                     }
                 });
-        this.findPreference("clearCache").setOnPreferenceClickListener(
+        findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         mDeleteTask = new DeleteCacheTask();
@@ -64,19 +58,31 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
                 });
-        this.findPreference("wireless").setOnPreferenceClickListener(
+        findPreference("wireless").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
                             startActivity(new Intent(
                                     android.provider.Settings.ACTION_WIRELESS_SETTINGS));
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         }
                         return true;
                     }
                 });
 
+        ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
+
+        recordingQuality.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        preference.setTitle(getString(R.string.pref_record_quality)+" ("+o+")");
+                        return true;
+                    }
+                }
+        );
+        recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
     }
     
     public void safeShowDialog(int dialogId){
@@ -101,8 +107,8 @@ public class Settings extends PreferenceActivity {
 
     private void setClearCacheTitle() {
         this.findPreference("clearCache").setTitle(
-                getResources().getString(R.string.pref_clear_cache) + " ["
-                        + CloudCache.cacheSizeInMbString(this) + " MB]");
+                getResources().getString(R.string.pref_clear_cache) +
+                " [" + CloudCache.cacheSizeInMbString(this) + " MB]");
     }
 
     @Override
@@ -132,7 +138,6 @@ public class Settings extends PreferenceActivity {
                                 }).setNegativeButton("Cancel",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-
                                     }
                                 }).create();
         }
@@ -143,13 +148,13 @@ public class Settings extends PreferenceActivity {
         ((SoundCloudApplication) getApplication()).clearSoundCloudAccount();
 
         Intent intent = new Intent(this, Authorize.class);
-        intent.putExtra("reauthorize", true);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        finish();
+        // TODO need to finish other activities since they might have references to old credentials
     }
 
     public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {
-
         @Override
         protected void onPreExecute() {
             if (mActivityRef.get() != null)
@@ -169,7 +174,7 @@ public class Settings extends PreferenceActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (mActivityRef.get() != null) {
-                ((Settings) mActivityRef.get()).removeDialog(DIALOG_CACHE_DELETING);
+                mActivityRef.get().removeDialog(DIALOG_CACHE_DELETING);
                 ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETED);
                 ((Settings) mActivityRef.get()).setClearCacheTitle();
             }

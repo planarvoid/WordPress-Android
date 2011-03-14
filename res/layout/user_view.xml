@@ -56,10 +56,11 @@
                                       android:scrollbars="none"
                                       android:fadingEdgeLength="20dip"
                                       android:layout_height="wrap_content"
-                                      android:layout_width="fill_parent">
+                                      android:layout_width="fill_parent"
+                                      android:fillViewport="true" >
 
                     <TabWidget android:id="@android:id/tabs"
-                            android:layout_width="wrap_content"
+                            android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:background="@color/listSeperator"/>
                 </HorizontalScrollView>

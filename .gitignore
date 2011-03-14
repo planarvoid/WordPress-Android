@@ -20,5 +20,7 @@ tmp
 local.properties
 
 test
+tests/classes
+tests/reports
 
 lib-proguard/out

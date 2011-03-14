@@ -1,21 +1,39 @@
 
 package com.soundcloud.utils.record;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.service.CloudCreateService;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.soundcloud.android.service.CloudCreateService;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class CloudRecorder {
     static final String TAG = CloudRecorder.class.getSimpleName();
+
+    public static class Profile {
+        public static final int ENCODED_LOW   = 0;
+        public static final int ENCODED_HIGH  = 1;
+        public static final int RAW           = 2;
+
+        // best available quality on device
+        public static int best() {
+            Log.i(TAG,"Checking Best Quality by sdk " + Build.VERSION.SDK_INT);
+            return Build.VERSION.SDK_INT >= 10 ? ENCODED_HIGH : RAW;
+        }
+
+        public static int low() {
+            return ENCODED_LOW;
+        }
+    }
 
     /**
      * INITIALIZING : recorder is initializing; READY : recorder has been
@@ -26,42 +44,40 @@ public class CloudRecorder {
         INITIALIZING, READY, RECORDING, ERROR, STOPPED
     }
 
+    public static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
+
     // The interval in which the recorded samples are output to the file
     // Used only in uncompressed mode
     public static final int TIMER_INTERVAL = 50;
 
-    // Toggles uncompressed recording on/off; RECORDING_UNCOMPRESSED /
-    // RECORDING_COMPRESSED
-    private boolean rUncompressed;
-
     // Recorder used for uncompressed recording
-    private AudioRecord aRecorder = null;
+    private AudioRecord mAudioRecord = null;
 
     // Recorder used for compressed recording
     private MediaRecorder mRecorder = null;
 
     // Output file path
-    private String fPath = null;
+    private String mFilepath = null;
 
     // Recorder state; see State
-    private State state;
+    private State mState;
 
     // File writer (only in uncompressed mode)
-    private RandomAccessFile fWriter;
+    private RandomAccessFile mWriter;
 
     // Number of channels, sample rate, sample size(size in bits), buffer size,
     // audio source, sample size(see AudioFormat)
     private short nChannels;
 
-    private int sRate;
+    private int mSampleRate;
 
-    private short bSamples;
+    private short mSamples;
 
-    private int bufferSize;
+    private int mAudioProfile;
 
-    private int aSource;
+    private float mCurrentMaxAmplitude = 0;
 
-    private int aFormat;
+    private Thread readerThread = null;
 
     // Number of frames written to file on each output(only in uncompressed
     // mode)
@@ -72,146 +88,102 @@ public class CloudRecorder {
 
     private CloudCreateService service;
 
-    /**
-     * Returns the state of the recorder in a RehearsalAudioRecord.State typed
-     * object. Useful, as no exceptions are thrown.
-     * 
-     * @return recorder state
-     */
-    public State getState() {
-        return state;
-    }
+    private static final int REFRESH = 1;
 
-    /*
-     * Method used for recording.
-     */
-    private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
-        public void onPeriodicNotification(AudioRecord recorder) {
+    private long mLastRefresh = 0;
 
-            if (state != State.RECORDING)
-                return;
-
-            int shortValue;
-            float maxAmplitude = 0;
-
-            aRecorder.read(buffer, 0, buffer.length); // Fill buffer
-            try {
-                fWriter.write(buffer); // Write buffer to file
-
-                for (int i = 0; i < buffer.length / 2; i++) {
-                    shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
-                    if (Math.abs(shortValue) > maxAmplitude)
-                        maxAmplitude = Math.abs(shortValue);
-
-                }
-
-                if (service != null) {
-                    // hack for not having a proper median. using a square root normalizes
-                    // the amplitude and makes a better looking wave representation
-                    service.onRecordFrameUpdate(((float)Math.sqrt(maxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
-                }
-
-            } catch (IOException e) {
-                Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
-                stop();
-            }
-        }
-
-        public void onMarkerReached(AudioRecord recorder) {
-            // NOT USED
-        }
-    };
-
-    public void setRecordService(CloudCreateService service) {
-        this.service = service;
-    }
+    private int mLastMax = 0;
 
     /**
      * Default constructor Instantiates a new recorder, in case of compressed
      * recording the parameters can be left as 0. In case of errors, no
      * exception is thrown, but the state is set to ERROR
      */
-    public CloudRecorder(boolean uncompressed, int audioSource, int sampleRate, int channelConfig,
-            int audioFormat) {
-        try {
-            rUncompressed = uncompressed;
-            if (rUncompressed) { // RECORDING_UNCOMPRESSED
-                if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
-                    bSamples = 16;
-                } else {
-                    bSamples = 8;
-                }
+    public CloudRecorder(int profile, int audioSource) {
+        mAudioProfile = profile;
 
-                if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
-                    nChannels = 1;
-                } else {
-                    nChannels = 2;
-                }
-                
-                aSource = audioSource;
-                sRate = sampleRate;
-                aFormat = audioFormat;
+        switch (profile) {
+            case Profile.RAW: {
+                nChannels = 1;
+                mSamples = 16;
+                mSampleRate = ScCreate.REC_SAMPLE_RATE;
+                int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
-                framePeriod = sampleRate * TIMER_INTERVAL / 1000;
-                bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
-                if (bufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig,
-                        audioFormat)) { // Check to make sure buffer size is not
-                    // smaller than the smallest allowed one
-                    bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
-                            audioFormat);
+                framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
+                int bufferSize = framePeriod * 2 * mSamples * nChannels / 8;
+
+                int minBufferSize = AudioRecord.getMinBufferSize(mSampleRate, nChannels + 1, audioFormat);
+
+                if (bufferSize < minBufferSize) {
+                    // Check to make sure buffer size is not smaller than the smallest allowed one
+                    bufferSize = minBufferSize;
                     // Set frame period and timer interval accordingly
-                    framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-                    Log.w(TAG, "Increasing buffer size to "
-                            + Integer.toString(bufferSize));
+                    framePeriod = bufferSize / (2 * mSamples * nChannels / 8);
+                    Log.w(TAG, "Increasing buffer size to " + bufferSize);
                 }
+                mAudioRecord = new AudioRecord(audioSource, mSampleRate, nChannels + 1, audioFormat, bufferSize);
+                break;
+            }
 
-                aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
-                //if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-                  //  throw new Exception("AudioRecord initialization failed");
-                aRecorder.setRecordPositionUpdateListener(updateListener);
-                aRecorder.setPositionNotificationPeriod(framePeriod);
-            } else { // RECORDING_COMPRESSED
+            case Profile.ENCODED_HIGH:
                 mRecorder = new MediaRecorder();
-                mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mRecorder.setAudioSource(audioSource);
+                if (Build.VERSION.SDK_INT >= 8) {
+                    mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                    mRecorder.setAudioEncodingBitRate(96000);
+                }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-
-            }
-            fPath = null;
-            state = State.INITIALIZING;
-        } catch (Exception e) {
-            Log.e(TAG, "error", e);
-            if (e.getMessage() != null) {
-                Log.e(CloudRecorder.class.getName(), e.getMessage());
-            } else {
-                Log.e(CloudRecorder.class.getName(),
-                        "Unknown error occured while initializing recording");
-            }
-            state = State.ERROR;
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                break;
+            case Profile.ENCODED_LOW:
+                mRecorder = new MediaRecorder();
+                mRecorder.setAudioSource(audioSource);
+                if (Build.VERSION.SDK_INT >= 8) {
+                    mRecorder.setAudioSamplingRate(8000); //max functional sample rate for amr
+                    mRecorder.setAudioEncodingBitRate(12200);
+                }
+                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                break;
         }
+
+        mFilepath = null;
+        mState = State.INITIALIZING;
     }
 
     /**
-     * Sets output file path, call directly after construction/reset.
-     * 
-     * @param output file path
+     * Returns the state of the recorder in a RehearsalAudioRecord.State typed
+     * object. Useful, as no exceptions are thrown.
+     *
+     * @return recorder state
      */
+    public State getState() {
+        return mState;
+    }
+
+
+    public void setRecordService(CloudCreateService service) {
+        this.service = service;
+    }
+
+
+
+    // Sets output file path, call directly after construction/reset.
     public void setOutputFile(String argPath) {
         try {
-            if (state == State.INITIALIZING) {
-                fPath = argPath;
-                if (!rUncompressed) {
-                    mRecorder.setOutputFile(fPath);
+            if (mState == State.INITIALIZING) {
+                mFilepath = argPath;
+                if (mAudioProfile != Profile.RAW) {
+                    mRecorder.setOutputFile(mFilepath);
                 }
             }
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             } else {
-                Log.e(TAG,
-                        "Unknown error occured while setting output path");
+                Log.e(TAG, "Unknown error occured while setting output path");
             }
-            state = State.ERROR;
+            mState = State.ERROR;
         }
     }
 
@@ -224,29 +196,41 @@ public class CloudRecorder {
      */
     public void prepare() {
         try {
-            if (state == State.INITIALIZING) {
-                if (rUncompressed) {
-                    if ((aRecorder.getState() == AudioRecord.STATE_INITIALIZED) & (fPath != null)) {
+            if (mState == State.INITIALIZING) {
+                if (mAudioProfile == Profile.RAW) {
+                    if ((mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) & (mFilepath != null)) {
                         // write file header
+                        mWriter = new RandomAccessFile(mFilepath, "rw");
 
-                        fWriter = new RandomAccessFile(fPath, "rw");
+                        mWriter.setLength(0); // truncate
+                        mWriter.writeBytes("RIFF");
+                        mWriter.writeInt(0); // 36+numBytes
+                        mWriter.writeBytes("WAVE");
+                        mWriter.writeBytes("fmt ");
+                        mWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk size, 16 for PCM
+                        mWriter.writeShort(Short.reverseBytes((short) 1)); //  AudioFormat, 1 for PCM
+                        mWriter.writeShort(Short.reverseBytes(nChannels));// Number of channels, 1 for mono, 2 for stereo
+                        mWriter.writeInt(Integer.reverseBytes(mSampleRate)); //  Sample rate
+                        mWriter.writeInt(Integer.reverseBytes(mSampleRate * mSamples * nChannels / 8)); // Bitrate
+                        mWriter.writeShort(Short.reverseBytes((short) (nChannels * mSamples / 8))); // Block align
+                        mWriter.writeShort(Short.reverseBytes(mSamples)); // Bits per sample
+                        mWriter.writeBytes("data");
+                        mWriter.writeInt(0); // Data chunk size not known yet
 
-                        fWriter.setLength(0); // Set file length to 0, to
-                        buffer = new byte[framePeriod * bSamples / 8 * nChannels];
-                        state = State.READY;
+                        buffer = new byte[framePeriod * mSamples / 8 * nChannels];
+                        mState = State.READY;
                     } else {
-                        Log.e(TAG,
-                                "prepare() method called on uninitialized recorder");
-                        state = State.ERROR;
+                        Log.e(TAG, "prepare() method called on uninitialized recorder");
+                        mState = State.ERROR;
                     }
                 } else {
                     mRecorder.prepare();
-                    state = State.READY;
+                    mState = State.READY;
                 }
             } else {
                 Log.e(TAG, "prepare() method called on illegal state");
                 release();
-                state = State.ERROR;
+                mState = State.ERROR;
             }
         } catch (Exception e) {
             if (e.getMessage() != null) {
@@ -254,7 +238,7 @@ public class CloudRecorder {
             } else {
                 Log.e(TAG, "Unknown error occured in prepare()");
             }
-            state = State.ERROR;
+            mState = State.ERROR;
         }
     }
 
@@ -263,25 +247,25 @@ public class CloudRecorder {
      * unnecessary files, when necessary
      */
     public void release() {
-        if (state == State.RECORDING) {
+        if (mState == State.RECORDING) {
             stop();
         } else {
-            if ((state == State.READY) & (rUncompressed)) {
+            if (mState == State.READY && mAudioProfile == Profile.RAW) {
                 try {
-                    fWriter.close(); // Remove prepared file
+                    mWriter.close();
                 } catch (IOException e) {
-                    Log.e(TAG,
-                            "I/O exception occured while closing output file");
+                    Log.e(TAG, "I/O exception occured while closing output file");
                 }
-                if ((new File(fPath)).delete()) {
-                    Log.v(TAG, "deleted " + fPath);
+                if ((new File(mFilepath)).delete()) {
+                    Log.v(TAG, "deleted " + mFilepath);
                 }
             }
         }
 
-        if (rUncompressed) {
-            if (aRecorder != null) {
-                aRecorder.release();
+
+        if (mAudioProfile == Profile.RAW) {
+            if (mAudioRecord != null) {
+                mAudioRecord.release();
             }
         } else {
             if (mRecorder != null) {
@@ -291,56 +275,27 @@ public class CloudRecorder {
     }
 
     /**
-     * Resets the recorder to the INITIALIZING state, as if it was just created.
-     * In case the class was in RECORDING state, the recording is stopped. In
-     * case of exceptions the class is set to the ERROR state.
-     */
-    public void reset() {
-        try {
-            if (state != State.ERROR) {
-                release();
-                fPath = null; // Reset file path
-                if (rUncompressed) {
-                    aRecorder = new AudioRecord(aSource, sRate, nChannels + 1, aFormat, bufferSize);
-                    if (aRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-                        throw new Exception("AudioRecord initialization failed");
-                    aRecorder.setRecordPositionUpdateListener(updateListener);
-                    aRecorder.setPositionNotificationPeriod(framePeriod);
-                } else {
-                    mRecorder = new MediaRecorder();
-                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-                }
-                state = State.INITIALIZING;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-            state = State.ERROR;
-        }
-    }
-
-    /**
      * Starts the recording, and sets the state to RECORDING. Call after
      * prepare().
      */
     public void start() {
-        if (state == State.READY) {
-            if (rUncompressed) {
-
-                state = State.RECORDING;
-                aRecorder.startRecording();
-                aRecorder.read(buffer, 0, buffer.length);
-
+        if (mState == State.READY) {
+            if (mAudioProfile == Profile.RAW) {
+                mAudioRecord.startRecording();
+                readerThread = new Thread(new Runnable() {
+                    public void run() { readerRun(); }
+                }, "Audio Reader");
+                readerThread.setPriority(Thread.MAX_PRIORITY);
+                readerThread.start();
             } else {
-                state = State.RECORDING;
                 mRecorder.start();
-                queueNextRefresh(TIMER_INTERVAL);
             }
+            mState = State.RECORDING;
 
+            queueNextRefresh(TIMER_INTERVAL);
         } else {
             Log.e(TAG, "start() called on illegal state");
-            state = State.ERROR;
+            mState = State.ERROR;
         }
     }
 
@@ -350,40 +305,89 @@ public class CloudRecorder {
      * uncompressed recording.
      */
     public void stop() {
-        if (state == State.RECORDING) {
-            if (rUncompressed) {
-                aRecorder.stop();
+        if (mState == State.RECORDING) {
+            mState = State.STOPPED;
+            if (mAudioProfile == Profile.RAW) {
+                mAudioRecord.stop();
 
                 try {
-                    fWriter.close();
+                    if (readerThread != null)
+                        readerThread.join();
+                } catch (InterruptedException e) { }
+                readerThread = null;
+
+                try {
+                    long length = mWriter.length();
+                    // fill in missing header bytes
+                    mWriter.seek(4);
+                    mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
+                    mWriter.seek(40);
+                    mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
+                    mWriter.close();
                 } catch (IOException e) {
-                    Log.e(TAG,
-                            "I/O exception occured while closing output file");
-                    state = State.ERROR;
+                    Log.e(TAG, "I/O exception occured while closing output file");
+                    mState = State.ERROR;
                 }
+
+
             } else {
                 mRecorder.stop();
-                Message msg = refreshHandler.obtainMessage(REFRESH);
-                refreshHandler.removeMessages(REFRESH);
-                mLastRefresh = 0;
-
             }
-            state = State.STOPPED;
+
+
+            refreshHandler.obtainMessage(REFRESH);
+            refreshHandler.removeMessages(REFRESH);
+            mLastRefresh = 0;
+
+
+
         } else {
             Log.e(TAG, "stop() called on illegal state");
-            state = State.ERROR;
+            mState = State.ERROR;
         }
     }
 
+
     /**
-     * Refresh functions, used for compressed recording notifications
+     * Main loop of the audio reader.  This runs in its own thread.
      */
+    private void readerRun() {
+        while (mState == State.RECORDING) {
+            long stime = System.currentTimeMillis();
+            int shortValue;
 
-    private static final int REFRESH = 1;
+            synchronized (buffer) {
+                mAudioRecord.read(buffer, 0, buffer.length); // Fill buffer
+                try {
+                    mWriter.write(buffer); // Write buffer to file
 
-    private long mLastRefresh = 0;
+                    for (int i = 0; i < buffer.length / 2; i++) {
+                        shortValue = getShort(buffer[i * 2], buffer[i * 2 + 1]);
+                        if (Math.abs(shortValue) > mCurrentMaxAmplitude) {
+                            mCurrentMaxAmplitude = Math.abs(shortValue);
+                        }
+                    }
 
-    private int mLastMax = 0;
+                } catch (IOException e) {
+                    Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
+                    stop();
+                }
+
+                long etime = System.currentTimeMillis();
+                long sleep = TIMER_INTERVAL - (etime - stime);
+                if (sleep < 5)
+                    sleep = 5;
+                try {
+                    buffer.wait(sleep);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            }
+    }
+
+
+
 
     private final Handler refreshHandler = new Handler() {
         @Override
@@ -391,8 +395,22 @@ public class CloudRecorder {
             switch (msg.what) {
                 case REFRESH:
 
+                    if (mState != State.RECORDING) return;
+
+                    int mCurrentMax = 0;
+                    switch (mAudioProfile) {
+                        case Profile.RAW:
+                            mCurrentMax = (int) mCurrentMaxAmplitude;
+                            mCurrentMaxAmplitude = 0;
+                            break;
+
+                        case Profile.ENCODED_HIGH :
+                        case Profile.ENCODED_LOW :
+                            mCurrentMax = mRecorder.getMaxAmplitude();
+                            break;
+                    }
+
                     if (service != null) {
-                        int mCurrentMax = mRecorder.getMaxAmplitude();
 
                         // max amplitude returns false 0's sometimes, so just
                         // use the last value. It is usually only for a frame
@@ -406,8 +424,9 @@ public class CloudRecorder {
                         // root normalizes the amplitude and makes a better
                         // looking wave representation
                         service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
-                        //service.onRecordFrameUpdate((mCurrentMax) / MAX_AMPLITUDE);
                     }
+
+
 
                     long next = TIMER_INTERVAL;
                     if (mLastRefresh == 0) {
@@ -427,11 +446,7 @@ public class CloudRecorder {
         }
     };
 
-    final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
 
-    // ******************************************************************** //
-    // Constants.
-    // ******************************************************************** //
 
     private void queueNextRefresh(long delay) {
         Message msg = refreshHandler.obtainMessage(REFRESH);
@@ -439,11 +454,8 @@ public class CloudRecorder {
         refreshHandler.sendMessageDelayed(msg, delay);
     }
 
-    /*
-     * Converts a byte[2] to a short, in LITTLE_ENDIAN format
-     */
+    // Converts a byte[2] to a short, in LITTLE_ENDIAN format
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
     }
-
 }

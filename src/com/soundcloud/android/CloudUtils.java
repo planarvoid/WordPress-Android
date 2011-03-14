@@ -5,6 +5,7 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
@@ -39,7 +40,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -54,6 +54,7 @@ import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -81,10 +82,6 @@ public class CloudUtils {
         public static final int GALLERY_IMAGE_TAKE = 9001;
     }
 
-    public enum LoadType {
-        incoming, exclusive, favorites
-    }
-
     public enum Model {
         track, user, comment, event
     }
@@ -105,6 +102,8 @@ public class CloudUtils {
         public static final int REFRESH = 202;
 
         public static final int CANCEL_CURRENT_UPLOAD = 203;
+
+        public static final int INCOMING = 204;
     }
 
     public interface GraphicsSizes {
@@ -129,28 +128,14 @@ public class CloudUtils {
         public final static String original = "original";
     }
 
-    public final static String[] GraphicsSizesLib = {
-            GraphicsSizes.t500, GraphicsSizes.crop, GraphicsSizes.t300, GraphicsSizes.large,
-            GraphicsSizes.t67, GraphicsSizes.badge, GraphicsSizes.small, GraphicsSizes.tiny,
-            GraphicsSizes.mini, GraphicsSizes.original
-    };
-
     public interface ListId {
         public final static int LIST_INCOMING = 1001;
-
         public final static int LIST_EXCLUSIVE = 1002;
-
         public final static int LIST_USER_TRACKS = 1003;
-
         public final static int LIST_USER_FAVORITES = 1004;
-
         public final static int LIST_SEARCH = 1005;
-
         public final static int LIST_USER_FOLLOWINGS = 1006;
-
         public final static int LIST_USER_FOLLOWERS = 1007;
-
-
     }
 
     public static File getCacheDir(Context c) {
@@ -184,14 +169,14 @@ public class CloudUtils {
         Log.i(TAG,"!!!!!!! looking for db " + f.exists());
         if (f.exists()) {
             File newDb = new File(NEW_DB_ABS_PATH);
-            if (newDb.exists())
+            if (newDb.exists()) {
                 newDb.delete();
+            }
             f.renameTo(newDb);
         }
     }
 
     public static void checkDirs(Context c) {
-
         // clear out old cache and make a new one
         if (!getCacheDir(c).exists()) {
             if (getCacheDir(c).getParentFile().exists())
@@ -206,9 +191,7 @@ public class CloudUtils {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
         }
-
         // do a check??
-
     }
 
     public static boolean deleteDir(File dir) {
@@ -291,10 +274,15 @@ public class CloudUtils {
             RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(index);
             for (int j = 0; j < relativeLayout.getChildCount(); j++) {
                 if (relativeLayout.getChildAt(j) instanceof TextView) {
+                    ((TextView) relativeLayout.getChildAt(j)).setHorizontallyScrolling(false);
+                    ((TextView) relativeLayout.getChildAt(j)).setEllipsize(null);
+                    ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
                     ((TextView) relativeLayout.getChildAt(j)).setText(newText);
+                    ((TextView) relativeLayout.getChildAt(j)).requestLayout();
                 }
             }
-
+            relativeLayout.getLayoutParams().width =  LayoutParams.WRAP_CONTENT;
+            relativeLayout.forceLayout();
         }
 
     }
@@ -371,7 +359,19 @@ public class CloudUtils {
 
     public static long getCurrentUserId(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return Long.parseLong(preferences.getString("currentUserId", "-1"));
+        try {
+            return preferences.getLong(SoundCloudApplication.USER_ID, -1);
+        } catch (ClassCastException e) {
+            try {
+                long id = Long.parseLong(preferences.getString(SoundCloudApplication.USER_ID, "-1"));
+                if (id != -1) {
+                    preferences.edit().putLong(SoundCloudApplication.USER_ID, id).commit();
+                }
+                return id;
+            } catch (NumberFormatException ignored) {
+                return -1;
+            }
+        }
     }
 
     public static boolean checkIconShouldLoad(String url) {
@@ -380,13 +380,13 @@ public class CloudUtils {
                 || url.contains("default_avatar"));
     }
 
-    private static HashMap<Context, ServiceConnection> sConnectionMap = new HashMap<Context, ServiceConnection>();
+    private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap = new HashMap<Context,HashMap<Class<? extends Service>, ServiceConnection>>();
 
     public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
-        sConnectionMap.put(context, callback);
-        Log.i(TAG, "Binding service " + sConnectionMap.size());
+        if (sConnectionMap.get(context) == null) sConnectionMap.put(context, new HashMap<Class<? extends Service>,ServiceConnection>());
+        sConnectionMap.get(context).put(service, callback);
 
         boolean success =  context.getApplicationContext().bindService(
                 (new Intent()).setClass(context, service),
@@ -397,11 +397,10 @@ public class CloudUtils {
         return success;
     }
 
-    public static void unbindFromService(Activity context) {
-        Log.i(TAG, "Unbind From Service " + context);
-        ServiceConnection sb = sConnectionMap.remove(context);
+    public static void unbindFromService(Activity context, Class<? extends Service> service) {
+        ServiceConnection sb = sConnectionMap.get(context).remove(service);
+        if (sConnectionMap.get(context).isEmpty()) sConnectionMap.remove(context);
         if (sb != null) context.getApplicationContext().unbindService(sb);
-        Log.i(TAG, "Connetcion map empty? " + sConnectionMap.isEmpty());
     }
 
 
@@ -439,7 +438,7 @@ public class CloudUtils {
     }
 
     public static String formatGraphicsUrl(String url, String targetSize) {
-        return url.replace("large", targetSize);
+        return url == null ? null : url.replace("large", targetSize);
     }
 
     @SuppressWarnings("unchecked")
@@ -515,10 +514,6 @@ public class CloudUtils {
     }
 
     public static String makeTimeString(String durationformat, long secs) {
-        /*
-         * Provide multiple arguments so the format can be changed easily by
-         * modifying the xml.
-         */
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
         timeArgs[0] = secs / 3600;
@@ -526,18 +521,9 @@ public class CloudUtils {
         timeArgs[2] = (secs / 60) % 60;
         timeArgs[3] = secs;
         timeArgs[4] = secs % 60;
+        // XXX perf optimise - run in player loop
         return sFormatter.format(durationformat, timeArgs).toString();
     }
-
-    /*
-     * public static String formatContent(InputStream is) throws IOException {
-     * if (is == null) return ""; StringBuilder sBuilder = new StringBuilder();
-     * BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
-     * String line = null; while ((line = buffer.readLine()) != null) {
-     * sBuilder.append(line).append("\n"); } buffer.close(); buffer = null;
-     * return sBuilder.toString().trim(); }
-     */
-
     public static String getErrorFromJSONResponse(String rawString) throws JSONException {
         if (rawString.startsWith("[")) {
             return ""; // arrays do not result from errors
@@ -556,12 +542,6 @@ public class CloudUtils {
         }
     }
 
-    /**
-     * Check if a thread is alive accounting for nulls
-     *
-     * @param t
-     * @return boolean : is the thread alive
-     */
     public static boolean checkThreadAlive(Thread t) {
         return (!(t == null || !t.isAlive()));
     }
@@ -615,16 +595,6 @@ public class CloudUtils {
     }
 
 
-
-    public static void cleanupList(ListView list) {
-        list.setOnItemClickListener(null);
-        list.setOnItemLongClickListener(null);
-        list.setOnCreateContextMenuListener(null);
-        list.setOnScrollListener(null);
-        list.setOnItemSelectedListener(null);
-
-    }
-
     public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
         Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
         InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
@@ -647,6 +617,23 @@ public class CloudUtils {
             SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p, SoundCloudDB.WriteState.none,
                     CloudUtils.getCurrentUserId(c));
         }
+    }
+
+    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId){
+        return buildComment(context, trackId, timestamp, commentBody, replyToId, "");
+    }
+
+    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
+        Comment comment = new Comment();
+        comment.track_id = trackId;
+        comment.created_at = new Date(System.currentTimeMillis());
+        comment.user_id = CloudUtils.getCurrentUserId(context);
+        comment.user = SoundCloudDB.getInstance().resolveUserById(context.getContentResolver(), comment.user_id);
+        comment.timestamp = timestamp;
+        comment.body = commentBody;
+        comment.reply_to_id = replyToId;
+        comment.reply_to_username = replyToUsername;
+        return comment;
     }
 
 
