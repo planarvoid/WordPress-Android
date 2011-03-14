@@ -217,6 +217,7 @@ public class UserBrowser extends ScActivity {
             if (!CloudUtils.isTaskFinished(mLoadDetailsTask)) {
                 mLoadDetailsTask.cancel(true);
             }
+            mLoadDetailsTask = null;
         }
 
         loadDetails();
@@ -529,7 +530,7 @@ public class UserBrowser extends ScActivity {
                 remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
             }
 
-            if (_iconURL == null || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
+            if (_iconURL == null || avatarResult == BindResult.ERROR || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
                 _iconURL = remoteUrl;
                 reloadAvatar();
             }
