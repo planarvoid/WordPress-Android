@@ -156,8 +156,8 @@ public class ScCreate extends ScActivity {
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
 
-    private static final String RAW_PATTERN = "([^\\s]+(\\.(?i)(2|pcm))$)";
-    private static final String COMPRESSED_PATTERN = "([^\\s]+(\\.(?i)(0|1|mp4|ogg))$)";
+    private static final String RAW_PATTERN = "^.*\\.(2|pcm)$";
+    private static final String COMPRESSED_PATTERN = "^.*\\.(0|1|mp4|ogg)$";
     private Pattern pattern;
     private Matcher matcher;
 
@@ -210,6 +210,7 @@ public class ScCreate extends ScActivity {
             mCurrentState = CreateState.IDLE_UPLOAD;
             mExternalUpload = true;
         } else {
+
             try {
                 if (mCreateService != null && mCreateService.isUploading()) {
                     mCurrentState = CreateState.UPLOAD;
@@ -222,16 +223,9 @@ public class ScCreate extends ScActivity {
                       // can happen when there's no mounted sdcard
                       btnAction.setEnabled(false);
                   } else if (mRecordDir.list().length > 0) {
-                    // find the oldest valid record file in the directory
-                    for (File f : mRecordDir.listFiles()){
-                        Log.i(TAG,"Checking existing recording file " + f.getName());
-                        if ((mRecordFile == null || f.lastModified() < mRecordFile.lastModified()) && (isRawFilename(f.getName()) || isCompressedFilename(f.getName())))
-                            mRecordFile = f;
-                    }
+                    setRecordFile();
 
                     if (mRecordFile != null){
-                        mAudioProfile = isRawFilename(mRecordFile.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
-                        Log.i(TAG,"Found an older file, " + mRecordFile.getName() + ", profile set to "+ mAudioProfile);
                         mCurrentState = CreateState.IDLE_PLAYBACK;
                         loadPlaybackTrack();
                     } else {
@@ -247,8 +241,6 @@ public class ScCreate extends ScActivity {
         }
         updateUi(takeAction);
     }
-
-
 
     @Override
     protected void onResume() {
@@ -507,8 +499,21 @@ public class ScCreate extends ScActivity {
     public void unlock(boolean finished) {
         // not currently uploading anything, so allow recording
         if (mCurrentState == CreateState.UPLOAD) {
-            mCurrentState =  finished ? CreateState.IDLE_RECORD : CreateState.IDLE_PLAYBACK;
-            updateUi(finished);
+            if (!finished){
+                //recover record file
+                setRecordFile();
+
+                if (mRecordFile != null && mRecordFile.exists()){
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                    loadPlaybackTrack();
+                    updateUi(false);
+                    return;
+                }
+            }
+
+            mCurrentState =  CreateState.IDLE_RECORD;
+            updateUi(true);
+
         }
     }
 
@@ -639,7 +644,12 @@ public class ScCreate extends ScActivity {
         switch (mCurrentState) {
             case IDLE_RECORD:
                 goToView(0);
-                if (takeAction) clearCurrentFiles();
+                if (takeAction) {
+                    clearCurrentFiles();
+                    mWhereText.setText("");
+                    mWhatText.setText("");
+                    clearArtwork();
+                }
 
                 btnAction.setBackgroundDrawable(getResources().getDrawable(
                         R.drawable.btn_rec_states));
@@ -797,6 +807,7 @@ public class ScCreate extends ScActivity {
                 f.delete();
             }
         }
+        mRecordFile = null;
     }
 
     private void startRecording() {
@@ -1062,7 +1073,7 @@ public class ScCreate extends ScActivity {
 
 
             if (mAudioProfile == Profile.RAW && !mExternalUpload) {
-                data.put(UploadTask.Params.OGG_FILENAME, CloudUtils.getCacheFilePath(this, generateFilename(title,"ogg")));
+                data.put(UploadTask.Params.OGG_FILENAME,new File(mRecordDir, generateFilename(title,"ogg")).getAbsolutePath());
                 data.put(UploadTask.Params.ENCODE, true);
                 txtUploadingStatus.setText(R.string.record_currently_encoding_uploading);
             } else {
@@ -1089,9 +1100,7 @@ public class ScCreate extends ScActivity {
             } catch (RemoteException ignored) {
                 Log.e(TAG, "error", ignored);
             } finally {
-                mWhereText.setText("");
-                mWhatText.setText("");
-                clearArtwork();
+                mRecordFile = null;
             }
         } else {
             showToast(R.string.wait_for_upload_to_finish);
@@ -1143,6 +1152,16 @@ public class ScCreate extends ScActivity {
         }
         return note;
     }
+
+    private void setRecordFile(){
+        // find the oldest valid record file in the directory
+           for (File f : mRecordDir.listFiles()){
+               if ((mRecordFile == null || f.lastModified() < mRecordFile.lastModified()) && (isRawFilename(f.getName()) || isCompressedFilename(f.getName())))
+                   mRecordFile = f;
+           }
+
+           if (mRecordFile != null) mAudioProfile = isRawFilename(mRecordFile.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
+       }
 
     private boolean isRawFilename(String filename){
         pattern = Pattern.compile(RAW_PATTERN);
