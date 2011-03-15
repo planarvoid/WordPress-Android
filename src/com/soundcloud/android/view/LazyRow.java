@@ -87,7 +87,6 @@ public class LazyRow extends RelativeLayout {
             result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
         else
             mImageLoader.unbind(getRowIcon());
-
         setTemporaryDrawable(result);
     }
 
