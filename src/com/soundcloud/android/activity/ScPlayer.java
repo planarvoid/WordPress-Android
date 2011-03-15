@@ -276,7 +276,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         if (mPlayingTrack != null) {
-            if (mWaveformController.currentWaveformResult() == BindResult.ERROR) {
+            if (mWaveformController.waveformResult == BindResult.ERROR) {
                 mWaveformController.updateTrack(mPlayingTrack);
             }
 

@@ -28,6 +28,9 @@ public class CommentBubble extends RelativeLayout {
     public static int HARD_WIDTH;
     public static int CORNER_MARGIN = 20;
 
+    public static int MODE_NEW_COMMENT = 1;
+    public static int MODE_SHOW_COMMENT = 2;
+
     private int mRealWidth = 1;
 
     public Comment mComment;
@@ -65,6 +68,20 @@ public class CommentBubble extends RelativeLayout {
     public boolean interacted;
 
     public boolean closing;
+
+    public long new_comment_timestamp;
+
+    public Track new_comment_track;
+
+    public Comment show_comment;
+
+    public int comment_mode;
+
+    public int xPos;
+
+    public int yPos;
+
+    public int parentWidth;
 
 
     public CommentBubble(Context context, WaveformController controller) {
@@ -136,23 +153,31 @@ public class CommentBubble extends RelativeLayout {
 
     }
 
-    public void loadComment(Comment comment) {
-        mComment = comment;
+    public float update() {
+
+        switch (comment_mode){
+            case 1 : onNewCommentMode(new_comment_track,new_comment_timestamp); break;
+            case 2 : onShowCommentMode(show_comment); break;
+        }
+
+        return updatePosition();
+
     }
 
-    public float setPosition(int x, int y, int edge) {
-        int arrowOffset = x - HARD_WIDTH/4 < 0 ? x : x + 3*HARD_WIDTH/4 > edge ? x - (edge - HARD_WIDTH) : HARD_WIDTH/4;
-        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams ) this.getLayoutParams();
-        lp.leftMargin =x - arrowOffset;
-        lp.topMargin = (y - lp.height);
-        this.setLayoutParams(lp);
+    public float updatePosition(){
+        int arrowOffset = xPos - HARD_WIDTH/4 < 0 ? xPos : xPos + 3*HARD_WIDTH/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : HARD_WIDTH/4;
 
+        RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
+        lp.leftMargin = xPos - arrowOffset;
+        lp.topMargin = yPos - lp.height;
+        setLayoutParams(lp);
         mArrow.setPosition(arrowOffset);
 
         return ((float)arrowOffset)/mRealWidth;
     }
 
-    public void onNewCommentMode(Track track, long l) {
+
+    private void onNewCommentMode(Track track, long l) {
         mTrack = track;
         setDimensions(NEW_MODE_WIDTH,NEW_MODE_HEIGHT);
 
@@ -167,10 +192,10 @@ public class CommentBubble extends RelativeLayout {
         mTxtNewTime.setVisibility(View.VISIBLE);
         mTxtNewInstructions.setVisibility(View.VISIBLE);
 
-        updateNewCommentTime(l);
+        updateNewCommentTime();
     }
 
-    public void onShowCommentMode(Comment currentShowingComment) {
+    private void onShowCommentMode(Comment currentShowingComment) {
         mComment = currentShowingComment;
 
         mTxtUsername.setText(mComment.user.username);
@@ -219,9 +244,9 @@ public class CommentBubble extends RelativeLayout {
         this.setLayoutParams(new RelativeLayout.LayoutParams(mRealWidth, (int) (newHeight* getContext().getResources().getDisplayMetrics().density)));
     }
 
-    public void updateNewCommentTime(long pos) {
-        mTxtNewTime.setText(CloudUtils.makeTimeString(pos < 3600000 ? mDurationFormatShort
-                : mDurationFormatLong, pos / 1000));
+    public void updateNewCommentTime() {
+        mTxtNewTime.setText(CloudUtils.makeTimeString(new_comment_timestamp < 3600000 ? mDurationFormatShort
+                : mDurationFormatLong, new_comment_timestamp / 1000));
     }
 
 }
