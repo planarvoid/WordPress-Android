@@ -512,7 +512,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCommentBubble.comment_mode = CommentBubble.MODE_SHOW_COMMENT;
             mCommentBubble.show_comment = mCurrentShowingComment;
             mCommentBubble.interacted = !waitForInteraction;
-            mCommentBubble.xPos = mCurrentShowingComment.xPos+mPlayerAvatarBar.getAvatarWidth()/2;
+            mCommentBubble.xPos = mCurrentShowingComment.xPos;
             mCommentBubble.yPos = mAvatarOffsetY;
 
             mShowBubbleForceAnimation = false;

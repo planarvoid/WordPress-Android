@@ -24,16 +24,13 @@ public class CommentBubbleArrow extends View {
 
     private Bitmap mCurrentArrow;
 
-    private Context mContext;
 
-    private static int LEFT_ARROW_MARGIN = 2;
+    private static int LEFT_ARROW_MARGIN = 1;
     private static int RIGHT_ARROW_MARGIN = 11;
 
     public CommentBubbleArrow(Context context) {
 
         super(context);
-
-        mContext = context;
 
         mArrowPaint = new Paint();
         mArrowPaint.setAntiAlias(false);
@@ -57,11 +54,11 @@ public class CommentBubbleArrow extends View {
     }
 
     protected void refreshRightArrow(){
-        mRightArrow = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.comment_bubble_arrow_r);
+        mRightArrow = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.comment_bubble_arrow_r);
     }
 
     protected void refreshLeftArrow(){
-        mLeftArrow = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.comment_bubble_arrow_l);
+        mLeftArrow = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.comment_bubble_arrow_l);
     }
 
 

@@ -169,7 +169,7 @@ public class CommentBubble extends RelativeLayout {
 
         RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
         lp.leftMargin = xPos - arrowOffset;
-        lp.topMargin = yPos - lp.height;
+        lp.topMargin = yPos - lp.height + (int)(5*getContext().getResources().getDisplayMetrics().density);
         setLayoutParams(lp);
         mArrow.setPosition(arrowOffset);
 
