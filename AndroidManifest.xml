@@ -10,18 +10,24 @@
       android:process="@string/app_name"
       android:theme="@style/ScLight" android:configChanges="keyboard|keyboardHidden"
       android:name="SoundCloudApplication">
-      <provider android:name=".provider.ScContentProvider" 
-        android:authorities="com.soundcloud.android.providers.ScContentProvider" />
-
+        <provider android:name=".provider.ScContentProvider"
+                  android:authorities="com.soundcloud.android.providers.ScContentProvider"/>
 
         <activity android:name=".activity.Main"
                   android:label="@string/app_name"
+                  android:launchMode="singleTop"
                   android:windowSoftInputMode="adjustPan">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+
+             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
         </activity>
 
 
@@ -54,12 +60,17 @@
                 <!-- not used anymore, but there are still some shortcuts around -->
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
 
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
-        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player"/>
-        <activity android:name=".activity.UserBrowser" android:label="Profile"/>
+        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player">
+            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
+        </activity>
+        <activity android:name=".activity.UserBrowser" android:label="Profile">
+            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
+        </activity>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
@@ -69,6 +80,7 @@
                 <data android:mimeType="audio/*"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
 
         <service android:name=".service.CloudPlaybackService"
@@ -90,7 +102,7 @@
             android:theme="@android:style/Theme.Dialog"
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true" />
+            android:finishOnTaskLaunch="true"/>
 
         <receiver android:label="SoundCloud Player"
                   android:name=".service.PlayerAppWidgetProvider">
@@ -101,6 +113,7 @@
           <meta-data android:name="android.appwidget.provider"
                      android:resource="@xml/widget_player" />
         </receiver>
+
         <receiver android:label="SoundCloud Recorder"
               android:name=".service.RecordAppWidgetProvider">
 

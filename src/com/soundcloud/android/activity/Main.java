@@ -4,6 +4,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 
+import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -90,23 +91,18 @@ public class Main extends TabActivity {
 
     private void handleIntent() {
         if (getIntent() != null) {
-            if (getIntent().hasExtra("tabIndex")) {
+            if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
+                mTabHost.setCurrentTabByTag("search");
+                ((ScSearch) getCurrentActivity()).doSearch(getIntent().getStringExtra(SearchManager.QUERY));
+            } else if (getIntent().hasExtra("tabIndex")) {
                 mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
                 getIntent().removeExtra("tabIndex");
             } else if (getIntent().hasExtra("tabTag")) {
                 mTabHost.setCurrentTabByTag(getIntent().getStringExtra("tabTag"));
                 getIntent().removeExtra("tabTag");
-
             }
         }
     }
-
-     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
-
 
     @Override
     protected void onRestoreInstanceState(Bundle state) {

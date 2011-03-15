@@ -27,60 +27,26 @@ import android.widget.RadioGroup;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+// XXX decouple from ScActivity
 public class ScSearch extends ScActivity {
-
-    // Debugging tag.
-    @SuppressWarnings("unused")
-    private static final String TAG = "ScSearch";
-
-    // ******************************************************************** //
-    // Private Data.
-    // ******************************************************************** //
-
-
     private Button btnSearch;
-
     private EditText txtQuery;
 
     private RadioGroup rdoType;
-
     private RadioButton rdoUser;
-
     private RadioButton rdoTrack;
 
     private LazyListView mList;
-
     private LazyEndlessAdapter mTrackAdpWrapper;
-
     private LazyEndlessAdapter mUserAdpWrapper;
 
-    private int MIN_LENGTH = 2;
-
-    // ******************************************************************** //
-    // Activity Lifecycle.
-    // ******************************************************************** //
-
-    /**
-     * Called when the activity is starting. This is where most initialisation
-     * should go: calling setContentView(int) to inflate the activity's UI, etc.
-     * You can call finish() from within this function, in which case
-     * onDestroy() will be immediately called without any of the rest of the
-     * activity lifecycle executing. Derived classes must call through to the
-     * super class's implementation of this method. If they do not, an exception
-     * will be thrown.
-     *
-     * @param icicle If the activity is being re-initialised after previously
-     *               being shut down then this Bundle contains the data it most
-     *               recently supplied in onSaveInstanceState(Bundle). Note:
-     *               Otherwise it is null.
-     */
+    private static final int MIN_LENGTH = 2;
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
         setContentView(R.layout.sc_search);
-
 
         rdoType = (RadioGroup) findViewById(R.id.rdo_search_type);
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
@@ -92,21 +58,19 @@ public class ScSearch extends ScActivity {
         btnSearch.setEnabled(false);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                doSearch();
+                doSearch(txtQuery.getText().toString());
             }
         });
 
         rdoTrack.setVisibility(View.GONE);
         rdoUser.setVisibility(View.GONE);
 
-        // account for special handling of this list if we are in a tab with
-        // regards
+        // account for special handling of this list if we are in a tab with regards
         // to checking for data type (user/track) when restoring list data
         mList = buildList();
 
         ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
-        // mList.setFocusable(false);
 
         LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>());
         mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "", CloudUtils.Model.track);
@@ -142,25 +106,21 @@ public class ScSearch extends ScActivity {
         txtQuery.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER && txtQuery.getText().length() > MIN_LENGTH) {
-                    doSearch();
+                    doSearch(txtQuery.getText().toString());
                     return true;
                 }
                 return false;
             }
         });
+     }
 
-    }
-
-    @Override
-    public void onRefresh() {
-    }
-
-    private void doSearch() {
+     void doSearch(final String query) {
+        txtQuery.setText(query); // when called from Main
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (mgr != null)
-            mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
-                    InputMethodManager.HIDE_NOT_ALWAYS);
+        if (mgr != null) {
+            mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
 
         rdoTrack.setVisibility(View.GONE);
         rdoUser.setVisibility(View.GONE);
@@ -171,28 +131,15 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-
-            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.PATH_TRACKS, URLEncoder.encode(txtQuery
-                    .getText().toString()));
+            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.PATH_TRACKS, URLEncoder.encode(query));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
             mList.enableLongClickListener();
         } else {
-            mUserAdpWrapper.setPath(CloudAPI.Enddpoints.USERS, URLEncoder.encode(txtQuery
-                    .getText().toString()));
+            mUserAdpWrapper.setPath(CloudAPI.Enddpoints.USERS, URLEncoder.encode(query));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);
             mList.disableLongClickListener();
-        }
-    }
-
-    public void setAdapterType(boolean isUser) {
-        if (isUser) {
-            mList.setAdapter(mUserAdpWrapper);
-            mUserAdpWrapper.createListEmptyView(mList);
-        } else {
-            mList.setAdapter(mTrackAdpWrapper);
-            mTrackAdpWrapper.createListEmptyView(mList);
         }
     }
 
@@ -219,7 +166,7 @@ public class ScSearch extends ScActivity {
         public void onFocusChange(View v, boolean hasFocus) {
             InputMethodManager mgr = (InputMethodManager)
                     getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (hasFocus == true && mgr != null)
+            if (hasFocus && mgr != null)
                 mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
             rdoTrack.setVisibility(View.GONE);

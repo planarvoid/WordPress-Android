@@ -732,4 +732,5 @@
     <string name="connect_failure">Failed connecting with %1$s</string>
 
     <string name="authorization_failed">Authorization Failed</string>
+    <string name="search_hint">Tracks</string>
 </resources>
