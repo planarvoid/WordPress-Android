@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -77,22 +76,13 @@ public class LazyRow extends RelativeLayout {
         }
 
         if (TextUtils.isEmpty(getIconRemoteUri())){
-            pendingIcon = false;
+            mImageLoader.unbind(getRowIcon());
             setTemporaryDrawable(BindResult.ERROR);
             return;
         }
 
-        if (mActivity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING || mActivity.pendingIconsUpdate){
-            pendingIcon = true;
-            setTemporaryDrawable(BindResult.ERROR);
-        } else {
-            loadPendingIcon();
-        }
-    }
-
-    public void loadPendingIcon(){
-        pendingIcon = false;
         BindResult result = BindResult.ERROR;
+
         if (CloudUtils.checkIconShouldLoad(getIconRemoteUri()))
             result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
         else

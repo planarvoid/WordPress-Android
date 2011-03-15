@@ -144,13 +144,17 @@ public class LazyListView extends ListView {
     private class ScScrollManager implements AbsListView.OnScrollListener {
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             if (mScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
+
                 final Handler handler = mScrollHandler;
                 final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS,
                         mActivity);
                 handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
                 handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_LIST_ICONS);
+
             } else if (scrollState == SCROLL_STATE_FLING) {
                 mScrollHandler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+                if (mListener != null)
+                    mListener.onFling();
             }
             mScrollState = scrollState;
         }
@@ -169,7 +173,7 @@ public class LazyListView extends ListView {
             final int action = event.getAction();
             mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
             if (mFingerUp && mScrollState != ScScrollManager.SCROLL_STATE_FLING) {
-                postUpdateListIcons();
+                //postUpdateListIcons();
             }
             return false;
         }
@@ -183,7 +187,7 @@ public class LazyListView extends ListView {
             switch (msg.what) {
                 case MESSAGE_UPDATE_LIST_ICONS:
                     if (mListener != null)
-                        mListener.onIconsShouldLoad();
+                        mListener.onFlingDone();
                     break;
             }
         }
@@ -202,7 +206,8 @@ public class LazyListView extends ListView {
         public abstract void onUserClick(ArrayList<Parcelable> users, int position);
         public abstract void onTrackClick(ArrayList<Parcelable> tracks, int position);
         public abstract void onEventClick(ArrayList<Parcelable> events, int position);
-        public abstract void onIconsShouldLoad();
+        public abstract void onFling();
+        public abstract void onFlingDone();
     }
 
 

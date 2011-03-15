@@ -19,7 +19,6 @@ import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -52,7 +51,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
 import android.widget.Toast;
 
 import java.net.SocketException;
@@ -95,15 +93,6 @@ public abstract class ScActivity extends Activity {
     public void showToast(int stringId) {
         showToast(getResources().getString(stringId));
     }
-
-    public int getScrollState() {
-        int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
-        for (LazyListView lv : mLists){
-            if (lv.getScrollState() > scrollState) scrollState = lv.getScrollState();
-        }
-        return scrollState;
-    }
-
 
     protected void onServiceBound() {
         if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
@@ -570,17 +559,13 @@ public abstract class ScActivity extends Activity {
             playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
         }
 
+        public void onFling() {
+            ImageLoader.get(ScActivity.this).pause();
+        }
+
         @Override
-        public void onIconsShouldLoad() {
-            pendingIconsUpdate = false;
-            for (LazyListView lv : mLists){
-                for (int i = 0; i < lv.getChildCount(); i++){
-                    if (LazyRow.class.isAssignableFrom(lv.getChildAt(i).getClass())){
-                        if (((LazyRow) lv.getChildAt(i)).pendingIcon)
-                            ((LazyRow) lv.getChildAt(i)).loadPendingIcon();
-                    }
-                }
-            }
+        public void onFlingDone() {
+            ImageLoader.get(ScActivity.this).unpause();
         }
     };
 

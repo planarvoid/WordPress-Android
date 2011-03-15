@@ -14,10 +14,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -45,6 +48,8 @@ public class ImageLoader {
     private static final int GINGERBREAD = 9;
 
     public static final String IMAGE_LOADER_SERVICE = "com.soundcloud.utils.imageloader";
+
+    private boolean mPaused;
 
     /**
      * Gets the {@link ImageLoader} from a {@link Context}.
@@ -175,6 +180,19 @@ public class ImageLoader {
         return null;
     }
 
+    public void pause(){
+        mPaused = true;
+    }
+
+    public void unpause(){
+        Log.i("asdf","Unpausing");
+        mPaused = false;
+        for (ImageTask pendingTask : mPendingTasks){
+            postResult(pendingTask);
+        }
+        mPendingTasks.clear();
+    }
+
 
 
     @SuppressWarnings({ "rawtypes" })
@@ -258,7 +276,7 @@ public class ImageLoader {
          *
          * @see ImageLoader.Callback
          */
-        ERROR
+        ERROR,
     }
 
     public static enum LoadResult {
@@ -946,14 +964,18 @@ public class ImageLoader {
                 }
             } else {
                 if (mBitmapCallback != null) {
-                    mBitmapCallback.onImageLoaded(mBitmap, mUri);
-                } else if (mError != null && !hasError(mUri)) {
-                    mBitmapCallback.onImageError(mUri, mError);
+                    if (mBitmap != null){
+                        mBitmapCallback.onImageLoaded(mBitmap, mUri);
+                    } else if (mError != null) {
+                        mBitmapCallback.onImageError(mUri, mError);
+                    }
                 }
             }
 
         }
     }
+
+    private ArrayList<ImageTask> mPendingTasks = new ArrayList<ImageTask>();
 
     private class TaskHandler extends Handler {
         public TaskHandler(Looper looper) {
@@ -964,7 +986,12 @@ public class ImageLoader {
         public void handleMessage(Message msg) {
             ImageTask task = (ImageTask) msg.obj;
             if (task.execute()) {
-                postResult(task);
+
+                if (mPaused){
+                    mPendingTasks.add(task);
+                } else {
+                    postResult(task);
+                }
             } else {
                 // No result or the result is no longer needed.
             }
