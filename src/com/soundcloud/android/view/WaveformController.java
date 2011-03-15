@@ -731,9 +731,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             queueUnique(UI_SHOW_CURRENT_COMMENT);
             return;
         }
-        mCommentBubble.show_comment = null;
-        mShowBubble = false;
-        queueUnique(UI_UPDATE_BUBBLE);
+
+        if (skipComment == null){
+            mCommentBubble.show_comment = null;
+            mShowBubble = false;
+            queueUnique(UI_UPDATE_BUBBLE);
+        }
 
     }
 
