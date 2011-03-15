@@ -38,6 +38,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -2026,7 +2029,9 @@ public class CloudPlaybackService extends Service {
 
         @Override
         public void run() {
-            HttpClient cli = new DefaultHttpClient();
+            HttpParams params = new BasicHttpParams();
+            HttpConnectionParams.setSocketBufferSize(params, 8192);
+            HttpClient cli = new DefaultHttpClient(params);
             HttpGet method;
 
             HttpResponse resp = null;

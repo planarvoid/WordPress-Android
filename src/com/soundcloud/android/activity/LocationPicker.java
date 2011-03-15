@@ -1,5 +1,25 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.R;
+import com.soundcloud.utils.http.Http;
+
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
+
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -23,26 +43,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.R;
-import com.soundcloud.utils.http.Http;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 
 public class LocationPicker extends ListActivity {
@@ -153,7 +158,9 @@ public class LocationPicker extends ListActivity {
         @Override
         protected List<Venue> doInBackground(Location... locations) {
             Location loc = locations[0];
-            HttpClient client = new DefaultHttpClient();
+            HttpParams params = new BasicHttpParams();
+            HttpConnectionParams.setSocketBufferSize(params, 8192);
+            HttpClient client = new DefaultHttpClient(params);
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());

@@ -23,6 +23,9 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
@@ -67,7 +70,9 @@ public class ApiWrapper implements CloudAPI {
 
     private HttpClient getHttpClient() {
         if (httpClient == null) {
-            HttpClient client = new DefaultHttpClient();
+            HttpParams params = new BasicHttpParams();
+            HttpConnectionParams.setSocketBufferSize(params, 8192);
+            HttpClient client = new DefaultHttpClient(params);
             httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(client.getParams(),
                     client.getConnectionManager().getSchemeRegistry()), client.getParams());
         }

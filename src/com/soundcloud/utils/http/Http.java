@@ -8,11 +8,13 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +54,9 @@ public class Http {
     // perform a request *without* following redirects
     // useful for checking status codes like 302/303
     public static HttpResponse noRedirect(HttpUriRequest req) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setSocketBufferSize(params, 8192);
+        DefaultHttpClient client = new DefaultHttpClient(params);
         client.setRedirectHandler(new RedirectHandler() {
             @Override
             public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
