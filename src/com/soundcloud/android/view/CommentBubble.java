@@ -22,8 +22,8 @@ public class CommentBubble extends RelativeLayout {
     private static int NEW_MODE_WIDTH = 180;
     private static int NEW_MODE_HEIGHT = 100;
 
-    private static int SHOW_MODE_WIDTH = 250;
-    private static int SHOW_MODE_HEIGHT = 150;
+    private static int SHOW_MODE_WIDTH = 280;
+    private static int SHOW_MODE_HEIGHT = 145;
 
     public static int HARD_WIDTH;
     public static int CORNER_MARGIN = 20;
@@ -165,7 +165,7 @@ public class CommentBubble extends RelativeLayout {
     }
 
     public float updatePosition(){
-        int arrowOffset = xPos - HARD_WIDTH/4 < 0 ? xPos : xPos + 3*HARD_WIDTH/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : HARD_WIDTH/4;
+        int arrowOffset = xPos - mRealWidth/4 < 0 ? xPos : xPos + 3*mRealWidth/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : mRealWidth/4;
 
         RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
         lp.leftMargin = xPos - arrowOffset;
