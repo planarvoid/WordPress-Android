@@ -206,16 +206,19 @@ public class CloudCreateService extends Service {
         frameCount = 0;
 
         mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
-        mRecorder.setRecordService(this);
-
+        mRecorder.setRecordService(CloudCreateService.this);
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
-        mRecorder.prepare();
-        mRecorder.start();
 
-        if (mRecorder.getState() == CloudRecorder.State.ERROR) {
-            notifyChange(RECORD_ERROR);
-            return;
-        }
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                mRecorder.prepare();
+                mRecorder.start();
+
+                if (mRecorder.getState() == CloudRecorder.State.ERROR) onRecordError();
+            }
+        };
+
 
         mNotification = new Notification(R.drawable.statusbar, getApplicationContext()
                 .getResources().getString(R.string.cloud_recorder_notification_ticker), System
@@ -241,6 +244,21 @@ public class CloudCreateService extends Service {
         startForeground(CREATE_NOTIFY_ID, mNotification);
         mRecording = true;
         mRecordStartTime = System.currentTimeMillis();
+
+        t.start();
+    }
+
+    private void onRecordError(){
+        notifyChange(RECORD_ERROR);
+
+        //alread in an error state, so just call these in case
+        mRecorder.stop();
+        mRecorder.release();
+        mRecording = false;
+
+        nm.cancel(CREATE_NOTIFY_ID);
+        gotoIdleState();
+
     }
 
 
