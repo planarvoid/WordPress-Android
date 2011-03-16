@@ -3,6 +3,7 @@ package com.soundcloud.utils;
 import static com.soundcloud.utils.http.Http.noRedirect;
 
 import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.mapper.CloudDateFormat;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.utils.http.CountingMultipartRequestEntity;
@@ -23,9 +24,6 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
@@ -70,9 +68,7 @@ public class ApiWrapper implements CloudAPI {
 
     private HttpClient getHttpClient() {
         if (httpClient == null) {
-            HttpParams params = new BasicHttpParams();
-            HttpConnectionParams.setSocketBufferSize(params, 8192);
-            HttpClient client = new DefaultHttpClient(params);
+            HttpClient client = new DefaultHttpClient(CloudUtils.getConfiguredDefaultHttpParams());
             httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(client.getParams(),
                     client.getConnectionManager().getSchemeRegistry()), client.getParams());
         }

@@ -12,6 +12,9 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -226,6 +229,18 @@ public class CloudUtils {
             return "";
         }
     }
+
+    public static HttpParams getConfiguredDefaultHttpParams(){
+        HttpParams params = new BasicHttpParams();
+        //HttpConnectionParams.setStaleCheckingEnabled(params, false);
+        // Default connection and socket timeout of 20 seconds. Tweak to taste.
+        HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
+        HttpConnectionParams.setSoTimeout(params, 20 * 1000);
+        HttpConnectionParams.setSocketBufferSize(params, 8192);
+        return params;
+
+    }
+
 
 
     public static LazyListView createTabList(ScActivity activity,

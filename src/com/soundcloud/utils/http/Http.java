@@ -1,5 +1,7 @@
 package com.soundcloud.utils.http;
 
+import com.soundcloud.android.CloudUtils;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
@@ -56,7 +58,7 @@ public class Http {
     public static HttpResponse noRedirect(HttpUriRequest req) throws IOException {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setSocketBufferSize(params, 8192);
-        DefaultHttpClient client = new DefaultHttpClient(params);
+        DefaultHttpClient client = new DefaultHttpClient(CloudUtils.getConfiguredDefaultHttpParams());
         client.setRedirectHandler(new RedirectHandler() {
             @Override
             public boolean isRedirectRequested(HttpResponse response, HttpContext context) {

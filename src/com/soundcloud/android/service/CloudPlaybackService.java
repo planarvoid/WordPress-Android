@@ -765,6 +765,7 @@ public class CloudPlaybackService extends Service {
 
     private boolean checkBuffer() {
         synchronized (this) {
+            Log.i(TAG,"GET BUFFER " + mPlayingData + " " + getDuration());
             if (mPlayingData == null || getDuration() == 0)
                 return false;
 
@@ -778,6 +779,7 @@ public class CloudPlaybackService extends Service {
                 }
             }
 
+            Log.i(TAG,"Calculating buffer " + mPlayingData.mCacheFile.length());
             if (mPlayer != null && mPlayer.isInitialized()) {
                 // normal buffer measurement. size of cache file vs playback
                 // position
@@ -2031,7 +2033,7 @@ public class CloudPlaybackService extends Service {
         public void run() {
             HttpParams params = new BasicHttpParams();
             HttpConnectionParams.setSocketBufferSize(params, 8192);
-            HttpClient cli = new DefaultHttpClient(params);
+            HttpClient cli = new DefaultHttpClient(CloudUtils.getConfiguredDefaultHttpParams());
             HttpGet method;
 
             HttpResponse resp = null;
