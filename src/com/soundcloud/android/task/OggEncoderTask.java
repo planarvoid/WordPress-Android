@@ -16,6 +16,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
  public abstract class OggEncoderTask<Params, Result> extends AsyncTask<Params, Integer, Result> {
@@ -90,10 +91,8 @@ import java.util.Random;
         try {
             FileOutputStream fos = new FileOutputStream(outputFile);
 
-            while (!eos) {
-                if (!os.ogg_stream_flush(og))
-                    break;
-
+            while (true) {
+                if (!os.ogg_stream_flush(og)) break;
                 fos.write(og.header, 0, og.header_len);
                 fos.write(og.body, 0, og.body_len);
             }
@@ -179,7 +178,7 @@ import java.util.Random;
             fos.close();
 
             return !isCancelled();
-        } catch (Exception e) {
+        } catch (IOException e) {
             Log.e(TAG, "error", e);
             return false;
         }
