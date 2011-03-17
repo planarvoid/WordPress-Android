@@ -496,17 +496,6 @@ public class CloudPlaybackService extends Service {
         }
     };
 
-    /**
-     * Called when we receive a ACTION_MEDIA_EJECT notification.
-     *
-     * @param storagePath path to mount point for the removed media
-     */
-    public void closeExternalStorageFiles(String storagePath) {
-        // stop playback and clean up if the SD card is going to be unmounted.
-        stop(true);
-        notifyChange(QUEUE_CHANGED);
-    }
-
     private boolean checkNetworkStatus() {
         if (connectivityListener == null)
             return false;
@@ -765,7 +754,6 @@ public class CloudPlaybackService extends Service {
 
     private boolean checkBuffer() {
         synchronized (this) {
-            Log.i(TAG,"GET BUFFER " + mPlayingData + " " + getDuration());
             if (mPlayingData == null || getDuration() == 0)
                 return false;
 
@@ -779,7 +767,6 @@ public class CloudPlaybackService extends Service {
                 }
             }
 
-            Log.i(TAG,"Calculating buffer " + mPlayingData.mCacheFile.length());
             if (mPlayer != null && mPlayer.isInitialized()) {
                 // normal buffer measurement. size of cache file vs playback
                 // position
@@ -970,15 +957,10 @@ public class CloudPlaybackService extends Service {
      */
     private void checkBufferStatus() {
         synchronized (this) {
-            //Log.i(TAG,"Check Buffer Status:" + CloudUtils.checkThreadAlive(mDownloadThread) + " " + checkNetworkStatus());
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
-                //Log.i(TAG,"Keep Caching?? " + checkIfTrackCached(mPlayingData) + " " + keepCaching() + " " + mDownloadException);
-                // we are able to buffer something, see if we need to download
-                // the current track
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()  && !mDownloadException) {
-                    // need to cache the current track
                     prepareDownload(mPlayingData);
                 }
             }
@@ -1412,8 +1394,6 @@ public class CloudPlaybackService extends Service {
      * @param pos The position to seek to, in milliseconds
      */
     public long getSeekResult(long pos) {
-        // Log.i(TAG,"Seek: " + mPlayer.isInitialized() + " " + mPlayingData +
-        // " " + mPlayer.isAsyncOpening());
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
                     && isStagefright) {
@@ -1966,7 +1946,7 @@ public class CloudPlaybackService extends Service {
          * Synchronizes access to mMethod to prevent an unlikely race condition
          * when stopDownload() is called before mMethod has been committed.
          */
-        private Object lock = new Object();
+        private final Object lock = new Object();
 
         WeakReference<CloudPlaybackService> serviceRef;
 
@@ -2053,6 +2033,7 @@ public class CloudPlaybackService extends Service {
                         resp = cli.execute(request);
 
                         if (resp.getStatusLine().getStatusCode() != 200) { // invalid
+
                             Log.i(TAG, "invalid status received: "
                                     + resp.getStatusLine().getStatusCode());
                             return;
@@ -2078,8 +2059,7 @@ public class CloudPlaybackService extends Service {
                                     .signStreamUrlNaked(track.stream_url));
                 }
 
-                if (mStopped == true)
-                    return;
+                if (mStopped) return;
 
                 synchronized (lock) {
                     mMethod = method;
@@ -2087,8 +2067,7 @@ public class CloudPlaybackService extends Service {
 
                 resp = cli.execute(mMethod);
 
-                if (mStopped == true)
-                    return;
+                if (mStopped) return;
 
                 StatusLine status = resp.getStatusLine();
 
@@ -2148,7 +2127,6 @@ public class CloudPlaybackService extends Service {
                         os.write(b, 0, n);
                         lastRead = System.currentTimeMillis();
                     }
-                    return;
                 }
             } catch (Exception e) {
                 /*
@@ -2156,20 +2134,19 @@ public class CloudPlaybackService extends Service {
                  * of exception that occurs during cancellation is ignored
                  * regardless as there would be no need to handle it.
                  */
-                if (mStopped == false)
-                    e.printStackTrace();
+                if (!mStopped) e.printStackTrace();
             } finally {
 
                 if (bytes > 0) {
                     if (is != null)
                         try {
                             is.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                         }
                     if (os != null)
                         try {
                             os.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                         }
                 }
 
