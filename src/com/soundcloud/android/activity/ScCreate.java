@@ -193,58 +193,6 @@ public class ScCreate extends ScActivity {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        File streamFile = null;
-        if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-            Uri stream = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-            if ("file".equals(stream.getScheme())) {
-                streamFile = new File(stream.getPath());
-            }
-        }
-
-        Log.i(TAG,"ON Start " + mCurrentState + " " + mPlayer + " " + (mPlayer != null ? mPlayer.isPlaying() : ""));
-
-        boolean takeAction = false;
-        if (streamFile != null && streamFile.exists()) {
-            mRecordFile = streamFile;
-            mCurrentState = CreateState.IDLE_UPLOAD;
-            mExternalUpload = true;
-        } else {
-
-            try {
-                if (mCreateService != null && mCreateService.isUploading()) {
-                    mCurrentState = CreateState.UPLOAD;
-                } else if (mCurrentState == CreateState.UPLOAD) {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                    takeAction = true;
-                } else if (mCurrentState == CreateState.IDLE_RECORD) {
-
-                  if (!mRecordDir.exists()) {
-                      // can happen when there's no mounted sdcard
-                      btnAction.setEnabled(false);
-                  } else if (mRecordDir.list().length > 0) {
-                    setRecordFile();
-
-                    if (mRecordFile != null){
-                        mCurrentState = CreateState.IDLE_PLAYBACK;
-                        loadPlaybackTrack();
-                    } else {
-                        // delete whatever is in the rec directory, we can't use it
-                        takeAction = true;
-                    }
-                  }
-                } // IDLE_RECORD
-            } catch (RemoteException e) {
-                Log.e(TAG, "error", e);
-                mCurrentState = CreateState.IDLE_RECORD;
-            }
-        }
-        updateUi(takeAction);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         mConnectionList.getAdapter().loadIfNecessary();
@@ -437,7 +385,56 @@ public class ScCreate extends ScActivity {
         });
     }
 
+    @Override
+    public void onCreateServiceBound() {
+        super.onCreateServiceBound();
 
+        File streamFile = null;
+        if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
+            Uri stream = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+            if ("file".equals(stream.getScheme())) {
+                streamFile = new File(stream.getPath());
+            }
+        }
+
+        boolean takeAction = false;
+        if (streamFile != null && streamFile.exists()) {
+            mRecordFile = streamFile;
+            mCurrentState = CreateState.IDLE_UPLOAD;
+            mExternalUpload = true;
+        } else {
+
+            try {
+                if (mCreateService != null && mCreateService.isUploading()) {
+                    mCurrentState = CreateState.UPLOAD;
+                } else if (mCurrentState == CreateState.UPLOAD) {
+                    mCurrentState = CreateState.IDLE_RECORD;
+                    takeAction = true;
+                } else if (mCurrentState == CreateState.IDLE_RECORD) {
+
+                    if (!mRecordDir.exists()) {
+                        // can happen when there's no mounted sdcard
+                        btnAction.setEnabled(false);
+                    } else if (mRecordDir.list().length > 0) {
+                        setRecordFile();
+
+                        if (mRecordFile != null) {
+                            mCurrentState = CreateState.IDLE_PLAYBACK;
+                            loadPlaybackTrack();
+                        } else {
+                            // delete whatever is in the rec directory, we can't
+                            // use it
+                            takeAction = true;
+                        }
+                    }
+                } // IDLE_RECORD
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
+                mCurrentState = CreateState.IDLE_RECORD;
+            }
+        }
+        updateUi(takeAction);
+    }
 
     @Override
     public void onReauthenticate() {

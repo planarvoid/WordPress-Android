@@ -124,9 +124,14 @@ public abstract class ScActivity extends Activity {
         }
     };
 
+    protected void onCreateServiceBound(){
+
+    }
+
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mCreateService = (ICloudCreateService) binder;
+            onCreateServiceBound();
         }
 
         public void onServiceDisconnected(ComponentName className) {
