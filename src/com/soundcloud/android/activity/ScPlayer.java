@@ -11,6 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.RemoteControlReceiver;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadDetailsTask;
@@ -18,11 +19,13 @@ import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +43,7 @@ import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,6 +63,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,6 +131,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private LoadDetailsTask mLoadTrackDetailsTask;
 
+    private ComponentName mRemoteControlResponder;
+    private AudioManager mAudioManager;
+
+    private static Method mRegisterMediaButtonEventReceiver;
+    private static Method mUnregisterMediaButtonEventReceiver;
+
+    static {
+        initializeRemoteControlRegistrationMethods();
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -134,6 +150,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mDurationFormatLong = getString(R.string.durationformatlong);
         mDurationFormatShort = getString(R.string.durationformatshort);
+
+        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
     }
 
     private void initControls() {
@@ -469,7 +488,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player_sm));
 
             mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_info_artwork_states));
-            //mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent_rect));
 
         } else {
             ImageLoader.get(this).unbind(mInfoButton);
@@ -1052,6 +1070,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         super.onResume();
 
+        registerRemoteControl(); // headphone remote events
+
         updateTrackInfo();
         setPauseButtonImage();
 
@@ -1205,15 +1225,19 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void refreshComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
-
-        if (mTrackFlipper.getDisplayedChild() == 1)
-            fillTrackInfoComments();
-
-        if (mLandscape)
-            mWaveformController.setComments(mCurrentComments, animateIn);
-
+        if (mTrackFlipper.getDisplayedChild() == 1) fillTrackInfoComments();
+        if (mLandscape) mWaveformController.setComments(mCurrentComments, animateIn);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+            doPauseResume();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
     public AddCommentListener addCommentListener = new AddCommentListener(){
         @Override
@@ -1236,4 +1260,61 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             handleException();
         }
     };
+
+
+    // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
+    private static void initializeRemoteControlRegistrationMethods() {
+        try {
+            if (mRegisterMediaButtonEventReceiver == null) {
+                mRegisterMediaButtonEventReceiver = AudioManager.class.getMethod(
+                        "registerMediaButtonEventReceiver",
+                        new Class[] { ComponentName.class });
+            }
+            if (mUnregisterMediaButtonEventReceiver == null) {
+                mUnregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
+                        "unregisterMediaButtonEventReceiver",
+                        new Class[] { ComponentName.class });
+            }
+        } catch (NoSuchMethodException ignored) {
+            // Android < 2.2
+        }
+    }
+
+    private void registerRemoteControl() {
+        if (mRegisterMediaButtonEventReceiver == null) return;
+
+        try {
+            mRegisterMediaButtonEventReceiver.invoke(mAudioManager, mRemoteControlResponder);
+        } catch (InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else if (cause instanceof Error) {
+                throw (Error) cause;
+            } else {
+                throw new RuntimeException(ite);
+            }
+        } catch (IllegalAccessException ie) {
+            Log.e(TAG, "unexpected", ie);
+        }
+    }
+
+    private void unregisterRemoteControl() {
+        if (mUnregisterMediaButtonEventReceiver == null) return;
+
+        try {
+            mUnregisterMediaButtonEventReceiver.invoke(mAudioManager, mRemoteControlResponder);
+        } catch (InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else if (cause instanceof Error) {
+                throw (Error) cause;
+            } else {
+                throw new RuntimeException(ite);
+            }
+        } catch (IllegalAccessException ie) {
+            Log.e(TAG, "unexpected", ie);
+        }
+    }
 }

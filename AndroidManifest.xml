@@ -66,6 +66,7 @@
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
         <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player">
+            <!-- XXX singleTop ? -->
             <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
         <activity android:name=".activity.UserBrowser" android:label="Profile">
@@ -122,6 +123,14 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_record" />
+        </receiver>
+
+        <!-- headphone remote control -->
+        <receiver android:name=".service.RemoteControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="android.intent.action.ACTION_AUDIO_BECOMING_NOISY"/>
+            </intent-filter>
         </receiver>
     </application>
 
