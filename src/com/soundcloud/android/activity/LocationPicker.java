@@ -74,7 +74,8 @@ public class LocationPicker extends ListActivity {
 
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     Intent data = new Intent();
 
                     data.setData(Uri.parse("location://manual"));
