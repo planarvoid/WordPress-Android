@@ -167,13 +167,6 @@ public abstract class ScActivity extends Activity {
         this.unregisterReceiver(mPlaybackStatusListener);
     }
 
-    protected void restoreState(Object[] saved) {
-    }
-
-
-    /**
-     * Bind our services
-     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -371,11 +364,11 @@ public abstract class ScActivity extends Activity {
     }
 
     public void setException(Exception e) {
-        if (e != null)
-            Log.i(TAG, "exception: " + e.toString());
+        if (e != null) Log.i(TAG, "exception", e);
         mException = e;
     }
 
+    // XXX why not Exception in?
     public void handleException() {
         if (getException() instanceof UnknownHostException
                 || getException() instanceof SocketException
@@ -435,11 +428,14 @@ public abstract class ScActivity extends Activity {
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        //XXX cancelCurrentUpload();
+                                        try {
+                                            // XXX this should be handled by ScCreate
+                                            mCreateService.cancelUpload();
+                                        } catch (RemoteException ignored) {
+                                            Log.w(TAG, ignored);
+                                        }
                                         removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-
                                     }
                                 }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
@@ -454,7 +450,6 @@ public abstract class ScActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.i(TAG,"PPPARENT " + this.getParent());
         if (this.getParent() == null || this.getParent().getClass() != Main.class)
             menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
                 menu.size(), R.string.menu_incoming).setIcon(
@@ -477,17 +472,13 @@ public abstract class ScActivity extends Activity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * Prepare the options menu based on the current class and current play
-     * state
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean uploading = false;
         try {
-            menuCurrentUploadingItem.setVisible(mCreateService.isUploading() ? true : false);
-        } catch (Exception e) {
-            menuCurrentUploadingItem.setVisible(false);
-        }
+            uploading = mCreateService.isUploading();
+        } catch (RemoteException ignored) {}
+        menuCurrentUploadingItem.setVisible(uploading);
         return true;
     }
 
@@ -556,7 +547,7 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onTrackClick(ArrayList<Parcelable> tracks, int position) {
-            playTrack(((Track)tracks.get(position)).id, tracks, position, true);
+            playTrack(((Track) tracks.get(position)).id, tracks, position, true);
         }
 
         @Override
