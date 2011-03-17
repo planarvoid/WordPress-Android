@@ -26,7 +26,7 @@ public class CommentBubbleArrow extends View {
 
 
     private static int LEFT_ARROW_MARGIN = 1;
-    private static int RIGHT_ARROW_MARGIN = 11;
+    private static int RIGHT_ARROW_MARGIN = 10;
 
     public CommentBubbleArrow(Context context) {
 

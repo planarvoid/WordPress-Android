@@ -8,6 +8,7 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -165,7 +166,8 @@ public class CommentBubble extends RelativeLayout {
     }
 
     public float updatePosition(){
-        int arrowOffset = xPos - mRealWidth/4 < 0 ? xPos : xPos + 3*mRealWidth/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : mRealWidth/4;
+        Log.i("asdf","UPDATE " + mRealWidth + " " + parentWidth + " " + HARD_WIDTH);
+        int arrowOffset = xPos - HARD_WIDTH/4 < 0 ? xPos : xPos + 3*HARD_WIDTH/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : HARD_WIDTH/4;
 
         RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
         lp.leftMargin = xPos - arrowOffset;

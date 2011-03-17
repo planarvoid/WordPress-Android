@@ -138,6 +138,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private static final int UI_ADD_COMMENT = 6;
 
+    private static final int UI_TOGGLE_COMMENTS = 7;
+
     static final int TOUCH_MODE_NONE = 0;
 
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -631,7 +633,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     }
                 } else if (input.view == mPlayerCommentBar){
                     if (!mShowingComments){
-                        toggleComments();
+                        queueUnique(UI_TOGGLE_COMMENTS);
                         return;
                     }
 
@@ -773,6 +775,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 case UI_ADD_COMMENT:
                     mPlayer.addNewComment(mAddComment, mPlayer.addCommentListener);
+                    break;
+
+                case UI_TOGGLE_COMMENTS:
+                    toggleComments();
                     break;
 
             }

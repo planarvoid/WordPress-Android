@@ -204,6 +204,8 @@ public class ScCreate extends ScActivity {
             }
         }
 
+        Log.i(TAG,"ON Start " + mCurrentState + " " + mPlayer + " " + (mPlayer != null ? mPlayer.isPlaying() : ""));
+
         boolean takeAction = false;
         if (streamFile != null && streamFile.exists()) {
             mRecordFile = streamFile;
@@ -250,7 +252,9 @@ public class ScCreate extends ScActivity {
 
     @Override
     public void onDestroy() {
-        super.onStart();
+        super.onDestroy();
+
+        stopPlayback();
 
         this.unregisterReceiver(mUploadStatusListener);
         clearArtwork();
@@ -645,6 +649,7 @@ public class ScCreate extends ScActivity {
             case IDLE_RECORD:
                 goToView(0);
                 if (takeAction) {
+                    stopPlayback();
                     clearCurrentFiles();
                     mWhereText.setText("");
                     mWhatText.setText("");
@@ -949,7 +954,7 @@ public class ScCreate extends ScActivity {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 mProgressBar.setProgress(0);
-                if (mCurrentState != CreateState.IDLE_UPLOAD) {
+                if (mCurrentState == CreateState.PLAYBACK) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     loadPlaybackTrack();
                     updateUi(true);
@@ -1016,6 +1021,8 @@ public class ScCreate extends ScActivity {
 
     void startUpload() {
         if (mCreateService == null) return;
+
+        stopPlayback();
 
         boolean uploading;
         try {
