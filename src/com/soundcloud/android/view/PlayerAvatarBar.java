@@ -182,17 +182,18 @@ public class PlayerAvatarBar extends View {
 
     }
 
-    class AvatarRefresher implements Runnable{
-
+    class AvatarRefresher implements Runnable {
         @Override
         public void run() {
-            if (mCurrentComments == null || getWidth() <= 0) return;
+            // XXX race condition with current comments
+            final List<Comment> comments = mCurrentComments;
+            if (comments == null || getWidth() <= 0) return;
 
             mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 
             Canvas canvas = new Canvas(mNextCanvasBmp);
 
-            for (Comment comment : mCurrentComments){
+            for (Comment comment : comments){
                 if (Thread.currentThread().isInterrupted()) break;
                 if (comment.timestamp == 0) continue;
                 drawCommentOnCanvas(comment, canvas, mLinePaint);
