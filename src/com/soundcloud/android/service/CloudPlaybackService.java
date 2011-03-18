@@ -670,7 +670,7 @@ public class CloudPlaybackService extends Service {
             mStopThread = null;
             mDownloadException = false;
 
-            if (CloudUtils.isTrackPlayable(mPlayingData)) {
+            if (mPlayingData.streamable) {
 
                 configureTrackData(mPlayingData);
 

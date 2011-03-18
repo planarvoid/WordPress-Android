@@ -814,7 +814,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     };
 
     private void showUnplayable() {
-        if (mPlayingTrack == null || CloudUtils.isTrackPlayable(mPlayingTrack)) { // playback
+        if (mPlayingTrack == null || mPlayingTrack.streamable) { // playback
             // error
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_error);
@@ -892,7 +892,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mCurrentTrackError)
                 return;
 
-            if (CloudUtils.isTrackPlayable(mPlayingTrack)) {
+            if (mPlayingTrack.streamable) {
                 hideUnplayable();
             } else {
                 showUnplayable();

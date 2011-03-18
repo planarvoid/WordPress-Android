@@ -330,9 +330,6 @@ public class CloudUtils {
         tabWidget.getLayoutParams().height = height;
     }
 
-
-
-
     public static void setTabTextStyle(Context context, TabWidget tabWidget) {
         setTabTextStyle(context, tabWidget, false);
     }
@@ -365,11 +362,6 @@ public class CloudUtils {
 
             }
         }
-    }
-
-
-    public static boolean isTrackPlayable(Track track) {
-        return track.streamable;
     }
 
     public static long getCurrentUserId(Context context) {

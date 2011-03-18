@@ -200,7 +200,7 @@ public class TracklistRow extends LazyRow {
         mTitle.setText(mTrack.title);
         mUser.setText(mTrack.user.username);
 
-        if (!CloudUtils.isTrackPlayable(mTrack)) {
+        if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);
         } else {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main);
