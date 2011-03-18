@@ -549,22 +549,19 @@ public class ScCreate extends ScActivity {
         }
     }
 
+    // TODO move this code into a helper class
     public void setTakenImage() {
+        mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
         try {
+            final int density = (int) (getResources().getDisplayMetrics().density * 100);
+            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH), density, density);
 
-
-            Options opt = CloudUtils.determineResizeOptions(new File(UPLOAD_TEMP_PICTURE_PATH),
-                    (int) getResources().getDisplayMetrics().density * 100, (int) getResources()
-                            .getDisplayMetrics().density * 100);
-            mArtworkUri = UPLOAD_TEMP_PICTURE_PATH;
-
+            ExifInterface exif = new ExifInterface(mArtworkUri);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
             int degree = 0;
-            try {
-                ExifInterface exif = new ExifInterface(mArtworkUri);
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-                if (orientation != -1) {
-                    // We only recognize a subset of orientation tag values.
-                    switch (orientation) {
+            if (orientation != -1) {
+                // We only recognize a subset of orientation tag values.
+                switch (orientation) {
                     case ExifInterface.ORIENTATION_ROTATE_90:
                         degree = 90;
                         break;
@@ -577,14 +574,9 @@ public class ScCreate extends ScActivity {
                     default:
                         degree = 0;
                         break;
-                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-
-            if (mArtworkBitmap != null)
-                CloudUtils.clearBitmap(mArtworkBitmap);
+            if (mArtworkBitmap != null) CloudUtils.clearBitmap(mArtworkBitmap);
 
             Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
@@ -595,19 +587,19 @@ public class ScCreate extends ScActivity {
             float scale;
             float dx = 0, dy = 0;
             int vwidth = (int) (getResources().getDisplayMetrics().density * 100);
-            int vheight = vwidth;
 
             if (mArtworkBitmap.getWidth() > mArtworkBitmap.getHeight()) {
-                scale = (float) vheight / (float) mArtworkBitmap.getHeight();
-                dx = (vwidth -  mArtworkBitmap.getWidth() * scale) * 0.5f;
+                scale = (float) vwidth / (float) mArtworkBitmap.getHeight();
+                dx = (vwidth - mArtworkBitmap.getWidth() * scale) * 0.5f;
             } else {
                 scale = (float) vwidth / (float) mArtworkBitmap.getWidth();
-                dy = (vheight - mArtworkBitmap.getHeight() * scale) * 0.5f;
+                dy = (vwidth - mArtworkBitmap.getHeight() * scale) * 0.5f;
             }
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            if (degree != 0) m.postRotate(90, vwidth/2 , vheight/2); //pivot point in the middle, may need to change this
+            //pivot point in the middle, may need to change this
+            if (degree != 0) m.postRotate(90, vwidth / 2, vwidth / 2);
 
             mArtwork.setScaleType(ScaleType.MATRIX);
             mArtwork.setImageMatrix(m);

@@ -471,18 +471,13 @@ public class CloudUtils {
         return file.length() / (sampleRate * channels * bitsPerSample / 8);
     }
 
-    public static Long getPCMTime(long bytes, int sampleRate, int channels, int bitsPerSample) {
-        return bytes / (sampleRate * channels * bitsPerSample / 8);
-    }
-
     public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
                                                                int targetHeight) throws IOException {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-
         InputStream is = new FileInputStream(imageUri);
-
         BitmapFactory.decodeStream(is, null, options);
         is.close();
 
