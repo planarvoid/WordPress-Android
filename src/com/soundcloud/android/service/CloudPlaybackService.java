@@ -1879,12 +1879,11 @@ public class CloudPlaybackService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (connectivityListener == null)
-                        return;
-                    if (checkNetworkStatus())
+                    if (connectivityListener != null &&
+                        checkNetworkStatus()) {
                         checkBufferStatus();
+                    }
                     break;
-
             }
         }
     };
