@@ -20,7 +20,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerAvatarBar extends View {
     private static final String TAG = "PlayerCommentBar";
@@ -31,7 +31,7 @@ public class PlayerAvatarBar extends View {
 
     private long mDuration;
 
-    private ArrayList<Comment> mCurrentComments;
+    private List<Comment> mCurrentComments;
     private Comment mCurrentComment;
 
     private Matrix mMatrix;
@@ -50,7 +50,6 @@ public class PlayerAvatarBar extends View {
     private Bitmap mNextCanvasBmp;
 
     private Bitmap mDefaultAvatar;
-    private Float mDensity;
 
     private ImageLoader mBitmapLoader;
 
@@ -72,11 +71,11 @@ public class PlayerAvatarBar extends View {
         mActiveLinePaint= new Paint();
         mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.activeCommentLine));
 
-        mDensity = getContext().getResources().getDisplayMetrics().density;
+        float mDensity = getContext().getResources().getDisplayMetrics().density;
 
         mMatrix = new Matrix();
         if (mDensity > 1) {
-            mAvatarWidth = (int) (AVATAR_WIDTH*mDensity);
+            mAvatarWidth = (int) (AVATAR_WIDTH* mDensity);
             mAvatarScale = ((float)mAvatarWidth)/47;
         } else {
             mAvatarWidth = AVATAR_WIDTH;
@@ -123,7 +122,7 @@ public class PlayerAvatarBar extends View {
 
     }
 
-    public void setTrackData(long duration, ArrayList<Comment> newItems){
+    public void setTrackData(long duration, List<Comment> newItems){
         SoundCloudApplication.mBitmapErrors.clear();
         mDuration = duration;
         mCurrentComments = newItems;

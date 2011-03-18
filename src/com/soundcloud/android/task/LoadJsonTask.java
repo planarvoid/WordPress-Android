@@ -17,11 +17,11 @@ public abstract class LoadJsonTask<T> extends AsyncApiTask<String, Parcelable, L
         super(api);
     }
 
-    List<T> list(String path, Class<T> type) {
+    protected List<T> list(String path, Class<T> type) {
         return list(path, type, false);
     }
 
-    List<T> list(String path, Class<T> type, boolean failFast) {
+    protected List<T> list(String path, Class<T> type, boolean failFast) {
         try {
 
             HttpResponse response = api().getContent(path);

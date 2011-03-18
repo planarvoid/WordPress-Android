@@ -928,7 +928,6 @@ public class ScCreate extends ScActivity {
             FileInputStream fis = new FileInputStream(mRecordFile);
             mPlayer.setDataSource(fis.getFD());
             fis.close();
-
             mPlayer.prepare();
         } catch (IOException e) {
             Log.e(TAG, "error", e);
@@ -950,7 +949,6 @@ public class ScCreate extends ScActivity {
                 }
             }
         });
-
     }
 
     private void startPlayback() {

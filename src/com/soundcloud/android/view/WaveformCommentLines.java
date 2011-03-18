@@ -8,12 +8,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class WaveformCommentLines extends View {
 
@@ -23,7 +22,7 @@ public class WaveformCommentLines extends View {
     private Paint mActiveLinePaint;
     
     private long mDuration;
-    private ArrayList<Comment> mComments;
+    private List<Comment> mComments;
     private Comment mCurrentComment;
 
     public WaveformCommentLines(Context context, AttributeSet attrs) {
@@ -39,7 +38,7 @@ public class WaveformCommentLines extends View {
         
     }
     
-    public void setTrackData(long duration, ArrayList<Comment> comments){
+    public void setTrackData(long duration, List<Comment> comments){
         mDuration = duration;
         mComments = comments;
     }

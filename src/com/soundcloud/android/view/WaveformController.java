@@ -42,6 +42,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class WaveformController extends RelativeLayout implements OnTouchListener {
@@ -55,9 +56,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private RelativeLayout mPlayerCommentBar;
 
-    private ArrayList<Comment> mCurrentComments;
+    private List<Comment> mCurrentComments;
 
-    private ArrayList<Comment> mCurrentTopComments;
+    private List<Comment> mCurrentTopComments;
 
     private Comment mCurrentShowingComment;
 
@@ -557,7 +558,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
 
-    public void setComments(ArrayList<Comment> comments, boolean animateIn) {
+    public void setComments(List<Comment> comments, boolean animateIn) {
         mCurrentComments = comments;
 
         if (!mShowingComments || mCurrentComments == null)

@@ -73,8 +73,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private static final HashMap<Long, SoftReference<ArrayList<Comment>>> mCommentSoftCache =
         new HashMap<Long, SoftReference<ArrayList<Comment>>>();
 
-    private static final HashMap<Long, ArrayList<Comment>> mCommentCache =
-        new HashMap<Long, ArrayList<Comment>>();
+    private static final HashMap<Long, List<Comment>> mCommentCache =
+        new HashMap<Long, List<Comment>>();
 
     private static HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
 
@@ -260,7 +260,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.execute(request);
     }
 
-    public void cacheComments(long track_id, ArrayList<Comment> comments){
+    public void cacheComments(long track_id, List<Comment> comments){
         mCommentCache.put(track_id, comments);
     }
 
@@ -269,7 +269,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     }
 
 
-    public ArrayList<Comment> getCommentsFromCache(long track_id){
+    public List<Comment> getCommentsFromCache(long track_id){
         if (mCommentCache.get(track_id) != null) {
             return mCommentCache.get(track_id);
         } else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){

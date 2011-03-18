@@ -25,7 +25,6 @@ public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boo
     }
 
     public void setActivity(ScActivity activity) {
-
         if (activity != null) {
             mActivityReference = new WeakReference<ScActivity>(activity);
             activity.setException(null);
