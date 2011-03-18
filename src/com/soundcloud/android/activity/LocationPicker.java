@@ -177,7 +177,7 @@ public class LocationPicker extends ListActivity {
                     case HttpStatus.SC_OK:
                         JsonNode root = mapper.readTree(resp.getEntity().getContent());
                         JsonNode groups = root.get("response").get("groups");
-                        if (groups.size() == 0) {
+                        if (groups == null || groups.size() == 0) {
                             return new ArrayList<Venue>();
                         } else {
                             JsonNode items = groups.get(0).get("items");
