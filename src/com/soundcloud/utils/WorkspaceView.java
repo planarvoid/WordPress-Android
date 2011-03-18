@@ -575,26 +575,28 @@ public class WorkspaceView extends ViewGroup {
     }
 
     private void handleScrollMove(MotionEvent ev) {
-        // Scroll to follow the motion event
         final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-        final float x1 = ev.getX(pointerIndex);
-        final int deltaX = (int) (lastMotionX - x1);
-        lastMotionX = x1;
+        if (pointerIndex != -1) {
+            // Scroll to follow the motion event
+            final float x1 = ev.getX(pointerIndex);
+            final int deltaX = (int) (lastMotionX - x1);
+            lastMotionX = x1;
 
-        if (deltaX < 0) {
-            if (getScrollX() > 0) {
-                // Scrollby invalidates automatically
-                scrollBy(Math.max(-getScrollX(), deltaX), 0);
+            if (deltaX < 0) {
+                if (getScrollX() > 0) {
+                    // Scrollby invalidates automatically
+                    scrollBy(Math.max(-getScrollX(), deltaX), 0);
+                }
+            } else if (deltaX > 0) {
+                final int availableToScroll = getChildAt(getChildCount() - 1).getRight() - getScrollX()
+                        - getWidth();
+                if (availableToScroll > 0) {
+                    // Scrollby invalidates automatically
+                    scrollBy(Math.min(availableToScroll, deltaX), 0);
+                }
+            } else {
+                awakenScrollBars();
             }
-        } else if (deltaX > 0) {
-            final int availableToScroll = getChildAt(getChildCount() - 1).getRight() - getScrollX()
-                    - getWidth();
-            if (availableToScroll > 0) {
-                // Scrollby invalidates automatically
-                scrollBy(Math.min(availableToScroll, deltaX), 0);
-            }
-        } else {
-            awakenScrollBars();
         }
     }
 
