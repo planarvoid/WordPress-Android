@@ -74,7 +74,6 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
                     mAdapterReference.get().getData().add(newitem);
                 }
             }
-
             mAdapterReference.get().onPostTaskExecute(keepGoing);
         }
         if (mActivityReference.get() != null) {
@@ -92,14 +91,15 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
         if (req == null)
             return false;
 
-        boolean keep_appending = true;
+        final LazyEndlessAdapter adapter = mAdapterReference.get();
+        final ScActivity activity = mActivityReference.get();
+
+        if (adapter == null || activity == null) return false;
+        boolean keepAppending = true;
 
         try {
             Log.d(TAG, "Executing request " +req.getRequestLine().getUri());
-
-            if (mActivityReference.get() == null) return false;
-
-            HttpResponse resp = mActivityReference.get()
+            HttpResponse resp = activity
                     .getSoundCloudApplication()
                     .execute(req);
 
@@ -108,14 +108,9 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             }
 
             InputStream is = resp.getEntity().getContent();
-
-            if (mActivityReference.get() == null || mAdapterReference.get() == null) return false;
-
-            ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
-
+            ObjectMapper mapper = activity.getSoundCloudApplication().getMapper();
             if (newItems != null) newItems.clear();
-
-            switch (mAdapterReference.get().getLoadModel()) {
+            switch (adapter.getLoadModel()) {
                 case track:
                     newItems = mapper.readValue(is, TypeFactory.collectionType(ArrayList.class,
                             Track.class));
@@ -130,40 +125,27 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
                     newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
                     for (Event evt : evtWrapper.getCollection())
                         newItems.add(evt);
-
-                    if (mAdapterReference.get() != null && evtWrapper.getNext_href() != null)
-                        ((EventsAdapterWrapper) mAdapterReference.get())
+                    if (evtWrapper.getNext_href() != null)
+                        ((EventsAdapterWrapper) adapter)
                                 .onNextEventsParam(evtWrapper.getNext_href());
                     break;
             }
 
             // resolve data
-            for (Parcelable p : newItems)
-                if (mActivityReference.get() != null)
-                    CloudUtils.resolveParcelable(mActivityReference.get(), p);
+            for (Parcelable p : newItems) CloudUtils.resolveParcelable(activity, p);
 
             // we have less than the requested number of items, so we are
             // done grabbing items for this list
-            if (mActivityReference.get() != null)
-                if (newItems == null
-                        || newItems.size() < pageSize)
-                    keep_appending = false;
+
+            if (newItems == null || newItems.size() < pageSize) keepAppending = false;
 
             // we were successful, so increment the adapter
-            if (mAdapterReference.get() != null)
-                mAdapterReference.get().incrementPage();
-
-            return keep_appending;
-
+             adapter.incrementPage();
+            return keepAppending;
         } catch (IOException e) {
             Log.e(TAG, "error", e);
-
-            if (mAdapterReference != null &&
-                mAdapterReference.get() != null)
-                mAdapterReference.get().setException(e);
-
+            adapter.setException(e);
             return false;
         }
     }
-
 }
