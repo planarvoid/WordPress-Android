@@ -59,6 +59,8 @@ import java.util.ArrayList;
 
 
 public abstract class ScActivity extends Activity {
+    public static final String GA_TRACKING = "UA-2519404-11";
+
     private Exception mException = null;
     private String mError = null;
 
@@ -79,7 +81,7 @@ public abstract class ScActivity extends Activity {
     // Need handler for callbacks to the UI thread
     public final Handler mHandler = new Handler();
 
-    protected GoogleAnalyticsTracker tracker;
+    private GoogleAnalyticsTracker tracker;
 
     /**
      * Get an instance of our communicator
@@ -174,7 +176,7 @@ public abstract class ScActivity extends Activity {
         tracker = GoogleAnalyticsTracker.getInstance();
 
         // Start the tracker in manual dispatch mode...
-        tracker.start("UA-2519404-11", this);
+        tracker.start(GA_TRACKING, this);
 
         connectivityListener.startListening(this);
 
@@ -534,6 +536,16 @@ public abstract class ScActivity extends Activity {
     }
 
     public void onRefresh() {
+    }
+
+    protected void pageTrack(String path) {
+        try {
+            tracker.trackPageView(path);
+            tracker.dispatch();
+        } catch (IllegalStateException ignored) {
+            // logs indicate this gets thrown occasionally
+            Log.w(TAG, ignored);
+        }
     }
 
     private LazyListView.LazyListListener mLazyListListener = new LazyListView.LazyListListener() {

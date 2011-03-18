@@ -57,11 +57,9 @@ public class Dashboard extends ScActivity {
 
     @Override
     public void onResume() {
-        tracker.trackPageView("/dashboard");
-        tracker.dispatch();
+        pageTrack("/dashboard");
         super.onResume();
     }
-
 
     protected ScTabView createList(String endpoint, CloudUtils.Model model, int emptyText, int listId) {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());

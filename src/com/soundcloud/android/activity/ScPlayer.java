@@ -1065,8 +1065,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      */
     @Override
     protected void onResume() {
-        tracker.trackPageView("/player");
-        tracker.dispatch();
+        pageTrack("/player");
 
         super.onResume();
 

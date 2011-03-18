@@ -156,8 +156,7 @@ public class UserBrowser extends ScActivity {
 
     @Override
     protected void onResume() {
-        tracker.trackPageView("/profile");
-        tracker.dispatch();
+        pageTrack("/profile");
         super.onResume();
     }
 

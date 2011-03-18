@@ -2,6 +2,7 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.activity.ScActivity.GA_TRACKING;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,7 +14,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-import android.view.Menu;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.R;
@@ -29,14 +29,14 @@ public class Settings extends PreferenceActivity {
 
     private DeleteCacheTask mDeleteTask;
 
-    protected GoogleAnalyticsTracker tracker;
+    private GoogleAnalyticsTracker tracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         tracker = GoogleAnalyticsTracker.getInstance();
-        tracker.start("UA-2519404-11", this);
+        tracker.start(GA_TRACKING, this);
 
         addPreferencesFromResource(R.layout.settings);
 
@@ -93,9 +93,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        tracker.trackPageView("/settings");
-        tracker.dispatch();
-
+        pageTrack("/settings");
         super.onResume();
     }
 
@@ -181,4 +179,13 @@ public class Settings extends PreferenceActivity {
         }
     }
 
+    protected void pageTrack(String path) {
+        try {
+            tracker.trackPageView(path);
+            tracker.dispatch();
+        } catch (IllegalStateException ignored) {
+            // logs indicate this gets thrown occasionally
+            Log.w(TAG, ignored);
+        }
+    }
 }
