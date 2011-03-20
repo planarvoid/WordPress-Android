@@ -241,9 +241,7 @@ public abstract class ScActivity extends Activity {
                     && mPlaybackService.getTrackId() == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
-                    Intent intent = new Intent(this, ScPlayer.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
+                    startActivity(new Intent(this, ScPlayer.class));
                 } else {
                     mPlaybackService.play();
                 }
@@ -267,9 +265,7 @@ public abstract class ScActivity extends Activity {
         }
 
         if (goToPlayer) {
-            Intent intent = new Intent(this, ScPlayer.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
+            startActivity(new Intent(this, ScPlayer.class));
             mIgnorePlaybackStatus = true;
         }
     }
@@ -495,8 +491,7 @@ public abstract class ScActivity extends Activity {
                 onRefresh();
                 return true;
             case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
-                intent = new Intent(this, ScPlayer.class);
-                startActivity(intent);
+                startActivity(new Intent(this, ScPlayer.class));
                 return true;
             case CloudUtils.OptionsMenu.INCOMING:
                 intent = new Intent(this, Main.class);
