@@ -63,6 +63,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -153,6 +154,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
+
+        restoreState();
     }
 
     private void initControls() {
@@ -1124,6 +1127,29 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         };
     }
 
+    protected void restoreState() {
+
+        // restore state
+        Object[] saved = (Object[]) getLastNonConfigurationInstance();
+
+        if (saved != null) {
+            if (saved[0] != null) mPlayingTrack = (Track) saved[0];
+
+            if (saved[1] != null) {
+                mLoadTrackDetailsTask = (LoadDetailsTask) saved[1];
+                mLoadTrackDetailsTask.setActivity(this);
+                if (CloudUtils.isTaskPending(mLoadTrackDetailsTask)) mLoadTrackDetailsTask.execute();
+            }
+
+            if (saved[2] != null
+                    && !(mPlayingTrack != null && mPlayingTrack.id != ((LoadCommentsTask) saved[2]).track_id)) {
+                mLoadCommentsTask = (LoadCommentsTask) saved[2];
+                mLoadCommentsTask.setPlayer(this);
+                if (CloudUtils.isTaskPending(mLoadCommentsTask)) mLoadCommentsTask.execute();
+            }
+        }
+    }
+
     private void setFavoriteStatus() {
 
         if (mPlayingTrack == null || mFavoriteButton == null) {
@@ -1163,11 +1189,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private class LoadCommentsTask extends LoadJsonTask<Comment> {
         private long track_id;
+        private WeakReference<ScPlayer> mPlayerRef;
 
         public LoadCommentsTask(CloudAPI api) {
             super(api);
         }
 
+        public void setPlayer(ScPlayer player){
+            mPlayerRef = new WeakReference<ScPlayer>(player);
+        }
+
+        @Override
         protected List<Comment> doInBackground(String... path) {
             this.track_id = mPlayingTrack.id;
             return list(CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}",
@@ -1179,11 +1211,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         protected void onPostExecute(List<Comment> comments) {
             if (comments != null) {
                 getSoundCloudApplication().cacheComments(track_id, comments);
-                if (track_id == mPlayingTrack.id) {
-                    mCurrentComments = comments;
-                    refreshComments(true);
-                }
+                if (mPlayerRef != null && mPlayerRef.get() != null) mPlayerRef.get().onCommentsLoaded(track_id, comments);
             }
+        }
+    }
+
+    public void onCommentsLoaded(long track_id, List<Comment> comments){
+        if (track_id == mPlayingTrack.id) {
+            mCurrentComments = comments;
+            refreshComments(true);
         }
     }
 
