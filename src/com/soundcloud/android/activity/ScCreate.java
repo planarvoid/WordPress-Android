@@ -410,23 +410,27 @@ public class ScCreate extends ScActivity {
                 } else if (mCurrentState == CreateState.UPLOAD) {
                     mCurrentState = CreateState.IDLE_RECORD;
                     takeAction = true;
-                } else if (mCurrentState == CreateState.IDLE_RECORD) {
-
-                    if (!mRecordDir.exists()) {
-                        // can happen when there's no mounted sdcard
-                        btnAction.setEnabled(false);
-                    } else if (mRecordDir.list().length > 0) {
+                } else {
+                    if (mCurrentState == CreateState.IDLE_PLAYBACK) {
                         setRecordFile();
-
-                        if (mRecordFile != null) {
-                            mCurrentState = CreateState.IDLE_PLAYBACK;
-                            loadPlaybackTrack();
-                        } else {
-                            // delete whatever is in the rec directory, we can't
-                            // use it
-                            takeAction = true;
+                    } else if (mCurrentState == CreateState.IDLE_RECORD) {
+                        if (!mRecordDir.exists()) {
+                            // can happen when there's no mounted sdcard
+                            btnAction.setEnabled(false);
+                        } else if (mRecordDir.list().length > 0) {
+                            //try to find an existing recording
+                            setRecordFile();
                         }
                     }
+
+                    if (mRecordFile != null) {
+                        mCurrentState = CreateState.IDLE_PLAYBACK;
+                        loadPlaybackTrack();
+                    } else {
+                        mCurrentState = CreateState.IDLE_RECORD;
+                        takeAction = true;
+                    }
+
                 } // IDLE_RECORD
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);

@@ -474,7 +474,7 @@ public abstract class ScActivity extends Activity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean uploading = false;
         try {
-            uploading = mCreateService.isUploading();
+            if (mCreateService != null) uploading = mCreateService.isUploading();
         } catch (RemoteException ignored) {}
         menuCurrentUploadingItem.setVisible(uploading);
         return true;
