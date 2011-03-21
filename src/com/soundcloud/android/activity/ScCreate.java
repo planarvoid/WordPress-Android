@@ -728,9 +728,11 @@ public class ScCreate extends ScActivity {
 
             case UPLOAD:
                 goToView(2);
-                stopPlayback();
                 flipRight();
-                if (takeAction) startUpload();
+                if (takeAction){
+                    stopPlayback();
+                    startUpload();
+                }
                 break;
         }
 
