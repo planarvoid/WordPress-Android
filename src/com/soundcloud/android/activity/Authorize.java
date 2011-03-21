@@ -129,7 +129,7 @@ public class Authorize extends Activity implements CloudAPI.Client {
             mVerificationCodeAvailable.acquire();
             return mVerificationCode;
         } catch (InterruptedException e) {
-            Log.v(Authorize.class.getSimpleName(), Log.getStackTraceString(e));
+            Log.w(Authorize.class.getSimpleName(), e);
             return null;
         }
     }
