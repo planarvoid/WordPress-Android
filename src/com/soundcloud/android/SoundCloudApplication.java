@@ -117,10 +117,17 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi.unauthorize();
     }
 
-    public boolean emailConfirmed() {
+    public boolean isEmailConfirmed() {
         return PreferenceManager
                 .getDefaultSharedPreferences(this)
                 .getBoolean(Prefs.EMAIL_CONFIRMED, false);
+    }
+
+    public void confirmEmail() {
+        PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .edit()
+                .putBoolean(Prefs.EMAIL_CONFIRMED, true).commit();
     }
 
     private void createImageLoaders() {

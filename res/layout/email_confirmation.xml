@@ -1,21 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:panel="http://schemas.android.com/apk/res/org.miscwidgets"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:background="@drawable/email_confirm_bg">
-	<Button android:layout_width="wrap_content" android:text="Resend the confirmation link"
-	android:layout_centerInParent="true" android:id="@+id/btn_resend"
-	android:background="@drawable/email_confirm_btn_bg"
-	android:layout_height="30dip" android:paddingLeft="20dip"
-	android:paddingRight="20dip" android:textColor="#ffffffff"></Button>
-	<TextView android:layout_above="@id/btn_resend" android:id="@+id/txt_email_confirm_3"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:textColor="#ffffffff" android:layout_centerHorizontal="true" android:text="Can't find it in your inbox?" android:paddingBottom="15dip"/>
-    <TextView android:layout_above="@id/txt_email_confirm_3"  android:id="@+id/txt_email_confirm_2"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#ffffffff" android:layout_centerHorizontal="true" android:text="To get the most out of SoundCloud you need to confirm your email address." android:paddingRight="10dip" android:paddingLeft="10dip" android:gravity="center" android:paddingBottom="20dip"/>
-    <TextView android:layout_above="@id/txt_email_confirm_2"  android:id="@+id/txt_email_confirm_1"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:layout_centerHorizontal="true" android:text="Just a second" android:textSize="22sp" android:paddingBottom="20dip"/>
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/email_confirm_bg">
+
+    <Button android:id="@+id/btn_resend"
+          android:layout_width="wrap_content"
+          android:text="Resend the confirmation link"
+          android:layout_centerInParent="true"
+          android:background="@drawable/email_confirm_btn_bg"
+          android:layout_height="30dip"
+          android:paddingLeft="20dip"
+          android:paddingRight="20dip"
+          android:textColor="#ffffffff"/>
+
+    <TextView android:id="@+id/txt_email_confirm_3"
+          android:layout_above="@id/btn_resend"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textColor="#ffffffff"
+          android:layout_centerHorizontal="true"
+          android:text="Can't find it in your inbox?"
+          android:paddingBottom="15dip"/>
+
+    <TextView android:id="@+id/txt_email_confirm_2"
+             android:layout_above="@id/txt_email_confirm_3"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:textColor="#ffffffff"
+             android:layout_centerHorizontal="true"
+             android:text="To get the most out of SoundCloud you need to confirm your email address."
+             android:paddingRight="10dip"
+             android:paddingLeft="10dip"
+             android:gravity="center"
+             android:paddingBottom="20dip"/>
+
+    <TextView android:id="@+id/txt_email_confirm_1"
+            android:layout_above="@id/txt_email_confirm_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffffff"
+            android:layout_centerHorizontal="true"
+            android:text="Just a second"
+            android:textSize="22sp"
+            android:paddingBottom="20dip"/>
+
     <TextView android:id="@+id/txt_email_confirm_no_thanks"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:layout_centerHorizontal="true" android:text="Thanks, I will confirm it later" android:layout_alignParentBottom="true" android:paddingBottom="20dip"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffffff"
+        android:layout_centerHorizontal="true"
+        android:text="Thanks, I will confirm it later"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="20dip"/>
 </RelativeLayout>
