@@ -1195,8 +1195,8 @@ public class ScCreate extends ScActivity {
         File file = null;
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
-            public boolean accept(File f, String s) {
-                return isRawFilename(s) || isCompressedFilename(s);
+            public boolean accept(File dir, String name) {
+                return isRawFilename(name) || isCompressedFilename(name);
             }
            })) {
             if (file == null || f.lastModified() < file.lastModified()) file = f;
