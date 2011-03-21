@@ -139,14 +139,14 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             }
 
             // resolve data
-            for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p);
-
-            // we have less than the requested number of items, so we are
-            // done grabbing items for this list
-            if (newItems == null || newItems.size() < pageSize) return false;
-
-            return true;
-
+            if (newItems != null) {
+                for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p);
+                // we have less than the requested number of items, so we are
+                // done grabbing items for this list
+                return newItems.size() < pageSize;
+            } else {
+                return false;
+            }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             mException = e;
