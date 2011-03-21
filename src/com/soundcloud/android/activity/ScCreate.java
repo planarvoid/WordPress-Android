@@ -928,7 +928,10 @@ public class ScCreate extends ScActivity {
 
     private void loadPlaybackTrack(){
         try {
-            mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+            // might be loaded and paused already
+            if (TextUtils.isEmpty(mCreateService.getCurrentPlaybackPath()) || !mCreateService.getCurrentPlaybackPath().contentEquals(mRecordFile.getAbsolutePath()))
+                mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+
             configurePlaybackInfo();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -941,10 +944,15 @@ public class ScCreate extends ScActivity {
             mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
                     mCreateService.getPlaybackDuration() / 1000);
             mProgressBar.setMax(mCreateService.getPlaybackDuration());
+
+            if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < mCreateService.getPlaybackDuration())
+                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
+
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
     }
+
 
     private void onPlaybackComplete(){
         mProgressBar.setProgress(0);
