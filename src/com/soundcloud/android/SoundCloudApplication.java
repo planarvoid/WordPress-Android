@@ -43,13 +43,15 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     static final boolean API_PRODUCTION = true;
 
-    public static final String USERNAME = "currentUsername";
-    public static final String USER_ID  = "currentUserId";
-    public static final String TOKEN    = "oauth_access_token";
-    public static final String SECRET   = "oauth_access_token_secret";
-    public static final String EMAIL_CONFIRMED = "email_confirmed";
-    public static final String DASHBOARD_IDX = "lastDashboardIndex";
-    public static final String PROFILE_IDX = "lastProfileIndex";
+    public static interface Prefs {
+        String USERNAME = "currentUsername";
+        String USER_ID  = "currentUserId";
+        String TOKEN    = "oauth_access_token";
+        String SECRET   = "oauth_access_token_secret";
+        String EMAIL_CONFIRMED = "email_confirmed";
+        String DASHBOARD_IDX = "lastDashboardIndex";
+        String PROFILE_IDX = "lastProfileIndex";
+    }
 
     private CloudAPI mCloudApi;
     private List<Parcelable> mPlaylistCache = null;
@@ -80,8 +82,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi = new ApiWrapper(
             getConsumerKey(API_PRODUCTION),
             getConsumerSecret(API_PRODUCTION),
-            preferences.getString(TOKEN, ""),
-            preferences.getString(SECRET, ""),
+            preferences.getString(Prefs.TOKEN, ""),
+            preferences.getString(Prefs.SECRET, ""),
             API_PRODUCTION);
     }
 
@@ -99,13 +101,13 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .remove(TOKEN)
-                .remove(SECRET)
-                .remove(EMAIL_CONFIRMED)
-                .remove(DASHBOARD_IDX)
-                .remove(PROFILE_IDX)
-                .putLong(USER_ID, -1)
-                .putString(USERNAME, "")
+                .remove(Prefs.TOKEN)
+                .remove(Prefs.SECRET)
+                .remove(Prefs.EMAIL_CONFIRMED)
+                .remove(Prefs.DASHBOARD_IDX)
+                .remove(Prefs.PROFILE_IDX)
+                .putLong(Prefs.USER_ID, -1)
+                .putString(Prefs.USERNAME, "")
                 .commit();
 
         mCloudApi.unauthorize();

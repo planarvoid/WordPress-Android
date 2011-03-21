@@ -367,12 +367,12 @@ public class CloudUtils {
     public static long getCurrentUserId(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         try {
-            return preferences.getLong(SoundCloudApplication.USER_ID, -1);
+            return preferences.getLong(SoundCloudApplication.Prefs.USER_ID, -1);
         } catch (ClassCastException e) {
             try {
-                long id = Long.parseLong(preferences.getString(SoundCloudApplication.USER_ID, "-1"));
+                long id = Long.parseLong(preferences.getString(SoundCloudApplication.Prefs.USER_ID, "-1"));
                 if (id != -1) {
-                    preferences.edit().putLong(SoundCloudApplication.USER_ID, id).commit();
+                    preferences.edit().putLong(SoundCloudApplication.Prefs.USER_ID, id).commit();
                 }
                 return id;
             } catch (NumberFormatException ignored) {

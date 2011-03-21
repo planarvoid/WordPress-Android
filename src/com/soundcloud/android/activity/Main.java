@@ -13,9 +13,6 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 
 public class Main extends TabActivity {
-
-    protected boolean mIgnorePlaybackStatus = false;
-
     private TabHost mTabHost;
 
     @Override
@@ -65,9 +62,8 @@ public class Main extends TabActivity {
 
         mTabHost.addTab(spec);
 
-
-
-        mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this).getInt(SoundCloudApplication.DASHBOARD_IDX,0));
+        mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this)
+                .getInt(SoundCloudApplication.Prefs.DASHBOARD_IDX, 0));
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
@@ -75,7 +71,7 @@ public class Main extends TabActivity {
             @Override
             public void onTabChanged(String tabId) {
                 PreferenceManager.getDefaultSharedPreferences(Main.this).edit()
-                        .putInt(SoundCloudApplication.DASHBOARD_IDX, mTabHost.getCurrentTab())
+                        .putInt(SoundCloudApplication.Prefs.DASHBOARD_IDX, mTabHost.getCurrentTab())
                         .commit();
             }
         });

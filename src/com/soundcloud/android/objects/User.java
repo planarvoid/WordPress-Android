@@ -97,9 +97,9 @@ public class User extends BaseObj implements Parcelable {
     }
 
     public User (SharedPreferences preferences){
-        id = preferences.getLong(SoundCloudApplication.USER_ID, -1);
-        username = preferences.getString(SoundCloudApplication.USERNAME, "");
-        primary_email_confirmed = preferences.getBoolean(SoundCloudApplication.EMAIL_CONFIRMED, false);
+        id = preferences.getLong(SoundCloudApplication.Prefs.USER_ID, -1);
+        username = preferences.getString(SoundCloudApplication.Prefs.USERNAME, "");
+        primary_email_confirmed = preferences.getBoolean(SoundCloudApplication.Prefs.EMAIL_CONFIRMED, false);
     }
 
     public void update(Cursor cursor) {

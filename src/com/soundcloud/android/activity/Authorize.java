@@ -152,11 +152,11 @@ public class Authorize extends Activity implements CloudAPI.Client {
     public void storeUser(User me, String token, String secret) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferences.edit()
-                .putLong(SoundCloudApplication.USER_ID, me.id)
-                .putString(SoundCloudApplication.USERNAME, me.username)
-                .putString(SoundCloudApplication.TOKEN, token)
-                .putString(SoundCloudApplication.SECRET, secret)
-                .putBoolean(SoundCloudApplication.EMAIL_CONFIRMED, me.primary_email_confirmed)
+                .putLong(SoundCloudApplication.Prefs.USER_ID, me.id)
+                .putString(SoundCloudApplication.Prefs.USERNAME, me.username)
+                .putString(SoundCloudApplication.Prefs.TOKEN, token)
+                .putString(SoundCloudApplication.Prefs.SECRET, secret)
+                .putBoolean(SoundCloudApplication.Prefs.EMAIL_CONFIRMED, me.primary_email_confirmed)
                 .commit();
 
         SoundCloudDB.getInstance().resolveUser(getContentResolver(), me, WriteState.all, me.id);

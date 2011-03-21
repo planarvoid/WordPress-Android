@@ -351,7 +351,7 @@ public class UserBrowser extends ScActivity {
 
         if (!isOtherUser()) {
             mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getInt(SoundCloudApplication.PROFILE_IDX, 0);
+                    .getInt(SoundCloudApplication.Prefs.PROFILE_IDX, 0);
             mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
@@ -427,7 +427,7 @@ public class UserBrowser extends ScActivity {
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
                 PreferenceManager.getDefaultSharedPreferences(UserBrowser.this).edit()
-                        .putInt(SoundCloudApplication.PROFILE_IDX, mLastTabIndex).commit();
+                        .putInt(SoundCloudApplication.Prefs.PROFILE_IDX, mLastTabIndex).commit();
             }
         }
     };
