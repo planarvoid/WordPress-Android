@@ -13,6 +13,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadDetailsTask;
@@ -258,7 +259,7 @@ public class UserBrowser extends ScActivity {
     private void loadDetails() {
         if (mLoadDetailsTask == null){
             mLoadDetailsTask = new LoadUserDetailsTask();
-            mLoadDetailsTask.loadModel = CloudUtils.Model.user;
+            mLoadDetailsTask.loadModel = User.class;
             mLoadDetailsTask.setActivity(this);
         }
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(getDetailsUrl(), null));
@@ -299,7 +300,7 @@ public class UserBrowser extends ScActivity {
         final ScTabView emptyView = new ScTabView(this);
 
         LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), CloudUtils.Model.track);
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), Track.class);
         if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text, mUserData.username));
@@ -313,7 +314,7 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), CloudUtils.Model.track);
+        adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), Track.class);
         if (isOtherUser()){
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text, mUserData.username));
@@ -333,14 +334,14 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTab(mTabHost, "details", getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), CloudUtils.Model.user);
+        adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), User.class);
 
         final ScTabView followingsView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), CloudUtils.Model.user);
+        adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), User.class);
 
         final ScTabView followersView = mFollowersView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
@@ -524,9 +525,9 @@ public class UserBrowser extends ScActivity {
         if (CloudUtils.checkIconShouldLoad(mUserData.avatar_url)) {
             String remoteUrl;
             if (getResources().getDisplayMetrics().density > 1) {
-                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.large);
+                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.LARGE);
             } else {
-                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.badge);
+                remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.BADGE);
             }
 
             if (_iconURL == null || avatarResult == BindResult.ERROR || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {

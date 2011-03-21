@@ -91,8 +91,8 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small));
+                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
+                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL));
             }
         }
     }
@@ -104,8 +104,8 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small));
+                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
+                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL));
                 if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
@@ -143,8 +143,8 @@ public class PlayerAvatarBar extends View {
             return;
 
         mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
-                CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.badge) :
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.small), true, new BitmapCallback() {
+                CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
+                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL), true, new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;

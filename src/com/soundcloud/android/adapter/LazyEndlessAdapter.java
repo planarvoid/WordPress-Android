@@ -6,6 +6,10 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.view.LazyListView;
 
@@ -40,7 +44,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     private String mQuery;
 
-    private CloudUtils.Model mLoadModel;  // XXX replace with Class<? super Model> etc
+    private Class<?> mLoadModel;
 
     private String mCollectionKey = "";
 
@@ -62,14 +66,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
 
 
-    /**
-     * @param activity : context
-     * @param wrapped : the adapter list-backing adapter that this adapter is
-     *            being wrapped around
-     * @param url : the base url that this adapter will receive data from
-     */
+
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
-                              CloudUtils.Model loadModel) {
+                              Class<?> model) {
 
         super(wrapped);
 
@@ -79,7 +78,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
 
         mUrl = url;
-        mLoadModel = loadModel;
+        mLoadModel = model;
 
     }
 
@@ -88,14 +87,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @param wrapped : the adapter list-backing adapter that this adapter is
      *            being wrapped around
      * @param url : the base url that this adapter will receive data from
-     * @param loadModel : what type of data this adapter will receive, for
-     *            parsing purposes
+     * @param model
      * @param collectionKey : if the return data is not an array, this key in
-     *            the object will hold the array
      */
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            CloudUtils.Model loadModel, String collectionKey) {
-        this(activity, wrapped, url, loadModel);
+            Class<?> model, String collectionKey) {
+        this(activity, wrapped, url, model);
 
         mCollectionKey = collectionKey;
     }
@@ -146,27 +143,25 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         }
 
         String textToSet = "";
-        switch (getLoadModel()) {
-            case track:
-                textToSet = !mException ? mActivity.getResources().getString(
-                        R.string.tracklist_empty) : mActivity.getResources().getString(
-                        R.string.tracklist_error);
-                break;
-            case user:
-                textToSet = !mException ? mActivity.getResources().getString(
-                        R.string.userlist_empty) : mActivity.getResources().getString(
-                        R.string.userlist_error);
-                break;
-            case comment:
-                textToSet = !mException ? mActivity.getResources().getString(
-                        R.string.tracklist_empty) : mActivity.getResources().getString(
-                        R.string.commentslist_error);
-                break;
-            case event:
-                textToSet = !mException ? mActivity.getResources().getString(
-                        R.string.tracklist_empty) : mActivity.getResources().getString(
-                        R.string.tracklist_error);
-                break;
+
+
+        if (Track.class.equals(mLoadModel)) {
+            textToSet = !mException ? mActivity.getResources().getString(
+                    R.string.tracklist_empty) : mActivity.getResources().getString(
+                    R.string.tracklist_error);
+
+        } else if (User.class.equals(mLoadModel)) {
+            textToSet = !mException ? mActivity.getResources().getString(
+                    R.string.userlist_empty) : mActivity.getResources().getString(
+                    R.string.userlist_error);
+        } else if (Comment.class.equals(mLoadModel)) {
+            textToSet = !mException ? mActivity.getResources().getString(
+                    R.string.tracklist_empty) : mActivity.getResources().getString(
+                    R.string.commentslist_error);
+        } else if (Event.class.equals(mLoadModel)) {
+            textToSet = !mException ? mActivity.getResources().getString(
+                    R.string.tracklist_empty) : mActivity.getResources().getString(
+                    R.string.tracklist_error);
         }
 
         ((TextView) mEmptyView).setText(textToSet);
@@ -202,8 +197,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     /**
      * Restore a possibly still running task that could have been passed in on
      * creation
-     *
-     * @param ap
      */
     public void restoreTask(AppendTask ap) {
         if (ap != null) {
@@ -212,11 +205,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         }
     }
 
-    /**
-     * Get a possibly currently running task to save
-     *
-     * @return
-     */
     public AppendTask getTask() {
         return appendTask;
     }
@@ -238,12 +226,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     }
 
-    /**
-     * Restore the current paging data
-     *
-     * @return an integer list {whether to keep retrieving data, the current
-     *         page the adapter is on}
-     */
     public void restorePagingData(int[] restore) {
         keepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
@@ -273,54 +255,25 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public void restoreExtraData(String restore) {
     }
 
-    /**
-     * Get the collection key associated with this adapter
-     *
-     * @return
-     */
-    public String getCollectionKey() {
-        return mCollectionKey;
-    }
-
-    /**
-     * Get the Load Model associated with this adapter
-     *
-     * @return
-     */
-    public CloudUtils.Model getLoadModel() {
+    public Class<?> getLoadModel() {
         return mLoadModel;
     }
 
-    /**
-     * Get the current page of this adapter
-     *
-     * @return
-     */
     public int getCurrentPage() {
         return mCurrentPage;
     }
 
-    /**
-     * Get the data of this adapter by getting the wrapped data
-     *
-     * @return
-     */
     public List<Parcelable> getData() {
-
         return (this.getWrappedAdapter()).getData();
     }
 
-    /**
-     * Get the current number of items in this adapter, accounting for a loading
-     * view
-     */
     @Override
     public int getCount() {
         if (keepOnAppending.get()) {
             return (super.getCount() + 1); // one more for "pending"
+        } else {
+            return (super.getCount());
         }
-
-        return (super.getCount());
     }
 
     /**

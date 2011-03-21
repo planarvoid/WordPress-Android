@@ -1,18 +1,14 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.CloudUtils.Model;
-
 import android.text.TextUtils;
 import com.soundcloud.android.activity.ScActivity;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
-    private static String TAG = "AdpEvents";
-
-    protected String mNextEventsParams;
+    private String mNextEventsParams;
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            Model loadModel, String collectionKey) {
+            Class<?> loadModel, String collectionKey) {
         super(activity, wrapped, url, loadModel, collectionKey);
     }
 
@@ -43,5 +39,4 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public void onNextEventsParam(String nextEventsHref) {
         mNextEventsParams = nextEventsHref.substring(nextEventsHref.indexOf("?"));
     }
-
 }

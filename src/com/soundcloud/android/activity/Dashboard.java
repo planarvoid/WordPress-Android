@@ -7,6 +7,7 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
@@ -33,12 +34,12 @@ public class Dashboard extends ScActivity {
             String tab = getIntent().getStringExtra("tab");
             if ("incoming".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
-                        CloudUtils.Model.event,
+                        Event.class,
                         R.string.empty_incoming_text,
                         CloudUtils.ListId.LIST_INCOMING);
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
-                        CloudUtils.Model.event,
+                        Event.class,
                         R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE);
 
@@ -61,7 +62,7 @@ public class Dashboard extends ScActivity {
         super.onResume();
     }
 
-    protected ScTabView createList(String endpoint, CloudUtils.Model model, int emptyText, int listId) {
+    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId) {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
 

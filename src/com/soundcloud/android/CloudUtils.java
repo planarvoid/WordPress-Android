@@ -15,8 +15,6 @@ import com.soundcloud.android.view.ScTabView;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Service;
@@ -48,12 +46,10 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -63,30 +59,25 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class CloudUtils {
-
     private static final String TAG = "CloudUtils";
     public static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
-    public static final String DURATION_FORMAT_LONG = "%1$d.%3$02d.%5$02d";
+    public static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
-    public static final int GRAPHIC_DIMENSIONS_SMALL = 32;
 
     public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
-    public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Android/data/com.soundcloud.android/files/.cache/";
+    public static final File EXTERNAL_CACHE_DIRECTORY = new File(
+            Environment.getExternalStorageDirectory(),
+            "Android/data/com.soundcloud.android/files/.cache/");
 
-    public static final String EXTERNAL_STORAGE_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Soundcloud";
-
+    public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
+            Environment.getExternalStorageDirectory(),
+            "Soundcloud");
 
     public interface RequestCodes {
-        public static final int GALLERY_IMAGE_PICK = 9000;
-        public static final int GALLERY_IMAGE_TAKE = 9001;
-    }
-
-    public enum Model {
-        track, user, comment, event
+        int GALLERY_IMAGE_PICK = 9000;
+        int GALLERY_IMAGE_TAKE = 9001;
     }
 
     public interface Dialogs {
@@ -94,71 +85,42 @@ public class CloudUtils {
         int DIALOG_UNAUTHORIZED  = 2;
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_AUTHENTICATION_CONTACTING = 4;
-
     }
 
     public interface OptionsMenu {
-        public static final int SETTINGS = 200;
-
-        public static final int VIEW_CURRENT_TRACK = 201;
-
-        public static final int REFRESH = 202;
-
-        public static final int CANCEL_CURRENT_UPLOAD = 203;
-
-        public static final int INCOMING = 204;
+        int SETTINGS = 200;
+        int VIEW_CURRENT_TRACK = 201;
+        int REFRESH = 202;
+        int CANCEL_CURRENT_UPLOAD = 203;
+        int INCOMING = 204;
     }
 
     public interface GraphicsSizes {
-        public final static String t500 = "t500x500";
-
-        public final static String crop = "crop";
-
-        public final static String t300 = "t300x300";
-
-        public final static String large = "large";
-
-        public final static String t67 = "t67";
-
-        public final static String badge = "badge";
-
-        public final static String small = "small";
-
-        public final static String tiny = "tiny";
-
-        public final static String mini = "mini";
-
-        public final static String original = "original";
+        String T500  = "t500x500";
+        String LARGE = "large";
+        String BADGE = "badge";
+        String SMALL = "small";
     }
 
     public interface ListId {
-        public final static int LIST_INCOMING = 1001;
-        public final static int LIST_EXCLUSIVE = 1002;
-        public final static int LIST_USER_TRACKS = 1003;
-        public final static int LIST_USER_FAVORITES = 1004;
-        public final static int LIST_SEARCH = 1005;
-        public final static int LIST_USER_FOLLOWINGS = 1006;
-        public final static int LIST_USER_FOLLOWERS = 1007;
+        int LIST_INCOMING = 1001;
+        int LIST_EXCLUSIVE = 1002;
+        int LIST_USER_TRACKS = 1003;
+        int LIST_USER_FAVORITES = 1004;
+        int LIST_USER_FOLLOWINGS = 1006;
+        int LIST_USER_FOLLOWERS = 1007;
     }
 
     public static File getCacheDir(Context c) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return new File(EXTERNAL_CACHE_DIRECTORY);
+            return EXTERNAL_CACHE_DIRECTORY;
         } else {
             return c.getCacheDir();
         }
     }
 
     public static String getCacheDirPath(Context c) {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return EXTERNAL_CACHE_DIRECTORY;
-        } else {
-            return c.getCacheDir().getAbsolutePath();
-        }
-    }
-
-    public static String getCacheFilePath(Context c, String name) {
-        return getCacheFile(c, name).getAbsolutePath();
+        return getCacheDir(c).getAbsolutePath();
     }
 
     public static File getCacheFile(Context c, String name) {
@@ -192,7 +154,7 @@ public class CloudUtils {
 
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            new File(EXTERNAL_STORAGE_DIRECTORY).mkdirs();
+            EXTERNAL_STORAGE_DIRECTORY.mkdirs();
         }
         // do a check??
     }
@@ -291,9 +253,9 @@ public class CloudUtils {
                 if (relativeLayout.getChildAt(j) instanceof TextView) {
                     ((TextView) relativeLayout.getChildAt(j)).setHorizontallyScrolling(false);
                     ((TextView) relativeLayout.getChildAt(j)).setEllipsize(null);
-                    ((TextView) relativeLayout.getChildAt(j)).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
+                    relativeLayout.getChildAt(j).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
                     ((TextView) relativeLayout.getChildAt(j)).setText(newText);
-                    ((TextView) relativeLayout.getChildAt(j)).requestLayout();
+                    relativeLayout.getChildAt(j).requestLayout();
                 }
             }
             relativeLayout.getLayoutParams().width =  LayoutParams.WRAP_CONTENT;
@@ -526,36 +488,9 @@ public class CloudUtils {
         // XXX perf optimise - run in player loop
         return sFormatter.format(durationformat, timeArgs).toString();
     }
-    public static String getErrorFromJSONResponse(String rawString) throws JSONException {
-        if (rawString.startsWith("[")) {
-            return ""; // arrays do not result from errors
-        } else {
-            JSONObject errorChecker = new JSONObject(rawString);
-            try {
-                if (errorChecker.get("error") != null) {
-                    return errorChecker.getString("error");
-                } else {
-                    return "";
-                }
-            } catch (Exception e) {
-                return "";
-            }
-
-        }
-    }
 
     public static boolean checkThreadAlive(Thread t) {
         return (!(t == null || !t.isAlive()));
-    }
-
-    public static String streamToString(InputStream is) throws IOException {
-        BufferedReader r = new BufferedReader(new InputStreamReader(is));
-        StringBuilder total = new StringBuilder();
-        String line;
-        while ((line = r.readLine()) != null) {
-            total.append(line);
-        }
-        return total.toString();
     }
 
     // Show an event in the LogCat view, for debugging

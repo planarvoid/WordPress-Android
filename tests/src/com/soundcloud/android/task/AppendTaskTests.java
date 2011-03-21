@@ -1,33 +1,29 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudUtils;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.api.ApiTest;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -65,8 +61,7 @@ public class AppendTaskTests {
 
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
-                new LazyBaseAdapter(null, null),
-                "",  CloudUtils.Model.track);
+                new LazyBaseAdapter(null, null), "", Track.class);
 
         task.setAdapter(adapter);
 
@@ -113,8 +108,7 @@ public class AppendTaskTests {
 
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
-                new LazyBaseAdapter(null, null),
-                "",  CloudUtils.Model.user);
+                new LazyBaseAdapter(null, null), "", User.class);
 
         task.setAdapter(adapter);
 

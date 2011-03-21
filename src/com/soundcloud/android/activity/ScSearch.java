@@ -1,12 +1,13 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 
 import android.content.Context;
@@ -73,10 +74,10 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.GONE);
 
         LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>());
-        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "", CloudUtils.Model.track);
+        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "", Track.class);
 
         LazyBaseAdapter adpUser = new UserlistAdapter(this, new ArrayList<Parcelable>());
-        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "", CloudUtils.Model.user);
+        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "", User.class);
 
         mList.setAdapter(mTrackAdpWrapper);
         mList.setId(android.R.id.list);

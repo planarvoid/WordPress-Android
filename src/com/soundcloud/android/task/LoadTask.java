@@ -5,16 +5,13 @@ import java.lang.ref.WeakReference;
 import com.soundcloud.android.activity.ScActivity;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-
-import com.soundcloud.android.CloudUtils;
 
 public abstract class LoadTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     protected WeakReference<ScActivity> mActivityReference;
 
-    public CloudUtils.Model loadModel;
+    public Class<?> loadModel;
     protected boolean mCancelled;
 
     @Override

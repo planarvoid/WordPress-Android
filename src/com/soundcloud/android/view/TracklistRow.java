@@ -250,9 +250,9 @@ public class TracklistRow extends LazyRow {
         if (mTrack.artwork_url == null)
             return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.LARGE);
         } else
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.BADGE);
 
     }
 

@@ -53,8 +53,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         String PROFILE_IDX = "lastProfileIndex";
     }
 
+    public static interface RecordListener {
+         void onFrameUpdate(float maxAmplitude, long elapsed);
+    }
+
     private CloudAPI mCloudApi;
-    private List<Parcelable> mPlaylistCache = null;
+    private List<Parcelable> mPlaylistCache;
     private ImageLoader mImageLoader;
 
     public boolean playerWaitForArtwork;
@@ -113,6 +117,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi.unauthorize();
     }
 
+    public boolean emailConfirmed() {
+        return PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getBoolean(Prefs.EMAIL_CONFIRMED, false);
+    }
+
     private void createImageLoaders() {
         CloudCache.install(this);
         ContentHandler mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
@@ -151,9 +161,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         this.mRecListener = listener;
     }
 
-    public interface RecordListener {
-         void onFrameUpdate(float maxAmplitude, long elapsed);
-    }
 
 
     public void cacheComments(long track_id, List<Comment> comments){

@@ -78,9 +78,9 @@ public class UserlistRow extends LazyRow {
         if (mUser.avatar_url == null)
             return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.large);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.LARGE);
         } else
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.badge);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.BADGE);
     }
 
     // **********************

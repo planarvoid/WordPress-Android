@@ -39,7 +39,7 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     private String mNextEventsHref;
     private Exception mException;
 
-    public CloudUtils.Model loadModel;
+    public Class<?> loadModel;
 
     public int pageSize;
 
@@ -51,9 +51,6 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
      * Set the activity and adapter that this task now belong to. This will
      * be set as new context is destroyed and created in response to
      * orientation changes
-     *
-     * @param lazyEndlessAdapter
-     * @param activity
      */
     public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
@@ -110,23 +107,14 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) throw new IOException("Invalid response: " + resp.getStatusLine());
 
             InputStream is = resp.getEntity().getContent();
-            switch (loadModel) {
-                case track:
-                    newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class,
-                            Track.class));
-                    break;
-                case user:
-                    newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class,
-                            User.class));
-                    break;
 
-                case event:
-                    EventsWrapper evtWrapper = mApp.getMapper().readValue(is, EventsWrapper.class);
-                    newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
-                    for (Event evt : evtWrapper.getCollection())
-                        newItems.add(evt);
-                    if (evtWrapper.getNext_href() != null) mNextEventsHref = evtWrapper.getNext_href();
-                    break;
+            if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {
+                newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
+            } else if (Event.class.equals(loadModel)) {
+                EventsWrapper evtWrapper = mApp.getMapper().readValue(is, EventsWrapper.class);
+                newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
+                for (Event evt : evtWrapper.getCollection()) newItems.add(evt);
+                if (evtWrapper.getNext_href() != null) mNextEventsHref = evtWrapper.getNext_href();
             }
 
             // resolve data

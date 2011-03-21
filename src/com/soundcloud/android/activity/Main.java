@@ -18,50 +18,11 @@ public class Main extends TabActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+
+
         setContentView(R.layout.cloudtabs);
 
-        mTabHost = getTabHost();
-        TabHost.TabSpec spec;
-
-        spec = mTabHost.newTabSpec("incoming").setIndicator(
-                getString(R.string.tab_incoming),
-                getResources().getDrawable(R.drawable.ic_tab_incoming));
-
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
-        mTabHost.addTab(spec);
-
-        spec = mTabHost.newTabSpec("exclusive").setIndicator(
-                getString(R.string.tab_exclusive),
-                getResources().getDrawable(R.drawable.ic_tab_incoming));
-
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
-        mTabHost.addTab(spec);
-
-
-        spec = mTabHost.newTabSpec("profile").setIndicator(
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you));
-        spec.setContent(new Intent(this, UserBrowser.class));
-
-        mTabHost.addTab(spec);
-
-        spec = mTabHost.newTabSpec("record").setIndicator(
-                getString(R.string.tab_record),
-                getResources().getDrawable(R.drawable.ic_tab_record));
-
-        spec.setContent(new Intent(this, ScCreate.class));
-
-        mTabHost.addTab(spec);
-
-
-        spec = mTabHost.newTabSpec("search").setIndicator(
-                getString(R.string.tab_search),
-                getResources().getDrawable(R.drawable.ic_tab_search));
-
-        spec.setContent(new Intent(this, ScSearch.class));
-
-        mTabHost.addTab(spec);
-
+        mTabHost = buildTabHost();
         mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this)
                 .getInt(SoundCloudApplication.Prefs.DASHBOARD_IDX, 0));
 
@@ -75,30 +36,18 @@ public class Main extends TabActivity {
                         .commit();
             }
         });
-        handleIntent();
+
+        handleIntent(getIntent());
     }
+
 
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
-        handleIntent();
+        handleIntent(intent);
         super.onNewIntent(intent);
     }
 
-    private void handleIntent() {
-        if (getIntent() != null) {
-            if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
-                mTabHost.setCurrentTabByTag("search");
-                ((ScSearch) getCurrentActivity()).doSearch(getIntent().getStringExtra(SearchManager.QUERY));
-            } else if (getIntent().hasExtra("tabIndex")) {
-                mTabHost.setCurrentTab(getIntent().getIntExtra("tabIndex", 0));
-                getIntent().removeExtra("tabIndex");
-            } else if (getIntent().hasExtra("tabTag")) {
-                mTabHost.setCurrentTabByTag(getIntent().getStringExtra("tabTag"));
-                getIntent().removeExtra("tabTag");
-            }
-        }
-    }
 
     @Override
     protected void onRestoreInstanceState(Bundle state) {
@@ -112,5 +61,57 @@ public class Main extends TabActivity {
     protected void onSaveInstanceState(Bundle state) {
         state.putString("tabTag", mTabHost.getCurrentTabTag());
         super.onSaveInstanceState(state);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null) {
+            if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+                mTabHost.setCurrentTabByTag("search");
+                ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
+            } else if (intent.hasExtra("tabIndex")) {
+                mTabHost.setCurrentTab(intent.getIntExtra("tabIndex", 0));
+                intent.removeExtra("tabIndex");
+            } else if (intent.hasExtra("tabTag")) {
+                mTabHost.setCurrentTabByTag(intent.getStringExtra("tabTag"));
+                intent.removeExtra("tabTag");
+            }
+        }
+    }
+
+    private TabHost buildTabHost() {
+        TabHost host = getTabHost();
+        TabHost.TabSpec spec;
+
+        spec = host.newTabSpec("incoming").setIndicator(
+                getString(R.string.tab_incoming),
+                getResources().getDrawable(R.drawable.ic_tab_incoming));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("exclusive").setIndicator(
+                getString(R.string.tab_exclusive),
+                getResources().getDrawable(R.drawable.ic_tab_incoming));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("profile").setIndicator(
+                getString(R.string.tab_you),
+                getResources().getDrawable(R.drawable.ic_tab_you));
+        spec.setContent(new Intent(this, UserBrowser.class));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("record").setIndicator(
+                getString(R.string.tab_record),
+                getResources().getDrawable(R.drawable.ic_tab_record));
+        spec.setContent(new Intent(this, ScCreate.class));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("search").setIndicator(
+                getString(R.string.tab_search),
+                getResources().getDrawable(R.drawable.ic_tab_search));
+        spec.setContent(new Intent(this, ScSearch.class));
+        host.addTab(spec);
+
+        return host;
     }
 }

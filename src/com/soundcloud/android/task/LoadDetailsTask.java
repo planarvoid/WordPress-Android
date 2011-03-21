@@ -2,8 +2,6 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -28,16 +26,7 @@ public class LoadDetailsTask extends LoadTask {
 
             ObjectMapper mapper = mActivityReference.get().getSoundCloudApplication().getMapper();
             
-            Parcelable parcelable = null;
-            switch (loadModel) {
-                case track:
-                    parcelable = mapper.readValue(is, Track.class);
-                    break;
-                case user:
-                    parcelable = mapper.readValue(is, User.class);
-                    break;
-            }
-
+            Parcelable parcelable = (Parcelable) mapper.readValue(is, loadModel);
             if (mActivityReference.get() != null && parcelable != null) {
                 CloudUtils.resolveParcelable(mActivityReference.get(), parcelable);
             }
