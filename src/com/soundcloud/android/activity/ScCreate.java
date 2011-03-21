@@ -207,7 +207,6 @@ public class ScCreate extends ScActivity {
 
         this.unregisterReceiver(mUploadStatusListener);
         clearArtwork();
-        updateUi(false);
     }
 
     /*
