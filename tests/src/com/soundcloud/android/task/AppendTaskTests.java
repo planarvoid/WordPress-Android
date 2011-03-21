@@ -40,8 +40,6 @@ public class AppendTaskTests {
 
     @Test @Ignore
     public void shouldDeserializeTracks() throws Exception {
-        
-
         // XXX need to make this easier testable
         final SoundCloudApplication app = new SoundCloudApplication() {
             @Override

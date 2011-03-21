@@ -17,7 +17,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 
 public class AddCommentDialog extends Dialog {
@@ -49,7 +48,7 @@ public class AddCommentDialog extends Dialog {
             mInput.setHint((comment.timestamp == -1 ? "Add an untimed comment" : "Add comment at "
                     + CloudUtils.formatTimestamp(comment.timestamp)));
         }
-        ((Button) findViewById(R.id.positiveButton)).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.positiveButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (TextUtils.isEmpty(mInput.getText())) return;
@@ -58,8 +57,9 @@ public class AddCommentDialog extends Dialog {
                         .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
                 comment.body = mInput.getText().toString();
 
-                new AddCommentTask(mActivity, comment,
-                        listener == null ? mActivity.mAddCommentListener : listener).execute();
+                new AddCommentTask(mActivity.getSoundCloudApplication(),
+                        listener == null ? mActivity.mAddCommentListener : listener).execute(comment);
+
                 dismiss();
             }
         });

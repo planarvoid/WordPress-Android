@@ -22,7 +22,6 @@ import org.urbanstew.soundcloudapi.SoundCloudAPI;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -30,7 +29,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
-import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,22 +59,12 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     static ContentHandler mBitmapHandler;
 
-    public static enum Events {
-        track, favorite, playlist
-    }
-
     public static final Map<String, SoftReference<Bitmap>> mBitmaps =
             Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
     public static final Map<String, Throwable> mBitmapErrors =
             Collections.synchronizedMap(new LruCache<String, Throwable>());
 
-    private static final HashMap<Long, SoftReference<ArrayList<Comment>>> mCommentSoftCache =
-        new HashMap<Long, SoftReference<ArrayList<Comment>>>();
-
-    private static final HashMap<Long, List<Comment>> mCommentCache =
-        new HashMap<Long, List<Comment>>();
-
-    private static HashMap<String, String[]> dbColumns = new HashMap<String, String[]>();
+    private static final HashMap<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
 
     @Override
     public void onCreate() {
@@ -126,40 +114,13 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi.unauthorize();
     }
 
-    public static HashMap<String, String[]> getDBColumns() {
-        return dbColumns;
-    }
 
-    public ContentHandler getBitmapHandler(){
-        return mBitmapHandler;
-    }
-
-    /**
-     * Create an instance of the imageloader. Library and examples of cacher and
-     * code found at: {@link} http://code.google.com/p/libs-for-android/
-     */
     private void createImageLoaders() {
         // Install the file cache (if it is not already installed)
         CloudCache.install(this);
-
-        // Just use the default URLStreamHandlerFactory because
-        // it supports all of the required URI schemes (http).
-        URLStreamHandlerFactory streamFactory = null;
-
-        // Load images using a BitmapContentHandler
-        // and cache the image data in the file cache.
         mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
-
-        // For pre-fetching, use a "sink" content handler so that the
-        // the binary image data is captured by the cache without actually
-        // parsing and loading the image data into memory. After pre-fetching,
-        // the image data can be loaded quickly on-demand from the local cache.
         ContentHandler prefetchHandler = FileResponseCache.capture(FileResponseCache.sink(), null);
-
-        // Perform callbacks on the main thread
-        Handler handler = null;
-
-        mImageLoader = new ImageLoader(streamFactory, mBitmapHandler, prefetchHandler, handler);
+        mImageLoader = new ImageLoader(null, mBitmapHandler, prefetchHandler, null);
     }
 
 
@@ -268,14 +229,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCommentCache.remove(track_id);
     }
 
-
-    public List<Comment> getCommentsFromCache(long track_id){
-        if (mCommentCache.get(track_id) != null) {
-            return mCommentCache.get(track_id);
-        } else if (mCommentSoftCache.get(track_id) != null && mCommentSoftCache.get(track_id).get() != null){
-            return mCommentSoftCache.get(track_id).get();
-        } else {
-            return null;
-        }
+    public List<Comment> getCommentsFromCache(long track_id) {
+        return mCommentCache.get(track_id);
     }
 }

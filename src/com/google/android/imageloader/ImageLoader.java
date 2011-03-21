@@ -43,7 +43,6 @@ public class ImageLoader {
 
     private static final String TAG = "ImageLoader";
 
-    private static final int SDK = Integer.parseInt(Build.VERSION.SDK);
 
     private static final int GINGERBREAD = 9;
 
@@ -370,7 +369,7 @@ public class ImageLoader {
      * platforms where the feature does not work reliably.
      */
     private URLConnection openConnection(URL url) throws IOException {
-        if (SDK < GINGERBREAD) {
+        if (Build.VERSION.SDK_INT < GINGERBREAD) {
             // Releases before Gingerbread do not
             // have reliable http.keepAlive support
             // (HttpURLConnection will often return -1).
