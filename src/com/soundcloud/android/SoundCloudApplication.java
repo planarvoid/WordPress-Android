@@ -52,19 +52,17 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public static final String PROFILE_IDX = "lastProfileIndex";
 
     private CloudAPI mCloudApi;
-    private ArrayList<Parcelable> mPlaylistCache = null;
+    private List<Parcelable> mPlaylistCache = null;
     private ImageLoader mImageLoader;
 
     public boolean playerWaitForArtwork;
 
-    static ContentHandler mBitmapHandler;
-
-    public static final Map<String, SoftReference<Bitmap>> mBitmaps =
+    public static final Map<String, SoftReference<Bitmap>> bitmaps =
             Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
-    public static final Map<String, Throwable> mBitmapErrors =
+    public static final Map<String, Throwable> bitmapErrors =
             Collections.synchronizedMap(new LruCache<String, Throwable>());
 
-    private static final HashMap<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
+    private static final Map<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
 
     @Override
     public void onCreate() {
@@ -115,7 +113,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
 
     private void createImageLoaders() {
         CloudCache.install(this);
-        mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
+        ContentHandler mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
         ContentHandler prefetchHandler = FileResponseCache.capture(FileResponseCache.sink(), null);
         mImageLoader = new ImageLoader(null, mBitmapHandler, prefetchHandler, null);
     }
@@ -155,6 +153,20 @@ public class SoundCloudApplication extends Application implements CloudAPI {
          void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
+
+    public void cacheComments(long track_id, List<Comment> comments){
+        mCommentCache.put(track_id, comments);
+    }
+
+    public void uncacheComments(long track_id){
+        mCommentCache.remove(track_id);
+    }
+
+    public List<Comment> getCommentsFromCache(long track_id) {
+        return mCommentCache.get(track_id);
+    }
+
+    // cloud api delegation
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();
     }
@@ -203,25 +215,11 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCloudApi.getState();
     }
 
-    @Override
     public int resolve(String uri) throws IOException {
         return mCloudApi.resolve(uri);
     }
 
-    @Override
     public HttpResponse execute(HttpUriRequest request) throws IOException {
         return mCloudApi.execute(request);
-    }
-
-    public void cacheComments(long track_id, List<Comment> comments){
-        mCommentCache.put(track_id, comments);
-    }
-
-    public void uncacheComments(long track_id){
-        mCommentCache.remove(track_id);
-    }
-
-    public List<Comment> getCommentsFromCache(long track_id) {
-        return mCommentCache.get(track_id);
     }
 }

@@ -592,7 +592,7 @@ public class ImageLoader {
      * invokes a manual refresh of the screen.
      */
     public void clearErrors() {
-        SoundCloudApplication.mBitmapErrors.clear();
+        SoundCloudApplication.bitmapErrors.clear();
     }
 
     /**
@@ -709,24 +709,24 @@ public class ImageLoader {
     }
 
     private void putBitmap(String url, Bitmap bitmap) {
-        SoundCloudApplication.mBitmaps.put(url, new SoftReference<Bitmap>(bitmap));
+        SoundCloudApplication.bitmaps.put(url, new SoftReference<Bitmap>(bitmap));
     }
 
     private void putError(String url, Throwable error) {
-        SoundCloudApplication.mBitmapErrors.put(url, error);
+        SoundCloudApplication.bitmapErrors.put(url, error);
     }
 
     private boolean hasError(String url) {
-        return SoundCloudApplication.mBitmapErrors.containsKey(url);
+        return SoundCloudApplication.bitmapErrors.containsKey(url);
     }
 
     private Bitmap getBitmap(String url) {
-        SoftReference<Bitmap> reference = SoundCloudApplication.mBitmaps.get(url);
+        SoftReference<Bitmap> reference = SoundCloudApplication.bitmaps.get(url);
         return reference != null ? reference.get() : null;
     }
 
     private Throwable getError(String url) {
-        return SoundCloudApplication.mBitmapErrors.get(url);
+        return SoundCloudApplication.bitmapErrors.get(url);
     }
 
     /**

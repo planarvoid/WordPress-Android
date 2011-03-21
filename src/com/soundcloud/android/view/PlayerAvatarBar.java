@@ -123,7 +123,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        SoundCloudApplication.mBitmapErrors.clear();
+        SoundCloudApplication.bitmapErrors.clear();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
