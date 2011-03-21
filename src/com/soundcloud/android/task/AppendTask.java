@@ -83,7 +83,11 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
             if (!TextUtils.isEmpty(mNextEventsHref)) ((EventsAdapterWrapper) adapter).onNextEventsParam(mNextEventsHref);
-            if (mException == null) adapter.incrementPage();
+            if (mException == null){
+                adapter.incrementPage();
+            } else {
+                adapter.setException(mException);
+            }
 
             if (newItems != null && newItems.size() > 0) {
                 for (Parcelable newitem : newItems) {
