@@ -17,6 +17,7 @@ import com.soundcloud.utils.record.PowerGauge;
 import com.soundcloud.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -244,8 +245,7 @@ public class ScCreate extends ScActivity {
 
         findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCurrentState = CreateState.IDLE_RECORD;
-                updateUi(true);
+                showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
             }
         });
 
@@ -1319,6 +1319,29 @@ public class ScCreate extends ScActivity {
 
                     if (success) mConnectionList.getAdapter().load();
                 }
+        }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int which) {
+        switch (which) {
+            case CloudUtils.Dialogs.DIALOG_RESET_RECORDING:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_reset_recording_title)
+                        .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        mCurrentState = CreateState.IDLE_RECORD;
+                                        updateUi(true);
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                                    }
+                                }).setNegativeButton(getString(R.string.btn_no),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                                    }
+                                }).create();
+            default:
+                return super.onCreateDialog(which);
         }
     }
 }

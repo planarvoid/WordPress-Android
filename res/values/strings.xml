@@ -65,6 +65,9 @@
 
   <string name="dialog_cancel_upload_title"></string>
   <string name="dialog_cancel_upload_message">Cancel upload?</string>
+  
+  <string name="dialog_reset_recording_title"></string>
+  <string name="dialog_reset_recording_message">Reset? Recording will be deleted.</string>
 
   <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_title">Upload Finished</string>

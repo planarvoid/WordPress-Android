@@ -85,6 +85,7 @@ public class CloudUtils {
         int DIALOG_UNAUTHORIZED  = 2;
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_AUTHENTICATION_CONTACTING = 4;
+        int DIALOG_RESET_RECORDING = 5;
     }
 
     public interface OptionsMenu {
