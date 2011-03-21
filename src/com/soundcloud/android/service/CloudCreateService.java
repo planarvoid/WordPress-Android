@@ -411,6 +411,7 @@ public class CloudCreateService extends Service {
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             UploadTask.Params param = params[0];
             if (param.encode && !encode(param.trackFile, param.encodedFile)) {
+                if (param.encodedFile.exists()) param.encodedFile.delete();
                 param.fail();
             }
             return param;
