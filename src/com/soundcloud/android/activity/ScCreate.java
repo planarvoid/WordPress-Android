@@ -72,7 +72,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScCreate extends ScActivity {
@@ -1197,7 +1196,7 @@ public class ScCreate extends ScActivity {
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File f, String s) {
-                return isRawFilename(f.getName()) || isCompressedFilename(f.getName());
+                return isRawFilename(s) || isCompressedFilename(s);
             }
            })) {
             if (file == null || f.lastModified() < file.lastModified()) file = f;
