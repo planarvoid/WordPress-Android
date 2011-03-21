@@ -331,6 +331,7 @@ public class CloudCreateService extends Service {
     };
 
     public void stopPlayback() {
+        mPlaybackPath = null;
         try{
             mPlayer.stop();
         } catch (IllegalStateException e){
