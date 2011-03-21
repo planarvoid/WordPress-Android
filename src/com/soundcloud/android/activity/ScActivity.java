@@ -463,10 +463,10 @@ public abstract class ScActivity extends Activity {
                 R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
 
         menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-                .setIcon(R.drawable.ic_menu_preferences);
+                .setIcon(android.R.drawable.ic_menu_preferences);
 
         menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                R.drawable.context_refresh);
+                R.drawable.ic_menu_refresh);
         return super.onCreateOptionsMenu(menu);
     }
 
