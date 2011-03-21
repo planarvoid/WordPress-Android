@@ -203,8 +203,6 @@ public class ScCreate extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-
         this.unregisterReceiver(mUploadStatusListener);
         clearArtwork();
     }
@@ -498,7 +496,7 @@ public class ScCreate extends ScActivity {
 
     public void unlock(boolean finished) {
         // not currently uploading anything, so allow recording
-        if (mCurrentState == CreateState.UPLOAD) {
+        if (mCurrentState == CreateState.UPLOAD && mCreateService != null) {
             if (!finished){
                 //recover record file
                 setRecordFile();
@@ -639,7 +637,6 @@ public class ScCreate extends ScActivity {
                 if (takeAction) {
                     Log.i(TAG,"IDLE RECORDAND TAKE ACTION");
                     stopPlayback();
-                    clearCurrentFiles();
                     mWhereText.setText("");
                     mWhatText.setText("");
                     clearArtwork();
@@ -797,15 +794,6 @@ public class ScCreate extends ScActivity {
             mViewFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
             mViewFlipper.showPrevious();
         }
-    }
-
-    private void clearCurrentFiles() {
-        if (mRecordDir.exists()){
-            for (File f : mRecordDir.listFiles()){
-                f.delete();
-            }
-        }
-        mRecordFile = null;
     }
 
     private void startRecording() {

@@ -602,6 +602,9 @@ public class CloudCreateService extends Service {
 
         if (params.isSuccess()) {
 
+            if (params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
+            if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
+
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
                             getString(R.string.cloud_uploader_notification_finished_message),
