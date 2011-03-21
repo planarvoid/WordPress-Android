@@ -59,7 +59,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     // Define our custom Listener interface
     public interface AddCommentListener {
-        public abstract void onCommentAdd(boolean success, Comment c);
-        public abstract void onException(Comment c, Exception e);
+        void onCommentAdd(boolean success, Comment c);
+        void onException(Comment c, Exception e);
     }
 }

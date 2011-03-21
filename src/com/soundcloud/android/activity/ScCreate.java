@@ -1319,5 +1319,4 @@ public class ScCreate extends ScActivity {
                 }
         }
     }
-
 }
