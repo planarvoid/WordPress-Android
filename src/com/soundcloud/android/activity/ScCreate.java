@@ -148,15 +148,15 @@ public class ScCreate extends ScActivity {
     //public static int PCM_REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
 
     private static final int PLAYBACK_REFRESH = 1001;
-    private static int PLAYBACK_REFRESH_INTERVAL = 200;
+    private static final int PLAYBACK_REFRESH_INTERVAL = 200;
 
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
 
     private boolean mSampleInterrupted = false;
     private RemainingTimeCalculator mRemainingTimeCalculator;
 
-    private static final String RAW_PATTERN = "^.*\\.(2|pcm)$";
-    private static final String COMPRESSED_PATTERN = "^.*\\.(0|1|mp4|ogg)$";
+    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
+    private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
     private Pattern pattern;
     private Matcher matcher;
 
@@ -1200,15 +1200,11 @@ public class ScCreate extends ScActivity {
        }
 
     private boolean isRawFilename(String filename){
-        pattern = Pattern.compile(RAW_PATTERN);
-        matcher = pattern.matcher(filename);
-        return matcher.matches();
+        return RAW_PATTERN.matcher(filename).matches();
     }
 
     private boolean isCompressedFilename(String filename){
-        pattern = Pattern.compile(COMPRESSED_PATTERN);
-        matcher = pattern.matcher(filename);
-        return matcher.matches();
+        return COMPRESSED_PATTERN.matcher(filename).matches();
     }
 
     public void onRecProgressUpdate(long elapsed) {
