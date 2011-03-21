@@ -110,13 +110,10 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .putString(USERNAME, "")
                 .commit();
 
-
         mCloudApi.unauthorize();
     }
 
-
     private void createImageLoaders() {
-        // Install the file cache (if it is not already installed)
         CloudCache.install(this);
         mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
         ContentHandler prefetchHandler = FileResponseCache.capture(FileResponseCache.sink(), null);
@@ -128,8 +125,9 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
             return mImageLoader;
-        }   return super.getSystemService(name);
-
+        } else {
+            return super.getSystemService(name);
+        }
     }
 
     public void cachePlaylist(ArrayList<Parcelable> playlistCache) {
@@ -137,10 +135,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     }
 
     public List<Parcelable> flushCachePlaylist() {
-        if (mCommentCache.size() > 10)
-            mCommentCache.clear();
-
-        ArrayList<Parcelable> playlistRef = mPlaylistCache;
+        if (mCommentCache.size() > 10) mCommentCache.clear();
+        List<Parcelable> playlistRef = mPlaylistCache;
         mPlaylistCache = null;
         return playlistRef;
     }
@@ -148,20 +144,16 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     private RecordListener mRecListener = null;
 
     public void onFrameUpdate(float maxAmplitude, long elapsed) {
-        if (mRecListener != null) {
-            mRecListener.onFrameUpdate(maxAmplitude, elapsed);
-        }
+        if (mRecListener != null) mRecListener.onFrameUpdate(maxAmplitude, elapsed);
     }
 
     public void setRecordListener(RecordListener listener) {
         this.mRecListener = listener;
     }
 
-    // Define our custom Listener interface
     public interface RecordListener {
-        public abstract void onFrameUpdate(float maxAmplitude, long elapsed);
+         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
-
 
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();

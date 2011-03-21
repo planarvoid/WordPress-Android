@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
  * A LRU cache for holding image data or meta-data.
  */
 public class LruCache<K, V> extends LinkedHashMap<K, V> {
-
     private static final int INITIAL_CAPACITY = 32;
 
     // Hold information for at least a few pages full of thumbnails.
