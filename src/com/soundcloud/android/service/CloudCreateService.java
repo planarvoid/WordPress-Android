@@ -22,7 +22,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.AudioManager;
 import android.media.ExifInterface;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -43,14 +45,15 @@ import java.util.Map;
 public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
 
-    public static final String RECORD_ERROR     = "com.soundcloud.android.recorderror";
-    public static final String UPLOAD_SUCCESS   = "com.sound.android.fileuploadsuccessful";
-    public static final String UPLOAD_ERROR     = "com.sound.android.fileuploaderror";
-    public static final String RECORD_STARTED   = "com.soundcloud.android.recordstarted";
-    public static final String RECORD_STOPPED   = "com.soundcloud.android.recordstopped";
-    public static final String UPLOAD_CANCELLED = "com.sound.android.fileuploadcancelled";
-    public static final String SERVICECMD       = "com.soundcloud.android.createservicecommand";
-
+    public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
+    public static final String UPLOAD_SUCCESS    = "com.sound.android.fileuploadsuccessful";
+    public static final String UPLOAD_ERROR      = "com.sound.android.fileuploaderror";
+    public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
+    public static final String RECORD_STOPPED    = "com.soundcloud.android.recordstopped";
+    public static final String UPLOAD_CANCELLED  = "com.sound.android.fileuploadcancelled";
+    public static final String SERVICECMD        = "com.soundcloud.android.createservicecommand";
+    public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
+    public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
     public static final String CMDNAME = "command";
 
@@ -88,6 +91,10 @@ public class CloudCreateService extends Service {
 
     private int mCurrentState = 0;
     private int frameCount;
+
+    private MediaPlayer mPlayer;
+    private String mPlaybackPath;
+
 
     public interface States {
         int IDLE_RECORDING = 0;
@@ -146,6 +153,10 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
+        mPlayer = new MediaPlayer();
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mPlayer.setOnCompletionListener(completionListener);
+        mPlayer.setOnErrorListener(errorListener);
     }
 
     @Override
@@ -291,6 +302,70 @@ public class CloudCreateService extends Service {
         nm.notify(CREATE_NOTIFY_ID, mNotification);
     }
 
+
+    public void loadPlaybackTrack(String playbackPath) {
+        mPlayer.reset();
+        mPlaybackPath = playbackPath;
+        try {
+            FileInputStream fis = new FileInputStream(playbackPath);
+            mPlayer.setDataSource(fis.getFD());
+            fis.close();
+            mPlayer.prepare();
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+            notifyChange(PLAYBACK_ERROR);
+        }
+    }
+
+    MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
+        public void onCompletion(MediaPlayer mp) {
+            notifyChange(PLAYBACK_COMPLETE);
+        }
+    };
+
+    MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            notifyChange(PLAYBACK_ERROR);
+            return true;
+        }
+    };
+
+    public void stopPlayback() {
+        try{
+            mPlayer.stop();
+        } catch (IllegalStateException e){
+            Log.e(TAG,"error " + e.toString());
+        }
+    }
+
+    public void pausePlayback() {
+       mPlayer.pause();
+    }
+
+    public void startPlayback() {
+        mPlayer.start();
+    }
+
+    public void seekTo(int position) {
+        mPlayer.seekTo(position);
+    }
+
+    public boolean isPlaying() {
+        return mPlayer.isPlaying();
+    }
+
+    public int getPlaybackDuration() {
+        return mPlayer.getDuration();
+    }
+
+    public String getCurrentPlaybackPath() {
+        return mPlaybackPath;
+    }
+
+    public int getCurrentPlaybackPosition() {
+        return mPlayer.getCurrentPosition();
+    }
+
     @SuppressWarnings("unchecked")
     private void uploadTrack(final Map<String,String> trackdata) {
         acquireWakeLock();
@@ -356,8 +431,11 @@ public class CloudCreateService extends Service {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
 
-                if (param.encode && param.trackFile.exists() && param.trackFile.delete()) {
-                    Log.v(TAG, "deleted track file after encoding ");
+
+                if (param.encode && param.trackFile.exists()) {
+                    //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
+                    param.encodedFile.setLastModified(param.trackFile.lastModified());
+                    param.trackFile.delete();
                 }
 
 
@@ -594,8 +672,7 @@ public class CloudCreateService extends Service {
 
         @Override
         public void startRecording(String path, int mode) throws RemoteException {
-            if (mService.get() != null)
-                mService.get().startRecording(path, mode);
+            if (mService.get() != null) mService.get().startRecording(path, mode);
         }
 
         @Override
@@ -605,20 +682,58 @@ public class CloudCreateService extends Service {
 
         @Override
         public void stopRecording() throws RemoteException {
-            if (mService.get() != null)
-                mService.get().stopRecording();
+            if (mService.get() != null) mService.get().stopRecording();
         }
 
         @Override
         public void updateRecordTicker() throws RemoteException {
-            if (mService.get() != null)
-                mService.get().updateRecordTicker();
+            if (mService.get() != null) mService.get().updateRecordTicker();
         }
 
         @Override
+        public void loadPlaybackTrack(String playbackFile) {
+            mService.get().loadPlaybackTrack(playbackFile);
+        }
+
+        @Override
+        public boolean isPlayingBack() {
+            return mService.get() != null ? mService.get().isPlaying() : null;
+        }
+
+        @Override
+        public void startPlayback() {
+            if (mService.get() != null) mService.get().startPlayback();
+        }
+
+        @Override
+        public void pausePlayback() {
+            if (mService.get() != null) mService.get().pausePlayback();
+        }
+
+        @Override
+        public void stopPlayback() {
+            if (mService.get() != null) mService.get().stopPlayback();
+        }
+
+        @Override
+        public int getCurrentPlaybackPosition() {
+            return mService.get() != null ? mService.get().getCurrentPlaybackPosition() : null;
+        }
+
+        @Override
+        public int getPlaybackDuration() {
+            return mService.get() != null ? mService.get().getPlaybackDuration() : null;
+        }
+
+        @Override
+        public void seekTo(int position) {
+            if (mService.get() != null) mService.get().seekTo(position);
+        }
+
+
+        @Override
         public void uploadTrack(Map trackdata) throws RemoteException {
-            if (mService.get() != null)
-                mService.get().uploadTrack(trackdata);
+            if (mService.get() != null) mService.get().uploadTrack(trackdata);
         }
 
         @Override
@@ -628,25 +743,26 @@ public class CloudCreateService extends Service {
 
         @Override
         public void cancelUpload() throws RemoteException {
-            if (mService.get() != null)
-                mService.get().cancelUpload();
+            if (mService.get() != null) mService.get().cancelUpload();
         }
 
         @Override
         public int getCurrentState() throws RemoteException {
-            if (mService.get() != null)
-                return mService.get().getCurrentState();
-
-            return 0;
+            return mService.get() != null ? mService.get().getCurrentState() : 0;
         }
 
         @Override
         public void setCurrentState(int newState) throws RemoteException {
-            if (mService.get() != null)
-                mService.get().setCurrentState(newState);
+            if (mService.get() != null) mService.get().setCurrentState(newState);
+        }
+
+        @Override
+        public String getCurrentPlaybackPath() throws RemoteException {
+            return mService.get() != null ? mService.get().getCurrentPlaybackPath() : null;
         }
 
     }
     private final IBinder mBinder = new ServiceStub(this);
+
 }
 

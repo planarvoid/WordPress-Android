@@ -6,6 +6,15 @@ interface ICloudCreateService
   boolean isRecording();
   void stopRecording();
   void updateRecordTicker();
+  void loadPlaybackTrack(String playbackFile);
+  boolean isPlayingBack();
+  void startPlayback();
+  void pausePlayback();
+  void stopPlayback();
+  int getCurrentPlaybackPosition();
+  int getPlaybackDuration();
+  void seekTo(int position);
+  String getCurrentPlaybackPath();
   void uploadTrack(in Map trackdata);
   boolean isUploading();
   void cancelUpload();

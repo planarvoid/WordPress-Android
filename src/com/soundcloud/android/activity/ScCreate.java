@@ -30,12 +30,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
-import android.media.AudioManager;
 import android.media.ExifInterface;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -45,7 +45,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -65,10 +64,10 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +113,6 @@ public class ScCreate extends ScActivity {
 
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
-    /* package */ Time mRecordingStarted = new Time();
 
     private String mFourSquareVenueId;
     private double mLong, mLat;
@@ -139,8 +137,6 @@ public class ScCreate extends ScActivity {
 
     private String mRecordErrorMessage;
 
-    private MediaPlayer mPlayer;
-
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
@@ -150,6 +146,9 @@ public class ScCreate extends ScActivity {
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
     //public static int PCM_REC_MAX_FILE_SIZE = 158760000; // 15 mins at 44100x16bitx2channels
+
+    private static final int PLAYBACK_REFRESH = 1001;
+    private static int PLAYBACK_REFRESH_INTERVAL = 200;
 
     private static String UPLOAD_TEMP_PICTURE_PATH = CloudCache.EXTERNAL_CACHE_DIRECTORY + "tmp.bmp";
 
@@ -186,10 +185,9 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
         uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
         uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+        uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
+        uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
-
-        mPlayer = new MediaPlayer();
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
     @Override
@@ -199,10 +197,15 @@ public class ScCreate extends ScActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mHandler.removeMessages(PLAYBACK_REFRESH);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 
-        stopPlayback();
 
         this.unregisterReceiver(mUploadStatusListener);
         clearArtwork();
@@ -403,26 +406,24 @@ public class ScCreate extends ScActivity {
             mCurrentState = CreateState.IDLE_UPLOAD;
             mExternalUpload = true;
         } else {
-
             try {
-                if (mCreateService != null && mCreateService.isUploading()) {
+                if (mCreateService.isUploading()) {
                     mCurrentState = CreateState.UPLOAD;
+                } else if (mCreateService.isPlayingBack()) {
+                    mCurrentState = CreateState.PLAYBACK;
+                    mRecordFile = new File(mCreateService.getCurrentPlaybackPath());
+                    configurePlaybackInfo();
+                    takeAction = true;
+                } else if (!mRecordDir.exists()) {
+                    // can happen when there's no mounted sdcard
+                    btnAction.setEnabled(false);
                 } else if (mCurrentState == CreateState.UPLOAD) {
+                    // just finished an upload
                     mCurrentState = CreateState.IDLE_RECORD;
                     takeAction = true;
                 } else {
-                    if (mCurrentState == CreateState.IDLE_PLAYBACK) {
-                        setRecordFile();
-                    } else if (mCurrentState == CreateState.IDLE_RECORD) {
-                        if (!mRecordDir.exists()) {
-                            // can happen when there's no mounted sdcard
-                            btnAction.setEnabled(false);
-                        } else if (mRecordDir.list().length > 0) {
-                            //try to find an existing recording
-                            setRecordFile();
-                        }
-                    }
-
+                    // in this case, state should be based on what is in the recording directory
+                    setRecordFile();
                     if (mRecordFile != null) {
                         mCurrentState = CreateState.IDLE_PLAYBACK;
                         loadPlaybackTrack();
@@ -430,8 +431,7 @@ public class ScCreate extends ScActivity {
                         mCurrentState = CreateState.IDLE_RECORD;
                         takeAction = true;
                     }
-
-                } // IDLE_RECORD
+                }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
                 mCurrentState = CreateState.IDLE_RECORD;
@@ -457,7 +457,6 @@ public class ScCreate extends ScActivity {
         state.putString("createWhatValue", mWhatText.getText().toString());
         state.putString("createWhereValue", mWhereText.getText().toString());
         state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-        state.putLong("recordingStarted", mRecordingStarted.toMillis(false));
 
         if (!TextUtils.isEmpty(mArtworkUri)) {
             state.putString("createArtworkPath", mArtworkUri);
@@ -472,7 +471,6 @@ public class ScCreate extends ScActivity {
             updateUi(false);
         }
 
-        mRecordingStarted.set(state.getLong("recordingStarted"));
         mWhatText.setText(state.getString("createWhatValue"));
         mWhereText.setText(state.getString("createWhereValue"));
 
@@ -642,6 +640,7 @@ public class ScCreate extends ScActivity {
             case IDLE_RECORD:
                 goToView(0);
                 if (takeAction) {
+                    Log.i(TAG,"IDLE RECORDAND TAKE ACTION");
                     stopPlayback();
                     clearCurrentFiles();
                     mWhereText.setText("");
@@ -693,7 +692,11 @@ public class ScCreate extends ScActivity {
                     switch (mLastState) {
                         case RECORD: stopRecording(); break;
                         case PLAYBACK:
-                            if (mPlayer.isPlaying()) mPlayer.pause();
+                            try {
+                                if (mCreateService.isPlayingBack()) mCreateService.pausePlayback();
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "error", e);
+                            }
                             break;
                     }
                 }
@@ -847,7 +850,7 @@ public class ScCreate extends ScActivity {
             setRequestedOrientation(getResources().getConfiguration().orientation);
             try {
                 mCreateService.startRecording(mRecordFile.getAbsolutePath(), mAudioProfile);
-                mRecordingStarted.setToNow();
+                mRecordFile.setLastModified(System.currentTimeMillis());
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
             }
@@ -926,68 +929,95 @@ public class ScCreate extends ScActivity {
     }
 
     private void loadPlaybackTrack(){
-        mPlayer.reset();
-
         try {
-            FileInputStream fis = new FileInputStream(mRecordFile);
-            mPlayer.setDataSource(fis.getFD());
-            fis.close();
-            mPlayer.prepare();
-        } catch (IOException e) {
+            mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+            configurePlaybackInfo();
+        } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
 
-        mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
-                mPlayer.getDuration() / 1000);
+    }
 
-        mProgressBar.setMax(mPlayer.getDuration());
+    private void configurePlaybackInfo(){
+        try {
+            mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
+                    mCreateService.getPlaybackDuration() / 1000);
+            mProgressBar.setMax(mCreateService.getPlaybackDuration());
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
+    }
 
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                mProgressBar.setProgress(0);
-                if (mCurrentState == CreateState.PLAYBACK) {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                    loadPlaybackTrack();
-                    updateUi(true);
-                }
-            }
-        });
+    private void onPlaybackComplete(){
+        mProgressBar.setProgress(0);
+        if (mCurrentState == CreateState.PLAYBACK) {
+            mCurrentState = CreateState.IDLE_PLAYBACK;
+            loadPlaybackTrack();
+            updateUi(true);
+        }
     }
 
     private void startPlayback() {
 
-        mPlayer.start();
-        new Thread() {
-            @Override
-            public void run() {
-                while (mPlayer.isPlaying()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            long pos = mPlayer.getCurrentPosition();
-                            mChrono.setText(CloudUtils.makeTimeString(
-                                    pos < 3600 * 1000 ? mDurationFormatShort
-                                    : mDurationFormatLong, pos / 1000) + " / " +
-                                    mCurrentDurationString);
-                            mProgressBar.setProgress((int) pos);
-                        }
-                    });
+        try {
+            if (!mCreateService.isPlayingBack()) mCreateService.startPlayback(); //might already be playing back if activity just created
+            long next = refreshPlaybackInfo();
+            queueNextPlaybackRefresh(next);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
 
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            }
-        }.start();
     }
 
+    private long refreshPlaybackInfo() {
+        try {
+
+            if (mCreateService == null || mCurrentState != CreateState.PLAYBACK)
+                return PLAYBACK_REFRESH_INTERVAL;
+
+            long pos = mCreateService.getCurrentPlaybackPosition();
+            long remaining = PLAYBACK_REFRESH_INTERVAL - pos % PLAYBACK_REFRESH_INTERVAL;
+            mChrono.setText(CloudUtils.makeTimeString(pos < 3600 * 1000 ? mDurationFormatShort
+                    : mDurationFormatLong, pos / 1000)
+                    + " / " + mCurrentDurationString);
+            mProgressBar.setProgress((int) pos);
+
+            return remaining;
+
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+        }
+
+        return PLAYBACK_REFRESH_INTERVAL;
+    }
+
+    private void queueNextPlaybackRefresh(long delay) {
+        if (mCurrentState == CreateState.PLAYBACK) {
+            Message msg = mHandler.obtainMessage(PLAYBACK_REFRESH);
+            mHandler.removeMessages(PLAYBACK_REFRESH);
+            mHandler.sendMessageDelayed(msg, delay);
+        }
+    }
+
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case PLAYBACK_REFRESH :
+                    long next = refreshPlaybackInfo();
+                    queueNextPlaybackRefresh(next);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
     private void stopPlayback() {
-        try{
-            mPlayer.stop();
-        } catch (IllegalStateException e){
-            Log.e(TAG,"error " + e.toString());
+        try {
+            mCreateService.stopPlayback();
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
         }
         mProgressBar.setProgress(0);
     }
@@ -1003,7 +1033,11 @@ public class ScCreate extends ScActivity {
             long now = SystemClock.elapsedRealtime();
             if ((now - mLastSeekEventTime) > 250) {
                 mLastSeekEventTime = now;
-                mPlayer.seekTo(progress);
+                try {
+                    mCreateService.seekTo(progress);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "error", e);
+                }
             }
         }
         public void onStopTrackingTouch(SeekBar bar) { }
@@ -1107,14 +1141,18 @@ public class ScCreate extends ScActivity {
         }
     }
 
-    private static String dateString(Time time) {
-        String day = DateUtils.getDayOfWeekString(time.weekDay + 1, DateUtils.LENGTH_LONG);
+    private static String dateString(long modified) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(modified);
+
+        String day = DateUtils.getDayOfWeekString(cal.get(Calendar.DAY_OF_WEEK),
+                DateUtils.LENGTH_LONG);
         String dayTime;
-        if (time.hour <= 12) {
+        if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
             dayTime = "morning";
-        } else if (time.hour <= 17) {
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
             dayTime = "afternoon";
-        } else if (time.hour <= 21) {
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
            dayTime = "evening";
         } else {
            dayTime = "night";
@@ -1126,7 +1164,7 @@ public class ScCreate extends ScActivity {
 
     private String generateFilename(String title, String extension) {
         return String.format("%s_%s.%s", title,
-               DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordingStarted.toMillis(false)), extension);
+               DateFormat.format("yyyy-MM-dd-hh-mm-ss", mRecordFile.lastModified()), extension);
     }
 
     private String generateTitle() {
@@ -1145,7 +1183,7 @@ public class ScCreate extends ScActivity {
             if (mWhereText.length() > 0) {
                 note = String.format("Sounds from %s", mWhereText.getText());
             } else {
-                note = String.format("Sounds from %s", dateString(mRecordingStarted));
+                note = String.format("Sounds from %s", dateString(mRecordFile.lastModified()));
             }
         }
         return note;
@@ -1213,6 +1251,10 @@ public class ScCreate extends ScActivity {
                 onCreateComplete(true);
             else if (action.equals(CloudCreateService.RECORD_ERROR))
                 onRecordingError();
+            else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE))
+                onPlaybackComplete();
+            else if (action.equals(CloudCreateService.PLAYBACK_ERROR))
+                onPlaybackComplete(); // might be unknown errors, meriting proper error handling
         }
     };
 
