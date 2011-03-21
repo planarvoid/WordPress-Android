@@ -18,10 +18,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"ResultOfMethodCallIgnored"})
 @RunWith(RobolectricTestRunner.class)
 public class ScCreateTests implements CloudAPI.Params {
     ScCreate create;
@@ -41,7 +45,13 @@ public class ScCreateTests implements CloudAPI.Params {
 
     private Map upload(boolean share) throws Exception {
         // 14:31:01, 15/02/2011
-        create.mRecordingStarted.set(1, 31, 14, 15, 2, 2011);
+        File f = File.createTempFile("upload-test", "test");
+        Calendar c = Calendar.getInstance();
+        c.set(2001, 1, 15,  14, 31, 1);
+        f.setLastModified(c.getTimeInMillis());
+
+        create.setRecordFile(f);
+
         if (share) {
             Connection c1 = new Connection();
             c1.service = "twitter";
@@ -82,8 +92,7 @@ public class ScCreateTests implements CloudAPI.Params {
     @Test
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
-        // TODO should have date in here
-        assertEquals("Sounds from null morning", args.get(TITLE));
+        assertEquals("Sounds from Thursday afternoon", args.get(TITLE));
     }
 
     @Test
@@ -91,7 +100,7 @@ public class ScCreateTests implements CloudAPI.Params {
         Map args = upload(true);
 
         assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
-        assertEquals("Sounds from null morning", args.get(SHARING_NOTE));
+        assertEquals("Sounds from Thursday afternoon", args.get(SHARING_NOTE));
     }
 
     @Test

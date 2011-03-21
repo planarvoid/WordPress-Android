@@ -1,33 +1,28 @@
 package com.soundcloud.android.task;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.api.ApiTest;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -40,7 +35,7 @@ public class AppendTaskTests {
 
     @Test @Ignore
     public void shouldDeserializeTracks() throws Exception {
-        AppendTask task = new AppendTask();
+        AppendTask task = new AppendTask(new SoundCloudApplication());
 
         // XXX need to make this easier testable
         final SoundCloudApplication app = new SoundCloudApplication() {
@@ -88,7 +83,7 @@ public class AppendTaskTests {
 
     @Test @Ignore
     public void shouldDeserializeUsers() throws Exception {
-        AppendTask task = new AppendTask();
+        AppendTask task = new AppendTask(new SoundCloudApplication());
 
         // XXX need to make this easier testable
         final SoundCloudApplication app = new SoundCloudApplication() {

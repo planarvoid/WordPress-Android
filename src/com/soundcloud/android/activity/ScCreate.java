@@ -44,7 +44,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -64,12 +63,14 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,8 +158,6 @@ public class ScCreate extends ScActivity {
 
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
-    private Pattern pattern;
-    private Matcher matcher;
 
 
     @Override
@@ -1145,9 +1144,9 @@ public class ScCreate extends ScActivity {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
 
-        String day = DateUtils.getDayOfWeekString(cal.get(Calendar.DAY_OF_WEEK),
-                DateUtils.LENGTH_LONG);
+        String day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
         String dayTime;
+
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
             dayTime = "morning";
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
@@ -1190,14 +1189,26 @@ public class ScCreate extends ScActivity {
     }
 
     private void setRecordFile(){
-        // find the oldest valid record file in the directory
-           for (File f : mRecordDir.listFiles()){
-               if ((mRecordFile == null || f.lastModified() < mRecordFile.lastModified()) && (isRawFilename(f.getName()) || isCompressedFilename(f.getName())))
-                   mRecordFile = f;
-           }
+        setRecordFile(getValidOldestFile());
+    }
 
-           if (mRecordFile != null) mAudioProfile = isRawFilename(mRecordFile.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
-       }
+    private File getValidOldestFile() {
+        File file = null;
+        for (File f : mRecordDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File f, String s) {
+                return isRawFilename(f.getName()) || isCompressedFilename(f.getName());
+            }
+           })) {
+            if (file == null || f.lastModified() < file.lastModified()) file = f;
+        }
+        return file;
+    }
+
+    /* package */ void setRecordFile(File f) {
+        mRecordFile = f;
+        if (f != null) mAudioProfile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
+    }
 
     private boolean isRawFilename(String filename){
         return RAW_PATTERN.matcher(filename).matches();
