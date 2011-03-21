@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Event;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
     private WeakReference<LazyEndlessAdapter> mAdapterReference;
-    private WeakReference<ScActivity> mActivityReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
 
     private String mNextEventsHref;
@@ -57,9 +55,8 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
      * @param lazyEndlessAdapter
      * @param activity
      */
-    public void setContext(LazyEndlessAdapter lazyEndlessAdapter, ScActivity activity) {
+    public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
-        mActivityReference = new WeakReference<ScActivity>(activity);
     }
 
     /**
@@ -95,12 +92,6 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
                 }
             }
             adapter.onPostTaskExecute(keepGoing);
-        }
-
-        ScActivity activity = mActivityReference.get();
-        if (activity != null) {
-            activity.handleError();
-            activity.handleException();
         }
     }
 

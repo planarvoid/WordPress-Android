@@ -208,7 +208,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public void restoreTask(AppendTask ap) {
         if (ap != null) {
             appendTask = ap;
-            ap.setContext(this, mActivity);
+            ap.setAdapter(this);
         }
     }
 
@@ -344,7 +344,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     appendTask = new AppendTask(mActivity.getSoundCloudApplication());
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
-                    appendTask.setContext(this, mActivity);
+                    appendTask.setAdapter(this);
                     appendTask.execute(this.buildRequest());
                 }
 
@@ -386,6 +386,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         setEmptyviewText();
         mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
+
+        mActivity.handleException();
+        mActivity.handleError();
 
         // if (mActivityReference != null)
         // mActivityReference.handleException();
