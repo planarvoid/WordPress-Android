@@ -341,7 +341,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 pendingView = getPendingView(parent);
                 pendingPosition = position;
                 if (appendTask == null || CloudUtils.isTaskFinished(appendTask)) {
-                    appendTask = new AppendTask();
+                    appendTask = new AppendTask(mActivity.getSoundCloudApplication());
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setContext(this, mActivity);
