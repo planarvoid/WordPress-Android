@@ -58,4 +58,25 @@ namespace :doc do
     end
     sh aspell, "--mode", "html", "--dont-backup", "check", infile
   end
+
 end
+
+[:device, :emu].each do |t|
+  def package() "com.soundcloud.android" end
+  flag = (t == :device ? '-d' : '-e')
+    namespace t do
+      namespace :prefs do
+        pref_path = "/data/data/#{package}/shared_prefs/#{package}_preferences.xml"
+        desc "get prefs from #{t}"
+          task :pull do
+            sh "adb #{flag} pull #{pref_path} ."
+          end
+
+          desc "pushes prefs to #{t}"
+          task :push do
+            sh "adb #{flag} push #{package}_preferences.xml #{pref_path}"
+          end
+      end
+    end
+end
+
