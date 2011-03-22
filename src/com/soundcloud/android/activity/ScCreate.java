@@ -388,7 +388,6 @@ public class ScCreate extends ScActivity {
     @Override
     public void onCreateServiceBound() {
         super.onCreateServiceBound();
-
         File streamFile = null;
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
             Uri stream = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
@@ -415,6 +414,7 @@ public class ScCreate extends ScActivity {
                     mCurrentState = CreateState.PLAYBACK;
                     setRecordFile(new File(mCreateService.getPlaybackPath()));
                     configurePlaybackInfo();
+                    queueNextPlaybackRefresh(refreshPlaybackInfo());
                     takeAction = true;
                 } else if (!mRecordDir.exists()) {
                     // can happen when there's no mounted sdcard
@@ -959,11 +959,9 @@ public class ScCreate extends ScActivity {
     }
 
     private void startPlayback() {
-
         try {
             if (!mCreateService.isPlayingBack()) mCreateService.startPlayback(); //might already be playing back if activity just created
-            long next = refreshPlaybackInfo();
-            queueNextPlaybackRefresh(next);
+            queueNextPlaybackRefresh(refreshPlaybackInfo());
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -972,7 +970,6 @@ public class ScCreate extends ScActivity {
 
     private long refreshPlaybackInfo() {
         try {
-
             if (mCreateService == null || mCurrentState != CreateState.PLAYBACK)
                 return PLAYBACK_REFRESH_INTERVAL;
 
@@ -1005,8 +1002,7 @@ public class ScCreate extends ScActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case PLAYBACK_REFRESH :
-                    long next = refreshPlaybackInfo();
-                    queueNextPlaybackRefresh(next);
+                    queueNextPlaybackRefresh(refreshPlaybackInfo());
                     break;
                 default:
                     break;

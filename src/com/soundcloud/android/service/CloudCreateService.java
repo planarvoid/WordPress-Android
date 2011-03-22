@@ -131,7 +131,7 @@ public class CloudCreateService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (!isUploading() && !isRecording()) {
+        if (!isUploading() && !isRecording() && !isPlaying()) {
             // No active playlist, OK to stop the service right now
             stopSelf(mServiceStartId);
             return true;
