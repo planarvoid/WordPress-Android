@@ -9,6 +9,7 @@ import com.soundcloud.android.task.AsyncApiTask;
 import org.apache.http.HttpResponse;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -22,9 +23,7 @@ public class EmailConfirm extends Activity  {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
 
-    public static final int NO_THANKS = 0;
-    public static final int RESEND = 1;
-    public static final int IGNORED = 2;
+    public static final String RESEND = "com.soundcloud.android.RESEND";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,14 +32,14 @@ public class EmailConfirm extends Activity  {
         final long elapsed = System.currentTimeMillis() - lastReminded;
 
         if (lastReminded > 0 && elapsed < REMIND_PERIOD) {
-            setResult(IGNORED);
+            setResult(RESULT_CANCELED);
             finish();
         } else {
             setContentView(R.layout.email_confirmation);
             findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setResult(RESEND);
+                    setResult(RESULT_OK, new Intent(RESEND));
                     new ResendConfirmationTask((CloudAPI) getApplication()).execute();
                     finish();
                 }
@@ -53,7 +52,7 @@ public class EmailConfirm extends Activity  {
             findViewById(R.id.txt_email_confirm_no_thanks).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setResult(NO_THANKS);
+                    setResult(RESULT_CANCELED);
                     finish();
                 }
             });

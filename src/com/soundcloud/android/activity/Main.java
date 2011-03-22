@@ -187,11 +187,12 @@ public class Main extends TabActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         dismissSplash();
 
-        switch (resultCode) {
-            case EmailConfirm.RESEND:    break;
-            case EmailConfirm.NO_THANKS: break;
-            case EmailConfirm.IGNORED:   break;
-            default:
+        if (resultCode == RESULT_OK) {
+            if (data != null && EmailConfirm.RESEND.equals(data.getAction())) {
+                // user pressed resend button
+            }
+        } else {
+            // back button or no thanks
         }
     }
 
