@@ -259,6 +259,10 @@ public class CloudCreateService extends Service {
         t.start();
     }
 
+    public String getRecordingPath() {
+        return mRecordFile.getAbsolutePath();
+    }
+
     private void onRecordError(){
         notifyChange(RECORD_ERROR);
 
@@ -686,6 +690,11 @@ public class CloudCreateService extends Service {
         }
 
         @Override
+        public String getRecordingPath() throws RemoteException {
+            return mService.get() != null ? mService.get().getRecordingPath() : null;
+        }
+
+        @Override
         public void stopRecording() throws RemoteException {
             if (mService.get() != null) mService.get().stopRecording();
         }
@@ -762,7 +771,7 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        public String getCurrentPlaybackPath() throws RemoteException {
+        public String getPlaybackPath() throws RemoteException {
             return mService.get() != null ? mService.get().getCurrentPlaybackPath() : null;
         }
 

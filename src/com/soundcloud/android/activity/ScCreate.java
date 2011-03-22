@@ -199,11 +199,13 @@ public class ScCreate extends ScActivity {
     protected void onStop() {
         super.onStop();
         mHandler.removeMessages(PLAYBACK_REFRESH);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        getSoundCloudApplication().setRecordListener(null);
         this.unregisterReceiver(mUploadStatusListener);
         clearArtwork();
     }
@@ -402,11 +404,16 @@ public class ScCreate extends ScActivity {
             mExternalUpload = true;
         } else {
             try {
-                if (mCreateService.isUploading()) {
+                if (mCreateService.isRecording()) {
+                    mCurrentState = CreateState.RECORD;
+                    setRecordFile(new File(mCreateService.getRecordingPath()));
+                    getSoundCloudApplication().setRecordListener(recListener);
+                    setRequestedOrientation(getResources().getConfiguration().orientation);
+                } else if (mCreateService.isUploading()) {
                     mCurrentState = CreateState.UPLOAD;
                 } else if (mCreateService.isPlayingBack()) {
                     mCurrentState = CreateState.PLAYBACK;
-                    mRecordFile = new File(mCreateService.getCurrentPlaybackPath());
+                    setRecordFile(new File(mCreateService.getPlaybackPath()));
                     configurePlaybackInfo();
                     takeAction = true;
                 } else if (!mRecordDir.exists()) {
@@ -635,7 +642,6 @@ public class ScCreate extends ScActivity {
             case IDLE_RECORD:
                 goToView(0);
                 if (takeAction) {
-                    Log.i(TAG,"IDLE RECORDAND TAKE ACTION");
                     stopPlayback();
                     mWhereText.setText("");
                     mWhatText.setText("");
@@ -918,7 +924,7 @@ public class ScCreate extends ScActivity {
     private void loadPlaybackTrack(){
         try {
             // might be loaded and paused already
-            if (TextUtils.isEmpty(mCreateService.getCurrentPlaybackPath()) || !mCreateService.getCurrentPlaybackPath().contentEquals(mRecordFile.getAbsolutePath()))
+            if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) || !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath()))
                 mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
 
             configurePlaybackInfo();
@@ -1097,7 +1103,6 @@ public class ScCreate extends ScActivity {
             if (mLat  != 0) tags.add("geo:lat="+mLat);
             if (mLong != 0) tags.add("geo:lon="+mLong);
             data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
-
 
             if (mAudioProfile == Profile.RAW && !mExternalUpload) {
                 data.put(UploadTask.Params.OGG_FILENAME,new File(mRecordDir, generateFilename(title,"ogg")).getAbsolutePath());

@@ -4,6 +4,7 @@ interface ICloudCreateService
 {
   void startRecording(String path, int mode);
   boolean isRecording();
+  String getRecordingPath();
   void stopRecording();
   void updateRecordTicker();
   void loadPlaybackTrack(String playbackFile);
@@ -14,7 +15,7 @@ interface ICloudCreateService
   int getCurrentPlaybackPosition();
   int getPlaybackDuration();
   void seekTo(int position);
-  String getCurrentPlaybackPath();
+  String getPlaybackPath();
   void uploadTrack(in Map trackdata);
   boolean isUploading();
   void cancelUpload();
