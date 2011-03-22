@@ -5,6 +5,7 @@ import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.LruCache;
+import com.soundcloud.android.activity.EmailConfirm;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.utils.ApiWrapper;
 import com.soundcloud.utils.CloudCache;
@@ -110,6 +111,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .remove(Prefs.EMAIL_CONFIRMED)
                 .remove(Prefs.DASHBOARD_IDX)
                 .remove(Prefs.PROFILE_IDX)
+                .remove(EmailConfirm.PREF_LAST_REMINDED)
                 .putLong(Prefs.USER_ID, -1)
                 .putString(Prefs.USERNAME, "")
                 .commit();
