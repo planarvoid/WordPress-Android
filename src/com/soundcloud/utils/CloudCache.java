@@ -68,13 +68,13 @@ public class CloudCache extends FileResponseCache {
         if (fileList == null)
             return 0;
 
-        for (int i = 0; i < fileList.length; i++) {
+        for (File aFileList : fileList) {
             // Recursive call if it's a directory
-            if (fileList[i].isDirectory()) {
-                result += dirSize(fileList[i]);
+            if (aFileList.isDirectory()) {
+                result += dirSize(aFileList);
             } else {
                 // Sum the file size in bytes
-                result += fileList[i].length();
+                result += aFileList.length();
             }
         }
         Log.i(TAG, "RETURNING " + result);
@@ -85,7 +85,6 @@ public class CloudCache extends FileResponseCache {
 
         File cacheDir;
 
-        // Choose chache directory
         if (android.os.Environment.getExternalStorageState().equals(
                 android.os.Environment.MEDIA_MOUNTED))
             cacheDir = new File(EXTERNAL_CACHE_DIRECTORY);
@@ -108,14 +107,12 @@ public class CloudCache extends FileResponseCache {
             Long maxAge = (Long) cookie;
 
             long age = System.currentTimeMillis() - file.lastModified();
-            Log.i(TAG, "IS STALE MAX AGE " + age + " | " + maxAge.longValue());
-            if (age > maxAge.longValue()) {
+            Log.i(TAG, "IS STALE MAX AGE " + age + " | " + maxAge);
+            if (age > maxAge) {
                 return true;
             }
         }
-        Boolean ret = super.isStale(file, uri, requestMethod, requestHeaders, cookie);
-        Log.i(TAG, "Normal return val " + ret);
-        return ret;
+        return super.isStale(file, uri, requestMethod, requestHeaders, cookie);
     }
 
     @Override
@@ -127,8 +124,8 @@ public class CloudCache extends FileResponseCache {
             digest.update(String.valueOf(uri).getBytes("UTF-8"));
             byte[] output = digest.digest();
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < output.length; i++) {
-                builder.append(Integer.toHexString(0xFF & output[i]));
+            for (byte anOutput : output) {
+                builder.append(Integer.toHexString(0xFF & anOutput));
             }
             String filename = builder.toString();
             return new File(parent, filename);

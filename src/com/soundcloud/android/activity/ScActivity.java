@@ -112,6 +112,9 @@ public abstract class ScActivity extends Activity {
     protected void onServiceUnbound() {
     }
 
+    protected void onCreateServiceBound() {
+    }
+
     private ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
@@ -126,9 +129,6 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    protected void onCreateServiceBound(){
-
-    }
 
     private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -139,8 +139,6 @@ public abstract class ScActivity extends Activity {
         public void onServiceDisconnected(ComponentName className) {
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,14 +201,12 @@ public abstract class ScActivity extends Activity {
         tracker = null;
         connectivityListener.stopListening();
 
-
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
         mPlaybackService = null;
         mIgnorePlaybackStatus = false;
 
         CloudUtils.unbindFromService(this, CloudCreateService.class);
         mCreateService = null;
-
     }
 
     @Override
