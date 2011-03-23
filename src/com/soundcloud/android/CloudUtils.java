@@ -208,6 +208,21 @@ public class CloudUtils {
         return true;
     }
 
+    public static File ensureUpdatedDirectory(String validPath, String deprecatedPath){
+        File depDir = new File(deprecatedPath);
+        File newDir = new File(validPath);
+        if (!newDir.exists()) newDir.mkdirs();
+
+        if (depDir.exists()){
+            for (File f : depDir.listFiles()){
+                f.renameTo(new File(newDir,f.getName()));
+            }
+            depDir.delete();
+        }
+
+        return newDir;
+    }
+
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();

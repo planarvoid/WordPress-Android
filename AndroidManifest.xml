@@ -75,14 +75,15 @@
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
         <activity android:name=".activity.ScCreate">
+            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
+        </activity>
+        <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
-
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
           <intent-filter>

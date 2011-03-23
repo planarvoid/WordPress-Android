@@ -87,7 +87,7 @@ public class LocationPicker extends ListActivity {
                 return true;
             }
         });
-        where.addTextChangedListener(new ScCreate.Capitalizer(where));
+        where.addTextChangedListener(new ScUpload.Capitalizer(where));
 
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 
