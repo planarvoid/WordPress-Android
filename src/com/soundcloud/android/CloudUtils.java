@@ -48,6 +48,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -67,13 +68,18 @@ public class CloudUtils {
     public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
+    public static final String DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
+
+    public static final String DEPRACATED_RECORDINGS_FOLDER_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud/.rec";
+    public static final String NEW_RECORDINGS_ABS_PATH = Environment.getExternalStorageDirectory()+"/SoundCloud/recordings";
+
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files/.cache/");
 
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
-            "Soundcloud");
+            "SoundCloud");
 
     public interface RequestCodes {
         int GALLERY_IMAGE_PICK = 9000;
@@ -155,9 +161,51 @@ public class CloudUtils {
 
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            // fix deprecated casing
+            if (fileExistsCaseSensitive(DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH)) {
+                Log.i(TAG,
+                        "Attempting to rename external storage: "
+                                + renameCaseSensitive(new File(
+                                        DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH),
+                                        EXTERNAL_STORAGE_DIRECTORY));
+            }
+
             EXTERNAL_STORAGE_DIRECTORY.mkdirs();
         }
         // do a check??
+    }
+
+    public static boolean fileExistsCaseSensitive(String filepath) {
+        final File f = new File(filepath);
+        if (!f.exists())
+            return false;
+
+        if (f.getParentFile() == null)
+            return false;
+
+        if (f.getParentFile().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.contentEquals(f.getName());
+            }
+        }).length > 0)
+            return true;
+        return false;
+    }
+
+    public static boolean renameCaseSensitive(File oldFile, File newFile){
+        if (oldFile.equals(newFile)){
+            return oldFile.renameTo(newFile);
+        }
+
+        if (oldFile.getParentFile() == null) return false;
+
+        File tmp = new File(oldFile.getParentFile(),"."+System.currentTimeMillis());
+        if (!oldFile.renameTo(tmp)) return false;
+        if (!tmp.renameTo(newFile)) return false;
+
+        oldFile = newFile;
+        return true;
     }
 
     public static boolean deleteDir(File dir) {
