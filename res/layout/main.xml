@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:panel="http://schemas.android.com/apk/res/org.miscwidgets"
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+<FrameLayout
+         android:id="@+id/main"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TabHost android:id="@android:id/tabhost"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+        <TabWidget
+        android:id="@android:id/tabs"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/listSeperator"/>
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
+
+    <FrameLayout
+        android:id="@+id/splash"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <ImageView android:src="@drawable/email_confirm_bg"
+                   android:layout_width="fill_parent"
+                   android:layout_height="fill_parent"/>
+    </FrameLayout>
 </FrameLayout>

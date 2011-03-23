@@ -31,6 +31,7 @@ public interface CloudAPI {
         String MY_FAVORITES        = "me/favorites";
         String MY_FOLLOWERS        = "me/followers";
         String MY_FOLLOWINGS       = "me/followings";
+        String MY_CONFIRMATION     = "me/email-confirmations";
         String USER_DETAILS        = "users/{user_id}";
         String USER_FOLLOWINGS     = "users/{user_id}/followings";
         String USER_FOLLOWERS      = "users/{user_id}/followers";

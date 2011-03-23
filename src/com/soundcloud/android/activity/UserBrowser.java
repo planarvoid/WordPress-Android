@@ -16,7 +16,6 @@ import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
-import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
@@ -73,7 +72,7 @@ public class UserBrowser extends ScActivity {
     private long mUserLoadId;
 
     private CheckFollowingStatusTask mCheckFollowingTask;
-    private LoadTask mLoadDetailsTask;
+    private LoadUserTask mLoadDetailsTask;
 
     private int mFollowResult;
 
@@ -121,7 +120,7 @@ public class UserBrowser extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null){
-            mLoadDetailsTask = (LoadTask) mPreviousState[1];
+            mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
             mLoadDetailsTask.setActivity(this);
 
             mapUser((User) mPreviousState[2]);
@@ -258,17 +257,23 @@ public class UserBrowser extends ScActivity {
 
     private void loadDetails() {
         if (mLoadDetailsTask == null){
-            mLoadDetailsTask = new LoadUserDetailsTask();
-            mLoadDetailsTask.loadModel = User.class;
+            mLoadDetailsTask = new LoadUserTask(getSoundCloudApplication());
             mLoadDetailsTask.setActivity(this);
         }
-        if (CloudUtils.isTaskPending(mLoadDetailsTask)) mLoadDetailsTask.execute(getSoundCloudApplication().getRequest(getDetailsUrl(), null));
+
+        if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
+            mLoadDetailsTask.execute(getDetailsUrl());
+        }
     }
 
-    private class LoadUserDetailsTask extends LoadDetailsTask {
+    private class LoadUserTask extends LoadTask<User> {
+        public LoadUserTask(SoundCloudApplication api) {
+            super(api, User.class);
+        }
+
         @Override
-        protected void mapDetails(Parcelable update) {
-            mapUser((User) update);
+        protected void onPostExecute(User user) {
+            mapUser(user);
         }
     }
 

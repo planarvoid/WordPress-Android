@@ -197,7 +197,37 @@ public class User extends BaseObj implements Parcelable {
         public static final String WEBSITE_TITLE = "website_title";
 
         public static final String DESCRIPTION = "description";
-
     }
 
+
+    @Override
+    public String toString() {
+        return "User[" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", track_count='" + track_count + '\'' +
+                ", discogs_name='" + discogs_name + '\'' +
+                ", city='" + city + '\'' +
+                ", uri='" + uri + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                ", local_avatar_url='" + local_avatar_url + '\'' +
+                ", website_title='" + website_title + '\'' +
+                ", website='" + website + '\'' +
+                ", description='" + description + '\'' +
+                ", online='" + online + '\'' +
+                ", permalink='" + permalink + '\'' +
+                ", permalink_url='" + permalink_url + '\'' +
+                ", full_name='" + full_name + '\'' +
+                ", followers_count='" + followers_count + '\'' +
+                ", followings_count='" + followings_count + '\'' +
+                ", public_favorites_count='" + public_favorites_count + '\'' +
+                ", private_tracks_count='" + private_tracks_count + '\'' +
+                ", myspace_name='" + myspace_name + '\'' +
+                ", country='" + country + '\'' +
+                ", location='" + location + '\'' +
+                ", plan='" + plan + '\'' +
+                ", primary_email_confirmed=" + primary_email_confirmed +
+                ", current_user_following=" + current_user_following +
+                ']';
+    }
 }

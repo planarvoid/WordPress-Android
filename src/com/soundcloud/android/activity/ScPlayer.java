@@ -8,13 +8,14 @@ import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
-import com.soundcloud.android.task.LoadDetailsTask;
 import com.soundcloud.android.task.LoadJsonTask;
+import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.utils.AnimUtils;
 
@@ -29,7 +30,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.Html;
@@ -130,7 +130,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private int mViewWidth = 0;
     private boolean mDraggingLabel = false;
 
-    private LoadDetailsTask mLoadTrackDetailsTask;
+    private LoadTrackTask mLoadTrackDetailsTask;
 
     private ComponentName mRemoteControlResponder;
     private AudioManager mAudioManager;
@@ -502,24 +502,23 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    protected LoadDetailsTask newLoadTrackDetailsTask() {
-        LoadDetailsTask lt = new LoadTrackDetailsTask();
-        lt.loadModel = Track.class;
+    private LoadTrackTask newLoadTrackDetailsTask() {
+        LoadTrackTask lt = new LoadTrackTask(getSoundCloudApplication());
         lt.setActivity(this);
         return lt;
     }
 
-    protected class LoadTrackDetailsTask extends LoadDetailsTask {
-        @Override
-        protected void mapDetails(Parcelable update) {
-            mPlayingTrack = (Track) update;
-            fillTrackDetails();
+    private class LoadTrackTask extends LoadTask<Track> {
+        public LoadTrackTask(SoundCloudApplication api) {
+            super(api, Track.class);
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(Track result) {
             super.onPostExecute(result);
-            onDetailsResult(result);
+            mPlayingTrack = result;
+            fillTrackDetails();
+            onDetailsResult(result != null);
         }
     }
 
@@ -569,9 +568,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             if (mLoadTrackDetailsTask == null || CloudUtils.isTaskFinished(mLoadTrackDetailsTask)) {
                 mLoadTrackDetailsTask = newLoadTrackDetailsTask();
-                mLoadTrackDetailsTask.execute(getSoundCloudApplication().getRequest(
-                        CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
-                                Long.toString(mPlayingTrack.id)), null));
+                mLoadTrackDetailsTask.execute(
+                            CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
+                                    Long.toString(mPlayingTrack.id)));
             } else {
                 if (mTrackInfo.findViewById(R.id.loading_layout) != null)
                     mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
@@ -1136,8 +1135,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (saved[0] != null) mPlayingTrack = (Track) saved[0];
 
             if (saved[1] != null) {
-                mLoadTrackDetailsTask = (LoadDetailsTask) saved[1];
+                mLoadTrackDetailsTask = (LoadTrackTask) saved[1];
                 mLoadTrackDetailsTask.setActivity(this);
+                // XXX?
                 if (CloudUtils.isTaskPending(mLoadTrackDetailsTask)) mLoadTrackDetailsTask.execute();
             }
 

@@ -25,3 +25,6 @@ tests/reports
 
 lib-proguard/out
 soundcloud_sign
+
+#prefs
+com.soundcloud.android_preferences.xml
