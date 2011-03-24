@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Track;
@@ -304,7 +305,9 @@ public class UserBrowser extends ScActivity {
 
         final ScTabView emptyView = new ScTabView(this);
 
-        LazyBaseAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
+        LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
+                new ArrayList<Parcelable>()) : new MyTracksAdapter(this,
+                new ArrayList<Parcelable>());
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), Track.class);
         if (isOtherUser()) {
             if (mUserData != null) {

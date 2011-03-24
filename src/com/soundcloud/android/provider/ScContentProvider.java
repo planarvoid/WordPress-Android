@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.objects.Track.Tracks;
 import com.soundcloud.android.objects.User.Users;
 
@@ -28,7 +29,7 @@ public class ScContentProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "SoundCloud";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
 
@@ -38,13 +39,18 @@ public class ScContentProvider extends ContentProvider {
 
     private static final int USERS = 2;
 
+    private static final int RECORDINGS = 3;
+
     private static HashMap<String, String> tracksProjectionMap;
 
     private static HashMap<String, String> usersProjectionMap;
 
+    private static HashMap<String, String> recordingsProjectionMap;
+
     public enum DbTable {
         Tracks(TRACKS,"Tracks",DATABASE_CREATE_TRACKS,tracksProjectionMap),
-        Users(USERS,"Users",DATABASE_CREATE_USERS,usersProjectionMap);
+        Users(USERS,"Users",DATABASE_CREATE_USERS,usersProjectionMap),
+        Recordings(RECORDINGS,"Recordings",DATABASE_CREATE_RECORDINGS,recordingsProjectionMap);
 
         public final int tblId;
         public final String tblName;
@@ -94,6 +100,19 @@ private static final String DATABASE_CREATE_USERS = "create table Users (_id str
         + "website_title string null, "
         + "description text null);";
 
+private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id string primary key, "
+    + "user_id string null, "
+    + "timestamp string null, "
+    + "longitude string null, "
+    + "latitude string null, "
+    + "what_text string null, "
+    + "where_text string null, "
+    + "audio_path string null, "
+    + "artwork_path string null, "
+    + "audio_profile int null, "
+    + "uploaded boolean false);";
+
+
 private static class DatabaseHelper extends SQLiteOpenHelper {
     private Context mContext;
 
@@ -106,6 +125,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         try {
             db.execSQL(DATABASE_CREATE_TRACKS);
             db.execSQL(DATABASE_CREATE_USERS);
+            db.execSQL(DATABASE_CREATE_RECORDINGS);
         } catch (SQLiteException e) {
             e.printStackTrace();
         }
@@ -130,6 +150,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                         case 5:
                             success = upgradeTo5(db);
                             break;
+                        case 6:
+                            success = upgradeTo6(db);
+                            break;
                         default:
                             break;
                     }
@@ -147,16 +170,14 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             } else {
                 db.execSQL("DROP TABLE IF EXISTS Tracks");
                 db.execSQL("DROP TABLE IF EXISTS Users");
-                db.execSQL("DROP TABLE IF EXISTS Followings");
-                db.execSQL("DROP TABLE IF EXISTS Favorites");
+                db.execSQL("DROP TABLE IF EXISTS Recordings");
                 onCreate(db);
             }
             db.endTransaction();
         } else {
             db.execSQL("DROP TABLE IF EXISTS Tracks");
             db.execSQL("DROP TABLE IF EXISTS Users");
-            db.execSQL("DROP TABLE IF EXISTS Followings");
-            db.execSQL("DROP TABLE IF EXISTS Favorites");
+            db.execSQL("DROP TABLE IF EXISTS Recordings");
             onCreate(db);
         }
 
@@ -190,6 +211,19 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         private boolean upgradeTo5(SQLiteDatabase db) {
             try {
                 alterTableColumns(db, DbTable.Tracks, null, null);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        /*
+         * added sharing to database
+         */
+        private boolean upgradeTo6(SQLiteDatabase db) {
+            try {
+                db.execSQL(DATABASE_CREATE_RECORDINGS);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -233,7 +267,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             case USERS:
                 count = db.delete(DbTable.Users.tblName, where, whereArgs);
                 break;
-
+            case RECORDINGS:
+                count = db.delete(DbTable.Recordings.tblName, where, whereArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -249,6 +285,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 return Tracks.CONTENT_TYPE;
             case USERS:
                 return Users.CONTENT_TYPE;
+            case RECORDINGS:
+                return Recordings.CONTENT_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -309,6 +347,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 qb.setTables(DbTable.Users.tblName);
                 qb.setProjectionMap(usersProjectionMap);
                 break;
+            case RECORDINGS:
+                qb.setTables(DbTable.Recordings.tblName);
+                qb.setProjectionMap(recordingsProjectionMap);
+                break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -346,6 +388,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName, TRACKS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName, USERS);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName, RECORDINGS);
 
         tracksProjectionMap = new HashMap<String, String>();
         tracksProjectionMap.put(Tracks.ID, Tracks.ID);
@@ -382,6 +425,19 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         usersProjectionMap.put(Users.WEBSITE, Users.WEBSITE);
         usersProjectionMap.put(Users.WEBSITE_TITLE, Users.WEBSITE_TITLE);
         usersProjectionMap.put(Users.DESCRIPTION, Users.DESCRIPTION);
+
+        recordingsProjectionMap = new HashMap<String, String>();
+        recordingsProjectionMap.put(Recordings.ID, Recordings.ID);
+        recordingsProjectionMap.put(Recordings.USER_ID, Recordings.USER_ID);
+        recordingsProjectionMap.put(Recordings.TIMESTAMP, Recordings.TIMESTAMP);
+        recordingsProjectionMap.put(Recordings.LONGITUDE, Recordings.LONGITUDE);
+        recordingsProjectionMap.put(Recordings.LATITUDE, Recordings.LATITUDE);
+        recordingsProjectionMap.put(Recordings.WHAT_TEXT, Recordings.WHAT_TEXT);
+        recordingsProjectionMap.put(Recordings.WHERE_TEXT, Recordings.WHERE_TEXT);
+        recordingsProjectionMap.put(Recordings.AUDIO_PATH, Recordings.AUDIO_PATH);
+        recordingsProjectionMap.put(Recordings.ARTWORK_PATH, Recordings.ARTWORK_PATH);
+        recordingsProjectionMap.put(Recordings.AUDIO_PROFILE, Recordings.AUDIO_PROFILE);
+        recordingsProjectionMap.put(Recordings.UPLOADED, Recordings.UPLOADED);
 
     }
 

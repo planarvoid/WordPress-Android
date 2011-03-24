@@ -190,7 +190,7 @@ public class TracklistRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
-        mTrack = getTrackFromParcelable(mAdapter.getData().get(position));
+        mTrack = getTrackFromParcelable((Parcelable) mAdapter.getItem(position));
 
         super.display(position);
 

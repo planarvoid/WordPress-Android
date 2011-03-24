@@ -1,5 +1,8 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.objects.BaseObj;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.Track.Tracks;
 import com.soundcloud.android.objects.User;
@@ -89,13 +92,11 @@ public class SoundCloudDB {
         }
 
 
-        // adds a new note with a given title and text
         public void insertTrack(ContentResolver contentResolver, Track track) {
             ContentValues contentValues = buildTrackArgs(contentResolver,track);
             contentResolver.insert(Tracks.CONTENT_URI, contentValues);
         }
 
-        // checks to see if a note with a given title is in our database
         public boolean isTrackInDb(ContentResolver contentResolver, long id) {
             boolean ret = false;
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + id + "'", null, null);
@@ -106,7 +107,6 @@ public class SoundCloudDB {
             return ret;
         }
 
-        // adds a new note with a given title and text
         public void updateTrack(ContentResolver contentResolver, Track track) {
             ContentValues contentValues = buildTrackArgs(contentResolver,track);
             contentResolver.update(Tracks.CONTENT_URI, contentValues, Tracks.ID + "='" + track.id + "'", null);
@@ -120,7 +120,6 @@ public class SoundCloudDB {
                             + joinArray(currentPlaylist, ",") + ")", null);
         }
 
-        // ---Make sure the database is up to date with this track info---
         public void resolveUser(ContentResolver contentResolver,User user, WriteState writeState,
                 Long currentUserId) {
 
@@ -140,7 +139,6 @@ public class SoundCloudDB {
             }
         }
 
-        // ---Make sure the database is up to date with this track info---
         public User resolveUserById(ContentResolver contentResolver, long userId) {
 
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
@@ -158,13 +156,11 @@ public class SoundCloudDB {
         }
 
 
-     // adds a new note with a given title and text
         public void insertUser(ContentResolver contentResolver, User User, boolean isCurrentUser) {
             ContentValues contentValues = buildUserArgs(contentResolver,User, isCurrentUser);
             contentResolver.insert(Users.CONTENT_URI, contentValues);
         }
 
-        // checks to see if a note with a given title is in our database
         public boolean isUserInDb(ContentResolver contentResolver, long id) {
             boolean ret = false;
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + id + "'", null, null);
@@ -175,11 +171,21 @@ public class SoundCloudDB {
             return ret;
         }
 
-        // adds a new note with a given title and text
         public void updateUser(ContentResolver contentResolver, User User, boolean isCurrentUser) {
             ContentValues contentValues = buildUserArgs(contentResolver,User, isCurrentUser);
             contentResolver.update(Users.CONTENT_URI, contentValues, Users.ID + "='" + User.id + "'", null);
         }
+
+        public void insertRecording(ContentResolver contentResolver, Recording recording) {
+            ContentValues contentValues = buildRecordingArgs(contentResolver,recording);
+            contentResolver.insert(Recordings.CONTENT_URI, contentValues);
+        }
+
+        public void updateRecording(ContentResolver contentResolver, Recording recording) {
+            ContentValues contentValues = buildRecordingArgs(contentResolver,recording);
+            contentResolver.update(Recordings.CONTENT_URI, contentValues, Recordings.ID + "='" + recording.id + "'", null);
+        }
+
 
 
         private String[] getDBCols(ContentResolver contentResolver, Uri tableUri) {
@@ -194,24 +200,14 @@ public class SoundCloudDB {
             for (String key : getDBCols(contentResolver, Tracks.CONTENT_URI)) {
                 try {
                     f = Track.class.getField(key.contentEquals("_id") ? "id" : key);
-                    if (f != null) {
-                        try {
-                            if (f.getType() == String.class)
-                                args.put(key, (String) f.get(track));
-                            else if (f.getType() == Integer.TYPE || f.getType() == Integer.class)
-                                args.put(key, f.getInt(track));
-                            else if (f.getType() == Long.TYPE || f.getType() == Long.class){
-                                args.put(key, f.getLong(track));
-                            }else if (f.getType() == boolean.class)
-                                args.put(key, ((Boolean) f.get(track)) ? 1 : 0);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (SecurityException e1) {
-                    e1.printStackTrace();
+                    if (f != null) mapFieldToArg(key, track, f, args);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
                 } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
 
@@ -220,39 +216,63 @@ public class SoundCloudDB {
 
         }
 
-        private ContentValues buildUserArgs(ContentResolver contentResolver, User User, boolean isCurrentUser) {
+        private ContentValues buildUserArgs(ContentResolver contentResolver,User user, boolean isCurrentUser) {
             ContentValues args = new ContentValues();
             Field f;
             for (String key : getDBCols(contentResolver, Users.CONTENT_URI)) {
                 if (!isCurrentUser && key.equalsIgnoreCase("description"))
                     continue;
-
                 try {
                     f = User.class.getField(key.contentEquals("_id") ? "id" : key);
-                    if (f != null) {
-                        try {
-                            if (f.getType() == String.class)
-                                args.put(key, (String) f.get(User));
-                            else if (f.getType() == Integer.TYPE || f.getType() == Integer.class)
-                                args.put(key, (Integer) f.get(User));
-                            else if (f.getType() == Long.TYPE || f.getType() == Long.class)
-                                args.put(key, (Long) f.get(User));
-                            else if (f.getType() == boolean.class)
-                                args.put(key, ((Boolean) f.get(User)) ? 1 : 0);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (SecurityException e1) {
-                    e1.printStackTrace();
+                    if (f != null) mapFieldToArg(key, user, f, args);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
                 } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
 
             }
             return args;
 
+        }
+
+        private ContentValues buildRecordingArgs(ContentResolver contentResolver,Recording recording) {
+            ContentValues args = new ContentValues();
+            Field f;
+            for (String key : getDBCols(contentResolver, Recordings.CONTENT_URI)) {
+                try {
+                    f = Recording.class.getField(key.contentEquals("_id") ? "id" : key);
+                    if (f != null) mapFieldToArg(key, recording, f, args);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            return args;
+
+        }
+
+        private void mapFieldToArg(String key, BaseObj baseObj, Field f, ContentValues args) throws IllegalArgumentException, IllegalAccessException{
+            if (f.getType() == String.class)
+                args.put(key, (String) f.get(baseObj));
+            else if (f.getType() == Integer.TYPE || f.getType() == Integer.class)
+                args.put(key, f.getInt(baseObj));
+            else if (f.getType() == Long.TYPE || f.getType() == Long.class)
+                args.put(key, f.getLong(baseObj));
+            else if (f.getType() == boolean.class)
+                args.put(key, ((Boolean) f.get(baseObj)) ? 1 : 0);
+            else if (f.getType() == Long.TYPE || f.getType() == Long.class)
+                args.put(key, f.getLong(baseObj));
         }
 
         public static String[] GetColumnsArray(ContentResolver contentResolver, Uri tableUri) {
