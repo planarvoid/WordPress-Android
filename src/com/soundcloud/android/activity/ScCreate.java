@@ -3,6 +3,8 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 import com.soundcloud.utils.record.PowerGauge;
@@ -52,7 +54,7 @@ public class ScCreate extends ScActivity {
 
     private ImageButton btnAction;
 
-    private File mRecordFile, mRecordDir;
+    private File mRecordFile, mRecordDir, mSaveDir;
 
     private CreateState mLastState, mCurrentState;
 
@@ -113,6 +115,9 @@ public class ScCreate extends ScActivity {
 
         mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/unsaved", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
         if (!mRecordDir.exists()) mRecordDir.mkdirs();
+
+        mSaveDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/unsaved");
+        if (!mSaveDir.exists()) mSaveDir.mkdirs();
 
         mRecordErrorMessage = "";
 
@@ -183,10 +188,26 @@ public class ScCreate extends ScActivity {
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mRecordFile.renameTo(new File(mSaveDir,mRecordFile.getName()));
+
+                Log.i(TAG,"Renamed file to " + mRecordFile.getAbsolutePath());
+
+                Recording r = new Recording();
+                r.audio_path = mRecordFile.getAbsolutePath();
+                r.audio_profile = mAudioProfile;
+                r.timestamp = mRecordFile.lastModified();
+                r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
+
+                SoundCloudDB.getInstance().insertRecording(ScCreate.this.getContentResolver(), r);
+
+
                 // reset and send intent to upload
                 Intent i = new Intent(ScCreate.this,ScUpload.class);
                 i.putExtra("uploadFilePath", mRecordFile.getAbsolutePath());
                 startActivity(i);
+
+                mCurrentState = CreateState.IDLE_RECORD;
+                updateUi(true);
             }
         });
 

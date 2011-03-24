@@ -100,7 +100,7 @@ private static final String DATABASE_CREATE_USERS = "create table Users (_id str
         + "website_title string null, "
         + "description text null);";
 
-private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id string primary key, "
+private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id string primary key AUTOINCREMENT, "
     + "user_id string null, "
     + "timestamp string null, "
     + "longitude string null, "
@@ -319,6 +319,14 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                     Uri usersUri = ContentUris.withAppendedId(Users.CONTENT_URI, rowId);
                     getContext().getContentResolver().notifyChange(usersUri, null);
                     return usersUri;
+                }
+                break;
+            case RECORDINGS:
+                rowId = db.insert(DbTable.Recordings.tblName, Recordings.AUDIO_PATH, values);
+                if (rowId > 0) {
+                    Uri recordingUri = ContentUris.withAppendedId(Recordings.CONTENT_URI, rowId);
+                    getContext().getContentResolver().notifyChange(recordingUri, null);
+                    return recordingUri;
                 }
                 break;
 

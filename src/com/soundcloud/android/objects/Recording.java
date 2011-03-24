@@ -20,7 +20,7 @@ public class Recording extends BaseObj implements Parcelable {
     private static final String TAG = "Track";
 
     public long id;
-    public long userid;
+    public long user_id;
     public long timestamp;
     public double longitude;
     public double latitude;
