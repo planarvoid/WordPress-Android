@@ -31,7 +31,7 @@ public class Main extends TabActivity {
     private TabHost mTabHost;
     private ViewGroup mSplash;
 
-    private static final long SPLASH_DELAY = 1000;
+    private static final long SPLASH_DELAY = 2000;
     private static final long FADE_DELAY   = 1000;
 
     @Override

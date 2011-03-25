@@ -621,7 +621,4 @@ public class CloudUtils {
         comment.reply_to_username = replyToUsername;
         return comment;
     }
-
-
-
 }
