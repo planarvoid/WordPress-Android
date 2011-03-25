@@ -40,9 +40,9 @@ public class Main extends TabActivity {
         super.onCreate(state);
         setContentView(R.layout.main);
 
-        mSplash = (ViewGroup) findViewById(R.id.splash);
         long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
         final boolean visible = lastDestroyed == 0 || System.currentTimeMillis() - lastDestroyed > SPLASH_PAUSE;
+        mSplash = (ViewGroup) findViewById(R.id.splash);
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
