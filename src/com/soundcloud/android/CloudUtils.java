@@ -65,12 +65,12 @@ public class CloudUtils {
     public static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
 
-    public static final String DEPRACATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
+    public static final String DEPRECATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
-    public static final String DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
+    public static final String DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
 
-    public static final String DEPRACATED_RECORDINGS_FOLDER_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud/.rec";
+    public static final String DEPRECATED_RECORDINGS_FOLDER_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud/.rec";
     public static final String NEW_RECORDINGS_ABS_PATH = Environment.getExternalStorageDirectory()+"/SoundCloud/recordings";
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
@@ -137,7 +137,7 @@ public class CloudUtils {
     public static void checkState(Context c) {
         checkDirs(c);
 
-        File f = new File(DEPRACATED_DB_ABS_PATH);
+        File f = new File(DEPRECATED_DB_ABS_PATH);
         Log.i(TAG,"!!!!!!! looking for db " + f.exists());
         if (f.exists()) {
             File newDb = new File(NEW_DB_ABS_PATH);
@@ -162,11 +162,11 @@ public class CloudUtils {
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // fix deprecated casing
-            if (fileExistsCaseSensitive(DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH)) {
+            if (fileExistsCaseSensitive(DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH)) {
                 Log.i(TAG,
                         "Attempting to rename external storage: "
                                 + renameCaseSensitive(new File(
-                                        DEPRACATED_EXTERNAL_STORAGE_DIRECTORY_PATH),
+                                DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH),
                                         EXTERNAL_STORAGE_DIRECTORY));
             }
 
