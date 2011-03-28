@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -132,7 +132,7 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.PATH_TRACKS, URLEncoder.encode(query));
+            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.TRACKS, URLEncoder.encode(query));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
             mList.enableLongClickListener();

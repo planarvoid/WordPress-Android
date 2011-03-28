@@ -12,6 +12,7 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -20,12 +21,13 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
-
-import oauth.signpost.exception.OAuthCommunicationException;
-
 import org.json.JSONException;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import android.accounts.Account;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -53,6 +55,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -79,15 +82,10 @@ public abstract class ScActivity extends Activity {
     public boolean pendingIconsUpdate;
 
     // Need handler for callbacks to the UI thread
-    public final Handler mHandler = new Handler();
+    protected final Handler mHandler = new Handler();
 
     private GoogleAnalyticsTracker tracker;
 
-    /**
-     * Get an instance of our communicator
-     *
-     * @return the Cloud Communicator singleton
-     */
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
     }
@@ -97,15 +95,14 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onServiceBound() {
-        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED) {
+        if (getSoundCloudApplication().getToken() == null) {
             pause(true);
-            return;
-        }
-
-        try {
-            setPlayingTrack(mPlaybackService.getTrackId(), mPlaybackService.isPlaying());
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
+        } else {
+            try {
+                setPlayingTrack(mPlaybackService.getTrackId(), mPlaybackService.isPlaying());
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
+            }
         }
     }
 
@@ -212,16 +209,29 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        Account account = getSoundCloudApplication().getAccount();
+        if (account == null) {
+            getSoundCloudApplication().addAccount(this, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> future) {
+                    try {
+                        // NB: important to call future.getResult() for side effects
+                        startActivity(new Intent(ScActivity.this, Main.class)
+                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    } catch (OperationCanceledException e) {
+                        Log.d(TAG, "authorisation canceled");
+                    } catch (IOException e) {
+                        Log.w(TAG, e);
+                    } catch (AuthenticatorException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+            });
 
-        if (getSoundCloudApplication().getState() != SoundCloudAPI.State.AUTHORIZED || getUserId() == -1) {
-            pause(true);
-
-            onReauthenticate();
-
-            Intent intent = new Intent(this, Authorize.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
             finish();
+        } else {
+            getSoundCloudApplication().useAccount(account);
         }
     }
 
@@ -229,7 +239,6 @@ public abstract class ScActivity extends Activity {
     }
 
     public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
-
         // find out if this track is already playing. If it is, just go to the
         // player
         try {
@@ -281,9 +290,6 @@ public abstract class ScActivity extends Activity {
             Log.e(TAG, "error", e);
         }
     }
-
-
-
 
     public LazyListView buildList() {
         LazyListView lv = new LazyListView(this);
@@ -362,16 +368,12 @@ public abstract class ScActivity extends Activity {
         mException = e;
     }
 
-    // XXX why not Exception in?
+    // XXX why not pass Exception in?
     public void handleException() {
         if (getException() instanceof UnknownHostException
                 || getException() instanceof SocketException
-                || getException() instanceof JSONException
-                || getException() instanceof OAuthCommunicationException) {
+                || getException() instanceof JSONException) {
             safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
-        } else {
-            // don't show general errors :
-            // safeShowDialog(CloudUtils.Dialogs.DIALOG_GENERAL_ERROR);
         }
         setException(null);
     }

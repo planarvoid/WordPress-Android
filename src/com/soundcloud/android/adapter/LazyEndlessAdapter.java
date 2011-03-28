@@ -13,7 +13,6 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.view.LazyListView;
 
-import org.apache.http.client.methods.HttpUriRequest;
 
 import android.net.Uri;
 import android.os.Parcelable;
@@ -45,8 +44,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     private String mQuery;
 
     private Class<?> mLoadModel;
-
-    private String mCollectionKey = "";
 
     private View mEmptyView;
 
@@ -93,8 +90,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
             Class<?> model, String collectionKey) {
         this(activity, wrapped, url, model);
-
-        mCollectionKey = collectionKey;
     }
 
     /**
@@ -298,7 +293,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setAdapter(this);
-                    appendTask.execute(this.buildRequest());
+                    appendTask.execute(buildRequest());
                 }
 
             }
@@ -468,25 +463,14 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    private HttpUriRequest buildRequest() {
+    private String buildRequest() {
         String baseUrl = getUrl();
         String query = getQuery();
-
-        // build the querystring
         Uri u = Uri.parse(baseUrl);
         Uri.Builder builder = u.buildUpon();
-
-        if (!query.contentEquals(""))
-            builder.appendQueryParameter("q", query);
-        if (baseUrl.indexOf("limit") == -1)
-            builder.appendQueryParameter("limit", String.valueOf(getPageSize()));
-
-        builder.appendQueryParameter("offset", String.valueOf(getPageSize()
-                * (getCurrentPage())));
-        builder.appendQueryParameter("consumer_key", mActivity.getResources().getString(
-                R.string.consumer_key));
-
-       return mActivity.getSoundCloudApplication().getRequest(builder.build().toString(), null);
+        if (!TextUtils.isEmpty(query)) builder.appendQueryParameter("q", query);
+        if (baseUrl.indexOf("limit") == -1) builder.appendQueryParameter("limit", String.valueOf(getPageSize()));
+        builder.appendQueryParameter("offset", String.valueOf(getPageSize() * (getCurrentPage())));
+        return builder.build().toString();
     }
-
 }

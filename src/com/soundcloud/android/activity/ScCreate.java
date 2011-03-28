@@ -2,7 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -1057,9 +1057,9 @@ public class ScCreate extends ScActivity {
         if (!uploading) {
             final boolean privateUpload = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
             final Map<String, Object> data = new HashMap<String, Object>();
-            data.put(CloudAPI.Params.SHARING, privateUpload ? CloudAPI.Params.PRIVATE : CloudAPI.Params.PUBLIC);
-            data.put(CloudAPI.Params.DOWNLOADABLE, false);
-            data.put(CloudAPI.Params.STREAMABLE, true);
+            data.put(CloudAPI.TrackParams.SHARING, privateUpload ? CloudAPI.TrackParams.PRIVATE : CloudAPI.TrackParams.PUBLIC);
+            data.put(CloudAPI.TrackParams.DOWNLOADABLE, false);
+            data.put(CloudAPI.TrackParams.STREAMABLE, true);
 
 
             if (!privateUpload) {
@@ -1068,23 +1068,23 @@ public class ScCreate extends ScActivity {
                 final List<Integer> serviceIds = mConnectionList.postToServiceIds();
 
                  if (!serviceIds.isEmpty()) {
-                    data.put(CloudAPI.Params.SHARING_NOTE, generateSharingNote());
-                    data.put(CloudAPI.Params.POST_TO, serviceIds);
+                    data.put(CloudAPI.TrackParams.SHARING_NOTE, generateSharingNote());
+                    data.put(CloudAPI.TrackParams.POST_TO, serviceIds);
                  } else {
-                    data.put(CloudAPI.Params.POST_TO_EMPTY, "");
+                    data.put(CloudAPI.TrackParams.POST_TO_EMPTY, "");
                  }
             } else {
                 Log.v(TAG, "private track upload");
 
                 final List<String> sharedEmails = mAccessList.getAdapter().getAccessList();
                 if (sharedEmails != null && !sharedEmails.isEmpty()) {
-                    data.put(CloudAPI.Params.SHARED_EMAILS, sharedEmails);
+                    data.put(CloudAPI.TrackParams.SHARED_EMAILS, sharedEmails);
                 }
             }
 
             final String title = generateTitle();
-            data.put(CloudAPI.Params.TITLE, title);
-            data.put(CloudAPI.Params.TYPE, "recording");
+            data.put(CloudAPI.TrackParams.TITLE, title);
+            data.put(CloudAPI.TrackParams.TYPE, "recording");
 
             // add machine tags
             List<String> tags = new ArrayList<String>();
@@ -1098,7 +1098,7 @@ public class ScCreate extends ScActivity {
             if (mFourSquareVenueId != null) tags.add("foursquare:venue="+mFourSquareVenueId);
             if (mLat  != 0) tags.add("geo:lat="+mLat);
             if (mLong != 0) tags.add("geo:lon="+mLong);
-            data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
+            data.put(CloudAPI.TrackParams.TAG_LIST, TextUtils.join(" ", tags));
 
             if (mAudioProfile == Profile.RAW && !mExternalUpload) {
                 data.put(UploadTask.Params.OGG_FILENAME,new File(mRecordDir, generateFilename(title,"ogg")).getAbsolutePath());

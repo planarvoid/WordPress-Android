@@ -1,20 +1,20 @@
-
-package com.soundcloud.utils.http;
+package com.soundcloud.api;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.soundcloud.api.CloudAPI;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
 public class CountingMultipartRequestEntity implements HttpEntity {
     private HttpEntity delegate_;
 
-    private Http.ProgressListener listener_;
+    private CloudAPI.ProgressListener listener_;
 
-    public CountingMultipartRequestEntity(HttpEntity delegate, Http.ProgressListener listener) {
+    public CountingMultipartRequestEntity(HttpEntity delegate, CloudAPI.ProgressListener listener) {
         super();
         delegate_ = delegate;
         listener_ = listener;
@@ -58,11 +58,11 @@ public class CountingMultipartRequestEntity implements HttpEntity {
 
     private class CountingOutputStream extends FilterOutputStream {
 
-        private final Http.ProgressListener listener;
+        private final CloudAPI.ProgressListener listener;
 
         private long transferred;
 
-        public CountingOutputStream(final OutputStream out, final Http.ProgressListener listener) {
+        public CountingOutputStream(final OutputStream out, final CloudAPI.ProgressListener listener) {
             super(out);
             this.listener = listener;
             this.transferred = 0;

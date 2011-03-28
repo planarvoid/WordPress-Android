@@ -128,28 +128,40 @@ public class Settings extends PreferenceActivity {
 
             case DIALOG_USER_DELETE_CONFIRM:
                 return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
-                        .setMessage(R.string.menu_clear_user_desc).setPositiveButton("OK",
+                        .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        clearUserData();
+                                        ((SoundCloudApplication) getApplication()).clearSoundCloudAccount(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        finish();
+                                                    }
+                                                },
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        new AlertDialog.Builder(Settings.this)
+                                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                                .setMessage(R.string.settings_error_revoking_account_message)
+                                                                .setTitle(R.string.settings_error_revoking_account_title)
+                                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        // finish();
+                                                                    }
+                                                                }).create().show();
+                                                    }
+                                                }
+                                        );
                                     }
-                                }).setNegativeButton("Cancel",
+                                }).setNegativeButton(android.R.string.cancel,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                     }
                                 }).create();
         }
         return super.onCreateDialog(id);
-    }
-
-    private void clearUserData() {
-        ((SoundCloudApplication) getApplication()).clearSoundCloudAccount();
-
-        Intent intent = new Intent(this, Authorize.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-        // TODO need to finish other activities since they might have references to old credentials
     }
 
     public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {

@@ -3,19 +3,15 @@ package com.soundcloud.android.task;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.api.ApiTest;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import org.apache.http.RequestLine;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,58 +19,35 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class AppendTaskTests {
+    ScActivity activity;
+    SoundCloudApplication app;
 
     @Before
-    public void before() {
-        Robolectric.bindShadowClass(ApiTest.ShadowLog.class);
-    }
-
-    @Test @Ignore
-    public void shouldDeserializeTracks() throws Exception {
-        // XXX need to make this easier testable
-        final SoundCloudApplication app = new SoundCloudApplication() {
-            @Override
-            protected String getConsumerKey(boolean production) {
-                return "";
-            }
-
-            @Override
-            protected String getConsumerSecret(boolean production) {
-                return "";
-            }
-        };
-        app.onCreate();
-
-        AppendTask task = new AppendTask(app);
-        
-        ScActivity activity = new ScActivity() {
+    public void setup() {
+        app = (SoundCloudApplication) Robolectric.application;
+        activity = new ScActivity() {
             @Override
             public SoundCloudApplication getSoundCloudApplication() {
                 return app;
             }
         };
+    }
 
+    @Test @Ignore
+    public void shouldDeserializeTracks() throws Exception {
+        AppendTask task = new AppendTask(app);
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
                 new LazyBaseAdapter(null, null), "", Track.class);
 
         task.setAdapter(adapter);
 
-        HttpUriRequest request = mock(HttpUriRequest.class);
-        when(request.getURI()).thenReturn(URI.create("http://foo.com"));
-        when(request.getMethod()).thenReturn("GET");
-        RequestLine line = mock(RequestLine.class);
-        when(line.getMethod()).thenReturn("GET");
-        when(request.getRequestLine()).thenReturn(line);
-
-
         Robolectric.addPendingHttpResponse(200, slurp("tracks.json"));
-        task.doInBackground(request);
+        task.doInBackground("http://foo.com");
 
         assertThat(task.newItems, not(nullValue()));
         assertThat(task.newItems.size(), equalTo(11));
@@ -83,22 +56,7 @@ public class AppendTaskTests {
 
     @Test @Ignore
     public void shouldDeserializeUsers() throws Exception {
-        // XXX need to make this easier testable
-        final SoundCloudApplication app = new SoundCloudApplication() {
-            @Override
-            protected String getConsumerKey(boolean production) {
-                return "";
-            }
-
-            @Override
-            protected String getConsumerSecret(boolean production) {
-                return "";
-            }
-        };
-        app.onCreate();
-        
         AppendTask task = new AppendTask(app);
-
         ScActivity activity = new ScActivity() {
             @Override
             public SoundCloudApplication getSoundCloudApplication() {
@@ -106,22 +64,13 @@ public class AppendTaskTests {
             }
         };
 
-
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
                 new LazyBaseAdapter(null, null), "", User.class);
 
         task.setAdapter(adapter);
 
-        HttpUriRequest request = mock(HttpUriRequest.class);
-        when(request.getURI()).thenReturn(URI.create("http://foo.com"));
-        when(request.getMethod()).thenReturn("GET");
-        RequestLine line = mock(RequestLine.class);
-        when(line.getMethod()).thenReturn("GET");
-        when(request.getRequestLine()).thenReturn(line);
-
-
         Robolectric.addPendingHttpResponse(200, slurp("users.json"));
-        task.doInBackground(request);
+        task.doInBackground("http://foo.com");
 
         assertThat(task.newItems, not(nullValue()));
         assertThat(task.newItems.size(), equalTo(1));

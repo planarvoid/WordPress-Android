@@ -1,18 +1,15 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.api.Http;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.os.AsyncTask;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
@@ -21,7 +18,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
     Comment mAddComment;
 
     Exception mException;
-    List<NameValuePair> mApiParams;
+    Http.Params mApiParams;
 
     public AddCommentTask(SoundCloudApplication app, AddCommentListener addCommentListener) {
         mApplication = app;
@@ -31,11 +28,10 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
     @Override
     protected Boolean doInBackground(Comment... params) {
         mAddComment = params[0];
-        mApiParams = new ArrayList<NameValuePair>();
-        mApiParams.add(new BasicNameValuePair("comment[body]", mAddComment.body));
-        if (mAddComment.timestamp > -1) mApiParams.add(new BasicNameValuePair("comment[timestamp]", Long.toString(mAddComment.timestamp)));
-        if (mAddComment.reply_to_id > 0) mApiParams.add(new BasicNameValuePair("comment[reply_to]", Long.toString(mAddComment.reply_to_id)));
-
+        mApiParams = new Http.Params();
+        mApiParams.add(CloudAPI.CommentParams.BODY, mAddComment.body);
+        if (mAddComment.timestamp > -1) mApiParams.add(CloudAPI.CommentParams.TIMESTAMP, Long.toString(mAddComment.timestamp));
+        if (mAddComment.reply_to_id > 0) mApiParams.add(CloudAPI.CommentParams.REPLY_TO, Long.toString(mAddComment.reply_to_id));
 
         try {
             return mApplication.postContent(

@@ -1,9 +1,9 @@
 package com.soundcloud.android.task;
 
 import android.net.Uri;
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.objects.Connection;
-import com.soundcloud.utils.http.Http;
+import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
@@ -27,7 +27,7 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
             HttpResponse response = api().postContent(CONNECTIONS, new Http.Params(
                     "service", svc.name,
                     "format",  "json",
-                    "redirect_uri", URL_SCHEME+svc).params);
+                    "redirect_uri", URL_SCHEME+svc));
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
                 JsonNode node = api().getMapper().readTree(response.getEntity().getContent());

@@ -2,7 +2,9 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowResources;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,24 +15,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class AddCommentTaskTests {
     private SoundCloudApplication mApp;
 
     @Before
     public void setUp() {
-        // XXX need to make this easier testable
-        mApp = new SoundCloudApplication() {
-            @Override
-            protected String getConsumerKey(boolean production) {
-                return "";
-            }
-
-            @Override
-            protected String getConsumerSecret(boolean production) {
-                return "";
-            }
-        };
+        mApp = (SoundCloudApplication) Robolectric.application;
         mApp.onCreate();
     }
 

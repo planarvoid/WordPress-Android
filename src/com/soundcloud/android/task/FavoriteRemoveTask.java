@@ -1,14 +1,13 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
 
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class FavoriteRemoveTask extends FavoriteTask {
 

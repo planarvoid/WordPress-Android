@@ -1,9 +1,6 @@
 
 package com.soundcloud.utils.net;
 
-import java.util.HashMap;
-import java.util.Iterator;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,11 +11,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.util.HashMap;
+
 /**
  * A wrapper for a broadcast receiver that provides network connectivity state
  * information, independent of network type (mobile, Wi-Fi, etc.). {@hide
- * 
- * }
  */
 public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
@@ -54,7 +51,7 @@ public class NetworkConnectivityListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || mListening == false) {
+            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || !mListening) {
                 Log.w(TAG, "onReceived() called with " + mState.toString() + " and " + intent);
                 return;
             }
@@ -84,15 +81,13 @@ public class NetworkConnectivityListener {
                                 + noConnectivity) + " mState=" + mState.toString());
             }
 
-            // Notifiy any handlers.
-            Iterator<Handler> it = mHandlers.keySet().iterator();
-            while (it.hasNext()) {
-                Handler target = it.next();
+            // Notify any handlers.
+            for (Handler target : mHandlers.keySet()) {
                 Message message = Message.obtain(target, mHandlers.get(target));
                 target.sendMessage(message);
             }
         }
-    };
+    }
 
     public enum State {
         UNKNOWN,
@@ -121,8 +116,6 @@ public class NetworkConnectivityListener {
 
     /**
      * This method starts listening for network connectivity state changes.
-     * 
-     * @param context
      */
     public synchronized void startListening(Context context) {
         if (!mListening) {
@@ -169,10 +162,6 @@ public class NetworkConnectivityListener {
      */
     public void unregisterHandler(Handler target) {
         mHandlers.remove(target);
-    }
-
-    public State getState() {
-        return mState;
     }
 
     /**

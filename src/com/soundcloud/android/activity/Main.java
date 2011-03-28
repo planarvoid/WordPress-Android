@@ -2,14 +2,18 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.service.AuthenticatorService;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadTask;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -27,6 +31,8 @@ import android.view.animation.Animation;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
+import java.io.IOException;
+
 public class Main extends TabActivity {
     private TabHost mTabHost;
     private ViewGroup mSplash;
@@ -38,6 +44,8 @@ public class Main extends TabActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        Log.d(TAG, "onCreate("+state+")");
+
         setContentView(R.layout.main);
 
         long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
@@ -46,8 +54,30 @@ public class Main extends TabActivity {
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        if (app.getAccount() == null) {
+            app.addAccount(this, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> future) {
+                    try {
+                        // restart main activity
+                        // NB: important to call future.getResult() for side effects
+                        startActivity(new Intent(Main.this, Main.class)
+                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    } catch (OperationCanceledException ignored) {
+                        Log.d(TAG, "operation canceled");
+                    } catch (IOException e) {
+                        Log.w(TAG, e);
+                    } catch (AuthenticatorException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+            });
+            finish();
+            return;
+        }
 
-        if (isConnected() && app.getState() == SoundCloudAPI.State.AUTHORIZED && !app.isEmailConfirmed()) {
+        if (isConnected() && app.getToken() != null && !app.isEmailConfirmed()) {
             (new LoadTask<User>((SoundCloudApplication) getApplication(), User.class) {
                 @Override
                 protected void onPostExecute(User user) {
@@ -125,6 +155,8 @@ public class Main extends TabActivity {
             } else if (intent.hasExtra("tabTag")) {
                 mTabHost.setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
+            } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {
+                Log.d(TAG, "activity start after successful authentication");
             }
         }
     }

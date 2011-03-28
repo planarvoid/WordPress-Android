@@ -3,9 +3,8 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.utils.http.Http;
+import com.soundcloud.api.Http;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -75,7 +74,8 @@ public class LocationPicker extends ListActivity {
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                     event.getAction() == KeyEvent.ACTION_DOWN)) {
                     Intent data = new Intent();
 
                     data.setData(Uri.parse("location://manual"));
@@ -157,7 +157,7 @@ public class LocationPicker extends ListActivity {
         @Override
         protected List<Venue> doInBackground(Location... locations) {
             Location loc = locations[0];
-            HttpClient client = new DefaultHttpClient(CloudUtils.getConfiguredDefaultHttpParams());
+            HttpClient client = new DefaultHttpClient(Http.defaultParams());
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());

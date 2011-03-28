@@ -3,7 +3,7 @@ package com.soundcloud.android.service;
 
 import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

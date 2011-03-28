@@ -2,9 +2,10 @@ package com.soundcloud.android.view;
 
 
 import android.app.Activity;
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.api.ApiTest;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.BaseApiTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,12 +14,12 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.reset;
 
-@RunWith(RobolectricTestRunner.class)
-public class ConnectionListTests extends ApiTest implements CloudAPI.Enddpoints {
+@RunWith(DefaultTestRunner.class)
+public class ConnectionListTests extends BaseApiTest implements CloudAPI.Enddpoints {
 
     @Test
     public void shouldLoadConnectionsFromApi() throws Exception {
-        fakeApi(CONNECTIONS, "connections.json");
+        expectGetRequestAndReturn(CONNECTIONS, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
         assertEquals(0, list.postToServiceIds().size());
@@ -34,7 +35,7 @@ public class ConnectionListTests extends ApiTest implements CloudAPI.Enddpoints 
 
     @Test
     public void shouldOnlyReloadIfNeeded() throws Exception {
-        fakeApi(CONNECTIONS, "connections.json");
+        expectGetRequestAndReturn(CONNECTIONS, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
 
@@ -45,7 +46,7 @@ public class ConnectionListTests extends ApiTest implements CloudAPI.Enddpoints 
         assertEquals(1, list.postToServiceIds().size());
 
         reset(api);
-        fakeApi(CONNECTIONS, new IOException());
+        expectGetRequestAndThrow(CONNECTIONS, new IOException());
 
         list.getAdapter().loadIfNecessary();
         assertEquals(1, list.postToServiceIds().size());

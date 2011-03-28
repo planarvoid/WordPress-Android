@@ -27,6 +27,7 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.utils.CloudCache;
+import com.soundcloud.api.Http;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 import com.soundcloud.utils.play.MediaFrameworkChecker;
 import com.soundcloud.utils.play.PlayListManager;
@@ -38,9 +39,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -697,7 +695,7 @@ public class CloudPlaybackService extends Service {
                     // commit updated track (user played update only)
                     commitTrackToDb(mPlayingData);
                     mPlayer.setDataSourceAsync(((SoundCloudApplication) getApplication())
-                            .signStreamUrlNaked(mPlayingData.stream_url));
+                            .signUrl(mPlayingData.stream_url));
                 }
                 return;
             }
@@ -1452,7 +1450,7 @@ public class CloudPlaybackService extends Service {
                     mMediaPlayer.setDataSource(mPlayingData.mCacheFile.getAbsolutePath());
                 else
                     mMediaPlayer.setDataSource(((SoundCloudApplication) CloudPlaybackService.this
-                            .getApplication()).signStreamUrlNaked(mPlayingData.stream_url));
+                            .getApplication()).signUrl(mPlayingData.stream_url));
 
                 mMediaPlayer.prepareAsync();
 
@@ -1990,9 +1988,7 @@ public class CloudPlaybackService extends Service {
 
         @Override
         public void run() {
-            HttpParams params = new BasicHttpParams();
-            HttpConnectionParams.setSocketBufferSize(params, 8192);
-            HttpClient cli = new DefaultHttpClient(CloudUtils.getConfiguredDefaultHttpParams());
+            HttpClient cli = new DefaultHttpClient(Http.defaultParams());
             HttpGet method;
 
             HttpResponse resp;
@@ -2006,7 +2002,7 @@ public class CloudPlaybackService extends Service {
                         mode = MODE_CHECK_COMPLETE;
 
                         HttpHead request = new HttpHead(((SoundCloudApplication) serviceRef.get()
-                                .getApplication()).signStreamUrlNaked(track.stream_url));
+                                .getApplication()).signUrl(track.stream_url));
                         resp = cli.execute(request);
 
                         if (resp.getStatusLine().getStatusCode() != 200) {
@@ -2023,7 +2019,7 @@ public class CloudPlaybackService extends Service {
                         Log.i(TAG,"Resuming partial download of " + track.title);
                         mode = MODE_PARTIAL;
                         method = new HttpGet(((SoundCloudApplication) serviceRef.get()
-                                .getApplication()).signStreamUrlNaked(track.stream_url));
+                                .getApplication()).signUrl(track.stream_url));
                         method.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
                     }
 
@@ -2031,7 +2027,7 @@ public class CloudPlaybackService extends Service {
                     mode = MODE_NEW;
                     method = new HttpGet(
                             ((SoundCloudApplication) serviceRef.get().getApplication())
-                                    .signStreamUrlNaked(track.stream_url));
+                                    .signUrl(track.stream_url));
                 }
 
                 if (mStopped) return;

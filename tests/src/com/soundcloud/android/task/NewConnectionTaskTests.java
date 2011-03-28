@@ -2,18 +2,19 @@ package com.soundcloud.android.task;
 
 
 import android.net.Uri;
-import com.soundcloud.android.api.ApiTest;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.BaseApiTest;
 import com.soundcloud.android.objects.Connection;
-import com.soundcloud.utils.ApiWrapper;
+import com.soundcloud.api.ApiWrapper;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
-@RunWith(RobolectricTestRunner.class)
-public class NewConnectionTaskTests extends ApiTest {
+@RunWith(DefaultTestRunner.class)
+public class NewConnectionTaskTests extends BaseApiTest {
 
     @Test
     public void shouldReturnUri() throws Exception {

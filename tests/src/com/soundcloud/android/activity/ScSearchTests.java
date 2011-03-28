@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -9,7 +10,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class ScSearchTests {
     @Test
     public void shouldSearch() throws Exception {

@@ -1,184 +1,159 @@
-
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.api.CloudAPI;
 
-import android.app.Activity;
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 
-import java.util.concurrent.Semaphore;
+import java.io.IOException;
 
-/**
- * Adopted from UrbanStew's soundclouddroid authorization process
- *
- * @http://code.google.com/p/soundclouddroid/
- */
-public class Authorize extends Activity implements CloudAPI.Client {
-    private WebView mWebView;
-    private Exception mAuthorizationException;
-    private Semaphore mVerificationCodeAvailable;
-    private Handler mHandler = new Handler();
-    private String mVerificationCode;
-
+public class Authorize extends AccountAuthenticatorActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.authorize);
-        mWebView = (WebView) findViewById(R.id.webview);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setBlockNetworkImage(false);
-        mWebView.getSettings().setLoadsImagesAutomatically(true);
 
-        mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.startsWith("soundcloud://auth")) {
-                    mVerificationCode = Uri.parse(url).getQueryParameter("oauth_verifier");
-                    mVerificationCodeAvailable.release();
-                    return true;
+        final EditText usernameField = (EditText) findViewById(R.id.username);
+        final EditText passwordField = (EditText) findViewById(R.id.password);
+
+
+        passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @SuppressWarnings({"SimplifiableIfStatement"})
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                     event.getAction() == KeyEvent.ACTION_DOWN)) {
+                    return findViewById(R.id.submit).performClick();
+                } else {
+                    return false;
                 }
-                return false;
             }
         });
 
-        mVerificationCodeAvailable = new Semaphore(0);
+        findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String username = usernameField.getText().toString();
+                final String password = passwordField.getText().toString();
+                final String type = getString(R.string.account_type);
+                final CloudAPI api = (CloudAPI) getApplication();
 
-        ((SoundCloudApplication) getApplication()).authorizeWithoutCallback(this);
-        showDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
-    }
+                new GetTokensTask(api) {
+                    ProgressDialog progress;
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
+                    @Override
+                    protected void onPreExecute() {
+                        progress = new ProgressDialog(Authorize.this);
+                        progress.setIndeterminate(true);
+                        progress.setTitle(R.string.progress_sc_connect_title);
+                        progress.show();
+                    }
 
-    @Override
-    public void authorizationCompleted(final AuthorizationStatus status) {
-        if (status == AuthorizationStatus.CANCELED)
-            return;
+                    @Override
+                    protected void onPostExecute(final Pair<String, String> tokens) {
+                        if (tokens != null) {
+                            new LoadTask.LoadUserTask(api) {
+                                @Override
+                                protected void onPostExecute(User user) {
+                                    progress.dismiss();
 
-        runOnUiThread(new Runnable() {
-            public void run() {
-                if (status == AuthorizationStatus.SUCCESSFUL) {
-                    Intent intent = new Intent(Authorize.this, Main.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    String message = "";
-                    if (mAuthorizationException != null) {
-                        if (mAuthorizationException.getLocalizedMessage() != null) {
-                            message += "\n\n" + mAuthorizationException.getLocalizedMessage() + ".";
-                        } else {
-                            message += "Authorization failed with exception "
-                                    + mAuthorizationException.getClass().getName();
+                                    if (user != null) {
+                                        final Account account = new Account(username, type);
+                                        final AccountManager am = AccountManager.get(Authorize.this);
+                                        boolean created = am.addAccountExplicitly(account, tokens.first, null);
+                                        if (created) {
+                                            final Bundle result = new Bundle();
+                                            result.putString(AccountManager.KEY_ACCOUNT_NAME, username);
+                                            result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
+                                            am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
+                                            am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
+                                            storeUserInPrefs(user);
+                                            setAccountAuthenticatorResult(result);
+                                            finish();
+                                        }
+                                    } else { // user request failed
+                                        showError(null);
+                                    }
+                                }
+                            }.execute(CloudAPI.Enddpoints.MY_DETAILS);
+                        } else { // no tokens obtained
+                            progress.dismiss();
+                            showError(mException);
                         }
                     }
-                    if (!isFinishing()) {
-                        new AlertDialog.Builder(Authorize.this)
-                                .setTitle(R.string.authorization_failed)
-                                .setMessage(message)
-                                .setCancelable(false)
-                                .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        finish();
-                                    }
-                                }).create().show();
-                    }
-                }
+                }.execute(new Pair<String, String>(username, password));
             }
         });
-
     }
 
-    @Override
-    public void exceptionOccurred(Exception e) {
-        Log.i(TAG, "Exception Occured " + e.toString());
-        mAuthorizationException = e;
+    private void showError(IOException e) {
+        final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
+        new AlertDialog.Builder(Authorize.this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(R.string.error_sc_connect_error_title)
+                .setMessage(tokenError ? R.string.error_sc_connect_invalid_password : R.string.error_sc_connect_error_message)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // finish();
+                    }
+                })
+                .create()
+                .show();
     }
 
-    @Override
-    public String getVerificationCode() {
-        try {
-            mVerificationCodeAvailable.acquire();
-            return mVerificationCode;
-        } catch (InterruptedException e) {
-            Log.w(Authorize.class.getSimpleName(), e);
-            return null;
+    static class GetTokensTask extends AsyncTask<Pair<String, String>, Void, Pair<String, String>> {
+        private CloudAPI mApi;
+        protected IOException mException;
+
+        public GetTokensTask(CloudAPI api) {
+            this.mApi = api;
+        }
+
+        @Override
+        protected Pair<String, String> doInBackground(Pair<String, String>... params) {
+            Pair<String, String> credentials = params[0];
+            try {
+                CloudAPI api = mApi.login(credentials.first, credentials.second);
+                return new Pair<String, String>(api.getToken(), api.getRefreshToken());
+            } catch (IOException e) {
+                mException = e;
+                Log.e(TAG, "error logging in", e);
+                return null;
+            }
         }
     }
 
-    @Override
-    public void openAuthorizationURL(String url) {
-        mHandler.removeCallbacks(mRemoveDialog);
-        mHandler.postDelayed(mRemoveDialog, 2000);
-        mWebView.loadUrl(url);
-    }
-
-    // Stop a call request after some amount of time
-    private Runnable mRemoveDialog = new Runnable() {
-        public void run() {
-            removeDialog(CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING);
-        }
-    };
-
-    @Override
-    public void storeUser(User me, String token, String secret) {
+    private void storeUserInPrefs(User me) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferences.edit()
                 .putLong(SoundCloudApplication.Prefs.USER_ID, me.id)
                 .putString(SoundCloudApplication.Prefs.USERNAME, me.username)
-                .putString(SoundCloudApplication.Prefs.TOKEN, token)
-                .putString(SoundCloudApplication.Prefs.SECRET, secret)
                 .putBoolean(SoundCloudApplication.Prefs.EMAIL_CONFIRMED, me.primary_email_confirmed)
                 .commit();
-
         SoundCloudDB.getInstance().resolveUser(getContentResolver(), me, WriteState.all, me.id);
-    }
-
-
-    @Override
-    protected Dialog onCreateDialog(int which) {
-        switch (which) {
-            case CloudUtils.Dialogs.DIALOG_AUTHENTICATION_CONTACTING:
-                ProgressDialog dialog = new ProgressDialog(this);
-                dialog.setTitle(R.string.authentication_contacting_title);
-                dialog.setMessage(getResources().getString(
-                        R.string.authentication_contacting_message));
-                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.setIndeterminate(true);
-                dialog.setCancelable(false);
-                return dialog;
-
-            default:
-                return super.onCreateDialog(which);
-
-        }
     }
 }

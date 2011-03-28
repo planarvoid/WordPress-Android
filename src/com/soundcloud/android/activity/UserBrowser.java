@@ -3,7 +3,7 @@ package com.soundcloud.android.activity;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
