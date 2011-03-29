@@ -19,8 +19,7 @@ import java.lang.reflect.Field;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseObj implements Parcelable {
-    public Long id;  // XXX long
-
+    public long id;
     public String username;
     public String track_count;
     public String discogs_name;
@@ -169,6 +168,8 @@ public class User extends BaseObj implements Parcelable {
                 + ScContentProvider.AUTHORITY + "/Users");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.users";
+
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.users";
 
         public static final String ID = "_id";
 

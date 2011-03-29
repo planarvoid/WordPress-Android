@@ -55,8 +55,10 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class CloudUtils {
@@ -267,6 +269,30 @@ public class CloudUtils {
 
     }
 
+    public static String join(List<?> list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.size();
+        for (int i = 0; i < num; i++) {
+            if (i != 0)
+                buf.append(delim);
+            if (list.get(i) instanceof String)
+                buf.append(list.get(i));
+            else if (list.get(i).getClass() == Integer.TYPE || list.get(i).getClass() == Integer.class)
+                buf.append(Integer.toString(((Integer) list.get(i))));
+        }
+        return buf.toString();
+    }
+
+    public static String joinArray(String[] list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.length;
+        for (int i = 0; i < num; i++) {
+            if (i != 0)
+                buf.append(delim);
+            buf.append(list[i]);
+        }
+        return buf.toString();
+    }
 
 
     public static LazyListView createTabList(ScActivity activity,
@@ -637,6 +663,61 @@ public class CloudUtils {
         return comment;
     }
 
+    public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
+        String note;
+        if (!TextUtils.isEmpty(what)) {
+            Log.i(TAG,"Not empty what");
+            if (!TextUtils.isEmpty(where)) {
+                note = String.format("%s at %s", what, where);
+            } else {
+                note = what.toString();
+            }
+        } else {
+            if (!TextUtils.isEmpty(where)) {
+                Log.i(TAG,"Not empty where");
+                note = String.format("Sounds from %s", where);
+            } else {
+                Log.i(TAG,"Empty both");
+                note = String.format("Sounds from %s", recprdingDateString(created_at));
+            }
+        }
+        return note;
+    }
+
+    public static String recprdingDateString(long modified) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(modified);
+
+        String day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
+        String dayTime;
+
+        if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
+            dayTime = "morning";
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
+            dayTime = "afternoon";
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
+           dayTime = "evening";
+        } else {
+           dayTime = "night";
+        }
+        return day + " " + dayTime;
+    }
 
 
+    public static String getTimeElapsed(Context c, long eventTimestamp){
+        long elapsed = (System.currentTimeMillis() - eventTimestamp)/1000;
+
+        if (elapsed < 60)
+            return c.getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
+        else if (elapsed < 3600)
+            return c.getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60));
+        else if (elapsed < 86400)
+            return c.getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600));
+        else if (elapsed < 2592000)
+            return c.getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400));
+        else if (elapsed < 31536000)
+            return c.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
+        else
+            return c.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
+    }
 }

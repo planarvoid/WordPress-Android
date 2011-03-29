@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -347,7 +348,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    protected void showToast(String text) {
+    protected void showToast(CharSequence text) {
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
@@ -565,6 +566,13 @@ public abstract class ScActivity extends Activity {
         @Override
         public void onFlingDone() {
             ImageLoader.get(ScActivity.this).unpause();
+        }
+
+        @Override
+        public void onRecordingClick(Recording recording) {
+            Intent i = new Intent(ScActivity.this,ScCreate.class);
+            i.putExtra("recordingId", recording.id);
+            startActivity(i);
         }
     };
 

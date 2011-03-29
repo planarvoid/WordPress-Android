@@ -308,6 +308,7 @@ public class UserBrowser extends ScActivity {
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
                 new ArrayList<Parcelable>()) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>());
+
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), Track.class);
         if (isOtherUser()) {
             if (mUserData != null) {
@@ -517,7 +518,7 @@ public class UserBrowser extends ScActivity {
     }
 
     private void mapUser(User user) {
-        if (user == null || user.id == null)
+        if (user == null || user.id <= 0)
             return;
 
         // need to maintain this variable in case we already checked following status

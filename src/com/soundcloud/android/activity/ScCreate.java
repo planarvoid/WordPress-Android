@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 import com.soundcloud.utils.record.PowerGauge;
@@ -19,6 +20,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -66,6 +72,8 @@ public class ScCreate extends ScActivity {
 
     private int mAudioProfile;
 
+    private Location mRecordLocation;
+
     private String mRecordErrorMessage;
 
     private String mDurationFormatLong;
@@ -73,6 +81,8 @@ public class ScCreate extends ScActivity {
     private String mDurationFormatShort;
 
     private String mCurrentDurationString;
+
+    private long mRecordingId;
 
     private boolean mSampleInterrupted = false;
 
@@ -101,6 +111,13 @@ public class ScCreate extends ScActivity {
 
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
 
+    private String mProvider;
+
+    private LocationManager getManager() {
+        return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +133,7 @@ public class ScCreate extends ScActivity {
         mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/unsaved", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
         if (!mRecordDir.exists()) mRecordDir.mkdirs();
 
-        mSaveDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/unsaved");
+        mSaveDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/saved");
         if (!mSaveDir.exists()) mSaveDir.mkdirs();
 
         mRecordErrorMessage = "";
@@ -130,6 +147,8 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+
+
     }
 
     @Override
@@ -188,26 +207,36 @@ public class ScCreate extends ScActivity {
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mRecordFile.renameTo(new File(mSaveDir,mRecordFile.getName()));
+                if (mRecordingId == 0){
 
-                Log.i(TAG,"Renamed file to " + mRecordFile.getAbsolutePath());
+                    File savedFile = new File(mSaveDir,mRecordFile.getName());
+                    mRecordFile.renameTo(savedFile);
+                    mRecordFile = null;
 
-                Recording r = new Recording();
-                r.audio_path = mRecordFile.getAbsolutePath();
-                r.audio_profile = mAudioProfile;
-                r.timestamp = mRecordFile.lastModified();
-                r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
+                    Recording r = new Recording();
+                    r.audio_path = savedFile.getAbsolutePath();
+                    r.audio_profile = mAudioProfile;
+                    r.timestamp = savedFile.lastModified();
+                    r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
 
-                SoundCloudDB.getInstance().insertRecording(ScCreate.this.getContentResolver(), r);
+                    if (mRecordLocation != null){
+                        r.latitude = mRecordLocation.getLatitude();
+                        r.longitude = mRecordLocation.getLongitude();
+                    }
 
+                    Uri newRecordingUri = SoundCloudDB.getInstance().insertRecording(ScCreate.this.getContentResolver(), r);
+                    Intent i = new Intent(ScCreate.this,ScUpload.class);
+                    i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
+                    startActivity(i);
+                } else {
+                    Intent i = new Intent(ScCreate.this,ScUpload.class);
+                    i.putExtra("recordingId", mRecordingId);
+                    startActivity(i);
+                }
 
-                // reset and send intent to upload
-                Intent i = new Intent(ScCreate.this,ScUpload.class);
-                i.putExtra("uploadFilePath", mRecordFile.getAbsolutePath());
-                startActivity(i);
-
-                mCurrentState = CreateState.IDLE_RECORD;
-                updateUi(true);
+                //mRecordingId = 0;
+                //mCurrentState = CreateState.IDLE_RECORD;
+                //updateUi(true);
             }
         });
 
@@ -236,8 +265,25 @@ public class ScCreate extends ScActivity {
                 // can happen when there's no mounted sdcard
                 btnAction.setEnabled(false);
             } else {
+                if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
+                    mRecordingId = getIntent().getLongExtra("recordingId",0);
+
+                    String[] audioPathColumn = { Recordings.AUDIO_PATH };
+                    Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
+                            audioPathColumn, Recordings.ID + "='" + mRecordingId + "'", null, null);
+
+                    if (cursor != null) {
+                        cursor.moveToFirst();
+                        setRecordFile(new File(cursor.getString(cursor.getColumnIndex(Recordings.AUDIO_PATH))));
+                        cursor.close();
+                    } else {
+                        showToast("Error getting recording");
+                    }
+                }
+
                 // in this case, state should be based on what is in the recording directory
-                setRecordFile();
+                if (mRecordFile == null) setRecordFile();
+
                 if (mRecordFile != null) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     loadPlaybackTrack();
@@ -378,6 +424,8 @@ public class ScCreate extends ScActivity {
 
 
     private void startRecording() {
+        setCurrentLocation();
+
         pause(true);
 
         mRecordErrorMessage = "";
@@ -628,6 +676,15 @@ public class ScCreate extends ScActivity {
             if (file == null || f.lastModified() < file.lastModified()) file = f;
         }
         return file;
+    }
+
+    private void setCurrentLocation(){
+        Criteria c = new Criteria();
+        mProvider = getManager().getBestProvider(c, true);
+        if (mProvider != null) {
+            Log.v(TAG, "best provider: " + mProvider);
+            mRecordLocation = getManager().getLastKnownLocation(mProvider);
+        } else mRecordLocation = null;
     }
 
     /* package */ void setRecordFile(File f) {

@@ -16,6 +16,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -35,6 +36,8 @@ public class TracklistRow extends LazyRow {
 
     protected TextView mDuration;
 
+    protected TextView mCreatedAt;
+
     protected ImageButton mPlayBtn;
 
     protected ImageButton mFavoriteBtn;
@@ -44,6 +47,8 @@ public class TracklistRow extends LazyRow {
     protected ImageButton mCommentBtn;
 
     protected ImageButton mShareBtn;
+
+    protected ProgressBar mProgressBar;
 
     protected RelativeLayout mTrackInfoRow;
 
@@ -55,9 +60,11 @@ public class TracklistRow extends LazyRow {
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
         mDuration = (TextView) findViewById(R.id.duration);
+        mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mIcon = (ImageView) findViewById(R.id.icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
         mPrivateIndicator = (ImageView) findViewById(R.id.private_indicator);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
     }
 
@@ -198,7 +205,16 @@ public class TracklistRow extends LazyRow {
             return;
 
         mTitle.setText(mTrack.title);
-        mUser.setText(mTrack.user.username);
+        if (mUser != null){
+            // normal tracklist row
+            mUser.setText(mTrack.user.username);
+        } else {
+            // my tracklist row
+            mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
+            mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity, mTrack.created_at.getTime()));
+            mProgressBar.setVisibility(View.GONE);
+            setBackgroundResource(android.R.color.transparent);
+        }
 
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);

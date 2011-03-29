@@ -176,9 +176,10 @@ public class SoundCloudDB {
             contentResolver.update(Users.CONTENT_URI, contentValues, Users.ID + "='" + User.id + "'", null);
         }
 
-        public void insertRecording(ContentResolver contentResolver, Recording recording) {
+        public Uri insertRecording(ContentResolver contentResolver, Recording recording) {
             ContentValues contentValues = buildRecordingArgs(contentResolver,recording);
-            contentResolver.insert(Recordings.CONTENT_URI, contentValues);
+            contentValues.remove("_id");
+            return contentResolver.insert(Recordings.CONTENT_URI, contentValues);
         }
 
         public void updateRecording(ContentResolver contentResolver, Recording recording) {
@@ -271,8 +272,8 @@ public class SoundCloudDB {
                 args.put(key, f.getLong(baseObj));
             else if (f.getType() == boolean.class)
                 args.put(key, ((Boolean) f.get(baseObj)) ? 1 : 0);
-            else if (f.getType() == Long.TYPE || f.getType() == Long.class)
-                args.put(key, f.getLong(baseObj));
+            else if (f.getType() == Double.TYPE || f.getType() == Double.class)
+                args.put(key, f.getDouble(baseObj));
         }
 
         public static String[] GetColumnsArray(ContentResolver contentResolver, Uri tableUri) {

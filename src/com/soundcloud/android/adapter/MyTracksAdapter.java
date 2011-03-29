@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -26,6 +27,8 @@ public class MyTracksAdapter extends TracklistAdapter {
     protected DataSetObserver mDataSetObserver = new MyDataSetObserver();
     protected FilterQueryProvider mFilterQueryProvider;
 
+    protected ArrayList<Recording> mRecordingData;
+
     public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
         refreshCursor();
@@ -38,9 +41,35 @@ public class MyTracksAdapter extends TracklistAdapter {
 
 
     public void refreshCursor() {
+
+        if (mCursor != null) {
+            mCursor.unregisterContentObserver(mChangeObserver);
+            mCursor.close();
+        }
+
         mCursor = mActivity.getContentResolver().query(Recordings.CONTENT_URI, null,
                 Recordings.USER_ID + "='" + CloudUtils.getCurrentUserId(mActivity) + "'", null,
                 null);
+
+        mChangeObserver = new ChangeObserver();
+        if (mCursor != null) {
+            mDataValid = true;
+            mCursor.registerContentObserver(mChangeObserver);
+            loadCursor();
+        } else
+            mDataValid = false;
+
+
+    }
+
+    private void loadCursor(){
+        mRecordingData = new ArrayList<Recording>();
+        if (mCursor == null || mCursor.isClosed() || mCursor.getCount() == 0)
+            return;
+
+        while(mCursor.moveToNext()){
+            mRecordingData.add(new Recording(mCursor));
+        }
     }
 
     @Override
@@ -56,8 +85,8 @@ public class MyTracksAdapter extends TracklistAdapter {
      */
     @Override
     public int getCount() {
-        if (mDataValid && mCursor != null) {
-            return mCursor.getCount() + super.getCount();
+        if (mDataValid && mRecordingData != null) {
+            return mRecordingData.size() + super.getCount();
         } else {
             return super.getCount();
         }
@@ -68,12 +97,11 @@ public class MyTracksAdapter extends TracklistAdapter {
      */
     @Override
     public Object getItem(int position) {
-        if (mDataValid && mCursor != null) {
-            if (position < mCursor.getCount()){
-                mCursor.moveToPosition(position);
-                return mCursor;
+        if (mDataValid && mRecordingData != null) {
+            if (position < mRecordingData.size()){
+                return mRecordingData.get(position);
             } else
-                return super.getItem(position - mCursor.getCount());
+                return super.getItem(position - mRecordingData.size());
         } else {
             return super.getItem(position);
         }
@@ -84,14 +112,14 @@ public class MyTracksAdapter extends TracklistAdapter {
      */
     @Override
     public long getItemId(int position) {
-        if (mDataValid && mCursor != null) {
-            if (mCursor.moveToPosition(position)) {
-                return mCursor.getLong(0);
+        if (mDataValid && mRecordingData != null) {
+            if (position < mRecordingData.size()){
+                return mRecordingData.get(position).id;
             } else {
-                return 0;
+                return super.getItemId(position - mRecordingData.size());
             }
         } else {
-            return 0;
+            return super.getItemId(position);
         }
     }
 
@@ -103,10 +131,12 @@ public class MyTracksAdapter extends TracklistAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
+        Log.i(TAG,"CCCCCCCONTENT CHANGED");
         if (mCursor != null && !mCursor.isClosed()) {
             if (Config.LOGV) Log.v("Cursor", "Auto requerying " + mCursor + " due to update");
             mDataValid = mCursor.requery();
         }
+        loadCursor();
     }
 
     private class ChangeObserver extends ContentObserver {

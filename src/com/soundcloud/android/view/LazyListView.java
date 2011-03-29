@@ -5,6 +5,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
@@ -91,21 +92,24 @@ public class LazyListView extends ListView {
     protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
 
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (((LazyBaseAdapter) list.getAdapter()).getData().size() <= 0
-                    || position >= ((LazyBaseAdapter) list.getAdapter()).getData().size())
+            if (((LazyBaseAdapter) list.getAdapter()).getCount() <= 0
+                    || position >= ((LazyBaseAdapter) list.getAdapter()).getCount())
                 return; // bad list item clicked (possibly loading item)
 
-            if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Track) {
+            if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Track) {
                 if (mListener != null)
                     mListener.onTrackClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
 
-            } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof Event) {
+            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Event) {
                 if (mListener != null)
                     mListener.onEventClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
 
-            } else if (((LazyBaseAdapter) list.getAdapter()).getData().get(position) instanceof User) {
+            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof User) {
                 if (mListener != null)
                     mListener.onUserClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Recording) {
+                if (mListener != null)
+                    mListener.onRecordingClick((Recording) ((LazyBaseAdapter) list.getAdapter()).getItem(position));
             }
         }
 
@@ -204,6 +208,7 @@ public class LazyListView extends ListView {
     // Define our custom Listener interface
     public interface LazyListListener {
         public abstract void onUserClick(ArrayList<Parcelable> users, int position);
+        public abstract void onRecordingClick(Recording recording);
         public abstract void onTrackClick(ArrayList<Parcelable> tracks, int position);
         public abstract void onEventClick(ArrayList<Parcelable> events, int position);
         public abstract void onFling();

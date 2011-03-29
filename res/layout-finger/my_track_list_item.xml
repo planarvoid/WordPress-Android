@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+    <ViewStub
+	  android:id="@+id/stub_loading"
+	  android:inflatedId="@+id/row_loader"
+	  android:layout="@layout/list_loading_item"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	   />
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/row_holder" >
+    	<include layout="@layout/my_track_list_item_common" />
+    	<ViewStub
+	      android:id="@+id/stub_submenu"
+	      android:inflatedId="@+id/row_submenu"
+	      android:layout="@layout/track_list_item_submenu"
+	      android:layout_below="@id/track_info_row"
+	      android:layout_width="fill_parent"
+	      android:layout_height="wrap_content" />
+    </RelativeLayout>
+</FrameLayout>

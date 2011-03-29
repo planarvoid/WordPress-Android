@@ -661,22 +661,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
 
             spanStartIndex = commentText.length();
-            commentText.append(" said ");
-
-            long elapsed = (System.currentTimeMillis() - comment.created_at.getTime())/1000;
-
-            if (elapsed < 60)
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed));
-            else if (elapsed < 3600)
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60)));
-            else if (elapsed < 86400)
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600)));
-            else if (elapsed < 2592000)
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400)));
-            else if (elapsed < 31536000)
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000)));
-            else
-                commentText.append(getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000)));
+            commentText.append(" said " + CloudUtils.getTimeElapsed(this, comment.created_at.getTime()));
 
             spanEndIndex = commentText.length();
             commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

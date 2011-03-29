@@ -16,6 +16,7 @@ import android.util.Log;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
@@ -26,7 +27,7 @@ public class Track extends BaseObj implements Parcelable {
     // API fields
 
     public long id;
-    public String created_at;
+    public Date created_at;
     public long user_id;
     public int duration;
     public boolean commentable;
@@ -120,6 +121,8 @@ public class Track extends BaseObj implements Parcelable {
                 + ScContentProvider.AUTHORITY + "/Tracks");
 
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.tracks";
+
         public static final String ID = "_id";
         public static final String PERMALINK = "permalink";
         public static final String DURATION = "duration";

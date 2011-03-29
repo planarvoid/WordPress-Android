@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.objects.Track.Tracks;
 import com.soundcloud.android.objects.User.Users;
@@ -40,6 +41,12 @@ public class ScContentProvider extends ContentProvider {
     private static final int USERS = 2;
 
     private static final int RECORDINGS = 3;
+
+    private static final int TRACKS_ID = 11;
+
+    private static final int USERS_ID = 12;
+
+    private static final int RECORDINGS_ID = 13;
 
     private static HashMap<String, String> tracksProjectionMap;
 
@@ -100,7 +107,7 @@ private static final String DATABASE_CREATE_USERS = "create table Users (_id str
         + "website_title string null, "
         + "description text null);";
 
-private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id string primary key AUTOINCREMENT, "
+private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, "
     + "user_id string null, "
     + "timestamp string null, "
     + "longitude string null, "
@@ -109,8 +116,14 @@ private static final String DATABASE_CREATE_RECORDINGS = "create table Recording
     + "where_text string null, "
     + "audio_path string null, "
     + "artwork_path string null, "
+    + "four_square_venue_id string null, "
+    + "shared_emails text null, "
+    + "service_ids string null, "
+    + "is_private boolean false, "
+    + "external_upload boolean false, "
     + "audio_profile int null, "
-    + "uploaded boolean false);";
+    + "uploaded boolean false, "
+    + "upload_error boolean false);";
 
 
 private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -238,11 +251,11 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                     + tbl.tblName));
             List<String> columns = GetColumns(db, "bck_" + tbl.tblName);
             columns.retainAll(GetColumns(db, tbl.tblName));
-            String cols = join(columns, ",");
+            String cols = CloudUtils.join(columns, ",");
             String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
-                    + joinArray(toAppendCols, ",") : cols;
+                    + CloudUtils.joinArray(toAppendCols, ",") : cols;
             String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
-                    + joinArray(fromAppendCols, ",") : cols;
+                    + CloudUtils.joinArray(fromAppendCols, ",") : cols;
             db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s", tbl.tblName,
                     toCols, fromCols, tbl.tblName));
             db.execSQL("DROP table  '" + tbl.tblName + "'");
@@ -384,6 +397,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 count = db.update(DbTable.Users.tblName, values, where, whereArgs);
                 break;
 
+            case RECORDINGS:
+                count = db.update(DbTable.Recordings.tblName, values, where, whereArgs);
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -397,6 +414,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName, TRACKS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName, USERS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName, RECORDINGS);
+
+        sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName+"/#", TRACKS_ID);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName+"/#", USERS_ID);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName+"/#", RECORDINGS_ID);
 
         tracksProjectionMap = new HashMap<String, String>();
         tracksProjectionMap.put(Tracks.ID, Tracks.ID);
@@ -444,8 +465,14 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         recordingsProjectionMap.put(Recordings.WHERE_TEXT, Recordings.WHERE_TEXT);
         recordingsProjectionMap.put(Recordings.AUDIO_PATH, Recordings.AUDIO_PATH);
         recordingsProjectionMap.put(Recordings.ARTWORK_PATH, Recordings.ARTWORK_PATH);
+        recordingsProjectionMap.put(Recordings.FOUR_SQUARE_VENUE_ID, Recordings.FOUR_SQUARE_VENUE_ID);
+        recordingsProjectionMap.put(Recordings.SHARED_EMAILS, Recordings.SHARED_EMAILS);
+        recordingsProjectionMap.put(Recordings.SERVICE_IDS, Recordings.SERVICE_IDS);
+        recordingsProjectionMap.put(Recordings.IS_PRIVATE, Recordings.IS_PRIVATE);
+        recordingsProjectionMap.put(Recordings.EXTERNAL_UPLOAD, Recordings.EXTERNAL_UPLOAD);
         recordingsProjectionMap.put(Recordings.AUDIO_PROFILE, Recordings.AUDIO_PROFILE);
         recordingsProjectionMap.put(Recordings.UPLOADED, Recordings.UPLOADED);
+        recordingsProjectionMap.put(Recordings.UPLOAD_ERROR, Recordings.UPLOAD_ERROR);
 
     }
 
@@ -484,30 +511,6 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         }
         return ar;
     }
-
-    public static String join(List<String> list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.size();
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append(list.get(i));
-        }
-        return buf.toString();
-    }
-
-    public static String joinArray(String[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append(list[i]);
-        }
-        return buf.toString();
-    }
-
-
 
 
 }
