@@ -21,7 +21,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -180,9 +179,11 @@ public class ScUpload extends ScActivity {
 
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startUpload();
-                setResult(RESULT_OK);
-                finish();
+                mapToRecording();
+                if (startUpload(mRecording)){
+                    setResult(RESULT_OK);
+                    finish();
+                }
             }
         });
 
@@ -436,38 +437,6 @@ public class ScUpload extends ScActivity {
         }
 
     }
-
-    void startUpload() {
-        if (mCreateService == null) return;
-
-        boolean uploading;
-        try {
-            uploading = mCreateService.isUploading();
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-            uploading = true;
-        }
-
-        if (!uploading) {
-
-            mapToRecording();
-            mRecording.prepareUploadData();
-
-            // save after preparing data in case file was renamed
-            SoundCloudDB.getInstance().updateRecording(getContentResolver(), mRecording);
-
-            try {
-                mCreateService.uploadTrack(mRecording.upload_data);
-            } catch (RemoteException ignored) {
-                Log.e(TAG, "error", ignored);
-            } finally {
-                mRecording = null;
-            }
-        } else {
-            showToast(R.string.wait_for_upload_to_finish);
-        }
-    }
-
 
     private File getCurrentImageFile(){
         if (mRecording == null)

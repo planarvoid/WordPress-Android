@@ -50,13 +50,13 @@ public class MyTracklistRow extends TracklistRow {
         } else {
             mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
             mProgressBar.setVisibility(View.GONE);
-            mCreatedAt
-                    .setText(CloudUtils.getTimeElapsed(mActivity,
-                            recording.timestamp)
-                            + ", "
-                            + (recording.upload_error ? mActivity
-                                    .getString(R.string.cloud_upload_not_yet_uploaded) : mActivity
-                                    .getString(R.string.cloud_upload_upload_failed)));
+            mCreatedAt.setText(recording.upload_status == 1 ? mActivity
+                    .getString(R.string.cloud_upload_currently_uploading) : CloudUtils
+                    .getTimeElapsed(mActivity, recording.timestamp)
+                    + ", "
+                    + (recording.upload_error ? mActivity
+                            .getString(R.string.cloud_upload_upload_failed) : mActivity
+                            .getString(R.string.cloud_upload_not_yet_uploaded)));
         }
     }
 

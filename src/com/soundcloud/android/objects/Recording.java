@@ -44,10 +44,16 @@ public class Recording extends BaseObj implements Parcelable {
     public boolean is_private;
     public boolean external_upload;
     public int audio_profile;
-    public boolean uploaded;
+    public int upload_status;
     public boolean upload_error;
 
     public Map<String,Object> upload_data;
+
+    public static interface UploadStatus {
+        public static final int NOT_YET_UPLOADED    = 0;
+        public static final int UPLOADING           = 1;
+        public static final int UPLOADED            = 2;
+    }
 
     public static final class Recordings implements BaseColumns {
         private Recordings() {
@@ -74,7 +80,7 @@ public class Recording extends BaseObj implements Parcelable {
         public static final String IS_PRIVATE = "is_private";
         public static final String EXTERNAL_UPLOAD = "external_upload";
         public static final String AUDIO_PROFILE = "audio_profile";
-        public static final String UPLOADED = "uploaded";
+        public static final String UPLOAD_STATUS = "upload_status";
         public static final String UPLOAD_ERROR = "upload_error";
     }
 
@@ -138,7 +144,7 @@ public class Recording extends BaseObj implements Parcelable {
         return 0;
     }
 
-    public void prepareUploadData(){
+    public void prepareForUpload(){
         upload_data = new HashMap<String, Object>();
         upload_data.put(CloudAPI.Params.SHARING, is_private ? CloudAPI.Params.PRIVATE : CloudAPI.Params.PUBLIC);
         upload_data.put(CloudAPI.Params.DOWNLOADABLE, false);
@@ -186,14 +192,14 @@ public class Recording extends BaseObj implements Parcelable {
             tags.add("soundcloud:source=android-record");
         }
 
-        if (TextUtils.isEmpty(artwork_path)) upload_data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
-        if (TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
+
+        if (!TextUtils.isEmpty(artwork_path)) upload_data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
+        if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
         if (latitude  != 0) tags.add("geo:lat="+latitude);
         if (longitude != 0) tags.add("geo:lon="+longitude);
         upload_data.put(CloudAPI.Params.TAG_LIST, TextUtils.join(" ", tags));
 
         File audio_file = new File(audio_path);
-
         if (audio_profile == Profile.RAW && !external_upload) {
             upload_data.put(UploadTask.Params.OGG_FILENAME,new File(audio_file.getParentFile(), generateFilename(title,"ogg")).getAbsolutePath());
             upload_data.put(UploadTask.Params.ENCODE, true);
@@ -203,12 +209,15 @@ public class Recording extends BaseObj implements Parcelable {
 
                 if (!audio_file.equals(newRecFile) || audio_file.renameTo(newRecFile)) {
                     audio_file = newRecFile;
-                    this.audio_path = audio_file.getAbsolutePath();
+                    audio_path = audio_file.getAbsolutePath();
                 }
             }
         }
 
         upload_data.put(UploadTask.Params.SOURCE_PATH, audio_file.getAbsolutePath());
+        upload_data.put(UploadTask.Params.LOCAL_RECORDING_ID, id);
+
+        upload_status = UploadStatus.UPLOADING;
     }
 
     private String generateFilename(String title, String extension) {

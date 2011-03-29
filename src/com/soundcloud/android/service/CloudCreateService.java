@@ -9,14 +9,18 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.utils.record.CloudRecorder;
+import com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -95,6 +99,8 @@ public class CloudCreateService extends Service {
     private MediaPlayer mPlayer;
     private String mPlaybackPath;
 
+    private long mUploadLocalId;
+
 
     public interface States {
         int IDLE_RECORDING = 0;
@@ -163,8 +169,13 @@ public class CloudCreateService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        if (isUploading()) {
+        if (mUploadLocalId != 0){
             Log.e(TAG, "Service being destroyed while still playing.");
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
+            cv.put(Recordings.UPLOAD_ERROR, true);
+            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+mUploadLocalId, null);
+            Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
         _shutdownService();
@@ -176,6 +187,7 @@ public class CloudCreateService extends Service {
     }
 
     private void gotoIdleState() {
+        mUploadLocalId = 0;
         stopForeground(true);
     }
 
@@ -372,7 +384,7 @@ public class CloudCreateService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    private void uploadTrack(final Map<String,String> trackdata) {
+    private void uploadTrack(final Map<String,?> trackdata) {
         acquireWakeLock();
 
         mCurrentUploadCancelled = false;
@@ -388,7 +400,7 @@ public class CloudCreateService extends Service {
 
         notificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
 
-        CharSequence trackText = trackdata.get("track[title]");
+        CharSequence trackText = (CharSequence) trackdata.get("track[title]");
         notificationView.setTextViewText(R.id.message, trackText);
         notificationView.setTextViewText(R.id.percentage, "0");
         notificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
@@ -398,7 +410,7 @@ public class CloudCreateService extends Service {
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
 
         startForeground(CREATE_NOTIFY_ID, mNotification);
-
+        mUploadLocalId = (Long) trackdata.get(UploadTask.Params.LOCAL_RECORDING_ID);
         mOggTask = new EncodeOggTask();
         mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
     }
@@ -442,6 +454,12 @@ public class CloudCreateService extends Service {
                     //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
                     param.encodedFile.setLastModified(param.trackFile.lastModified());
                     param.trackFile.delete();
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
+                    cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
+                    int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+param.local_recording_id, null);
+                    Log.d(TAG, x+" row(s) audio path updated.");
                 }
 
 
@@ -618,6 +636,11 @@ public class CloudCreateService extends Service {
 
             notifyChange(UPLOAD_SUCCESS);
 
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.UPLOADED);
+            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+params.local_recording_id, null);
+            Log.d(TAG, x+" row(s) marked as uploaded.");
+
         } else {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_error_title), String.format(
@@ -625,6 +648,12 @@ public class CloudCreateService extends Service {
                             params.get("track[title]")), contentIntent);
 
             notifyChange(UPLOAD_ERROR);
+
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_ERROR, true);
+            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
+            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+params.local_recording_id, null);
+            Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
         nm.notify(UPLOAD_NOTIFY_END_ID, notification);
@@ -654,9 +683,18 @@ public class CloudCreateService extends Service {
             mUploadTask = null;
         }
 
+        if (mUploadLocalId != 0){
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
+            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+mUploadLocalId, null);
+            Log.d(TAG, x+" row(s) marked with upload error.");
+        }
+
+
         nm.cancel(CREATE_NOTIFY_ID);
         gotoIdleState();
         notifyChange(UPLOAD_CANCELLED);
+
     }
 
     public void setCurrentState(int currentState) {

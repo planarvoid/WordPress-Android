@@ -8,6 +8,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
@@ -20,6 +21,7 @@ import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.SavedRecordingDialog;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -281,6 +283,36 @@ public abstract class ScActivity extends Activity {
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
+    }
+
+    public boolean startUpload(Recording r) {
+        if (mCreateService == null) return false;
+
+        boolean uploading;
+        try {
+            uploading = mCreateService.isUploading();
+        } catch (RemoteException e) {
+            Log.e(TAG, "error", e);
+            uploading = true;
+        }
+
+        if (!uploading) {
+            r.prepareForUpload();
+            // save after preparing data in case file was renamed
+            SoundCloudDB.getInstance().updateRecording(getContentResolver(), r);
+
+            try {
+                mCreateService.uploadTrack(r.upload_data);
+                return true;
+            } catch (RemoteException ignored) {
+                Log.e(TAG, "error", ignored);
+            }
+
+        } else {
+            showToast(R.string.wait_for_upload_to_finish);
+        }
+
+        return false;
     }
 
 
@@ -570,9 +602,13 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onRecordingClick(Recording recording) {
-            Intent i = new Intent(ScActivity.this,ScCreate.class);
-            i.putExtra("recordingId", recording.id);
-            startActivity(i);
+            if (recording.upload_status == Recording.UploadStatus.UPLOADING)
+                safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+            else{
+                SavedRecordingDialog dialog = new SavedRecordingDialog(ScActivity.this, recording);
+                dialog.show();
+                dialog.getWindow().setGravity(Gravity.BOTTOM);
+            }
         }
     };
 

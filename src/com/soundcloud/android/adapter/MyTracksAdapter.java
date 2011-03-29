@@ -29,6 +29,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     protected ArrayList<Recording> mRecordingData;
 
+
     public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
         refreshCursor();
@@ -48,7 +49,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
 
         mCursor = mActivity.getContentResolver().query(Recordings.CONTENT_URI, null,
-                Recordings.USER_ID + "='" + CloudUtils.getCurrentUserId(mActivity) + "'", null,
+                Recordings.USER_ID + "='" + CloudUtils.getCurrentUserId(mActivity) + "' AND " + Recordings.UPLOAD_STATUS + " < 2", null,
                 null);
 
         mChangeObserver = new ChangeObserver();
@@ -58,8 +59,6 @@ public class MyTracksAdapter extends TracklistAdapter {
             loadCursor();
         } else
             mDataValid = false;
-
-
     }
 
     private void loadCursor(){
@@ -131,12 +130,12 @@ public class MyTracksAdapter extends TracklistAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
-        Log.i(TAG,"CCCCCCCONTENT CHANGED");
         if (mCursor != null && !mCursor.isClosed()) {
             if (Config.LOGV) Log.v("Cursor", "Auto requerying " + mCursor + " due to update");
             mDataValid = mCursor.requery();
         }
         loadCursor();
+        notifyDataSetChanged();
     }
 
     private class ChangeObserver extends ContentObserver {

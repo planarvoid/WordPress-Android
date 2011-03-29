@@ -122,7 +122,7 @@ private static final String DATABASE_CREATE_RECORDINGS = "create table Recording
     + "is_private boolean false, "
     + "external_upload boolean false, "
     + "audio_profile int null, "
-    + "uploaded boolean false, "
+    + "upload_status int false, "
     + "upload_error boolean false);";
 
 
@@ -471,7 +471,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         recordingsProjectionMap.put(Recordings.IS_PRIVATE, Recordings.IS_PRIVATE);
         recordingsProjectionMap.put(Recordings.EXTERNAL_UPLOAD, Recordings.EXTERNAL_UPLOAD);
         recordingsProjectionMap.put(Recordings.AUDIO_PROFILE, Recordings.AUDIO_PROFILE);
-        recordingsProjectionMap.put(Recordings.UPLOADED, Recordings.UPLOADED);
+        recordingsProjectionMap.put(Recordings.UPLOAD_STATUS, Recordings.UPLOAD_STATUS);
         recordingsProjectionMap.put(Recordings.UPLOAD_ERROR, Recordings.UPLOAD_ERROR);
 
     }

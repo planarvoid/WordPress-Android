@@ -46,6 +46,8 @@
   
   <string name="cloud_upload_not_yet_uploaded">not yet uploaded</string>
   <string name="cloud_upload_upload_failed">upload failed</string>
+  <string name="cloud_upload_currently_uploading">Uploading, progress is in notifications</string>
+  
 
   <string name="cloud_recorder_notification_ticker">Recording started</string>
   <string name="cloud_recorder_event_title">Recording in progress</string>
@@ -71,7 +73,10 @@
   
   <string name="dialog_reset_recording_title"></string>
   <string name="dialog_reset_recording_message">Reset? Recording will be deleted.</string>
-
+  
+  <string name="dialog_confirm_delete_recording_title"></string>
+  <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
+  
   <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_message">%s has been uploaded</string>

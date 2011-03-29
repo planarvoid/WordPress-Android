@@ -26,6 +26,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     private CloudAPI api;
 
     public static class Params {
+        public static final String LOCAL_RECORDING_ID  = "local_recording_id";
         public static final String SOURCE_PATH  = "source_path";
         public static final String OGG_FILENAME = "ogg_filename";
         public static final String ARTWORK_PATH = "artwork_path";
@@ -33,6 +34,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         private boolean failed;
         public final boolean encode;
+
+        public final long local_recording_id;
 
         public final File trackFile, encodedFile;
         public final File artworkFile;
@@ -48,6 +51,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public Params(Map<String, ?> map) {
             this.map = map;
             this.encode = map.remove(ENCODE) != null;
+            this.local_recording_id = (Long) map.remove(LOCAL_RECORDING_ID);
 
             if (!map.containsKey(SOURCE_PATH)) {
                 throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);
