@@ -60,13 +60,10 @@ public class User extends BaseObj implements Parcelable {
 
 
     public User(Cursor cursor) {
-        if (cursor.getCount() != 0) {
-            cursor.moveToFirst();
-
-            String[] keys = cursor.getColumnNames();
-            for (String key : keys) {
-                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
-                else
+        String[] keys = cursor.getColumnNames();
+        for (String key : keys) {
+            if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
+            else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {
@@ -91,7 +88,6 @@ public class User extends BaseObj implements Parcelable {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            }
         }
     }
 

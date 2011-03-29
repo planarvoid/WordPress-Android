@@ -71,7 +71,7 @@ public class SoundCloudDB {
 
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + TrackId + "'", null, null);
             if (cursor.getCount() != 0) {
-
+                cursor.moveToFirst();
                 Track track = new Track(cursor);
                 cursor.close();
                 cursor.close();
@@ -144,7 +144,7 @@ public class SoundCloudDB {
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
 
             if (cursor.getCount() != 0) {
-
+                cursor.moveToFirst();
                 User user = new User(cursor);
                 cursor.close();
                 return user;

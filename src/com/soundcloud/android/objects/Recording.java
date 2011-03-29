@@ -86,19 +86,17 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     public Recording(Cursor cursor) {
-        if (cursor.getCount() != 0) {
-            cursor.moveToFirst();
-
-            String[] keys = cursor.getColumnNames();
-            for (String key : keys) {
-                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
-                else
+        String[] keys = cursor.getColumnNames();
+        for (String key : keys) {
+            if (key.contentEquals("_id"))
+                id = cursor.getLong(cursor.getColumnIndex(key));
+            else
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {
                         if (f.getType() == String.class) {
                             f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class){
+                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
                             f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
@@ -117,7 +115,6 @@ public class Recording extends BaseObj implements Parcelable {
                 } catch (NoSuchFieldException e) {
                     Log.e(getClass().getSimpleName(), "error", e);
                 }
-            }
         }
     }
 
