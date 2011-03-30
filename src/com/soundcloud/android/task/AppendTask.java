@@ -6,8 +6,8 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.EventsWrapper;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 
@@ -111,10 +111,10 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {
                 newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
             } else if (Event.class.equals(loadModel)) {
-                EventsWrapper evtWrapper = mApp.getMapper().readValue(is, EventsWrapper.class);
-                newItems = new ArrayList<Parcelable>(evtWrapper.getCollection().size());
-                for (Event evt : evtWrapper.getCollection()) newItems.add(evt);
-                if (evtWrapper.getNext_href() != null) mNextEventsHref = evtWrapper.getNext_href();
+                Activities activities = mApp.getMapper().readValue(is, Activities.class);
+                newItems = new ArrayList<Parcelable>();
+                for (Event evt : activities) newItems.add(evt);
+                mNextEventsHref = activities.next_href;
             }
 
             // resolve data
@@ -122,7 +122,7 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
                 for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p);
                 // we have less than the requested number of items, so we are
                 // done grabbing items for this list
-                return newItems.size() < pageSize;
+                return newItems.size() >= pageSize;
             } else {
                 return false;
             }
