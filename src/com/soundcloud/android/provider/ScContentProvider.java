@@ -116,6 +116,7 @@ private static final String DATABASE_CREATE_RECORDINGS = "create table Recording
     + "where_text string null, "
     + "audio_path string null, "
     + "artwork_path string null, "
+    + "duration int null, "
     + "four_square_venue_id string null, "
     + "shared_emails text null, "
     + "service_ids string null, "
@@ -464,6 +465,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         recordingsProjectionMap.put(Recordings.WHAT_TEXT, Recordings.WHAT_TEXT);
         recordingsProjectionMap.put(Recordings.WHERE_TEXT, Recordings.WHERE_TEXT);
         recordingsProjectionMap.put(Recordings.AUDIO_PATH, Recordings.AUDIO_PATH);
+        recordingsProjectionMap.put(Recordings.DURATION, Recordings.DURATION);
         recordingsProjectionMap.put(Recordings.ARTWORK_PATH, Recordings.ARTWORK_PATH);
         recordingsProjectionMap.put(Recordings.FOUR_SQUARE_VENUE_ID, Recordings.FOUR_SQUARE_VENUE_ID);
         recordingsProjectionMap.put(Recordings.SHARED_EMAILS, Recordings.SHARED_EMAILS);

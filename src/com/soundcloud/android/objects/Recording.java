@@ -37,6 +37,7 @@ public class Recording extends BaseObj implements Parcelable {
     public String what_text;
     public String where_text;
     public String audio_path;
+    public long duration;
     public String artwork_path;
     public String four_square_venue_id;
     public String shared_emails;
@@ -73,6 +74,7 @@ public class Recording extends BaseObj implements Parcelable {
         public static final String WHAT_TEXT = "what_text";
         public static final String WHERE_TEXT = "where_text";
         public static final String AUDIO_PATH = "audio_path";
+        public static final String DURATION = "duration";
         public static final String ARTWORK_PATH = "artwork_path";
         public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
         public static final String SHARED_EMAILS = "shared_emails";

@@ -68,7 +68,7 @@ public class ScCreate extends ScActivity {
 
     private TextView mChrono;
 
-    private long mLastSeekEventTime;
+    private long mDuration, mLastSeekEventTime;
 
     private int mAudioProfile;
 
@@ -219,6 +219,15 @@ public class ScCreate extends ScActivity {
                     r.timestamp = savedFile.lastModified();
                     r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
 
+                    try { // set duration because ogg files report incorrect
+                          // duration in mediaplayer if playback is attempted
+                          // after encoding
+                        r.duration = mCreateService.getPlaybackDuration();
+                    } catch (RemoteException ignored) {
+                    }
+
+                    Log.i(TAG,"set duration to " + r.duration);
+
                     if (mRecordLocation != null){
                         r.latitude = mRecordLocation.getLatitude();
                         r.longitude = mRecordLocation.getLongitude();
@@ -268,13 +277,15 @@ public class ScCreate extends ScActivity {
                 if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
                     mRecordingId = getIntent().getLongExtra("recordingId",0);
 
-                    String[] audioPathColumn = { Recordings.AUDIO_PATH };
+                    String[] columns = { Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
                     Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
-                            audioPathColumn, Recordings.ID + "='" + mRecordingId + "'", null, null);
+                            columns, Recordings.ID + "='" + mRecordingId + "'", null, null);
 
                     if (cursor != null) {
                         cursor.moveToFirst();
                         setRecordFile(new File(cursor.getString(cursor.getColumnIndex(Recordings.AUDIO_PATH))));
+                        mAudioProfile = cursor.getInt(cursor.getColumnIndex(Recordings.AUDIO_PROFILE));
+                        mDuration = cursor.getLong(cursor.getColumnIndex(Recordings.DURATION));
                         cursor.close();
                     } else {
                         showToast("Error getting recording");
@@ -283,6 +294,9 @@ public class ScCreate extends ScActivity {
 
                 // in this case, state should be based on what is in the recording directory
                 if (mRecordFile == null) setRecordFile();
+
+                if (mRecordFile != null)
+                    Log.i(TAG,"Loading file " + mRecordFile.getAbsolutePath() + "  with profile of " + mAudioProfile);
 
                 if (mRecordFile != null) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
@@ -558,15 +572,19 @@ public class ScCreate extends ScActivity {
     private void configurePlaybackInfo(){
         try {
             mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
-                    mCreateService.getPlaybackDuration() / 1000);
-            mProgressBar.setMax(mCreateService.getPlaybackDuration());
+                    getDuration() / 1000);
+            mProgressBar.setMax((int) (getDuration()/1000));
 
-            if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < mCreateService.getPlaybackDuration())
-                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
+            if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < getDuration())
+                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition()/1000);
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
+    }
+
+    private long getDuration() throws RemoteException{
+        return mDuration == 0 ? mCreateService.getPlaybackDuration() : mDuration;
     }
 
 
@@ -599,7 +617,7 @@ public class ScCreate extends ScActivity {
             mChrono.setText(CloudUtils.makeTimeString(pos < 3600 * 1000 ? mDurationFormatShort
                     : mDurationFormatLong, pos / 1000)
                     + " / " + mCurrentDurationString);
-            mProgressBar.setProgress((int) pos);
+            mProgressBar.setProgress((int) pos/1000);
 
             return remaining;
 
