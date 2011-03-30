@@ -31,16 +31,19 @@ public class Main extends TabActivity {
     private TabHost mTabHost;
     private ViewGroup mSplash;
 
-    private static final long SPLASH_DELAY = 1000;
+    private static final long SPLASH_DELAY = 2000;
     private static final long FADE_DELAY   = 1000;
+    private static final long SPLASH_PAUSE = 5 * 60 * 1000;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-
         setContentView(R.layout.main);
 
+        long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
+        final boolean visible = lastDestroyed == 0 || System.currentTimeMillis() - lastDestroyed > SPLASH_PAUSE;
         mSplash = (ViewGroup) findViewById(R.id.splash);
+        mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
@@ -61,7 +64,7 @@ public class Main extends TabActivity {
                     }
                 }
             }).execute(CloudAPI.Enddpoints.MY_DETAILS);
-        } else {
+        } else if (visible) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -106,6 +109,8 @@ public class Main extends TabActivity {
     @Override
     protected void onSaveInstanceState(Bundle state) {
         state.putString("tabTag", mTabHost.getCurrentTabTag());
+        state.putLong("lastDestroyed", System.currentTimeMillis());
+
         super.onSaveInstanceState(state);
     }
 
@@ -162,25 +167,27 @@ public class Main extends TabActivity {
     }
 
     private void dismissSplash() {
-        mSplash.startAnimation(new AlphaAnimation(1, 0) {
-            {
-                setDuration(FADE_DELAY);
-                setAnimationListener(new AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
+        if (mSplash.getVisibility() == View.VISIBLE) {
+            mSplash.startAnimation(new AlphaAnimation(1, 0) {
+                {
+                    setDuration(FADE_DELAY);
+                    setAnimationListener(new AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        mSplash.setVisibility(View.GONE);
-                    }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            mSplash.setVisibility(View.GONE);
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
-            }
-        });
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+                }
+            });
+        }
     }
 
     @Override
