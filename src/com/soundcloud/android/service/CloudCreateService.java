@@ -409,6 +409,9 @@ public class CloudCreateService extends Service {
         mNotification.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
 
+        if (mPlaybackPath.contentEquals(String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH))))
+            stopPlayback();
+
         startForeground(CREATE_NOTIFY_ID, mNotification);
         mUploadLocalId = (Long) trackdata.get(UploadTask.Params.LOCAL_RECORDING_ID);
         mOggTask = new EncodeOggTask();
@@ -697,12 +700,8 @@ public class CloudCreateService extends Service {
 
     }
 
-    public void setCurrentState(int currentState) {
-        mCurrentState = currentState;
-    }
-
-    public int getCurrentState() {
-        return mCurrentState;
+    public long getUploadLocalId() {
+        return mUploadLocalId;
     }
 
     /*
@@ -799,18 +798,13 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        public int getCurrentState() throws RemoteException {
-            return mService.get() != null ? mService.get().getCurrentState() : 0;
-        }
-
-        @Override
-        public void setCurrentState(int newState) throws RemoteException {
-            if (mService.get() != null) mService.get().setCurrentState(newState);
-        }
-
-        @Override
         public String getPlaybackPath() throws RemoteException {
             return mService.get() != null ? mService.get().getCurrentPlaybackPath() : null;
+        }
+
+        @Override
+        public long getUploadLocalId() throws RemoteException {
+            return mService.get() != null ? mService.get().getUploadLocalId() : 0;
         }
 
     }

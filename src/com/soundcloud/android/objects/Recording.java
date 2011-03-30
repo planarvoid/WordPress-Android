@@ -207,7 +207,10 @@ public class Recording extends BaseObj implements Parcelable {
             upload_data.put(UploadTask.Params.ENCODE, true);
         } else {
             if (!external_upload){
-                File newRecFile = new File(audio_file.getParentFile(), generateFilename(title, "mp4"));
+                File newRecFile = new File(audio_file.getParentFile(), generateFilename(
+                        title,
+                        audio_file.getName().contains(".") ? audio_file.getName().substring(
+                                audio_file.getName().lastIndexOf(".") + 1) : "mp4"));
 
                 if (!audio_file.equals(newRecFile) || audio_file.renameTo(newRecFile)) {
                     audio_file = newRecFile;

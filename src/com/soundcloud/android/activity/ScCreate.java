@@ -35,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -126,6 +127,9 @@ public class ScCreate extends ScActivity {
 
         setContentView(R.layout.sc_record);
 
+        if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0)
+            mRecordingId = getIntent().getLongExtra("recordingId",0);
+
         initResourceRefs();
 
         updateUi(false);
@@ -199,9 +203,30 @@ public class ScCreate extends ScActivity {
             }
         });
 
+        ((Button) findViewById(R.id.btn_reset))
+                .setText(getString(mRecordingId == 0 ? R.string.reset : R.string.delete));
         findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                if (mRecordingId == 0)
+                    showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                else {
+                    new AlertDialog.Builder(ScCreate.this)
+                            .setTitle(R.string.dialog_confirm_delete_recording_title)
+                            .setMessage(R.string.dialog_confirm_delete_recording_message)
+                            .setPositiveButton(getString(R.string.btn_yes),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            getContentResolver().delete(Recordings.CONTENT_URI,
+                                                    Recordings.ID + " = " + mRecordingId, null);
+                                            finish();
+                                        }
+                                    })
+                            .setNegativeButton(getString(R.string.btn_no),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                        }
+                                    }).create().show();
+                }
             }
         });
 
@@ -240,7 +265,8 @@ public class ScCreate extends ScActivity {
                 } else {
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", mRecordingId);
-                    startActivity(i);
+                    //start for result, because if an upload starts, finish, playback should not longer be possible
+                    startActivityForResult(i,0);
                 }
 
                 //mRecordingId = 0;
@@ -761,6 +787,13 @@ public class ScCreate extends ScActivity {
                                 }).create();
             default:
                 return super.onCreateDialog(which);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+           finish();
         }
     }
 }

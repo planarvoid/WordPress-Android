@@ -13,26 +13,11 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
-	<style name="Theme.SavedRecordingDialog" parent="android:Theme.Dialog">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:windowFrame">@null</item>
-		<item name="android:windowTitleStyle">@null</item>
-		<item name="android:windowBackground">@null</item>
-		<item name="android:windowIsFloating">true</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowAnimationStyle">@style/Animation.SavedRecordingDialog</item>
-		<item name="android:windowNoTitle">true</item>
-	</style>
-	
 	<!-- Standard animations for a non-full-screen window or activity. -->
 	<style name="Animation" />
     <style name="Animation.AddCommentDialog">
         <item name="android:windowEnterAnimation">@anim/add_comment_enter</item>
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
-    </style>
-    <style name="Animation.SavedRecordingDialog">
-        <item name="android:windowEnterAnimation">@anim/saved_recording_enter</item>
-        <item name="android:windowExitAnimation">@anim/saved_recording_exit</item>
     </style>
 
 	<style name="auth_input">

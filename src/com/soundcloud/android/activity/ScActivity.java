@@ -9,6 +9,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
@@ -21,7 +22,6 @@ import com.soundcloud.android.service.ICloudPlaybackService;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.SavedRecordingDialog;
 import com.soundcloud.utils.net.NetworkConnectivityListener;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -116,6 +116,13 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onCreateServiceBound() {
+        if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
+        for (LazyListView lv : mLists){
+            if (lv.getAdapter() instanceof MyTracksAdapter)
+                try {
+                    ((MyTracksAdapter) lv.getAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
+                } catch (RemoteException ignored) {}
+        }
     }
 
     private ServiceConnection osc = new ServiceConnection() {
@@ -572,6 +579,9 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    protected void handleRecordingClick(Recording recording) {
+    }
+
     private LazyListView.LazyListListener mLazyListListener = new LazyListView.LazyListListener() {
 
         @Override
@@ -601,15 +611,11 @@ public abstract class ScActivity extends Activity {
         }
 
         @Override
-        public void onRecordingClick(Recording recording) {
-            if (recording.upload_status == Recording.UploadStatus.UPLOADING)
-                safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-            else{
-                SavedRecordingDialog dialog = new SavedRecordingDialog(ScActivity.this, recording);
-                dialog.show();
-                dialog.getWindow().setGravity(Gravity.BOTTOM);
-            }
+        public void onRecordingClick(final Recording recording) {
+            handleRecordingClick(recording);
         }
+
+
     };
 
 }

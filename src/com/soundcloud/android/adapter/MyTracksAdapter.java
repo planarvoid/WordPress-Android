@@ -71,6 +71,22 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
 
+    /*
+     * fix false upload statuses that may have resulted from a crash
+     */
+    public void checkUploadStatus(long uploadId) {
+        if (mRecordingData == null || mRecordingData.size() == 0) return;
+
+        boolean changed = false;
+        for (Recording r : mRecordingData) {
+            if (r.upload_status == 1 && uploadId != r.id) {
+                r.upload_status = 0;
+                changed = true;
+            }
+        }
+        if (changed)  notifyDataSetChanged();
+    }
+
     @Override
     public void reset() {
         mPage = 1;

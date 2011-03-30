@@ -115,6 +115,12 @@
 
   <string name="list_loading">Loading results...</string>
   <string name="list_loading_done">No more results.</string>
+  
+  <!-- Create/Upload control strings -->
+    <string name="delete">Delete</string>
+    <string name="reset">Reset</string>
+    <string name="save">Save</string>
+    <string name="upload">Upload</string>
 
   <plurals name="elapsed_seconds">
         <item quantity="one">1 second ago</item>
@@ -573,49 +579,6 @@
     <string translatable="false" name="durationformatshort"><xliff:g id="format">%2$d.%5$02d</xliff:g></string>
     <!-- Do not translate. Duration format for duration >= 1 hour -->
     <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d.%3$02d.%5$02d</xliff:g></string>
-
-    <!-- Menu item that takes the user back to the top level screen of the music player -->
-    <string name="goto_start">Library</string>
-    <!-- Menu item that takes the user to the "now playing" screen of the music player -->
-    <string name="goto_playback">Playback</string>
-    <!-- Menu item that switches the music player in to party shuffle mode -->
-    <string name="party_shuffle">Party shuffle</string>
-    <!-- Menu item that switches the music player out of party shuffle mode -->
-
-    <string name="party_shuffle_off">Party shuffle off</string>
-    <!-- Menu item that deletes the currently selected item, which might be a single song, or a collection of songs.
-         The user will be prompted to confirm before deletion actually takes place -->
-    <string name="delete_item">Delete</string>
-    <!-- Menu item to play back all the songs in the currently showing list in shuffle mode -->
-    <string name="shuffle_all">Shuffle all</string>
-    <!-- Menu item to play back all the songs in the currently showing list in list order -->
-    <string name="play_all">Play all</string>
-
-    <!-- Delete confirmation dialog when deleting an entire artist -->
-    <string name="delete_artist_desc">All songs by <xliff:g id="artist">%s</xliff:g> will be permanently deleted from the SD card.</string>
-
-    <!-- Delete confirmation dialog when deleting an entire album -->
-    <string name="delete_album_desc">The entire album \"<xliff:g id="album">%s</xliff:g>\" will be permanently deleted from the SD card.</string>
-
-    <!-- Delete confirmation dialog when deleting a single song -->
-    <string name="delete_song_desc">\"<xliff:g id="song">%s</xliff:g>\" will be permanently deleted from the SD card.</string>
-
-    <!-- Delete confirmation dialog, confirmation button text -->
-    <string name="delete_confirm_button_text">OK</string>
-    <!-- Toast confirming that song(s) was/were deleted. -->
-    <plurals name="NNNtracksdeleted">
-
-        <!-- delete confirmation message for 1 song -->
-        <item quantity="one">1 song was deleted.</item>
-        <!-- delete confirmation message for 0 or more than 1 songs -->
-        <item quantity="other"><xliff:g id="songs_to_delete">%d</xliff:g> songs were deleted.</item>
-    </plurals>
-
-
-
-
-
-
 
 
   <!-- Shown as a transient message whenever a file fails to play -->

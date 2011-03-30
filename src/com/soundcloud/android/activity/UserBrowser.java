@@ -14,6 +14,8 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
@@ -23,6 +25,8 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.utils.WorkspaceView;
 import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -610,6 +614,67 @@ public class UserBrowser extends ScActivity {
             }
         }
     }
+
+    @Override
+    protected void handleRecordingClick(Recording recording) {
+        if (recording.upload_status == Recording.UploadStatus.UPLOADING)
+            safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+        else {
+            showRecordingDialog(recording);
+        }
+    }
+
+    private void showRecordingDialog(final Recording recording) {
+        final CharSequence[] items = {
+                "Edit", "Listen", "Upload", "Delete"
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(true);
+        builder.setTitle(CloudUtils.generateRecordingSharingNote(recording.where_text,
+                recording.what_text, recording.timestamp));
+        builder.setNegativeButton(getString(android.R.string.cancel), null);
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                switch (item) {
+                    case 0:
+                        Intent i = new Intent(UserBrowser.this, ScUpload.class);
+                        i.putExtra("recordingId", recording.id);
+                        startActivity(i);
+                        break;
+                    case 1:
+                        i = new Intent(UserBrowser.this, ScCreate.class);
+                        i.putExtra("recordingId", recording.id);
+                        startActivity(i);
+                        break;
+                    case 2:
+                        startUpload(recording);
+                        break;
+                    case 3:
+                        new AlertDialog.Builder(UserBrowser.this)
+                                .setTitle(R.string.dialog_confirm_delete_recording_title)
+                                .setMessage(R.string.dialog_confirm_delete_recording_message)
+                                .setPositiveButton(getString(R.string.btn_yes),
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                                getContentResolver().delete(Recordings.CONTENT_URI,
+                                                        Recordings.ID + " = " + recording.id, null);
+                                            }
+                                        })
+                                .setNegativeButton(getString(R.string.btn_no),
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                            }
+                                        }).create().show();
+                        break;
+                }
+            }
+        });
+        builder.create().show();
+    }
+
+
 
     private String getDetailsUrl() {
         return CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}",
