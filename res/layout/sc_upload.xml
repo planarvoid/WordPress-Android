@@ -119,11 +119,11 @@
                       android:orientation="horizontal"
                       android:layout_width="fill_parent" android:layout_height="wrap_content"
                       android:paddingTop="5dip" android:layout_marginTop="5dip">
-            <Button android:id="@+id/btn_cancel" android:text="Cancel"
+            <Button android:id="@+id/btn_cancel" android:text="@string/record_another_sound"
                     android:layout_weight="1" android:layout_width="wrap_content"
                     android:layout_marginLeft="10dip" android:layout_marginRight="15dip"
                     android:layout_height="fill_parent"/>
-            <Button android:id="@+id/btn_upload" android:text="Upload"
+            <Button android:id="@+id/btn_upload" android:text="@string/upload_and_share"
                     android:layout_weight="1"
                     android:layout_width="wrap_content" android:layout_marginLeft="15dip"
                     android:layout_marginRight="10dip" android:layout_height="fill_parent"/>

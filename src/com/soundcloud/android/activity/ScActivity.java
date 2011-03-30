@@ -458,25 +458,6 @@ public abstract class ScActivity extends Activity {
                                         removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
                                     }
                                 }).create();
-            case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
-                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
-                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        try {
-                                            // XXX this should be handled by ScCreate
-                                            mCreateService.cancelUpload();
-                                        } catch (RemoteException ignored) {
-                                            Log.w(TAG, ignored);
-                                        }
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-                                    }
-                                }).setNegativeButton(getString(R.string.btn_no),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-                                    }
-                                }).create();
             default:
                 return super.onCreateDialog(which);
         }

@@ -6,7 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.utils.FastBitmapDrawable;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.View;
 
 public class MyTracklistRow extends TracklistRow {
@@ -15,8 +18,15 @@ public class MyTracklistRow extends TracklistRow {
 
     private boolean mIsPendingUpload;
 
+    private Bitmap mPendingDefaultIconBitmap;
+
+    private FastBitmapDrawable mPendingDefaultIcon;
+
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
+
+        mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.artwork_badge_white);
+        mPendingDefaultIcon = new FastBitmapDrawable(mPendingDefaultIconBitmap);
 
     }
 
@@ -58,6 +68,10 @@ public class MyTracklistRow extends TracklistRow {
                             .getString(R.string.cloud_upload_upload_failed) : mActivity
                             .getString(R.string.cloud_upload_not_yet_uploaded)));
         }
+
+        mIcon.setImageDrawable(mPendingDefaultIcon);
+        mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
+        mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());
     }
 
     /**

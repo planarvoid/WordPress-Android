@@ -26,10 +26,12 @@ import com.soundcloud.utils.WorkspaceView;
 import com.soundcloud.utils.WorkspaceView.OnScrollListener;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
@@ -712,5 +714,32 @@ public class UserBrowser extends ScActivity {
     private String getTrackOrder() {
         return PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("defaultTrackSorting", "");
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int which) {
+        switch (which) {
+            case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
+                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        try {
+                                            // XXX this should be handled by ScCreate
+                                            mCreateService.cancelUpload();
+                                        } catch (RemoteException ignored) {
+                                            Log.w(TAG, ignored);
+                                        }
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).setNegativeButton(getString(R.string.btn_no),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).create();
+            default:
+                return super.onCreateDialog(which);
+        }
     }
 }

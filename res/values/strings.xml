@@ -121,6 +121,8 @@
     <string name="reset">Reset</string>
     <string name="save">Save</string>
     <string name="upload">Upload</string>
+    <string name="record_another_sound">Record another sound</string>
+    <string name="upload_and_share">Upload &amp; Share</string>
 
   <plurals name="elapsed_seconds">
         <item quantity="one">1 second ago</item>

@@ -172,8 +172,11 @@ public class ScUpload extends ScActivity {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
+                Intent i = (new Intent(ScUpload.this, Main.class))
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra("tabTag", "record");
+                startActivity(i);
             }
         });
 

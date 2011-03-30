@@ -263,7 +263,7 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mTrack.artwork_url == null)
+        if (mTrack == null || mTrack.artwork_url == null)
             return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
             return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.LARGE);
