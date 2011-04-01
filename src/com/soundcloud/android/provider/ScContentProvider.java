@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,7 +60,11 @@ public class ScContentProvider extends ContentProvider {
 
     private static HashMap<String, String> trackPlaysProjectionMap;
 
-    public static String[] FULL_TRACK_PROJECTION = {"Tracks.*","CASE when TrackPlays.track_id is null then 0 else 1 END AS user_played"};
+    private static String COLUMN_ALL_FROM_TRACKS = "Tracks.*";
+
+    private static String COLUMN_TRACK_USER_PLAYED = "CASE when TrackPlays.track_id is null then 0 else 1 END AS user_played";
+
+    public static String[] FULL_TRACK_PROJECTION = {COLUMN_ALL_FROM_TRACKS,COLUMN_TRACK_USER_PLAYED};
 
     public enum DbTable {
         Tracks(TRACKS,"Tracks",DATABASE_CREATE_TRACKS,tracksProjectionMap),
@@ -266,8 +269,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.tblName);
             db.execSQL(tbl.createString.replace("create table " + tbl.tblName, "create table bck_"
                     + tbl.tblName));
-            List<String> columns = GetColumns(db, "bck_" + tbl.tblName);
-            columns.retainAll(GetColumns(db, tbl.tblName));
+            List<String> columns = getColumnNames(db, "bck_" + tbl.tblName);
+            columns.retainAll(getColumnNames(db, tbl.tblName));
             String cols = CloudUtils.join(columns, ",");
             String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
                     + CloudUtils.joinArray(toAppendCols, ",") : cols;
@@ -441,21 +444,6 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public String[] getColumnNames(String tableName){
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor ti = db.rawQuery("pragma table_info ("+tableName+")",null);
-        if ( ti.moveToFirst() ) {
-            String [] cols = new String[ti.getCount()];
-            int i = 0;
-            do {
-                cols[i] = ti.getString(1);
-                i++;
-            } while (ti.moveToNext());
-            return cols;
-        }
-        return null;
-    }
-
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName, TRACKS);
@@ -469,8 +457,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         sUriMatcher.addURI(AUTHORITY, DbTable.TrackPlays.tblName+"/#", TRACK_PLAYS_ID);
 
         tracksProjectionMap = new HashMap<String, String>();
-        tracksProjectionMap.put("Tracks.*", "Tracks.*");
-        tracksProjectionMap.put("CASE when TrackPlays.track_id is null then 0 else 1 END", "CASE when TrackPlays.track_id is null then 0 else 1 END");
+        tracksProjectionMap.put(COLUMN_ALL_FROM_TRACKS, COLUMN_ALL_FROM_TRACKS);
+        tracksProjectionMap.put(COLUMN_TRACK_USER_PLAYED, COLUMN_TRACK_USER_PLAYED);
 
         tracksProjectionMap.put(Tracks.ID, Tracks.ID);
         tracksProjectionMap.put(Tracks.PERMALINK, Tracks.PERMALINK);
@@ -532,42 +520,20 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         trackPlaysProjectionMap.put(TrackPlays.USER_ID, TrackPlays.USER_ID);
 
     }
-
-    public static List<String> GetColumns(SQLiteDatabase db, String tableName) {
-        List<String> ar = null;
-        Cursor c = null;
-        try {
-            c = db.rawQuery("select * from " + tableName + " limit 1", null);
-            if (c != null) {
-                ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
-            }
-        } catch (Exception e) {
-            Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
+    
+    
+    public static List<String> getColumnNames(SQLiteDatabase db, String tableName){
+        Cursor ti = db.rawQuery("pragma table_info ("+tableName+")",null);
+        if ( ti.moveToFirst() ) {
+            ArrayList<String> cols = new ArrayList<String>();
+            int i = 0;
+            do {
+                cols.add(ti.getString(1));
+                i++;
+            } while (ti.moveToNext());
+            return cols;
         }
-        return ar;
+        return null;
     }
-
-    public static String[] GetColumnsArray(SQLiteDatabase db, String tableName) {
-        String[] ar = null;
-        Cursor c = null;
-        try {
-            c = db.rawQuery("select * from " + tableName + " limit 1", null);
-            if (c != null) {
-                ar = c.getColumnNames();
-            }
-        } catch (Exception e) {
-            Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
-        }
-        return ar;
-    }
-
 
 }
