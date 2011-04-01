@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;

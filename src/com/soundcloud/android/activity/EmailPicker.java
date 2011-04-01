@@ -4,7 +4,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 
 import android.app.ListActivity;

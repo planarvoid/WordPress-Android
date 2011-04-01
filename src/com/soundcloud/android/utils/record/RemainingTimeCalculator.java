@@ -1,5 +1,5 @@
 
-package com.soundcloud.utils.record;
+package com.soundcloud.android.utils.record;
 
 import java.io.File;
 

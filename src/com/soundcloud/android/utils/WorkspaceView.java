@@ -1,4 +1,4 @@
-package com.soundcloud.utils;
+package com.soundcloud.android.utils;
 
 /**
  * Copyright 2010 Eric Taix (eric.taix@gmail.com) Licensed under the Apache License, Version 2.0 (the "License"); you

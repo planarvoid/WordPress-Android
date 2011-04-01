@@ -1,5 +1,5 @@
 
-package com.soundcloud.utils;
+package com.soundcloud.android.utils;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;

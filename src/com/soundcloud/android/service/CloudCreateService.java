@@ -1,17 +1,17 @@
 
 package com.soundcloud.android.service;
 
-import static com.soundcloud.android.CloudUtils.isTaskFinished;
+import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.utils.record.CloudRecorder;
+import com.soundcloud.android.utils.record.CloudRecorder;
 
 import android.app.Notification;
 import android.app.NotificationManager;

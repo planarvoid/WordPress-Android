@@ -1,6 +1,6 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.EmailPicker;
 

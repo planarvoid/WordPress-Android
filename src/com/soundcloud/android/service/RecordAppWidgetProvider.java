@@ -1,7 +1,6 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ScPlaybackActivityStarter;
 import com.soundcloud.android.activity.Main;
 
 import android.app.PendingIntent;
@@ -66,7 +65,7 @@ import android.widget.RemoteViews;
          * Link up various button actions using {@link PendingIntents}.
          *
          * @param playerActive True if player is active in background, which means
-         *            widget click will launch {@link ScPlaybackActivityStarter},
+         *            widget click will launch {@link com.soundcloud.android.activity.ScPlaybackActivityStarter},
          *            otherwise we launch {@link MusicBrowserActivity}.
          */
         private void linkButtons(Context context, RemoteViews views, int state) {

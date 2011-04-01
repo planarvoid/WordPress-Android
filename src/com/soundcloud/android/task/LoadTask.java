@@ -1,6 +1,6 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.api.CloudAPI;

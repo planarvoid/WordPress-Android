@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.ScContentProvider;
 

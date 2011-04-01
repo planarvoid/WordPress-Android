@@ -3,16 +3,10 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.view.ContextMenu;
-import android.view.HapticFeedbackConstants;
-import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.ImageView.ScaleType;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Comment;
 

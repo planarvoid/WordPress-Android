@@ -9,7 +9,7 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
-import com.soundcloud.utils.CloudCache;
+import com.soundcloud.android.utils.CloudCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;

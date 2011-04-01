@@ -2,19 +2,19 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.EMULATOR;
 
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
-import com.soundcloud.utils.AnimUtils;
-import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.record.CloudRecorder.Profile;
-import com.soundcloud.utils.record.PowerGauge;
-import com.soundcloud.utils.record.RemainingTimeCalculator;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudCache;
+import com.soundcloud.android.utils.record.CloudRecorder.Profile;
+import com.soundcloud.android.utils.record.PowerGauge;
+import com.soundcloud.android.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.soundcloud.android;
+package com.soundcloud.android.activity;
 
 import com.soundcloud.android.activity.ScPlayer;
 

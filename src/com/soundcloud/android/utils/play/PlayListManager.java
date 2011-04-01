@@ -1,7 +1,7 @@
 
-package com.soundcloud.utils.play;
+package com.soundcloud.android.utils.play;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;

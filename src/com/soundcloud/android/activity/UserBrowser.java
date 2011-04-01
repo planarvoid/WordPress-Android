@@ -3,9 +3,9 @@ package com.soundcloud.android.activity;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -19,8 +19,8 @@ import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.utils.WorkspaceView;
-import com.soundcloud.utils.WorkspaceView.OnScrollListener;
+import com.soundcloud.android.utils.WorkspaceView;
+import com.soundcloud.android.utils.WorkspaceView.OnScrollListener;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -18,7 +18,7 @@ import android.util.Log;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.utils.CloudCache;
+import com.soundcloud.android.utils.CloudCache;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETED = 0;
