@@ -213,7 +213,6 @@ public class TracklistRow extends LazyRow {
             mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
             mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity, mTrack.created_at.getTime()));
             mProgressBar.setVisibility(View.GONE);
-            setBackgroundResource(android.R.color.transparent);
         }
 
         if (!mTrack.streamable) {

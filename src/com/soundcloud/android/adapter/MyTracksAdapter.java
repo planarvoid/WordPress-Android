@@ -150,6 +150,9 @@ public class MyTracksAdapter extends TracklistAdapter {
             if (Config.LOGV) Log.v("Cursor", "Auto requerying " + mCursor + " due to update");
             mDataValid = mCursor.requery();
         }
+
+        submenuIndex = -1;
+        animateSubmenuIndex = -1;
         loadCursor();
         notifyDataSetChanged();
     }

@@ -38,22 +38,32 @@ public class MyTracklistRow extends TracklistRow {
     @Override
     public void display(int position) {
         if (mAdapter.getItem(position) instanceof Recording){
+            setBackgroundColor(mActivity.getResources().getColor(R.color.recordUploadBackground));
             mIsPendingUpload = true;
             fillRowFromRecording(((Recording) mAdapter.getItem(position)));
         } else {
+            setBackgroundColor(0xFFFFFFFF);
             mIsPendingUpload = false;
             super.display(position);
+
         }
 
     }
 
     private void fillRowFromRecording(Recording recording){
-        setBackgroundColor(mActivity.getResources().getColor(R.color.recordUploadBackground));
+        mPlayIndicator.setVisibility(View.GONE);
+
         mTitle.setText(CloudUtils.generateRecordingSharingNote(
                 recording.what_text,
                 recording.where_text,
                 recording.timestamp));
         mTitle.setTextColor(0xFFFFFFFF);
+
+        if (recording.is_private){
+            mPrivateIndicator.setVisibility(View.VISIBLE);
+        } else {
+            mPrivateIndicator.setVisibility(View.GONE);
+        }
 
         if (mUploading) {
             mProgressBar.setVisibility(View.VISIBLE);

@@ -205,7 +205,9 @@ public class CloudPlaybackService extends Service {
 
     private static final int HIGH_WATER_MARK = 8000000;
 
-    private static final int PLAYBACK_MARK = 60000;
+    private static final int PLAYBACK_MARK = 200000;
+
+    private static final int INITIAL_PLAYBACK_MARK = 60000;
 
     private static final int LOW_WATER_MARK = 40000;
 
@@ -438,10 +440,8 @@ public class CloudPlaybackService extends Service {
                 pause();
                 seek(0);
             } else if (ADD_FAVORITE.equals(action)) {
-                Log.i(TAG,"Got an add fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
-                Log.i(TAG,"Got a remove fave call " + intent.getLongExtra("trackId", -1));
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             }
         }
@@ -786,9 +786,10 @@ public class CloudPlaybackService extends Service {
                 Log.i(TAG, "[buffer size] " + mCurrentBuffer + " [cachefile] "
                         + mPlayingData.mCacheFile.length() + " [waiting]"
                         + pausedForBuffering);
+                //Log.i(TAG,"2 " + CloudUtils.checkThreadAlive(mDownloadThread) + " " + (mDownloadThread == null ? "" : mDownloadThread.lastRead));
                 if (CloudUtils.checkThreadAlive(mDownloadThread) && mDownloadThread.lastRead > 0
                         && System.currentTimeMillis() - mDownloadThread.lastRead > 10000) {
-                    Log.i(TAG, "Download thread stale, rebooting it ");
+                    Log.i(TAG, "Download thread stale, killing it ");
                     mDownloadThread.stopDownload();
                     mDownloadThread = null;
                     checkBufferStatus();
@@ -804,7 +805,7 @@ public class CloudPlaybackService extends Service {
 
                 // first round of buffering, special case where we set the
                 // playback file
-                if (mCurrentBuffer > PLAYBACK_MARK
+                if ((mCurrentBuffer > INITIAL_PLAYBACK_MARK && initialBuffering) || (mCurrentBuffer > PLAYBACK_MARK && !initialBuffering)
                         || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
 
                     if (mWaitingForArtwork)
@@ -2045,7 +2046,6 @@ public class CloudPlaybackService extends Service {
                 if (mStopped) return;
 
                 StatusLine status = resp.getStatusLine();
-
                 switch (mode) {
                     case MODE_NEW:
                         if (status.getStatusCode() != 200) {
