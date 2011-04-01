@@ -8,7 +8,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -306,8 +306,7 @@ public abstract class ScActivity extends Activity {
         if (!uploading) {
             r.prepareForUpload();
             // save after preparing data in case file was renamed
-            SoundCloudDB.getInstance().updateRecording(getContentResolver(), r);
-
+            getContentResolver().update(Recordings.CONTENT_URI, r.buildContentValues(), Recordings.ID + "='" + r.id + "'", null);
             try {
                 mCreateService.uploadTrack(r.upload_data);
                 return true;

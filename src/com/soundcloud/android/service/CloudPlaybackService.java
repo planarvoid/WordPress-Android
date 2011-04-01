@@ -20,6 +20,7 @@ import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.TrackPlays;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
@@ -47,9 +48,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -599,7 +602,16 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        commitTrackToDb(track);
+        Cursor cursor = getContentResolver().query(TrackPlays.CONTENT_URI, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
+        Log.i(TAG,"TRACK PLAYED CURSOR?? " + cursor);
+        if (cursor == null || cursor.getCount() == 0) {
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TrackPlays.TRACK_ID, track.id);
+            contentValues.put(TrackPlays.USER_ID, CloudUtils.getCurrentUserId(getApplicationContext()));
+            Log.i(TAG,"Inserting track played " + CloudUtils.getCurrentUserId(getApplicationContext()));
+            getContentResolver().insert(TrackPlays.CONTENT_URI, contentValues);
+        }
 
         // meta has changed
         notifyChange(META_CHANGED);

@@ -3,17 +3,16 @@ package com.soundcloud.android.objects;
 
 import com.soundcloud.android.CloudAPI;
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -54,36 +53,6 @@ public class Recording extends BaseObj implements Parcelable {
         public static final int NOT_YET_UPLOADED    = 0;
         public static final int UPLOADING           = 1;
         public static final int UPLOADED            = 2;
-    }
-
-    public static final class Recordings implements BaseColumns {
-        private Recordings() {
-        }
-
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Recordings");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.recordings";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.recordings";
-
-        public static final String ID = "_id";
-        public static final String USER_ID = "user_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String LONGITUDE = "longitude";
-        public static final String LATITUDE = "latitude";
-        public static final String WHAT_TEXT = "what_text";
-        public static final String WHERE_TEXT = "where_text";
-        public static final String AUDIO_PATH = "audio_path";
-        public static final String DURATION = "duration";
-        public static final String ARTWORK_PATH = "artwork_path";
-        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
-        public static final String SHARED_EMAILS = "shared_emails";
-        public static final String SERVICE_IDS = "service_ids";
-        public static final String IS_PRIVATE = "is_private";
-        public static final String EXTERNAL_UPLOAD = "external_upload";
-        public static final String AUDIO_PROFILE = "audio_profile";
-        public static final String UPLOAD_STATUS = "upload_status";
-        public static final String UPLOAD_ERROR = "upload_error";
     }
 
     public Recording() {
@@ -144,6 +113,29 @@ public class Recording extends BaseObj implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public ContentValues buildContentValues(){
+        ContentValues cv = new ContentValues();
+        cv.put(Recordings.ID, id);
+        cv.put(Recordings.USER_ID, user_id);
+        cv.put(Recordings.TIMESTAMP, timestamp);
+        cv.put(Recordings.LONGITUDE, longitude);
+        cv.put(Recordings.LATITUDE, latitude);
+        cv.put(Recordings.WHAT_TEXT, what_text);
+        cv.put(Recordings.WHERE_TEXT, where_text);
+        cv.put(Recordings.AUDIO_PATH, audio_path);
+        cv.put(Recordings.DURATION, duration);
+        cv.put(Recordings.ARTWORK_PATH, artwork_path);
+        cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
+        cv.put(Recordings.SHARED_EMAILS, shared_emails);
+        cv.put(Recordings.SERVICE_IDS, service_ids);
+        cv.put(Recordings.IS_PRIVATE, is_private);
+        cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(Recordings.AUDIO_PROFILE, audio_profile);
+        cv.put(Recordings.UPLOAD_STATUS, upload_status);
+        cv.put(Recordings.UPLOAD_ERROR, upload_error);
+        return cv;
     }
 
     public void prepareForUpload(){

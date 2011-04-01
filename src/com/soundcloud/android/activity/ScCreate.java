@@ -3,9 +3,8 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 import com.soundcloud.utils.record.PowerGauge;
@@ -258,7 +257,7 @@ public class ScCreate extends ScActivity {
                         r.longitude = mRecordLocation.getLongitude();
                     }
 
-                    Uri newRecordingUri = SoundCloudDB.getInstance().insertRecording(ScCreate.this.getContentResolver(), r);
+                    Uri newRecordingUri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
                     startActivity(i);

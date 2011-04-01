@@ -1,9 +1,10 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.objects.Recording.Recordings;
-import com.soundcloud.android.objects.Track.Tracks;
-import com.soundcloud.android.objects.User.Users;
+import com.soundcloud.android.SoundCloudDB.Recordings;
+import com.soundcloud.android.SoundCloudDB.TrackPlays;
+import com.soundcloud.android.SoundCloudDB.Tracks;
+import com.soundcloud.android.SoundCloudDB.Users;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -42,11 +43,15 @@ public class ScContentProvider extends ContentProvider {
 
     private static final int RECORDINGS = 3;
 
-    private static final int TRACKS_ID = 11;
+    private static final int TRACK_PLAYS = 4;
 
-    private static final int USERS_ID = 12;
+    private static final int TRACKS_ID = 101;
 
-    private static final int RECORDINGS_ID = 13;
+    private static final int USERS_ID = 102;
+
+    private static final int RECORDINGS_ID = 103;
+
+    private static final int TRACK_PLAYS_ID = 104;
 
     private static HashMap<String, String> tracksProjectionMap;
 
@@ -54,10 +59,15 @@ public class ScContentProvider extends ContentProvider {
 
     private static HashMap<String, String> recordingsProjectionMap;
 
+    private static HashMap<String, String> trackPlaysProjectionMap;
+
+    public static String[] FULL_TRACK_PROJECTION = {"Tracks.*","CASE when TrackPlays.track_id is null then 0 else 1 END AS user_played"};
+
     public enum DbTable {
         Tracks(TRACKS,"Tracks",DATABASE_CREATE_TRACKS,tracksProjectionMap),
         Users(USERS,"Users",DATABASE_CREATE_USERS,usersProjectionMap),
-        Recordings(RECORDINGS,"Recordings",DATABASE_CREATE_RECORDINGS,recordingsProjectionMap);
+        Recordings(RECORDINGS,"Recordings",DATABASE_CREATE_RECORDINGS,recordingsProjectionMap),
+        TrackPlays(TRACK_PLAYS,"TrackPlays",DATABASE_CREATE_TRACK_PLAYS,trackPlaysProjectionMap);
 
         public final int tblId;
         public final String tblName;
@@ -88,43 +98,46 @@ public class ScContentProvider extends ContentProvider {
         + "sharing string null, "
         + "user_id string null, "
         + "user_favorite boolean false, "
-        + "user_played boolean false, "
         + "filelength integer null);";
 
-private static final String DATABASE_CREATE_USERS = "create table Users (_id string primary key, "
-        + "username string null, "
-        + "avatar_url string null, "
-        + "permalink string null, "
-        + "city string null, "
-        + "country string null, "
-        + "discogs_name string null, "
-        + "followers_count string null, "
-        + "followings_count string null, "
-        + "full_name string null, "
-        + "myspace_name string null, "
-        + "track_count string null, "
-        + "website string null, "
-        + "website_title string null, "
-        + "description text null);";
+    private static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id string primary key, "
+        + "track_id string null, "
+        + "user_id string null);";
 
-private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, "
-    + "user_id string null, "
-    + "timestamp string null, "
-    + "longitude string null, "
-    + "latitude string null, "
-    + "what_text string null, "
-    + "where_text string null, "
-    + "audio_path string null, "
-    + "artwork_path string null, "
-    + "duration int null, "
-    + "four_square_venue_id string null, "
-    + "shared_emails text null, "
-    + "service_ids string null, "
-    + "is_private boolean false, "
-    + "external_upload boolean false, "
-    + "audio_profile int null, "
-    + "upload_status int false, "
-    + "upload_error boolean false);";
+    private static final String DATABASE_CREATE_USERS = "create table Users (_id string primary key, "
+            + "username string null, "
+            + "avatar_url string null, "
+            + "permalink string null, "
+            + "city string null, "
+            + "country string null, "
+            + "discogs_name string null, "
+            + "followers_count string null, "
+            + "followings_count string null, "
+            + "full_name string null, "
+            + "myspace_name string null, "
+            + "track_count string null, "
+            + "website string null, "
+            + "website_title string null, "
+            + "description text null);";
+
+    private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, "
+        + "user_id string null, "
+        + "timestamp string null, "
+        + "longitude string null, "
+        + "latitude string null, "
+        + "what_text string null, "
+        + "where_text string null, "
+        + "audio_path string null, "
+        + "artwork_path string null, "
+        + "duration int null, "
+        + "four_square_venue_id string null, "
+        + "shared_emails text null, "
+        + "service_ids string null, "
+        + "is_private boolean false, "
+        + "external_upload boolean false, "
+        + "audio_profile int null, "
+        + "upload_status int false, "
+        + "upload_error boolean false);";
 
 
 private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -138,6 +151,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         try {
             db.execSQL(DATABASE_CREATE_TRACKS);
+            db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
         } catch (SQLiteException e) {
@@ -238,6 +252,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         private boolean upgradeTo6(SQLiteDatabase db) {
             try {
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
+                db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
+                alterTableColumns(db, DbTable.Tracks, null, null);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -343,6 +359,15 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                     return recordingUri;
                 }
                 break;
+            case TRACK_PLAYS:
+                rowId = db.insert(DbTable.TrackPlays.tblName, TrackPlays.TRACK_ID, values);
+                if (rowId > 0) {
+                    Uri trackPlaysUri = ContentUris.withAppendedId(TrackPlays.CONTENT_URI, rowId);
+                    getContext().getContentResolver().notifyChange(trackPlaysUri, null);
+                    // TODO notify track of change too
+                    return trackPlaysUri;
+                }
+                break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -362,7 +387,9 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
 
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                qb.setTables(DbTable.Tracks.tblName);
+                if (projection == null) projection = FULL_TRACK_PROJECTION;
+                qb.setTables(DbTable.Tracks.tblName + " LEFT OUTER JOIN "
+                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.FULL_ID + " = " + TrackPlays.TRACK_ID + ")");
                 qb.setProjectionMap(tracksProjectionMap);
                 break;
             case USERS:
@@ -372,6 +399,10 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             case RECORDINGS:
                 qb.setTables(DbTable.Recordings.tblName);
                 qb.setProjectionMap(recordingsProjectionMap);
+                break;
+            case TRACK_PLAYS:
+                qb.setTables(DbTable.TrackPlays.tblName);
+                qb.setProjectionMap(trackPlaysProjectionMap);
                 break;
 
             default:
@@ -393,15 +424,15 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
             case TRACKS:
                 count = db.update(DbTable.Tracks.tblName, values, where, whereArgs);
                 break;
-
             case USERS:
                 count = db.update(DbTable.Users.tblName, values, where, whereArgs);
                 break;
-
             case RECORDINGS:
                 count = db.update(DbTable.Recordings.tblName, values, where, whereArgs);
                 break;
-
+            case TRACK_PLAYS:
+                count = db.update(DbTable.TrackPlays.tblName, values, where, whereArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -410,17 +441,37 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public String[] getColumnNames(String tableName){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor ti = db.rawQuery("pragma table_info ("+tableName+")",null);
+        if ( ti.moveToFirst() ) {
+            String [] cols = new String[ti.getCount()];
+            int i = 0;
+            do {
+                cols[i] = ti.getString(1);
+                i++;
+            } while (ti.moveToNext());
+            return cols;
+        }
+        return null;
+    }
+
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName, TRACKS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName, USERS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName, RECORDINGS);
+        sUriMatcher.addURI(AUTHORITY, DbTable.TrackPlays.tblName, TRACK_PLAYS);
 
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName+"/#", TRACKS_ID);
         sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName+"/#", USERS_ID);
         sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName+"/#", RECORDINGS_ID);
+        sUriMatcher.addURI(AUTHORITY, DbTable.TrackPlays.tblName+"/#", TRACK_PLAYS_ID);
 
         tracksProjectionMap = new HashMap<String, String>();
+        tracksProjectionMap.put("Tracks.*", "Tracks.*");
+        tracksProjectionMap.put("CASE when TrackPlays.track_id is null then 0 else 1 END", "CASE when TrackPlays.track_id is null then 0 else 1 END");
+
         tracksProjectionMap.put(Tracks.ID, Tracks.ID);
         tracksProjectionMap.put(Tracks.PERMALINK, Tracks.PERMALINK);
         tracksProjectionMap.put(Tracks.DURATION, Tracks.DURATION);
@@ -437,7 +488,6 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         tracksProjectionMap.put(Tracks.SHARING, Tracks.SHARING);
         tracksProjectionMap.put(Tracks.USER_ID, Tracks.USER_ID);
         tracksProjectionMap.put(Tracks.USER_FAVORITE, Tracks.USER_FAVORITE);
-        tracksProjectionMap.put(Tracks.USER_PLAYED, Tracks.USER_PLAYED);
         tracksProjectionMap.put(Tracks.FILELENGTH, Tracks.FILELENGTH);
 
         usersProjectionMap = new HashMap<String, String>();
@@ -475,6 +525,11 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         recordingsProjectionMap.put(Recordings.AUDIO_PROFILE, Recordings.AUDIO_PROFILE);
         recordingsProjectionMap.put(Recordings.UPLOAD_STATUS, Recordings.UPLOAD_STATUS);
         recordingsProjectionMap.put(Recordings.UPLOAD_ERROR, Recordings.UPLOAD_ERROR);
+
+        trackPlaysProjectionMap = new HashMap<String, String>();
+        trackPlaysProjectionMap.put(TrackPlays.ID, TrackPlays.ID);
+        trackPlaysProjectionMap.put(TrackPlays.TRACK_ID, TrackPlays.TRACK_ID);
+        trackPlaysProjectionMap.put(TrackPlays.USER_ID, TrackPlays.USER_ID);
 
     }
 

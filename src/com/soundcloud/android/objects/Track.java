@@ -1,15 +1,14 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.SoundCloudDB.Tracks;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -113,36 +112,6 @@ public class Track extends BaseObj implements Parcelable {
         public String permalink_url;
     }
 
-    public static final class Tracks implements BaseColumns {
-        private Tracks() {
-        }
-
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Tracks");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.tracks";
-
-        public static final String ID = "_id";
-        public static final String PERMALINK = "permalink";
-        public static final String DURATION = "duration";
-        public static final String TAG_LIST = "tag_list";
-        public static final String TRACK_TYPE = "track_type";
-        public static final String TITLE = "title";
-        public static final String PERMALINK_URL = "permalink_url";
-        public static final String ARTWORK_URL = "artwork_url";
-        public static final String WAVEFORM_URL = "waveform_url";
-        public static final String DOWNLOADABLE = "downloadable";
-        public static final String DOWNLOAD_URL = "download_url";
-        public static final String STREAM_URL = "stream_url";
-        public static final String STREAMABLE = "streamable";
-        public static final String SHARING = "sharing";
-        public static final String USER_ID = "user_id";
-        public static final String USER_FAVORITE = "user_favorite";
-        public static final String USER_PLAYED = "user_played";
-        public static final String FILELENGTH = "filelength";
-    }
-
     public Track() {
     }
 
@@ -198,6 +167,28 @@ public class Track extends BaseObj implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public ContentValues buildContentValues(){
+        ContentValues cv = new ContentValues();
+        cv.put(Tracks.ID, id);
+        cv.put(Tracks.PERMALINK, permalink);
+        cv.put(Tracks.DURATION, duration);
+        cv.put(Tracks.TAG_LIST, tag_list);
+        cv.put(Tracks.TRACK_TYPE, track_type);
+        cv.put(Tracks.TITLE, title);
+        cv.put(Tracks.PERMALINK_URL, permalink_url);
+        cv.put(Tracks.ARTWORK_URL, artwork_url);
+        cv.put(Tracks.WAVEFORM_URL, waveform_url);
+        cv.put(Tracks.DOWNLOADABLE, downloadable);
+        cv.put(Tracks.DOWNLOAD_URL, download_url);
+        cv.put(Tracks.STREAM_URL, stream_url);
+        cv.put(Tracks.STREAMABLE, streamable);
+        cv.put(Tracks.SHARING, sharing);
+        cv.put(Tracks.USER_ID, user_id);
+        cv.put(Tracks.USER_FAVORITE, user_favorite);
+        cv.put(Tracks.FILELENGTH, filelength);
+        return cv;
     }
 
     public String trackInfo() {

@@ -3,16 +3,15 @@ package com.soundcloud.android.objects;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.SoundCloudDB.Users;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 
 import java.lang.reflect.Field;
 
@@ -155,47 +154,24 @@ public class User extends BaseObj implements Parcelable {
         return 0;
     }
 
-    public static final class Users implements BaseColumns {
-
-        private Users() {
-        }
-
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Users");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.users";
-
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.users";
-
-        public static final String ID = "_id";
-
-        public static final String PERMALINK = "username";
-
-        public static final String AVATAR_URL = "avatar_url";
-
-        public static final String CITY = "city";
-
-        public static final String COUNTRY = "country";
-
-        public static final String DISCOGS_NAME = "discogs_name";
-
-        public static final String FOLLOWERS_COUNT = "followers_count";
-
-        public static final String FOLLOWINGS_COUNT = "followings_count";
-
-        public static final String FULL_NAME = "full_name";
-
-        public static final String MYSPACE_NAME = "myspace_name";
-
-        public static final String TRACK_COUNT = "track_count";
-
-        public static final String WEBSITE = "website";
-
-        public static final String WEBSITE_TITLE = "website_title";
-
-        public static final String DESCRIPTION = "description";
+    public ContentValues buildContentValues(boolean isCurrentUser){
+        ContentValues cv = new ContentValues();
+        cv.put(Users.ID, id);
+        cv.put(Users.PERMALINK, permalink);
+        cv.put(Users.AVATAR_URL, avatar_url);
+        cv.put(Users.CITY, city);
+        cv.put(Users.COUNTRY, country);
+        cv.put(Users.DISCOGS_NAME, discogs_name);
+        cv.put(Users.FOLLOWERS_COUNT, followers_count);
+        cv.put(Users.FOLLOWINGS_COUNT, followings_count);
+        cv.put(Users.FULL_NAME, full_name);
+        cv.put(Users.MYSPACE_NAME, myspace_name);
+        cv.put(Users.TRACK_COUNT, track_count);
+        cv.put(Users.WEBSITE, website);
+        cv.put(Users.WEBSITE_TITLE, website_title);
+        if (isCurrentUser) cv.put(Users.DESCRIPTION, description);
+        return cv;
     }
-
 
     @Override
     public String toString() {

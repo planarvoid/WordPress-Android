@@ -2,9 +2,8 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.objects.Recording.Recordings;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
@@ -106,7 +105,7 @@ public class ScUpload extends ScActivity {
             r.timestamp = uploadFile.lastModified();
             r.external_upload = true;
             r.user_id = CloudUtils.getCurrentUserId(ScUpload.this);
-            Uri uri = SoundCloudDB.getInstance().insertRecording(getContentResolver(), r);
+            Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
             cursor = getContentResolver().query(uri, null, null, null, null);
 
         } else if (getIntent().hasExtra("recordingId")
@@ -154,7 +153,7 @@ public class ScUpload extends ScActivity {
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
             mapToRecording();
-            SoundCloudDB.getInstance().updateRecording(ScUpload.this.getContentResolver(), mRecording);
+            getContentResolver().update(Recordings.CONTENT_URI, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
         }
     }
 
