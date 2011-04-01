@@ -295,7 +295,6 @@ public class CloudUtils {
         return buf.toString();
     }
 
-
     public static LazyListView createTabList(ScActivity activity,
                                    FrameLayout listHolder,
                                    LazyEndlessAdapter adpWrap,

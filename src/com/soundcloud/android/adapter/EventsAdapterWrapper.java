@@ -30,10 +30,11 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected String getUrl() {
-        if (TextUtils.isEmpty(mNextEventsParams))
+        if (TextUtils.isEmpty(mNextEventsParams)) {
             return super.getUrl();
-        else
+        } else {
             return super.getUrl() + mNextEventsParams;
+        }
     }
 
     public void onNextEventsParam(String nextEventsHref) {

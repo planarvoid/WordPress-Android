@@ -2,7 +2,7 @@ package com.soundcloud.android.task;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 

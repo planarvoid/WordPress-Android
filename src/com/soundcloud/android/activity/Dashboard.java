@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -83,6 +83,11 @@ public class Dashboard extends ScActivity {
     @Override
     public void onRefresh() {
         mTracklistView.onRefresh();
+    }
+
+    @Override
+    protected void onReauthenticate() {
+        onRefresh();
     }
 
     // legacy action, redirect to Main

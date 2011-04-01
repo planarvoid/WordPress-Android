@@ -1,9 +1,10 @@
 package com.soundcloud.android.activity;
 
 import android.location.Location;
-import com.soundcloud.utils.http.Http;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.Http;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,7 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class LocationPickerTests {
 
     private String slurp(String res) throws IOException {

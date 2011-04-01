@@ -1,8 +1,14 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.api.ApiTest;
-import com.soundcloud.utils.http.Http;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.BaseApiTest;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -11,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.omg.CORBA.NameValuePair;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,18 +24,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
-
 @SuppressWarnings({"unchecked"})
-@RunWith(RobolectricTestRunner.class)
-public class UploadTaskTests extends ApiTest {
+@RunWith(DefaultTestRunner.class)
+public class UploadTaskTests extends BaseApiTest {
     UploadTask task;
 
     @Before
@@ -71,14 +69,14 @@ public class UploadTaskTests extends ApiTest {
         UploadTask.Params params = new UploadTask.Params(map);
 
         task.execute(params);
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Http.Params> captor = ArgumentCaptor.forClass(Http.Params.class);
 
-        verify(api).upload(Matchers.<ContentBody>any(),
+        verify(api).uploadTrack(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
                 captor.capture(),
-                Matchers.<Http.ProgressListener>any());
+                Matchers.<CloudAPI.ProgressListener>any());
 
-        List<NameValuePair> pairs = captor.getValue();
+        Http.Params pairs = captor.getValue();
         assertEquals(4, pairs.size());
     }
 
@@ -96,9 +94,10 @@ public class UploadTaskTests extends ApiTest {
         when(response.getStatusLine()).thenReturn(status);
         when(status.getStatusCode()).thenReturn(201);
 
-        when(api.upload(Matchers.<ContentBody>any(),
+        when(api.uploadTrack(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
-                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
+                Matchers.<Http.Params>anyObject(),
+                Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
 
@@ -131,9 +130,9 @@ public class UploadTaskTests extends ApiTest {
         when(response.getStatusLine()).thenReturn(status);
         when(status.getStatusCode()).thenReturn(400);
 
-        when(api.upload(Matchers.<ContentBody>any(),
+        when(api.uploadTrack(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
-                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
+                Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
 
@@ -164,9 +163,9 @@ public class UploadTaskTests extends ApiTest {
         when(response.getStatusLine()).thenReturn(status);
         when(status.getStatusCode()).thenReturn(201);
 
-        when(api.upload(Matchers.<ContentBody>any(),
+        when(api.uploadTrack(Matchers.<ContentBody>any(),
                 Matchers.<ContentBody>any(),
-                anyList(), Matchers.<Http.ProgressListener>any())).thenReturn(response);
+                Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
     }

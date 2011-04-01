@@ -13,7 +13,6 @@ import com.soundcloud.android.objects.User;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
@@ -31,7 +30,7 @@ import java.util.ArrayList;
  * data. Mostly, this code delegates to the subclass, to append the data in
  * the background thread and rebind the pending view once that is done.
  */
-public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
+public class AppendTask extends AsyncTask<String, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
     private WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
@@ -93,19 +92,16 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(HttpUriRequest... params) { /* XXX HttpUriRequest is not testable */
-
-        // make sure we have a valid url
-        HttpUriRequest req = params[0];
+    protected Boolean doInBackground(String... params) {
+        final String req = params[0];
         if (req == null) return false;
 
         try {
-            Log.d(TAG, "Executing request " + req.getRequestLine().getUri());
-            HttpResponse resp = mApp
-                    .execute(req);
+            HttpResponse resp = mApp.getContent(req);
 
-            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) throw new IOException("Invalid response: " + resp.getStatusLine());
-
+            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                throw new IOException("Invalid response: " + resp.getStatusLine());
+            }
             InputStream is = resp.getEntity().getContent();
 
             if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {
@@ -120,7 +116,7 @@ public class AppendTask extends AsyncTask<HttpUriRequest, Parcelable, Boolean> {
             // resolve data
             if (newItems != null) {
                 for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p);
-                // we have less than the requested number of items, so we are
+                     // we have less than the requested number of items, so we are
                 // done grabbing items for this list
                 return newItems.size() >= pageSize;
             } else {

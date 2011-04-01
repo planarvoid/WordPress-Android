@@ -1,8 +1,8 @@
 package com.soundcloud.android.task;
 
 
-import com.soundcloud.android.api.ApiTest;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.BaseApiTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,12 +12,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-@RunWith(RobolectricTestRunner.class)
-public class LoadJsonTaskTests extends ApiTest {
+@RunWith(DefaultTestRunner.class)
+public class LoadJsonTaskTests extends BaseApiTest {
 
     @Test
     public void shouldReturnAList() throws Exception {
-        fakeApi("/foo", "[{\"bar\": \"baz\"}]");
+        expectGetRequestAndReturn("/foo", "[{\"bar\": \"baz\"}]");
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
             protected List<Foo> doInBackground(String... strings) {
@@ -32,7 +32,7 @@ public class LoadJsonTaskTests extends ApiTest {
 
     @Test
     public void shouldReturnNullWhenExceptionEncountered() throws Exception {
-        fakeApi("/foo", new IOException());
+        expectGetRequestAndThrow("/foo", new IOException());
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
@@ -46,7 +46,7 @@ public class LoadJsonTaskTests extends ApiTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldReraiseExceptionWhenTold() throws Exception {
-        fakeApi("/foo", new IOException());
+        expectGetRequestAndThrow("/foo", new IOException());
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override

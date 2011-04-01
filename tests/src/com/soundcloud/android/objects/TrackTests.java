@@ -1,5 +1,6 @@
 package com.soundcloud.android.objects;
 
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,7 +9,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class TrackTests {
     @Test
     public void shouldFilterOutMachineTags() throws Exception {
@@ -26,7 +27,6 @@ public class TrackTests {
 
         assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/><br/><br/>"));
     }
-
 
     @Test
     public void shouldNotShowAllRightsReserved() throws Exception {

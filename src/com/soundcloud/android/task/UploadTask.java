@@ -1,25 +1,20 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudAPI;
-import com.soundcloud.utils.http.Http;
-
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Http.ProgressListener {
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements CloudAPI.ProgressListener {
     private static final String TAG = UploadTask.class.getSimpleName();
 
     private long transferred;
@@ -85,15 +80,15 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             return !failed;
         }
 
-        public List<NameValuePair> getApiParams() {
-            final List<NameValuePair> apiParams = new ArrayList<NameValuePair>();
+        public Http.Params getApiParams() {
+            final Http.Params apiParams = new Http.Params();
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                  if (entry.getValue() instanceof Iterable) {
                      for (Object o : (Iterable)entry.getValue()) {
-                         apiParams.add(new BasicNameValuePair(entry.getKey(), o.toString()));
+                         apiParams.add(entry.getKey(), o.toString());
                      }
                  } else {
-                    apiParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                    apiParams.add(entry.getKey(), entry.getValue().toString());
                  }
             }
             return apiParams;
@@ -129,7 +124,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
-                    HttpResponse response = api.upload(track, artwork, param.getApiParams(), UploadTask.this);
+                    HttpResponse response = api.uploadTrack(track, artwork, param.getApiParams(), UploadTask.this);
                     StatusLine status = response.getStatusLine();
 
                     if (status.getStatusCode() == HttpStatus.SC_CREATED) {

@@ -37,7 +37,7 @@ public class LazyBaseAdapter extends BaseAdapter {
         mData = (List<Parcelable>) data;
         mActivity = activity;
 
-        mDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),getDefaultIconResource());
+        mDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(), getDefaultIconResource());
         mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
 
     }

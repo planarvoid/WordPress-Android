@@ -7,7 +7,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.CloudAPI;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -25,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"ALL"})
-@RunWith(RobolectricTestRunner.class)
-public class ScCreateTests implements CloudAPI.Params {
+@RunWith(DefaultTestRunner.class)
+public class ScCreateTests implements CloudAPI.TrackParams {
     ScCreate create;
     ICloudCreateService service;
 

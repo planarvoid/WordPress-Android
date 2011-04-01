@@ -330,6 +330,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
     public Uri insert(Uri uri, ContentValues initialValues) {
         ContentValues values;
         if (initialValues != null) {
+            if (initialValues.containsKey("_id")) initialValues.remove("_id");
             values = new ContentValues(initialValues);
         } else {
             values = new ContentValues();
@@ -520,8 +521,8 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         trackPlaysProjectionMap.put(TrackPlays.USER_ID, TrackPlays.USER_ID);
 
     }
-    
-    
+
+
     public static List<String> getColumnNames(SQLiteDatabase db, String tableName){
         Cursor ti = db.rawQuery("pragma table_info ("+tableName+")",null);
         if ( ti.moveToFirst() ) {

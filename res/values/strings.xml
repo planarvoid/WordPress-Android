@@ -400,8 +400,13 @@
   <string name="error_change_favorite_status_error_title">Favorite status error!</string>
   <string name="error_change_favorite_status_error_message">There was an error changing your favorite status with this track. Make sure you have connectivity.</string>
 
+   <string name="authorize_username">Username</string>
+   <string name="authorize_password">Password</string>
+
+  <string name="progress_sc_connect_title">Authenticating</string>
   <string name="error_sc_connect_error_title">Soundcloud Connect Error!</string>
-  <string name="error_sc_connect_error_message">Unable to connect to Soundcloud to authorize Soundcloud. Please make sure you have a working data connection.</string>
+  <string name="error_sc_connect_error_message">Unable to connect to Soundcloud to authorize Soundloud. Please make sure you have a working data connection.</string>
+  <string name="error_sc_connect_invalid_password">Unable to connect to Soundcloud. Make sure the password was entered correctly.</string>
 
   <!-- dialog strings -->
   <string name="error_track_error_title">Playback error!</string>
@@ -709,4 +714,9 @@
 
     <string name="authorization_failed">Authorization Failed</string>
     <string name="search_hint">Tracks</string>
+
+    <string name="account_type">com.soundcloud.android.account</string>
+
+    <string name="settings_error_revoking_account_title">Error revoking access</string>
+    <string name="settings_error_revoking_account_message">There was an error deleting the account.</string>
 </resources>

@@ -1,4 +1,3 @@
-
 package com.soundcloud.android;
 
 import com.google.android.filecache.FileResponseCache;
@@ -7,22 +6,26 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.LruCache;
 import com.soundcloud.android.activity.EmailConfirm;
 import com.soundcloud.android.objects.Comment;
-import com.soundcloud.utils.ApiWrapper;
+import com.soundcloud.api.ApiWrapper;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Http;
 import com.soundcloud.utils.CloudCache;
-import com.soundcloud.utils.http.Http;
-
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.urbanstew.soundcloudapi.SoundCloudAPI;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.app.Application;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,23 +43,10 @@ import java.util.Map;
 public class SoundCloudApplication extends Application implements CloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
-                                     "sdk".equals(android.os.Build.PRODUCT);
+            "sdk".equals(android.os.Build.PRODUCT);
 
     static final boolean API_PRODUCTION = true;
-
-    public static interface Prefs {
-        String USERNAME = "currentUsername";
-        String USER_ID  = "currentUserId";
-        String TOKEN    = "oauth_access_token";
-        String SECRET   = "oauth_access_token_secret";
-        String EMAIL_CONFIRMED = "email_confirmed";
-        String DASHBOARD_IDX = "lastDashboardIndex";
-        String PROFILE_IDX = "lastProfileIndex";
-    }
-
-    public static interface RecordListener {
-         void onFrameUpdate(float maxAmplitude, long elapsed);
-    }
+    private RecordListener mRecListener;
 
     private CloudAPI mCloudApi;
     private List<Parcelable> mPlaylistCache;
@@ -69,42 +59,73 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     public static final Map<String, Throwable> bitmapErrors =
             Collections.synchronizedMap(new LruCache<String, Throwable>());
 
-    private static final Map<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
+    private final Map<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        try {
-            ACRA.init(this);
-        } catch (Exception ignored) {
-            Log.e(TAG, "error", ignored);
+        if (isRunningOnDalvik() && !EMULATOR) {
+            ACRA.init(this); // don't use ACRA when running unit tests / emulator
         }
 
         createImageLoaders();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final Account account = getAccount();
+
         mCloudApi = new ApiWrapper(
-            getConsumerKey(API_PRODUCTION),
-            getConsumerSecret(API_PRODUCTION),
-            preferences.getString(Prefs.TOKEN, ""),
-            preferences.getString(Prefs.SECRET, ""),
-            API_PRODUCTION);
+                getClientId(API_PRODUCTION),
+                getClientSecret(API_PRODUCTION),
+                account == null ? null : getAccessToken(account),
+                account == null ? null : getRefreshToken(account),
+                CloudAPI.Env.LIVE
+        );
+
+        mCloudApi.addTokenRefreshListener(new TokenStateListener() {
+            @Override
+            public void onTokenInvalid(String token) {
+                getAccountManager().invalidateAuthToken(
+                        getString(R.string.account_type),
+                        token);
+            }
+
+            @Override
+            public void onTokenRefreshed(String access, String refresh, long expiresIn) {
+                Log.d(TAG, "onTokenRefreshed");
+
+                Account account = getAccount();
+                AccountManager am = getAccountManager();
+                if (account != null && access != null && refresh != null) {
+                    am.setPassword(account, access);
+                    am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, access);
+                    am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, refresh);
+                    am.setUserData(account, CloudAPI.EXPIRES_IN, "" + expiresIn);
+                }
+            }
+        });
     }
 
-    protected String getConsumerKey(boolean production) {
-        return getResources().getString(production ?
-                R.string.consumer_key :
-                R.string.sandbox_consumer_key);
-    }
+    public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
+        Account account = getAccount();
+        if (account != null) {
+            getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
+                @Override
+                public void run(AccountManagerFuture<Boolean> future) {
+                    try {
+                        if (future.getResult()) {
+                           if (success != null) success.run();
+                        } else if (error != null) error.run();
+                    } catch (OperationCanceledException e) {
+                        if (error != null) error.run();
+                    } catch (IOException e) {
+                        if (error != null) error.run();
+                    } catch (AuthenticatorException e) {
+                        if (error != null) error.run();
+                    }
+                }
+            }, /*handler*/ null);
+        }
 
-    protected String getConsumerSecret(boolean production) {
-          return getResources().getString(production ?
-                R.string.consumer_secret :
-                R.string.sandbox_consumer_secret);
-    }
-
-    public void clearSoundCloudAccount() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .remove(Prefs.TOKEN)
                 .remove(Prefs.SECRET)
@@ -116,7 +137,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 .putString(Prefs.USERNAME, "")
                 .commit();
 
-        mCloudApi.unauthorize();
+        mCloudApi.invalidateToken();
+        mCloudApi.updateTokens(null, null);
     }
 
     public boolean isEmailConfirmed() {
@@ -139,7 +161,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mImageLoader = new ImageLoader(null, mBitmapHandler, prefetchHandler, null);
     }
 
-
     @Override
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
@@ -160,7 +181,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return playlistRef;
     }
 
-    private RecordListener mRecListener = null;
 
     public void onFrameUpdate(float maxAmplitude, long elapsed) {
         if (mRecListener != null) mRecListener.onFrameUpdate(maxAmplitude, elapsed);
@@ -170,13 +190,11 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         this.mRecListener = listener;
     }
 
-
-
-    public void cacheComments(long track_id, List<Comment> comments){
+    public void cacheComments(long track_id, List<Comment> comments) {
         mCommentCache.put(track_id, comments);
     }
 
-    public void uncacheComments(long track_id){
+    public void uncacheComments(long track_id) {
         mCommentCache.remove(track_id);
     }
 
@@ -184,60 +202,144 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return mCommentCache.get(track_id);
     }
 
+    public Account getAccount() {
+        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
+        if (account.length == 0) {
+            return null;
+        } else {
+            return account[0];
+        }
+    }
+
+    public AccountManagerFuture<Bundle> addAccount(Activity activity, AccountManagerCallback<Bundle> callback) {
+        return getAccountManager().addAccount(
+                getString(R.string.account_type),
+                CloudAPI.ACCESS_TOKEN, null, null, activity, callback, null);
+    }
+
+    public void useAccount(Account account) {
+        mCloudApi.updateTokens(getAccessToken(account), getRefreshToken(account));
+    }
+
+    private String getClientId(boolean production) {
+        return getResources().getString(production ?
+                R.string.consumer_key :
+                R.string.sandbox_consumer_key);
+    }
+
+    private String getClientSecret(boolean production) {
+        return getResources().getString(production ?
+                R.string.consumer_secret :
+                R.string.sandbox_consumer_secret);
+    }
+
+    private String getAccessToken(Account account) {
+        return getAccountManager().getPassword(account);
+    }
+
+    private String getRefreshToken(Account account) {
+        AccountManagerFuture<Bundle> bundle =
+                getAccountManager().getAuthToken(account, CloudAPI.REFRESH_TOKEN, false, null, null);
+
+        if (bundle.isDone()) {
+            try {
+                return bundle.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+            } catch (OperationCanceledException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (AuthenticatorException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private AccountManager getAccountManager() {
+        return AccountManager.get(this);
+    }
+
     // cloud api delegation
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();
     }
 
-    public HttpResponse getContent(String path) throws IOException {
-        return mCloudApi.getContent(path);
+    public HttpResponse getContent(String resource) throws IOException {
+        return mCloudApi.getContent(resource);
     }
 
-    public HttpUriRequest getRequest(String path, List<NameValuePair> params) {
-        return mCloudApi.getRequest(path, params);
+    public HttpResponse getContent(String resource, Http.Params params) throws IOException {
+        return mCloudApi.getContent(resource, params);
     }
 
-    public String getSignedUrl(String path) {
-        return mCloudApi.getSignedUrl(path);
+    public CloudAPI login(String username, String password) throws IOException {
+        return mCloudApi.login(username, password);
     }
 
-    public String signStreamUrlNaked(String path) {
-        return mCloudApi.signStreamUrlNaked(path);
+    public String signUrl(String path) {
+        return mCloudApi.signUrl(path);
     }
 
-    public HttpResponse putContent(String path, List<NameValuePair> params) throws IOException {
-        return mCloudApi.putContent(path, params);
+    public HttpResponse putContent(String resource, Http.Params params) throws IOException {
+        return mCloudApi.putContent(resource, params);
     }
 
-    public HttpResponse postContent(String path, List<NameValuePair> params) throws IOException {
-        return mCloudApi.postContent(path, params);
+    public HttpResponse postContent(String resource, Http.Params params) throws IOException {
+        return mCloudApi.postContent(resource, params);
     }
 
-    public HttpResponse deleteContent(String path) throws IOException {
-        return mCloudApi.deleteContent(path);
+    public HttpResponse deleteContent(String resource) throws IOException {
+        return mCloudApi.deleteContent(resource);
     }
 
-    public HttpResponse upload(ContentBody trackBody, ContentBody artworkBody, List<NameValuePair> params, Http.ProgressListener listener) throws IOException {
-        return mCloudApi.upload(trackBody, artworkBody, params, listener);
+    public HttpResponse uploadTrack(ContentBody trackBody, ContentBody artworkBody, Http.Params params, ProgressListener listener) throws IOException {
+        return mCloudApi.uploadTrack(trackBody, artworkBody, params, listener);
     }
 
-    public void unauthorize() {
-        mCloudApi.unauthorize();
+    public CloudAPI refreshToken() throws IOException {
+        return mCloudApi.refreshToken();
     }
 
-    public void authorizeWithoutCallback(CloudAPI.Client client) {
-        mCloudApi.authorizeWithoutCallback(client);
+    public String getToken() {
+        return mCloudApi.getToken();
     }
 
-    public SoundCloudAPI.State getState() {
-        return mCloudApi.getState();
+    public String getRefreshToken() {
+        return mCloudApi.getRefreshToken();
     }
 
-    public int resolve(String uri) throws IOException {
+    public long resolve(String uri) throws IOException {
         return mCloudApi.resolve(uri);
     }
 
-    public HttpResponse execute(HttpUriRequest request) throws IOException {
-        return mCloudApi.execute(request);
+    public void updateTokens(String access, String refresh) {
+        mCloudApi.updateTokens(access, refresh);
+    }
+
+    public void addTokenRefreshListener(TokenStateListener listener) {
+        mCloudApi.addTokenRefreshListener(listener);
+    }
+
+    public void invalidateToken() {
+        mCloudApi.invalidateToken();
+    }
+
+    public static boolean isRunningOnDalvik() {
+        return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
+    }
+
+    public static interface Prefs {
+        String USERNAME = "currentUsername";
+        String USER_ID = "currentUserId";
+        String TOKEN = "oauth_access_token";
+        String SECRET = "oauth_access_token_secret";
+        String EMAIL_CONFIRMED = "email_confirmed";
+        String DASHBOARD_IDX = "lastDashboardIndex";
+        String PROFILE_IDX = "lastProfileIndex";
+    }
+
+    public static interface RecordListener {
+        void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 }
