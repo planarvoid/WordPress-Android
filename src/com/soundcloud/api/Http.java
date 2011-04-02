@@ -58,7 +58,7 @@ public class Http {
         params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRoute() {
             @Override
             public int getMaxForRoute(HttpRoute httpRoute) {
-                return ConnPerRouteBean.DEFAULT_MAX_CONNECTIONS_PER_ROUTE * 2;
+                return ConnPerRouteBean.DEFAULT_MAX_CONNECTIONS_PER_ROUTE * 3;
             }
         });
         return params;
