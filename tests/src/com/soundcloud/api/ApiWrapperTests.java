@@ -117,7 +117,7 @@ public class ApiWrapperTests {
     public void shouldGetContent() throws Exception {
         Robolectric.addHttpResponseRule("/some/resource?a=1", "response");
         assertThat(Http.getString(api.getContent("/some/resource", new Http.Params("a", "1"))),
-                    equalTo("response"));
+                equalTo("response"));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ApiWrapperTests {
         HttpResponse resp = mock(HttpResponse.class);
         Robolectric.addHttpResponseRule("POST", "/foo/something?a=1", resp);
         assertThat(api.postContent("/foo/something", new Http.Params("a", 1)),
-                   equalTo(resp));
+                equalTo(resp));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ApiWrapperTests {
         HttpResponse resp = mock(HttpResponse.class);
         Robolectric.addHttpResponseRule("PUT", "/foo/something?a=1", resp);
         assertThat(api.putContent("/foo/something", new Http.Params("a", 1)),
-                   equalTo(resp));
+                equalTo(resp));
     }
 
     @Test
@@ -148,5 +148,12 @@ public class ApiWrapperTests {
         Header h = ApiWrapper.getOAuthHeader("foo");
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth foo"));
+    }
+
+    @Test
+    public void testGetOAuthHeaderNullToken() throws Exception {
+        Header h = ApiWrapper.getOAuthHeader(null);
+        assertThat(h.getName(), equalTo("Authorization"));
+        assertThat(h.getValue(), equalTo("OAuth invalidated"));
     }
 }

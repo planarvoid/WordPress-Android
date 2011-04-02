@@ -3,7 +3,6 @@ package com.soundcloud.api;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 
@@ -75,13 +74,11 @@ public interface CloudAPI {
                              Http.Params params,
                              ProgressListener listener) throws IOException;
 
-    ObjectMapper getMapper();  // TODO remove from API interface
-
     String getToken();
     String getRefreshToken();
 
     void updateTokens(String access, String refresh);
-    void addTokenRefreshListener(TokenStateListener listener);
+    void addTokenStateListener(TokenStateListener listener);
 
     /** Called to invalidate the current token */
     void invalidateToken();

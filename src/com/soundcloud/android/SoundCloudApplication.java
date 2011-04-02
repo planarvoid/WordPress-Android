@@ -6,7 +6,6 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.LruCache;
 import com.soundcloud.android.activity.EmailConfirm;
 import com.soundcloud.android.objects.Comment;
-import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 import com.soundcloud.android.utils.CloudCache;
@@ -40,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 @ReportsCrashes(formKey = "dF9FRzEzNnpENEVZdVRFbkNXUHYwLWc6MQ")
-public class SoundCloudApplication extends Application implements CloudAPI {
+public class SoundCloudApplication extends Application implements AndroidCloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
             "sdk".equals(android.os.Build.PRODUCT);
@@ -48,7 +47,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
     static final boolean API_PRODUCTION = true;
     private RecordListener mRecListener;
 
-    private CloudAPI mCloudApi;
+    private AndroidCloudAPI mCloudApi;
     private List<Parcelable> mPlaylistCache;
     private ImageLoader mImageLoader;
 
@@ -70,10 +69,8 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         }
 
         createImageLoaders();
-
         final Account account = getAccount();
-
-        mCloudApi = new ApiWrapper(
+        mCloudApi = new Wrapper(
                 getClientId(API_PRODUCTION),
                 getClientSecret(API_PRODUCTION),
                 account == null ? null : getAccessToken(account),
@@ -81,7 +78,7 @@ public class SoundCloudApplication extends Application implements CloudAPI {
                 CloudAPI.Env.LIVE
         );
 
-        mCloudApi.addTokenRefreshListener(new TokenStateListener() {
+        mCloudApi.addTokenStateListener(new TokenStateListener() {
             @Override
             public void onTokenInvalid(String token) {
                 getAccountManager().invalidateAuthToken(
@@ -260,11 +257,6 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         return AccountManager.get(this);
     }
 
-    // cloud api delegation
-    public ObjectMapper getMapper() {
-        return mCloudApi.getMapper();
-    }
-
     public HttpResponse getContent(String resource) throws IOException {
         return mCloudApi.getContent(resource);
     }
@@ -317,12 +309,16 @@ public class SoundCloudApplication extends Application implements CloudAPI {
         mCloudApi.updateTokens(access, refresh);
     }
 
-    public void addTokenRefreshListener(TokenStateListener listener) {
-        mCloudApi.addTokenRefreshListener(listener);
+    public void addTokenStateListener(TokenStateListener listener) {
+        mCloudApi.addTokenStateListener(listener);
     }
 
     public void invalidateToken() {
         mCloudApi.invalidateToken();
+    }
+
+    public ObjectMapper getMapper() {
+        return mCloudApi.getMapper();
     }
 
     public static boolean isRunningOnDalvik() {

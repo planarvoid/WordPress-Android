@@ -1,26 +1,25 @@
 package com.soundcloud.android.task;
 
 
-import android.net.Uri;
+import static org.junit.Assert.*;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.BaseApiTest;
 import com.soundcloud.android.objects.Connection;
-import com.soundcloud.api.ApiWrapper;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class NewConnectionTaskTests extends BaseApiTest {
+public class NewConnectionTaskTests extends RoboApiBaseTests {
 
     @Test
     public void shouldReturnUri() throws Exception {
-        Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
+        expectPostRequestAndReturn(CONNECTIONS, 202, "{ \"authorize_url\": \"http://example.com\" }");
 
-        NewConnectionTask task = new NewConnectionTask(new ApiWrapper());
+        NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
 
         assertNotNull(uri);
@@ -29,9 +28,9 @@ public class NewConnectionTaskTests extends BaseApiTest {
 
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
-        Robolectric.addPendingHttpResponse(400, "Failz");
+        expectPostRequestAndReturn(CONNECTIONS, 400, "Failz");
 
-        NewConnectionTask task = new NewConnectionTask(new ApiWrapper());
+        NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNull(uri);
     }

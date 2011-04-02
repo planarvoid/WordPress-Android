@@ -1,23 +1,23 @@
 package com.soundcloud.android.task;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.BaseApiTest;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 @RunWith(DefaultTestRunner.class)
-public class LoadJsonTaskTests extends BaseApiTest {
+public class LoadJsonTaskTests extends RoboApiBaseTests {
 
     @Test
     public void shouldReturnAList() throws Exception {
-        expectGetRequestAndReturn("/foo", "[{\"bar\": \"baz\"}]");
+        expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
             protected List<Foo> doInBackground(String... strings) {

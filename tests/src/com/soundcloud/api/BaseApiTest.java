@@ -1,5 +1,8 @@
 package com.soundcloud.api;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -11,9 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @Ignore
 public abstract class BaseApiTest implements CloudAPI.Enddpoints {
     public CloudAPI api;
@@ -22,7 +22,6 @@ public abstract class BaseApiTest implements CloudAPI.Enddpoints {
     @Before
     public void setUp() throws Exception {
         api = mock(CloudAPI.class);
-        when(api.getMapper()).thenReturn(getMapper());
     }
 
     protected void expectGetRequestAndThrow(String request, Throwable e) throws IOException {
@@ -44,12 +43,5 @@ public abstract class BaseApiTest implements CloudAPI.Enddpoints {
         when(line.getStatusCode()).thenReturn(200);
         when(resp.getStatusLine()).thenReturn(line);
         when(api.getContent(request)).thenReturn(resp);
-    }
-
-    private ObjectMapper getMapper() {
-        if (mapper == null) {
-            mapper = new ApiWrapper().getMapper();
-        }
-        return mapper;
     }
 }

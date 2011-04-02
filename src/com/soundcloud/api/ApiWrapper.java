@@ -1,25 +1,24 @@
 package com.soundcloud.api;
 
-import com.soundcloud.android.mapper.CloudDateFormat;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.ProtocolException;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -31,23 +30,17 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ApiWrapper implements CloudAPI {
-    private ObjectMapper mMapper;
-
     private DefaultHttpClient httpClient;
     private String mClientId, mClientSecret;
     private String mToken, mRefreshToken;
@@ -56,10 +49,15 @@ public class ApiWrapper implements CloudAPI {
     private long mExpiresIn;
     private Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
 
-    public ApiWrapper() {
-        this("invalid", "invalid", "invalid", "invalid", Env.SANDBOX);
-    }
-
+    /**
+     * Constructs a new ApiWrapper instance.
+     * @param clientId            the application client id
+     * @param clientSecret        the application client secret
+     * @param token               an access token, or null if not known
+     * @param refreshToken        an refresh token, or null if not known
+     * @param env                 the environment to use (LIVE/SANDBOX)
+     * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
+     */
     public ApiWrapper(String clientId,
                       String clientSecret,
                       String token,
@@ -72,7 +70,7 @@ public class ApiWrapper implements CloudAPI {
         mEnv = env;
     }
 
-    public ApiWrapper login(String username, String password) throws IOException {
+    @Override public ApiWrapper login(String username, String password) throws IOException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
@@ -86,8 +84,7 @@ public class ApiWrapper implements CloudAPI {
         return this;
     }
 
-    @Override
-    public void invalidateToken() {
+    @Override public void invalidateToken() {
         final String token = mToken;
         if (token != null) {
             for (TokenStateListener l : listeners) {
@@ -97,7 +94,7 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-    public ApiWrapper refreshToken() throws IOException {
+    @Override public ApiWrapper refreshToken() throws IOException {
         if (mRefreshToken == null) throw new IllegalStateException("no refresh token available");
         Http.Params p = new Http.Params(
                 "grant_type", REFRESH_TOKEN,
@@ -141,17 +138,38 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-    private HttpClient getHttpClient() {
+
+    /** @return parameters used by the underlying HttpClient */
+    protected HttpParams getParams() {
+        return Http.defaultParams();
+    }
+
+    /** @return SocketFactory used by the underlying HttpClient */
+    protected SocketFactory getSocketFactory() {
+        return PlainSocketFactory.getSocketFactory();
+    }
+
+    /** @return SSL SocketFactory used by the underlying HttpClient */
+    protected SSLSocketFactory getSSLSocketFactory() {
+        return SSLSocketFactory.getSocketFactory();
+    }
+
+    protected HttpClient getHttpClient() {
         if (httpClient == null) {
-            final HttpParams defaults = Http.defaultParams();
+            final HttpParams params = getParams();
+            // we handle redirects ourselves
+            HttpClientParams.setRedirecting(params, false);
             final SchemeRegistry registry = new SchemeRegistry();
-            registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-            final SSLSocketFactory sslFactory = SSLSocketFactory.getSocketFactory();
-            if (mEnv == Env.SANDBOX) sslFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            registry.register(new Scheme("http", getSocketFactory(), 80));
+            final SSLSocketFactory sslFactory = getSSLSocketFactory();
+            if (mEnv == Env.SANDBOX) {
+                // disable strict checks on sandbox
+                sslFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            }
             registry.register(new Scheme("https", sslFactory, 443));
             httpClient = new DefaultHttpClient(
-                    new ThreadSafeClientConnManager(defaults, registry),
-                    defaults) {
+                    new ThreadSafeClientConnManager(params, registry),
+                    params) {
                 @Override protected HttpContext createHttpContext() {
                     HttpContext ctxt = super.createHttpContext();
                     ctxt.setAttribute(ClientContext.AUTH_SCHEME_PREF,
@@ -164,15 +182,6 @@ public class ApiWrapper implements CloudAPI {
                     return processor;
                 }
             };
-            // no redirects please
-            httpClient.setRedirectHandler(new RedirectHandler() {
-                @Override public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-                    return false;
-                }
-                @Override public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
-                    return null;
-                }
-            });
             httpClient.getCredentialsProvider().setCredentials(
                     new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM, OAUTH_SCHEME),
                     OAuthScheme.EmptyCredentials.INSTANCE);
@@ -181,23 +190,25 @@ public class ApiWrapper implements CloudAPI {
         return httpClient;
     }
 
-    @Override
-    public long resolve(String url) throws IOException {
+    @Override public long resolve(String url) throws IOException {
         HttpResponse resp = getContent(Enddpoints.RESOLVE, new Http.Params("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
             if (location != null) {
                 String s = location.getValue();
                 if (s.indexOf("/") != -1) {
-                    return Integer.parseInt(s.substring(s.lastIndexOf("/") + 1, s.length()));
+                    try {
+                        return Integer.parseInt(s.substring(s.lastIndexOf("/") + 1, s.length()));
+                    } catch (NumberFormatException ignored) {
+                        // ignored
+                    }
                 }
             }
         }
         return -1;
     }
 
-    @Override
-    public String signUrl(String path) {
+    @Override public String signUrl(String path) {
         return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
@@ -206,30 +217,25 @@ public class ApiWrapper implements CloudAPI {
         return getContent(resource, null);
     }
 
-    @Override
-    public HttpResponse getContent(String resource, Http.Params params) throws IOException {
+    @Override public HttpResponse getContent(String resource, Http.Params params) throws IOException {
         final HttpUriRequest req = new HttpGet(params == null ? resource : params.url(resource));
         req.addHeader("Accept", "application/json");
         return execute(req);
     }
 
-    @Override
-    public HttpResponse putContent(String resource, Http.Params params) throws IOException {
+    @Override public HttpResponse putContent(String resource, Http.Params params) throws IOException {
         return execute(new HttpPut(params == null ? resource : params.url(resource)));
     }
 
-    @Override
-    public HttpResponse postContent(String resource, Http.Params params) throws IOException {
+    @Override public HttpResponse postContent(String resource, Http.Params params) throws IOException {
         return execute(new HttpPost(params == null ? resource : params.url(resource)));
     }
 
-    @Override
-    public HttpResponse deleteContent(String resource) throws IOException {
+    @Override public HttpResponse deleteContent(String resource) throws IOException {
         return execute(new HttpDelete(resource));
     }
 
-    @Override
-    public String getToken() {
+    @Override public String getToken() {
         return mToken;
     }
 
@@ -237,44 +243,16 @@ public class ApiWrapper implements CloudAPI {
         return mRefreshToken;
     }
 
-    public String getScope() {
-        return mScope;
-    }
-
-    public Date getExpiresIn() {
-        return mExpiresIn == 0 ? null : new Date(mExpiresIn);
-    }
-
-    public void updateTokens(String access, String refresh) {
+    @Override public void updateTokens(String access, String refresh) {
         mToken = access;
         mRefreshToken = refresh;
     }
 
-    public void addTokenRefreshListener(TokenStateListener listener) {
+    @Override public void addTokenStateListener(TokenStateListener listener) {
         listeners.add(listener);
     }
 
-    public HttpRequest addAuthorization(HttpRequest request) {
-        if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
-            request.addHeader(getOAuthHeader(getToken()));
-        }
-        return request;
-    }
-
-    public static Header getOAuthHeader(String token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " + token);
-    }
-
-    public ObjectMapper getMapper() {
-        if (this.mMapper == null) {
-            mMapper = new ObjectMapper();
-            mMapper.getDeserializationConfig().setDateFormat(CloudDateFormat.INSTANCE);
-        }
-        return mMapper;
-    }
-
-    @Override
-    public HttpResponse uploadTrack(ContentBody trackBody,
+    @Override public HttpResponse uploadTrack(ContentBody trackBody,
                                     ContentBody artworkBody,
                                     Http.Params params,
                                     ProgressListener listener) throws IOException {
@@ -293,7 +271,27 @@ public class ApiWrapper implements CloudAPI {
         return execute(post);
     }
 
-    private HttpResponse execute(HttpRequest req) throws IOException {
+    public String getScope() {
+        return mScope;
+    }
+
+    public Date getExpiresIn() {
+        return mExpiresIn == 0 ? null : new Date(mExpiresIn);
+    }
+
+    public static Header getOAuthHeader(String token) {
+        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " + (token == null ? "invalidated" : token));
+    }
+
+    protected HttpRequest addAuthorization(HttpRequest request) {
+        final String token = getToken();
+        if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
+            request.addHeader(getOAuthHeader(token));
+        }
+        return request;
+    }
+
+    protected HttpResponse execute(HttpRequest req) throws IOException {
         return getHttpClient().execute(mEnv.sslHost, addAuthorization(req));
     }
 
@@ -302,13 +300,11 @@ public class ApiWrapper implements CloudAPI {
             super(value);
         }
 
-        @Override
-        public String getMimeType() {
+        @Override public String getMimeType() {
             return null;
         }
 
-        @Override
-        public String getTransferEncoding() {
+        @Override public String getTransferEncoding() {
             return null;
         }
     }

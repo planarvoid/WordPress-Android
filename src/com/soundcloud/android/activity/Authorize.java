@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -59,7 +60,7 @@ public class Authorize extends AccountAuthenticatorActivity {
                 final String username = usernameField.getText().toString();
                 final String password = passwordField.getText().toString();
                 final String type = getString(R.string.account_type);
-                final CloudAPI api = (CloudAPI) getApplication();
+                final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
                 new GetTokensTask(api) {
                     ProgressDialog progress;

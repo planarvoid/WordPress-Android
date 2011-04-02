@@ -3,6 +3,7 @@ package com.soundcloud.api;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
@@ -21,7 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Http {
-    final static int BUFFER_SIZE = 8192;
+    public static final int BUFFER_SIZE = 8192;
+    public static final int TIMEOUT = 20 * 1000;
 
     public static String getString(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();
@@ -48,11 +50,21 @@ public class Http {
         return sb.toString();
     }
 
+
+    /**
+     * @see android.net.http.AndroidHttpClient#newInstance(String, Context)
+     * @return the default HttpParams
+     */
     public static HttpParams defaultParams(){
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
-        HttpConnectionParams.setSoTimeout(params, 20 * 1000);
+        final HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
         HttpConnectionParams.setSocketBufferSize(params, 8192);
+
+        // Turn off stale checking.  Our connections break all the time anyway,
+        // and it's not worth it to pay the penalty of checking every time.
+        HttpConnectionParams.setStaleCheckingEnabled(params, false);
+
         // fix contributed by Bjorn Roche (XXX check if still needed)
         params.setBooleanParameter("http.protocol.expect-continue", false);
         params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRoute() {
@@ -64,6 +76,8 @@ public class Http {
         return params;
     }
 
+
+    /** Convenience class for passing parameters to HTTP methods */
     public static class Params implements Iterable<NameValuePair> {
         public List<NameValuePair> params = new ArrayList<NameValuePair>();
 

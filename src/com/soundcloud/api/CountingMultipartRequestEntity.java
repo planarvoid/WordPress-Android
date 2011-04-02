@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.soundcloud.api.CloudAPI;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 

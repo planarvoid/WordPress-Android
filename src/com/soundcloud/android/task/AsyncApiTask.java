@@ -2,6 +2,8 @@ package com.soundcloud.android.task;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -14,13 +16,13 @@ public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements CloudAPI.Enddpoints, HttpStatus {
 
-    protected WeakReference<CloudAPI> mApi;
+    protected WeakReference<AndroidCloudAPI> mApi;
 
-    public AsyncApiTask(CloudAPI api) {
-        this.mApi = new WeakReference<CloudAPI>(api);
+    public AsyncApiTask(AndroidCloudAPI api) {
+        this.mApi = new WeakReference<AndroidCloudAPI>(api);
     }
 
-    protected CloudAPI api() {
+    protected AndroidCloudAPI api() {
         return mApi.get();
     }
 

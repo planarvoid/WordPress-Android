@@ -1,7 +1,8 @@
 package com.soundcloud.android.task;
 
 import android.net.Uri;
-import com.soundcloud.api.CloudAPI;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
@@ -14,7 +15,7 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
 
     public static final String URL_SCHEME = "new-connection://";
 
-    public NewConnectionTask(CloudAPI api) {
+    public NewConnectionTask(AndroidCloudAPI api) {
         super(api);
     }
 

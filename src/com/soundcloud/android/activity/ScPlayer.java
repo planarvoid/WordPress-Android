@@ -4,6 +4,7 @@ package com.soundcloud.android.activity;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -1191,7 +1192,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         private long track_id;
         private WeakReference<ScPlayer> mPlayerRef;
 
-        public LoadCommentsTask(CloudAPI api) {
+        public LoadCommentsTask(AndroidCloudAPI api) {
             super(api);
         }
 
