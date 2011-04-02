@@ -19,8 +19,8 @@ import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.utils.WorkspaceView;
-import com.soundcloud.android.utils.WorkspaceView.OnScrollListener;
+import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
 
 import android.content.Intent;
 import android.os.Bundle;

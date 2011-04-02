@@ -72,7 +72,7 @@
             </LinearLayout>
         </TabHost>
 
-        <com.soundcloud.utils.WorkspaceView
+        <com.soundcloud.android.view.WorkspaceView
                 android:id="@+id/workspace_view"
                 android:layout_below="@android:id/tabhost"
                 android:layout_alignParentBottom="true"
