@@ -629,7 +629,6 @@ public class CloudCreateService extends Service {
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         if (params.isSuccess()) {
-
             if (params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
             if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
 

@@ -2,13 +2,13 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.service.AuthenticatorService;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.api.CloudAPI;
 
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;

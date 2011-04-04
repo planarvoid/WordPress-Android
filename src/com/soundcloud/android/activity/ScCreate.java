@@ -20,7 +20,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -60,7 +59,7 @@ public class ScCreate extends ScActivity {
 
     private ImageButton btnAction;
 
-    private File mRecordFile, mRecordDir, mSaveDir;
+    private File mRecordFile, mRecordDir;
 
     private CreateState mLastState, mCurrentState;
 
@@ -133,11 +132,8 @@ public class ScCreate extends ScActivity {
 
         updateUi(false);
 
-        mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/unsaved", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
+        mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
         if (!mRecordDir.exists()) mRecordDir.mkdirs();
-
-        mSaveDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/saved");
-        if (!mSaveDir.exists()) mSaveDir.mkdirs();
 
         mRecordErrorMessage = "";
 
@@ -236,14 +232,10 @@ public class ScCreate extends ScActivity {
             public void onClick(View v) {
                 if (mRecordingId == 0){
 
-                    File savedFile = new File(mSaveDir,mRecordFile.getName());
-                    mRecordFile.renameTo(savedFile);
-                    mRecordFile = null;
-
                     Recording r = new Recording();
-                    r.audio_path = savedFile.getAbsolutePath();
+                    r.audio_path = mRecordFile.getAbsolutePath();
                     r.audio_profile = mAudioProfile;
-                    r.timestamp = savedFile.lastModified();
+                    r.timestamp = mRecordFile.lastModified();
                     r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
 
                     try { // set duration because ogg files report incorrect
@@ -252,8 +244,6 @@ public class ScCreate extends ScActivity {
                         r.duration = mCreateService.getPlaybackDuration();
                     } catch (RemoteException ignored) {
                     }
-
-                    Log.i(TAG,"set duration to " + r.duration);
 
                     if (mRecordLocation != null){
                         r.latitude = mRecordLocation.getLatitude();
@@ -321,7 +311,7 @@ public class ScCreate extends ScActivity {
                 }
 
                 // in this case, state should be based on what is in the recording directory
-                if (mRecordFile == null) setRecordFile();
+                if (mRecordFile == null) setValidOldestFile();
 
                 if (mRecordFile != null)
                     Log.i(TAG,"Loading file " + mRecordFile.getAbsolutePath() + "  with profile of " + mAudioProfile);
@@ -466,8 +456,6 @@ public class ScCreate extends ScActivity {
 
 
     private void startRecording() {
-        setCurrentLocation();
-
         pause(true);
 
         mRecordErrorMessage = "";
@@ -707,30 +695,30 @@ public class ScCreate extends ScActivity {
         public void onStopTrackingTouch(SeekBar bar) { }
     };
 
-    private void setRecordFile(){
-        setRecordFile(getValidOldestFile());
-    }
-
-    private File getValidOldestFile() {
+    private File setValidOldestFile() {
         File file = null;
+
+        String[] columns = { Recordings.ID };
+        Cursor cursor;
+
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return isRawFilename(name) || isCompressedFilename(name);
             }
-           })) {
-            if (file == null || f.lastModified() < file.lastModified()) file = f;
+        })) {
+            cursor = getContentResolver().query(Recordings.CONTENT_URI, columns,
+                    Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
+            if ((cursor == null || cursor.getCount() == 0)
+                    && (file == null || f.lastModified() < file.lastModified()))
+                file = f;
         }
-        return file;
-    }
 
-    private void setCurrentLocation(){
-        Criteria c = new Criteria();
-        mProvider = getManager().getBestProvider(c, true);
-        if (mProvider != null) {
-            Log.v(TAG, "best provider: " + mProvider);
-            mRecordLocation = getManager().getLastKnownLocation(mProvider);
-        } else mRecordLocation = null;
+        if (file != null){
+            setRecordFile(file);
+        }
+
+        return file;
     }
 
     /* package */ void setRecordFile(File f) {

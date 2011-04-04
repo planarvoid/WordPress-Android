@@ -20,6 +20,8 @@ import android.widget.FilterQueryProvider;
 import java.util.ArrayList;
 public class MyTracksAdapter extends TracklistAdapter {
 
+    private static String TAG ="MyTracksAdapter";
+
     protected Cursor mCursor;
     protected int mRowIDColumn;
     protected boolean mDataValid;
@@ -62,6 +64,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     private void loadCursor(){
+
         mRecordingData = new ArrayList<Recording>();
         if (mCursor == null || mCursor.isClosed() || mCursor.getCount() == 0)
             return;
