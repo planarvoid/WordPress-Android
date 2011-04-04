@@ -161,14 +161,14 @@ public class UploadTaskTests extends RoboApiBaseTests {
         UploadTask.Params params = new UploadTask.Params(map);
 
 
-//        HttpResponse response = mock(HttpResponse.class);
-//        StatusLine status = mock(StatusLine.class);
-//        when(response.getStatusLine()).thenReturn(status);
-//        when(status.getStatusCode()).thenReturn(201);
-//
-//        when(api.uploadTrack(Matchers.<ContentBody>any(),
-//                Matchers.<ContentBody>any(),
-//                Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
+        HttpResponse response = mock(HttpResponse.class);
+        StatusLine status = mock(StatusLine.class);
+        when(response.getStatusLine()).thenReturn(status);
+        when(status.getStatusCode()).thenReturn(201);
+
+        when(api.uploadTrack(Matchers.<ContentBody>any(),
+                Matchers.<ContentBody>any(),
+                Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
         task.execute(params);
     }
