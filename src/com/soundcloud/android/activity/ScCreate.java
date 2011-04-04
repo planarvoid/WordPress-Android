@@ -141,7 +141,12 @@ public class ScCreate extends ScActivity {
 
         mRecordErrorMessage = "";
 
-        // XXX do in manifest
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+
         IntentFilter uploadFilter = new IntentFilter();
         uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
         uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
@@ -150,13 +155,12 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
-
-
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        this.unregisterReceiver(mUploadStatusListener);
         mHandler.removeMessages(PLAYBACK_REFRESH);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
@@ -165,7 +169,6 @@ public class ScCreate extends ScActivity {
     public void onDestroy() {
         super.onDestroy();
         getSoundCloudApplication().setRecordListener(null);
-        this.unregisterReceiver(mUploadStatusListener);
     }
 
     /*

@@ -3,7 +3,6 @@ package com.soundcloud.android.service;
 
 import static com.soundcloud.android.CloudUtils.isTaskFinished;
 
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,6 +12,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.utils.record.CloudRecorder;
 import com.soundcloud.utils.record.CloudRecorder.Profile;
 
@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -409,7 +410,7 @@ public class CloudCreateService extends Service {
         mNotification.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
 
-        if (mPlaybackPath.contentEquals(String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH))))
+        if (!TextUtils.isEmpty(mPlaybackPath) && mPlaybackPath.contentEquals(String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH))))
             stopPlayback();
 
         startForeground(CREATE_NOTIFY_ID, mNotification);

@@ -204,7 +204,7 @@ public class Recording extends BaseObj implements Parcelable {
                         audio_file.getName().contains(".") ? audio_file.getName().substring(
                                 audio_file.getName().lastIndexOf(".") + 1) : "mp4"));
 
-                if (!audio_file.equals(newRecFile) || audio_file.renameTo(newRecFile)) {
+                if (!audio_file.equals(newRecFile) && audio_file.renameTo(newRecFile)) {
                     audio_file = newRecFile;
                     audio_path = audio_file.getAbsolutePath();
                 }
