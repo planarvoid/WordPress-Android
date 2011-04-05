@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8" />
+<title>
+SoundCloud</title>
+<meta content="record, sounds, share, sound, audio, tracks, music, soundcloud" name="keywords" />
+<meta content="Create, record and share the sounds you create anywhere to friends, family and the world with SoundCloud, the world's largest community of sound creators." name="description" />
+<link href="iphone.css" media="all" rel="stylesheet" type="text/css" />
+<link href="images/apple-touch-icon.png" rel="apple-touch-icon" />
+<link href="/favicon.ico" rel="shortcut icon" />
+<script type="text/javascript">
+window.SC = {"bufferTracks":[],"bufferComments":[],"cookieDomain":"soundcloud.com","assetPath":"a1.sndcdn.com","assetPathSSL":"soundcloud.com","facebook":{"appKey":"61261ce0407b2ccb568641b513098e18","xdReceiver":"/connect/xd_receiver.htm"},"songkickApiKey":"ZWsLr2h7FF5sHG54","gaID":"UA-2519404-1"};
+</script></head>
+<body class="authorize mobile iphone authorize restricted" id="oauth2_authorization"><div id="main"><h1>Connect with SoundCloud</h1>
+<div class="authorize-text"><span>Allow
+<a href="http://soundcloud.com/apps/android" data-sc-app-name="android" id="app-link">SoundCloud Android</a>
+to connect</span>
+with your SoundCloud account</div>
+<div class="logged-in"><img class="current" id="avatar" src="images/default_avatar_badge.png" />
+<img class="app" id="app-icon" src="images/default_icon_t47x47.png" />
+<p class="desktop"><strong><a href="http://soundcloud.com/apps/android">SoundCloud Android</a></strong>
+will be able to
+<strong>access and edit data</strong>
+on your SoundCloud account, for example upload tracks.</p>
+<p class="desktop">Your email or password will
+<strong>never be shared</strong>
+and you're always able to
+<strong>revoke the connection</strong>
+in your settings.</p>
+<p class="handheld hidden">This enables the app to
+<strong>edit and update data</strong>
+on your account. Don't worry, we
+<strong>won't share your login details</strong>
+and you can
+<strong>revoke access</strong>
+at any time.</p></div>
+<form action="http://soundcloud.com/connect" class="authorize-client log-in existing-user authorize-token" method="post">
+<input id="login" name="login" type="hidden" value="1" />
+<input id="client_id" name="client_id" type="hidden" value="xce4DwrNEmNzTIcuaAjkA" />
+<input id="redirect_uri" name="redirect_uri" type="hidden" value="" />
+<input id="response_type" name="response_type" type="hidden" value="code" />
+<input id="commit" name="commit" type="hidden" value="Allow_Access" />
+<div class="login login-form oauth-form"><h3>Log in
+<a class="signup-connect">Not a member? Sign up!</a></h3>
+<div class="form-group"><label for="user_email">Your email address</label><input id="user_email" maxlength="255" name="user[email]" size="255" type="text" /></div>
+<div class="form-group"><label for="user_password">Your password</label><input id="login-password" name="user[password]" size="30" type="password" /></div>
+<a class="forgot-password">Forgot your password?</a></div>
+<div class="form-buttons-big">
+    <input class="default big" name="submit" type="submit" value="Connect" onclick="window.authorize.submit(getElementById('user_email').value, getElementById('login-password').value);return false;"/>
+</div>
+</form>
+<form action="http://soundcloud.com/connect" class="authorize-token authorize-client sign-up hidden" method="post">
+<input id="signup" name="signup" type="hidden" value="1" />
+<input id="client_id" name="client_id" type="hidden" value="xce4DwrNEmNzTIcuaAjkA" />
+<input id="redirect_uri" name="redirect_uri" type="hidden" value="" />
+<input id="response_type" name="response_type" type="hidden" value="code" />
+<input id="commit" name="commit" type="hidden" value="Allow_Access" />
+<div class="signup oauth-form"><h3>Sign up
+<a class="login-connect">Already a member? Log in!</a></h3>
+<div class="form-group"><label for="user_email">What's your email address?</label><input id="user_email" maxlength="255" name="user[email]" size="255" type="text" /></div>
+<div class="form-group"><div class="width_1_2"><label for="user_password">Choose a password</label><input id="user_password" maxlength="255" name="user[password]" size="255" type="password" /></div>
+<div class="width_1_2 last"><label for="user_password_confirmation">Re-type password</label><input id="user_password_confirmation" maxlength="255" name="user[password_confirmation]" size="255" type="password" /></div></div>
+<div class="t-and-c"><div class="checkbox"><input id="user_terms_of_use" name="user[terms_of_use]" type="checkbox" value="1" />
+<label for="user_terms_of_use">
+I agree to the
+<a href="http://soundcloud.com/terms-of-use" target="_blank">Terms of Use</a>
+of SoundCloud
+</label></div>
+</div></div>
+<div class="form-buttons-big"><input class="default big" name="submit" type="submit" value="Sign up &amp; Connect" /></div>
+</form>
+<form accept-charset="utf-8" action="http://soundcloud.com/login/forgot" class="authorize-token forgot-password hidden" method="post">
+<div class="forgot-password oauth-form"><h3>Forgot password
+<a class="login-connect">Oh, I remember it.</a></h3>
+<div class="form-group"><label for="email">Your email address</label><input id="email" name="email" type="text" /></div></div>
+<div class="form-buttons-big"><input class="forgot-password default big" name="commit" type="submit" value="Submit" /></div>
+</form>
+</div><script src="javascripts/base_iphone.js" type="text/javascript"></script><script type="text/javascript">
+var _gaq = _gaq || [];
+$.helpers.loadScriptAsync('http://www.google-analytics.com/ga.js', 'https://ssl.google-analytics.com/ga.js');
+$.helpers.loadScriptAsync('http://www.google.com/jsapi', 'https://www.google.com/jsapi');
+</script>
+<script type="text/javascript">
+_qoptions = {qacct: "p-47_zcqmJsLHXQ"};
+$.helpers.loadScriptAsync('http://edge.quantserve.com/quant.js', 'https://quantserve.com/quant.js', true);
+</script>
+<noscript>
+<img alt="Quantcast" class="hidden" src="http://pixel.quantserve.com/pixel/p-47_zcqmJsLHXQ.gif" />
+</noscript>
+</body></html>

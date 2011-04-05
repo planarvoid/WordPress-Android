@@ -1,6 +1,7 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.activity.Authorize;
+import com.soundcloud.android.activity.WebViewAuthorize;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -45,7 +46,7 @@ public class AuthenticatorService extends Service {
         @Override
         public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
             Bundle reply = new Bundle();
-            Intent intent = new Intent(mContext, Authorize.class);
+            Intent intent = new Intent(mContext, WebViewAuthorize.class);
             intent.addFlags(Intent.FLAG_FROM_BACKGROUND |
                     Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS|
                     Intent.FLAG_ACTIVITY_NO_HISTORY);
