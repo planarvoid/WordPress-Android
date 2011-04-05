@@ -64,8 +64,13 @@ public class WebViewAuthorize extends Authorize {
 
     @SuppressWarnings({"UnusedDeclaration"})
     public class JSInterface {
-        public void submit(String login, String password) {
-            login(login, password);
+        public void submit(final String login, final String password) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    login(login, password);
+                }
+            });
         }
     }
 }
