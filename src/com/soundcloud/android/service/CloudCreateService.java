@@ -337,6 +337,7 @@ public class CloudCreateService extends Service {
     MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mp) {
             notifyChange(PLAYBACK_COMPLETE);
+            mPlaybackPath = null;
         }
     };
 

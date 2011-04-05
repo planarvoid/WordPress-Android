@@ -25,8 +25,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -86,6 +84,8 @@ public class ScCreate extends ScActivity {
     private boolean mSampleInterrupted = false;
 
     private RemainingTimeCalculator mRemainingTimeCalculator;
+
+    private Thread mProgressThread;
 
     public enum CreateState {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
@@ -157,6 +157,7 @@ public class ScCreate extends ScActivity {
     protected void onStop() {
         super.onStop();
         this.unregisterReceiver(mUploadStatusListener);
+        stopProgressThread();
         mHandler.removeMessages(PLAYBACK_REFRESH);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
@@ -261,8 +262,9 @@ public class ScCreate extends ScActivity {
                     startActivityForResult(i,0);
                 }
 
-                //mRecordingId = 0;
-                //mCurrentState = CreateState.IDLE_RECORD;
+                mRecordingId = 0;
+                mRecordFile = null;
+                mCurrentState = CreateState.IDLE_RECORD;
                 //updateUi(true);
             }
         });
@@ -286,7 +288,7 @@ public class ScCreate extends ScActivity {
                 mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(new File(mCreateService.getPlaybackPath()));
                 configurePlaybackInfo();
-                queueNextPlaybackRefresh(refreshPlaybackInfo());
+                startProgressThread();
                 takeAction = true;
             } else if (!mRecordDir.exists()) {
                 // can happen when there's no mounted sdcard
@@ -379,7 +381,6 @@ public class ScCreate extends ScActivity {
             case IDLE_RECORD:
                 if (takeAction) {
                     stopPlayback();
-                    for (File f : mRecordDir.listFiles()) f.delete();
                 }
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) txtRecordStatus.setText(mRecordErrorMessage);
 
@@ -418,6 +419,7 @@ public class ScCreate extends ScActivity {
                             } catch (RemoteException e) {
                                 Log.e(TAG, "error", e);
                             }
+                            stopProgressThread();
                             break;
                     }
                 }
@@ -589,10 +591,10 @@ public class ScCreate extends ScActivity {
         try {
             mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
                     getDuration() / 1000);
-            mProgressBar.setMax((int) (getDuration()/1000));
+            mProgressBar.setMax((int) (getDuration()));
 
             if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < getDuration())
-                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition()/1000);
+                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -605,6 +607,7 @@ public class ScCreate extends ScActivity {
 
 
     private void onPlaybackComplete(){
+        stopProgressThread();
         mProgressBar.setProgress(0);
         if (mCurrentState == CreateState.PLAYBACK) {
             mCurrentState = CreateState.IDLE_PLAYBACK;
@@ -616,54 +619,53 @@ public class ScCreate extends ScActivity {
     private void startPlayback() {
         try {
             if (!mCreateService.isPlayingBack()) mCreateService.startPlayback(); //might already be playing back if activity just created
-            queueNextPlaybackRefresh(refreshPlaybackInfo());
+            startProgressThread();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
 
     }
 
-    private long refreshPlaybackInfo() {
-        try {
-            if (mCreateService == null || mCurrentState != CreateState.PLAYBACK)
-                return PLAYBACK_REFRESH_INTERVAL;
+    private void startProgressThread(){
+        if (mProgressThread != null)
+            return;
 
-            long pos = mCreateService.getCurrentPlaybackPosition();
-            long remaining = PLAYBACK_REFRESH_INTERVAL - pos % PLAYBACK_REFRESH_INTERVAL;
-            mChrono.setText(CloudUtils.makeTimeString(pos < 3600 * 1000 ? mDurationFormatShort
-                    : mDurationFormatLong, pos / 1000)
-                    + " / " + mCurrentDurationString);
-            mProgressBar.setProgress((int) pos/1000);
+        mProgressThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    while (mCurrentState == CreateState.PLAYBACK) {
+                        final long pos = mCreateService.getCurrentPlaybackPosition();
 
-            return remaining;
-
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
-
-        return PLAYBACK_REFRESH_INTERVAL;
-    }
-
-    private void queueNextPlaybackRefresh(long delay) {
-        if (mCurrentState == CreateState.PLAYBACK) {
-            Message msg = mHandler.obtainMessage(PLAYBACK_REFRESH);
-            mHandler.removeMessages(PLAYBACK_REFRESH);
-            mHandler.sendMessageDelayed(msg, delay);
-        }
-    }
-
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case PLAYBACK_REFRESH :
-                    queueNextPlaybackRefresh(refreshPlaybackInfo());
-                    break;
-                default:
-                    break;
+                        // Update the progress bar
+                        mHandler.post(new Runnable() {
+                            public void run() {
+                                if (mCurrentState == CreateState.PLAYBACK) {
+                                    mChrono.setText(CloudUtils.makeTimeString(
+                                            pos < 3600 * 1000 ? mDurationFormatShort
+                                                    : mDurationFormatLong, pos / 1000)
+                                            + " / " + mCurrentDurationString);
+                                    mProgressBar.setProgress((int) pos);
+                                }
+                            }
+                        });
+                        Thread.sleep(100);
+                    }
+                } catch (RemoteException ignored) {
+                } catch (InterruptedException ignored) {}
             }
-        }
-    };
+        });
+        mProgressThread.start();
+    }
+
+    private void stopProgressThread(){
+        if (mProgressThread == null)
+            return;
+
+        if (!mProgressThread.isInterrupted())
+            mProgressThread.interrupt();
+
+        mProgressThread = null;
+    }
 
     private void stopPlayback() {
         try {
@@ -671,6 +673,7 @@ public class ScCreate extends ScActivity {
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
+        stopProgressThread();
         mProgressBar.setProgress(0);
     }
 

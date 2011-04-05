@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
@@ -11,8 +10,8 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
-
 
 import android.net.Uri;
 import android.os.Parcelable;
