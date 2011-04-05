@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-public class OAuthHttpRequestInterceptorTests extends BaseApiTest {
+public class OAuthHttpRequestInterceptorTests {
     OAuthHttpRequestInterceptor interceptor;
     HttpRequest request;
     HttpContext context;

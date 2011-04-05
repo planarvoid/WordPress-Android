@@ -2,12 +2,12 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 
 import android.accounts.AccountManagerCallback;
@@ -22,7 +22,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,17 +103,16 @@ public class Main extends TabActivity {
         }
 
         mTabHost = buildTabHost();
-        mTabHost.setCurrentTab(PreferenceManager.getDefaultSharedPreferences(this)
-                .getInt(SoundCloudApplication.Prefs.DASHBOARD_IDX, 0));
+        mTabHost.setCurrentTab(((SoundCloudApplication) this.getApplication())
+                .getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
-                PreferenceManager.getDefaultSharedPreferences(Main.this).edit()
-                        .putInt(SoundCloudApplication.Prefs.DASHBOARD_IDX, mTabHost.getCurrentTab())
-                        .commit();
+                ((SoundCloudApplication) Main.this.getApplication())
+                .setAccountData(User.DataKeys.DASHBOARD_IDX,Integer.toString(mTabHost.getCurrentTab()));
             }
         });
 

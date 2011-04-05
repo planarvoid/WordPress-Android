@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Recording;
@@ -51,7 +50,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
 
         mCursor = mActivity.getContentResolver().query(Recordings.CONTENT_URI, null,
-                Recordings.USER_ID + "='" + CloudUtils.getCurrentUserId(mActivity) + "' AND " + Recordings.UPLOAD_STATUS + " < 2", null,
+                Recordings.USER_ID + "='" + mActivity.getUserId() + "' AND " + Recordings.UPLOAD_STATUS + " < 2", null,
                 null);
 
         mChangeObserver = new ChangeObserver();

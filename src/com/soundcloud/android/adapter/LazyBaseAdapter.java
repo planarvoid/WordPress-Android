@@ -4,7 +4,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.utils.FastBitmapDrawable;
+import com.soundcloud.android.utils.FastBitmapDrawable;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

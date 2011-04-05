@@ -1,14 +1,13 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB.Users;
+import com.soundcloud.android.utils.CloudUtils;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentValues;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -90,10 +89,10 @@ public class User extends BaseObj implements Parcelable {
         }
     }
 
-    public User (SharedPreferences preferences){
-        id = preferences.getLong(SoundCloudApplication.Prefs.USER_ID, -1);
-        username = preferences.getString(SoundCloudApplication.Prefs.USERNAME, "");
-        primary_email_confirmed = preferences.getBoolean(SoundCloudApplication.Prefs.EMAIL_CONFIRMED, false);
+    public User (SoundCloudApplication scApp){
+        id = scApp.getAccountDataLong(DataKeys.USER_ID);
+        username = scApp.getAccountData(DataKeys.USERNAME);
+        primary_email_confirmed = scApp.getAccountDataBoolean(DataKeys.EMAIL_CONFIRMED);
     }
 
     public void update(Cursor cursor) {
@@ -202,5 +201,13 @@ public class User extends BaseObj implements Parcelable {
                 ", primary_email_confirmed=" + primary_email_confirmed +
                 ", current_user_following=" + current_user_following +
                 ']';
+    }
+
+    public static interface DataKeys {
+        String USERNAME = "currentUsername";
+        String USER_ID = "currentUserId";
+        String EMAIL_CONFIRMED = "email_confirmed";
+        String DASHBOARD_IDX = "lastDashboardIndex";
+        String PROFILE_IDX = "lastProfileIndex";
     }
 }

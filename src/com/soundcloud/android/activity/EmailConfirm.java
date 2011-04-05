@@ -3,7 +3,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.AsyncApiTask;
 import org.apache.http.HttpResponse;
@@ -40,7 +40,7 @@ public class EmailConfirm extends Activity  {
                 @Override
                 public void onClick(View v) {
                     setResult(RESULT_OK, new Intent(RESEND));
-                    new ResendConfirmationTask((CloudAPI) getApplication()).execute();
+                    new ResendConfirmationTask((AndroidCloudAPI) getApplication()).execute();
                     finish();
                 }
             });
@@ -74,7 +74,7 @@ public class EmailConfirm extends Activity  {
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {
-        public ResendConfirmationTask(CloudAPI api) {
+        public ResendConfirmationTask(AndroidCloudAPI api) {
             super(api);
         }
 

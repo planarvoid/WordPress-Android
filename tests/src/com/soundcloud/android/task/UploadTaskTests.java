@@ -6,9 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.BaseApiTest;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
+import junit.framework.Assert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -28,11 +29,13 @@ import java.util.Map;
 
 @SuppressWarnings({"unchecked"})
 @RunWith(DefaultTestRunner.class)
-public class UploadTaskTests extends BaseApiTest {
+public class UploadTaskTests extends RoboApiBaseTests {
     UploadTask task;
 
     @Before
     public void setup() {
+        super.setup();
+
         task = new UploadTask(api);
     }
 
@@ -94,8 +97,8 @@ public class UploadTaskTests extends BaseApiTest {
         when(response.getStatusLine()).thenReturn(status);
         when(status.getStatusCode()).thenReturn(201);
 
-        when(api.uploadTrack(Matchers.<ContentBody>any(),
-                Matchers.<ContentBody>any(),
+        when(api.uploadTrack(Matchers.<ContentBody>anyObject(),
+                Matchers.<ContentBody>anyObject(),
                 Matchers.<Http.Params>anyObject(),
                 Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
@@ -167,6 +170,7 @@ public class UploadTaskTests extends BaseApiTest {
                 Matchers.<ContentBody>any(),
                 Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
-        task.execute(params);
+        Assert.assertTrue(task.doInBackground(params).isSuccess());
+
     }
 }

@@ -1,5 +1,5 @@
 
-package com.soundcloud.utils.net;
+package com.soundcloud.android.utils.net;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

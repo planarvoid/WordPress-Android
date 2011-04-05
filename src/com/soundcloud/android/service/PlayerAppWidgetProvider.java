@@ -1,7 +1,7 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ScPlaybackActivityStarter;
+import com.soundcloud.android.activity.ScPlaybackActivityStarter;
 import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;

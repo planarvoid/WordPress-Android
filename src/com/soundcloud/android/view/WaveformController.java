@@ -3,12 +3,12 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.utils.InputObject;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -692,7 +692,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     case TOUCH_MODE_COMMENT_DRAG :
                         if (mBubbleAnimation == null){
                             if (Math.abs(mPlayerCommentBar.getTop() - input.y) < 200){
-                                mAddComment = CloudUtils.buildComment(mPlayer,
+                                mAddComment = CloudUtils.buildComment(mPlayer, mPlayer.getUserId(),
                                         mPlayingTrack.id, stampFromPosition(input.x), "", 0);
                                 queueUnique(UI_ADD_COMMENT);
                             }

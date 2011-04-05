@@ -1,7 +1,7 @@
 
-package com.soundcloud.utils.play;
+package com.soundcloud.android.utils.play;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
@@ -61,8 +61,11 @@ public class PlayListManager {
             if (mPlayListCache != null) {
                 return mPlayListCache[pos];
             } else {
-                return SoundCloudDB.getInstance().resolveTrackById(mPlaybackService.getContentResolver(),  mPlayList[pos], CloudUtils
-                        .getCurrentUserId(mPlaybackService));
+                return SoundCloudDB.getInstance().resolveTrackById(
+                        mPlaybackService.getContentResolver(),
+                        mPlayList[pos],
+                        ((SoundCloudApplication) mPlaybackService.getApplication())
+                                .getCurrentUserId());
             }
         } else
             return null;
@@ -106,7 +109,8 @@ public class PlayListManager {
         mPlayListLen = playlistCache.size();
 
         new CommitPlaylistTask(mPlaybackService.getContentResolver(),
-                CloudUtils.getCurrentUserId(mPlaybackService), mPlayList).execute(mPlayListCache);
+                ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId(),
+                mPlayList).execute(mPlayListCache);
     }
 
     public class CommitPlaylistTask extends CommitTracksTask {

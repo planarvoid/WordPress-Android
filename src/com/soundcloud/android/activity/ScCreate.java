@@ -1,14 +1,14 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.utils.record.CloudRecorder.Profile;
-import com.soundcloud.utils.record.PowerGauge;
-import com.soundcloud.utils.record.RemainingTimeCalculator;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.record.CloudRecorder.Profile;
+import com.soundcloud.android.utils.record.PowerGauge;
+import com.soundcloud.android.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -236,7 +236,7 @@ public class ScCreate extends ScActivity {
                     r.audio_path = mRecordFile.getAbsolutePath();
                     r.audio_profile = mAudioProfile;
                     r.timestamp = mRecordFile.lastModified();
-                    r.user_id = CloudUtils.getCurrentUserId(ScCreate.this);
+                    r.user_id = getUserId();
 
                     try { // set duration because ogg files report incorrect
                           // duration in mediaplayer if playback is attempted

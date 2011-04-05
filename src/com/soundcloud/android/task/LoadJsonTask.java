@@ -2,7 +2,8 @@ package com.soundcloud.android.task;
 
 import android.os.Parcelable;
 import android.util.Log;
-import com.soundcloud.api.CloudAPI;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.type.TypeFactory;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class LoadJsonTask<T> extends AsyncApiTask<String, Parcelable, List<T>> {
-    public LoadJsonTask(CloudAPI api) {
+    public LoadJsonTask(AndroidCloudAPI api) {
         super(api);
     }
 

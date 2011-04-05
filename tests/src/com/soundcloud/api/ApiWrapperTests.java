@@ -1,19 +1,24 @@
 package com.soundcloud.api;
 
+import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.RequestMatcher;
+import junit.framework.Assert;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,6 +62,24 @@ public class ApiWrapperTests {
                 "  \"error\":  \"Error!\"\n" +
                 "}");
         api.login("foo", "bar");
+    }
+
+
+    @Test(expected = IOException.class)
+    public void shouldThrowIOExceptonWhenInvalidJSONReturned() throws Exception {
+        Robolectric.addPendingHttpResponse(200, "I'm invalid JSON!");
+        api.login("foo", "bar");
+    }
+
+    @Test
+    public void shouldContainInvalidJSONInExceptionMessage() throws Exception {
+        Robolectric.addPendingHttpResponse(200, "I'm invalid JSON!");
+        try {
+            api.login("foo", "bar");
+            fail("expected IOException");
+        } catch (IOException e) {
+            assertThat(e.getMessage(), containsString("I'm invalid JSON!"));
+        }
     }
 
     @Test
@@ -117,7 +140,7 @@ public class ApiWrapperTests {
     public void shouldGetContent() throws Exception {
         Robolectric.addHttpResponseRule("/some/resource?a=1", "response");
         assertThat(Http.getString(api.getContent("/some/resource", new Http.Params("a", "1"))),
-                    equalTo("response"));
+                equalTo("response"));
     }
 
     @Test
@@ -125,7 +148,7 @@ public class ApiWrapperTests {
         HttpResponse resp = mock(HttpResponse.class);
         Robolectric.addHttpResponseRule("POST", "/foo/something?a=1", resp);
         assertThat(api.postContent("/foo/something", new Http.Params("a", 1)),
-                   equalTo(resp));
+                equalTo(resp));
     }
 
     @Test
@@ -133,7 +156,7 @@ public class ApiWrapperTests {
         HttpResponse resp = mock(HttpResponse.class);
         Robolectric.addHttpResponseRule("PUT", "/foo/something?a=1", resp);
         assertThat(api.putContent("/foo/something", new Http.Params("a", 1)),
-                   equalTo(resp));
+                equalTo(resp));
     }
 
     @Test
@@ -148,5 +171,12 @@ public class ApiWrapperTests {
         Header h = ApiWrapper.getOAuthHeader("foo");
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth foo"));
+    }
+
+    @Test
+    public void testGetOAuthHeaderNullToken() throws Exception {
+        Header h = ApiWrapper.getOAuthHeader(null);
+        assertThat(h.getName(), equalTo("Authorization"));
+        assertThat(h.getValue(), equalTo("OAuth invalidated"));
     }
 }

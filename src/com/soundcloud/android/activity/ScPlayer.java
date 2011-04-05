@@ -4,9 +4,7 @@ package com.soundcloud.android.activity;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
@@ -16,8 +14,11 @@ import com.soundcloud.android.service.RemoteControlReceiver;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadJsonTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.WaveformController;
-import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.api.CloudAPI;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -247,7 +248,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     addNewComment(
-                            CloudUtils.buildComment(ScPlayer.this, mPlayingTrack.id, -1, "", 0),
+                            CloudUtils.buildComment(ScPlayer.this, getUserId(), mPlayingTrack.id, -1, "", 0),
                             addCommentListener);
                 }
             });
@@ -607,7 +608,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            addNewComment(CloudUtils.buildComment(ScPlayer.this, mPlayingTrack.id,
+                            addNewComment(CloudUtils.buildComment(ScPlayer.this, getUserId(), mPlayingTrack.id,
                                     -1, "", 0), addCommentListener);
                         }
                     });
@@ -1176,7 +1177,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         private long track_id;
         private WeakReference<ScPlayer> mPlayerRef;
 
-        public LoadCommentsTask(CloudAPI api) {
+        public LoadCommentsTask(AndroidCloudAPI api) {
             super(api);
         }
 

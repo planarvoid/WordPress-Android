@@ -1,11 +1,11 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.util.Log;
@@ -119,7 +119,7 @@ public class CommentBubble extends RelativeLayout {
         mBtnReply.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mComment.track_id,
+                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getUserId(), mComment.track_id,
                         mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
             }
 

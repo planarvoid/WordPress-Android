@@ -1,4 +1,4 @@
-package com.soundcloud.utils;
+package com.soundcloud.android.view;
 
 /**
  * Copyright 2010 Eric Taix (eric.taix@gmail.com) Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -19,7 +19,6 @@ import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -248,7 +247,6 @@ public class WorkspaceView extends ViewGroup {
 
         final int width = MeasureSpec.getSize(widthMeasureSpec);
         final int height = MeasureSpec.getSize(heightMeasureSpec);
-        // Log.d("workspace","Height is " + height);
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         if (widthMode != MeasureSpec.EXACTLY) {
             throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
@@ -352,7 +350,6 @@ public class WorkspaceView extends ViewGroup {
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Log.d("workspace", "Intercepted a touch event");
         if (locked) {
             return true;
         }
@@ -371,11 +368,8 @@ public class WorkspaceView extends ViewGroup {
         }
         mVelocityTracker.addMovement(ev);
 
-        // switch (action & MotionEvent.ACTION_MASK) {
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-
-                // Log.d("workspace","Intercepted a move event");
                 /*
                  * Locally do absolute value. mLastMotionX is set to the y value
                  * of the down event.
@@ -434,9 +428,7 @@ public class WorkspaceView extends ViewGroup {
         boolean yMoved = yDiff > touchSlop;
 
         if (xMoved || yMoved) {
-            // Log.d("workspace","Detected move.  Checking to scroll.");
             if (xMoved && !yMoved) {
-                // Log.d("workspace","Detected X move.  Scrolling.");
                 // Scroll if the user moved far enough along the X axis
                 touchState = TOUCH_STATE_SCROLLING;
                 lastMotionX = x;
@@ -477,7 +469,6 @@ public class WorkspaceView extends ViewGroup {
      */
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        // Log.d("workspace","caught a touch event");
         if (locked) {
             return true;
         }
@@ -497,7 +488,6 @@ public class WorkspaceView extends ViewGroup {
                 // That's the only way we can get a TOUCH_STATE_REST (0) here.
                 // That means that our child hasn't handled the event, so we
                 // need to
-                // Log.d("workspace","caught a down touch event and touchstate ="
                 // + touchState);
 
                 if (touchState != TOUCH_STATE_REST) {
@@ -519,14 +509,11 @@ public class WorkspaceView extends ViewGroup {
                 if (touchState == TOUCH_STATE_SCROLLING) {
                     handleScrollMove(ev);
                 } else {
-                    // Log.d("workspace","caught a move touch event but not scrolling");
                     // NOTE: We will never hit this case in Android 2.2. This is
                     // to fix a 2.1 bug.
                     // We need to do the work of interceptTouchEvent here
                     // because we don't intercept the move
                     // on children who don't scroll.
-
-                    Log.d("workspace", "handling move from onTouch");
 
                     if (onInterceptTouchEvent(ev) && touchState == TOUCH_STATE_SCROLLING) {
                         handleScrollMove(ev);
@@ -536,7 +523,6 @@ public class WorkspaceView extends ViewGroup {
 
                 break;
             case MotionEvent.ACTION_UP:
-                // Log.d("workspace","caught an up touch event");
                 if (touchState == TOUCH_STATE_SCROLLING) {
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
@@ -561,12 +547,10 @@ public class WorkspaceView extends ViewGroup {
                 mActivePointerId = INVALID_POINTER;
                 break;
             case MotionEvent.ACTION_CANCEL:
-                Log.d("workspace", "caught a cancel touch event");
                 touchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                Log.d("workspace", "caught a pointer up touch event");
                 onSecondaryPointerUp(ev);
                 break;
         }
@@ -606,7 +590,6 @@ public class WorkspaceView extends ViewGroup {
     private void snapToDestination() {
         final int screenWidth = getWidth();
         final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
-        Log.d("workspace", "snapToDestination");
         scrollToScreen(whichScreen);
     }
 
@@ -616,8 +599,6 @@ public class WorkspaceView extends ViewGroup {
     }
 
     private void scrollToScreen(int whichScreen, boolean immediate) {
-        Log.d("workspace", "snapToScreen=" + whichScreen);
-
         boolean changingScreens = whichScreen != currentScreen;
 
         nextScreen = whichScreen;
@@ -629,7 +610,6 @@ public class WorkspaceView extends ViewGroup {
 
         final int newX = whichScreen * getWidth();
         final int delta = newX - getScrollX();
-        Log.d("workspace", "newX=" + newX + " scrollX=" + getScrollX() + " delta=" + delta);
         scroller.startScroll(getScrollX(), 0, delta, 0, immediate ? 0 : Math.abs(delta));
         invalidate();
 
@@ -648,11 +628,8 @@ public class WorkspaceView extends ViewGroup {
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        Log.i("workspace", "On Restore Instance Sta " + state);
-
         SavedState savedState = (SavedState) state;
 
-        Log.i("workspace", "On Restore Instance State 2 " + savedState.getSuperState());
         super.onRestoreInstanceState(savedState.getSuperState());
         if (savedState.currentScreen != -1) {
             currentScreen = savedState.currentScreen;

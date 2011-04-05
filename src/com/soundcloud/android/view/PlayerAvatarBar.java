@@ -2,8 +2,8 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
-import com.soundcloud.android.CloudUtils;
-import com.soundcloud.android.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;

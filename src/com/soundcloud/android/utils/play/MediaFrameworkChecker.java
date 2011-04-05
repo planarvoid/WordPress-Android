@@ -1,5 +1,5 @@
 
-package com.soundcloud.utils.play;
+package com.soundcloud.android.utils.play;
 
 import java.io.IOException;
 import java.io.InputStream;

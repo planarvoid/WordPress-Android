@@ -1,11 +1,11 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 

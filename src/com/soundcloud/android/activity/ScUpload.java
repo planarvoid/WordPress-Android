@@ -1,12 +1,12 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
-import com.soundcloud.utils.record.CloudRecorder.Profile;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -104,7 +104,7 @@ public class ScUpload extends ScActivity {
             r.audio_profile = Profile.ENCODED_LOW;
             r.timestamp = uploadFile.lastModified();
             r.external_upload = true;
-            r.user_id = CloudUtils.getCurrentUserId(ScUpload.this);
+            r.user_id = getUserId();
             Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
             cursor = getContentResolver().query(uri, null, null, null, null);
 

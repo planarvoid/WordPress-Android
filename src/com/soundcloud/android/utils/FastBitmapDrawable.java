@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.soundcloud.utils;
+package com.soundcloud.android.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;

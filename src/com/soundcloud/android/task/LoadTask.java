@@ -1,9 +1,11 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.utils.CloudUtils;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -17,10 +19,10 @@ import java.lang.ref.WeakReference;
 
 public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<String, Parcelable, Model> {
     private final static String TAG = "LoadTask";
-    private CloudAPI mApi;
+    private AndroidCloudAPI mApi;
     private Class<?> mModel;
 
-    public LoadTask(CloudAPI api, Class<?> model) {
+    public LoadTask(AndroidCloudAPI api, Class<?> model) {
         mApi = api;
         mModel = model;
     }
@@ -50,8 +52,8 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Strin
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Model model = (Model) mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                if (mApi instanceof Context) {
-                    CloudUtils.resolveParcelable((Context) mApi, model);
+                if (mApi instanceof SoundCloudApplication) {
+                    CloudUtils.resolveParcelable((Context) mApi, model, ((SoundCloudApplication) mApi).getCurrentUserId());
                 }
                 publishProgress(model);
                 return model;
@@ -66,7 +68,7 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Strin
     }
 
      public static class LoadUserTask extends LoadTask<User> {
-        public LoadUserTask(CloudAPI api) {
+        public LoadUserTask(AndroidCloudAPI api) {
             super(api, User.class);
         }
     }

@@ -1,21 +1,21 @@
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.BaseApiTest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 @RunWith(DefaultTestRunner.class)
-public class LoadConnectionTaskTests extends BaseApiTest {
+public class LoadConnectionTaskTests extends RoboApiBaseTests {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
-        expectGetRequestAndReturn(CONNECTIONS, "connections.json");
+        expectGetRequestAndReturn(CONNECTIONS, 200,"connections.json");
 
         LoadConnectionsTask task = new LoadConnectionsTask(api);
         List<Connection> connections = task.list(CONNECTIONS, Connection.class);

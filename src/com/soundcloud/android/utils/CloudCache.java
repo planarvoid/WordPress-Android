@@ -1,5 +1,5 @@
 
-package com.soundcloud.utils;
+package com.soundcloud.android.utils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

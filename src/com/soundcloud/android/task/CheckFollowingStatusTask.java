@@ -2,9 +2,8 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.activity.UserBrowser;
-
 import org.apache.http.HttpResponse;
 
 import android.util.Log;
@@ -15,7 +14,7 @@ import java.lang.ref.WeakReference;
 public class CheckFollowingStatusTask extends AsyncApiTask<Number, Void, Boolean> {
     private WeakReference<UserBrowser> mUserBrowserReference;
 
-    public CheckFollowingStatusTask(CloudAPI api) {
+    public CheckFollowingStatusTask(AndroidCloudAPI api) {
         super(api);
     }
 

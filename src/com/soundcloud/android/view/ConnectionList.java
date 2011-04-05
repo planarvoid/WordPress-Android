@@ -1,6 +1,6 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.objects.Connection;
@@ -101,11 +101,11 @@ public class ConnectionList extends LinearLayout {
     }
 
     public static class Adapter extends BaseAdapter {
-        private CloudAPI api;
+        private AndroidCloudAPI api;
         private List<Connection> mConnections;
         private boolean mFailed;
 
-        public Adapter(CloudAPI api) {
+        public Adapter(AndroidCloudAPI api) {
             this.api = api;
         }
 

@@ -3,11 +3,11 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.utils.AnimUtils;
+import com.soundcloud.android.utils.AnimUtils;
 
 import android.content.Context;
 import android.text.TextUtils;

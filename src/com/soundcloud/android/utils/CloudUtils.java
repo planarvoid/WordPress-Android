@@ -1,8 +1,9 @@
-
-package com.soundcloud.android;
+package com.soundcloud.android.utils;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -23,7 +24,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -31,7 +31,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -416,23 +415,6 @@ public class CloudUtils {
         }
     }
 
-    public static long getCurrentUserId(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        try {
-            return preferences.getLong(SoundCloudApplication.Prefs.USER_ID, -1);
-        } catch (ClassCastException e) {
-            try {
-                long id = Long.parseLong(preferences.getString(SoundCloudApplication.Prefs.USER_ID, "-1"));
-                if (id != -1) {
-                    preferences.edit().putLong(SoundCloudApplication.Prefs.USER_ID, id).commit();
-                }
-                return id;
-            } catch (NumberFormatException ignored) {
-                return -1;
-            }
-        }
-    }
-
     public static boolean checkIconShouldLoad(String url) {
         return !(url == null ||
                   url.contentEquals("") || url.toLowerCase().contentEquals("null")
@@ -632,29 +614,29 @@ public class CloudUtils {
     }
 
 
-    public static void resolveParcelable(Context c, Parcelable p) {
+    public static void resolveParcelable(Context c, Parcelable p, long user_id) {
         if (p instanceof Track) {
-            SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(), (Track) p, SoundCloudDB.WriteState.none,
-                    CloudUtils.getCurrentUserId(c));
+            SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(), (Track) p,
+                    SoundCloudDB.WriteState.none, user_id);
         } else if (p instanceof Event) {
             if (((Event) p).getTrack() != null)
-                SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(), ((Event) p).getTrack(), SoundCloudDB.WriteState.none,
-                        CloudUtils.getCurrentUserId(c));
+                SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(),
+                        ((Event) p).getTrack(), SoundCloudDB.WriteState.none, user_id);
         } else if (p instanceof User) {
-            SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p, SoundCloudDB.WriteState.none,
-                    CloudUtils.getCurrentUserId(c));
+            SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p,
+                    SoundCloudDB.WriteState.none, user_id);
         }
     }
 
-    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId){
-        return buildComment(context, trackId, timestamp, commentBody, replyToId, "");
+    public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId){
+        return buildComment(context, userId, trackId, timestamp, commentBody, replyToId, "");
     }
 
-    public static Comment buildComment( Context context, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
+    public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
         Comment comment = new Comment();
         comment.track_id = trackId;
         comment.created_at = new Date(System.currentTimeMillis());
-        comment.user_id = CloudUtils.getCurrentUserId(context);
+        comment.user_id = userId;
         comment.user = SoundCloudDB.getInstance().resolveUserById(context.getContentResolver(), comment.user_id);
         comment.timestamp = timestamp;
         comment.body = commentBody;

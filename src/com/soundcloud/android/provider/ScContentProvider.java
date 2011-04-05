@@ -1,10 +1,10 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.CloudUtils;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.SoundCloudDB.TrackPlays;
 import com.soundcloud.android.SoundCloudDB.Tracks;
 import com.soundcloud.android.SoundCloudDB.Users;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;

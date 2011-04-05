@@ -1,6 +1,7 @@
 package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
@@ -69,10 +70,13 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
 
+        final String oldToken = api.getToken();
         api.invalidateToken();
 
         resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
+        // make sure we've got a new token
+        assertThat(oldToken, not(equalTo(api.getToken())));
     }
 
     @Test
