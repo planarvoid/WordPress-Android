@@ -102,9 +102,6 @@ public class ScCreate extends ScActivity {
     // public static int PCM_REC_MAX_FILE_SIZE = 158760000; // 15 mins at
     // 44100x16bitx2channels
 
-    private static final int PLAYBACK_REFRESH = 1001;
-
-    private static final int PLAYBACK_REFRESH_INTERVAL = 200;
 
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
 
@@ -158,14 +155,13 @@ public class ScCreate extends ScActivity {
         super.onStop();
         this.unregisterReceiver(mUploadStatusListener);
         stopProgressThread();
-        mHandler.removeMessages(PLAYBACK_REFRESH);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getSoundCloudApplication().setRecordListener(null);
+        if (getSoundCloudApplication().getRecordListener() == recListener) getSoundCloudApplication().setRecordListener(null);
     }
 
     /*
@@ -255,6 +251,10 @@ public class ScCreate extends ScActivity {
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
                     startActivity(i);
+
+                    mRecordingId = 0;
+                    mRecordFile = null;
+                    mCurrentState = CreateState.IDLE_RECORD;
                 } else {
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", mRecordingId);
@@ -262,9 +262,6 @@ public class ScCreate extends ScActivity {
                     startActivityForResult(i,0);
                 }
 
-                mRecordingId = 0;
-                mRecordFile = null;
-                mCurrentState = CreateState.IDLE_RECORD;
                 //updateUi(true);
             }
         });
@@ -279,12 +276,31 @@ public class ScCreate extends ScActivity {
         super.onCreateServiceBound();
         boolean takeAction = false;
         try {
-            if (mCreateService.isRecording()) {
+            if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
+                String[] columns = { Recordings.ID, Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
+                Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
+                        columns, Recordings.ID + "='" + getIntent().getLongExtra("recordingId",0) + "'", null, null);
+
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    mRecordingId = cursor.getLong(cursor.getColumnIndex(Recordings.ID));
+                    setRecordFile(new File(cursor.getString(cursor.getColumnIndex(Recordings.AUDIO_PATH))));
+                    mAudioProfile = cursor.getInt(cursor.getColumnIndex(Recordings.AUDIO_PROFILE));
+                    mDuration = cursor.getLong(cursor.getColumnIndex(Recordings.DURATION));
+                    cursor.close();
+                } else {
+                    showToast("Error getting recording");
+                }
+            }
+
+
+            Log.i(TAG,"service bound Current state " + mCurrentState + " " + mRecordingId + " " + mCreateService.getPlaybackLocalId());
+            if (mCreateService.isRecording() && mRecordingId == 0) {
                 mCurrentState = CreateState.RECORD;
                 setRecordFile(new File(mCreateService.getRecordingPath()));
                 getSoundCloudApplication().setRecordListener(recListener);
                 setRequestedOrientation(getResources().getConfiguration().orientation);
-            } else if (mCreateService.isPlayingBack()) {
+            } else if (mCreateService.isPlayingBack() && mRecordingId == mCreateService.getPlaybackLocalId()) {
                 mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(new File(mCreateService.getPlaybackPath()));
                 configurePlaybackInfo();
@@ -294,24 +310,6 @@ public class ScCreate extends ScActivity {
                 // can happen when there's no mounted sdcard
                 btnAction.setEnabled(false);
             } else {
-                if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
-                    mRecordingId = getIntent().getLongExtra("recordingId",0);
-
-                    String[] columns = { Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
-                    Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
-                            columns, Recordings.ID + "='" + mRecordingId + "'", null, null);
-
-                    if (cursor != null) {
-                        cursor.moveToFirst();
-                        setRecordFile(new File(cursor.getString(cursor.getColumnIndex(Recordings.AUDIO_PATH))));
-                        mAudioProfile = cursor.getInt(cursor.getColumnIndex(Recordings.AUDIO_PROFILE));
-                        mDuration = cursor.getLong(cursor.getColumnIndex(Recordings.DURATION));
-                        cursor.close();
-                    } else {
-                        showToast("Error getting recording");
-                    }
-                }
-
                 // in this case, state should be based on what is in the recording directory
                 if (mRecordFile == null) setValidOldestFile();
 
@@ -560,7 +558,7 @@ public class ScCreate extends ScActivity {
     };
 
     private void stopRecording() {
-        getSoundCloudApplication().setRecordListener(null);
+        if (getSoundCloudApplication().getRecordListener() == recListener) getSoundCloudApplication().setRecordListener(null);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         try {
@@ -595,6 +593,8 @@ public class ScCreate extends ScActivity {
 
             if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < getDuration())
                 mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
+            else
+                mProgressBar.setProgress(0);
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -768,6 +768,10 @@ public class ScCreate extends ScActivity {
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
+                                        if (mRecordFile != null){
+                                            if (mRecordFile.exists())mRecordFile.delete();
+                                            mRecordFile = null;
+                                        }
                                         mCurrentState = CreateState.IDLE_RECORD;
                                         updateUi(true);
                                         removeDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);

@@ -168,6 +168,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (mRecListener != null) mRecListener.onFrameUpdate(maxAmplitude, elapsed);
     }
 
+    public RecordListener getRecordListener() {
+        return mRecListener;
+    }
+
     public void setRecordListener(RecordListener listener) {
         this.mRecListener = listener;
     }

@@ -601,7 +601,6 @@ public class CloudPlaybackService extends Service {
         track.user_played = true;
 
         Cursor cursor = getContentResolver().query(TrackPlays.CONTENT_URI, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
-        Log.i(TAG,"TRACK PLAYED CURSOR?? " + cursor);
         if (cursor == null || cursor.getCount() == 0) {
 
             ContentValues contentValues = new ContentValues();

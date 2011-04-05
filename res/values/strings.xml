@@ -56,7 +56,10 @@
   <string name="cloud_recorder_notification_stopped_ticker">Recording stopped</string>
   <string name="cloud_recorder_stopped_event_title">Recording stopped</string>
   <string name="cloud_recorder_stopped_event_message">Your recording stopped after %d seconds.</string>
-
+  
+  <string name="cloud_recorder_playback_notification_ticker">Playing %s</string>
+  <string name="cloud_recorder_playback_event_title">Playback in progress</string>
+  
   <string name="cloud_uploader_notification_ticker">Upload Started</string>
   <string name="cloud_uploader_event_title_preparing">Preparingi audio</string>
   <string name="cloud_uploader_event_title_encoding">Encoding audio</string>

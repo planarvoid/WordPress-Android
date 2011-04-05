@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.task.UploadTask.Params;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
@@ -23,6 +24,7 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -35,7 +37,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -62,9 +63,11 @@ public class CloudCreateService extends Service {
 
     public static final String CMDNAME = "command";
 
-    private static final int CREATE_NOTIFY_ID = R.layout.sc_create;
+    private static final int RECORD_NOTIFY_ID = R.layout.sc_record;
 
-    private static final int UPLOAD_NOTIFY_END_ID = R.layout.sc_upload;
+    private static final int PLAYBACK_NOTIFY_ID = R.layout.sc_create;
+
+    private static final int UPLOAD_NOTIFY_ID = R.layout.sc_upload;
 
     private static WakeLock mWakeLock;
 
@@ -74,17 +77,20 @@ public class CloudCreateService extends Service {
 
     private boolean mRecording = false;
 
-    private OggEncoderTask mOggTask;
+    private OggEncoderTask<Params, ?> mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
 
-    private PendingIntent mPendingIntent;
-    private RemoteViews notificationView;
+    private PendingIntent mRecordPendingIntent;
 
-    private Notification mNotification;
+    private RemoteViews mUploadNotificationView;
 
-    private String mCreateEventTitle;
-    private String mCreateEventMessage;
+    private Notification mRecordNotification;
+    private Notification mPlaybackNotification;
+    private Notification mUploadNotification;
+
+    private String mRecordEventTitle;
+    private String mRecordEventMessage;
 
     private NotificationManager nm;
 
@@ -98,7 +104,9 @@ public class CloudCreateService extends Service {
     private int frameCount;
 
     private MediaPlayer mPlayer;
-    private String mPlaybackPath;
+    private File mPlaybackFile;
+    private long mPlaybackLocalId;
+    private String mPlaybackTitle;
 
     private long mUploadLocalId;
 
@@ -188,8 +196,11 @@ public class CloudCreateService extends Service {
     }
 
     private void gotoIdleState() {
-        mUploadLocalId = 0;
-        stopForeground(true);
+        if (!isUploading() && !isRecording() && !isPlaying()) {
+            mUploadLocalId = 0;
+            mPlaybackLocalId = 0;
+            stopForeground(true);
+        }
     }
 
     private void _shutdownService() {
@@ -239,35 +250,35 @@ public class CloudCreateService extends Service {
                 mRecorder.prepare();
                 mRecorder.start();
 
-                if (mRecorder.getState() == CloudRecorder.State.ERROR) onRecordError();
+                if (mRecorder.getState() == CloudRecorder.State.ERROR){
+                    onRecordError();
+                } else {
+                    mRecordStartTime = System.currentTimeMillis();
+                }
             }
         };
 
+        Intent i = (new Intent(this, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra("tabTag", "record");
 
-        mNotification = new Notification(R.drawable.statusbar, getApplicationContext()
-                .getResources().getString(R.string.cloud_recorder_notification_ticker), System
-                .currentTimeMillis());
+        mRecordPendingIntent = PendingIntent.getActivity(
+                getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Intent i = (new Intent(this, Main.class))
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabTag", "record");
+        mRecordNotification = createOngoingNotification(getApplicationContext().getResources()
+                .getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
 
-        mPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        mRecordEventTitle = getApplicationContext().getString(R.string.cloud_recorder_event_title);
 
-        mNotification.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-        mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-
-        mCreateEventTitle = getApplicationContext().getString(R.string.cloud_recorder_event_title);
-        mCreateEventMessage = getApplicationContext().getString(
+        mRecordEventMessage = getApplicationContext().getString(
                 R.string.cloud_recorder_event_message);
-        mNotification.setLatestEventInfo(getApplicationContext(), mCreateEventTitle, CloudUtils
-                .formatString(mCreateEventMessage, 0), mPendingIntent);
 
-        startForeground(CREATE_NOTIFY_ID, mNotification);
+        mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle,
+                CloudUtils.formatString(mRecordEventMessage, 0), mRecordPendingIntent);
+
+        startForeground(RECORD_NOTIFY_ID, mRecordNotification);
+
         mRecording = true;
-        mRecordStartTime = System.currentTimeMillis();
 
         t.start();
     }
@@ -284,7 +295,7 @@ public class CloudCreateService extends Service {
         mRecorder.release();
         mRecording = false;
 
-        nm.cancel(CREATE_NOTIFY_ID);
+        nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
 
     }
@@ -302,7 +313,7 @@ public class CloudCreateService extends Service {
         mRecorder.release();
         mRecording = false;
 
-        nm.cancel(CREATE_NOTIFY_ID);
+        nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
     }
 
@@ -311,18 +322,35 @@ public class CloudCreateService extends Service {
     }
 
     private void updateRecordTicker() {
-        mNotification.setLatestEventInfo(getApplicationContext(), mCreateEventTitle, CloudUtils
-                .formatString(mCreateEventMessage, CloudUtils.getPCMTime(mRecordFile,
-                        ScCreate.REC_SAMPLE_RATE, ScCreate.PCM_REC_CHANNELS,
-                        ScCreate.PCM_REC_BITS_PER_SAMPLE)), mPendingIntent);
+        mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
+                .formatString(mRecordEventMessage, (int)(System.currentTimeMillis() - mRecordStartTime)/1000), mRecordPendingIntent);
 
-        nm.notify(CREATE_NOTIFY_ID, mNotification);
+        nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
 
 
     public void loadPlaybackTrack(String playbackPath) {
         mPlayer.reset();
-        mPlaybackPath = playbackPath;
+        mPlaybackFile = new File(playbackPath);
+
+        String[] columns = { Recordings.ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
+        Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
+                columns, Recordings.AUDIO_PATH + "='" + playbackPath + "'", null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            mPlaybackLocalId = cursor.getLong(cursor.getColumnIndex(Recordings.ID));
+            mPlaybackTitle = CloudUtils.generateRecordingSharingNote(
+                    cursor.getString(cursor.getColumnIndex(Recordings.WHAT_TEXT)),
+                    cursor.getString(cursor.getColumnIndex(Recordings.WHERE_TEXT)),
+                    mPlaybackFile.lastModified());
+        } else {
+            mPlaybackTitle = CloudUtils.generateRecordingSharingNote(null, null, mPlaybackFile.lastModified());
+        }
+        if (cursor != null) cursor.close();
+
+
+
         try {
             FileInputStream fis = new FileInputStream(playbackPath);
             mPlayer.setDataSource(fis.getFD());
@@ -337,33 +365,71 @@ public class CloudCreateService extends Service {
     MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mp) {
             notifyChange(PLAYBACK_COMPLETE);
-            mPlaybackPath = null;
+            onPlaybackComplete();
         }
     };
 
     MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
             notifyChange(PLAYBACK_ERROR);
+            onPlaybackComplete();
             return true;
         }
     };
 
     public void stopPlayback() {
-        mPlaybackPath = null;
         try{
             mPlayer.stop();
         } catch (IllegalStateException e){
             Log.e(TAG,"error " + e.toString());
         }
+        onPlaybackComplete();
     }
 
     public void pausePlayback() {
        mPlayer.pause();
+       nm.cancel(PLAYBACK_NOTIFY_ID);
+       gotoIdleState();
+    }
+
+    private void onPlaybackComplete(){
+        mPlaybackFile = null;
+        mPlaybackLocalId = 0;
+        nm.cancel(PLAYBACK_NOTIFY_ID);
+        gotoIdleState();
     }
 
     public void startPlayback() {
         mPlayer.start();
+
+        Intent i;
+        if (mPlaybackLocalId == 0){
+            i = (new Intent(this, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .putExtra("tabTag", "record");
+        } else {
+            i = (new Intent(this, ScCreate.class))
+            .putExtra("recordingId", mPlaybackLocalId)
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+            .setAction(Intent.ACTION_MAIN);
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mPlaybackNotification = createOngoingNotification(CloudUtils.formatString(getApplicationContext().getResources()
+                .getString(R.string.cloud_recorder_playback_notification_ticker),mPlaybackTitle),
+                pendingIntent);
+
+        mPlaybackNotification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
+                .getString(R.string.cloud_recorder_playback_event_title), mPlaybackTitle,
+                pendingIntent);
+
+        startForeground(PLAYBACK_NOTIFY_ID, mPlaybackNotification);
     }
+
+
 
     public void seekTo(int position) {
         mPlayer.seekTo(position);
@@ -378,7 +444,7 @@ public class CloudCreateService extends Service {
     }
 
     public String getCurrentPlaybackPath() {
-        return mPlaybackPath;
+        return mPlaybackFile == null ? "" : mPlaybackFile.getAbsolutePath();
     }
 
     public int getCurrentPlaybackPosition() {
@@ -389,32 +455,32 @@ public class CloudCreateService extends Service {
     private void uploadTrack(final Map<String,?> trackdata) {
         acquireWakeLock();
 
-        mCurrentUploadCancelled = false;
-        int icon = R.drawable.statusbar;
-        CharSequence tickerText = getString(R.string.cloud_uploader_notification_ticker);
-        mNotification = new Notification(icon, tickerText, System.currentTimeMillis());
-
-        Intent i = (new Intent(this, Main.class))
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .setAction(Intent.ACTION_MAIN);
-
-        notificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
-
-        CharSequence trackText = (CharSequence) trackdata.get("track[title]");
-        notificationView.setTextViewText(R.id.message, trackText);
-        notificationView.setTextViewText(R.id.percentage, "0");
-        notificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
-
-        mNotification.contentView = notificationView;
-        mNotification.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-        mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-
-        if (!TextUtils.isEmpty(mPlaybackPath) && mPlaybackPath.contentEquals(String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH))))
+        if (mPlaybackFile != null
+                && mPlaybackFile.getAbsolutePath().contentEquals(String.valueOf(trackdata
+                        .get(UploadTask.Params.SOURCE_PATH))))
             stopPlayback();
 
-        startForeground(CREATE_NOTIFY_ID, mNotification);
+
+        mCurrentUploadCancelled = false;
+
+        Intent i = (new Intent(this, Main.class))
+        .addCategory(Intent.CATEGORY_LAUNCHER)
+        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .putExtra("tabTag", "profile");
+
+        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
+
+        CharSequence trackText = (CharSequence) trackdata.get("track[title]");
+        mUploadNotificationView.setTextViewText(R.id.message, trackText);
+        mUploadNotificationView.setTextViewText(R.id.percentage, "0");
+        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
+
+        mUploadNotification = createOngoingNotification(
+                getString(R.string.cloud_uploader_notification_ticker),
+                PendingIntent.getActivity(this, 0, i, 0));
+        mUploadNotification.contentView = mUploadNotificationView;
+        startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
+
         mUploadLocalId = (Long) trackdata.get(UploadTask.Params.LOCAL_RECORDING_ID);
         mOggTask = new EncodeOggTask();
         mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
@@ -426,7 +492,7 @@ public class CloudCreateService extends Service {
         @Override
         protected void onPreExecute() {
             eventString = getString(R.string.cloud_uploader_event_encoding);
-            notificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
+            mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
         }
 
         @Override
@@ -442,10 +508,10 @@ public class CloudCreateService extends Service {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
-                notificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
-                notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
+                mUploadNotificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
+                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
                         100, (100 * progress[0]) / progress[1])));
-                nm.notify(CREATE_NOTIFY_ID, mNotification);
+                nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
             }
         }
 
@@ -579,20 +645,20 @@ public class CloudCreateService extends Service {
         @Override
         protected void onPreExecute() {
             eventString = getString(R.string.cloud_uploader_event_uploading);
-            notificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
+            mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
         }
 
         @Override
         protected void onProgressUpdate(Long... progress) {
             if (!isCancelled()) {
-                notificationView.setProgressBar(R.id.progress_bar,
+                mUploadNotificationView.setProgressBar(R.id.progress_bar,
                         progress[1].intValue(), (int) Math.min(progress[1], progress[0]),
                         false);
 
-                notificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
+                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
                         100, (100 * progress[0]) / progress[1])));
 
-                nm.notify(CREATE_NOTIFY_ID, mNotification);
+                nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
             }
         }
 
@@ -607,7 +673,7 @@ public class CloudCreateService extends Service {
     }
 
     private void notifyUploadCurrentUploadFinished(UploadTask.Params params) {
-        nm.cancel(CREATE_NOTIFY_ID);
+        nm.cancel(UPLOAD_NOTIFY_ID);
 
         gotoIdleState();
 
@@ -660,7 +726,7 @@ public class CloudCreateService extends Service {
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
-        nm.notify(UPLOAD_NOTIFY_END_ID, notification);
+        nm.notify(UPLOAD_NOTIFY_ID, notification);
         releaseWakeLock();
     }
 
@@ -695,14 +761,26 @@ public class CloudCreateService extends Service {
         }
 
 
-        nm.cancel(CREATE_NOTIFY_ID);
+        nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
         notifyChange(UPLOAD_CANCELLED);
 
     }
 
+    public long getPlaybackLocalId() {
+        return mPlaybackLocalId;
+    }
+
     public long getUploadLocalId() {
         return mUploadLocalId;
+    }
+
+    private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent){
+        int icon = R.drawable.statusbar;
+        Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
+        notification.contentIntent = pendingIntent;
+        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        return notification;
     }
 
     /*
@@ -808,8 +886,14 @@ public class CloudCreateService extends Service {
             return mService.get() != null ? mService.get().getUploadLocalId() : 0;
         }
 
+        @Override
+        public long getPlaybackLocalId() throws RemoteException {
+            return mService.get() != null ? mService.get().getPlaybackLocalId() : 0;
+        }
+
     }
     private final IBinder mBinder = new ServiceStub(this);
+
 
 }
 
