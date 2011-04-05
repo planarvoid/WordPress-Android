@@ -113,6 +113,9 @@ public class ApiWrapper implements CloudAPI {
 
         final int status = response.getStatusLine().getStatusCode();
         final String json = Http.getString(response);
+
+        if (json == null) throw new IOException("JSON response is empty");
+
         try {
             JSONObject resp = new JSONObject(json);
 
@@ -131,10 +134,11 @@ public class ApiWrapper implements CloudAPI {
                     String error = resp.getString("error");
                     throw new InvalidTokenException(status, error);
                 default:
-                    throw new IOException("HTTP error " + status + " " + resp.getString("error"));
+                    throw new IOException("HTTP error "+status +" "+resp.getString("error"));
             }
         } catch (JSONException e) {
-            throw new IOException(e);
+            throw new IOException("could not parse JSON document: " +
+                    (json.length() > 80 ? (json.substring(0,79)+"...") : json), e);
         }
     }
 

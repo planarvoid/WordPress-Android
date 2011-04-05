@@ -356,7 +356,7 @@ public class UserBrowser extends ScActivity {
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
         if (!isOtherUser()) {
-            mLastTabIndex = getSoundCloudApplication().getAccountDataInt(SoundCloudApplication.UserDataKeys.PROFILE_IDX);
+            mLastTabIndex = getSoundCloudApplication().getAccountDataInt(User.DataKeys.PROFILE_IDX);
             mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
@@ -431,7 +431,7 @@ public class UserBrowser extends ScActivity {
 
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
-                getSoundCloudApplication().setAccountData(SoundCloudApplication.UserDataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
+                getSoundCloudApplication().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
             }
         }
     };

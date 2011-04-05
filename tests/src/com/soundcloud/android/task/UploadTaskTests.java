@@ -9,6 +9,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
+import junit.framework.Assert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -160,7 +161,6 @@ public class UploadTaskTests extends RoboApiBaseTests {
 
         UploadTask.Params params = new UploadTask.Params(map);
 
-
         HttpResponse response = mock(HttpResponse.class);
         StatusLine status = mock(StatusLine.class);
         when(response.getStatusLine()).thenReturn(status);
@@ -170,6 +170,7 @@ public class UploadTaskTests extends RoboApiBaseTests {
                 Matchers.<ContentBody>any(),
                 Matchers.<Http.Params>anyObject(), Matchers.<CloudAPI.ProgressListener>any())).thenReturn(response);
 
-        task.execute(params);
+        Assert.assertTrue(task.doInBackground(params).isSuccess());
+
     }
 }

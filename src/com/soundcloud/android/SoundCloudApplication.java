@@ -5,6 +5,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.LruCache;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
@@ -128,11 +129,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public boolean isEmailConfirmed() {
-        return getAccountDataBoolean(UserDataKeys.EMAIL_CONFIRMED);
+        return getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
     }
 
     public void confirmEmail() {
-        setAccountData(UserDataKeys.EMAIL_CONFIRMED,"true");
+        setAccountData(User.DataKeys.EMAIL_CONFIRMED, true);
     }
 
     private void createImageLoaders() {
@@ -202,40 +203,40 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.updateTokens(getAccessToken(account), getRefreshToken(account));
     }
 
-    public String getAccountData(String key){
-        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
-        if (account.length == 0) {
-            return null;
-        } else {
-            return getAccountManager().getUserData(account[0], key);
-        }
+    public String getAccountData(String key) {
+        Account account = getAccount();
+        return account == null ? null : getAccountManager().getUserData(account, key);
     }
 
-    public int getAccountDataInt(String key){
+    public int getAccountDataInt(String key) {
         String data = getAccountData(key);
         return data == null ? 0 : Integer.parseInt(data);
     }
 
-    public long getAccountDataLong(String key){
+    public long getAccountDataLong(String key) {
         String data = getAccountData(key);
         return data == null ? 0 : Long.parseLong(data);
     }
 
-    public Boolean getAccountDataBoolean(String key){
+    public boolean getAccountDataBoolean(String key) {
         String data = getAccountData(key);
-        return data == null ? false : Boolean.parseBoolean(data);
+        return data != null && Boolean.parseBoolean(data);
     }
 
     public long getCurrentUserId(){
-        return getAccountDataLong(UserDataKeys.USER_ID);
+        return getAccountDataLong(User.DataKeys.USER_ID);
     }
 
-    public Boolean setAccountData(String key, String value){
-        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
-        if (account.length == 0) {
+    public boolean setAccountData(String key, boolean value) {
+        return setAccountData(key, Boolean.toString(value));
+    }
+
+    public boolean setAccountData(String key, String value) {
+        Account account = getAccount();
+        if (account == null) {
             return false;
         } else {
-            getAccountManager().setUserData(account[0], key, value);
+            getAccountManager().setUserData(account, key, value);
             return true;
         }
     }
@@ -345,16 +346,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static boolean isRunningOnDalvik() {
         return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
-    }
-
-    public static interface UserDataKeys {
-        String USERNAME = "currentUsername";
-        String USER_ID = "currentUserId";
-        String TOKEN = "oauth_access_token";
-        String SECRET = "oauth_access_token_secret";
-        String EMAIL_CONFIRMED = "email_confirmed";
-        String DASHBOARD_IDX = "lastDashboardIndex";
-        String PROFILE_IDX = "lastProfileIndex";
     }
 
     public static interface RecordListener {

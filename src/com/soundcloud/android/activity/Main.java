@@ -104,7 +104,7 @@ public class Main extends TabActivity {
 
         mTabHost = buildTabHost();
         mTabHost.setCurrentTab(((SoundCloudApplication) this.getApplication())
-                .getAccountDataInt(SoundCloudApplication.UserDataKeys.DASHBOARD_IDX));
+                .getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
@@ -112,7 +112,7 @@ public class Main extends TabActivity {
             @Override
             public void onTabChanged(String tabId) {
                 ((SoundCloudApplication) Main.this.getApplication())
-                .setAccountData(SoundCloudApplication.UserDataKeys.DASHBOARD_IDX,Integer.toString(mTabHost.getCurrentTab()));
+                .setAccountData(User.DataKeys.DASHBOARD_IDX,Integer.toString(mTabHost.getCurrentTab()));
             }
         });
 

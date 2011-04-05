@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.api.CloudAPI;
@@ -89,9 +88,9 @@ public class Authorize extends AccountAuthenticatorActivity {
                                             am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
                                             am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
 
-                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.USER_ID, Long.toString(user.id));
-                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.USERNAME, user.username);
-                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+                                            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
+                                            am.setUserData(account, User.DataKeys.USERNAME, user.username);
+                                            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
 
                                             setAccountAuthenticatorResult(result);
                                             finish();
