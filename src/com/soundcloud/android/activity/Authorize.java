@@ -27,21 +27,24 @@ import android.widget.TextView;
 import java.io.IOException;
 
 public class Authorize extends AccountAuthenticatorActivity {
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.authorize);
+        build();
+    }
 
+    protected void build() {
+        setContentView(R.layout.authorize);
         final EditText usernameField = (EditText) findViewById(R.id.username);
         final EditText passwordField = (EditText) findViewById(R.id.password);
-
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                     event.getAction() == KeyEvent.ACTION_DOWN)) {
+                        (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                                event.getAction() == KeyEvent.ACTION_DOWN)) {
                     return findViewById(R.id.submit).performClick();
                 } else {
                     return false;
@@ -55,59 +58,64 @@ public class Authorize extends AccountAuthenticatorActivity {
             public void onClick(View v) {
                 final String username = usernameField.getText().toString();
                 final String password = passwordField.getText().toString();
-                final String type = getString(R.string.account_type);
-                final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
-                new GetTokensTask(api) {
-                    ProgressDialog progress;
-
-                    @Override
-                    protected void onPreExecute() {
-                        progress = new ProgressDialog(Authorize.this);
-                        progress.setIndeterminate(true);
-                        progress.setTitle(R.string.progress_sc_connect_title);
-                        progress.show();
-                    }
-
-                    @Override
-                    protected void onPostExecute(final Pair<String, String> tokens) {
-                        if (tokens != null) {
-                            new LoadTask.LoadUserTask(api) {
-                                @Override
-                                protected void onPostExecute(User user) {
-                                    progress.dismiss();
-
-                                    if (user != null) {
-                                        final Account account = new Account(username, type);
-                                        final AccountManager am = AccountManager.get(Authorize.this);
-                                        boolean created = am.addAccountExplicitly(account, tokens.first, null);
-                                        if (created) {
-                                            final Bundle result = new Bundle();
-                                            result.putString(AccountManager.KEY_ACCOUNT_NAME, username);
-                                            result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
-                                            am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
-                                            am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
-
-                                            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
-                                            am.setUserData(account, User.DataKeys.USERNAME, user.username);
-                                            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
-
-                                            setAccountAuthenticatorResult(result);
-                                            finish();
-                                        }
-                                    } else { // user request failed
-                                        showError(null);
-                                    }
-                                }
-                            }.execute(CloudAPI.Enddpoints.MY_DETAILS);
-                        } else { // no tokens obtained
-                            progress.dismiss();
-                            showError(mException);
-                        }
-                    }
-                }.execute(new Pair<String, String>(username, password));
+                login(username, password);
             }
         });
+    }
+
+    protected void login(final String username, final String password) {
+        final String type = getString(R.string.account_type);
+        final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
+
+        new GetTokensTask(api) {
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                progress = new ProgressDialog(Authorize.this);
+                progress.setIndeterminate(true);
+                progress.setTitle(R.string.progress_sc_connect_title);
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(final Pair<String, String> tokens) {
+                if (tokens != null) {
+                    new LoadTask.LoadUserTask(api) {
+                        @Override
+                        protected void onPostExecute(User user) {
+                            progress.dismiss();
+
+                            if (user != null) {
+                                final Account account = new Account(username, type);
+                                final AccountManager am = AccountManager.get(Authorize.this);
+                                boolean created = am.addAccountExplicitly(account, tokens.first, null);
+                                if (created) {
+                                    final Bundle result = new Bundle();
+                                    result.putString(AccountManager.KEY_ACCOUNT_NAME, username);
+                                    result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
+                                    am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
+                                    am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
+
+                                    am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
+                                    am.setUserData(account, User.DataKeys.USERNAME, user.username);
+                                    am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+
+                                    setAccountAuthenticatorResult(result);
+                                    finish();
+                                }
+                            } else { // user request failed
+                                showError(null);
+                            }
+                        }
+                    }.execute(CloudAPI.Enddpoints.MY_DETAILS);
+                } else { // no tokens obtained
+                    progress.dismiss();
+                    showError(mException);
+                }
+            }
+        }.execute(new Pair<String, String>(username, password));
     }
 
     private void showError(IOException e) {
@@ -147,5 +155,4 @@ public class Authorize extends AccountAuthenticatorActivity {
             }
         }
     }
-
 }

@@ -317,9 +317,12 @@ public class CloudPlaybackService extends Service {
                 }
                 instream.close();
             }
-        } catch (IOException e) {
+        } catch (IllegalArgumentException ignored) {
             // really need to catch exception here
-            Log.e(TAG, "error", e);
+            Log.e(TAG, "error", ignored);
+        } catch (IOException ignored) {
+            // really need to catch exception here
+            Log.e(TAG, "error", ignored);
         }
 
         // check through a socket, only way to be sure, but takes a little time
