@@ -1,14 +1,14 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -101,6 +101,7 @@ public class TracklistRow extends LazyRow {
             public void onClick(View v) {
                 mActivity.addNewComment(CloudUtils.buildComment(
                         mActivity,
+                        mActivity.getUserId(),
                         mTrack.id, -1, "",
                         0), null);
             }

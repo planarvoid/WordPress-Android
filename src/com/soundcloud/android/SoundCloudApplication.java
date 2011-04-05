@@ -4,11 +4,11 @@ import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.LruCache;
-import com.soundcloud.android.activity.EmailConfirm;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
-import com.soundcloud.android.utils.CloudCache;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
@@ -26,7 +26,6 @@ import android.app.Application;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -123,32 +122,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }, /*handler*/ null);
         }
 
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .remove(Prefs.TOKEN)
-                .remove(Prefs.SECRET)
-                .remove(Prefs.EMAIL_CONFIRMED)
-                .remove(Prefs.DASHBOARD_IDX)
-                .remove(Prefs.PROFILE_IDX)
-                .remove(EmailConfirm.PREF_LAST_REMINDED)
-                .putLong(Prefs.USER_ID, -1)
-                .putString(Prefs.USERNAME, "")
-                .commit();
 
         mCloudApi.invalidateToken();
         mCloudApi.updateTokens(null, null);
     }
 
     public boolean isEmailConfirmed() {
-        return PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .getBoolean(Prefs.EMAIL_CONFIRMED, false);
+        return getAccountDataBoolean(UserDataKeys.EMAIL_CONFIRMED);
     }
 
     public void confirmEmail() {
-        PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .edit()
-                .putBoolean(Prefs.EMAIL_CONFIRMED, true).commit();
+        setAccountData(UserDataKeys.EMAIL_CONFIRMED,"true");
     }
 
     private void createImageLoaders() {
@@ -216,6 +200,44 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public void useAccount(Account account) {
         mCloudApi.updateTokens(getAccessToken(account), getRefreshToken(account));
+    }
+
+    public String getAccountData(String key){
+        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
+        if (account.length == 0) {
+            return null;
+        } else {
+            return getAccountManager().getUserData(account[0], key);
+        }
+    }
+
+    public int getAccountDataInt(String key){
+        String data = getAccountData(key);
+        return data == null ? 0 : Integer.parseInt(data);
+    }
+
+    public long getAccountDataLong(String key){
+        String data = getAccountData(key);
+        return data == null ? 0 : Long.parseLong(data);
+    }
+
+    public Boolean getAccountDataBoolean(String key){
+        String data = getAccountData(key);
+        return data == null ? false : Boolean.parseBoolean(data);
+    }
+
+    public long getCurrentUserId(){
+        return getAccountDataLong(UserDataKeys.USER_ID);
+    }
+
+    public Boolean setAccountData(String key, String value){
+        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
+        if (account.length == 0) {
+            return false;
+        } else {
+            getAccountManager().setUserData(account[0], key, value);
+            return true;
+        }
     }
 
     private String getClientId(boolean production) {
@@ -325,7 +347,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
     }
 
-    public static interface Prefs {
+    public static interface UserDataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";
         String TOKEN = "oauth_access_token";

@@ -5,8 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.api.CloudAPI;
@@ -17,10 +15,8 @@ import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -55,6 +51,7 @@ public class Authorize extends AccountAuthenticatorActivity {
         });
 
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("unchecked")
             @Override
             public void onClick(View v) {
                 final String username = usernameField.getText().toString();
@@ -91,7 +88,11 @@ public class Authorize extends AccountAuthenticatorActivity {
                                             result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
                                             am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
                                             am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
-                                            storeUserInPrefs(user);
+
+                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.USER_ID, Long.toString(user.id));
+                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.USERNAME, user.username);
+                                            am.setUserData(account, SoundCloudApplication.UserDataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+
                                             setAccountAuthenticatorResult(result);
                                             finish();
                                         }
@@ -148,13 +149,4 @@ public class Authorize extends AccountAuthenticatorActivity {
         }
     }
 
-    private void storeUserInPrefs(User me) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit()
-                .putLong(SoundCloudApplication.Prefs.USER_ID, me.id)
-                .putString(SoundCloudApplication.Prefs.USERNAME, me.username)
-                .putBoolean(SoundCloudApplication.Prefs.EMAIL_CONFIRMED, me.primary_email_confirmed)
-                .commit();
-        SoundCloudDB.getInstance().resolveUser(getContentResolver(), me, WriteState.all, me.id);
-    }
 }

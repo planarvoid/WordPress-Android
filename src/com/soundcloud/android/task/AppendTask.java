@@ -2,7 +2,6 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -10,6 +9,7 @@ import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.utils.CloudUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -115,7 +115,7 @@ public class AppendTask extends AsyncTask<String, Parcelable, Boolean> {
 
             // resolve data
             if (newItems != null) {
-                for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p);
+                for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p, mApp.getCurrentUserId());
                      // we have less than the requested number of items, so we are
                 // done grabbing items for this list
                 return newItems.size() >= pageSize;

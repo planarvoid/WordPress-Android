@@ -16,7 +16,6 @@
 
 package com.soundcloud.android.service;
 
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -27,10 +26,11 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.CloudCache;
-import com.soundcloud.api.Http;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
+import com.soundcloud.api.Http;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -658,7 +658,7 @@ public class CloudPlaybackService extends Service {
             @Override
             public void run() {
                 SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t, WriteState.all,
-                        CloudUtils.getCurrentUserId(CloudPlaybackService.this));
+                        ((SoundCloudApplication) getApplication()).getCurrentUserId());
             }
         }.start();
     }

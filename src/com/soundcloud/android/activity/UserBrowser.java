@@ -3,9 +3,6 @@ package com.soundcloud.android.activity;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -17,10 +14,13 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
+import com.soundcloud.api.CloudAPI;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -231,7 +231,7 @@ public class UserBrowser extends ScActivity {
     private void loadYou() {
         if (getUserId() != -1) {
             User u = SoundCloudDB.getInstance().resolveUserById(getContentResolver(), getUserId());
-            if (u == null) u = new User(PreferenceManager.getDefaultSharedPreferences(this));
+            if (u == null) u = new User(getSoundCloudApplication());
             mapUser(u);
             mUserLoadId = u.id;
         }
@@ -356,8 +356,7 @@ public class UserBrowser extends ScActivity {
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
         if (!isOtherUser()) {
-            mLastTabIndex = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getInt(SoundCloudApplication.Prefs.PROFILE_IDX, 0);
+            mLastTabIndex = getSoundCloudApplication().getAccountDataInt(SoundCloudApplication.UserDataKeys.PROFILE_IDX);
             mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
@@ -432,8 +431,7 @@ public class UserBrowser extends ScActivity {
 
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
-                PreferenceManager.getDefaultSharedPreferences(UserBrowser.this).edit()
-                        .putInt(SoundCloudApplication.Prefs.PROFILE_IDX, mLastTabIndex).commit();
+                getSoundCloudApplication().setAccountData(SoundCloudApplication.UserDataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
             }
         }
     };
