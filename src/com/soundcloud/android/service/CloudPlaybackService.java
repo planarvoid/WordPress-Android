@@ -232,6 +232,8 @@ public class CloudPlaybackService extends Service {
 
     protected int plugState;
 
+    protected boolean mHeadphonePluggedState;
+
     public CloudPlaybackService() {
 
     }
@@ -259,6 +261,9 @@ public class CloudPlaybackService extends Service {
         commandFilter.addAction(ADD_FAVORITE);
         commandFilter.addAction(REMOVE_FAVORITE);
         registerReceiver(mIntentReceiver, commandFilter);
+        registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+
 
         // setup call listening
         TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -280,9 +285,6 @@ public class CloudPlaybackService extends Service {
         } else { // greater than 2.2, assume stagefright from here on out
             isStagefright = true;
         }
-
-        IntentFilter batteryLevelFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(batteryLevelReceiver, batteryLevelFilter);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that
@@ -366,8 +368,6 @@ public class CloudPlaybackService extends Service {
         // wakelocks
         mPlayer.release();
         mPlayer = null;
-
-        unregisterReceiver(batteryLevelReceiver);
 
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -1698,50 +1698,56 @@ public class CloudPlaybackService extends Service {
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
 
-            if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
-                next();
-            } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
-                prev();
-            } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
-                if (isPlaying()) {
+            if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
+                boolean oldPlugged = mHeadphonePluggedState;
+                mHeadphonePluggedState = intent.getIntExtra("state", 0) != 0;
+                if (mHeadphonePluggedState != oldPlugged && !mHeadphonePluggedState
+                        && mIsSupposedToBePlaying)
                     pause();
-                } else {
-                    play();
+
+            } else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
+                int plugState = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+                int rawlevel = intent.getIntExtra("level", -1);
+                int scale = intent.getIntExtra("scale", -1);
+                int level = -1;
+                if (rawlevel >= 0 && scale > 0) {
+                    level = (rawlevel * 100) / scale;
                 }
-            } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
-                pause();
-            } else if (CMDSTOP.equals(cmd)) {
-                pause();
-                seek(0);
-            } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
-                // Someone asked us to refresh a set of specific widgets,
-                // probably
-                // because they were just added.
-                int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
-            } else if (ADD_FAVORITE.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
-            } else if (REMOVE_FAVORITE.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
+
+                CloudPlaybackService.this.batteryLevel = level;
+                CloudPlaybackService.this.plugState = plugState;
+
+                Log.i(TAG, "Battery Level Remaining: " + level + "%");
+
+            } else {
+                if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
+                    next();
+                } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
+                    prev();
+                } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
+                    if (isPlaying()) {
+                        pause();
+                    } else {
+                        play();
+                    }
+                } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
+                    pause();
+                } else if (CMDSTOP.equals(cmd)) {
+                    pause();
+                    seek(0);
+                } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
+                    // Someone asked us to refresh a set of specific widgets,
+                    // probably
+                    // because they were just added.
+                    int[] appWidgetIds = intent
+                            .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                    mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
+                } else if (ADD_FAVORITE.equals(action)) {
+                    setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
+                } else if (REMOVE_FAVORITE.equals(action)) {
+                    setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
+                }
             }
-        }
-    };
-
-    BroadcastReceiver batteryLevelReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int plugState = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
-            int rawlevel = intent.getIntExtra("level", -1);
-            int scale = intent.getIntExtra("scale", -1);
-            int level = -1;
-            if (rawlevel >= 0 && scale > 0) {
-                level = (rawlevel * 100) / scale;
-            }
-
-            CloudPlaybackService.this.batteryLevel = level;
-            CloudPlaybackService.this.plugState = plugState;
-
-            Log.i(TAG, "Battery Level Remaining: " + level + "%");
         }
     };
 
@@ -1770,6 +1776,8 @@ public class CloudPlaybackService extends Service {
             }
         }
     };
+
+
 
     private void startAndFadeIn() {
         mMediaplayerHandler.sendEmptyMessageDelayed(FADEIN, 10);
