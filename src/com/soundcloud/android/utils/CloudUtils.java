@@ -13,10 +13,6 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
 import android.app.Activity;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -57,7 +53,7 @@ import java.sql.Date;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class CloudUtils {
@@ -258,19 +254,16 @@ public class CloudUtils {
         }
     }
 
-    public static String join(List<?> list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.size();
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            if (list.get(i) instanceof String)
-                buf.append(list.get(i));
-            else if (list.get(i).getClass() == Integer.TYPE || list.get(i).getClass() == Integer.class)
-                buf.append(Integer.toString(((Integer) list.get(i))));
-        }
-        return buf.toString();
+    public static <T>
+    String join(final Iterable<T> objs, final String delimiter) {
+        Iterator<T> iter = objs.iterator();
+        if (!iter.hasNext()) return "";
+        StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
+        while (iter.hasNext())
+            buffer.append(delimiter).append(String.valueOf(iter.next()));
+        return buffer.toString();
     }
+
 
     public static String joinArray(String[] list, String delim) {
         StringBuilder buf = new StringBuilder();
