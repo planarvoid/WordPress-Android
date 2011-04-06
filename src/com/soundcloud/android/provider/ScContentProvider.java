@@ -390,16 +390,25 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (sUriMatcher.match(uri)) {
+            case TRACKS_ID:
+                qb.appendWhere(
+                        Tracks.FULL_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
             case TRACKS:
                 if (projection == null) projection = FULL_TRACK_PROJECTION;
                 qb.setTables(DbTable.Tracks.tblName + " LEFT OUTER JOIN "
                         + DbTable.TrackPlays.tblName + " ON (" + Tracks.FULL_ID + " = " + TrackPlays.TRACK_ID + ")");
                 qb.setProjectionMap(tracksProjectionMap);
                 break;
+            case USERS_ID:
+                qb.appendWhere(
+                        Users.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
             case USERS:
                 qb.setTables(DbTable.Users.tblName);
                 qb.setProjectionMap(usersProjectionMap);
                 break;
+            case RECORDINGS_ID:
+                qb.appendWhere(
+                        Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
             case RECORDINGS:
                 qb.setTables(DbTable.Recordings.tblName);
                 qb.setProjectionMap(recordingsProjectionMap);

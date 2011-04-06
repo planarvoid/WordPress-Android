@@ -48,6 +48,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -91,6 +92,9 @@ public class UserBrowser extends ScActivity {
     private User mUserData;
 
     private ImageLoader.BindResult avatarResult;
+
+    private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
+    private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -625,49 +629,47 @@ public class UserBrowser extends ScActivity {
     }
 
     private void showRecordingDialog(final Recording recording) {
-        final CharSequence[] items = {
-                "Edit", "Listen", "Upload", "Delete"
-        };
+        final CharSequence[] curr_items = recording.external_upload ? EXTERNAL_RECORDING_ITEMS : RECORDING_ITEMS;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(true);
         builder.setTitle(CloudUtils.generateRecordingSharingNote(recording.where_text,
                 recording.what_text, recording.timestamp));
         builder.setNegativeButton(getString(android.R.string.cancel), null);
-        builder.setItems(items, new DialogInterface.OnClickListener() {
+        builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                switch (item) {
-                    case 0:
-                        Intent i = new Intent(UserBrowser.this, ScUpload.class);
-                        i.putExtra("recordingId", recording.id);
-                        startActivity(i);
-                        break;
-                    case 1:
-                        i = new Intent(UserBrowser.this, ScCreate.class);
-                        i.putExtra("recordingId", recording.id);
-                        startActivity(i);
-                        break;
-                    case 2:
-                        startUpload(recording);
-                        break;
-                    case 3:
-                        new AlertDialog.Builder(UserBrowser.this)
-                                .setTitle(R.string.dialog_confirm_delete_recording_title)
-                                .setMessage(R.string.dialog_confirm_delete_recording_message)
-                                .setPositiveButton(getString(R.string.btn_yes),
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                                getContentResolver().delete(Recordings.CONTENT_URI,
-                                                        Recordings.ID + " = " + recording.id, null);
-                                            }
-                                        })
-                                .setNegativeButton(getString(R.string.btn_no),
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                            }
-                                        }).create().show();
-                        break;
+                if (curr_items[item].equals(RECORDING_ITEMS[0])){
+                    Intent i = new Intent(UserBrowser.this, ScUpload.class);
+                    i.putExtra("recordingId", recording.id);
+                    startActivity(i);
+                }else if (curr_items[item].equals(RECORDING_ITEMS[1])){
+                    Intent i = new Intent(UserBrowser.this, ScCreate.class);
+                    i.putExtra("recordingId", recording.id);
+                    startActivity(i);
+                } else if (curr_items[item].equals(RECORDING_ITEMS[2])){
+                    startUpload(recording);
+                } else if (curr_items[item].equals(RECORDING_ITEMS[3])){
+                    new AlertDialog.Builder(UserBrowser.this)
+                    .setTitle(R.string.dialog_confirm_delete_recording_title)
+                    .setMessage(R.string.dialog_confirm_delete_recording_message)
+                    .setPositiveButton(getString(R.string.btn_yes),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                        int whichButton) {
+                                    getContentResolver().delete(Recordings.CONTENT_URI,
+                                            Recordings.ID + " = " + recording.id, null);
+                                    if (!recording.external_upload){
+                                        File f = new File(recording.audio_path);
+                                        if (f.exists()) f.delete();
+                                    }
+                                }
+                            })
+                    .setNegativeButton(getString(R.string.btn_no),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                        int whichButton) {
+                                }
+                            }).create().show();
                 }
             }
         });
