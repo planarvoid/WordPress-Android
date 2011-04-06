@@ -327,15 +327,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
-        ContentValues values;
-        if (initialValues != null) {
-            if (initialValues.containsKey("_id")) initialValues.remove("_id");
-            values = new ContentValues(initialValues);
-        } else {
-            values = new ContentValues();
-        }
-
+    public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long rowId;
         switch (sUriMatcher.match(uri)) {
@@ -356,6 +348,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 break;
             case RECORDINGS:
+                if (values.containsKey("_id")) values.remove("_id");
                 rowId = db.insert(DbTable.Recordings.tblName, Recordings.AUDIO_PATH, values);
                 if (rowId > 0) {
                     Uri recordingUri = ContentUris.withAppendedId(Recordings.CONTENT_URI, rowId);
@@ -364,6 +357,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 break;
             case TRACK_PLAYS:
+                if (values.containsKey("_id")) values.remove("_id");
                 rowId = db.insert(DbTable.TrackPlays.tblName, TrackPlays.TRACK_ID, values);
                 if (rowId > 0) {
                     Uri trackPlaysUri = ContentUris.withAppendedId(TrackPlays.CONTENT_URI, rowId);
