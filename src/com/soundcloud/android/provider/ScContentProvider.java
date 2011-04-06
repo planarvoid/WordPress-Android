@@ -4,7 +4,6 @@ import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.SoundCloudDB.TrackPlays;
 import com.soundcloud.android.SoundCloudDB.Tracks;
 import com.soundcloud.android.SoundCloudDB.Users;
-import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -18,6 +17,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -271,11 +271,11 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                     + tbl.tblName));
             List<String> columns = getColumnNames(db, "bck_" + tbl.tblName);
             columns.retainAll(getColumnNames(db, tbl.tblName));
-            String cols = CloudUtils.join(columns, ",");
+            String cols = TextUtils.join(",",columns);
             String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
-                    + CloudUtils.joinArray(toAppendCols, ",") : cols;
+                    + TextUtils.join(",",toAppendCols) : cols;
             String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
-                    + CloudUtils.joinArray(fromAppendCols, ",") : cols;
+                    + TextUtils.join(",",fromAppendCols) : cols;
             db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s", tbl.tblName,
                     toCols, fromCols, tbl.tblName));
             db.execSQL("DROP table  '" + tbl.tblName + "'");

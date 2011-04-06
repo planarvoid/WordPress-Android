@@ -436,11 +436,11 @@ public class ScUpload extends ScActivity {
         mRecording.latitude = mLat;
         mRecording.longitude = mLong;
         if (!mRecording.is_private){
-            if (mConnectionList.postToServiceIds() != null) mRecording.service_ids = CloudUtils.join(mConnectionList.postToServiceIds(), ",");
+            if (mConnectionList.postToServiceIds() != null) mRecording.service_ids = TextUtils.join(",",mConnectionList.postToServiceIds());
             mRecording.shared_emails = null;
         } else {
             mRecording.service_ids = null;
-            if (mAccessList.getAdapter().getAccessList() != null) mRecording.shared_emails = CloudUtils.join(mAccessList.getAdapter().getAccessList(), ",");
+            if (mAccessList.getAdapter().getAccessList() != null) mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
         }
 
     }

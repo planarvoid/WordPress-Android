@@ -53,7 +53,6 @@ import java.sql.Date;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 public class CloudUtils {
@@ -252,28 +251,6 @@ public class CloudUtils {
             Log.e(TAG, "error", e);
             return "";
         }
-    }
-
-    public static <T>
-    String join(final Iterable<T> objs, final String delimiter) {
-        Iterator<T> iter = objs.iterator();
-        if (!iter.hasNext()) return "";
-        StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
-        while (iter.hasNext())
-            buffer.append(delimiter).append(String.valueOf(iter.next()));
-        return buffer.toString();
-    }
-
-
-    public static String joinArray(String[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0)
-                buf.append(delim);
-            buf.append(list[i]);
-        }
-        return buf.toString();
     }
 
     public static LazyListView createTabList(ScActivity activity,
