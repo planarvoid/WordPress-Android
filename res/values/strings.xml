@@ -407,9 +407,9 @@
    <string name="authorize_password">Password</string>
 
   <string name="progress_sc_connect_title">Authenticating</string>
-  <string name="error_sc_connect_error_title">Soundcloud Connect Error!</string>
-  <string name="error_sc_connect_error_message">Unable to connect to Soundcloud to authorize Soundloud. Please make sure you have a working data connection.</string>
-  <string name="error_sc_connect_invalid_password">Unable to connect to Soundcloud. Make sure the password was entered correctly.</string>
+  <string name="error_sc_connect_error_title">SoundCloud Connect Error!</string>
+  <string name="error_sc_connect_error_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
+  <string name="error_sc_connect_invalid_password">We couldn't log you in, sure you had the right username (or email) and password?</string>
 
   <!-- dialog strings -->
   <string name="error_track_error_title">Playback error!</string>
