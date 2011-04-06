@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.api.Http;
 
 import org.apache.http.HttpHost;
@@ -87,7 +88,7 @@ public class LocationPicker extends ListActivity {
                 return true;
             }
         });
-        where.addTextChangedListener(new ScUpload.Capitalizer(where));
+        where.addTextChangedListener(new Capitalizer(where));
 
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
 

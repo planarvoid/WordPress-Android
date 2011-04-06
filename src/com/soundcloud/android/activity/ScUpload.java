@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
@@ -20,9 +21,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -452,26 +451,6 @@ public class ScUpload extends ScActivity {
         else{
             File f = new File(mRecording.audio_path);
             return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
-        }
-    }
-
-    public static class Capitalizer implements TextWatcher {
-        private TextView text;
-        public Capitalizer(TextView text) {
-            this.text = text;
-        }
-
-        public void afterTextChanged(Editable s) {
-            if (s.length() == 1
-            && !s.toString().toUpperCase().contentEquals(s.toString())) {
-                text.setTextKeepState(s.toString().toUpperCase());
-            }
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
         }
     }
 
