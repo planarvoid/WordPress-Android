@@ -7,12 +7,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.soundcloud.api.CloudAPI;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,14 +27,14 @@ import java.util.Map;
 
 @SuppressWarnings({"ALL"})
 @RunWith(DefaultTestRunner.class)
-public class ScCreateTests implements CloudAPI.TrackParams {
-    ScCreate create;
+public class ScUploadTests implements CloudAPI.TrackParams {
+    ScUpload create;
     ICloudCreateService service;
 
     @Before
     public void setup() {
         service = mock(ICloudCreateService.class);
-        create = new ScCreate();
+        create = new ScUpload();
         create.mCreateService = service;
         create.onCreate(null);
     }
@@ -50,7 +50,7 @@ public class ScCreateTests implements CloudAPI.TrackParams {
         c.set(2001, 1, 15, 14, 31, 1);
         f.setLastModified(c.getTimeInMillis());
 
-        create.setRecordFile(f);
+        create.setRecording(new Recording(f));
 
         if (share) {
             Connection c1 = new Connection();
@@ -166,7 +166,6 @@ public class ScCreateTests implements CloudAPI.TrackParams {
 
     @Test
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
-        create.mExternalUpload = true;
         Map args = upload();
 
         assertThat(args.get(TAG_LIST), not(is(nullValue())));

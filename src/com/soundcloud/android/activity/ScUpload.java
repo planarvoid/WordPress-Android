@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 
@@ -40,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ScUpload extends ScActivity {
     private static final String TAG = "ScCreate";
@@ -77,8 +75,6 @@ public class ScUpload extends ScActivity {
         mLat = lat;
     }
 
-    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +86,9 @@ public class ScUpload extends ScActivity {
         if (!mImageDir.exists()) mImageDir.mkdirs();
 
         File uploadFile = null;
-        if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-            Uri stream = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if ("file".equals(stream.getScheme())) {
                 uploadFile = new File(stream.getPath());
             }
@@ -99,30 +96,27 @@ public class ScUpload extends ScActivity {
 
         Cursor cursor = null;
         if (uploadFile != null && uploadFile.exists()) {
-            Recording r = new Recording();
-            r.audio_path = uploadFile.getAbsolutePath();
-            r.audio_profile = Profile.ENCODED_LOW;
-            r.timestamp = uploadFile.lastModified();
+            Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
             Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
             cursor = getContentResolver().query(uri, null, null, null, null);
 
-        } else if (getIntent().hasExtra("recordingId")
-                && getIntent().getLongExtra("recordingId", 0) != 0) {
+        } else if (intent != null && intent.hasExtra("recordingId")
+                && intent.getLongExtra("recordingId", 0) != 0) {
             cursor = getContentResolver().query(Recordings.CONTENT_URI, null,
-                    Recordings.ID + "='" + getIntent().getLongExtra("recordingId", 0) + "'", null,
+                    Recordings.ID + "='" + intent.getLongExtra("recordingId", 0) + "'", null,
                     null);
-        } else if (getIntent().hasExtra("recordingUri")) {
+        } else if (intent != null && intent.hasExtra("recordingUri")) {
             cursor = getContentResolver().query(
-                    ((Uri) getIntent().getParcelableExtra("recordingUri")), null, null, null, null);
+                    ((Uri) intent.getParcelableExtra("recordingUri")), null, null, null, null);
         }
 
         if (cursor != null) {
             cursor.moveToFirst();
             mRecording = new Recording(cursor);
             uploadFile = new File(mRecording.audio_path);
-            if (uploadFile != null && uploadFile.exists()) {
+            if (uploadFile.exists()) {
                 mapFromRecording();
             } else {
                 cursor.close();
@@ -133,11 +127,6 @@ public class ScUpload extends ScActivity {
             errorOut("Recording not found");
         }
 
-    }
-
-    private void errorOut(CharSequence error){
-        showToast(error);
-        finish();
     }
 
     @Override
@@ -182,7 +171,7 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mapToRecording();
-                if (startUpload(mRecording)){
+                if (startUpload()){
                     setResult(RESULT_OK);
                     finish();
                 }
@@ -288,6 +277,16 @@ public class ScUpload extends ScActivity {
         });
     }
 
+    boolean startUpload() {
+        return mRecording != null && startUpload(mRecording);
+    }
+
+    private void errorOut(CharSequence error){
+        showToast(error);
+        finish();
+    }
+
+
     @Override
     public void onReauthenticate() {
         onRefresh();
@@ -328,12 +327,12 @@ public class ScUpload extends ScActivity {
         super.onRestoreInstanceState(state);
     }
 
-    // TODO move this code into a helper class
     public void setImage(String filePath) {
         setImage(new File(filePath));
     }
 
     public void setImage(File imageFile) {
+        // TODO move this code into a helper class
         Log.i(TAG,"SET IMAGE FILE " + imageFile.getAbsolutePath());
         mArtworkFile = imageFile;
 
@@ -396,6 +395,12 @@ public class ScUpload extends ScActivity {
         }
     }
 
+    // for testing purposes
+    void setRecording(Recording r) {
+        mRecording = r;
+        mapToRecording();
+    }
+
     public void clearArtwork() {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
@@ -430,7 +435,7 @@ public class ScUpload extends ScActivity {
         if (mFourSquareVenueId != null) mRecording.four_square_venue_id = mFourSquareVenueId;
         mRecording.latitude = mLat;
         mRecording.longitude = mLong;
-        if (mRecording.is_private){
+        if (!mRecording.is_private){
             if (mConnectionList.postToServiceIds() != null) mRecording.service_ids = CloudUtils.join(mConnectionList.postToServiceIds(), ",");
             mRecording.shared_emails = null;
         } else {

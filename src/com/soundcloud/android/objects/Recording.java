@@ -58,6 +58,12 @@ public class Recording extends BaseObj implements Parcelable {
     public Recording() {
     }
 
+    public Recording(File f) {
+        audio_path = f.getAbsolutePath();
+        audio_profile = Profile.ENCODED_LOW;
+        timestamp = f.lastModified();
+    }
+
     public Recording(Parcel in) {
         readFromParcel(in);
     }
@@ -144,7 +150,6 @@ public class Recording extends BaseObj implements Parcelable {
         upload_data.put(CloudAPI.TrackParams.DOWNLOADABLE, false);
         upload_data.put(CloudAPI.TrackParams.STREAMABLE, true);
 
-
         if (!is_private) {
 
             List<Integer> serviceIds = new ArrayList<Integer>();
@@ -221,7 +226,4 @@ public class Recording extends BaseObj implements Parcelable {
         return String.format("%s_%s.%s", title.replace(" ","_"),
                DateFormat.format("yyyy-MM-dd-hh-mm-ss", timestamp), extension);
     }
-
-
-
 }

@@ -258,17 +258,6 @@ public class CloudUtils {
         }
     }
 
-    public static HttpParams getConfiguredDefaultHttpParams(){
-        HttpParams params = new BasicHttpParams();
-        //HttpConnectionParams.setStaleCheckingEnabled(params, false);
-        // Default connection and socket timeout of 20 seconds. Tweak to taste.
-        HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
-        HttpConnectionParams.setSoTimeout(params, 20 * 1000);
-        HttpConnectionParams.setSocketBufferSize(params, 8192);
-        return params;
-
-    }
-
     public static String join(List<?> list, String delim) {
         StringBuilder buf = new StringBuilder();
         int num = list.size();
@@ -660,13 +649,13 @@ public class CloudUtils {
                 note = String.format("Sounds from %s", where);
             } else {
                 Log.i(TAG,"Empty both");
-                note = String.format("Sounds from %s", recprdingDateString(created_at));
+                note = String.format("Sounds from %s", recordingDateString(created_at));
             }
         }
         return note;
     }
 
-    public static String recprdingDateString(long modified) {
+    public static String recordingDateString(long modified) {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
 

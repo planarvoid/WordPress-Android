@@ -301,6 +301,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    // WTF? why is this in ScActivity?
     public boolean startUpload(Recording r) {
         if (mCreateService == null) return false;
 
@@ -362,7 +363,6 @@ public abstract class ScActivity extends Activity {
             setException(e);
             handleException();
         }
-
     };
 
     private BroadcastReceiver mPlaybackStatusListener = new BroadcastReceiver() {
@@ -596,8 +596,5 @@ public abstract class ScActivity extends Activity {
         public void onRecordingClick(final Recording recording) {
             handleRecordingClick(recording);
         }
-
-
     };
-
 }
