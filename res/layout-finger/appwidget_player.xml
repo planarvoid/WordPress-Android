@@ -7,10 +7,12 @@
 	       android:layout_height="wrap_content">
 		<ImageButton android:id="@+id/btn_favorite" 
 		    android:layout_alignParentLeft="true"
+		    android:layout_marginBottom="10dip"
 		    android:layout_height="fill_parent"
 		    style="@style/btn_sc_widget_favorite"
 			android:src="@drawable/ic_widget_favorite_states" />
 			<RelativeLayout android:layout_width="fill_parent" android:layout_weight="1"
+			         android:layout_marginBottom="10dip"
 	                android:id="@+id/track_info"
                     android:layout_toRightOf="@id/btn_favorite"
                     android:layout_alignParentRight="true"
@@ -20,27 +22,25 @@
 		            style="@style/txt_widget_clickable"
 		            android:clickable="true"
                     android:focusable="true"
-		            android:singleLine="true"
 		            android:ellipsize="marquee"
 		            android:layout_alignWithParentIfMissing="true"
 		            android:layout_toLeftOf="@+id/by_txt"
-		            android:layout_height="wrap_content" 
 		            android:layout_width="wrap_content"
-		            android:text=""></TextView>
+		            android:text="" android:layout_height="fill_parent" android:layout_marginTop="5dip" android:layout_marginBottom="5dip" android:layout_alignParentLeft="true" android:gravity="center"></TextView>
 		        <TextView android:id="@+id/by_txt"
 		            style="@style/txt_widget_secondary"
 		            android:visibility="gone"
 		            android:layout_toLeftOf="@+id/user_txt"
-		            android:layout_height="wrap_content" 
+		            android:layout_height="fill_parent" 
 		            android:layout_width="wrap_content"
-		            android:text="by"></TextView>
+		            android:text="by" android:gravity="center_vertical"></TextView>
 		        <TextView android:id="@+id/user_txt"
 		            style="@style/txt_widget_clickable"
 		            android:clickable="true"
                     android:focusable="true"
 		            android:layout_alignParentRight="true"
-		            android:layout_height="wrap_content" android:layout_width="wrap_content"
-		            android:text=""></TextView>
+		            android:layout_width="wrap_content"
+		            android:text="" android:layout_height="fill_parent" android:gravity="center_vertical" android:layout_marginTop="5dip" android:layout_marginBottom="5dip"></TextView>
             </RelativeLayout>
 	</RelativeLayout>
 	<LinearLayout android:id="@+id/transport_bar" 

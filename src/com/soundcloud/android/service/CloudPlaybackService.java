@@ -1727,8 +1727,12 @@ public class CloudPlaybackService extends Service {
                 } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
                     if (isPlaying()) {
                         pause();
-                    } else {
+                    } else if (mPlayingData != null){
                         play();
+                    } else {
+                        openCurrent();
+                        mIsSupposedToBePlaying = true;
+                        setPlayingStatus();
                     }
                 } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
                     pause();
