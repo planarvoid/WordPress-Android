@@ -4,21 +4,22 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.activity.ScActivity.GA_TRACKING;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.CloudCache;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.CloudCache;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETED = 0;
@@ -71,6 +72,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
+
         ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
 
         recordingQuality.setOnPreferenceChangeListener(
@@ -83,8 +85,12 @@ public class Settings extends PreferenceActivity {
                 }
         );
         recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
+
+        if (!SoundCloudApplication.DEV_MODE && Build.VERSION.SDK_INT >= 10)
+            this.getPreferenceScreen().removePreference(findPreference("defaultRecordingHighQualityType"));
+
     }
-    
+
     public void safeShowDialog(int dialogId){
         if (!isFinishing()){
             showDialog(dialogId);

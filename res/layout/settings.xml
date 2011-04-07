@@ -39,11 +39,19 @@
   </PreferenceScreen>
 
   <ListPreference
-  android:title="@string/pref_record_quality"
-  android:summary="@string/pref_record_quality_desc"
-  android:key="defaultRecordingQuality"
-  android:defaultValue="high"
-  android:entries="@array/pref_record_quality_entries"
-  android:entryValues="@array/pref_record_quality_values" />
+	  android:title="@string/pref_record_quality"
+	  android:summary="@string/pref_record_quality_desc"
+	  android:key="defaultRecordingQuality"
+	  android:defaultValue="high"
+	  android:entries="@array/pref_record_quality_entries"
+	  android:entryValues="@array/pref_record_quality_values" />
+
+  <ListPreference
+	  android:title="@string/pref_record_high_quality_type"
+	  android:summary="@string/pref_record_high_quality_type_desc"
+	  android:key="defaultRecordingHighQualityType"
+	  android:defaultValue="compressed"
+	  android:entries="@array/pref_record_high_quality_type_entries"
+	  android:entryValues="@array/pref_record_high_quality_type_values" />
 
 </PreferenceScreen>

@@ -478,7 +478,14 @@ public class ScCreate extends ScActivity {
             .getString("defaultRecordingQuality", "high")
             .contentEquals("high");
 
-        mAudioProfile = hiQ ? Profile.best() : Profile.low();
+        if (hiQ && SoundCloudApplication.DEV_MODE
+                && !PreferenceManager.getDefaultSharedPreferences(this)
+                        .getString("defaultRecordingHighQualityType", "compressed")
+                        .contentEquals("compressed")) {
+            //force raw for developer mode
+            mAudioProfile = Profile.RAW;
+        } else
+            mAudioProfile = hiQ ? Profile.best() : Profile.low();
 
         mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
 
