@@ -19,6 +19,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -223,7 +224,7 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     private String generateFilename(String title, String extension) {
-        return String.format("%s_%s.%s", title.replace(" ","_"),
+        return String.format("%s_%s.%s", URLEncoder.encode(title.replace(" ","_")),
                DateFormat.format("yyyy-MM-dd-hh-mm-ss", timestamp), extension);
     }
 }
