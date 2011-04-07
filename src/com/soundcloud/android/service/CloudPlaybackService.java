@@ -212,9 +212,9 @@ public class CloudPlaybackService extends Service {
 
     private static final int LOW_WATER_MARK = 40000;
 
-    private static final int MAX_DOWNLOAD_ERRORS = 3;
+    private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
-    private int mCurrentDownloadErrors;
+    private int mCurrentDownloadAttempts;
 
     private boolean ignoreBuffer;
 
@@ -681,7 +681,7 @@ public class CloudPlaybackService extends Service {
     private void startNextTrack() {
         synchronized (this) {
             mStopThread = null;
-            mCurrentDownloadErrors = 0;
+            mCurrentDownloadAttempts = 0;
 
             if (mPlayingData.streamable) {
 
@@ -756,7 +756,7 @@ public class CloudPlaybackService extends Service {
                 mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
                 mMediaplayerHandler.sendEmptyMessage(ACQUIRE_WAKELOCKS);
 
-                mCurrentDownloadErrors++;
+                mCurrentDownloadAttempts++;
 
                 mDownloadThread = new StoppableDownloadThread(this, trackToCache);
                 mDownloadThread.setPriority(Thread.MAX_PRIORITY);
@@ -971,7 +971,7 @@ public class CloudPlaybackService extends Service {
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-                    if (mCurrentDownloadErrors >= MAX_DOWNLOAD_ERRORS)
+                    if (mCurrentDownloadAttempts >= MAX_DOWNLOAD_ATTEMPTS)
                         prepareDownload(mPlayingData);
                     else if (pausedForBuffering)
                         sendDownloadException();
@@ -1001,7 +1001,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
-        mCurrentDownloadErrors = 0; //reset errors, user may be manually trying again after a download error
+        mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
@@ -1625,7 +1625,7 @@ public class CloudPlaybackService extends Service {
                     mIsInitialized = false;
                     mPlayingPath = "";
 
-                    if (checkNetworkStatus() && mCurrentDownloadErrors < MAX_DOWNLOAD_ERRORS)
+                    if (checkNetworkStatus() && mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS)
                         openCurrent();
                     else {
                         notifyChange(STREAM_DIED);
@@ -2102,7 +2102,7 @@ public class CloudPlaybackService extends Service {
                 }
 
                 // reset download counter. if we got here, we have a successful connection
-                mCurrentDownloadErrors = 0;
+                mCurrentDownloadAttempts = 0;
 
                 if ((ent = resp.getEntity()) != null) {
                     is = ent.getContent();
