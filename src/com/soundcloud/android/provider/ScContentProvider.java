@@ -85,9 +85,9 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-    private static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id string primary key, "
+    private static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id integer primary key, "
         + "permalink string null, "
-        + "duration string null, "
+        + "duration integer null, "
         + "tag_list string null, "
         + "track_type string null, "
         + "title string null, "
@@ -99,47 +99,47 @@ public class ScContentProvider extends ContentProvider {
         + "stream_url string null, "
         + "streamable string null, "
         + "sharing string null, "
-        + "user_id string null, "
+        + "user_id integer null, "
         + "user_favorite boolean false, "
         + "filelength integer null);";
 
-    private static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id string primary key, "
-        + "track_id string null, "
-        + "user_id string null);";
+    private static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id integer primary key AUTOINCREMENT, "
+        + "track_id integer null, "
+        + "user_id integer null);";
 
-    private static final String DATABASE_CREATE_USERS = "create table Users (_id string primary key, "
+    private static final String DATABASE_CREATE_USERS = "create table Users (_id integer primary key, "
             + "username string null, "
             + "avatar_url string null, "
             + "permalink string null, "
             + "city string null, "
             + "country string null, "
             + "discogs_name string null, "
-            + "followers_count string null, "
-            + "followings_count string null, "
+            + "followers_count integer null, "
+            + "followings_count integer null, "
             + "full_name string null, "
             + "myspace_name string null, "
-            + "track_count string null, "
+            + "track_count integer null, "
             + "website string null, "
             + "website_title string null, "
             + "description text null);";
 
-    private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, "
-        + "user_id string null, "
-        + "timestamp string null, "
+    private static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id integer primary key AUTOINCREMENT, "
+        + "user_id integer null, "
+        + "timestamp integer null, "
         + "longitude string null, "
         + "latitude string null, "
         + "what_text string null, "
         + "where_text string null, "
         + "audio_path string null, "
         + "artwork_path string null, "
-        + "duration int null, "
+        + "duration integer null, "
         + "four_square_venue_id string null, "
         + "shared_emails text null, "
         + "service_ids string null, "
         + "is_private boolean false, "
         + "external_upload boolean false, "
-        + "audio_profile int null, "
-        + "upload_status int false, "
+        + "audio_profile integer null, "
+        + "upload_status integer false, "
         + "upload_error boolean false);";
 
 
@@ -199,16 +199,19 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 Log.i(TAG,"SUCCESSFUL UPGRADE");
                 db.setTransactionSuccessful();
             } else {
-                db.execSQL("DROP TABLE IF EXISTS Tracks");
+                Log.i(TAG,"UPGRADE NOT SUCCESSFULL");
+                /*db.execSQL("DROP TABLE IF EXISTS Tracks");
                 db.execSQL("DROP TABLE IF EXISTS Users");
                 db.execSQL("DROP TABLE IF EXISTS Recordings");
-                onCreate(db);
+                db.execSQL("DROP TABLE IF EXISTS TrackPlays");
+                onCreate(db);*/
             }
             db.endTransaction();
         } else {
             db.execSQL("DROP TABLE IF EXISTS Tracks");
             db.execSQL("DROP TABLE IF EXISTS Users");
             db.execSQL("DROP TABLE IF EXISTS Recordings");
+            db.execSQL("DROP TABLE IF EXISTS TrackPlays");
             onCreate(db);
         }
 
@@ -257,6 +260,7 @@ private static class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, DbTable.Tracks, null, null);
+                alterTableColumns(db, DbTable.Users, null, null);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
