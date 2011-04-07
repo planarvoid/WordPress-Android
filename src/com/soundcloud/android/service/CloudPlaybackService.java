@@ -971,10 +971,11 @@ public class CloudPlaybackService extends Service {
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-                    if (mCurrentDownloadAttempts >= MAX_DOWNLOAD_ATTEMPTS)
+                    if (mCurrentDownloadAttempts >= MAX_DOWNLOAD_ATTEMPTS){
                         prepareDownload(mPlayingData);
-                    else if (pausedForBuffering)
+                    } else if (pausedForBuffering){
                         sendDownloadException();
+                    }
                 }
             }
         }
