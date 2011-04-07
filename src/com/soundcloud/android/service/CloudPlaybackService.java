@@ -212,6 +212,10 @@ public class CloudPlaybackService extends Service {
 
     private static final int LOW_WATER_MARK = 40000;
 
+    private static final int MAX_DOWNLOAD_ERRORS = 3;
+
+    private int mCurrentDownloadErrors;
+
     private boolean ignoreBuffer;
 
     private boolean pausedForBuffering;
@@ -221,8 +225,6 @@ public class CloudPlaybackService extends Service {
     private long mCurrentBuffer;
 
     private NetworkInfo mCurrentNetworkInfo;
-
-    private boolean mDownloadException;
 
     private boolean isStagefright;
 
@@ -679,7 +681,7 @@ public class CloudPlaybackService extends Service {
     private void startNextTrack() {
         synchronized (this) {
             mStopThread = null;
-            mDownloadException = false;
+            mCurrentDownloadErrors = 0;
 
             if (mPlayingData.streamable) {
 
@@ -753,6 +755,8 @@ public class CloudPlaybackService extends Service {
                 }.start();
                 mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
                 mMediaplayerHandler.sendEmptyMessage(ACQUIRE_WAKELOCKS);
+
+                mCurrentDownloadErrors++;
 
                 mDownloadThread = new StoppableDownloadThread(this, trackToCache);
                 mDownloadThread.setPriority(Thread.MAX_PRIORITY);
@@ -952,7 +956,6 @@ public class CloudPlaybackService extends Service {
     }
 
     public void sendDownloadException() {
-        mDownloadException = true;
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 
@@ -967,8 +970,11 @@ public class CloudPlaybackService extends Service {
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
-                if (!checkIfTrackCached(mPlayingData) && keepCaching()  && !mDownloadException) {
-                    prepareDownload(mPlayingData);
+                if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
+                    if (mCurrentDownloadErrors >= MAX_DOWNLOAD_ERRORS)
+                        prepareDownload(mPlayingData);
+                    else if (pausedForBuffering)
+                        sendDownloadException();
                 }
             }
         }
@@ -995,7 +1001,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
-        mDownloadException = false;
+        mCurrentDownloadErrors = 0; //reset errors, user may be manually trying again after a download error
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
@@ -1619,7 +1625,7 @@ public class CloudPlaybackService extends Service {
                     mIsInitialized = false;
                     mPlayingPath = "";
 
-                    if (checkNetworkStatus() && !mDownloadException)
+                    if (checkNetworkStatus() && mCurrentDownloadErrors < MAX_DOWNLOAD_ERRORS)
                         openCurrent();
                     else {
                         notifyChange(STREAM_DIED);
@@ -2071,8 +2077,6 @@ public class CloudPlaybackService extends Service {
                     case MODE_NEW:
                         if (status.getStatusCode() != 200) {
                             Log.i(TAG, "invalid status received: " + status.getStatusCode());
-                            if (serviceRef.get() != null)
-                                serviceRef.get().sendDownloadException();
                             return;
                         }
                         // is the stored length equal to the cached file length plus
@@ -2085,8 +2089,6 @@ public class CloudPlaybackService extends Service {
                     case MODE_PARTIAL:
                         if (status.getStatusCode() != 206) {
                             Log.i(TAG, "invalid status received: " + status.getStatusCode());
-                            if (serviceRef.get() != null)
-                                serviceRef.get().sendDownloadException();
                             return;
                         }
                         if (track.filelength != Long.parseLong(resp.getHeaders("content-length")[0]
@@ -2098,6 +2100,9 @@ public class CloudPlaybackService extends Service {
                         }
                         break;
                 }
+
+                // reset download counter. if we got here, we have a successful connection
+                mCurrentDownloadErrors = 0;
 
                 if ((ent = resp.getEntity()) != null) {
                     is = ent.getContent();
