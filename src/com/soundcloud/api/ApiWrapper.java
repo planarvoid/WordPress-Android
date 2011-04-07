@@ -75,11 +75,34 @@ public class ApiWrapper implements CloudAPI {
             throw new IllegalArgumentException("username or password is null");
         }
         Http.Params p = new Http.Params(
-                "grant_type", "password",
-                "client_id", mClientId,
+                "grant_type",    PASSWORD,
+                "client_id",     mClientId,
                 "client_secret", mClientSecret,
-                "username", username,
-                "password", password);
+                "username",      username,
+                "password",      password);
+        requestToken(p);
+        return this;
+    }
+
+    @Override public ApiWrapper refreshToken() throws IOException {
+        if (mRefreshToken == null) throw new IllegalStateException("no refresh token available");
+        Http.Params p = new Http.Params(
+                "grant_type",    REFRESH_TOKEN,
+                "client_id",     mClientId,
+                "client_secret", mClientSecret,
+                "refresh_token", mRefreshToken);
+        requestToken(p);
+        return this;
+    }
+
+    @Override
+    public CloudAPI exchangeToken(String oauth1AccessToken) throws IOException {
+        if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
+        Http.Params p = new Http.Params(
+                "grant_type",    OAUTH1_TOKEN,
+                "client_id",     mClientId,
+                "client_secret", mClientSecret,
+                "refresh_token", oauth1AccessToken);
         requestToken(p);
         return this;
     }
@@ -94,16 +117,6 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-    @Override public ApiWrapper refreshToken() throws IOException {
-        if (mRefreshToken == null) throw new IllegalStateException("no refresh token available");
-        Http.Params p = new Http.Params(
-                "grant_type", REFRESH_TOKEN,
-                "client_id", mClientId,
-                "client_secret", mClientSecret,
-                "refresh_token", mRefreshToken);
-        requestToken(p);
-        return this;
-    }
 
     private void requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
@@ -138,7 +151,7 @@ public class ApiWrapper implements CloudAPI {
             }
         } catch (JSONException e) {
             throw new IOException("could not parse JSON document: " +
-                    (json.length() > 80 ? (json.substring(0,79)+"...") : json), e);
+                    (json.length() > 80 ? (json.substring(0,79)+"...") : json));
         }
     }
 

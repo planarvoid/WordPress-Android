@@ -7,8 +7,10 @@ import org.apache.http.entity.mime.content.ContentBody;
 import java.io.IOException;
 
 public interface CloudAPI {
+    String PASSWORD         = "password";
     String ACCESS_TOKEN     = "access_token";
     String REFRESH_TOKEN    = "refresh_token";
+    String OAUTH1_TOKEN     = "legacy_oauth1_token";
     String EXPIRES_IN       = "expires_in";
     String SCOPE            = "scope";
     String REALM            = "SoundCloud";
@@ -34,6 +36,17 @@ public interface CloudAPI {
      * @throws IllegalStateException if no refresh token present
      */
     CloudAPI refreshToken() throws IOException;
+
+
+    /**
+     * Exchange an OAuth1 Token for new OAuth2 tokens
+     * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
+     * @return self
+     * */
+    CloudAPI exchangeToken(String oauth1AccessToken) throws IOException;
+
+    /** Called to invalidate the current token */
+    void invalidateToken();
 
     /** GET resource */
     HttpResponse getContent(String resource) throws IOException;
@@ -80,8 +93,7 @@ public interface CloudAPI {
     void updateTokens(String access, String refresh);
     void addTokenStateListener(TokenStateListener listener);
 
-    /** Called to invalidate the current token */
-    void invalidateToken();
+
 
     enum Env {
         LIVE("api.soundcloud.com"),

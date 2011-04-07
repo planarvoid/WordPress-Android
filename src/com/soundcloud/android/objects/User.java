@@ -209,5 +209,8 @@ public class User extends BaseObj implements Parcelable {
         String EMAIL_CONFIRMED = "email_confirmed";
         String DASHBOARD_IDX = "lastDashboardIndex";
         String PROFILE_IDX = "lastProfileIndex";
+        // legacy
+        String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
+        String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
     }
 }

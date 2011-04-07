@@ -203,6 +203,21 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 CloudAPI.ACCESS_TOKEN, null, null, activity, callback, null);
     }
 
+    public boolean addUserAccount(User user, String... tokens) {
+        final String type = getString(R.string.account_type);
+        final Account account = new Account(user.username, type);
+        final AccountManager am = getAccountManager();
+        final boolean created = am.addAccountExplicitly(account, tokens[0], null);
+        if (created) {
+            am.setAuthToken(account, CloudAPI.ACCESS_TOKEN,  tokens[0]);
+            am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens[1]);
+            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
+            am.setUserData(account, User.DataKeys.USERNAME, user.username);
+            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+        }
+        return created;
+    }
+
     public void useAccount(Account account) {
         mCloudApi.updateTokens(getAccessToken(account), getRefreshToken(account));
     }
@@ -338,6 +353,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public void addTokenStateListener(TokenStateListener listener) {
         mCloudApi.addTokenStateListener(listener);
+    }
+
+    public CloudAPI exchangeToken(String oauth1AccessToken) throws IOException {
+        return mCloudApi.exchangeToken(oauth1AccessToken);
     }
 
     public void invalidateToken() {

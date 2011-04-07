@@ -238,7 +238,6 @@ public abstract class ScActivity extends Activity {
                     }
                 }
             });
-
             finish();
         } else {
             getSoundCloudApplication().useAccount(account);

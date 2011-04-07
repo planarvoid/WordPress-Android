@@ -2,10 +2,12 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.AuthenticatorService;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
@@ -22,6 +24,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,24 +57,15 @@ public class Main extends TabActivity {
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         if (app.getAccount() == null) {
-            app.addAccount(this, new AccountManagerCallback<Bundle>() {
-                @Override
-                public void run(AccountManagerFuture<Bundle> future) {
-                    try {
-                        // restart main activity
-                        // NB: important to call future.getResult() for side effects
-                        startActivity(new Intent(Main.this, Main.class)
-                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                    } catch (OperationCanceledException ignored) {
-                        Log.d(TAG, "operation canceled");
-                    } catch (IOException e) {
-                        Log.w(TAG, e);
-                    } catch (AuthenticatorException e) {
-                        Log.w(TAG, e);
-                    }
-                }
-            });
+            String legacyAccessToken = PreferenceManager
+                    .getDefaultSharedPreferences(this)
+                    .getString(User.DataKeys.OAUTH1_ACCESS_TOKEN, null);
+
+            if (legacyAccessToken != null) {
+                attemptTokenExchange(app, legacyAccessToken, addAccount);
+            } else {
+                addAccount.run();
+            }
             finish();
             return;
         }
@@ -117,6 +111,70 @@ public class Main extends TabActivity {
         });
 
         handleIntent(getIntent());
+    }
+
+    private Runnable addAccount = new Runnable() {
+        @Override
+        public void run() {
+            SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            app.addAccount(Main.this, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> future) {
+                    try {
+                        // restart main activity
+                        // NB: important to call future.getResult() for side effects
+                        startActivity(new Intent(Main.this, Main.class)
+                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    } catch (OperationCanceledException ignored) {
+                        Log.d(TAG, "operation canceled");
+                    } catch (IOException e) {
+                        Log.w(TAG, e);
+                    } catch (AuthenticatorException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+            });
+        }
+    };
+
+    private void attemptTokenExchange(final SoundCloudApplication app, String legacyAccessToken, final Runnable fallback) {
+        new AsyncApiTask<String, Void, AndroidCloudAPI>(app) {
+            @Override
+            protected AndroidCloudAPI doInBackground(String... params) {
+                try {
+                    return (AndroidCloudAPI) api().exchangeToken(params[0]);
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+            @Override
+            protected void onPostExecute(final AndroidCloudAPI api) {
+                if (api != null) {
+                     new LoadTask.LoadUserTask(api) {
+                         @Override
+                         protected void onPostExecute(User user) {
+                             if (app.addUserAccount(user, api.getToken(), api.getRefreshToken())) {
+                                 // remove old tokens after successful exchange
+                                 PreferenceManager.getDefaultSharedPreferences(Main.this)
+                                         .edit()
+                                         .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN)
+                                         .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN_SECRET)
+                                         .commit();
+                                 // and reload main
+                                 startActivity(new Intent(Main.this, Main.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                 finish();
+                             } else {
+                                 fallback.run();
+                             }
+                         }
+                     }.execute(CloudAPI.Enddpoints.MY_DETAILS);
+                } else {
+                    fallback.run();
+                }
+            }
+        }.execute(legacyAccessToken);
     }
 
     @Override

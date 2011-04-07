@@ -46,6 +46,8 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Strin
 
     @Override
     protected Model doInBackground(String... path) {
+        if (path == null || path.length == 0) throw new IllegalArgumentException("need path to load");
+
         try {
             HttpResponse resp = mApi.getContent(path[0]);
             if (isCancelled()) return null;

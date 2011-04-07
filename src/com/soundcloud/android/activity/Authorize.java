@@ -4,11 +4,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.api.CloudAPI;
 
-import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
@@ -86,25 +86,13 @@ public class Authorize extends AccountAuthenticatorActivity {
                         @Override
                         protected void onPostExecute(User user) {
                             progress.dismiss();
-
-                            if (user != null) {
-                                final Account account = new Account(username, type);
-                                final AccountManager am = AccountManager.get(Authorize.this);
-                                boolean created = am.addAccountExplicitly(account, tokens.first, null);
-                                if (created) {
-                                    final Bundle result = new Bundle();
-                                    result.putString(AccountManager.KEY_ACCOUNT_NAME, username);
-                                    result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
-                                    am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, tokens.first);
-                                    am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens.second);
-
-                                    am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
-                                    am.setUserData(account, User.DataKeys.USERNAME, user.username);
-                                    am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
-
-                                    setAccountAuthenticatorResult(result);
-                                    finish();
-                                }
+                            SoundCloudApplication app = (SoundCloudApplication) getApplication();
+                            if (user != null && app.addUserAccount(user, tokens.first, tokens.second)) {
+                                final Bundle result = new Bundle();
+                                result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                                result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
+                                setAccountAuthenticatorResult(result);
+                                finish();
                             } else { // user request failed
                                 showError(null);
                             }
