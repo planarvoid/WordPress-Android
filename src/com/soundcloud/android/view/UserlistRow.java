@@ -1,12 +1,12 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -93,14 +93,14 @@ public class UserlistRow extends LazyRow {
 
     protected void setTrackCount() {
         String trackCount = mActivity.getResources().getQuantityString(R.plurals.user_track_count,
-                Integer.parseInt(mUser.track_count), Integer.parseInt(mUser.track_count));
+                mUser.track_count, mUser.track_count);
         mTracks.setText(trackCount);
     }
 
     protected void setFollowerCount() {
         String followerCount = mActivity.getResources().getQuantityString(
-                R.plurals.user_follower_count, Integer.parseInt(mUser.followers_count),
-                Integer.parseInt(mUser.followers_count));
+                R.plurals.user_follower_count, mUser.followers_count,
+                mUser.followers_count);
         mFollowers.setText(followerCount);
     }
 

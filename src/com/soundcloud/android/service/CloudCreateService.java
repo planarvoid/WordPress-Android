@@ -215,23 +215,6 @@ public class CloudCreateService extends Service {
         Log.i(TAG, "upload Service shutdown complete.");
     }
 
-    /**
-     * Notify the change-receivers that something has changed. The intent that
-     * is sent contains the following data for the currently playing track: "id"
-     * - Integer: the database row ID "artist" - String: the name of the artist
-     * "album" - String: the name of the album "track" - String: the name of the
-     * track The intent has an action that is one of
-     * "com.dubmoon.overcast.metachanged" "com.dubmoon.overcast.queuechanged",
-     * "com.dubmoon.overcast.playbackcomplete"
-     * "com.dubmoon.overcast.playstatechanged" respectively indicating that a
-     * new track has started playing, that the playback queue has changed, that
-     * playback has stopped because the last file in the list has been played,
-     * or that the play-state changed (paused/resumed).
-     */
-    private void notifyChange(String what) {
-        sendBroadcast(new Intent(what));
-    }
-
     private void startRecording(String path, int mode) {
         Log.v(TAG, "startRecording("+path+", "+mode+")");
 
@@ -288,7 +271,7 @@ public class CloudCreateService extends Service {
     }
 
     private void onRecordError(){
-        notifyChange(RECORD_ERROR);
+        sendBroadcast(new Intent(RECORD_ERROR));
 
         //alread in an error state, so just call these in case
         mRecorder.stop();
@@ -358,20 +341,20 @@ public class CloudCreateService extends Service {
             mPlayer.prepare();
         } catch (IOException e) {
             Log.e(TAG, "error", e);
-            notifyChange(PLAYBACK_ERROR);
+            sendBroadcast(new Intent(PLAYBACK_ERROR));
         }
     }
 
     MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mp) {
-            notifyChange(PLAYBACK_COMPLETE);
+            sendBroadcast(new Intent(PLAYBACK_COMPLETE));
             onPlaybackComplete();
         }
     };
 
     MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            notifyChange(PLAYBACK_ERROR);
+            sendBroadcast(new Intent(PLAYBACK_ERROR));
             onPlaybackComplete();
             return true;
         }
@@ -704,7 +687,10 @@ public class CloudCreateService extends Service {
                             getString(R.string.cloud_uploader_notification_finished_message),
                             params.get("track[title]")), contentIntent);
 
-            notifyChange(UPLOAD_SUCCESS);
+
+            Intent intent = new Intent(UPLOAD_SUCCESS);
+            intent.putExtra("isPrivate", params.get(CloudAPI.TrackParams.SHARING) == CloudAPI.TrackParams.PRIVATE);
+            sendBroadcast(intent);
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.UPLOADED);
@@ -717,7 +703,7 @@ public class CloudCreateService extends Service {
                             getString(R.string.cloud_uploader_notification_error_message),
                             params.get("track[title]")), contentIntent);
 
-            notifyChange(UPLOAD_ERROR);
+            sendBroadcast(new Intent(UPLOAD_ERROR));
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_ERROR, true);
@@ -763,7 +749,7 @@ public class CloudCreateService extends Service {
 
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
-        notifyChange(UPLOAD_CANCELLED);
+        sendBroadcast(new Intent(UPLOAD_CANCELLED));
 
     }
 

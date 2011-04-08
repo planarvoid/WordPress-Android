@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 public class User extends BaseObj implements Parcelable {
     public long id;
     public String username;
-    public String track_count;
+    public int track_count;
     public String discogs_name;
     public String city;
     public String uri;
@@ -32,10 +32,10 @@ public class User extends BaseObj implements Parcelable {
     public String permalink;
     public String permalink_url;
     public String full_name;
-    public String followers_count;    // XXX int
-    public String followings_count;   // XXX int
-    public String public_favorites_count; // XXX int
-    public String private_tracks_count; // XXX int
+    public int followers_count;
+    public int followings_count;
+    public int public_favorites_count;
+    public int private_tracks_count;
     public String myspace_name;
     public String country;
     public String location;

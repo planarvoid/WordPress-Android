@@ -15,6 +15,7 @@ import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -27,8 +28,11 @@ import com.soundcloud.api.CloudAPI;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
@@ -74,6 +78,7 @@ public class UserBrowser extends ScActivity {
     private ScTabView mTracksView;
     private ScTabView mFavoritesView;
     private ScTabView mFollowersView;
+    private ScTabView mFollowingsView;
 
     private WorkspaceView mWorkspaceView;
 
@@ -92,6 +97,9 @@ public class UserBrowser extends ScActivity {
     private User mUserData;
 
     private ImageLoader.BindResult avatarResult;
+
+    public static final String FOLLOWING_CHANGED = "com.soundcloud.android.followingchanged";
+    public static final String FAVORITE_CHANGED = "com.soundcloud.android.favoritechanged";
 
     private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
@@ -160,8 +168,19 @@ public class UserBrowser extends ScActivity {
             }
         }
 
+        IntentFilter updateFilter = new IntentFilter();
+        updateFilter.addAction(FAVORITE_CHANGED);
+        updateFilter.addAction(FOLLOWING_CHANGED);
+        updateFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+        this.registerReceiver(mUpdateAdapterListener, updateFilter);
 
         loadDetails();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(mUpdateAdapterListener);
     }
 
 
@@ -218,10 +237,10 @@ public class UserBrowser extends ScActivity {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
 
-        mTracksView.onRefresh();
-        mFavoritesView.onRefresh();
-        mFollowersView.onRefresh();
-        mFavoritesView.onRefresh();
+       // mTracksView.onRefresh();
+       // mFavoritesView.onRefresh();
+       // mFollowersView.onRefresh();
+       // mFollowingsView.onRefresh();
 
         if (mLoadDetailsTask != null) {
             if (!CloudUtils.isTaskFinished(mLoadDetailsTask)) {
@@ -355,7 +374,7 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), User.class);
 
-        final ScTabView followingsView = new ScTabView(this, adpWrap);
+        final ScTabView followingsView = mFollowingsView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
@@ -380,7 +399,7 @@ public class UserBrowser extends ScActivity {
         mWorkspaceView.addView(mTracksView);
         mWorkspaceView.addView(mFavoritesView);
         mWorkspaceView.addView(detailsView);
-        mWorkspaceView.addView(followingsView);
+        mWorkspaceView.addView(mFollowingsView);
         mWorkspaceView.addView(followersView);
 
         mTabWidget.invalidate();
@@ -400,7 +419,7 @@ public class UserBrowser extends ScActivity {
 
             CloudUtils.setTabText(mTabWidget, 2, getString(R.string.tab_info));
 
-            if (!TextUtils.isEmpty(mUserData.track_count)) {
+            if (mUserData.track_count != 0) {
                 CloudUtils.setTabText(mTabWidget, 0, getString(R.string.tab_tracks)
                         + " (" + mUserData.track_count + ")");
             } else {
@@ -408,14 +427,14 @@ public class UserBrowser extends ScActivity {
                         R.string.tab_tracks));
             }
 
-            if (!TextUtils.isEmpty(mUserData.public_favorites_count)) {
+            if (mUserData.public_favorites_count != 0) {
                 CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites)
                         + " (" + mUserData.public_favorites_count + ")");
             } else {
                 CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites));
             }
 
-            if (!TextUtils.isEmpty(mUserData.followings_count)) {
+            if (mUserData.followings_count != 0) {
                 CloudUtils.setTabText(mTabWidget, 3, getString(R.string.tab_followings)
                         + " (" + mUserData.followings_count + ")");
             } else {
@@ -423,7 +442,7 @@ public class UserBrowser extends ScActivity {
             }
 
 
-            if (!TextUtils.isEmpty(mUserData.followers_count)) {
+            if (mUserData.followers_count != 0) {
                 CloudUtils.setTabText(mTabWidget, 4,
                         getString(R.string.tab_followers)
                                 + " (" + mUserData.followers_count + ")");
@@ -511,6 +530,10 @@ public class UserBrowser extends ScActivity {
             if (!(mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404)) {
                 mUserData.current_user_following = !mUserData.current_user_following;
                 setFollowingButtonText();
+                Intent i = new Intent(UserBrowser.FAVORITE_CHANGED);
+                i.putExtra("id", mUserData.id);
+                i.putExtra("isFollowing", mUserData.current_user_following);
+                sendBroadcast(i);
             }
             mFollow.setEnabled(true);
         }
@@ -618,6 +641,44 @@ public class UserBrowser extends ScActivity {
             }
         }
     }
+
+    private BroadcastReceiver mUpdateAdapterListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().contentEquals(FAVORITE_CHANGED)){
+                if (!isOtherUser() && mUserData != null){
+                    if (intent.getBooleanExtra("isFavorite", false)){
+                        mUserData.public_favorites_count++;
+                    } else {
+                        mUserData.public_favorites_count++;
+                    }
+
+                    setTabTextInfo();
+                    mFavoritesView.onRefresh();
+                }
+            } else if (intent.getAction().contentEquals(FOLLOWING_CHANGED)){
+                if (!isOtherUser() && mUserData != null){
+                    if (intent.getBooleanExtra("isFollowing", false)){
+                        mUserData.followings_count++;
+                    } else {
+                        mUserData.followings_count++;
+                    }
+
+                    setTabTextInfo();
+                    //mFollowingsView.onRefresh();
+                }
+            } else if (intent.getAction().contentEquals(CloudCreateService.UPLOAD_SUCCESS)){
+                if (!isOtherUser() && mUserData != null) {
+                    if (!intent.getBooleanExtra("isPrivate", true)) {
+                        mUserData.track_count++;
+                        setTabTextInfo();
+                    }
+                }
+                //mTracksView.onRefresh();
+            }
+        }
+    };
+
 
     @Override
     protected void handleRecordingClick(Recording recording) {
