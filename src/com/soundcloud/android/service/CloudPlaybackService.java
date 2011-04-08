@@ -614,6 +614,10 @@ public class CloudPlaybackService extends Service {
             getContentResolver().insert(TrackPlays.CONTENT_URI, contentValues);
         }
 
+        if (((SoundCloudApplication) this.getApplication()).getTrackFromCache(track.id) == null)
+            ((SoundCloudApplication) this.getApplication()).cacheTrack(track);
+
+
         // meta has changed
         notifyChange(META_CHANGED);
     }

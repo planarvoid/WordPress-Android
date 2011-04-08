@@ -3,10 +3,10 @@ package com.soundcloud.android;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.LruCache;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
+import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 
@@ -36,10 +36,7 @@ import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ReportsCrashes(formKey = "dFNJa3pCWHFOYW1Nd2hTb29KVlFybFE6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI {
@@ -59,12 +56,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public boolean playerWaitForArtwork;
 
-    public static final Map<String, SoftReference<Bitmap>> bitmaps =
-            Collections.synchronizedMap(new LruCache<String, SoftReference<Bitmap>>());
-    public static final Map<String, Throwable> bitmapErrors =
-            Collections.synchronizedMap(new LruCache<String, Throwable>());
+    public static final LruCache<String, SoftReference<Bitmap>> bitmaps =
+            new LruCache<String, SoftReference<Bitmap>>(256);
+    public static final LruCache<String, Throwable> bitmapErrors =
+            new LruCache<String, Throwable>(256);
 
-    private final Map<Long, List<Comment>> mCommentCache = new HashMap<Long, List<Comment>>();
+    private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
 
     @Override
     public void onCreate() {
@@ -172,7 +169,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public List<Parcelable> flushCachePlaylist() {
-        if (mCommentCache.size() > 10) mCommentCache.clear();
         List<Parcelable> playlistRef = mPlaylistCache;
         mPlaylistCache = null;
         return playlistRef;
@@ -191,17 +187,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         this.mRecListener = listener;
     }
 
-    public void cacheComments(long track_id, List<Comment> comments) {
-        mCommentCache.put(track_id, comments);
+    public void cacheTrack(Track track) {
+        mTrackCache.put(track.id, track);
     }
 
-    public void uncacheComments(long track_id) {
-        mCommentCache.remove(track_id);
+    public Track getTrackFromCache(long track_id) {
+        return mTrackCache.get(track_id);
     }
 
-    public List<Comment> getCommentsFromCache(long track_id) {
-        return mCommentCache.get(track_id);
-    }
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));

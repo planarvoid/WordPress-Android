@@ -121,8 +121,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private LoadCommentsTask mLoadCommentsTask;
 
-    private List<Comment> mCurrentComments;
-
     private RelativeLayout mContainer;
 
     private int mInitialX = -1;
@@ -274,7 +272,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         super.onServiceBound();
 
         try {
-            if (mPlaybackService.getTrack() != null) {
+            if (mPlaybackService.getTrackId() != -1) {
                 if (mPlaybackService.isBuffering()) {
                     mWaveformController.showConnectingLayout();
                 } else {
@@ -460,7 +458,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         return (mTrackFlipper.getDisplayedChild() == 0);
     }
 
+    @Override
+    public void onRefresh(){
+        mTrackInfoFilled = false;
+        mTrackInfoCommentsFilled = false;
+    }
+
     private void onTrackInfoFlip() {
+
         if (mTrackFlipper.getDisplayedChild() == 0) {
             mWaveformController.closeComment();
 
@@ -518,6 +523,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         protected void onPostExecute(Track result) {
             super.onPostExecute(result);
             mPlayingTrack = result;
+            getSoundCloudApplication().cacheTrack(mPlayingTrack);
             fillTrackDetails();
             onDetailsResult(result != null);
         }
@@ -620,11 +626,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
 
-        if (mCurrentComments == null)
+        if (mPlayingTrack.comments == null)
             return;
 
         //sort by created date descending for this list
-        Collections.sort(mCurrentComments, new Comment.CompareCreatedAt());
+        Collections.sort(mPlayingTrack.comments, new Comment.CompareCreatedAt());
 
 
 
@@ -635,7 +641,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         int spanStartIndex;
         int spanEndIndex;
 
-        for (Comment comment : mCurrentComments){
+        for (Comment comment : mPlayingTrack.comments){
             commentText.clear();
 
             View v = new View(this);
@@ -673,7 +679,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
         //restore default sort
-        Collections.sort(mCurrentComments, new Comment.CompareTimestamp());
+        Collections.sort(mPlayingTrack.comments, new Comment.CompareTimestamp());
 
     }
 
@@ -822,22 +828,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void updateTrackInfo() {
+        if (mPlaybackService == null)
+            return;
 
+        try {
+            long trackId = mPlaybackService.getTrackId();
+            if (trackId == -1) {
+                mPlayingTrack = null;
+            } else if (mPlayingTrack == null || mPlayingTrack.id != trackId)
+                mPlayingTrack = getSoundCloudApplication().getTrackFromCache(trackId) == null ?
+                        mPlaybackService.getTrack() : getSoundCloudApplication().getTrackFromCache(trackId);
 
-        if (mPlaybackService != null) {
-            try {
-                if (mPlaybackService.getTrack() == null){
-                    mWaveformController.clearTrack();
-                    return;
-                }
-
-                if (mPlayingTrack == null || mPlayingTrack.id != mPlaybackService.getTrackId())
-                    mPlayingTrack = mPlaybackService.getTrack();
-
-            } catch (RemoteException e) {
-                Log.e(TAG, "error", e);
-            }
-        }
+        } catch (RemoteException ignored) {}
 
         if (mPlayingTrack == null) {
             mWaveformController.clearTrack();
@@ -846,6 +848,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mWaveformController.updateTrack(mPlayingTrack);
         updateArtwork();
+
         if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
             mTrackInfoFilled = false;
@@ -854,8 +857,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             mCurrentTrackId = mPlayingTrack.id;
 
-            mCurrentComments = getSoundCloudApplication().getCommentsFromCache(mPlayingTrack.id);
-            if (mCurrentComments != null){
+            mPlayingTrack.comments = mPlayingTrack.comments;
+            if (mPlayingTrack.comments != null){
               refreshComments(true);
             } else if (mLoadCommentsTask == null) {
                 startCommentLoading();
@@ -1108,7 +1111,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[] {
-                mPlayingTrack, mLoadTrackDetailsTask, mLoadCommentsTask, mCurrentComments
+                mPlayingTrack, mLoadTrackDetailsTask, mLoadCommentsTask, mPlayingTrack.comments
         };
     }
 
@@ -1196,23 +1199,22 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         @Override
         protected void onPostExecute(List<Comment> comments) {
             if (comments != null) {
-                getSoundCloudApplication().cacheComments(track_id, comments);
-                if (mPlayerRef != null && mPlayerRef.get() != null) mPlayerRef.get().onCommentsLoaded(track_id, comments);
+                if (getSoundCloudApplication().getTrackFromCache(track_id) != null){
+                    getSoundCloudApplication().getTrackFromCache(track_id).comments = comments;
+                    if (mPlayerRef != null && mPlayerRef.get() != null) mPlayerRef.get().onCommentsLoaded(track_id, comments);
+                }
             }
         }
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        if (track_id == mPlayingTrack.id) {
-            mCurrentComments = comments;
-            refreshComments(true);
-        }
+        if (track_id == mPlayingTrack.id) refreshComments(true);
     }
 
     private void refreshComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
         if (mTrackFlipper.getDisplayedChild() == 1) fillTrackInfoComments();
-        if (mLandscape) mWaveformController.setComments(mCurrentComments, animateIn);
+        if (mLandscape) mWaveformController.setComments(mPlayingTrack.comments, animateIn);
     }
 
     @Override
@@ -1231,11 +1233,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (c.track_id != mPlayingTrack.id || !success)
             return;
 
-            if (mCurrentComments == null)
-                mCurrentComments = new ArrayList<Comment>();
+            if (mPlayingTrack.comments == null)
+                mPlayingTrack.comments = new ArrayList<Comment>();
 
-            mCurrentComments.add(c);
-            getSoundCloudApplication().cacheComments(mPlayingTrack.id, mCurrentComments);
+            mPlayingTrack.comments.add(c);
+            getSoundCloudApplication().cacheTrack(mPlayingTrack);
             refreshComments(true);
 
         }

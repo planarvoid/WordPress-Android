@@ -88,7 +88,7 @@ public class Track extends BaseObj implements Parcelable {
     public int shared_to_count;
 
     // Fields used by app
-
+    public List<Comment> comments;
     public boolean user_played;
     public File mCacheFile;
     public long filelength;

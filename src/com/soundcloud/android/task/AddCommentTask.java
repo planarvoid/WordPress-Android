@@ -1,10 +1,11 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
+
 import org.apache.http.HttpStatus;
 
 import android.os.AsyncTask;
@@ -45,7 +46,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean success) {
-        if (success) mApplication.uncacheComments(mAddComment.track_id);
+        if (success) mApplication.getTrackFromCache(mAddComment.track_id).comments = null;
 
         if (mAddCommentListener != null) {
             mAddCommentListener.onCommentAdd(success, mAddComment);
