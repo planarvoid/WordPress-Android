@@ -46,8 +46,6 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean success) {
-        if (success) mApplication.getTrackFromCache(mAddComment.track_id).comments = null;
-
         if (mAddCommentListener != null) {
             mAddCommentListener.onCommentAdd(success, mAddComment);
             if (mException != null) mAddCommentListener.onException(mAddComment,mException);

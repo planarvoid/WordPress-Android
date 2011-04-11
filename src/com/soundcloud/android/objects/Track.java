@@ -2,7 +2,10 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudDB.Tracks;
+import com.soundcloud.android.task.LoadCommentsTask;
+import com.soundcloud.android.task.LoatTrackInfoTask;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentValues;
@@ -70,14 +73,13 @@ public class Track extends BaseObj implements Parcelable {
 
     public User user;
 
-    public String stream_url; // if track is streamable
+    public String stream_url;
 
-    public int user_playback_count; // if user is logged in, 1 or 0
-    public boolean user_favorite;   // ditto, and has favorited track
+    public int user_playback_count;
+    public boolean user_favorite;
 
     public CreatedWith created_with;
     public String attachments_uri;
-
 
     public String download_url;  // if track downloadable or current user = owner
 
@@ -88,10 +90,22 @@ public class Track extends BaseObj implements Parcelable {
     public int shared_to_count;
 
     // Fields used by app
+    @JsonIgnore
     public List<Comment> comments;
-    public boolean user_played;
+    @JsonIgnore
     public File mCacheFile;
+    @JsonIgnore
     public long filelength;
+    @JsonIgnore
+    public boolean user_played;
+    @JsonIgnore
+    public LoatTrackInfoTask load_info_task;
+    @JsonIgnore
+    public LoadCommentsTask load_comments_task;
+    @JsonIgnore
+    public boolean info_loaded;
+    @JsonIgnore
+    public boolean comments_loaded;
 
 
     public List<String> humanTags() {
@@ -147,6 +161,15 @@ public class Track extends BaseObj implements Parcelable {
                     Log.e(TAG, "error", e);
                 }
         }
+    }
+
+    public void setAppFields(Track t){
+        comments = t.comments;
+        mCacheFile = t.mCacheFile;
+        filelength = t.filelength;
+        user_played = t.user_played;
+        info_loaded = t.info_loaded;
+        comments_loaded = t.comments_loaded;
     }
 
     public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
@@ -247,4 +270,5 @@ public class Track extends BaseObj implements Parcelable {
     private String getCCLink(String license) {
         return "http://creativecommons.org/licenses/"+license+"/3.0";
     }
+
 }
