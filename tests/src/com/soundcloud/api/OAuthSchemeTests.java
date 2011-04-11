@@ -2,15 +2,18 @@ package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.http.Header;
+import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.MalformedChallengeException;
 import org.apache.http.message.BasicHeader;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -99,5 +102,12 @@ public class OAuthSchemeTests extends BaseApiTest {
     @Test
     public void shouldAlwaysBeComplete() throws Exception {
         assertThat(scheme.isComplete(), is(true));
+    }
+
+    @Test
+    public void shouldExtractToken() throws Exception {
+        assertThat(OAuthScheme.extractToken(new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth 1234")), equalTo("1234"));
+        assertThat(OAuthScheme.extractToken(new BasicHeader("Random", "OAuth 1234")), nullValue());
+        assertThat(OAuthScheme.extractToken(new BasicHeader(AUTH.WWW_AUTH_RESP, "Foo 1234")), nullValue());
     }
 }

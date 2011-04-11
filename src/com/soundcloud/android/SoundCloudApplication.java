@@ -12,7 +12,9 @@ import com.soundcloud.api.Http;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -319,6 +321,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.login(username, password);
     }
 
+    @Deprecated
     public String signUrl(String path) {
         return mCloudApi.signUrl(path);
     }

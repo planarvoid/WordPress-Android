@@ -41,6 +41,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ApiWrapper implements CloudAPI {
+    public static final String INVALIDATED_TOKEN = "invalidated";
+
     private DefaultHttpClient httpClient;
     private String mClientId, mClientSecret;
     private String mToken, mRefreshToken;
@@ -87,10 +89,10 @@ public class ApiWrapper implements CloudAPI {
     @Override public ApiWrapper refreshToken() throws IOException {
         if (mRefreshToken == null) throw new IllegalStateException("no refresh token available");
         Http.Params p = new Http.Params(
-                "grant_type",    REFRESH_TOKEN,
-                "client_id",     mClientId,
-                "client_secret", mClientSecret,
-                "refresh_token", mRefreshToken);
+            "grant_type",    REFRESH_TOKEN,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret,
+            "refresh_token", mRefreshToken);
         requestToken(p);
         return this;
     }
@@ -107,7 +109,8 @@ public class ApiWrapper implements CloudAPI {
         return this;
     }
 
-    @Override public void invalidateToken() {
+    @Override
+    public void invalidateToken() {
         final String token = mToken;
         if (token != null) {
             for (TokenStateListener l : listeners) {
@@ -116,7 +119,6 @@ public class ApiWrapper implements CloudAPI {
             mToken = null;
         }
     }
-
 
     private void requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
@@ -128,7 +130,6 @@ public class ApiWrapper implements CloudAPI {
         final String json = Http.getString(response);
 
         if (json == null) throw new IOException("JSON response is empty");
-
         try {
             JSONObject resp = new JSONObject(json);
 
@@ -171,7 +172,7 @@ public class ApiWrapper implements CloudAPI {
         return SSLSocketFactory.getSocketFactory();
     }
 
-    protected HttpClient getHttpClient() {
+    public HttpClient getHttpClient() {
         if (httpClient == null) {
             final HttpParams params = getParams();
             // we handle redirects ourselves
@@ -297,7 +298,7 @@ public class ApiWrapper implements CloudAPI {
     }
 
     public static Header getOAuthHeader(String token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " + (token == null ? "invalidated" : token));
+        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " + (token == null ? INVALIDATED_TOKEN : token));
     }
 
     protected HttpRequest addAuthorization(HttpRequest request) {
@@ -308,7 +309,7 @@ public class ApiWrapper implements CloudAPI {
         return request;
     }
 
-    protected HttpResponse execute(HttpRequest req) throws IOException {
+    public HttpResponse execute(HttpRequest req) throws IOException {
         return getHttpClient().execute(mEnv.sslHost, addAuthorization(req));
     }
 

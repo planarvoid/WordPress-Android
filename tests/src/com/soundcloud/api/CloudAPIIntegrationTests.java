@@ -19,8 +19,8 @@ import java.io.InputStream;
 @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
 public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.Enddpoints {
     // http://sandbox-soundcloud.com/you/apps/java-api-wrapper-test-app
-    static String CLIENT_ID     = "q5j4npURSeUkYsuy4i31A";
-    static String CLIENT_SECRET = "a7qKel16TRefRruWL5GrSVK0lnvhw9gnwAjhNyVxxtY";
+    static String CLIENT_ID     = "yH1Jv2C5fhIbZfGTpKtujQ";
+    static String CLIENT_SECRET = "C6o8jc517b6PIw0RKtcfQsbOK3BjGpxWFLg977UiguY";
 
     CloudAPI api;
 

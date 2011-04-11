@@ -20,11 +20,15 @@ import org.apache.http.util.CharArrayBuffer;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OAuthScheme implements AuthScheme {
     public HashMap<String, String> mParams;
     public HttpParams mHttpParams;
     private CloudAPI mApi;
+
+    public static Pattern AUTHORIZATION_HEADER_PATTERN = Pattern.compile("OAuth (\\w+)");
 
     public OAuthScheme(CloudAPI api, HttpParams params) {
         mApi = api;
@@ -59,13 +63,22 @@ public class OAuthScheme implements AuthScheme {
 
     @Override
     public Header authenticate(Credentials credentials, HttpRequest request) throws AuthenticationException {
-        mApi.invalidateToken();
-        try {
-            return ApiWrapper.getOAuthHeader(mApi.refreshToken().getToken());
-        } catch (IOException e) {
-            throw new AuthenticationException("Error refreshing token", e);
-        } catch (IllegalStateException e) {
-            throw new AuthenticationException("Error refreshing token", e);
+        final String usedToken = extractToken(request);
+        // make sure only one refresh request gets sent out
+        synchronized (OAuthScheme.class) {
+            final String apiToken = mApi.getToken();
+            if (apiToken == null || apiToken.equals(usedToken)) {
+                mApi.invalidateToken();
+                try {
+                    mApi.refreshToken() ;
+                } catch (IOException e) {
+                    throw new AuthenticationException("Error refreshing token", e);
+                } catch (IllegalStateException e) {
+                    throw new AuthenticationException("Error refreshing token", e);
+                }
+            }
+            final String token = mApi.getToken();
+            return ApiWrapper.getOAuthHeader(token);
         }
     }
 
@@ -113,6 +126,20 @@ public class OAuthScheme implements AuthScheme {
         }
         for (HeaderElement element : elements) {
             this.mParams.put(element.getName(), element.getValue());
+        }
+    }
+
+    static String extractToken(HttpRequest r) {
+        return (r == null) ? null : extractToken(r.getFirstHeader(AUTH.WWW_AUTH_RESP));
+    }
+
+    static String extractToken(Header h) {
+        if (h ==null || h.getValue() == null) return null;
+        if (AUTH.WWW_AUTH_RESP.equalsIgnoreCase(h.getName())) {
+            Matcher m = AUTHORIZATION_HEADER_PATTERN.matcher(h.getValue());
+            return m.matches() ? m.group(1) : null;
+        } else {
+            return null;
         }
     }
 

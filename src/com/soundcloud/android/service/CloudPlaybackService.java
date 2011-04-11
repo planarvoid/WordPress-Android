@@ -31,15 +31,13 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
-import com.soundcloud.api.Http;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -55,6 +53,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.AndroidHttpClient;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
@@ -1948,6 +1947,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
+    // XXX should be static / outer class
     public class StoppableDownloadThread extends Thread {
 
         private HttpGet mMethod = null;
@@ -2025,7 +2025,9 @@ public class CloudPlaybackService extends Service {
 
         @Override
         public void run() {
-            HttpClient cli = new DefaultHttpClient(Http.defaultParams());
+            SoundCloudApplication app = (SoundCloudApplication) serviceRef.get().getApplication();
+            AndroidHttpClient cli = AndroidHttpClient.newInstance("SoundCloud Android");
+
             HttpGet method;
 
             HttpResponse resp;
@@ -2034,18 +2036,26 @@ public class CloudPlaybackService extends Service {
             FileOutputStream os = null;
 
             try {
+                resp = app.getContent(track.stream_url);
+                if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) {
+                  Log.i(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
+                  return;
+                }
+
+                final String streamUrl = resp.getFirstHeader("Location").getValue();
+
                 if (track.mCacheFile.length() > 0 && track.filelength > 0) {
                     if (track.mCacheFile.length() >= track.filelength) {
                         mode = MODE_CHECK_COMPLETE;
 
-                        HttpHead request = new HttpHead(((SoundCloudApplication) serviceRef.get()
-                                .getApplication()).signUrl(track.stream_url));
+                        HttpUriRequest request = new HttpHead(streamUrl);
                         resp = cli.execute(request);
 
-                        if (resp.getStatusLine().getStatusCode() != 200) {
+                        if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                             Log.i(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
                             return;
                         }
+
                         // rare case, file length has changed for some reason
                         if (track.filelength != Long.parseLong(resp.getHeaders("content-length")[0]
                                 .getValue())) {
@@ -2055,16 +2065,13 @@ public class CloudPlaybackService extends Service {
                     } else {
                         Log.i(TAG,"Resuming partial download of " + track.title);
                         mode = MODE_PARTIAL;
-                        method = new HttpGet(((SoundCloudApplication) serviceRef.get()
-                                .getApplication()).signUrl(track.stream_url));
+                        method = new HttpGet(streamUrl);
                         method.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
                     }
 
                 } else {
                     mode = MODE_NEW;
-                    method = new HttpGet(
-                            ((SoundCloudApplication) serviceRef.get().getApplication())
-                                    .signUrl(track.stream_url));
+                    method = new HttpGet(streamUrl);
                 }
 
                 if (mStopped) return;
@@ -2157,13 +2164,12 @@ public class CloudPlaybackService extends Service {
                 }
 
                 /* Close the socket (if it's still open) and cleanup. */
-                cli.getConnectionManager().shutdown();
+                cli.close();
 
                 if (serviceRef.get() != null)
                     serviceRef.get().onDownloadThreadDeath(this);
 
             }
-
         }
     }
 

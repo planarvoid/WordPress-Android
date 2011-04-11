@@ -1,7 +1,9 @@
 package com.soundcloud.api;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.content.ContentBody;
 
 import java.io.IOException;
@@ -37,7 +39,6 @@ public interface CloudAPI {
      */
     CloudAPI refreshToken() throws IOException;
 
-
     /**
      * Exchange an OAuth1 Token for new OAuth2 tokens
      * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
@@ -60,6 +61,7 @@ public interface CloudAPI {
     HttpResponse deleteContent(String resource) throws IOException;
 
     /** Adds current access token to url */
+    @Deprecated
     String signUrl(String url);
 
     /**
@@ -92,8 +94,6 @@ public interface CloudAPI {
 
     void updateTokens(String access, String refresh);
     void addTokenStateListener(TokenStateListener listener);
-
-
 
     enum Env {
         LIVE("api.soundcloud.com"),

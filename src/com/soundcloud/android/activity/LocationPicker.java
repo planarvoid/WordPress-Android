@@ -158,6 +158,7 @@ public class LocationPicker extends ListActivity {
         @Override
         protected List<Venue> doInBackground(Location... locations) {
             Location loc = locations[0];
+            // XXX: AndroidHttpClient
             HttpClient client = new DefaultHttpClient(Http.defaultParams());
             HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
 
