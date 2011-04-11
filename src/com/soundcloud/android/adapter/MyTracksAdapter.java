@@ -41,6 +41,10 @@ public class MyTracksAdapter extends TracklistAdapter {
         return new MyTracklistRow(mActivity, this);
     }
 
+    public int getPendingRecordingsCount(){
+        return mRecordingData == null ? 0 : mRecordingData.size();
+    }
+
 
     public void refreshCursor() {
 
