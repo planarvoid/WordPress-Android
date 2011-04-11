@@ -97,6 +97,9 @@ public class MyTracklistRow extends TracklistRow {
                 setBackgroundColor(mActivity.getResources()
                         .getColor(R.color.recordUploadBackground));
             }
+        } else {
+            setBackgroundColor(0x00000000);
         }
+
     }
 }
