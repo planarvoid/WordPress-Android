@@ -53,4 +53,9 @@ Bad:
         super.onServiceUnbound();
     }
 
+## Code provenance
+
+Please add links for non-trivial snippets of code taken from other sources (Stackoverflow etc.)
+
+
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
