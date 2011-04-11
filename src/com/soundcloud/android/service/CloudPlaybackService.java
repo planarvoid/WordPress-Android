@@ -31,6 +31,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -852,6 +853,7 @@ public class CloudPlaybackService extends Service {
                     }
 
                 } else if (!checkNetworkStatus()) {
+                    Log.i(TAG,"Paused for buffering, no network, send error");
                     sendDownloadException();
                     return false;
                 }
@@ -959,6 +961,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void sendDownloadException() {
+        //new Exception().printStackTrace();
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 
@@ -974,7 +977,7 @@ public class CloudPlaybackService extends Service {
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-                    if (mCurrentDownloadAttempts >= MAX_DOWNLOAD_ATTEMPTS){
+                    if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS){
                         prepareDownload(mPlayingData);
                     } else if (pausedForBuffering){
                         sendDownloadException();
@@ -1160,14 +1163,14 @@ public class CloudPlaybackService extends Service {
 
     private void gotoIdleState(boolean killBuffer) {
         if (killBuffer) {
-            mBufferHandler.removeCallbacksAndMessages(BUFFER_CHECK);
+            mBufferHandler.removeMessages(BUFFER_CHECK);
             initialBuffering = false;
             pausedForBuffering = false;
         }
 
         mIsSupposedToBePlaying = false;
-        mBufferHandler.removeCallbacksAndMessages(BUFFER_FILL_CHECK);
-        mBufferHandler.removeCallbacksAndMessages(START_NEXT_TRACK);
+        mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
+        mBufferHandler.removeMessages(START_NEXT_TRACK);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         Message msg = mDelayedStopHandler.obtainMessage();
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
