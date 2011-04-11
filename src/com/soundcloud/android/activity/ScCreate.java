@@ -484,8 +484,9 @@ public class ScCreate extends ScActivity {
                         .contentEquals("compressed")) {
             //force raw for developer mode
             mAudioProfile = Profile.RAW;
-        } else
+        } else  {
             mAudioProfile = hiQ ? Profile.best() : Profile.low();
+        }
 
         mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
 
