@@ -32,6 +32,7 @@ import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -891,8 +892,6 @@ public class CloudPlaybackService extends Service {
     /**
      * queue a buffer check if we aren't paused and call one right away
      * depending on the param
-     *
-     * @param instant
      */
     private void assertBufferCheck(boolean instant) {
         if (!mAutoPause) {
@@ -992,13 +991,15 @@ public class CloudPlaybackService extends Service {
                 .length() >= track.filelength);
     }
 
+    @SuppressWarnings({"SimplifiableIfStatement"})
     public boolean keepCaching() {
         // we aren't playing and are not supposed to be caching during pause
-        if (!mIsSupposedToBePlaying && !mCacheOnPause)
+        if (!mIsSupposedToBePlaying && !mCacheOnPause) {
             return false;
-
-        return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+        } else {
+            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
                 || mCurrentBuffer < HIGH_WATER_MARK;
+        }
     }
 
     /**
@@ -1754,8 +1755,7 @@ public class CloudPlaybackService extends Service {
                     seek(0);
                 } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
                     // Someone asked us to refresh a set of specific widgets,
-                    // probably
-                    // because they were just added.
+                    // probably because they were just added.
                     int[] appWidgetIds = intent
                             .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                     mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds);
@@ -2041,16 +2041,23 @@ public class CloudPlaybackService extends Service {
             try {
                 resp = app.getContent(track.stream_url);
                 if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) {
-                  Log.i(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
+                  Log.w(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
                   return;
                 }
 
-                final String streamUrl = resp.getFirstHeader("Location").getValue();
+                Header location = resp.getFirstHeader("Location");
+                if (location == null) {
+                    Log.w(TAG, "no location header found");
+                    return;
+                }
+
+                final String streamUrl = location.getValue();
 
                 if (track.mCacheFile.length() > 0 && track.filelength > 0) {
                     if (track.mCacheFile.length() >= track.filelength) {
                         mode = MODE_CHECK_COMPLETE;
 
+                        // XXX HttpHead logs extra play
                         HttpUriRequest request = new HttpHead(streamUrl);
                         resp = cli.execute(request);
 
@@ -2071,7 +2078,6 @@ public class CloudPlaybackService extends Service {
                         method = new HttpGet(streamUrl);
                         method.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-"); // get
                     }
-
                 } else {
                     mode = MODE_NEW;
                     method = new HttpGet(streamUrl);
