@@ -5,12 +5,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
 
-public class LoatTrackInfoTask extends LoadTask<Track> {
+public class LoadTrackInfoTask extends LoadTask<Track> {
     private SoundCloudApplication mApp;
 
     private long mTrackId;
 
-    public LoatTrackInfoTask(SoundCloudApplication app, long trackId) {
+    public LoadTrackInfoTask(SoundCloudApplication app, long trackId) {
         super(app, Track.class);
         mApp = app;
         mTrackId = trackId;

@@ -11,7 +11,7 @@ import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.LoatTrackInfoTask;
+import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -564,7 +564,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
 
             if (mPlayingTrack.load_info_task == null || CloudUtils.isTaskFinished(mPlayingTrack.load_info_task))
-                mPlayingTrack.load_info_task = new LoatTrackInfoTask(getSoundCloudApplication(), mPlayingTrack.id);
+                mPlayingTrack.load_info_task = new LoadTrackInfoTask(getSoundCloudApplication(), mPlayingTrack.id);
 
             mPlayingTrack.load_info_task.setActivity(this);
             if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task))

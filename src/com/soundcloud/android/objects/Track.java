@@ -3,7 +3,7 @@ package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudDB.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.LoatTrackInfoTask;
+import com.soundcloud.android.task.LoadTrackInfoTask;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -99,7 +99,7 @@ public class Track extends BaseObj implements Parcelable {
     @JsonIgnore
     public boolean user_played;
     @JsonIgnore
-    public LoatTrackInfoTask load_info_task;
+    public LoadTrackInfoTask load_info_task;
     @JsonIgnore
     public LoadCommentsTask load_comments_task;
     @JsonIgnore
