@@ -57,5 +57,25 @@ Bad:
 
 Please add links for non-trivial snippets of code taken from other sources (Stackoverflow etc.)
 
+## Vertical whitespace
+
+Try to avoid adding unnecessary vertical whitespace:
+
+Bad:
+
+     private String mDurationFormatLong;
+
+     private String mDurationFormatShort;
+
+     private String mCurrentDurationString;
+
+Good:
+
+     private String mDurationFormatLong;
+     private String mDurationFormatShort;
+     private String mCurrentDurationString;
+
+     // or alternatively, when grouping makes sense:
+     private String mCurrentDurationString, mDurationFormatShort, mCurrentDurationString;
 
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
