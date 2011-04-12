@@ -102,6 +102,16 @@ public class Main extends TabActivity {
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
+        /*
+        RelativeLayout recordTab = (RelativeLayout) ((TabWidget) findViewById(android.R.id.tabs)).getChildAt(3);
+        recordTab.removeAllViews();
+        ImageView tabImage = new ImageView(this);
+        tabImage.setScaleType(ScaleType.CENTER);
+        tabImage.setImageResource(R.drawable.ic_contact_list_picture);
+        recordTab.addView(tabImage);
+        tabImage.getLayoutParams().width = LayoutParams.FILL_PARENT;
+         */
+
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {

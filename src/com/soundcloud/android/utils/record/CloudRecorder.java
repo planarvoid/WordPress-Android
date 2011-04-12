@@ -47,10 +47,9 @@ public class CloudRecorder {
     public static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
 
     // The interval in which the recorded samples are output to the file
-    // Used only in uncompressed mode
     public static final int TIMER_INTERVAL = 50;
 
-    // Recorder used for uncompressed recording
+    // Recorder used for raw recording
     private AudioRecord mAudioRecord = null;
 
     // Recorder used for compressed recording
@@ -62,7 +61,7 @@ public class CloudRecorder {
     // Recorder state; see State
     private State mState;
 
-    // File writer (only in uncompressed mode)
+    // File writer (only in raw mode)
     private RandomAccessFile mWriter;
 
     // Number of channels, sample rate, sample size(size in bits), buffer size,
@@ -79,11 +78,8 @@ public class CloudRecorder {
 
     private Thread readerThread = null;
 
-    // Number of frames written to file on each output(only in uncompressed
-    // mode)
     private int framePeriod;
 
-    // Buffer for output(only in uncompressed mode)
     private byte[] buffer;
 
     private CloudCreateService service;
@@ -191,7 +187,7 @@ public class CloudRecorder {
      * Prepares the recorder for recording, in case the recorder is not in the
      * INITIALIZING state and the file path was not set the recorder is set to
      * the ERROR state, which makes a reconstruction necessary. In case
-     * uncompressed recording is toggled, the header of the wave file is
+     * raw recording is toggled, the header of the wave file is
      * written. In case of an exception, the state is changed to ERROR
      */
     public void prepare() {
@@ -302,7 +298,7 @@ public class CloudRecorder {
     /**
      * Stops the recording, and sets the state to STOPPED. In case of further
      * usage, a reset is needed. Also finalizes the wave file in case of
-     * uncompressed recording.
+     * raw recording.
      */
     public void stop() {
         if (mState == State.RECORDING) {

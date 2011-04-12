@@ -556,7 +556,7 @@
   <string name="low">Low</string>
   <string name="high">High</string>
   <string name="compressed">Compressed</string>
-  <string name="uncompressed">Uncompressed</string>
+  <string name="raw">Raw</string>
 
   <!-- used in various places to indicate there is one song for a given artist or album -->
     <string name="onesong">1 song</string>

@@ -14,7 +14,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -86,7 +85,7 @@ public class Settings extends PreferenceActivity {
         );
         recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
 
-        if (!SoundCloudApplication.DEV_MODE && Build.VERSION.SDK_INT >= 10)
+        if (!SoundCloudApplication.DEV_MODE)
             this.getPreferenceScreen().removePreference(findPreference("defaultRecordingHighQualityType"));
 
     }

@@ -68,12 +68,12 @@
 
     <string-array name="pref_record_high_quality_type_entries">
         <item>@string/compressed</item>
-        <item>@string/uncompressed</item>
+        <item>@string/raw</item>
     </string-array>
 
     <string-array name="pref_record_high_quality_type_values">
         <item>compressed</item>
-        <item>uncompressed</item>
+        <item>raw</item>
     </string-array>
 
     <string-array name="debug_sigs">

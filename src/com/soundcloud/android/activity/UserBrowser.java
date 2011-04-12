@@ -172,7 +172,7 @@ public class UserBrowser extends ScActivity {
         updateFilter.addAction(FAVORITE_CHANGED);
         updateFilter.addAction(FOLLOWING_CHANGED);
         updateFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
-        this.registerReceiver(mUpdateAdapterListener, updateFilter);
+        //this.registerReceiver(mUpdateAdapterListener, updateFilter);
 
         loadDetails();
     }
@@ -180,7 +180,7 @@ public class UserBrowser extends ScActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.unregisterReceiver(mUpdateAdapterListener);
+        //this.unregisterReceiver(mUpdateAdapterListener);
     }
 
 

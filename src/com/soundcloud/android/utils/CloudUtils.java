@@ -135,7 +135,6 @@ public class CloudUtils {
         checkDirs(c);
 
         File f = new File(DEPRECATED_DB_ABS_PATH);
-        Log.i(TAG,"!!!!!!! looking for db " + f.exists());
         if (f.exists()) {
             File newDb = new File(NEW_DB_ABS_PATH);
             if (newDb.exists()) {
