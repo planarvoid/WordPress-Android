@@ -146,6 +146,9 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     public void prepareForUpload(){
+        // XXX enforce proper construction
+        if (audio_path == null) throw new IllegalStateException("need audio_path set");
+
         upload_data = new HashMap<String, Object>();
         upload_data.put(CloudAPI.TrackParams.SHARING, is_private ? CloudAPI.TrackParams.PRIVATE : CloudAPI.TrackParams.PUBLIC);
         upload_data.put(CloudAPI.TrackParams.DOWNLOADABLE, false);

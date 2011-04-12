@@ -12,9 +12,7 @@ import com.soundcloud.api.Http;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -26,6 +24,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
@@ -107,13 +106,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         });
 
         try {
-            String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);
-            String currentSignature = getPackageManager().getPackageInfo("com.soundcloud.android",
-                    PackageManager.GET_SIGNATURES).signatures[0].toCharsString();
-            Arrays.sort(debugKeys);
-            if (Arrays.binarySearch(debugKeys, currentSignature) > -1) DEV_MODE = true;
-
-        } catch (NameNotFoundException e) {}
+             PackageInfo info = getPackageManager().getPackageInfo(
+                     "com.soundcloud.android",
+                     PackageManager.GET_SIGNATURES);
+            if (info != null && info.signatures != null) {
+                String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);
+                String currentSignature =  info.signatures[0].toCharsString();
+                Arrays.sort(debugKeys);
+                if (Arrays.binarySearch(debugKeys, currentSignature) > -1) DEV_MODE = true;
+            }
+        } catch (NameNotFoundException ignored) {}
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {

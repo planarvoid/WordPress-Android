@@ -65,6 +65,9 @@ public class ScUploadTests implements CloudAPI.TrackParams {
         return captor.getValue();
     }
 
+    // XXX
+    // TODO: move tests to RecordingTests where appropriate
+
     @Test
     public void shouldUseUserTitleIfPresent() throws Exception {
         create.mWhatText.setText("my soundz");
@@ -93,42 +96,6 @@ public class ScUploadTests implements CloudAPI.TrackParams {
     public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
         Map args = upload();
         assertEquals("Sounds from Thursday afternoon", args.get(TITLE));
-    }
-
-    @Test
-    public void shouldGenerateANiceSharingNoteIfNoUserInputPresent() throws Exception {
-        Map args = upload(true);
-
-        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
-        assertEquals("Sounds from Thursday afternoon", args.get(SHARING_NOTE));
-    }
-
-    @Test
-    public void shouldGenerateASharingNoteWithLocation() throws Exception {
-        create.mWhereText.setText("Mars");
-        Map args = upload(true);
-
-        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
-        assertEquals("Sounds from Mars", args.get(SHARING_NOTE));
-    }
-
-    @Test
-    public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
-        create.mWhatText.setText("Party");
-        create.mWhereText.setText("Mars");
-        Map args = upload(true);
-
-        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
-        assertEquals("Party at Mars", args.get(SHARING_NOTE));
-    }
-
-    @Test
-    public void shouldGenerateASharingNoteWithTitle() throws Exception {
-        create.mWhatText.setText("Party");
-        Map args = upload(true);
-
-        assertNotNull("A sharing note should be present", args.get(SHARING_NOTE));
-        assertEquals("Party", args.get(SHARING_NOTE));
     }
 
     @Test
@@ -164,14 +131,6 @@ public class ScUploadTests implements CloudAPI.TrackParams {
         assertThat(tags, hasItem("soundcloud:source=android-record"));
     }
 
-    @Test
-    public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
-        Map args = upload();
-
-        assertThat(args.get(TAG_LIST), not(is(nullValue())));
-        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags, hasItem("soundcloud:source=android-3rdparty-upload"));
-    }
 
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {

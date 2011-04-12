@@ -689,7 +689,7 @@ public class CloudCreateService extends Service {
 
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
-            intent.putExtra("isPrivate", params.get(CloudAPI.TrackParams.SHARING) == CloudAPI.TrackParams.PRIVATE);
+            intent.putExtra("isPrivate", params.get(CloudAPI.TrackParams.SHARING).equals(CloudAPI.TrackParams.PRIVATE));
             sendBroadcast(intent);
 
             ContentValues cv = new ContentValues();

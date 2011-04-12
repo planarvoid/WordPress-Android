@@ -30,7 +30,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         private boolean failed;
         public final boolean encode;
 
-        public final long local_recording_id;
+        public long local_recording_id;
 
         public final File trackFile, encodedFile;
         public final File artworkFile;
@@ -46,7 +46,9 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public Params(Map<String, ?> map) {
             this.map = map;
             this.encode = map.remove(ENCODE) != null;
-            this.local_recording_id = (Long) map.remove(LOCAL_RECORDING_ID);
+            if (map.containsKey(LOCAL_RECORDING_ID)) {
+                this.local_recording_id = (Long) map.remove(LOCAL_RECORDING_ID);
+            }
 
             if (!map.containsKey(SOURCE_PATH)) {
                 throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);

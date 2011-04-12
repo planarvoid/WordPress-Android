@@ -29,9 +29,10 @@ public class OAuthSchemeTests extends BaseApiTest {
 
     @Test
     public void shouldRefreshTokenOnAuthenticate() throws Exception {
-        when(api.getToken()).thenReturn("myt0k3n");
+        when(api.getToken()).thenReturn(null);
         when(api.refreshToken()).thenReturn(api);
         scheme.authenticate(null, null);
+        verify(api).invalidateToken();
         verify(api).refreshToken();
     }
 
