@@ -78,4 +78,11 @@ Good:
      // or alternatively, when grouping makes sense:
      private String mCurrentDurationString, mDurationFormatShort, mCurrentDurationString;
 
+## Dead code
+
+If code is no longer used (ideally set up your IDE to check for this
+automatically) just delete it. No commenting out (it can always be brought back
+using version control).
+
+
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
