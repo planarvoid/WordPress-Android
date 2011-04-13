@@ -382,7 +382,7 @@ public class CloudRecorder {
             }
     }
 
-
+    private int mCurrentAdjustedMaxAmplitude= 0;
 
 
     private final Handler refreshHandler = new Handler() {
@@ -416,10 +416,12 @@ public class CloudRecorder {
                             mLastMax = mCurrentMax;
                         }
 
+                        processPeak(mCurrentMax);
+
                         // hack for not having a proper median. using a square
                         // root normalizes the amplitude and makes a better
                         // looking wave representation
-                        service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentMax))/MAX_ADJUSTED_AMPLITUDE);
+                        service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentAdjustedMaxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
                     }
 
 
@@ -442,7 +444,25 @@ public class CloudRecorder {
         }
     };
 
+    private void processPeak(int input){
+     // halfLife = time in seconds for output to decay to half value after an impulse
 
+        float scalar = (float) Math.pow( 0.5, ((float) 1.0)/(5));
+
+        if( input < 0.0 )
+          input = -input;  /* Absolute value. */
+
+        if ( input >= mCurrentAdjustedMaxAmplitude )
+        {
+           /* When we hit a peak, ride the peak to the top. */
+            mCurrentAdjustedMaxAmplitude = input;
+        }
+        else
+        {
+           /* Exponential decay of output when signal is low. */
+            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * scalar);
+        }
+    }
 
     private void queueNextRefresh(long delay) {
         Message msg = refreshHandler.obtainMessage(REFRESH);
