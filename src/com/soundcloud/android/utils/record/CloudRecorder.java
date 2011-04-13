@@ -44,10 +44,10 @@ public class CloudRecorder {
         INITIALIZING, READY, RECORDING, ERROR, STOPPED
     }
 
-    public static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(32768.0);
+    private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.log(32768.0) -4;
 
     // The interval in which the recorded samples are output to the file
-    public static final int TIMER_INTERVAL = 50;
+    public static final int TIMER_INTERVAL = 20;
 
     // Recorder used for raw recording
     private AudioRecord mAudioRecord = null;
@@ -72,7 +72,7 @@ public class CloudRecorder {
 
     private short mSamples;
 
-    private int mAudioProfile;
+    private final int mAudioProfile;
 
     private float mCurrentMaxAmplitude = 0;
 
@@ -86,9 +86,9 @@ public class CloudRecorder {
 
     private static final int REFRESH = 1;
 
-    private long mLastRefresh = 0;
-
     private int mLastMax = 0;
+
+    private int mCurrentAdjustedMaxAmplitude= 0;
 
     /**
      * Default constructor Instantiates a new recorder, in case of compressed
@@ -279,6 +279,7 @@ public class CloudRecorder {
             if (mAudioProfile == Profile.RAW) {
                 mAudioRecord.startRecording();
                 readerThread = new Thread(new Runnable() {
+                    @Override
                     public void run() { readerRun(); }
                 }, "Audio Reader");
                 readerThread.setPriority(Thread.MAX_PRIORITY);
@@ -307,8 +308,9 @@ public class CloudRecorder {
                 mAudioRecord.stop();
 
                 try {
-                    if (readerThread != null)
+                    if (readerThread != null) {
                         readerThread.join();
+                    }
                 } catch (InterruptedException e) { }
                 readerThread = null;
 
@@ -330,12 +332,7 @@ public class CloudRecorder {
                 mRecorder.stop();
             }
 
-
-            refreshHandler.obtainMessage(REFRESH);
             refreshHandler.removeMessages(REFRESH);
-            mLastRefresh = 0;
-
-
 
         } else {
             Log.e(TAG, "stop() called on illegal state");
@@ -371,19 +368,17 @@ public class CloudRecorder {
 
                 long etime = System.currentTimeMillis();
                 long sleep = TIMER_INTERVAL - (etime - stime);
-                if (sleep < 5)
+                if (sleep < 5) {
                     sleep = 5;
+                }
                 try {
                     buffer.wait(sleep);
                 } catch (InterruptedException e) {
                 }
             }
 
-            }
+        }
     }
-
-    private int mCurrentAdjustedMaxAmplitude= 0;
-
 
     private final Handler refreshHandler = new Handler() {
         @Override
@@ -391,7 +386,9 @@ public class CloudRecorder {
             switch (msg.what) {
                 case REFRESH:
 
-                    if (mState != State.RECORDING) return;
+                    if (mState != State.RECORDING) {
+                        return;
+                    }
 
                     int mCurrentMax = 0;
                     switch (mAudioProfile) {
@@ -416,26 +413,23 @@ public class CloudRecorder {
                             mLastMax = mCurrentMax;
                         }
 
-                        processPeak(mCurrentMax);
+                        if ( mCurrentMax >= mCurrentAdjustedMaxAmplitude )
+                        {
+                            /* When we hit a peak, ride the peak to the top. */
+                            mCurrentAdjustedMaxAmplitude = mCurrentMax;
+                        }
+                        else
+                        {
+                            /*  decay of output when signal is low. */
+                            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .8);
+                        }
 
-                        // hack for not having a proper median. using a square
-                        // root normalizes the amplitude and makes a better
-                        // looking wave representation
-                        service.onRecordFrameUpdate(((float)Math.sqrt(mCurrentAdjustedMaxAmplitude))/MAX_ADJUSTED_AMPLITUDE);
+                        service.onRecordFrameUpdate((float) Math.max(.1,
+                                ((float) Math.log(mCurrentAdjustedMaxAmplitude) - 4)
+                                / MAX_ADJUSTED_AMPLITUDE));
                     }
 
-
-
-                    long next = TIMER_INTERVAL;
-                    if (mLastRefresh == 0) {
-                        mLastRefresh = System.currentTimeMillis();
-                    } else {
-                        long newDelay = TIMER_INTERVAL + TIMER_INTERVAL
-                                - (System.currentTimeMillis() - mLastRefresh);
-                        mLastRefresh = System.currentTimeMillis();
-                        next = newDelay;
-                    }
-                    queueNextRefresh(next);
+                    queueNextRefresh(TIMER_INTERVAL);
                     break;
 
                 default:
@@ -443,26 +437,6 @@ public class CloudRecorder {
             }
         }
     };
-
-    private void processPeak(int input){
-     // halfLife = time in seconds for output to decay to half value after an impulse
-
-        float scalar = (float) Math.pow( 0.5, ((float) 1.0)/(5));
-
-        if( input < 0.0 )
-          input = -input;  /* Absolute value. */
-
-        if ( input >= mCurrentAdjustedMaxAmplitude )
-        {
-           /* When we hit a peak, ride the peak to the top. */
-            mCurrentAdjustedMaxAmplitude = input;
-        }
-        else
-        {
-           /* Exponential decay of output when signal is low. */
-            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * scalar);
-        }
-    }
 
     private void queueNextRefresh(long delay) {
         Message msg = refreshHandler.obtainMessage(REFRESH);
@@ -474,4 +448,6 @@ public class CloudRecorder {
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
     }
+
+
 }
