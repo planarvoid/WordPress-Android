@@ -15,9 +15,8 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
             KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-
             if (event != null &&
-                event.getAction() == KeyEvent.ACTION_DOWN &&
+                event.getAction() == KeyEvent.ACTION_UP &&
                 event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK) {
 
                 ICloudPlaybackService svc =

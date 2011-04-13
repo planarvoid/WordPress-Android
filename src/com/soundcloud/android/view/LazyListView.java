@@ -95,13 +95,12 @@ public class LazyListView extends ListView {
     }
 
     protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
-
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (((LazyBaseAdapter) list.getAdapter()).getCount() <= 0
-                    || position >= ((LazyBaseAdapter) list.getAdapter()).getCount())
+            if (list.getAdapter().getCount() <= 0
+                    || position >= list.getAdapter().getCount())
                 return; // bad list item clicked (possibly loading item)
 
-            if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Track) {
+            if (list.getAdapter().getItem(position) instanceof Track) {
 
                 if (list.getAdapter() instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) list.getAdapter()).getPendingRecordingsCount();
@@ -111,22 +110,22 @@ public class LazyListView extends ListView {
                     mListener.onTrackClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
                 }
 
-            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Event) {
+            } else if (list.getAdapter().getItem(position) instanceof Event) {
 
                 if (mListener != null){
                     mListener.onEventClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
                 }
 
-            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof User) {
+            } else if (list.getAdapter().getItem(position) instanceof User) {
 
                 if (mListener != null){
                     mListener.onUserClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
                 }
 
-            } else if (((LazyBaseAdapter) list.getAdapter()).getItem(position) instanceof Recording) {
+            } else if (list.getAdapter().getItem(position) instanceof Recording) {
 
                 if (mListener != null){
-                    mListener.onRecordingClick((Recording) ((LazyBaseAdapter) list.getAdapter()).getItem(position));
+                    mListener.onRecordingClick((Recording) list.getAdapter().getItem(position));
                 }
             }
         }
@@ -215,23 +214,12 @@ public class LazyListView extends ListView {
         }
     }
 
-    private void postUpdateListIcons() {
-        mActivity.pendingIconsUpdate = true;
-        Handler handler = mScrollHandler;
-        Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS, LazyListView.this);
-        handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
-        handler.sendMessage(message);
-    }
-
-    // Define our custom Listener interface
     public interface LazyListListener {
-        public abstract void onUserClick(ArrayList<Parcelable> users, int position);
-        public abstract void onRecordingClick(Recording recording);
-        public abstract void onTrackClick(ArrayList<Parcelable> tracks, int position);
-        public abstract void onEventClick(ArrayList<Parcelable> events, int position);
-        public abstract void onFling();
-        public abstract void onFlingDone();
+        void onUserClick(ArrayList<Parcelable> users, int position);
+        void onRecordingClick(Recording recording);
+        void onTrackClick(ArrayList<Parcelable> tracks, int position);
+        void onEventClick(ArrayList<Parcelable> events, int position);
+        void onFling();
+        void onFlingDone();
     }
-
-
 }

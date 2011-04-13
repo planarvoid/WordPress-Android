@@ -1216,7 +1216,6 @@ public class CloudPlaybackService extends Service {
                     removeFavorite();
             }
         }
-
     }
 
     public void addFavorite() {

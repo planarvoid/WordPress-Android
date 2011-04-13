@@ -9,27 +9,19 @@ import com.soundcloud.android.view.MyTracklistRow;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Config;
 import android.util.Log;
-import android.widget.FilterQueryProvider;
 
 import java.util.ArrayList;
+import java.util.List;
+
 public class MyTracksAdapter extends TracklistAdapter {
-
-    private static String TAG ="MyTracksAdapter";
-
-    protected Cursor mCursor;
-    protected int mRowIDColumn;
-    protected boolean mDataValid;
-    protected ChangeObserver mChangeObserver;
-    protected DataSetObserver mDataSetObserver = new MyDataSetObserver();
-    protected FilterQueryProvider mFilterQueryProvider;
-
-    protected ArrayList<Recording> mRecordingData;
-
+    private Cursor mCursor;
+    private boolean mDataValid;
+    private ChangeObserver mChangeObserver;
+    private List<Recording> mRecordingData;
 
     public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
@@ -45,9 +37,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         return mRecordingData == null ? 0 : mRecordingData.size();
     }
 
-
-    public void refreshCursor() {
-
+    private void refreshCursor() {
         if (mCursor != null) {
             mCursor.unregisterContentObserver(mChangeObserver);
             mCursor.close();
@@ -61,20 +51,20 @@ public class MyTracksAdapter extends TracklistAdapter {
         if (mCursor != null) {
             mDataValid = true;
             mCursor.registerContentObserver(mChangeObserver);
-            loadCursor();
-        } else
+            mRecordingData = loadRecordings(mCursor);
+        } else {
             mDataValid = false;
+        }
     }
 
-    private void loadCursor(){
-
-        mRecordingData = new ArrayList<Recording>();
-        if (mCursor == null || mCursor.isClosed() || mCursor.getCount() == 0)
-            return;
-
-        while(mCursor.moveToNext()){
-            mRecordingData.add(new Recording(mCursor));
+    private List<Recording> loadRecordings(Cursor cursor) {
+        List<Recording> recordings = new ArrayList<Recording>();
+        if (cursor != null && !cursor.isClosed()) {
+            while (cursor.moveToNext()) {
+                recordings.add(new Recording(cursor));
+            }
         }
+        return recordings;
     }
 
     /*
@@ -101,9 +91,6 @@ public class MyTracksAdapter extends TracklistAdapter {
         refreshCursor();
     }
 
-    /**
-     * @see android.widget.ListAdapter#getCount()
-     */
     @Override
     public int getCount() {
         if (mDataValid && mRecordingData != null) {
@@ -112,10 +99,6 @@ public class MyTracksAdapter extends TracklistAdapter {
             return super.getCount();
         }
     }
-
-    /**
-     * @see android.widget.ListAdapter#getItem(int)
-     */
     @Override
     public Object getItem(int position) {
         if (mDataValid && mRecordingData != null) {
@@ -128,9 +111,6 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
     }
 
-    /**
-     * @see android.widget.ListAdapter#getItemId(int)
-     */
     @Override
     public long getItemId(int position) {
         if (mDataValid && mRecordingData != null) {
@@ -159,7 +139,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
         submenuIndex = -1;
         animateSubmenuIndex = -1;
-        loadCursor();
+        mRecordingData = loadRecordings(mCursor);
         notifyDataSetChanged();
     }
 
@@ -178,19 +158,4 @@ public class MyTracksAdapter extends TracklistAdapter {
             onContentChanged();
         }
     }
-
-    private class MyDataSetObserver extends DataSetObserver {
-        @Override
-        public void onChanged() {
-            mDataValid = true;
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onInvalidated() {
-            mDataValid = false;
-            notifyDataSetInvalidated();
-        }
-    }
-
 }

@@ -248,10 +248,10 @@ public abstract class ScActivity extends Activity {
     }
 
     public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
-        // find out if this track is already playing. If it is, just go to the
-        // player
+        // find out if this track is already playing. If it is, just go to the player
         try {
-            if (mPlaybackService != null && mPlaybackService.getTrackId() != -1
+            if (mPlaybackService != null
+                    && mPlaybackService.getTrackId() != -1
                     && mPlaybackService.getTrackId() == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
@@ -269,7 +269,8 @@ public abstract class ScActivity extends Activity {
         // another option would be to pass the parcelables through the intent, but that has the
         // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
-        this.getSoundCloudApplication().cachePlaylist(list);
+        // XXX ^^ this is assuming service and activity run in the same process
+        getSoundCloudApplication().cachePlaylist(list);
         if (goToPlayer) getSoundCloudApplication().playerWaitForArtwork = true;
 
         try {

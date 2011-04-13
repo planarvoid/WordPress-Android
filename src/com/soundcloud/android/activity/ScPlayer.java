@@ -42,7 +42,6 @@ import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -151,7 +150,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void initControls() {
-
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
@@ -191,14 +189,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mPlayableLayout = (RelativeLayout) findViewById(R.id.playable_layout);
         mUnplayableLayout = (FrameLayout) findViewById(R.id.unplayable_layout);
 
-        // mCommentsAdapter = createCommentsAdapter();
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
         if (!mLandscape) {
-
             ImageButton mProfileButton = (ImageButton) findViewById(R.id.btn_profile);
-            if (mProfileButton == null)
-                return;// failsafe for orientation check failure
+            if (mProfileButton == null) return;// failsafe for orientation check failure
             mProfileButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
@@ -1000,17 +995,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    /**
-     * Called after {@link #onCreate} or {@link #onStop} when the current
-     * activity is now being displayed to the user. It will be followed by
-     * {@link #onRestart}.
-     */
+
     @Override
     protected void onStart() {
         super.onStart();
 
         mPaused = false;
-
         getSoundCloudApplication().playerWaitForArtwork = true;
 
         IntentFilter f = new IntentFilter();
@@ -1024,24 +1014,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
-        this.registerReceiver(mStatusListener, new IntentFilter(f));
+        registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
-    /**
-     * Called after onRestoreInstanceState(Bundle), onRestart(), or onPause(),
-     * for your activity to start interacting with the user. This is a good
-     * place to begin animations, open exclusive-access devices (such as the
-     * camera), etc. Derived classes must call through to the super class's
-     * implementation of this method. If they do not, an exception will be
-     * thrown.
-     */
     @Override
     protected void onResume() {
         pageTrack("/player");
 
         super.onResume();
 
-        registerRemoteControl(); // headphone remote events
+        registerHeadphoneRemoteControl();
 
         updateTrackInfo();
         setPauseButtonImage();
@@ -1069,15 +1051,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mPlaybackService = null;
     }
 
-    /**
-     * Called to retrieve per-instance state from an activity before being
-     * killed so that the state can be restored in onCreate(Bundle) or
-     * onRestoreInstanceState(Bundle) (the Bundle populated by this method will
-     * be passed to both).
-     *
-     * @param state A Bundle in which to place any state information you wish
-     *            to save.
-     */
+
     @Override
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
@@ -1168,16 +1142,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mLandscape) mWaveformController.setComments(mPlayingTrack.comments, animateIn);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
-            doPauseResume();
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
-    }
-
     public AddCommentListener addCommentListener = new AddCommentListener(){
         @Override
         public void onCommentAdd(boolean success, Comment c) {
@@ -1218,7 +1182,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    private void registerRemoteControl() {
+    private void registerHeadphoneRemoteControl() {
         if (mRegisterMediaButtonEventReceiver == null) return;
 
         try {

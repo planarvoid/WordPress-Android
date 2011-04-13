@@ -14,16 +14,10 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class TracklistAdapter extends LazyBaseAdapter {
-
-    public static final String IMAGE = "TracklistAdapter_image";
-
     public static final String TAG = "TracklistAdapter";
 
     public long playingId = -1;
-
     public boolean isPlaying = false;
-
-    public int playingPosition = -1;
 
     public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
@@ -51,16 +45,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setFavoriteStatsus(long trackId, boolean isFavorite) {
-        for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i).id == trackId) {
-                getTrackAt(i).user_favorite = isFavorite;
-                break;
-            }
-        }
-        notifyDataSetChanged();
-    }
-
     public void addFavorite(Track t) {
         FavoriteAddTask f = new FavoriteAddTask(mActivity.getSoundCloudApplication());
         f.setOnFavoriteListener(mFavoriteListener);
@@ -83,7 +67,5 @@ public class TracklistAdapter extends LazyBaseAdapter {
         public void onException(long trackId, Exception e) {
             notifyDataSetChanged();
         }
-
     };
-
 }

@@ -11,15 +11,6 @@ import com.soundcloud.android.view.EventsRow;
 import com.soundcloud.android.view.LazyRow;
 
 public class EventsAdapter extends TracklistAdapter {
-
-    public static final String IMAGE = "EventsAdapter_image";
-
-    public static final String TAG = "EventsAdapter";
-
-    protected String _playingId = "";
-
-    protected int _playingPosition = -1;
-
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data) {
         super(context, data);
     }
@@ -33,5 +24,4 @@ public class EventsAdapter extends TracklistAdapter {
     public Track getTrackAt(int index) {
         return ((Event) mData.get(index)).getTrack();
     }
-
 }
