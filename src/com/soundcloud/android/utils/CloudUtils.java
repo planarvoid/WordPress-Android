@@ -456,7 +456,12 @@ public class CloudUtils {
     }
 
     public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-                                                               int targetHeight) throws IOException {
+            int targetHeight) throws IOException {
+        return determineResizeOptions(imageUri, targetHeight, targetHeight, false);
+    }
+
+    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
+                                                               int targetHeight, boolean crop) throws IOException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
 
@@ -468,6 +473,7 @@ public class CloudUtils {
         int height = options.outHeight;
         int width = options.outWidth;
 
+        if (crop){
         if (height > targetHeight || width > targetWidth) {
             if (targetHeight / height < targetWidth / width) {
                 options.inSampleSize = Math.round(height / targetHeight);
@@ -475,6 +481,11 @@ public class CloudUtils {
                 options.inSampleSize = Math.round(width / targetWidth);
             }
 
+        }
+        } else  if (targetHeight / height > targetWidth / width) {
+            options.inSampleSize = Math.round(height / targetHeight);
+        } else {
+            options.inSampleSize = Math.round(width / targetWidth);
         }
         return options;
     }

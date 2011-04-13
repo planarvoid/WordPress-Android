@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -10,9 +11,15 @@ import com.soundcloud.android.utils.FastBitmapDrawable;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 import android.view.View;
 
+import java.io.File;
+import java.io.IOException;
+
 public class MyTracklistRow extends TracklistRow {
+
+    private static final String TAG = "MyTracklistRow";
 
     private boolean mUploading;
 
@@ -51,6 +58,11 @@ public class MyTracklistRow extends TracklistRow {
     }
 
     private void fillRowFromRecording(Recording recording){
+
+        //get rid of submenu if it exists
+        onNoSubmenu();
+        if (findViewById(R.id.row_submenu) != null) findViewById(R.id.row_submenu).setVisibility(View.GONE);
+
         mPlayIndicator.setVisibility(View.GONE);
 
         mTitle.setText(CloudUtils.generateRecordingSharingNote(
@@ -76,7 +88,35 @@ public class MyTracklistRow extends TracklistRow {
 
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
-        mIcon.setImageDrawable(mPendingDefaultIcon);
+        if (TextUtils.isEmpty(recording.artwork_path)){
+            mImageLoader.unbind(getRowIcon());
+            setTemporaryRecordingDrawable(BindResult.ERROR);
+            return;
+        }
+
+        BindResult result = BindResult.ERROR;
+
+        try {
+            result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,
+                            CloudUtils.determineResizeOptions(
+                                            new File(recording.artwork_path),
+                                            (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
+                                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        setTemporaryRecordingDrawable(result);
+
+    }
+
+    private void setTemporaryRecordingDrawable(BindResult result) {
+        if (mIcon == null)
+            return;
+
+        if (result != BindResult.OK)
+            mIcon.setImageDrawable(mPendingDefaultIcon);
+
         mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
         mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());
     }
@@ -95,7 +135,8 @@ public class MyTracklistRow extends TracklistRow {
                         .getColor(R.color.recordListItemBackground));
             }
         } else {
-            setBackgroundColor(0x00000000);
+            if (pressed)
+                setBackgroundColor(0x00000000);
         }
 
     }

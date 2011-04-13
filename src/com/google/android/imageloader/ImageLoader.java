@@ -10,6 +10,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -443,10 +446,8 @@ public class ImageLoader {
         // will always go to the same handler if
         // they all have the same URL authority.
         Uri uri = Uri.parse(url);
-        String authority = uri.getAuthority();
-        if (authority == null) {
-            throw new IllegalArgumentException(url);
-        }
+        String authority = uri.getAuthority() == null ? "" : uri.getAuthority();
+
         int index = Math.abs(authority.hashCode()) % mTaskHandlers.length;
         Handler handler = mTaskHandlers[index];
         if (handler == null) {
@@ -485,6 +486,9 @@ public class ImageLoader {
      * @throws NullPointerException if any of the arguments are {@code null}.
      */
     public BindResult bind(BaseAdapter adapter, ImageView view, String url) {
+        return bind(adapter, view, url, 1);
+    }
+    public BindResult bind(BaseAdapter adapter, ImageView view, String url, int inSampleSize) {
         if (adapter == null) {
             throw new NullPointerException();
         }
@@ -509,6 +513,10 @@ public class ImageLoader {
                 return BindResult.ERROR;
             } else {
                 ImageTask task = new ImageTask(adapter, url);
+                if (inSampleSize > 1) {
+                    task.sampleOptions = new BitmapFactory.Options();
+                    task.sampleOptions.inSampleSize = inSampleSize;
+                }
 
                 // For adapters, post the latest requests
                 // at the front of the queue in case the user
@@ -786,6 +794,8 @@ public class ImageLoader {
 
         private Throwable mError;
 
+        public Options sampleOptions;
+
         private final boolean mLoadBitmap;
 
         private ImageTask(String uri, BitmapCallback callback) {
@@ -873,6 +883,11 @@ public class ImageLoader {
                 mBitmap = getBitmap(mUri);
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
+                    return true;
+                }
+
+                if (new File(mUri).exists()){
+                    mBitmap = BitmapFactory.decodeFile(mUri, sampleOptions);
                     return true;
                 }
 
