@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Authorize extends AccountAuthenticatorActivity {
 
@@ -103,7 +104,7 @@ public class Authorize extends AccountAuthenticatorActivity {
                     showError(mException);
                 }
             }
-        }.execute(new Pair<String, String>(username, password));
+        }.execute(username, password);
     }
 
     private void showError(IOException e) {
@@ -122,7 +123,7 @@ public class Authorize extends AccountAuthenticatorActivity {
                 .show();
     }
 
-    static class GetTokensTask extends AsyncTask<Pair<String, String>, Void, Pair<String, String>> {
+    static class GetTokensTask extends AsyncTask<String, Void, Pair<String, String>> {
         private CloudAPI mApi;
         protected IOException mException;
 
@@ -131,10 +132,12 @@ public class Authorize extends AccountAuthenticatorActivity {
         }
 
         @Override
-        protected Pair<String, String> doInBackground(Pair<String, String>... params) {
-            Pair<String, String> credentials = params[0];
+        protected Pair<String, String> doInBackground(String... params) {
+            if (params == null || params.length < 2) throw new IllegalArgumentException(Arrays.toString(params));
+            String login = params[0];
+            String password = params[1];
             try {
-                CloudAPI api = mApi.login(credentials.first, credentials.second);
+                CloudAPI api = mApi.login(login, password);
                 return new Pair<String, String>(api.getToken(), api.getRefreshToken());
             } catch (IOException e) {
                 mException = e;

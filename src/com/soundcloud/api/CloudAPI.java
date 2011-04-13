@@ -61,8 +61,7 @@ public interface CloudAPI {
     HttpResponse deleteContent(String resource) throws IOException;
 
     /** Adds current access token to url */
-    @Deprecated
-    String signUrl(String url);
+    @Deprecated String signUrl(String url);
 
     /**
      * Resolve the given SoundCloud URI
