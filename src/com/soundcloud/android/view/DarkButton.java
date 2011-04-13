@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.graphics.LightingColorFilter;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.Button;
@@ -32,11 +31,11 @@ public class DarkButton extends Button {
     }
 
 
-    /*@Override
+    @Override
     public void setPressed(boolean pressed) {
        mDown = pressed;
         super.setPressed(pressed);
-    }*/
+    }
 
     /**
      * Implement this method to handle touch screen motion events.
@@ -49,12 +48,7 @@ public class DarkButton extends Button {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    Log.i("fff", " Down");
                     mDown = true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    mDown = false;
                     break;
                 case MotionEvent.ACTION_MOVE:
                     final int x = (int) event.getX();
