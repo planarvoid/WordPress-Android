@@ -21,8 +21,6 @@ public class MyTracklistRow extends TracklistRow {
 
     private static final String TAG = "MyTracklistRow";
 
-    private boolean mUploading;
-
     private boolean mIsPendingUpload;
 
     private Bitmap mPendingDefaultIconBitmap;
