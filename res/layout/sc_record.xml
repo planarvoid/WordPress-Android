@@ -56,11 +56,11 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:layout_alignParentBottom="false"
 			android:layout_centerInParent="true">
-			<Button android:id="@+id/btn_reset" android:text="Delete"
+			<com.soundcloud.android.view.DarkButton android:id="@+id/btn_reset" android:text="Delete"
 				android:layout_weight="1" android:layout_width="wrap_content"
-				android:padding="15dip" android:layout_height="wrap_content"
+				android:padding="15dip" android:layout_height="wrap_content" 
 				android:layout_marginLeft="10dip" android:layout_marginRight="15dip" />
-			<Button android:id="@+id/btn_save" android:text="Save"
+			<com.soundcloud.android.view.DarkButton android:id="@+id/btn_save" android:text="Save"
 				android:padding="15dip" android:layout_weight="1"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
 				android:layout_marginLeft="15dip" android:layout_marginRight="10dip" />
