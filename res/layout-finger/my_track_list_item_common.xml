@@ -16,12 +16,14 @@
 			 	android:layout_alignWithParentIfMissing="true"
 			 	android:layout_toRightOf="@id/icon"
 		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"/>
+		        android:layout_height="wrap_content" />
 		    <LinearLayout android:layout_width="wrap_content"
 		        android:layout_height="wrap_content" 
 		        android:id="@+id/track_layout"
 		        android:paddingTop="3dip"
 		        android:layout_toRightOf="@id/play_indicator"
+		        android:layout_toLeftOf="@+id/close_icon"
+		        android:layout_marginRight="5dip"
 		        android:orientation="horizontal">
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" 
@@ -44,15 +46,18 @@
 				android:layout_alignWithParentIfMissing="true"
 				android:id="@+id/track_created_at"
 		        android:layout_below="@id/track_layout"
+		        android:layout_toLeftOf="@+id/close_icon"
+		        android:layout_marginRight="5dip"
 		        android:paddingRight="0dip"
 		        android:layout_toRightOf="@id/icon"
 		        android:text="@string/track_by" />
-		    <ProgressBar android:id="@+id/progress_bar"
-                android:orientation="horizontal" android:layout_toRightOf="@id/icon"
-                style="@style/ScProgressBarRound" android:layout_width="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/track_layout"
-                android:layout_height="10dip" android:layout_marginLeft="10dip"
-                android:layout_marginRight="15dip" android:layout_marginTop="5dip" />
+            <ImageView android:id="@+id/close_icon"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="3dip"
+                    android:src="@drawable/rec_close"
+                    android:scaleType="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" 
+                    android:layout_marginRight="10dip"  />
 		</RelativeLayout>
 </merge>

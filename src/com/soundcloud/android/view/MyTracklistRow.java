@@ -25,7 +25,7 @@ public class MyTracklistRow extends TracklistRow {
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
 
-        mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.artwork_badge_white);
+        mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.artwork_badge_onhold);
         mPendingDefaultIcon = new FastBitmapDrawable(mPendingDefaultIconBitmap);
 
     }
@@ -38,7 +38,7 @@ public class MyTracklistRow extends TracklistRow {
     @Override
     public void display(int position) {
         if (mAdapter.getItem(position) instanceof Recording){
-            setBackgroundColor(mActivity.getResources().getColor(R.color.recordUploadBackground));
+            setBackgroundColor(mActivity.getResources().getColor(R.color.recordListItemBackground));
             mIsPendingUpload = true;
             fillRowFromRecording(((Recording) mAdapter.getItem(position)));
         } else {
@@ -65,19 +65,16 @@ public class MyTracklistRow extends TracklistRow {
             mPrivateIndicator.setVisibility(View.GONE);
         }
 
-        if (mUploading) {
-            mProgressBar.setVisibility(View.VISIBLE);
-        } else {
-            mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
-            mProgressBar.setVisibility(View.GONE);
-            mCreatedAt.setText(recording.upload_status == 1 ? mActivity
-                    .getString(R.string.cloud_upload_currently_uploading) : CloudUtils
-                    .getTimeElapsed(mActivity, recording.timestamp)
-                    + ", "
-                    + (recording.upload_error ? mActivity
-                            .getString(R.string.cloud_upload_upload_failed) : mActivity
-                            .getString(R.string.cloud_upload_not_yet_uploaded)));
-        }
+        mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtRecSecondary));
+        mCreatedAt.setText(recording.upload_status == 1 ? mActivity
+                .getString(R.string.cloud_upload_currently_uploading) : CloudUtils
+                .getTimeElapsed(mActivity, recording.timestamp)
+                + ", "
+                + (recording.upload_error ? mActivity
+                        .getString(R.string.cloud_upload_upload_failed) : mActivity
+                        .getString(R.string.cloud_upload_not_yet_uploaded)));
+
+        mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
         mIcon.setImageDrawable(mPendingDefaultIcon);
         mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
@@ -95,7 +92,7 @@ public class MyTracklistRow extends TracklistRow {
                 setBackgroundColor(0x00000000);
             } else {
                 setBackgroundColor(mActivity.getResources()
-                        .getColor(R.color.recordUploadBackground));
+                        .getColor(R.color.recordListItemBackground));
             }
         } else {
             setBackgroundColor(0x00000000);

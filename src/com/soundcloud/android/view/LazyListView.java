@@ -47,7 +47,11 @@ public class LazyListView extends ListView {
         setOnItemSelectedListener(mOnItemSelectedListener);
         setOnScrollListener(new ScScrollManager());
         setOnTouchListener(new FingerTracker());
+    }
 
+    @Override
+    public int getSolidColor() {
+        return 0xAA000000;
     }
 
     public void enableLongClickListener(){
