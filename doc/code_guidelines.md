@@ -101,7 +101,7 @@ indicates that package scope is requested and not just accidental.
 
 The `final` keyword is useful in Java, and it's not for performance reason.
 Read and understand [The Final Word On The final keyword][]. It's mostly useful
-when declaring local variable, fields and parameters. There are cases where
+when declaring local variables, fields and parameters. There are cases where
 final is required anyway (when accessing variables from inner classes) and it
 is useful to make sure that variables are treated as constants. Use it whenever
 applicable.
@@ -114,7 +114,7 @@ Example (local variable):
 Example (instance fields):
 
     // declaring it as final ensures that `mName` is initialized
-    private final mName;
+    private final String mName;
     public MyContructor(String param) {
       mName = param;
     }
