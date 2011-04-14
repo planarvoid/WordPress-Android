@@ -636,10 +636,7 @@ public class UserBrowser extends ScActivity {
 
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(_iconURL)) {
-            ImageLoader.Options options = new ImageLoader.Options();
-            options.cornerRadius = (int) (5 * getResources().getDisplayMetrics().density);
-
-            if ((avatarResult = ImageLoader.get(this).bind(mIcon, _iconURL, null,options)) != BindResult.OK) {
+            if ((avatarResult = ImageLoader.get(this).bind(mIcon, _iconURL, null)) != BindResult.OK) {
                 mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
             }
         }
