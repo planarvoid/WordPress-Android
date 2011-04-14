@@ -15,7 +15,6 @@ import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -28,11 +27,9 @@ import com.soundcloud.api.CloudAPI;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
@@ -97,9 +94,6 @@ public class UserBrowser extends ScActivity {
     private User mUserData;
 
     private ImageLoader.BindResult avatarResult;
-
-    public static final String FOLLOWING_CHANGED = "com.soundcloud.android.followingchanged";
-    public static final String FAVORITE_CHANGED = "com.soundcloud.android.favoritechanged";
 
     private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
@@ -168,12 +162,6 @@ public class UserBrowser extends ScActivity {
             }
         }
 
-        IntentFilter updateFilter = new IntentFilter();
-        updateFilter.addAction(FAVORITE_CHANGED);
-        updateFilter.addAction(FOLLOWING_CHANGED);
-        updateFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
-        //this.registerReceiver(mUpdateAdapterListener, updateFilter);
-
         loadDetails();
     }
 
@@ -236,11 +224,6 @@ public class UserBrowser extends ScActivity {
     public void onRefresh() {
         if (avatarResult == BindResult.ERROR)
             reloadAvatar();
-
-       // mTracksView.onRefresh();
-       // mFavoritesView.onRefresh();
-       // mFollowersView.onRefresh();
-       // mFollowingsView.onRefresh();
 
         if (mLoadDetailsTask != null) {
             if (!CloudUtils.isTaskFinished(mLoadDetailsTask)) {
@@ -522,7 +505,7 @@ public class UserBrowser extends ScActivity {
     }
 
     // Create runnable for posting since we update the following asynchronously
-    final Runnable mSetFollowingResult = new Runnable() {
+    private final Runnable mSetFollowingResult = new Runnable() {
         public void run() {
             handleException();
             handleError();
@@ -530,10 +513,6 @@ public class UserBrowser extends ScActivity {
             if (!(mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404)) {
                 mUserData.current_user_following = !mUserData.current_user_following;
                 setFollowingButtonText();
-                Intent i = new Intent(UserBrowser.FAVORITE_CHANGED);
-                i.putExtra("id", mUserData.id);
-                i.putExtra("isFollowing", mUserData.current_user_following);
-                sendBroadcast(i);
             }
             mFollow.setEnabled(true);
         }
@@ -582,34 +561,60 @@ public class UserBrowser extends ScActivity {
             _showTable = true;
             mWebsite.setText(TextUtils.isEmpty(mUserData.website_title) ? CloudUtils
                     .stripProtocol(mUserData.website) : mUserData.website_title);
-            mWebsite.setMovementMethod(LinkMovementMethod.getInstance());
-            mDetailsView.findViewById(R.id.website_row).setVisibility(View.VISIBLE);
+            mWebsite.setVisibility(View.VISIBLE);
+            mWebsite.setFocusable(true);
+            mWebsite.setClickable(true);
+            mWebsite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse(mUserData.website));
+                    startActivity(viewIntent);
+                }
+            });
         } else {
-            mDetailsView.findViewById(R.id.website_row).setVisibility(View.GONE);
+            mWebsite.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(mUserData.discogs_name)) {
             _showTable = true;
             mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
-            mDetailsView.findViewById(R.id.discogs_row).setVisibility(View.VISIBLE);
+            mDiscogsName.setVisibility(View.VISIBLE);
+            mDiscogsName.setFocusable(true);
+            mDiscogsName.setClickable(true);
+            mDiscogsName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.discogs.com/artist/"+mUserData.discogs_name));
+                    startActivity(viewIntent);
+                }
+            });
         } else {
-            mDetailsView.findViewById(R.id.discogs_row).setVisibility(View.GONE);
+            mDiscogsName.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(mUserData.myspace_name)) {
             _showTable = true;
             mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
-            mDetailsView.findViewById(R.id.myspace_row).setVisibility(View.VISIBLE);
+            mMyspaceName.setVisibility(View.VISIBLE);
+            mMyspaceName.setFocusable(true);
+            mMyspaceName.setClickable(true);
+            mMyspaceName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.myspace.com/"+mUserData.myspace_name));
+                    startActivity(viewIntent);
+                }
+            });
         } else {
-            mDetailsView.findViewById(R.id.myspace_row).setVisibility(View.GONE);
+            mMyspaceName.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(mUserData.city) || !TextUtils.isEmpty(mUserData.country)) {
             _showTable = true;
             mLocation.setText(getString(R.string.from) + " " + CloudUtils.getLocationString(mUserData.city, mUserData.country));
-            mDetailsView.findViewById(R.id.location_row).setVisibility(View.VISIBLE);
+            mLocation.setVisibility(View.VISIBLE);
         } else {
-            mDetailsView.findViewById(R.id.location_row).setVisibility(View.GONE);
+            mLocation.setVisibility(View.GONE);
         }
 
 
@@ -634,44 +639,6 @@ public class UserBrowser extends ScActivity {
             }
         }
     }
-
-    private BroadcastReceiver mUpdateAdapterListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().contentEquals(FAVORITE_CHANGED)){
-                if (!isOtherUser() && mUserData != null){
-                    if (intent.getBooleanExtra("isFavorite", false)){
-                        mUserData.public_favorites_count++;
-                    } else {
-                        mUserData.public_favorites_count++;
-                    }
-
-                    setTabTextInfo();
-                    mFavoritesView.onRefresh();
-                }
-            } else if (intent.getAction().contentEquals(FOLLOWING_CHANGED)){
-                if (!isOtherUser() && mUserData != null){
-                    if (intent.getBooleanExtra("isFollowing", false)){
-                        mUserData.followings_count++;
-                    } else {
-                        mUserData.followings_count++;
-                    }
-
-                    setTabTextInfo();
-                    //mFollowingsView.onRefresh();
-                }
-            } else if (intent.getAction().contentEquals(CloudCreateService.UPLOAD_SUCCESS)){
-                if (!isOtherUser() && mUserData != null) {
-                    if (!intent.getBooleanExtra("isPrivate", true)) {
-                        mUserData.track_count++;
-                        setTabTextInfo();
-                    }
-                }
-                //mTracksView.onRefresh();
-            }
-        }
-    };
-
 
     @Override
     protected void handleRecordingClick(Recording recording) {

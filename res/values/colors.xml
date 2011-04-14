@@ -63,6 +63,9 @@
 	
 	<color name="cloudProgressCommentBarBgOff">#AA2EC9FF</color>
 	<color name="cloudProgressCommentBarBgOn">#3D00C1</color>
+	
+	<color name="iconGlowSelected">#ff6600</color>
+	<color name="iconGlowPressed">#ef5002</color>
 
 	<color name="listSeperator">#FF333333</color>
 	<color name="horizontalRule">#FFAAAAAA</color>

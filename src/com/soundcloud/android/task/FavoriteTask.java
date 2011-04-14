@@ -2,11 +2,9 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.api.CloudAPI;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -65,16 +63,12 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean favorite) {
-        if (mFavoriteListener != null)
+        if (mFavoriteListener != null){
             mFavoriteListener.onNewFavoriteStatus(trackId, favorite);
+        }
 
-        if (mException != null && mFavoriteListener != null)
+        if (mException != null && mFavoriteListener != null){
                 mFavoriteListener.onException(trackId,mException);
-        else if (mException == null){
-            Intent i = new Intent(UserBrowser.FAVORITE_CHANGED);
-            i.putExtra("id", trackId);
-            i.putExtra("isFavorite", favorite);
-            mScApp.sendBroadcast(i);
         }
 
     }
