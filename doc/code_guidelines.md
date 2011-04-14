@@ -6,6 +6,7 @@ Please use Google's [Code Style Guidelines for Contributors][].
 
   * UTF-8 CRLF, no DOS file endings.
   * Spaces instead of tabs, 4 spaces indentation.
+  * No trailing WS
   * Friendly to people without IDEs: column width max ~ 115.
 
 ## Import statements
