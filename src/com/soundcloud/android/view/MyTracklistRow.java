@@ -8,6 +8,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.FastBitmapDrawable;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,9 +24,9 @@ public class MyTracklistRow extends TracklistRow {
 
     private boolean mIsPendingUpload;
 
-    private Bitmap mPendingDefaultIconBitmap;
+    private final Bitmap mPendingDefaultIconBitmap;
 
-    private FastBitmapDrawable mPendingDefaultIcon;
+    private final FastBitmapDrawable mPendingDefaultIcon;
 
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
@@ -59,7 +60,9 @@ public class MyTracklistRow extends TracklistRow {
 
         //get rid of submenu if it exists
         onNoSubmenu();
-        if (findViewById(R.id.row_submenu) != null) findViewById(R.id.row_submenu).setVisibility(View.GONE);
+        if (findViewById(R.id.row_submenu) != null) {
+            findViewById(R.id.row_submenu).setVisibility(View.GONE);
+        }
 
         mPlayIndicator.setVisibility(View.GONE);
 
@@ -96,10 +99,10 @@ public class MyTracklistRow extends TracklistRow {
 
         try {
             result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,
-                            CloudUtils.determineResizeOptions(
-                                            new File(recording.artwork_path),
-                                            (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
-                                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize);
+                    ImageUtils.determineResizeOptions(
+                            new File(recording.artwork_path),
+                            (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
+                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,11 +112,13 @@ public class MyTracklistRow extends TracklistRow {
     }
 
     private void setTemporaryRecordingDrawable(BindResult result) {
-        if (mIcon == null)
+        if (mIcon == null) {
             return;
+        }
 
-        if (result != BindResult.OK)
+        if (result != BindResult.OK) {
             mIcon.setImageDrawable(mPendingDefaultIcon);
+        }
 
         mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
         mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());
@@ -133,8 +138,9 @@ public class MyTracklistRow extends TracklistRow {
                         .getColor(R.color.recordListItemBackground));
             }
         } else {
-            if (pressed)
+            if (pressed) {
                 setBackgroundColor(0x00000000);
+            }
         }
 
     }

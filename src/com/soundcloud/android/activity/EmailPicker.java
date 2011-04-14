@@ -4,8 +4,8 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.ListActivity;
 import android.content.ContentResolver;
@@ -220,7 +220,7 @@ public class EmailPicker extends ListActivity {
             }
 
         }
-        
+
         private View createViewFromResource(int contactId, CharSequence displayName,
                 CharSequence email, View convertView, ViewGroup parent, int resource) {
             View view;
@@ -233,7 +233,7 @@ public class EmailPicker extends ListActivity {
             ((TextView) view.findViewById(R.id.name)).setText(displayName);
             ((TextView) view.findViewById(R.id.email)).setText(email);
 
-            Bitmap bitmap = CloudUtils.loadContactPhoto(mContentResolver, contactId);
+            Bitmap bitmap = ImageUtils.loadContactPhoto(mContentResolver, contactId);
             ((ImageView) view.findViewById(R.id.icon))
                     .setImageBitmap(bitmap == null ? BitmapFactory.decodeResource(
                             mContext.getResources(), R.drawable.ic_contact_list_picture) : bitmap);

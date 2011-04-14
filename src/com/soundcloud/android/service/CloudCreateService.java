@@ -13,6 +13,7 @@ import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.UploadTask.Params;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.CloudAPI;
@@ -54,14 +55,9 @@ public class CloudCreateService extends Service {
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
     public static final String UPLOAD_SUCCESS    = "com.sound.android.fileuploadsuccessful";
     public static final String UPLOAD_ERROR      = "com.sound.android.fileuploaderror";
-    public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
-    public static final String RECORD_STOPPED    = "com.soundcloud.android.recordstopped";
     public static final String UPLOAD_CANCELLED  = "com.sound.android.fileuploadcancelled";
-    public static final String SERVICECMD        = "com.soundcloud.android.createservicecommand";
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
-
-    public static final String CMDNAME = "command";
 
     private static final int RECORD_NOTIFY_ID = R.layout.sc_record;
 
@@ -100,7 +96,6 @@ public class CloudCreateService extends Service {
 
     private long mRecordStartTime;
 
-    private int mCurrentState = 0;
     private int frameCount;
 
     private MediaPlayer mPlayer;
@@ -109,24 +104,6 @@ public class CloudCreateService extends Service {
     private String mPlaybackTitle;
 
     private long mUploadLocalId;
-
-
-    public interface States {
-        int IDLE_RECORDING = 0;
-    }
-
-
-    protected void acquireWakeLock() {
-        if (!mWakeLock.isHeld()) {
-            mWakeLock.acquire();
-        }
-    }
-
-    protected void releaseWakeLock() {
-        if (mWakeLock.isHeld()) {
-            mWakeLock.release();
-        }
-    }
 
 
     @Override
@@ -345,21 +322,6 @@ public class CloudCreateService extends Service {
         }
     }
 
-    MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-            sendBroadcast(new Intent(PLAYBACK_COMPLETE));
-            onPlaybackComplete();
-        }
-    };
-
-    MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            sendBroadcast(new Intent(PLAYBACK_ERROR));
-            onPlaybackComplete();
-            return true;
-        }
-    };
-
     public void stopPlayback() {
         try{
             mPlayer.stop();
@@ -529,8 +491,8 @@ public class CloudCreateService extends Service {
         }
     }
 
-    public class ImageResizeTask extends AsyncTask<UploadTask.Params, Integer, UploadTask.Params> {
-        static final int RECOMMENDED_SIZE = 500;
+    private class ImageResizeTask extends AsyncTask<UploadTask.Params, Integer, UploadTask.Params> {
+        private static final int RECOMMENDED_SIZE = 500;
         private AsyncTask<UploadTask.Params, ?, ?> nextTask;
 
 
@@ -555,7 +517,7 @@ public class CloudCreateService extends Service {
             try {
                 final long start = System.currentTimeMillis();
                 BitmapFactory.Options options =
-                        CloudUtils.determineResizeOptions(param.artworkFile,
+                        ImageUtils.determineResizeOptions(param.artworkFile,
                             RECOMMENDED_SIZE, RECOMMENDED_SIZE);
 
                 int sampleSize = options.inSampleSize;
@@ -604,7 +566,7 @@ public class CloudCreateService extends Service {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 
                     out.close();
-                    CloudUtils.clearBitmap(bitmap);
+                    ImageUtils.clearBitmap(bitmap);
                     param.resizedFile = resized;
 
                     Log.v(TAG, String.format("resized image in %d ms", System.currentTimeMillis() - start));
@@ -768,6 +730,33 @@ public class CloudCreateService extends Service {
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
         return notification;
     }
+
+    private void acquireWakeLock() {
+        if (!mWakeLock.isHeld()) {
+            mWakeLock.acquire();
+        }
+    }
+
+    private void releaseWakeLock() {
+        if (mWakeLock.isHeld()) {
+            mWakeLock.release();
+        }
+    }
+
+    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
+        public void onCompletion(MediaPlayer mp) {
+            sendBroadcast(new Intent(PLAYBACK_COMPLETE));
+            onPlaybackComplete();
+        }
+    };
+
+    private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            sendBroadcast(new Intent(PLAYBACK_ERROR));
+            onPlaybackComplete();
+            return true;
+        }
+    };
 
     /*
      * By making this a static class with a WeakReference to the Service, we

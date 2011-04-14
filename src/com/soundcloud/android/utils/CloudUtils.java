@@ -15,19 +15,13 @@ import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
 import android.app.Service;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,10 +36,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -455,47 +446,6 @@ public class CloudUtils {
         return file.length() / (sampleRate * channels * bitsPerSample / 8);
     }
 
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-            int targetHeight) throws IOException {
-        return determineResizeOptions(imageUri, targetHeight, targetHeight, false);
-    }
-
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-                                                               int targetHeight, boolean crop) throws IOException {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
-
-        options.inJustDecodeBounds = true;
-        InputStream is = new FileInputStream(imageUri);
-        BitmapFactory.decodeStream(is, null, options);
-        is.close();
-
-        int height = options.outHeight;
-        int width = options.outWidth;
-
-        if (crop){
-        if (height > targetHeight || width > targetWidth) {
-            if (targetHeight / height < targetWidth / width) {
-                options.inSampleSize = Math.round(height / targetHeight);
-            } else {
-                options.inSampleSize = Math.round(width / targetWidth);
-            }
-
-        }
-        } else  if (targetHeight / height > targetWidth / width) {
-            options.inSampleSize = Math.round(height / targetHeight);
-        } else {
-            options.inSampleSize = Math.round(width / targetWidth);
-        }
-        return options;
-    }
-
-    public static void clearBitmap(Bitmap bmp) {
-        bmp.recycle();
-        System.gc();
-    }
-
-
     public static String formatTimestamp(long pos){
         return CloudUtils.makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
                 : DURATION_FORMAT_LONG, pos / 1000);
@@ -570,16 +520,6 @@ public class CloudUtils {
         emptyView.setText(emptyText);
         emptyView.setId(android.R.id.empty);
         return emptyView;
-    }
-
-
-    public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
-        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
-        InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
-        if (input == null) {
-            return null;
-        }
-        return BitmapFactory.decodeStream(input);
     }
 
 

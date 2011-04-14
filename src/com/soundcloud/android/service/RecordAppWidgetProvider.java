@@ -47,7 +47,7 @@ import android.widget.RemoteViews;
             final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_record);
 
 
-            linkButtons(context, views, CloudCreateService.States.IDLE_RECORDING);
+            linkButtons(context, views);
             pushUpdate(context, appWidgetIds, views);
         }
 
@@ -68,7 +68,7 @@ import android.widget.RemoteViews;
          *            widget click will launch {@link com.soundcloud.android.activity.ScPlaybackActivityStarter},
          *            otherwise we launch {@link MusicBrowserActivity}.
          */
-        private void linkButtons(Context context, RemoteViews views, int state) {
+        private void linkButtons(Context context, RemoteViews views) {
             // Connect up various buttons and touch events
             PendingIntent pendingIntent;
 

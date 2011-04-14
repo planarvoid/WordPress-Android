@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 
@@ -17,7 +18,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -46,19 +46,24 @@ public class ScUpload extends ScActivity {
 
     private RadioGroup mRdoPrivacy;
 
-    /* package */  RadioButton mRdoPrivate, mRdoPublic;
-    /* package */  EditText mWhatText;
-    /* package */  TextView mWhereText;
+    private RadioButton mRdoPrivate, mRdoPublic;
+
+    private EditText mWhatText;
+
+    private TextView mWhereText;
 
     private ImageView mArtwork;
 
-    private File mImageDir,mArtworkFile;
+    private File mImageDir, mArtworkFile;
+
     private Bitmap mArtworkBitmap;
 
-    /* package */ ConnectionList mConnectionList;
-    /* package */ AccessList mAccessList;
+    private ConnectionList mConnectionList;
+
+    private AccessList mAccessList;
 
     private String mFourSquareVenueId;
+
     private double mLong, mLat;
 
     private Recording mRecording;
@@ -67,8 +72,10 @@ public class ScUpload extends ScActivity {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
     }
 
-    public void setWhere(String where, String id, double lng, double lat) {
-        if (where != null) mWhereText.setTextKeepState(where);
+    private void setWhere(String where, String id, double lng, double lat) {
+        if (where != null) {
+            mWhereText.setTextKeepState(where);
+        }
         mFourSquareVenueId = id;
         mLong = lng;
         mLat = lat;
@@ -82,7 +89,9 @@ public class ScUpload extends ScActivity {
         initResourceRefs();
 
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
-        if (!mImageDir.exists()) mImageDir.mkdirs();
+        if (!mImageDir.exists()) {
+            mImageDir.mkdirs();
+        }
 
         File uploadFile = null;
         Intent intent = getIntent();
@@ -153,12 +162,13 @@ public class ScUpload extends ScActivity {
     }
 
     /*
-    * Whenever the UI is re-created (due f.ex. to orientation change) we have
-    * to reinitialize references to the views.
-    */
+     * Whenever the UI is re-created (due f.ex. to orientation change) we have
+     * to reinitialize references to the views.
+     */
     private void initResourceRefs() {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 Intent i = (new Intent(ScUpload.this, Main.class))
                 .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -169,6 +179,7 @@ public class ScUpload extends ScActivity {
         });
 
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 mapToRecording();
                 if (startUpload()){
@@ -189,8 +200,12 @@ public class ScUpload extends ScActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ScUpload.this, LocationPicker.class);
                 intent.putExtra("name", ((TextView)v).getText().toString());
-                if (mRecording.longitude != 0)intent.putExtra("long", mRecording.longitude);
-                if (mRecording.latitude != 0) intent.putExtra("lat", mRecording.latitude);
+                if (mRecording.longitude != 0) {
+                    intent.putExtra("long", mRecording.longitude);
+                }
+                if (mRecording.latitude != 0) {
+                    intent.putExtra("lat", mRecording.latitude);
+                }
                 startActivityForResult(intent, LocationPicker.PICK_VENUE);
             }
         });
@@ -212,28 +227,32 @@ public class ScUpload extends ScActivity {
         });
 
         mArtwork.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 showToast(R.string.cloud_upload_clear_artwork);
             }
         });
 
         mArtworkBg.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(ScUpload.this)
-                        .setMessage("Where would you like to get the image?").setPositiveButton(
+                .setMessage("Where would you like to get the image?").setPositiveButton(
                         "Take a new picture", new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(getCurrentImageFile()));
                                 startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                             }
                         }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("image/*");
-                        startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                    }
-                }).create().show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("image/*");
+                                startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                            }
+                        }).create().show();
             }
         });
 
@@ -256,7 +275,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onChanged() {
                 findViewById(R.id.btn_add_emails).setVisibility(
-                    mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
+                        mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
                 );
             }
         });
@@ -277,7 +296,7 @@ public class ScUpload extends ScActivity {
         });
     }
 
-    boolean startUpload() {
+    private boolean startUpload() {
         return mRecording != null && startUpload(mRecording);
     }
 
@@ -322,7 +341,9 @@ public class ScUpload extends ScActivity {
             mRdoPublic.setChecked(true);
         }
 
-        if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) setImage(state.getString("createArtworkPath"));
+        if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
+            setImage(state.getString("createArtworkPath"));
+        }
 
         super.onRestoreInstanceState(state);
     }
@@ -333,34 +354,16 @@ public class ScUpload extends ScActivity {
 
     public void setImage(File imageFile) {
         // TODO move this code into a helper class
-        Log.i(TAG,"SET IMAGE FILE " + imageFile.getAbsolutePath());
         mArtworkFile = imageFile;
 
         try {
             final int density = (int) (getResources().getDisplayMetrics().density * 100);
-            Options opt = CloudUtils.determineResizeOptions(mArtworkFile, density, density);
+            Options opt = ImageUtils.determineResizeOptions(mArtworkFile, density, density);
 
-            ExifInterface exif = new ExifInterface(mArtworkFile.getAbsolutePath());
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-            int degree = 0;
-            if (orientation != -1) {
-                // We only recognize a subset of orientation tag values.
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        degree = 90;
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        degree = 180;
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        degree = 270;
-                        break;
-                    default:
-                        degree = 0;
-                        break;
-                }
+
+            if (mArtworkBitmap != null) {
+                ImageUtils.clearBitmap(mArtworkBitmap);
             }
-            if (mArtworkBitmap != null) CloudUtils.clearBitmap(mArtworkBitmap);
 
             Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
@@ -370,20 +373,23 @@ public class ScUpload extends ScActivity {
             Matrix m = new Matrix();
             float scale;
             float dx = 0, dy = 0;
-            int vwidth = (int) (getResources().getDisplayMetrics().density * 100);
+
+            // assumes height and width are the same
+            int viewDimension = (int) (getResources().getDisplayMetrics().density * 100);
 
             if (mArtworkBitmap.getWidth() > mArtworkBitmap.getHeight()) {
-                scale = (float) vwidth / (float) mArtworkBitmap.getHeight();
-                dx = (vwidth - mArtworkBitmap.getWidth() * scale) * 0.5f;
+                scale = (float) viewDimension / (float) mArtworkBitmap.getHeight();
+                dx = (viewDimension - mArtworkBitmap.getWidth() * scale) * 0.5f;
             } else {
-                scale = (float) vwidth / (float) mArtworkBitmap.getWidth();
-                dy = (vwidth - mArtworkBitmap.getHeight() * scale) * 0.5f;
+                scale = (float) viewDimension / (float) mArtworkBitmap.getWidth();
+                dy = (viewDimension - mArtworkBitmap.getHeight() * scale) * 0.5f;
             }
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            //pivot point in the middle, may need to change this
-            if (degree != 0) m.postRotate(90, vwidth / 2, vwidth / 2);
+            if (ImageUtils.getExifRotation(mArtworkFile.getAbsolutePath()) != 0) {
+                m.postRotate(90, viewDimension / 2, viewDimension / 2);
+            }
 
             mArtwork.setScaleType(ScaleType.MATRIX);
             mArtwork.setImageMatrix(m);
@@ -405,20 +411,29 @@ public class ScUpload extends ScActivity {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
 
-        if (mArtworkBitmap != null)
-            CloudUtils.clearBitmap(mArtworkBitmap);
+        if (mArtworkBitmap != null) {
+            ImageUtils.clearBitmap(mArtworkBitmap);
+        }
     }
 
     private void mapFromRecording(){
-        if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
-        if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
-        if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(mRecording.artwork_path);
-        if (!TextUtils.isEmpty(mRecording.shared_emails)) setPrivateShareEmails(mRecording.shared_emails.split(","));
+        if (!TextUtils.isEmpty(mRecording.what_text)) {
+            mWhatText.setTextKeepState(mRecording.what_text);
+        }
+        if (!TextUtils.isEmpty(mRecording.where_text)) {
+            mWhereText.setTextKeepState(mRecording.where_text);
+        }
+        if (!TextUtils.isEmpty(mRecording.artwork_path)) {
+            setImage(mRecording.artwork_path);
+        }
+        if (!TextUtils.isEmpty(mRecording.shared_emails)) {
+            setPrivateShareEmails(mRecording.shared_emails.split(","));
+        }
 
         setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
                 TextUtils.isEmpty(mRecording.four_square_venue_id) ? ""
                         : mRecording.four_square_venue_id, mRecording.longitude,
-                mRecording.latitude);
+                        mRecording.latitude);
 
         if (mRecording.is_private) {
             mRdoPrivate.setChecked(true);
@@ -431,24 +446,32 @@ public class ScUpload extends ScActivity {
         mRecording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         mRecording.what_text = mWhatText.getText().toString();
         mRecording.where_text = mWhereText.getText().toString();
-        if (mArtworkFile != null) mRecording.artwork_path = mArtworkFile.getAbsolutePath();
-        if (mFourSquareVenueId != null) mRecording.four_square_venue_id = mFourSquareVenueId;
+        if (mArtworkFile != null) {
+            mRecording.artwork_path = mArtworkFile.getAbsolutePath();
+        }
+        if (mFourSquareVenueId != null) {
+            mRecording.four_square_venue_id = mFourSquareVenueId;
+        }
         mRecording.latitude = mLat;
         mRecording.longitude = mLong;
         if (!mRecording.is_private){
-            if (mConnectionList.postToServiceIds() != null) mRecording.service_ids = TextUtils.join(",",mConnectionList.postToServiceIds());
+            if (mConnectionList.postToServiceIds() != null) {
+                mRecording.service_ids = TextUtils.join(",",mConnectionList.postToServiceIds());
+            }
             mRecording.shared_emails = null;
         } else {
             mRecording.service_ids = null;
-            if (mAccessList.getAdapter().getAccessList() != null) mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
+            if (mAccessList.getAdapter().getAccessList() != null) {
+                mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
+            }
         }
 
     }
 
     private File getCurrentImageFile(){
-        if (mRecording == null)
+        if (mRecording == null) {
             return null;
-        else{
+        } else{
             File f = new File(mRecording.audio_path);
             return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
         }
@@ -499,12 +522,14 @@ public class ScUpload extends ScActivity {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(
                             success ? R.string.connect_success : R.string.connect_failure,
-                            result.getStringExtra("service"));
+                                    result.getStringExtra("service"));
                     Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.BOTTOM, 0, 0);
                     toast.show();
 
-                    if (success) mConnectionList.getAdapter().load();
+                    if (success) {
+                        mConnectionList.getAdapter().load();
+                    }
                 }
         }
     }

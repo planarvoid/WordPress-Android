@@ -1,8 +1,8 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.EmailPicker;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -116,7 +116,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            
+
            Cursor c = parent.getContext().getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                     new String[] {
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
@@ -126,36 +126,36 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
                     },
                     ContactsContract.CommonDataKinds.Email.DATA + "=  ?",
                     new String[] {getItem(position).toString()}, null);
-            
+
            if (c != null && c.moveToFirst()){
-               
+
                View view;
                if (convertView == null) {
                    view = ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.contacts_list_item, parent, false);
                } else {
                    view = convertView;
                }
-               
+
 
                ((TextView) view.findViewById(R.id.name)).setText(c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
                ((TextView) view.findViewById(R.id.email)).setText(c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
 
-               Bitmap bitmap = CloudUtils.loadContactPhoto(parent.getContext().getContentResolver(), c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)));
+               Bitmap bitmap = ImageUtils.loadContactPhoto(parent.getContext().getContentResolver(), c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)));
                ((ImageView) view.findViewById(R.id.icon))
                        .setImageBitmap(bitmap == null ? BitmapFactory.decodeResource(
                                parent.getContext().getResources(), R.drawable.ic_contact_list_picture) : bitmap);
                return view;
-               
+
            } else {
                TextView text = new TextView(parent.getContext());
                text.setPadding(10, 10, 10, 10);
                text.setTextSize(20f);
                text.setTextColor(parent.getResources().getColor(R.color.white)); // XXX hardcoded color
                text.setText(getItem(position).toString());
-               return text;   
+               return text;
            }
-           
-            
+
+
         }
 
         public void setAccessList(List<String> accessList) {

@@ -28,8 +28,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
@@ -102,15 +106,15 @@ public class Main extends TabActivity {
 
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
-        /*
+
         RelativeLayout recordTab = (RelativeLayout) ((TabWidget) findViewById(android.R.id.tabs)).getChildAt(3);
         recordTab.removeAllViews();
         ImageView tabImage = new ImageView(this);
         tabImage.setScaleType(ScaleType.CENTER);
-        tabImage.setImageResource(R.drawable.ic_contact_list_picture);
+        tabImage.setImageResource(R.drawable.tab_rec);
         recordTab.addView(tabImage);
-        tabImage.getLayoutParams().width = LayoutParams.FILL_PARENT;
-         */
+        tabImage.getLayoutParams().width = tabImage.getLayoutParams().height = LayoutParams.FILL_PARENT;
+
 
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
