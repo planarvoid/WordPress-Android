@@ -32,7 +32,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <ImageView android:src="@drawable/email_confirm_bg"
+        <ImageView android:src="@drawable/orange_gradient"
                    android:layout_width="fill_parent"
                    android:layout_height="fill_parent"/>
 
