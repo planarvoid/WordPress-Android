@@ -827,7 +827,7 @@ public class ImageLoader {
         }
 
         public ImageTask(BaseAdapter adapter, String url, Options options) {
-            this(adapter, null, url, null, true, new Options());
+            this(adapter, null, url, null, true, options);
         }
 
         public ImageTask(ImageView view, String url, ImageViewCallback callback, Options options) {
