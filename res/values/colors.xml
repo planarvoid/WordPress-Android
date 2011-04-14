@@ -54,9 +54,9 @@
 	<color name="cloudProgressRoundSecondaryCenter">#00FFFFFF</color>
 	<color name="cloudProgressRoundSecondaryEnd">#00FFFFFF</color>
 	
-	<color name="cloudProgressRoundStart">#ff3010</color>
-	<color name="cloudProgressRoundCenter">#f14f04</color>
-	<color name="cloudProgressRoundEnd">#ff3010</color>
+	<color name="cloudProgressRoundStart">#fd320c</color>
+    <color name="cloudProgressRoundCenter">#ef5002</color>
+    <color name="cloudProgressRoundEnd">#f92600</color>
 	
 	<color name="cloudProgressRoundBorder">#4b504c</color>
 	

@@ -21,7 +21,7 @@
 			    <gradient
 			        android:startColor="@color/cloudProgressRoundBackgroundStart"
 			        android:centerColor="@color/cloudProgressRoundBackgroundCenter"
-			        android:centerY="0.5"
+			        android:centerY="0.4"
 			        android:endColor="@color/cloudProgressRoundBackgroundEnd"
 			        android:angle="270"
 			    />
@@ -40,7 +40,7 @@
                 <gradient
                     android:startColor="@color/cloudProgressRoundBackgroundStart"
                     android:centerColor="@color/cloudProgressRoundBackgroundCenter"
-                    android:centerY="0.5"
+                    android:centerY="0.4"
                     android:endColor="@color/cloudProgressRoundBackgroundEnd"
                     android:angle="270"
                 />
@@ -59,7 +59,7 @@
                 <gradient
                         android:startColor="@color/cloudProgressRoundStart"
                         android:centerColor="@color/cloudProgressRoundCenter"
-                        android:centerY="0.5"
+                        android:centerY="0.4"
                         android:endColor="@color/cloudProgressRoundEnd"
                         android:angle="270"
                 />
