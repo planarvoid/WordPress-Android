@@ -43,12 +43,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 public class ImageLoader {
-
     private static final String TAG = "ImageLoader";
-
-
     private static final int GINGERBREAD = 9;
-
     public static final String IMAGE_LOADER_SERVICE = "com.soundcloud.android.utils.imageloader";
 
     private boolean mPaused;
