@@ -41,6 +41,13 @@ Good:
               .getDrawable(R.drawable.player_wave_bg));
     }
 
+Leave braces out if it's a very simple statement and still readable without
+braces.
+
+Example:
+
+    if (someThingIsTrue) doSomethingElse();
+
 ## Overrides
 
 If you override a method, make sure to add an @Override tag. If the overridden
@@ -83,6 +90,12 @@ Good:
 If code is no longer used (ideally set up your IDE to check for this
 automatically) just delete it. No commenting out (it can always be brought back
 using version control).
+
+## Explicit package access
+
+If you use package scope for fields/methods, it's a good idea to make it more
+explicit by adding a comment `/* package */` just before the declaration. This
+indicates that package scope is requested and not just accidental.
 
 
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
