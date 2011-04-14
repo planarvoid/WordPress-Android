@@ -8,7 +8,6 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -35,8 +34,6 @@ public class CommentBubble extends RelativeLayout {
     private int mRealWidth = 1;
 
     public Comment mComment;
-
-    public Float mDensity;
 
     public Track mTrack;
 
@@ -138,7 +135,6 @@ public class CommentBubble extends RelativeLayout {
             public void onClick(View v) {
                 mController.closeComment();
             }
-
         });
 
         setOnClickListener(new View.OnClickListener(){
@@ -146,40 +142,33 @@ public class CommentBubble extends RelativeLayout {
             public void onClick(View v) {
                 interacted = true;
             }
-
         });
 
         interacted = false;
         closing = false;
-
     }
 
     public float update() {
-
         switch (comment_mode){
-            case 1 : onNewCommentMode(new_comment_track,new_comment_timestamp); break;
+            case 1 : onNewCommentMode(new_comment_track); break;
             case 2 : onShowCommentMode(show_comment); break;
         }
-
         return updatePosition();
-
     }
 
     public float updatePosition(){
-        Log.i("asdf","UPDATE " + mRealWidth + " " + parentWidth + " " + HARD_WIDTH);
-        int arrowOffset = xPos - HARD_WIDTH/4 < 0 ? xPos : xPos + 3*HARD_WIDTH/4 > parentWidth ? xPos - (parentWidth - HARD_WIDTH) : HARD_WIDTH/4;
-
+        int arrowOffset = (xPos - HARD_WIDTH / 4 < 0) ? xPos :
+                (xPos + 3 * HARD_WIDTH / 4 > parentWidth) ? xPos - (parentWidth - HARD_WIDTH) :
+                HARD_WIDTH / 4;
         RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
         lp.leftMargin = xPos - arrowOffset;
         lp.topMargin = yPos - lp.height + (int)(5*getContext().getResources().getDisplayMetrics().density);
         setLayoutParams(lp);
         mArrow.setPosition(arrowOffset);
-
         return ((float)arrowOffset)/mRealWidth;
     }
 
-
-    private void onNewCommentMode(Track track, long l) {
+    private void onNewCommentMode(Track track) {
         mTrack = track;
         setDimensions(NEW_MODE_WIDTH,NEW_MODE_HEIGHT);
 
@@ -250,5 +239,4 @@ public class CommentBubble extends RelativeLayout {
         mTxtNewTime.setText(CloudUtils.makeTimeString(new_comment_timestamp < 3600000 ? mDurationFormatShort
                 : mDurationFormatLong, new_comment_timestamp / 1000));
     }
-
 }

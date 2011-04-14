@@ -200,7 +200,7 @@ public class ImageLoader {
     }
 
     public void unpause(){
-        Log.i("asdf","Unpausing");
+        Log.i(TAG, "Unpausing");
         mPaused = false;
         for (ImageTask pendingTask : mPendingTasks){
             postResult(pendingTask);
