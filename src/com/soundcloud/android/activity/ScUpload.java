@@ -44,7 +44,7 @@ public class ScUpload extends ScActivity {
 
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
-    private RadioButton mRdoPrivate, mRdoPublic;
+    /* package */ RadioButton mRdoPrivate, mRdoPublic;
     /* package */ EditText mWhatText;
     /* package */ TextView mWhereText;
 
@@ -52,7 +52,7 @@ public class ScUpload extends ScActivity {
     private File mImageDir, mArtworkFile;
     private Bitmap mArtworkBitmap;
     /* package */ ConnectionList mConnectionList;
-    private AccessList mAccessList;
+    /* package */ AccessList mAccessList;
     private String mFourSquareVenueId;
     private double mLong, mLat;
     private Recording mRecording;
