@@ -14,7 +14,6 @@ import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.api.CloudAPI;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -182,21 +181,5 @@ public class ScUploadTests implements CloudAPI.TrackParams {
         assertEquals(2, ids.size());
         assertEquals("1000", ids.get(0).toString());
         assertEquals("1001", ids.get(1).toString());
-    }
-
-    @Test
-    @Ignore
-    public void shouldSetTheListOfEmailAddressesWithAccess() throws Exception {
-        // XXX
-        create.mRdoPrivate.performClick();
-        create.mAccessList.getAdapter().setAccessList(Arrays.asList("foo@bar.com", "bla@example.com"));
-
-        Map args = upload();
-
-        assertTrue(args.get(SHARED_EMAILS) instanceof List);
-        assertEquals(2, ((List) args.get(SHARED_EMAILS)).size());
-
-        assertEquals("foo@bar.com", ((List) args.get(SHARED_EMAILS)).get(0));
-        assertEquals("bla@example.com", ((List) args.get(SHARED_EMAILS)).get(1));
     }
 }

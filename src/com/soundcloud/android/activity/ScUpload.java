@@ -43,36 +43,25 @@ public class ScUpload extends ScActivity {
     private static final String TAG = "ScCreate";
 
     private ViewFlipper mSharingFlipper;
-
     private RadioGroup mRdoPrivacy;
-
     private RadioButton mRdoPrivate, mRdoPublic;
-
-    private EditText mWhatText;
-
-    private TextView mWhereText;
+    /* package */ EditText mWhatText;
+    /* package */ TextView mWhereText;
 
     private ImageView mArtwork;
-
     private File mImageDir, mArtworkFile;
-
     private Bitmap mArtworkBitmap;
-
-    private ConnectionList mConnectionList;
-
+    /* package */ ConnectionList mConnectionList;
     private AccessList mAccessList;
-
     private String mFourSquareVenueId;
-
     private double mLong, mLat;
-
     private Recording mRecording;
 
     public void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
     }
 
-    private void setWhere(String where, String id, double lng, double lat) {
+    /* package */ void setWhere(String where, String id, double lng, double lat) {
         if (where != null) {
             mWhereText.setTextKeepState(where);
         }
@@ -89,9 +78,7 @@ public class ScUpload extends ScActivity {
         initResourceRefs();
 
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
-        if (!mImageDir.exists()) {
-            mImageDir.mkdirs();
-        }
+        if (!mImageDir.exists()) mImageDir.mkdirs();
 
         File uploadFile = null;
         Intent intent = getIntent();
@@ -221,7 +208,6 @@ public class ScUpload extends ScActivity {
                 switch (checkedId) {
                     case R.id.rdo_public:   mSharingFlipper.setDisplayedChild(0); break;
                     case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
-
                 }
             }
         });
@@ -296,7 +282,7 @@ public class ScUpload extends ScActivity {
         });
     }
 
-    private boolean startUpload() {
+    /* package */ boolean startUpload() {
         return mRecording != null && startUpload(mRecording);
     }
 
@@ -417,18 +403,10 @@ public class ScUpload extends ScActivity {
     }
 
     private void mapFromRecording(){
-        if (!TextUtils.isEmpty(mRecording.what_text)) {
-            mWhatText.setTextKeepState(mRecording.what_text);
-        }
-        if (!TextUtils.isEmpty(mRecording.where_text)) {
-            mWhereText.setTextKeepState(mRecording.where_text);
-        }
-        if (!TextUtils.isEmpty(mRecording.artwork_path)) {
-            setImage(mRecording.artwork_path);
-        }
-        if (!TextUtils.isEmpty(mRecording.shared_emails)) {
-            setPrivateShareEmails(mRecording.shared_emails.split(","));
-        }
+        if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
+        if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
+        if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(mRecording.artwork_path);
+        if (!TextUtils.isEmpty(mRecording.shared_emails)) setPrivateShareEmails(mRecording.shared_emails.split(","));
 
         setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
                 TextUtils.isEmpty(mRecording.four_square_venue_id) ? ""
