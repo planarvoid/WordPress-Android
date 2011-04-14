@@ -11,7 +11,7 @@
         <ImageView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:src="@drawable/artwork_badge" android:id="@+id/user_icon"
-                android:gravity="top"/>
+                android:gravity="top" android:layout_margin="5dip"/>
         <LinearLayout android:id="@+id/LinearLayout02"
                       android:orientation="vertical" android:layout_width="wrap_content"
                       android:layout_weight="1" android:layout_height="wrap_content">

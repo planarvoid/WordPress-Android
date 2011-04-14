@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -96,16 +97,16 @@ public class MyTracklistRow extends TracklistRow {
         }
 
         BindResult result = BindResult.ERROR;
-
+        ImageLoader.Options options = new ImageLoader.Options();
         try {
-            result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,
-                    ImageUtils.determineResizeOptions(
+            options.decodeInSampleSize = ImageUtils.determineResizeOptions(
                             new File(recording.artwork_path),
                             (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
-                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize);
+                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,options);
 
         setTemporaryRecordingDrawable(result);
 

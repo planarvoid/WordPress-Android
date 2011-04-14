@@ -2,6 +2,7 @@ package com.google.android.imageloader;
 
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Activity;
 import android.app.Application;
@@ -11,7 +12,6 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -167,16 +167,33 @@ public class ImageLoader {
         this(factory, null, null, null);
     }
 
+    public static class Options {
 
-    public Bitmap getBitmap(String uri, boolean loadIfNecessary, BitmapCallback callback) {
+        public Options() {
+            loadRemotelyIfNecessary = true;
+            decodeInSampleSize = 1;
+        }
+
+        public boolean loadRemotelyIfNecessary;
+        public int decodeInSampleSize;
+        public int cornerRadius;
+    }
+
+
+    public Bitmap getBitmap(String uri, BitmapCallback callback){
+        return getBitmap(uri,callback,new Options());
+    }
+
+
+    public Bitmap getBitmap(String uri, BitmapCallback callback, Options options) {
         Bitmap memoryBmp = getBitmap(uri);
         if (getBitmap(uri) != null){
             if (callback != null){
                 callback.onImageLoaded(memoryBmp, uri);
             }
             return memoryBmp;
-        } else if (loadIfNecessary){
-            ImageTask task = new ImageTask(uri, callback);
+        } else if (options.loadRemotelyIfNecessary){
+            ImageTask task = new ImageTask(uri, callback, options);
             postTask(task);
         }
         return null;
@@ -486,9 +503,9 @@ public class ImageLoader {
      * @throws NullPointerException if any of the arguments are {@code null}.
      */
     public BindResult bind(BaseAdapter adapter, ImageView view, String url) {
-        return bind(adapter, view, url, 1);
+        return bind(adapter, view, url, new Options());
     }
-    public BindResult bind(BaseAdapter adapter, ImageView view, String url, int inSampleSize) {
+    public BindResult bind(BaseAdapter adapter, ImageView view, String url, Options options) {
         if (adapter == null) {
             throw new NullPointerException();
         }
@@ -512,11 +529,7 @@ public class ImageLoader {
             if (error != null) {
                 return BindResult.ERROR;
             } else {
-                ImageTask task = new ImageTask(adapter, url);
-                if (inSampleSize > 1) {
-                    task.sampleOptions = new BitmapFactory.Options();
-                    task.sampleOptions.inSampleSize = inSampleSize;
-                }
+                ImageTask task = new ImageTask(adapter, url, options);
 
                 // For adapters, post the latest requests
                 // at the front of the queue in case the user
@@ -526,6 +539,10 @@ public class ImageLoader {
                 return BindResult.LOADING;
             }
         }
+    }
+
+    public BindResult bind(ImageView view, String url, ImageViewCallback callback) {
+        return bind(view, url, callback, new Options());
     }
 
     /**
@@ -549,7 +566,7 @@ public class ImageLoader {
      * @return a {@link BindResult}.
      * @throws NullPointerException if a required argument is {@code null}
      */
-    public BindResult bind(ImageView view, String url, ImageViewCallback callback) {
+    public BindResult bind(ImageView view, String url, ImageViewCallback callback, Options options) {
         if (view == null) {
             throw new NullPointerException();
         }
@@ -571,7 +588,7 @@ public class ImageLoader {
             if (error != null) {
                 return BindResult.ERROR;
             } else {
-                ImageTask task = new ImageTask(view, url, callback);
+                ImageTask task = new ImageTask(view, url, callback, options);
                 postTask(task);
                 return BindResult.LOADING;
             }
@@ -764,24 +781,8 @@ public class ImageLoader {
 
     private class ImageTask implements Runnable {
 
-        /**
-         * A {@link WeakReference} to the {@link BaseAdapter} to be bound or
-         * {@code null}.
-         * <p>
-         * Using a {@link WeakReference} allows the heavy-weight
-         * {@link Activity}/{@link Context} object associated with the adapter
-         * to be freed before the tasks completes.
-         */
         private final WeakReference<BaseAdapter> mAdapterReference;
 
-        /**
-         * A {@link WeakReference} to the {@link ImageView} to be bound or
-         * {@code null}.
-         * <p>
-         * Using a {@link WeakReference} allows the heavy-weight
-         * {@link Activity}/{@link Context} object associated with the
-         * {@link ImageView} to be freed before the tasks completes.
-         */
         private final WeakReference<ImageView> mImageViewReference;
 
         private final BitmapCallback mBitmapCallback;
@@ -794,54 +795,49 @@ public class ImageLoader {
 
         private Throwable mError;
 
-        public Options sampleOptions;
+        public ImageLoader.Options mOptions;
 
         private final boolean mLoadBitmap;
 
-        private ImageTask(String uri, BitmapCallback callback) {
+        private ImageTask(String uri, BitmapCallback callback, Options options) {
             mUri = uri;
             mBitmapCallback = callback;
             mImageViewCallback = null;
             mImageViewReference = null;
             mAdapterReference = null;
             mLoadBitmap = true;
+            mOptions = options;
         }
 
         private ImageTask(BaseAdapter adapter, ImageView view, String url, ImageViewCallback callback,
                 boolean loadBitmap) {
+                this(adapter, view, url, callback, loadBitmap, new Options());
+        }
+
+        private ImageTask(BaseAdapter adapter, ImageView view, String url, ImageViewCallback callback,
+                boolean loadBitmap, Options options) {
+
             mAdapterReference = adapter != null ? new WeakReference<BaseAdapter>(adapter) : null;
             mImageViewReference = view != null ? new WeakReference<ImageView>(view) : null;
             mUri = url;
             mImageViewCallback = callback;
             mBitmapCallback = null;
             mLoadBitmap = loadBitmap;
-        }
-        /**
-         * Creates an {@link ImageTask} to load a {@link Bitmap} for an
-         * {@link ImageView} in an {@link android.widget.AdapterView}.
-         */
-        public ImageTask(BaseAdapter adapter, String url) {
-            this(adapter, null, url, null, true);
+            mOptions = options;
         }
 
-        /**
-         * Creates an {@link ImageTask} to load a {@link Bitmap} for an
-         * {@link ImageView}.
-         */
-        public ImageTask(ImageView view, String url, ImageViewCallback callback) {
-            this(null, view, url, callback, true);
-        }
-
-        /**
-         * Creates an {@link ImageTask} to prime the cache.
-         */
         public ImageTask(String url, boolean loadBitmap) {
             this(null, null, url, null, loadBitmap);
         }
 
-        /**
-         * Returns the URL parameter passed to the constructor.
-         */
+        public ImageTask(BaseAdapter adapter, String url, Options options) {
+            this(adapter, null, url, null, true, new Options());
+        }
+
+        public ImageTask(ImageView view, String url, ImageViewCallback callback, Options options) {
+            this(null, view, url, callback, true, options);
+        }
+
         public String getUrl() {
             return mUri;
         }
@@ -887,7 +883,10 @@ public class ImageLoader {
                 }
 
                 if (new File(mUri).exists()){
+                    BitmapFactory.Options sampleOptions = new BitmapFactory.Options();
+                    sampleOptions.inSampleSize = mOptions.decodeInSampleSize;
                     mBitmap = BitmapFactory.decodeFile(mUri, sampleOptions);
+                    mBitmap = processBitmap(mBitmap,mOptions);
                     return true;
                 }
 
@@ -899,6 +898,7 @@ public class ImageLoader {
                         if (mBitmap == null) {
                             throw new NullPointerException();
                         }
+                        mBitmap = processBitmap(mBitmap,mOptions);
                         return true;
                     } else {
                         if (mPrefetchContentHandler != null) {
@@ -1010,6 +1010,17 @@ public class ImageLoader {
                 // No result or the result is no longer needed.
             }
         }
+    }
+
+    private static Bitmap processBitmap(Bitmap bitmap, Options options){
+
+        if (options.cornerRadius > 0){
+            Bitmap old = bitmap;
+            bitmap = ImageUtils.getRoundedCornerBitmap(old, options.cornerRadius);
+            old.recycle();
+        }
+        return bitmap;
+
     }
 
 

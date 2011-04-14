@@ -2,11 +2,11 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -144,7 +144,7 @@ public class PlayerAvatarBar extends View {
 
         mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
                 CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL), true, new BitmapCallback() {
+                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;
