@@ -13,7 +13,7 @@ Please use Google's [Code Style Guidelines for Contributors][].
 No wildcards, using the following order:
 
  * import static
- * blank 
+ * blank
  * import all other imports
  * blank
  * import android.*
@@ -97,5 +97,27 @@ If you use package scope for fields/methods, it's a good idea to make it more
 explicit by adding a comment `/* package */` just before the declaration. This
 indicates that package scope is requested and not just accidental.
 
+## Final keyword
+
+The `final` keyword is useful in Java, and it's not for performance reason.
+Read and understand [The Final Word On The final keyword][]. It's mostly useful
+when declaring local variable, fields and parameters. There are cases where
+final is required anyway (when accessing variables from inner classes) and it
+is useful to make sure that variables are treated as constants. Use it whenever
+applicable.
+
+Example (local variable):
+
+    // here we perform a lookup of a view - we'll never going to reassign `where`
+    final EditText where = (EditText) findViewById(R.id.where);
+
+Example (instance fields):
+
+    // declaring it as final ensures that `mName` is initialized
+    private final mName;
+    public MyContructor(String param) {
+      mName = param;
+    }
 
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
+[The Final Word on the final keyword]: http://renaud.waldura.com/doc/java/final-keyword.shtml
