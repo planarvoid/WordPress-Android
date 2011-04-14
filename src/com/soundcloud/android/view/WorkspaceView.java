@@ -301,12 +301,14 @@ public class WorkspaceView extends ViewGroup {
         RectF selectedTab = new RectF(startPos, 0, startPos + width / getChildCount(),
                 (TAB_INDICATOR_HEIGHT_PCT * height / 100));
 
-
         // XXX ye gods, no, don't create bitmaps in loops
-        bitmap = Bitmap.createBitmap(width, (TAB_INDICATOR_HEIGHT_PCT * height / 100),
+        if (bitmap == null){
+            bitmap = Bitmap.createBitmap(width, (TAB_INDICATOR_HEIGHT_PCT * height / 100),
                 Bitmap.Config.ARGB_8888);
+        }
 
         Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(0xFFFFFFFF);
         canvas.drawRoundRect(bar, 0, 0, tabIndicatorBackgroundPaint);
         canvas.drawRoundRect(selectedTab, 5, 5, selectedTabPaint);
     }
