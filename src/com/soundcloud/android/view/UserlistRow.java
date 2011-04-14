@@ -18,15 +18,11 @@ public class UserlistRow extends LazyRow {
     protected User mUser;
 
     protected TextView mUsername;
-
-    protected TextView mLocation;
-
+    protected TextView mFullname;
     protected TextView mTracks;
-
     protected TextView mFollowers;
 
     protected ImageView mTracksIcon;
-
     protected ImageView mFollowersIcon;
 
     protected Boolean _isFollowing;
@@ -35,12 +31,10 @@ public class UserlistRow extends LazyRow {
         super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
-        mLocation = (TextView) findViewById(R.id.location);
+        mFullname = (TextView) findViewById(R.id.fullname);
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
-
         mIcon = (ImageView) findViewById(R.id.icon);
-
         mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
         mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
 
@@ -57,7 +51,7 @@ public class UserlistRow extends LazyRow {
         mUser = (User) mAdapter.getData().get(position);
         super.display(position);
         mUsername.setText(mUser.username);
-        setLocation();
+        setFullname();
         setTrackCount();
         setFollowerCount();
 
@@ -87,8 +81,8 @@ public class UserlistRow extends LazyRow {
     // givent their own functions to be easily overwritten by subclasses who may
     // not use them or use them differently
 
-    protected void setLocation() {
-        mLocation.setText(mUser.location);
+    protected void setFullname() {
+        mFullname.setText(mUser.full_name);
     }
 
     protected void setTrackCount() {

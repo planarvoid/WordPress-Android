@@ -8,35 +8,34 @@
 	<ScrollView android:id="@+id/user_details_scrollview" android:layout_width="fill_parent" android:layout_height="fill_parent">
 		<TableLayout android:id="@+id/user_details_table"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:stretchColumns="0" android:shrinkColumns="1">
-			<TableRow android:id="@+id/fullname_row">
-				<TextView android:padding="3dip" android:text="Full name" />
-				<TextView android:layout_width="wrap_content"
-					android:gravity="right" android:padding="3dip" android:id="@+id/fullname"
-					android:layout_height="wrap_content" />
-			</TableRow>
+			android:stretchColumns="1" android:shrinkColumns="0">
 			<TableRow android:id="@+id/website_row">
-				<TextView android:text="Website" android:padding="3dip" />
+				<ImageView android:layout_width="wrap_content" android:padding="10dip" android:layout_height="wrap_content" android:src="@drawable/favicon_website"/>
 				<TextView android:layout_width="wrap_content" android:id="@+id/website"
-					android:text="" android:gravity="right" android:padding="3dip"
-					android:layout_height="wrap_content" />
+					android:text="Website" android:padding="3dip"
+					android:layout_height="fill_parent" android:gravity="center_vertical|left" />
 			</TableRow>
 			<TableRow android:id="@+id/discogs_row">
-				<TextView android:text="Discogs name" android:padding="3dip" />
+				<ImageView android:layout_width="wrap_content" android:padding="10dip" android:layout_height="wrap_content" android:src="@drawable/favicon_discogs"/>
 				<TextView android:layout_width="wrap_content" android:id="@+id/discogs_name"
-					android:text="" android:gravity="right" android:padding="3dip"
-					android:layout_height="wrap_content" />
+					android:text="Discogs" android:padding="3dip"
+					android:layout_height="fill_parent" android:gravity="center_vertical" />
 			</TableRow>
 			<TableRow android:id="@+id/myspace_row">
-				<TextView android:text="Myspace name" android:padding="3dip" />
+				<ImageView android:layout_width="wrap_content" android:padding="10dip" android:layout_height="wrap_content" android:src="@drawable/favicon_myspace"/>
 				<TextView android:layout_width="wrap_content" android:id="@+id/myspace_name"
-					android:text="" android:gravity="right" android:padding="3dip"
-					android:layout_height="wrap_content" />
+					android:text="Myspace" android:padding="3dip"
+					android:layout_height="fill_parent" android:gravity="center_vertical" />
 			</TableRow>
-			<TableRow>
-				<TextView android:layout_span="2" android:layout_width="wrap_content"
-					android:id="@+id/description" android:padding="3dip" android:text="" />
-			</TableRow>
+			<TableRow android:id="@+id/location_row">
+                <TextView android:layout_width="wrap_content" android:layout_span="2" 
+                    android:gravity="left" android:padding="3dip" android:id="@+id/location"
+                    android:layout_height="wrap_content" android:textStyle="bold" />
+            </TableRow>
+            <TableRow>
+                <TextView android:layout_span="2" android:layout_width="wrap_content"
+                    android:id="@+id/description" android:padding="3dip" android:text="" />
+            </TableRow>
 		</TableLayout>
 		</ScrollView>
 		<TextView android:text="@string/info_empty" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="center" style="@style/txt_empty_view" android:visibility="gone" android:id="@+id/txt_empty"/>

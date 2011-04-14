@@ -113,9 +113,9 @@ public class UserBrowser extends ScActivity {
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUser = (TextView) findViewById(R.id.username);
-        mLocation = (TextView) findViewById(R.id.location);
+        mFullName = (TextView) findViewById(R.id.fullname);
 
-        mFullName = (TextView) mDetailsView.findViewById(R.id.fullname);
+        mLocation = (TextView) mDetailsView.findViewById(R.id.location);
         mWebsite = (TextView) mDetailsView.findViewById(R.id.website);
         mDiscogsName = (TextView) mDetailsView.findViewById(R.id.discogs_name);
         mMyspaceName = (TextView) mDetailsView.findViewById(R.id.myspace_name);
@@ -559,7 +559,7 @@ public class UserBrowser extends ScActivity {
         mUserLoadId = mUserData.id;
 
         mUser.setText(mUserData.username);
-        mLocation.setText(CloudUtils.getLocationString(mUserData.city, mUserData.country));
+        mFullName.setText(mUserData.full_name);
         setTabTextInfo();
 
         if (CloudUtils.checkIconShouldLoad(mUserData.avatar_url)) {
@@ -578,20 +578,10 @@ public class UserBrowser extends ScActivity {
 
         boolean _showTable = false;
 
-        if (!TextUtils.isEmpty(mUserData.full_name)) {
-            _showTable = true;
-            mFullName.setText(mUserData.full_name);
-            mDetailsView.findViewById(R.id.fullname_row).setVisibility(View.VISIBLE);
-        } else {
-            mDetailsView.findViewById(R.id.fullname_row).setVisibility(View.GONE);
-        }
-
-        CharSequence styledText;
         if (!TextUtils.isEmpty(mUserData.website)) {
             _showTable = true;
-            styledText = Html.fromHtml("<a href='" + mUserData.website + "'>"
-                    + CloudUtils.stripProtocol(mUserData.website) + "</a>");
-            mWebsite.setText(styledText);
+            mWebsite.setText(TextUtils.isEmpty(mUserData.website_title) ? CloudUtils
+                    .stripProtocol(mUserData.website) : mUserData.website_title);
             mWebsite.setMovementMethod(LinkMovementMethod.getInstance());
             mDetailsView.findViewById(R.id.website_row).setVisibility(View.VISIBLE);
         } else {
@@ -600,9 +590,6 @@ public class UserBrowser extends ScActivity {
 
         if (!TextUtils.isEmpty(mUserData.discogs_name)) {
             _showTable = true;
-            styledText = Html.fromHtml("<a href='http://www.discogs.com/artist/"
-                    + mUserData.discogs_name + "'>" + mUserData.discogs_name + "</a>");
-            mDiscogsName.setText(styledText);
             mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
             mDetailsView.findViewById(R.id.discogs_row).setVisibility(View.VISIBLE);
         } else {
@@ -611,14 +598,20 @@ public class UserBrowser extends ScActivity {
 
         if (!TextUtils.isEmpty(mUserData.myspace_name)) {
             _showTable = true;
-            styledText = Html.fromHtml("<a href='http://www.myspace.com/"
-                    + (mUserData).myspace_name + "'>" + (mUserData).myspace_name + "</a>");
-            mMyspaceName.setText(styledText);
             mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
             mDetailsView.findViewById(R.id.myspace_row).setVisibility(View.VISIBLE);
         } else {
             mDetailsView.findViewById(R.id.myspace_row).setVisibility(View.GONE);
         }
+
+        if (!TextUtils.isEmpty(mUserData.city) || !TextUtils.isEmpty(mUserData.country)) {
+            _showTable = true;
+            mLocation.setText(getString(R.string.from) + " " + CloudUtils.getLocationString(mUserData.city, mUserData.country));
+            mDetailsView.findViewById(R.id.location_row).setVisibility(View.VISIBLE);
+        } else {
+            mDetailsView.findViewById(R.id.location_row).setVisibility(View.GONE);
+        }
+
 
         if (!TextUtils.isEmpty(mUserData.description)) {
             _showTable = true;

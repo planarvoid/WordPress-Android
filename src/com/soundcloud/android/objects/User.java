@@ -3,7 +3,6 @@ package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB.Users;
-import com.soundcloud.android.utils.CloudUtils;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -38,16 +37,10 @@ public class User extends BaseObj implements Parcelable {
     public int private_tracks_count;
     public String myspace_name;
     public String country;
-    public String location;
     public String plan;
 
     public boolean primary_email_confirmed;
     public boolean current_user_following;
-
-    public void resolveLocation() {
-        this.location = CloudUtils.getLocationString(city == null ? "" : city,
-        country == null ? "" : country);
-    }
 
     public User() {
     }
@@ -196,7 +189,6 @@ public class User extends BaseObj implements Parcelable {
                 ", private_tracks_count='" + private_tracks_count + '\'' +
                 ", myspace_name='" + myspace_name + '\'' +
                 ", country='" + country + '\'' +
-                ", location='" + location + '\'' +
                 ", plan='" + plan + '\'' +
                 ", primary_email_confirmed=" + primary_email_confirmed +
                 ", current_user_following=" + current_user_following +

@@ -475,6 +475,7 @@
   <string name="downloading_artwork">Downloading artwork ...</string>
   <string name="tracks">tracks</string>
   <string name="favorited_by">Favorited_by</string>
+  <string name="from">from</string>
 
 
   <!-- file browser -->
