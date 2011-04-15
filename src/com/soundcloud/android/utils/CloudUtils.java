@@ -616,18 +616,19 @@ public class CloudUtils {
     public static String getTimeElapsed(Context c, long eventTimestamp){
         long elapsed = (System.currentTimeMillis() - eventTimestamp)/1000;
 
-        if (elapsed < 60)
+        if (elapsed < 60) {
             return c.getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
-        else if (elapsed < 3600)
+        } else if (elapsed < 3600) {
             return c.getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60));
-        else if (elapsed < 86400)
+        } else if (elapsed < 86400) {
             return c.getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600));
-        else if (elapsed < 2592000)
+        } else if (elapsed < 2592000) {
             return c.getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400));
-        else if (elapsed < 31536000)
+        } else if (elapsed < 31536000) {
             return c.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
-        else
+        } else {
             return c.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
+        }
     }
 
     /**
@@ -642,8 +643,8 @@ public class CloudUtils {
 
         int start = string.indexOf(clickableText);
         int end = start + clickableText.length();
-        if (start == -1)
-            return;
+        if (start == -1) return;
+
         if (text instanceof Spannable) {
             ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
