@@ -62,6 +62,29 @@
 		<item name="android:textStyle">italic</item>
 	</style>
 	
+	<style name="txt_auth_title" parent="@android:style/TextAppearance.Large">
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+	<style name="txt_auth_input" parent="@android:style/Widget.EditText">
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dip</item>
+        <item name="android:layout_marginTop">5dip</item>
+        <item name="android:layout_marginBottom">5dip</item>
+    </style>
+    <style name="txt_auth_msg">
+        <item name="android:paddingTop">5dip</item>
+        <item name="android:paddingBottom">5dip</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColorLink">#FFFFFF</item>
+    </style>
+	
 	<style name="TabWidgetTextAppearance" parent="@android:style/TextAppearance.Widget.TabWidget"> 
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>

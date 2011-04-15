@@ -10,15 +10,15 @@
 			<TextView android:layout_width="wrap_content" android:id="@+id/website"
 				android:text="Website" android:padding="3dip" android:layout_height="wrap_content"
 				android:gravity="center_vertical|left" android:drawableLeft="@drawable/favicon_website"
-				android:drawablePadding="10dip" android:textColor="@drawable/dark_text_states" />
+				android:drawablePadding="10dip" android:textColor="@drawable/txt_dark_states" />
 			<TextView android:layout_width="wrap_content" android:id="@+id/discogs_name"
 				android:text="Discogs" android:padding="3dip" android:layout_height="wrap_content"
 				android:gravity="center_vertical" android:drawableLeft="@drawable/favicon_discogs"
-				android:drawablePadding="10dip" android:textColor="@drawable/dark_text_states" />
+				android:drawablePadding="10dip" android:textColor="@drawable/txt_dark_states" />
 			<TextView android:layout_width="wrap_content" android:id="@+id/myspace_name"
 				android:text="Myspace" android:padding="3dip" android:layout_height="wrap_content"
 				android:gravity="center_vertical" android:drawableLeft="@drawable/favicon_myspace"
-				android:drawablePadding="10dip" android:textColor="@drawable/dark_text_states" />
+				android:drawablePadding="10dip" android:textColor="@drawable/txt_dark_states" />
 			<TextView android:layout_width="wrap_content"
 				android:layout_span="2" android:gravity="left" android:padding="3dip"
 				android:id="@+id/location" android:layout_height="wrap_content"

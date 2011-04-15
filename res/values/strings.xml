@@ -13,6 +13,32 @@
   <string name="authentication_retrying_message">There was a problem contacting Soundcloud for account access. Retrying.</string>
   <string name="authentication_failed_title">Communication error</string>
   <string name="authentication_failed_message">Authentication failed.\nUnable to contact server. If possible, please ensure you are connected via wifi.</string>
+  
+  <string name="authentication_log_in">Log In</string>
+  <string name="authentication_sign_up">Sign Up</string>
+  <string name="authentication_your_email_address">Your email address</string>
+  <string name="authentication_your_password">Your password</string>
+  <string name="authentication_I_forgot_my_password">I forgot my password</string>
+  <string name="authentication_choose_a_password">Choose a password</string>
+  <string name="authentication_repeat_your_password">Repeat your password</string>
+  <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use of SoundCloud.</string>
+  <string name="authentication_terms_of_use">Terms of Use</string>
+  <string name="authentication_recover_password">Recover password</string>
+  <string name="authentication_recover_password_msg">Enter your e-mail address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+  <string name="authentication_support">support</string>
+  <string name="authentication_add_info_msg">Your account got created, but maybe you want to give yourself a proper username and a nice image?</string>
+  <string name="authentication_add_info_username_hint">User1234</string>
+  <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
+  <string name="authentication_add_image">Add Image</string>
+  
+  <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
+  <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
+  
+  <string name="authentication_support_email_chooser_text">Send email using...</string>
+  <string name="authentication_support_email_address">support@soundcloud.com</string>
+  <string name="authentication_support_email_subject">Login problems</string>
+  <string name="authentication_support_email_message"></string>
+  
 
   <string name="app_name">SoundCloud</string>
   <string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
@@ -353,6 +379,10 @@
   <string name="btn_search">Search</string>
   <string name="btn_browse">Browse</string>
   <string name="btn_upload">Upload</string>
+  <string name="btn_login">Log In</string>
+  <string name="btn_signup">Sign Up</string>
+  <string name="btn_skip">Skip</string>
+  <string name="btn_save">Save</string>
   <string name="btn_record_stop">Stop Recording</string>
   <string name="btn_record_start">Start Recording</string>
   <string name="btn_playback_stop">Stop Playback</string>

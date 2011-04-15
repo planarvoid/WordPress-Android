@@ -56,7 +56,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -91,10 +90,6 @@ public abstract class ScActivity extends Activity {
 
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
-    }
-
-    public void showToast(int stringId) {
-        showToast(getResources().getString(stringId));
     }
 
     protected void onServiceBound() {
@@ -331,6 +326,14 @@ public abstract class ScActivity extends Activity {
         return false;
     }
 
+    public void showToast(int stringId) {
+        CloudUtils.showToast(this, getResources().getString(stringId));
+    }
+
+    protected void showToast(CharSequence text) {
+        CloudUtils.showToast(this,text);
+    }
+
     public LazyListView buildList() {
         LazyListView lv = new LazyListView(this);
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
@@ -392,11 +395,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    protected void showToast(CharSequence text) {
-        Toast toast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
-    }
+
 
     public Exception getException() {
         return mException;

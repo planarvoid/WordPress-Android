@@ -22,7 +22,12 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -34,6 +39,7 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -133,6 +139,18 @@ public class CloudUtils {
             }
             f.renameTo(newDb);
         }
+    }
+
+    public static void showToast(Context c, int resId) {
+        Toast toast = Toast.makeText(c, c.getText(resId), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
+    public static void showToast(Context c, CharSequence text) {
+        Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     public static void checkDirs(Context c) {
@@ -610,5 +628,33 @@ public class CloudUtils {
             return c.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
         else
             return c.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
+    }
+
+    /**
+     * Adapted from the {@link android.text.util.Linkify} class. Changes the
+     * first instance of {@code link} into a HTTP link with the given {@code
+     * url}.
+     */
+    public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener) {
+        CharSequence text = view.getText();
+        String string = text.toString();
+        ClickSpan span = new ClickSpan(listener);
+
+        int start = string.indexOf(clickableText);
+        int end = start + clickableText.length();
+        if (start == -1)
+            return;
+        if (text instanceof Spannable) {
+            ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            SpannableString s = SpannableString.valueOf(text);
+            s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            view.setText(s);
+        }
+
+        MovementMethod m = view.getMovementMethod();
+        if ((m == null) || !(m instanceof LinkMovementMethod)) {
+            view.setMovementMethod(LinkMovementMethod.getInstance());
+        }
     }
 }
