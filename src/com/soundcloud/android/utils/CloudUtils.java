@@ -633,8 +633,7 @@ public class CloudUtils {
 
     /**
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
-     * first instance of {@code link} into a HTTP link with the given {@code
-     * url}.
+     * first instance of {@code link} into a clickable link attached to the given listener
      */
     public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener) {
         CharSequence text = view.getText();
