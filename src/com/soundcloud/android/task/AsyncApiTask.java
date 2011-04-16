@@ -33,4 +33,8 @@ public abstract class AsyncApiTask<Params, Progress, Result>
     protected void warn(String s, Throwable throwable) {
         Log.w(TAG, s, throwable);
     }
+
+    protected void warn(String s) {
+        Log.w(TAG, s);
+    }
 }

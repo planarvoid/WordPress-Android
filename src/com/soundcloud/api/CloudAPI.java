@@ -133,6 +133,8 @@ public interface CloudAPI {
         String MY_CONFIRMATION     = "/me/email-confirmations";
 
         String RESOLVE             = "/resolve";
+
+        String SEND_PASSWORD       = "/login/forgot";
     }
 
     interface TrackParams {
