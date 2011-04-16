@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ClickSpan;
@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class AuthRecover extends Activity {
+public class Recover extends Activity {
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -53,7 +53,7 @@ public class AuthRecover extends Activity {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0){
-                    CloudUtils.showToast(AuthRecover.this, R.string.authentication_error_incomplete_fields);
+                    CloudUtils.showToast(Recover.this, R.string.authentication_error_incomplete_fields);
                     return;
                 }
                 Log.i(getClass().getSimpleName(),"Recover with " + emailField.getText().toString());

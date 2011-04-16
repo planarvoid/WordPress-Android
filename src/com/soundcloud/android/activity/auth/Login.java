@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -30,7 +30,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
-public class AuthLogin extends AccountAuthenticatorActivity {
+public class Login extends AccountAuthenticatorActivity {
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -71,7 +71,7 @@ public class AuthLogin extends AccountAuthenticatorActivity {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
-                    CloudUtils.showToast(AuthLogin.this, R.string.authentication_error_incomplete_fields);
+                    CloudUtils.showToast(Login.this, R.string.authentication_error_incomplete_fields);
                 } else {
                     final String email =  emailField.getText().toString();
                     final String password = passwordField.getText().toString();
@@ -85,7 +85,7 @@ public class AuthLogin extends AccountAuthenticatorActivity {
         CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_I_forgot_my_password), new ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
-                Intent i = new Intent(AuthLogin.this, AuthRecover.class);
+                Intent i = new Intent(Login.this, Recover.class);
                 if (emailField.getText().length() > 0) {
                     i.putExtra("email", emailField.getText().toString());
                 }
@@ -105,7 +105,7 @@ public class AuthLogin extends AccountAuthenticatorActivity {
 
             @Override
             protected void onPreExecute() {
-                progress = new ProgressDialog(AuthLogin.this);
+                progress = new ProgressDialog(Login.this);
                 progress.setIndeterminate(true);
                 progress.setTitle(R.string.progress_sc_connect_title);
                 progress.show();
@@ -140,7 +140,7 @@ public class AuthLogin extends AccountAuthenticatorActivity {
 
     private void showError(IOException e) {
         final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
-        new AlertDialog.Builder(AuthLogin.this)
+        new AlertDialog.Builder(Login.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.error_sc_connect_error_title)
                 .setMessage(tokenError ? R.string.error_sc_connect_invalid_password : R.string.error_sc_connect_error_message)

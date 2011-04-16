@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ClickSpan;
@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class AuthSignUp extends Activity {
+public class SignUp extends Activity {
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -55,18 +55,18 @@ public class AuthSignUp extends Activity {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0 || choosePasswordField.getText().length() == 0 || choosePasswordField.getText().length() == 0){
-                    CloudUtils.showToast(AuthSignUp.this, R.string.authentication_error_incomplete_fields);
+                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
                     return;
                 }
 
                 if (!choosePasswordField.getText().equals(choosePasswordField.getText())){
-                    CloudUtils.showToast(AuthSignUp.this, R.string.authentication_error_password_mismatch);
+                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
                     return;
                 }
 
                 Log.i(getClass().getSimpleName(),"Signup with " + emailField.getText().toString());
 
-                startActivity(new Intent(AuthSignUp.this, AuthAddInfo.class));
+                startActivity(new Intent(SignUp.this, AddInfo.class));
             }
         });
 

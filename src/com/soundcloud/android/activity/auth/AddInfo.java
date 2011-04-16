@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
@@ -29,7 +29,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
-public class AuthAddInfo extends Activity {
+public class AddInfo extends Activity {
 
     private File mAvatarFile;
     private Bitmap mAvatarBitmap;
@@ -84,14 +84,14 @@ public class AuthAddInfo extends Activity {
         mArtworkImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CloudUtils.showToast(AuthAddInfo.this, R.string.cloud_upload_clear_artwork);
+                CloudUtils.showToast(AddInfo.this, R.string.cloud_upload_clear_artwork);
             }
         });
 
         artworkField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(AuthAddInfo.this)
+                new AlertDialog.Builder(AddInfo.this)
                 .setMessage("Where would you like to get the image?").setPositiveButton(
                         "Take a new picture", new DialogInterface.OnClickListener() {
                             @Override
