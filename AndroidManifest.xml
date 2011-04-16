@@ -35,23 +35,6 @@
         <activity android:name=".activity.AuthAddInfo" android:label="@string/app_name" />
         <activity android:name=".activity.AuthRecover" android:label="@string/app_name" />
 
-        <activity android:name=".activity.Authorize"
-            android:label="@string/app_name"
-            android:configChanges="orientation|keyboardHidden">
-            <intent-filter>
-              <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-        </activity>
-
-        <!-- Remove after native login impl -->
-        <activity android:name=".activity.WebViewAuthorize"
-            android:label="@string/app_name"
-            android:configChanges="orientation|keyboardHidden">
-            <intent-filter>
-              <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".activity.Connect"
             android:label="Connect"
             android:configChanges="orientation|keyboardHidden">
