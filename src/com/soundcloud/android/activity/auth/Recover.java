@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
@@ -31,6 +33,7 @@ public class Recover extends Activity {
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
         emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
                         (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
@@ -45,6 +48,8 @@ public class Recover extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "cancel");
+                setResult(RESULT_CANCELED);
                 finish();
             }
         });
@@ -52,31 +57,32 @@ public class Recover extends Activity {
         recoverBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (emailField.getText().length() == 0){
+                if (emailField.getText().length() == 0) {
                     CloudUtils.showToast(Recover.this, R.string.authentication_error_incomplete_fields);
-                    return;
+                } else {
+                    recoverPassword(emailField.getText().toString());
                 }
-                Log.i(getClass().getSimpleName(),"Recover with " + emailField.getText().toString());
             }
         });
 
-        CloudUtils.clickify(((TextView)findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_support),new ClickSpan.OnClickListener()
-        {
-           @Override
-           public void onClick() {
-              final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-              emailIntent .setType("plain/text");
-              emailIntent .putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.authentication_support_email_address)});
-              emailIntent .putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.authentication_support_email_subject));
-              emailIntent .putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.authentication_support_email_message));
-              startActivity(Intent.createChooser(emailIntent, getString(R.string.authentication_support_email_chooser_text)));
-           }
-       });
+        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_support), new ClickSpan.OnClickListener() {
+            @Override
+            public void onClick() {
+                final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+                emailIntent.setType("plain/text");
+                emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.authentication_support_email_address)});
+                emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.authentication_support_email_subject));
+                emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.authentication_support_email_message));
+                startActivity(Intent.createChooser(emailIntent, getString(R.string.authentication_support_email_chooser_text)));
+            }
+        });
 
-        if ( getIntent().hasExtra("email")){
+        if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));
-         }
-
+        }
     }
 
+    private void recoverPassword(String email) {
+        Log.i(getClass().getSimpleName(), "Recover with " + email);
+    }
 }

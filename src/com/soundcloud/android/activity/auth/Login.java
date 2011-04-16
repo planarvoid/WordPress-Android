@@ -82,18 +82,24 @@ public class Login extends AccountAuthenticatorActivity {
         });
 
 
-        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_I_forgot_my_password), new ClickSpan.OnClickListener() {
+        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+                getResources().getString(R.string.authentication_I_forgot_my_password),
+                new ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
                 Intent i = new Intent(Login.this, Recover.class);
                 if (emailField.getText().length() > 0) {
                     i.putExtra("email", emailField.getText().toString());
                 }
-                startActivity(i);
+                startActivityForResult(i, 0);
             }
         });
+    }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult("+requestCode+","+resultCode+","+data);
     }
 
     protected void login(final String username, final String password) {
