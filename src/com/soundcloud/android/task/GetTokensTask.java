@@ -2,21 +2,20 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.CloudAPI;
 
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-public class GetTokensTask extends AsyncTask<String, Void, Pair<String, String>> {
-    private CloudAPI mApi;
+public class GetTokensTask extends AsyncApiTask<String, Void, Pair<String, String>> {
     protected IOException mException;
 
-    public GetTokensTask(CloudAPI api) {
-        this.mApi = api;
+    public GetTokensTask(AndroidCloudAPI api) {
+        super(api);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class GetTokensTask extends AsyncTask<String, Void, Pair<String, String>>
         String login = params[0];
         String password = params[1];
         try {
-            CloudAPI api = mApi.login(login, password);
+            CloudAPI api = api().login(login, password);
             return new Pair<String, String>(api.getToken(), api.getRefreshToken());
         } catch (IOException e) {
             mException = e;

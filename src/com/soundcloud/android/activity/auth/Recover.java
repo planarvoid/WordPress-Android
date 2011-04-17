@@ -89,7 +89,7 @@ public class Recover extends Activity {
         }
     }
 
-    private void recoverPassword(String email) {
+    private void recoverPassword(final String email) {
         Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
             @Override
@@ -114,7 +114,7 @@ public class Recover extends Activity {
             try {
                 HttpResponse resp = api().postContent(SEND_PASSWORD, new Http.Params("email", email));
                 final int code = resp.getStatusLine().getStatusCode();
-                if (code == HttpStatus.SC_OK) {
+                if (code == HttpStatus.SC_ACCEPTED  ) {
                     return true;
                 } else {
                     warn("unexpected status code "+code+" received");

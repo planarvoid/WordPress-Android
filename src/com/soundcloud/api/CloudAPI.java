@@ -134,7 +134,7 @@ public interface CloudAPI {
 
         String RESOLVE             = "/resolve";
 
-        String SEND_PASSWORD       = "/login/forgot";
+        String SEND_PASSWORD       = "/passwords/reset-instructions";
     }
 
     interface TrackParams {
