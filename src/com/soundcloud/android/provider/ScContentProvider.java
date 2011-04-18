@@ -29,39 +29,26 @@ public class ScContentProvider extends ContentProvider {
     private static final String TAG = "ScContentProvider";
 
     private static final String DATABASE_NAME = "SoundCloud";
-
     private static final int DATABASE_VERSION = 6;
-
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
-
     private static final UriMatcher sUriMatcher;
 
     private static final int TRACKS = 1;
-
     private static final int USERS = 2;
-
     private static final int RECORDINGS = 3;
-
     private static final int TRACK_PLAYS = 4;
 
     private static final int TRACKS_ID = 101;
-
     private static final int USERS_ID = 102;
-
     private static final int RECORDINGS_ID = 103;
-
     private static final int TRACK_PLAYS_ID = 104;
 
     private static HashMap<String, String> tracksProjectionMap;
-
     private static HashMap<String, String> usersProjectionMap;
-
     private static HashMap<String, String> recordingsProjectionMap;
-
     private static HashMap<String, String> trackPlaysProjectionMap;
 
     private static String COLUMN_ALL_FROM_TRACKS = "Tracks.*";
-
     private static String COLUMN_TRACK_USER_PLAYED = "CASE when TrackPlays.track_id is null then 0 else 1 END AS user_played";
 
     public static String[] FULL_TRACK_PROJECTION = {COLUMN_ALL_FROM_TRACKS,COLUMN_TRACK_USER_PLAYED};
