@@ -22,7 +22,7 @@ public class Token {
     public Token(JSONObject json) throws JSONException {
         access = json.getString(ACCESS_TOKEN);
         refresh = json.getString(REFRESH_TOKEN);
-        if (!json.isNull(SCOPE)) scope = json.getString(SCOPE);
+        scope = json.getString(SCOPE);
         expiresIn = System.currentTimeMillis() + json.getLong(EXPIRES_IN) * 1000;
     }
 

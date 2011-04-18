@@ -12,7 +12,6 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -73,11 +72,11 @@ public class ApiWrapper implements CloudAPI {
             throw new IllegalArgumentException("username or password is null");
         }
         mToken = requestToken(new Http.Params(
-                "grant_type",    PASSWORD,
-                "client_id",     mClientId,
-                "client_secret", mClientSecret,
-                "username",      username,
-                "password",      password));
+            "grant_type",    PASSWORD,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret,
+            "username",      username,
+            "password",      password));
         return mToken;
     }
 
@@ -85,6 +84,7 @@ public class ApiWrapper implements CloudAPI {
     public Token login() throws IOException {
         return requestToken(new Http.Params(
             "grant_type",    CLIENT_CREDENTIALS,
+            //"scope",         "signup",
             "client_id",     mClientId,
             "client_secret", mClientSecret));
     }
@@ -96,7 +96,6 @@ public class ApiWrapper implements CloudAPI {
             "client_id",     mClientId,
             "client_secret", mClientSecret,
             "refresh_token", mToken.refresh));
-
         return mToken;
     }
 
@@ -135,9 +134,9 @@ public class ApiWrapper implements CloudAPI {
             JSONObject resp = new JSONObject(json);
             switch (status) {
                 case HttpStatus.SC_OK:
-                    Token token = new Token(resp);
+                    final Token token = new Token(resp);
                     for (TokenStateListener l : listeners) {
-                        l.onTokenRefreshed(mToken);
+                        l.onTokenRefreshed(token);
                     }
                     return token;
                 case HttpStatus.SC_UNAUTHORIZED:
@@ -233,21 +232,24 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override public HttpResponse getContent(String resource, Http.Params params) throws IOException {
-        final HttpUriRequest req = new HttpGet(params == null ? resource : params.url(resource));
+        if (params == null) params = new Http.Params();
+        HttpRequest req = params.buildRequest(HttpGet.class, resource);
         req.addHeader("Accept", "application/json");
         return execute(req);
     }
 
     @Override public HttpResponse putContent(String resource, Http.Params params) throws IOException {
-        return execute(new HttpPut(params == null ? resource : params.url(resource)));
+        if (params == null) params = new Http.Params();
+        return execute(params.buildRequest(HttpPut.class, resource));
     }
 
     @Override public HttpResponse postContent(String resource, Http.Params params) throws IOException {
-        return execute(new HttpPost(params == null ? resource : params.url(resource)));
+        if (params == null) params = new Http.Params();
+        return execute(params.buildRequest(HttpPost.class, resource));
     }
 
     @Override public HttpResponse deleteContent(String resource) throws IOException {
-        return execute(new HttpDelete(resource));
+        return execute(new Http.Params().buildRequest(HttpDelete.class, resource));
     }
 
     @Override public Token getToken() {
@@ -289,9 +291,8 @@ public class ApiWrapper implements CloudAPI {
     }
 
     protected HttpRequest addAuthorization(HttpRequest request) {
-        final Token token = getToken();
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
-            request.addHeader(getOAuthHeader(token));
+            request.addHeader(getOAuthHeader(getToken()));
         }
         return request;
     }

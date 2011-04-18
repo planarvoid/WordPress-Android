@@ -1,8 +1,10 @@
 package com.soundcloud.api;
 
 import org.apache.http.Header;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
@@ -16,6 +18,7 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -110,6 +113,21 @@ public class Http {
 
         public String url(String url) {
             return params.isEmpty() ? url : url + "?" + queryString();
+        }
+
+        public HttpRequest buildRequest(Class<? extends HttpRequestBase> method, String resource) {
+            try {
+                HttpRequestBase request = method.newInstance();
+                request.setURI(URI.create(url(resource)));
+                if (token != null) {
+                    request.addHeader(ApiWrapper.getOAuthHeader(token));
+                }
+                return request;
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
