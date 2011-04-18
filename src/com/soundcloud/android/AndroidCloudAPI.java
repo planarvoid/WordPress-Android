@@ -26,11 +26,14 @@ public interface AndroidCloudAPI extends CloudAPI {
             super(clientId, clientSecret, token, refreshToken, env);
         }
 
+        // XXX reenable when sandbox certificate is working again
+        /*
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             return isRunningOnDalvik() ?
                     SSLCertificateSocketFactory.getHttpSocketFactory(Http.TIMEOUT, null) :
                     super.getSSLSocketFactory();
         }
+        */
 
         @Override public ObjectMapper getMapper() {
             if (this.mMapper == null) {

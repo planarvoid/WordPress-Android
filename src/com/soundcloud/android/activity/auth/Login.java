@@ -75,7 +75,6 @@ public class Login extends AccountAuthenticatorActivity {
                 } else {
                     final String email =  emailField.getText().toString();
                     final String password = passwordField.getText().toString();
-                    Log.d(TAG, "Login with " + email + " and " + password);
                     login(email, password);
                 }
             }

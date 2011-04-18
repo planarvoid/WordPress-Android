@@ -182,6 +182,7 @@ public class ApiWrapper implements CloudAPI {
             final SSLSocketFactory sslFactory = getSSLSocketFactory();
             if (mEnv == Env.SANDBOX) {
                 // disable strict checks on sandbox
+                // XXX remove then certificate is fixed
                 sslFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             }
             registry.register(new Scheme("https", sslFactory, 443));

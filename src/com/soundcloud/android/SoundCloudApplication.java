@@ -49,6 +49,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static boolean DEV_MODE;
 
     static final boolean API_PRODUCTION = true;
+
     private RecordListener mRecListener;
 
     private AndroidCloudAPI mCloudApi;
@@ -79,7 +80,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 getClientSecret(API_PRODUCTION),
                 account == null ? null : getAccessToken(account),
                 account == null ? null : getRefreshToken(account),
-                CloudAPI.Env.LIVE
+                API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
         );
 
         mCloudApi.addTokenStateListener(new TokenStateListener() {

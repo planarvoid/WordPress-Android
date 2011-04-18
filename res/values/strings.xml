@@ -43,8 +43,9 @@
   <string name="app_name">SoundCloud</string>
   <string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
   <string name="consumer_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
-  <string name="sandbox_consumer_key">exQKp2vmQkgRPrPgceKJdw</string>
-  <string name="sandbox_consumer_secret">waXqVeBoj3NZ7nzFdtVX31p96N3YcNW1zWt79N9rk</string>
+
+  <string name="sandbox_consumer_key">0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
+  <string name="sandbox_consumer_secret">0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
 
   <string name="player_not_streamable">This track is not streamable</string>
   <string name="player_error">There was a playback error</string>
