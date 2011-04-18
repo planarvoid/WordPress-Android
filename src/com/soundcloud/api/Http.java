@@ -1,7 +1,6 @@
 package com.soundcloud.api;
 
 import org.apache.http.Header;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -140,7 +139,7 @@ public class Http {
             return this;
         }
 
-        public HttpRequest buildRequest(Class<? extends HttpRequestBase> method, String resource) {
+        public <T extends HttpRequestBase> T buildRequest(Class<T> method, String resource) {
             try {
                 HttpRequestBase request = method.newInstance();
                 if (token != null) {
@@ -160,13 +159,13 @@ public class Http {
                     }
 
                     ((HttpEntityEnclosingRequestBase)request).setEntity(listener == null ? entity :
-                        new CountingMultipartRequestEntity(entity, listener));
+                        new CountingMultipartEntity(entity, listener));
 
                     request.setURI(URI.create(resource));
                 } else {
                     request.setURI(URI.create(url(resource)));
                 }
-                return request;
+                return (T) request;
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -185,7 +184,7 @@ public class Http {
         }
     }
 
-      public static class StringBodyNoHeaders extends StringBody {
+    static class StringBodyNoHeaders extends StringBody {
         public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {
             super(value);
         }

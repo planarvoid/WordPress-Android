@@ -49,7 +49,9 @@ public interface CloudAPI {
      * Exchange an OAuth1 Token for new OAuth2 tokens
      * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
      * @return a valid token
-     * */
+     * @throws IOException
+     * @throws InvalidGrantException
+     */
     Token exchangeToken(String oauth1AccessToken) throws IOException;
 
     /** Called to invalidate the current token */

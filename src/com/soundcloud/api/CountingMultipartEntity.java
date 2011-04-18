@@ -8,12 +8,12 @@ import java.io.OutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
-public class CountingMultipartRequestEntity implements HttpEntity {
+public class CountingMultipartEntity implements HttpEntity {
     private HttpEntity delegate_;
 
     private Http.ProgressListener listener_;
 
-    public CountingMultipartRequestEntity(HttpEntity delegate, Http.ProgressListener listener) {
+    public CountingMultipartEntity(HttpEntity delegate, Http.ProgressListener listener) {
         super();
         delegate_ = delegate;
         listener_ = listener;
