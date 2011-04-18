@@ -5,7 +5,7 @@
   <RelativeLayout android:padding="10dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
     <TextView android:layout_height="wrap_content" style="@style/txt_auth_title"
       android:layout_width="wrap_content" android:id="@+id/txt_title"
-      android:layout_alignParentLeft="true" android:text="@string/authentication_recover_password"></TextView>
+      android:layout_alignParentLeft="true" android:text="@string/authentication_recover_password"/>
     <EditText android:layout_height="wrap_content" android:id="@+id/txt_email_address"
             android:hint="@string/authentication_your_email_address" android:layout_below="@+id/txt_title"
             android:layout_alignLeft="@+id/txt_title" android:layout_width="fill_parent"
@@ -15,7 +15,7 @@
       android:layout_width="wrap_content" android:id="@+id/txt_msg"
       android:layout_alignLeft="@id/txt_email_address"
       android:layout_alignRight="@id/txt_email_address" android:layout_below="@id/txt_email_address"
-      android:text="@string/authentication_recover_password_msg"></TextView>
+      android:text="@string/authentication_recover_password_msg"/>
     </RelativeLayout>
   <RelativeLayout android:layout_width="fill_parent"
                     android:layout_alignParentBottom="true" android:id="@+id/control_layout"
