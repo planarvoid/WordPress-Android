@@ -37,12 +37,12 @@ import android.widget.TabWidget;
 import java.io.IOException;
 
 public class Main extends TabActivity {
-    private TabHost mTabHost;
     private ViewGroup mSplash;
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
     private static final long SPLASH_PAUSE = 5 * 60 * 1000;
+    private boolean tabsInitialized;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -54,9 +54,37 @@ public class Main extends TabActivity {
         long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
         final boolean visible = lastDestroyed == 0 || System.currentTimeMillis() - lastDestroyed > SPLASH_PAUSE;
         mSplash = (ViewGroup) findViewById(R.id.splash);
+
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final SoundCloudApplication app = getApp();
+        if (isConnected() && app.getToken().valid() && !app.isEmailConfirmed()) {
+            checkEmailConfirmed(app);
+        } else if (visible) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    dismissSplash();
+                }
+            }, SPLASH_DELAY);
+        }
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (checkAccountExists(getApp()) && !tabsInitialized) {
+            buildTabHost(getApp());
+            tabsInitialized = true;
+        }
+    }
+
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
+
+    private boolean checkAccountExists(SoundCloudApplication app) {
         if (app.getAccount() == null) {
             String legacyAccessToken = PreferenceManager
                     .getDefaultSharedPreferences(this)
@@ -67,57 +95,35 @@ public class Main extends TabActivity {
             } else {
                 addAccount.run();
             }
-            finish();
-            return;
+            return false;
+        } else {
+            return true;
         }
+    }
 
-        if (isConnected() && app.getToken() != null && !app.isEmailConfirmed()) {
-            (new LoadTask<User>((SoundCloudApplication) getApplication(), User.class) {
-                @Override
-                protected void onPostExecute(User user) {
-                    if (user == null ) {
-                        Log.w(TAG, "could not get user information");
-                        dismissSplash();
-                    } else if (user.primary_email_confirmed) {
-                        Log.v(TAG, "email confirmed");
-                        app.confirmEmail();
-                        dismissSplash();
-                    } else {
-                        startActivityForResult(new Intent(Main.this, EmailConfirm.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
-                    }
-                }
-            }).execute(CloudAPI.Enddpoints.MY_DETAILS);
-        } else if (visible) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    dismissSplash();
-                }
-            }, SPLASH_DELAY);
-        }
-
-        mTabHost = buildTabHost();
-        mTabHost.setCurrentTab(((SoundCloudApplication) this.getApplication())
-                .getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
-
-        CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
-
-        mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+    private void checkEmailConfirmed(final SoundCloudApplication app) {
+        (new LoadTask<User>((SoundCloudApplication) getApplication(), User.class) {
             @Override
-            public void onTabChanged(String tabId) {
-                ((SoundCloudApplication) Main.this.getApplication())
-                .setAccountData(User.DataKeys.DASHBOARD_IDX,Integer.toString(mTabHost.getCurrentTab()));
+            protected void onPostExecute(User user) {
+                if (user == null) {
+                    Log.w(TAG, "could not get user information");
+                    dismissSplash();
+                } else if (user.primary_email_confirmed) {
+                    Log.v(TAG, "email confirmed");
+                    app.confirmEmail();
+                    dismissSplash();
+                } else {
+                    startActivityForResult(new Intent(Main.this, EmailConfirm.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
+                }
             }
-        });
-
-        handleIntent(getIntent());
+        }).execute(CloudAPI.Enddpoints.MY_DETAILS);
     }
 
     private Runnable addAccount = new Runnable() {
         @Override
         public void run() {
-            SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            SoundCloudApplication app = getApp();
             app.addAccount(Main.this, new AccountManagerCallback<Bundle>() {
                 @Override
                 public void run(AccountManagerFuture<Bundle> future) {
@@ -129,6 +135,7 @@ public class Main extends TabActivity {
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     } catch (OperationCanceledException ignored) {
                         Log.d(TAG, "operation canceled");
+                        finish();
                     } catch (IOException e) {
                         Log.w(TAG, e);
                     } catch (AuthenticatorException e) {
@@ -190,13 +197,13 @@ public class Main extends TabActivity {
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         if (state.containsKey("tabTag")) {
-            mTabHost.setCurrentTabByTag(state.getString("tabTag"));
+            getTabHost().setCurrentTabByTag(state.getString("tabTag"));
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
-        state.putString("tabTag", mTabHost.getCurrentTabTag());
+        state.putString("tabTag", getTabHost().getCurrentTabTag());
         state.putLong("lastDestroyed", System.currentTimeMillis());
 
         super.onSaveInstanceState(state);
@@ -205,13 +212,13 @@ public class Main extends TabActivity {
     private void handleIntent(Intent intent) {
         if (intent != null) {
             if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-                mTabHost.setCurrentTabByTag("search");
+                getTabHost().setCurrentTabByTag("search");
                 ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
             } else if (intent.hasExtra("tabIndex")) {
-                mTabHost.setCurrentTab(intent.getIntExtra("tabIndex", 0));
+                getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
                 intent.removeExtra("tabIndex");
             } else if (intent.hasExtra("tabTag")) {
-                mTabHost.setCurrentTabByTag(intent.getStringExtra("tabTag"));
+                getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
             } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {
                 Log.d(TAG, "activity start after successful authentication");
@@ -219,8 +226,9 @@ public class Main extends TabActivity {
         }
     }
 
-    private TabHost buildTabHost() {
-        TabHost host = getTabHost();
+    private void buildTabHost(final SoundCloudApplication app) {
+        final TabHost host = getTabHost();
+
         TabHost.TabSpec spec;
 
         spec = host.newTabSpec("incoming").setIndicator(
@@ -253,7 +261,15 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, ScSearch.class));
         host.addTab(spec);
 
-        return host;
+        host.setCurrentTab(app.getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
+        CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
+
+        host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                app.setAccountData(User.DataKeys.DASHBOARD_IDX, Integer.toString(host.getCurrentTab()));
+            }
+        });
     }
 
     private void dismissSplash() {

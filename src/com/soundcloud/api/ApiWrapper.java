@@ -195,8 +195,8 @@ public class ApiWrapper implements CloudAPI {
                 }
             };
             httpClient.getCredentialsProvider().setCredentials(
-                    new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM, OAUTH_SCHEME),
-                    OAuthScheme.EmptyCredentials.INSTANCE);
+                    new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM,
+                                  OAUTH_SCHEME), OAuthScheme.EmptyCredentials.INSTANCE);
             httpClient.getAuthSchemes().register(CloudAPI.OAUTH_SCHEME, new OAuthScheme.Factory(this));
         }
         return httpClient;
