@@ -16,6 +16,7 @@ import org.apache.http.HttpResponse;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -38,12 +39,14 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 public class AddInfo extends Activity {
 
     private File mAvatarFile;
     private Bitmap mAvatarBitmap;
     private ImageView mArtworkImg;
+    private ProgressDialog mProgressDialog;
 
 
     @Override
@@ -57,7 +60,7 @@ public class AddInfo extends Activity {
         final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
-        usernameField.setText(user.username);
+        usernameField.setHint(user.username);
 
         mArtworkImg = (ImageView) findViewById(R.id.artwork);
         final TextView artworkField = (TextView) findViewById(R.id.txt_artwork_bg);
@@ -89,7 +92,7 @@ public class AddInfo extends Activity {
                 final String newUsername = usernameField.getText().toString();
                 Log.d(TAG, "Save username " + newUsername);
                 if (!newUsername.equals(user.username) || mAvatarFile != null) {
-                    new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+                    new AddUserInfoTask(AddInfo.this) {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
@@ -245,9 +248,32 @@ public class AddInfo extends Activity {
         }
     }
 
+    public void showProgress(){
+        mProgressDialog = ProgressDialog.show(AddInfo.this, "", AddInfo.this.getString(R.string.authentication_add_info_progress_message));
+    }
+
+    public void hideProgress(){
+        if (mProgressDialog != null) mProgressDialog.dismiss();
+    }
+
     static class AddUserInfoTask extends AsyncApiTask<Pair<String,File>, Void, User> implements CloudAPI.UserParams{
-        public AddUserInfoTask(AndroidCloudAPI api) {
-            super(api);
+        private WeakReference<AddInfo> mActivityRef;
+
+        public AddUserInfoTask(AddInfo addInfoActivity) {
+            super((AndroidCloudAPI)addInfoActivity.getApplication());
+            mActivityRef = new WeakReference<AddInfo>(addInfoActivity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mActivityRef.get() != null) mActivityRef.get().showProgress();
+        }
+
+        @Override
+        protected void onPostExecute(User result) {
+            super.onPostExecute(result);
+            if (mActivityRef.get() != null) mActivityRef.get().hideProgress();
         }
 
         @Override
