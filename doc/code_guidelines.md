@@ -120,5 +120,36 @@ Example (instance fields):
       mName = param;
     }
 
+## Avoid too many returns
+
+Multiple return points in a method are confusing. Returning at the top of a
+method is normally ok (to ensure a parameter contract etc)
+
+Bad:
+
+    if (something) {
+      foo();
+      return;
+    }
+
+    if (someOtherCondition) {
+      doSomething();
+      return
+    }
+
+    doAnotherThing();
+
+Good:
+
+    if (something) {
+      foo();
+    } else if (someOtherCondition) {
+      doSomething();
+    } else {
+      doAnotherThing();
+    }
+    // no return statement needed!
+
+
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
 [The Final Word on the final keyword]: http://renaud.waldura.com/doc/java/final-keyword.shtml
