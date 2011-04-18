@@ -11,6 +11,7 @@ import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
@@ -20,7 +21,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -117,14 +117,14 @@ public class Login extends AccountAuthenticatorActivity {
             }
 
             @Override
-            protected void onPostExecute(final Pair<String, String> tokens) {
-                if (tokens != null) {
+            protected void onPostExecute(final Token token) {
+                if (token != null) {
                     new LoadTask.LoadUserTask(api) {
                         @Override
                         protected void onPostExecute(User user) {
                             progress.dismiss();
                             SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                            if (user != null && app.addUserAccount(user, tokens.first, tokens.second)) {
+                            if (user != null && app.addUserAccount(user, token.access, token.refresh)) {
                                 final Bundle result = new Bundle();
                                 result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                                 result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);

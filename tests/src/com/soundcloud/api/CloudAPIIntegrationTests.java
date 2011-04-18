@@ -60,7 +60,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
 
     @Test
     public void shouldReturn401WithInvalidToken() throws Exception {
-        api.updateTokens("invalid", "invalid");
+        api.setToken(new Token("invalid", "invalid"));
         HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(401));
     }
@@ -70,7 +70,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
 
-        final String oldToken = api.getToken();
+        final Token oldToken = api.getToken();
         api.invalidateToken();
 
         resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
@@ -110,15 +110,13 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
             throw new RuntimeException("CloudAPITests <username> <password>");
         }
 
-        ApiWrapper api = new ApiWrapper(
+        Token token = new ApiWrapper(
                 CLIENT_ID,
                 CLIENT_SECRET,
                 null,
                 null,
                 CloudAPI.Env.SANDBOX).login(args[0], args[1]);
 
-        System.err.println("token: " + api.getToken());
-        System.err.println("refresh token: " + api.getRefreshToken());
-        System.err.println("expires: " + api.getExpiresIn());
+        System.err.println("token: " + token);
     }
 }

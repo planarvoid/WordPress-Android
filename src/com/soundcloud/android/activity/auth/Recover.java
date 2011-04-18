@@ -8,6 +8,7 @@ import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Http;
+import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -112,7 +113,9 @@ public class Recover extends Activity {
         protected Boolean doInBackground(String... params) {
             final String email = params[0];
             try {
-                HttpResponse resp = api().postContent(SEND_PASSWORD, new Http.Params("email", email));
+                Token signup = api().login();
+                HttpResponse resp = api().postContent(SEND_PASSWORD,
+                        new Http.Params("email", email).withToken(signup));
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == HttpStatus.SC_ACCEPTED  ) {
                     return true;

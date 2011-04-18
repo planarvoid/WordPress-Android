@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 
+import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
@@ -85,23 +86,22 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi.addTokenStateListener(new TokenStateListener() {
             @Override
-            public void onTokenInvalid(String token) {
+            public void onTokenInvalid(Token token) {
                 getAccountManager().invalidateAuthToken(
                         getString(R.string.account_type),
-                        token);
+                        token.access);
             }
 
             @Override
-            public void onTokenRefreshed(String access, String refresh, long expiresIn) {
-                Log.d(TAG, "onTokenRefreshed");
-
+            public void onTokenRefreshed(Token token) {
+                Log.d(TAG, "onTokenRefreshed("+token+")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
-                if (account != null && access != null && refresh != null) {
-                    am.setPassword(account, access);
-                    am.setAuthToken(account, CloudAPI.ACCESS_TOKEN, access);
-                    am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, refresh);
-                    am.setUserData(account, CloudAPI.EXPIRES_IN, "" + expiresIn);
+                if (account != null && token.access != null && token.refresh != null) {
+                    am.setPassword(account, token.access);
+                    am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
+                    am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
+                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
                 }
             }
         });
@@ -142,7 +142,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
 
         mCloudApi.invalidateToken();
-        mCloudApi.updateTokens(null, null);
     }
 
     public boolean isEmailConfirmed() {
@@ -213,7 +212,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public AccountManagerFuture<Bundle> addAccount(Activity activity, AccountManagerCallback<Bundle> callback) {
         return getAccountManager().addAccount(
                 getString(R.string.account_type),
-                CloudAPI.ACCESS_TOKEN, null, null, activity, callback, null);
+                Token.ACCESS_TOKEN, null, null, activity, callback, null);
     }
 
     public boolean addUserAccount(User user, String... tokens) {
@@ -222,8 +221,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final AccountManager am = getAccountManager();
         final boolean created = am.addAccountExplicitly(account, tokens[0], null);
         if (created) {
-            am.setAuthToken(account, CloudAPI.ACCESS_TOKEN,  tokens[0]);
-            am.setAuthToken(account, CloudAPI.REFRESH_TOKEN, tokens[1]);
+            am.setAuthToken(account, Token.ACCESS_TOKEN,  tokens[0]);
+            am.setAuthToken(account, Token.REFRESH_TOKEN, tokens[1]);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
@@ -232,7 +231,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void useAccount(Account account) {
-        mCloudApi.updateTokens(getAccessToken(account), getRefreshToken(account));
+        mCloudApi.setToken(getToken(account));
     }
 
     public String getAccountData(String key) {
@@ -285,6 +284,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 R.string.sandbox_consumer_secret);
     }
 
+    private Token getToken(Account account) {
+        return new Token(getAccessToken(account), getRefreshToken(account));
+    }
+
     private String getAccessToken(Account account) {
         return getAccountManager().getPassword(account);
     }
@@ -320,7 +323,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getContent(resource, params);
     }
 
-    public CloudAPI login(String username, String password) throws IOException {
+    public Token login() throws IOException {
+        return mCloudApi.login();
+    }
+
+    public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
     }
 
@@ -345,31 +352,27 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.uploadTrack(trackBody, artworkBody, params, listener);
     }
 
-    public CloudAPI refreshToken() throws IOException {
+    public Token refreshToken() throws IOException {
         return mCloudApi.refreshToken();
     }
 
-    public String getToken() {
+    public Token getToken() {
         return mCloudApi.getToken();
-    }
-
-    public String getRefreshToken() {
-        return mCloudApi.getRefreshToken();
     }
 
     public long resolve(String uri) throws IOException {
         return mCloudApi.resolve(uri);
     }
 
-    public void updateTokens(String access, String refresh) {
-        mCloudApi.updateTokens(access, refresh);
+    public void setToken(Token token) {
+        mCloudApi.setToken(token);
     }
 
     public void addTokenStateListener(TokenStateListener listener) {
         mCloudApi.addTokenStateListener(listener);
     }
 
-    public CloudAPI exchangeToken(String oauth1AccessToken) throws IOException {
+    public Token exchangeToken(String oauth1AccessToken) throws IOException {
         return mCloudApi.exchangeToken(oauth1AccessToken);
     }
 

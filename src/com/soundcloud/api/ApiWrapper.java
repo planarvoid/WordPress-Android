@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,82 +44,84 @@ public class ApiWrapper implements CloudAPI {
 
     private DefaultHttpClient httpClient;
     private String mClientId, mClientSecret;
-    private String mToken, mRefreshToken;
+    private Token mToken;
     private final Env mEnv;
-    private String mScope;
-    private long mExpiresIn;
     private Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
 
     /**
      * Constructs a new ApiWrapper instance.
      * @param clientId            the application client id
      * @param clientSecret        the application client secret
-     * @param token               an access token, or null if not known
+     * @param accessToken               an access token, or null if not known
      * @param refreshToken        an refresh token, or null if not known
      * @param env                 the environment to use (LIVE/SANDBOX)
      * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      String token,
+                      String accessToken,
                       String refreshToken,
                       Env env) {
         mClientId = clientId;
         mClientSecret = clientSecret;
-        mToken = token;
-        mRefreshToken = refreshToken;
+        mToken = new Token(accessToken, refreshToken);
         mEnv = env;
     }
 
-    @Override public ApiWrapper login(String username, String password) throws IOException {
+    @Override public Token login(String username, String password) throws IOException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        Http.Params p = new Http.Params(
+        mToken = requestToken(new Http.Params(
                 "grant_type",    PASSWORD,
                 "client_id",     mClientId,
                 "client_secret", mClientSecret,
                 "username",      username,
-                "password",      password);
-        requestToken(p);
-        return this;
-    }
-
-    @Override public ApiWrapper refreshToken() throws IOException {
-        if (mRefreshToken == null) throw new IllegalStateException("no refresh token available");
-        Http.Params p = new Http.Params(
-            "grant_type",    REFRESH_TOKEN,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret,
-            "refresh_token", mRefreshToken);
-        requestToken(p);
-        return this;
+                "password",      password));
+        return mToken;
     }
 
     @Override
-    public CloudAPI exchangeToken(String oauth1AccessToken) throws IOException {
+    public Token login() throws IOException {
+        return requestToken(new Http.Params(
+            "grant_type",    CLIENT_CREDENTIALS,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret));
+    }
+
+    @Override public Token refreshToken() throws IOException {
+        if (mToken == null || mToken.refresh == null) throw new IllegalStateException("no refresh token available");
+        mToken = requestToken(new Http.Params(
+            "grant_type",    REFRESH_TOKEN,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret,
+            "refresh_token", mToken.refresh));
+
+        return mToken;
+    }
+
+    @Override
+    public Token exchangeToken(String oauth1AccessToken) throws IOException {
         if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
-        Http.Params p = new Http.Params(
-                "grant_type",    OAUTH1_TOKEN,
-                "client_id",     mClientId,
-                "client_secret", mClientSecret,
-                "refresh_token", oauth1AccessToken);
-        requestToken(p);
-        return this;
+        mToken = requestToken(new Http.Params(
+            "grant_type",    OAUTH1_TOKEN,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret,
+            "refresh_token", oauth1AccessToken));
+        return mToken;
     }
 
     @Override
     public void invalidateToken() {
-        final String token = mToken;
-        if (token != null) {
+        if (mToken != null) {
+            mToken.invalidate();
             for (TokenStateListener l : listeners) {
-                l.onTokenInvalid(token);
+                l.onTokenInvalid(mToken);
             }
-            mToken = null;
         }
     }
 
-    private void requestToken(Http.Params params) throws IOException {
+    private Token requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         post.setEntity(new StringEntity(params.queryString()));
@@ -132,18 +133,13 @@ public class ApiWrapper implements CloudAPI {
         if (json == null) throw new IOException("JSON response is empty");
         try {
             JSONObject resp = new JSONObject(json);
-
             switch (status) {
                 case HttpStatus.SC_OK:
-                    mToken = resp.getString(ACCESS_TOKEN);
-                    mRefreshToken = resp.getString(REFRESH_TOKEN);
-                    if (!resp.isNull(SCOPE)) mScope = resp.getString(SCOPE);
-                    long expiresIn = resp.getLong(EXPIRES_IN);
-                    mExpiresIn = System.currentTimeMillis() + expiresIn * 1000;
+                    Token token = new Token(resp);
                     for (TokenStateListener l : listeners) {
-                        l.onTokenRefreshed(mToken, mRefreshToken, mExpiresIn);
+                        l.onTokenRefreshed(mToken);
                     }
-                    break;
+                    return token;
                 case HttpStatus.SC_UNAUTHORIZED:
                     String error = resp.getString("error");
                     throw new InvalidTokenException(status, error);
@@ -254,17 +250,12 @@ public class ApiWrapper implements CloudAPI {
         return execute(new HttpDelete(resource));
     }
 
-    @Override public String getToken() {
+    @Override public Token getToken() {
         return mToken;
     }
 
-    public String getRefreshToken() {
-        return mRefreshToken;
-    }
-
-    @Override public void updateTokens(String access, String refresh) {
-        mToken = access;
-        mRefreshToken = refresh;
+    @Override public void setToken(Token newToken) {
+        mToken = newToken;
     }
 
     @Override public void addTokenStateListener(TokenStateListener listener) {
@@ -290,20 +281,15 @@ public class ApiWrapper implements CloudAPI {
         return execute(post);
     }
 
-    public String getScope() {
-        return mScope;
-    }
 
-    public Date getExpiresIn() {
-        return mExpiresIn == 0 ? null : new Date(mExpiresIn);
-    }
 
-    public static Header getOAuthHeader(String token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " + (token == null ? INVALIDATED_TOKEN : token));
+    public static Header getOAuthHeader(Token token) {
+        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
+                (token == null || token.access == null ? INVALIDATED_TOKEN : token.access));
     }
 
     protected HttpRequest addAuthorization(HttpRequest request) {
-        final String token = getToken();
+        final Token token = getToken();
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
             request.addHeader(getOAuthHeader(token));
         }

@@ -1,34 +1,42 @@
 package com.soundcloud.api;
 
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.content.ContentBody;
 
 import java.io.IOException;
 
 public interface CloudAPI {
-    String PASSWORD         = "password";
-    String ACCESS_TOKEN     = "access_token";
-    String REFRESH_TOKEN    = "refresh_token";
+    String PASSWORD           = "password";
+    String REFRESH_TOKEN      = "refresh_token";
+
+    String CLIENT_CREDENTIALS = "client_credentials";
+
     String OAUTH1_TOKEN     = "legacy_oauth1_token";
-    String EXPIRES_IN       = "expires_in";
-    String SCOPE            = "scope";
+
     String REALM            = "SoundCloud";
     String OAUTH_SCHEME     = "oauth";
 
     /**
-     * Login to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
+     * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
      * Resource Owner Password Credentials</a>
      *
      * @param username SoundCloud username
      * @param password SoundCloud password
-     * @return self
+     * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IOException In case of network errors
      */
-    CloudAPI login(String username, String password) throws IOException;
+    Token login(String username, String password) throws IOException;
+
+
+    /**
+     * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
+     * Client Credentials</a>
+     * @return a valid token
+     * @throws IOException
+     */
+    Token login() throws IOException;
 
     /**
      * Tries to refresh the currently used access token with the refresh token
@@ -37,14 +45,14 @@ public interface CloudAPI {
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IllegalStateException if no refresh token present
      */
-    CloudAPI refreshToken() throws IOException;
+    Token refreshToken() throws IOException;
 
     /**
      * Exchange an OAuth1 Token for new OAuth2 tokens
      * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
      * @return self
      * */
-    CloudAPI exchangeToken(String oauth1AccessToken) throws IOException;
+    Token exchangeToken(String oauth1AccessToken) throws IOException;
 
     /** Called to invalidate the current token */
     void invalidateToken();
@@ -88,10 +96,8 @@ public interface CloudAPI {
                              Http.Params params,
                              ProgressListener listener) throws IOException;
 
-    String getToken();
-    String getRefreshToken();
-
-    void updateTokens(String access, String refresh);
+    Token getToken();
+    void setToken(Token token);
     void addTokenStateListener(TokenStateListener listener);
 
     enum Env {
@@ -166,7 +172,7 @@ public interface CloudAPI {
 
     interface TokenStateListener {
         /** Called when token was found to be invalid */
-        void onTokenInvalid(String token);
+        void onTokenInvalid(Token token);
 
         /**
          * Called when the token got successfully refreshed
@@ -174,7 +180,7 @@ public interface CloudAPI {
          * @param refresh      the new refresh token
          * @param expiresIn    point in time this token will expire, millisecs since epoch
          */
-        void onTokenRefreshed(String access, String refresh, long expiresIn);
+        void onTokenRefreshed(Token token);
     }
 
     class InvalidTokenException extends IOException {

@@ -11,6 +11,7 @@ import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Token;
 
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
@@ -154,7 +155,8 @@ public class Main extends TabActivity {
                      new LoadTask.LoadUserTask(api) {
                          @Override
                          protected void onPostExecute(User user) {
-                             if (app.addUserAccount(user, api.getToken(), api.getRefreshToken())) {
+                             final Token token = api.getToken();
+                             if (token != null && app.addUserAccount(user, token.access, token.refresh)) {
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
                                          .edit()

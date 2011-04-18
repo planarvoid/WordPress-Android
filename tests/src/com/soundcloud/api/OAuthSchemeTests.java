@@ -13,7 +13,6 @@ import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.MalformedChallengeException;
 import org.apache.http.message.BasicHeader;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ public class OAuthSchemeTests extends BaseApiTest {
     @Test
     public void shouldRefreshTokenOnAuthenticate() throws Exception {
         when(api.getToken()).thenReturn(null);
-        when(api.refreshToken()).thenReturn(api);
+        when(api.refreshToken()).thenReturn(new Token("1", "2"));
         scheme.authenticate(null, null);
         verify(api).invalidateToken();
         verify(api).refreshToken();
@@ -38,8 +37,8 @@ public class OAuthSchemeTests extends BaseApiTest {
 
     @Test
     public void shouldSetCorrectHeaderOnAuthenticate() throws Exception {
-        when(api.getToken()).thenReturn("myt0k3n");
-        when(api.refreshToken()).thenReturn(api);
+        when(api.getToken()).thenReturn(new Token("myt0k3n", "r3fr3sh"));
+        when(api.refreshToken()).thenReturn(new Token("1", "2"));
 
         Header header = scheme.authenticate(null, null);
         assertNotNull(header);
@@ -50,7 +49,7 @@ public class OAuthSchemeTests extends BaseApiTest {
 
     @Test
     public void shouldInvaliateTokenOnAuthenticate() throws Exception {
-        when(api.refreshToken()).thenReturn(api);
+        when(api.refreshToken()).thenReturn(new Token("1", "2"));
         scheme.authenticate(null, null);
         verify(api).invalidateToken();
     }

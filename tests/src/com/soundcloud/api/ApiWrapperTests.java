@@ -1,24 +1,19 @@
 package com.soundcloud.api;
 
 import static junit.framework.Assert.fail;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.RequestMatcher;
-import junit.framework.Assert;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,11 +44,12 @@ public class ApiWrapperTests {
                 "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
                 "}");
 
-        api.login("foo", "bar");
-        assertThat(api.getToken(), equalTo("04u7h-4cc355-70k3n"));
-        assertThat(api.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
-        assertNull(api.getScope());
-        assertNotNull(api.getExpiresIn());
+        Token t = api.login("foo", "bar");
+
+        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
+        assertNull(t.scope);
+        assertNotNull(t.getExpiresIn());
     }
 
     @Test(expected = IOException.class)
@@ -93,7 +89,7 @@ public class ApiWrapperTests {
 
         assertThat(new ApiWrapper("1234", "5678", null, "sofreshexciting", CloudAPI.Env.SANDBOX)
                 .refreshToken()
-                .getToken(),
+                .access,
                 equalTo("fr3sh"));
     }
 
@@ -127,16 +123,6 @@ public class ApiWrapperTests {
     }
 
     @Test
-    public void unauthorizeShouldResetTokenInformation() throws Exception {
-        api.updateTokens(null, null);
-        assertNull(api.getRefreshToken());
-        assertNull(api.getToken());
-        assertNull(api.getScope());
-        assertNull(api.getExpiresIn());
-    }
-
-
-    @Test
     public void shouldGetContent() throws Exception {
         Robolectric.addHttpResponseRule("/some/resource?a=1", "response");
         assertThat(Http.getString(api.getContent("/some/resource", new Http.Params("a", "1"))),
@@ -168,7 +154,7 @@ public class ApiWrapperTests {
 
     @Test
     public void testGetOAuthHeader() throws Exception {
-        Header h = ApiWrapper.getOAuthHeader("foo");
+        Header h = ApiWrapper.getOAuthHeader(new Token("foo", null));
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth foo"));
     }

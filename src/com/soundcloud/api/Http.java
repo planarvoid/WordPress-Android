@@ -3,7 +3,6 @@ package com.soundcloud.api;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
@@ -79,6 +78,7 @@ public class Http {
 
     /** Convenience class for passing parameters to HTTP methods */
     public static class Params implements Iterable<NameValuePair> {
+        Token token;
         public List<NameValuePair> params = new ArrayList<NameValuePair>();
 
         public Params(Object... args) {
@@ -92,6 +92,11 @@ public class Http {
 
         public Params add(String name, Object value) {
             params.add(new BasicNameValuePair(name, String.valueOf(value)));
+            return this;
+        }
+
+        public Params withToken(Token t) {
+            token = t;
             return this;
         }
 
