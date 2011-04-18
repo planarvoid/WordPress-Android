@@ -9,7 +9,7 @@
     <EditText android:layout_height="wrap_content" android:id="@+id/txt_email_address"
             android:hint="@string/authentication_your_email_address" android:layout_below="@+id/txt_title"
             android:layout_alignLeft="@+id/txt_title" android:layout_width="fill_parent"
-            android:imeOptions="actionNext" android:singleLine="true"
+            android:imeOptions="actionDone" android:singleLine="true"
             style="@style/txt_auth_input" android:lines="1"/>
     <TextView android:layout_height="wrap_content" style="@style/txt_auth_msg"
       android:layout_width="wrap_content" android:id="@+id/txt_msg"
