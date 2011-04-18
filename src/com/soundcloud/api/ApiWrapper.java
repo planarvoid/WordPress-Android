@@ -83,7 +83,6 @@ public class ApiWrapper implements CloudAPI {
     public Token signupToken() throws IOException {
         return requestToken(new Http.Params(
             "grant_type",    CLIENT_CREDENTIALS,
-            //"scope",         "signup",
             "client_id",     mClientId,
             "client_secret", mClientSecret));
     }
@@ -283,6 +282,4 @@ public class ApiWrapper implements CloudAPI {
     public HttpResponse execute(HttpRequest req) throws IOException {
         return getHttpClient().execute(mEnv.sslHost, addAccept(addAuthorization(req)));
     }
-
-
 }
