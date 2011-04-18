@@ -31,6 +31,7 @@
   <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
   <string name="authentication_add_image">Add Image</string>
 
+<string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
   <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
 

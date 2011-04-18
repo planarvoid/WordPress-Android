@@ -29,9 +29,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class SignUp extends Activity {
     public static final Uri TERMS_OF_USE = Uri.parse("http://m.soundcloud.com/terms-of-use");
+
+    public final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
+            "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+            "\\@" +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+            "(" +
+            "\\." +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+            ")+"
+        );
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -74,6 +85,8 @@ public class SignUp extends Activity {
                         choosePasswordField.getText().length() == 0 ||
                         repeatPasswordField.getText().length() == 0) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
+                } else if (!checkEmail(emailField.getText().toString())){
+                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
                 } else {
@@ -152,6 +165,10 @@ public class SignUp extends Activity {
                 return null;
             }
         }
+    }
+
+    private boolean checkEmail(String email) {
+        return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
     }
 
 }
