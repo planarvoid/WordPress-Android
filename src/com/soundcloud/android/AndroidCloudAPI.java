@@ -1,15 +1,10 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.SoundCloudApplication.isRunningOnDalvik;
-
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import com.soundcloud.api.Token;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.util.StdDateFormat;
-
-import android.net.SSLCertificateSocketFactory;
 
 import java.text.DateFormat;
 import java.text.ParsePosition;
@@ -22,8 +17,8 @@ public interface AndroidCloudAPI extends CloudAPI {
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         private ObjectMapper mMapper;
 
-        public Wrapper(String clientId, String clientSecret, String token, String refreshToken, Env env) {
-            super(clientId, clientSecret, token, refreshToken, env);
+        public Wrapper(String clientId, String clientSecret, Token token, Env env) {
+            super(clientId, clientSecret, token, env);
         }
 
         // XXX reenable when sandbox certificate is working again

@@ -58,12 +58,11 @@ public class ApiWrapper implements CloudAPI {
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      String accessToken,
-                      String refreshToken,
+                      Token token,
                       Env env) {
         mClientId = clientId;
         mClientSecret = clientSecret;
-        mToken = new Token(accessToken, refreshToken);
+        mToken = token == null ? new Token(null, null) : token;
         mEnv = env;
     }
 

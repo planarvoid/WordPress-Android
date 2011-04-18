@@ -76,11 +76,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         createImageLoaders();
         final Account account = getAccount();
+        //noinspection ConstantConditions
         mCloudApi = new Wrapper(
                 getClientId(API_PRODUCTION),
                 getClientSecret(API_PRODUCTION),
-                account == null ? null : getAccessToken(account),
-                account == null ? null : getRefreshToken(account),
+                account == null ? null : getToken(account),
                 API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
         );
 
