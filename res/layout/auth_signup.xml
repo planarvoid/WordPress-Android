@@ -12,14 +12,14 @@
 			style="@style/txt_auth_input" android:lines="1"/>
 		<EditText android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:id="@+id/txt_choose_a_password"
-			android:password="true"
+			android:password="true" android:singleLine="true"
 			android:hint="@string/authentication_choose_a_password" android:layout_below="@id/txt_email_address"
 			android:imeOptions="actionNext"  android:lines="1"
 			android:layout_alignLeft="@id/txt_email_address"
 			android:layout_alignRight="@id/txt_email_address" style="@style/txt_auth_input" />
 		<EditText android:layout_height="wrap_content"
             android:layout_width="wrap_content" android:id="@+id/txt_repeat_your_password"
-            android:password="true"
+            android:password="true" android:singleLine="true"
             android:hint="@string/authentication_repeat_your_password" android:layout_below="@id/txt_choose_a_password"
             android:imeOptions="actionDone"  android:lines="1"
             android:layout_alignLeft="@id/txt_choose_a_password"
