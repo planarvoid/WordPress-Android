@@ -26,7 +26,6 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -214,24 +213,6 @@ public class AddInfo extends Activity {
 
     private File createTempAvatarFile() throws IOException {
         return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", CloudUtils.getCacheDir(this));
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-
-        if (mAvatarFile != null) {
-            state.putString("avatarPath", mAvatarFile.getAbsolutePath());
-        }
-        super.onSaveInstanceState(state);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle state) {
-        if (!TextUtils.isEmpty(state.getString("avatarPath"))) {
-            setImage(state.getString("avatarPath"));
-        }
-
-        super.onRestoreInstanceState(state);
     }
 
     @Override
