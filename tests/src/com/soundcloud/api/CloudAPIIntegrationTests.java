@@ -1,13 +1,9 @@
 package com.soundcloud.api;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +35,6 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
                 CLIENT_ID,
                 CLIENT_SECRET,
                 null,
-                null,
                 CloudAPI.Env.SANDBOX);
 
         api.login("api-testing", "testing");
@@ -50,10 +45,8 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         Http.Params params = new Http.Params(
                 TITLE,         "Hello Android",
                 POST_TO_EMPTY, ""
-        );
-
-        ContentBody track = new FileBody(new File(getClass().getResource("hello.aiff").getFile()));
-        HttpResponse resp = api.uploadTrack(track, null, params, null);
+        ).addFile(ASSET_DATA, new File(getClass().getResource("hello.aiff").getFile()));
+        HttpResponse resp = api.postContent(TRACKS, params);
         int status = resp.getStatusLine().getStatusCode();
         assertThat(status, is(201));
     }
@@ -113,7 +106,6 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         Token token = new ApiWrapper(
                 CLIENT_ID,
                 CLIENT_SECRET,
-                null,
                 null,
                 CloudAPI.Env.SANDBOX).login(args[0], args[1]);
 

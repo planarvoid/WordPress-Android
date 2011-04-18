@@ -1,5 +1,7 @@
 package com.soundcloud.android.task;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
@@ -14,9 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements CloudAPI.ProgressListener {
-    private static final String TAG = UploadTask.class.getSimpleName();
-
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Http.ProgressListener {
     private long transferred;
     private CloudAPI api;
 
@@ -93,7 +93,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     apiParams.add(entry.getKey(), entry.getValue().toString());
                  }
             }
-            return apiParams;
+            return apiParams.addFile(CloudAPI.TrackParams.ASSET_DATA, trackFile)
+                            .addFile(CloudAPI.TrackParams.ARTWORK_DATA, artworkFile());
         }
     }
 
@@ -126,7 +127,10 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
-                    HttpResponse response = api.uploadTrack(track, artwork, param.getApiParams(), UploadTask.this);
+
+                    HttpResponse response = api.postContent(CloudAPI.Enddpoints.TRACKS,
+                            param.getApiParams().setProgressListener(UploadTask.this));
+
                     StatusLine status = response.getStatusLine();
 
                     if (status.getStatusCode() == HttpStatus.SC_CREATED) {

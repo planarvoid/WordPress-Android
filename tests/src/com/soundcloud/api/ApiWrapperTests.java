@@ -27,7 +27,7 @@ public class ApiWrapperTests {
 
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", null, null, CloudAPI.Env.SANDBOX);
+        api = new ApiWrapper("invalid", "invalid", null, CloudAPI.Env.SANDBOX);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -40,7 +40,7 @@ public class ApiWrapperTests {
         Robolectric.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
                 "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         null,\n" +
+                "  \"scope\":         \"*\",\n" +
                 "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
                 "}");
 
@@ -48,7 +48,7 @@ public class ApiWrapperTests {
 
         assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
         assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
-        assertNull(t.scope);
+        assertThat(t.scope, equalTo("*"));
         assertNotNull(t.getExpiresIn());
     }
 
@@ -87,7 +87,7 @@ public class ApiWrapperTests {
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
-        assertThat(new ApiWrapper("1234", "5678", null, "sofreshexciting", CloudAPI.Env.SANDBOX)
+        assertThat(new ApiWrapper("1234", "5678", new Token(null, "sofreshexciting"), CloudAPI.Env.SANDBOX)
                 .refreshToken()
                 .access,
                 equalTo("fr3sh"));

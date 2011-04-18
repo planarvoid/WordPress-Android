@@ -90,7 +90,16 @@ public class Login extends AccountAuthenticatorActivity {
                 if (emailField.getText().length() > 0) {
                     i.putExtra("email", emailField.getText().toString());
                 }
+
                 startActivityForResult(i, 0);
+            }
+        });
+
+
+        findViewById(R.id.btn_signup).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Login.this, SignUp.class));
             }
         });
     }
@@ -124,7 +133,7 @@ public class Login extends AccountAuthenticatorActivity {
                         protected void onPostExecute(User user) {
                             progress.dismiss();
                             SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                            if (user != null && app.addUserAccount(user, token.access, token.refresh)) {
+                            if (user != null && app.addUserAccount(user, token)) {
                                 final Bundle result = new Bundle();
                                 result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                                 result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);

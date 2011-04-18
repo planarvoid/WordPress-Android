@@ -11,9 +11,9 @@ import org.apache.http.HttpEntity;
 public class CountingMultipartRequestEntity implements HttpEntity {
     private HttpEntity delegate_;
 
-    private CloudAPI.ProgressListener listener_;
+    private Http.ProgressListener listener_;
 
-    public CountingMultipartRequestEntity(HttpEntity delegate, CloudAPI.ProgressListener listener) {
+    public CountingMultipartRequestEntity(HttpEntity delegate, Http.ProgressListener listener) {
         super();
         delegate_ = delegate;
         listener_ = listener;
@@ -57,11 +57,11 @@ public class CountingMultipartRequestEntity implements HttpEntity {
 
     private class CountingOutputStream extends FilterOutputStream {
 
-        private final CloudAPI.ProgressListener listener;
+        private final Http.ProgressListener listener;
 
         private long transferred;
 
-        public CountingOutputStream(final OutputStream out, final CloudAPI.ProgressListener listener) {
+        public CountingOutputStream(final OutputStream out, final Http.ProgressListener listener) {
             super(out);
             this.listener = listener;
             this.transferred = 0;

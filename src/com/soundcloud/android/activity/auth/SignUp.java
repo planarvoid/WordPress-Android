@@ -1,8 +1,18 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Http;
+import com.soundcloud.api.Token;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +24,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 public class SignUp extends Activity {
 
@@ -54,22 +66,35 @@ public class SignUp extends Activity {
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (emailField.getText().length() == 0 || choosePasswordField.getText().length() == 0 || choosePasswordField.getText().length() == 0){
+                if (emailField.getText().length() == 0 ||
+                        choosePasswordField.getText().length() == 0 ||
+                        repeatPasswordField.getText().length() == 0) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
-                    return;
-                }
-
-                if (!choosePasswordField.getText().equals(choosePasswordField.getText())){
+                } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
-                    return;
+                } else {
+                    Log.d(SoundCloudApplication.TAG, "Signup with "+emailField.getText().toString());
+
+                    final String email = emailField.getText().toString();
+                    final String password = choosePasswordField.getText().toString();
+
+                    new SignupTask((SoundCloudApplication) getApplication()) {
+                        @Override
+                        protected void onPostExecute(User user) {
+
+
+                            if (user != null) {
+                                Log.d(TAG, "created user " + user);
+
+                                startActivity(new Intent(SignUp.this, AddInfo.class).putExtra("user", user));
+                            } else {
+                                CloudUtils.showToast(SignUp.this,  "Errorz");
+                            }
+                        }
+                    }.execute(email, password);
                 }
-
-                Log.i(getClass().getSimpleName(),"Signup with " + emailField.getText().toString());
-
-                startActivity(new Intent(SignUp.this, AddInfo.class));
             }
         });
-
 
         CloudUtils.clickify(((TextView)findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_terms_of_use),new ClickSpan.OnClickListener()
          {
@@ -78,8 +103,44 @@ public class SignUp extends Activity {
                 Log.i(getClass().getSimpleName(),"Go to terms of use ");
             }
         });
+    }
 
+    static class SignupTask extends AsyncApiTask<String, Void, User> implements CloudAPI.UserParams {
+        SoundCloudApplication mApp;
+        public SignupTask(SoundCloudApplication api) {
+            super(api);
+            mApp = api;
+        }
 
+        @Override
+        protected User doInBackground(String... params) {
+            final String email = params[0];
+            final String password = params[1];
+
+            try {
+                final Token signup = api().signupToken();
+                HttpResponse resp = api().postContent(USERS, new Http.Params(
+                    EMAIL, email,
+                    PASSWORD, password,
+                    PASSWORD_CONFIRMATION, password,
+                    TERMS_OF_USE, "1"
+                ).withToken(signup));
+
+                final int code = resp.getStatusLine().getStatusCode();
+                if (code == HttpStatus.SC_CREATED) {
+                    final User user = api().getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    // now it's time to get a real token, and add the account
+                    mApp.addUserAccount(user, api().login(email, password));
+                    return user;
+                } else {
+                    warn("invalid response: " + code);
+                    return null;
+                }
+            } catch (IOException e) {
+                warn("error creating user", e);
+                return null;
+            }
+        }
     }
 
 }

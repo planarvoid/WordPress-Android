@@ -156,7 +156,7 @@ public class Main extends TabActivity {
                          @Override
                          protected void onPostExecute(User user) {
                              final Token token = api.getToken();
-                             if (token != null && app.addUserAccount(user, token.access, token.refresh)) {
+                             if (token != null && app.addUserAccount(user, token)) {
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
                                          .edit()

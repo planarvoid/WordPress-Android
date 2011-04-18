@@ -80,7 +80,7 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
-    public Token login() throws IOException {
+    public Token signupToken() throws IOException {
         return requestToken(new Http.Params(
             "grant_type",    CLIENT_CREDENTIALS,
             //"scope",         "signup",
@@ -232,9 +232,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override public HttpResponse getContent(String resource, Http.Params params) throws IOException {
         if (params == null) params = new Http.Params();
-        HttpRequest req = params.buildRequest(HttpGet.class, resource);
-        req.addHeader("Accept", "application/json");
-        return execute(req);
+        return execute(params.buildRequest(HttpGet.class, resource));
     }
 
     @Override public HttpResponse putContent(String resource, Http.Params params) throws IOException {
@@ -263,27 +261,6 @@ public class ApiWrapper implements CloudAPI {
         listeners.add(listener);
     }
 
-    @Override public HttpResponse uploadTrack(ContentBody trackBody,
-                                    ContentBody artworkBody,
-                                    Http.Params params,
-                                    ProgressListener listener) throws IOException {
-        final HttpPost post = new HttpPost(Enddpoints.TRACKS);
-        MultipartEntity entity = new MultipartEntity();
-        for (NameValuePair pair : params) {
-            try {
-                entity.addPart(pair.getName(), new StringBodyNoHeaders(pair.getValue()));
-            } catch (UnsupportedEncodingException ignored) {
-            }
-        }
-        entity.addPart(TrackParams.ASSET_DATA, trackBody);
-        if (artworkBody != null) entity.addPart(TrackParams.ARTWORK_DATA, artworkBody);
-
-        post.setEntity(new CountingMultipartRequestEntity(entity, listener));
-        return execute(post);
-    }
-
-
-
     public static Header getOAuthHeader(Token token) {
         return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
                 (token == null || token.access == null ? INVALIDATED_TOKEN : token.access));
@@ -296,21 +273,16 @@ public class ApiWrapper implements CloudAPI {
         return request;
     }
 
+    protected HttpRequest addAccept(HttpRequest request) {
+        if (!request.containsHeader("Accept")) {
+            request.addHeader("Accept", "application/json");
+        }
+        return request;
+    }
+
     public HttpResponse execute(HttpRequest req) throws IOException {
-        return getHttpClient().execute(mEnv.sslHost, addAuthorization(req));
+        return getHttpClient().execute(mEnv.sslHost, addAccept(addAuthorization(req)));
     }
 
-    static class StringBodyNoHeaders extends StringBody {
-        public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {
-            super(value);
-        }
 
-        @Override public String getMimeType() {
-            return null;
-        }
-
-        @Override public String getTransferEncoding() {
-            return null;
-        }
-    }
 }

@@ -1,8 +1,17 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Http;
+import org.apache.http.HttpResponse;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,10 +26,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -44,10 +53,10 @@ public class AddInfo extends Activity {
 
     protected void build() {
         setContentView(R.layout.auth_add_info);
+        final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
-        final Button skipBtn = (Button) findViewById(R.id.btn_skip);
-        final Button saveBtn = (Button) findViewById(R.id.btn_save);
+        usernameField.setText(user.username);
 
         mArtworkImg = (ImageView) findViewById(R.id.artwork);
         final TextView artworkField = (TextView) findViewById(R.id.txt_artwork_bg);
@@ -57,27 +66,40 @@ public class AddInfo extends Activity {
                 if (actionId == EditorInfo.IME_ACTION_NEXT ||
                         (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                                 event.getAction() == KeyEvent.ACTION_DOWN)) {
-                    if (mAvatarFile == null)
-                        return artworkField.performClick();
-                    else
-                        return false;
+                    return mAvatarFile == null && artworkField.performClick();
                 } else {
                     return false;
                 }
             }
         });
 
-        skipBtn.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_skip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(getClass().getSimpleName(),"skip");
+                Log.d(TAG, "skip");
+                startActivity(new Intent(AddInfo.this, Main.class));
+                finish();
             }
         });
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(getClass().getSimpleName(),"Save username " + usernameField.getText().toString());
+                final String newUsername = usernameField.getText().toString();
+                Log.d(TAG, "Save username " + newUsername);
+                if (!newUsername.equals(user.username) || mAvatarFile != null) {
+                    new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+                        @Override
+                        protected void onPostExecute(User user) {
+                            if (user != null) {
+                                startActivity(new Intent(AddInfo.this, Main.class));
+                                finish();
+                            } else {
+                                CloudUtils.showToast(AddInfo.this, "There was a problem...");
+                            }
+                        }
+                    }.execute(new Pair<String,File>(newUsername, mAvatarFile));
+                }
             }
         });
 
@@ -102,7 +124,7 @@ public class AddInfo extends Activity {
                                     i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(mAvatarFile));
                                     startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.w(TAG, "error", e);
                                 }
                             }
                         }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
@@ -127,11 +149,11 @@ public class AddInfo extends Activity {
 
     }
 
-    public void setImage(String filePath) {
+    private void setImage(String filePath) {
         setImage(new File(filePath));
     }
 
-    public void setImage(File imageFile) {
+    private void setImage(File imageFile) {
         mAvatarFile = imageFile;
 
         try {
@@ -175,7 +197,7 @@ public class AddInfo extends Activity {
             mArtworkImg.setVisibility(View.VISIBLE);
 
         } catch (IOException e) {
-            Log.e(getClass().getSimpleName(), "error", e);
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -216,4 +238,28 @@ public class AddInfo extends Activity {
         }
     }
 
+    static class AddUserInfoTask extends AsyncApiTask<Pair<String,File>, Void, User> implements CloudAPI.UserParams{
+        public AddUserInfoTask(AndroidCloudAPI api) {
+            super(api);
+        }
+
+        @Override
+        protected User doInBackground(Pair<String, File>... params) {
+            final Pair<String,File> args = params[0];
+            try {
+                HttpResponse resp = api().putContent(MY_DETAILS,
+                        new Http.Params(NAME, args.first)
+                                .addFile(AVATAR, args.second));
+                if (resp.getStatusLine().getStatusCode() == SC_OK) {
+                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
+                } else {
+                    warn("unexpected response "+resp);
+                    return null;
+                }
+            } catch (IOException e) {
+                warn("error updating details", e);
+                return null;
+            }
+        }
+    }
 }

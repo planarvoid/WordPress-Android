@@ -7,15 +7,14 @@ import org.apache.http.entity.mime.content.ContentBody;
 import java.io.IOException;
 
 public interface CloudAPI {
+    // grant types
     String PASSWORD           = "password";
     String REFRESH_TOKEN      = "refresh_token";
+    String OAUTH1_TOKEN       = "oauth1_token";
 
     String CLIENT_CREDENTIALS = "client_credentials";
-
-    String OAUTH1_TOKEN     = "legacy_oauth1_token";
-
-    String REALM            = "SoundCloud";
-    String OAUTH_SCHEME     = "oauth";
+    String REALM              = "SoundCloud";
+    String OAUTH_SCHEME       = "oauth";
 
     /**
      * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
@@ -29,18 +28,17 @@ public interface CloudAPI {
      */
     Token login(String username, String password) throws IOException;
 
-
     /**
-     * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
-     * Client Credentials</a>
+     * Request a signup token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
+     * Client Credentials</a>. Note that not all apps are allowed to use this token type.
      * @return a valid token
      * @throws IOException
      */
-    Token login() throws IOException;
+    Token signupToken() throws IOException;
 
     /**
      * Tries to refresh the currently used access token with the refresh token
-     * @return self
+     * @return a valid token
      * @throws IOException in case of network problems
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IllegalStateException if no refresh token present
@@ -50,7 +48,7 @@ public interface CloudAPI {
     /**
      * Exchange an OAuth1 Token for new OAuth2 tokens
      * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
-     * @return self
+     * @return a valid token
      * */
     Token exchangeToken(String oauth1AccessToken) throws IOException;
 
@@ -80,21 +78,6 @@ public interface CloudAPI {
      * @throws IOException network errors
      */
     long resolve(String uri) throws IOException;
-
-    /**
-     * Upload a track to SoundCloud
-     *
-     * @param trackBody   track binary data (required)
-     * @param artworkBody artwork (optional), or null
-     * @param params      track params
-     * @param listener    upload progress callback
-     * @return
-     * @throws IOException
-     */
-    HttpResponse uploadTrack(ContentBody trackBody,
-                             ContentBody artworkBody,
-                             Http.Params params,
-                             ProgressListener listener) throws IOException;
 
     Token getToken();
     void setToken(Token token);
@@ -160,15 +143,21 @@ public interface CloudAPI {
         String PRIVATE = "private";
     }
 
+    interface UserParams {
+        String NAME                  = "user[username]";
+        String EMAIL                 = "user[email]";
+        String PASSWORD              = "user[password]";
+        String PASSWORD_CONFIRMATION = "user[password_confirmation]";
+        String TERMS_OF_USE          = "user[terms_of_use]";
+        String AVATAR                = "user[avatar_data]";
+    }
+
     interface CommentParams {
         String BODY      = "comment[body]";
         String TIMESTAMP = "comment[timestamp]";
         String REPLY_TO  = "comment[reply_to]";
     }
 
-    interface ProgressListener {
-        public void transferred(long amount);
-    }
 
     interface TokenStateListener {
         /** Called when token was found to be invalid */

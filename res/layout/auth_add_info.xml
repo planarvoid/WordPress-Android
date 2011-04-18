@@ -5,12 +5,19 @@
   <RelativeLayout android:padding="10dip" android:layout_width="fill_parent" android:layout_height="fill_parent">\
     <TextView android:layout_height="wrap_content" style="@style/txt_auth_msg"
       android:layout_width="wrap_content" android:id="@+id/txt_msg"
-      android:layout_alignParentLeft="true" android:text="@string/authentication_add_info_msg"></TextView>
-    <EditText android:layout_height="wrap_content" android:id="@+id/txt_username"
-            android:hint="@string/authentication_add_info_username_hint" android:layout_below="@+id/txt_msg"
-            android:layout_alignLeft="@+id/txt_msg" android:layout_width="fill_parent"
-            android:imeOptions="actionNext" android:singleLine="true"
-            style="@style/txt_auth_input" android:lines="1"/>
+      android:layout_alignParentLeft="true" android:text="@string/authentication_add_info_msg"/>
+
+    <EditText android:layout_height="wrap_content"
+              android:id="@+id/txt_username"
+              android:layout_below="@+id/txt_msg"
+              android:layout_alignLeft="@+id/txt_msg"
+              android:layout_width="fill_parent"
+              android:imeOptions="actionNext"
+              android:singleLine="true"
+              style="@style/txt_auth_input"
+              android:lines="1"/>
+
+
         <FrameLayout android:id="@+id/image_layout" android:layout_height="100dip" android:layout_alignLeft="@id/txt_username"
             android:layout_width="100dip" android:layout_below="@id/txt_username" android:layout_marginLeft="5dip" android:layout_marginTop="5dip">
             <TextView android:layout_height="fill_parent" android:background="@drawable/rec_upload_image_bg"
@@ -24,7 +31,7 @@
         android:layout_toRightOf="@id/image_layout"
       android:layout_width="wrap_content" android:id="@+id/txt_image_msg"
       android:layout_alignRight="@id/txt_username" android:layout_below="@id/txt_username"
-      android:text="@string/authentication_add_info_add_image_msg" android:layout_centerVertical="true" android:layout_marginTop="10dip" android:layout_marginLeft="10dip"></TextView>
+      android:text="@string/authentication_add_info_add_image_msg" android:layout_centerVertical="true" android:layout_marginTop="10dip" android:layout_marginLeft="10dip"/>
     </RelativeLayout>
   <RelativeLayout android:layout_width="fill_parent"
                     android:layout_alignParentBottom="true" android:id="@+id/control_layout"

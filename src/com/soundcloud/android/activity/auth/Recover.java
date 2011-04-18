@@ -94,9 +94,16 @@ public class Recover extends Activity {
         Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
             @Override
+            protected void onPreExecute() {
+                CloudUtils.showToast(Recover.this, "Requesting password reset");
+            }
+
+            @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
                     CloudUtils.showToast(Recover.this, "Success");
+                    setResult(RESULT_OK);
+                    finish();
                 } else {
                     CloudUtils.showToast(Recover.this, "Failure");
                 }
@@ -113,8 +120,14 @@ public class Recover extends Activity {
         protected Boolean doInBackground(String... params) {
             final String email = params[0];
             try {
-                Token signup = api().login();
-                HttpResponse resp = api().postContent(SEND_PASSWORD,
+                final Token signup = api().signupToken();
+                if (!signup.signupScoped()) {
+                    warn("token has the wrong scope: " + signup);
+                    return false;
+                }
+
+                HttpResponse resp = api().postContent(
+                        SEND_PASSWORD,
                         new Http.Params("email", email).withToken(signup));
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == HttpStatus.SC_ACCEPTED  ) {

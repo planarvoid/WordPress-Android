@@ -4,24 +4,32 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRoute;
 import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Http {
     public static final int BUFFER_SIZE = 8192;
@@ -79,10 +87,16 @@ public class Http {
     }
 
 
+    public static interface ProgressListener {
+        public void transferred(long amount);
+    }
+
     /** Convenience class for passing parameters to HTTP methods */
     public static class Params implements Iterable<NameValuePair> {
         Token token;
+        Map<String,File> files;
         public List<NameValuePair> params = new ArrayList<NameValuePair>();
+        private ProgressListener listener;
 
         public Params(Object... args) {
             if (args != null) {
@@ -115,12 +129,42 @@ public class Http {
             return params.isEmpty() ? url : url + "?" + queryString();
         }
 
+        public Params addFile(String name, File file) {
+            if (files == null) files = new HashMap<String,File>();
+            if (file != null)  files.put(name, file);
+            return this;
+        }
+
+        public Params setProgressListener(ProgressListener listener) {
+            this.listener = listener;
+            return this;
+        }
+
         public HttpRequest buildRequest(Class<? extends HttpRequestBase> method, String resource) {
             try {
                 HttpRequestBase request = method.newInstance();
-                request.setURI(URI.create(url(resource)));
                 if (token != null) {
                     request.addHeader(ApiWrapper.getOAuthHeader(token));
+                }
+
+                if (files != null && !files.isEmpty() && request instanceof HttpEntityEnclosingRequestBase) {
+                    MultipartEntity entity = new MultipartEntity();
+                    for (Map.Entry<String,File> e : files.entrySet()) {
+                        entity.addPart(e.getKey(), new FileBody(e.getValue()));
+                    }
+                    for (NameValuePair pair : params) {
+                        try {
+                            entity.addPart(pair.getName(), new StringBodyNoHeaders(pair.getValue()));
+                        } catch (UnsupportedEncodingException ignored) {
+                        }
+                    }
+
+                    ((HttpEntityEnclosingRequestBase)request).setEntity(listener == null ? entity :
+                        new CountingMultipartRequestEntity(entity, listener));
+
+                    request.setURI(URI.create(resource));
+                } else {
+                    request.setURI(URI.create(url(resource)));
                 }
                 return request;
             } catch (InstantiationException e) {
@@ -138,6 +182,20 @@ public class Http {
         @Override
         public Iterator<NameValuePair> iterator() {
             return params.iterator();
+        }
+    }
+
+      public static class StringBodyNoHeaders extends StringBody {
+        public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {
+            super(value);
+        }
+
+        @Override public String getMimeType() {
+            return null;
+        }
+
+        @Override public String getTransferEncoding() {
+            return null;
         }
     }
 }

@@ -6,10 +6,12 @@ import org.json.JSONObject;
 import java.util.Date;
 
 public class Token {
-    public static final String ACCESS_TOKEN = "access_token";
+    public static final String ACCESS_TOKEN  = "access_token";
     public static final String REFRESH_TOKEN = "refresh_token";
-    public static final String SCOPE = "scope";
-    public static final String EXPIRES_IN = "expires_in";
+    public static final String SCOPE         = "scope";
+    public static final String EXPIRES_IN    = "expires_in";
+
+    public static final String SCOPE_SIGNUP  = "signup";
 
     public String access, refresh, scope;
     public long expiresIn;
@@ -32,6 +34,18 @@ public class Token {
 
     public Date getExpiresIn() {
         return expiresIn == 0 ? null : new Date(expiresIn);
+    }
+
+    public boolean starScoped() {
+        return scope != null && scope.contains("*");
+    }
+
+    public boolean signupScoped() {
+        return scope != null && scope.contains(SCOPE_SIGNUP);
+    }
+
+    public boolean valid() {
+        return access != null && refresh != null;
     }
 
     @Override
