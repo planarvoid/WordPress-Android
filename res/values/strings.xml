@@ -30,15 +30,24 @@
   <string name="authentication_add_info_username_hint">User1234</string>
   <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
   <string name="authentication_add_image">Add Image</string>
-  
+
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
   <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
-  
+
   <string name="authentication_support_email_chooser_text">Send email using...</string>
   <string name="authentication_support_email_address">support@soundcloud.com</string>
   <string name="authentication_support_email_subject">Login problems</string>
   <string name="authentication_support_email_message"></string>
-  
+
+  <string name="authentication_recover_progress_message">Requesting password reset</string>
+
+  <string name="authentication_signup_progress_message">Making you an account</string>
+
+  <string name="authentication_login_progress_message">Logging you in</string>
+  <string name="authentication_login_error_password_message">We couldn\'t log you in, sure you had the right username (or email) and password?</string>
+
+  <string name="authentication_error_title">Authentication error</string>
+  <string name="authentication_error_no_connection_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
@@ -436,11 +445,6 @@
 
    <string name="authorize_username">Username</string>
    <string name="authorize_password">Password</string>
-
-  <string name="progress_sc_connect_title">Authenticating</string>
-  <string name="error_sc_connect_error_title">SoundCloud Connect Error!</string>
-  <string name="error_sc_connect_error_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
-  <string name="error_sc_connect_invalid_password">We couldn\'t log you in, sure you had the right username (or email) and password?</string>
 
   <!-- dialog strings -->
   <string name="error_track_error_title">Playback error!</string>

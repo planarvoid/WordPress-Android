@@ -119,10 +119,7 @@ public class Login extends AccountAuthenticatorActivity {
 
             @Override
             protected void onPreExecute() {
-                progress = new ProgressDialog(Login.this);
-                progress.setIndeterminate(true);
-                progress.setTitle(R.string.progress_sc_connect_title);
-                progress.show();
+                progress = ProgressDialog.show(Login.this, "", Login.this.getString(R.string.authentication_login_progress_message));
             }
 
             @Override
@@ -156,8 +153,8 @@ public class Login extends AccountAuthenticatorActivity {
         final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
         new AlertDialog.Builder(Login.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.error_sc_connect_error_title)
-                .setMessage(tokenError ? R.string.error_sc_connect_invalid_password : R.string.error_sc_connect_error_message)
+                .setTitle(R.string.authentication_error_title)
+                .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

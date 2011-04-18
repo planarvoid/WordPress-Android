@@ -9,10 +9,12 @@ import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Token;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -93,13 +95,16 @@ public class Recover extends Activity {
     private void recoverPassword(final String email) {
         Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
+            private ProgressDialog progressDialog;
             @Override
             protected void onPreExecute() {
-                CloudUtils.showToast(Recover.this, "Requesting password reset");
+                progressDialog = ProgressDialog.show(Recover.this, "", Recover.this.getString(R.string.authentication_recover_progress_message));
             }
 
             @Override
             protected void onPostExecute(Boolean success) {
+                progressDialog.dismiss();
+
                 if (success) {
                     CloudUtils.showToast(Recover.this, "Success");
                     setResult(RESULT_OK);

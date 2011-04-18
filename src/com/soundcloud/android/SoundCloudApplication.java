@@ -9,8 +9,8 @@ import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
-
 import com.soundcloud.api.Token;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;

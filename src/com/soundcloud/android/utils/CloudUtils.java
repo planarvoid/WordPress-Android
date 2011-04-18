@@ -143,13 +143,11 @@ public class CloudUtils {
 
     public static void showToast(Context c, int resId) {
         Toast toast = Toast.makeText(c, c.getText(resId), Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 
     public static void showToast(Context c, CharSequence text) {
         Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 

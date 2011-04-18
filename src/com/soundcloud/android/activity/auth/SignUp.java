@@ -11,10 +11,12 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Token;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -81,9 +83,16 @@ public class SignUp extends Activity {
                     final String password = choosePasswordField.getText().toString();
 
                     new SignupTask((SoundCloudApplication) getApplication()) {
+                        ProgressDialog progress;
+
+                        @Override
+                        protected void onPreExecute() {
+                            progress = ProgressDialog.show(SignUp.this, "", SignUp.this.getString(R.string.authentication_signup_progress_message));
+                        }
+
                         @Override
                         protected void onPostExecute(User user) {
-
+                            progress.dismiss();
 
                             if (user != null) {
                                 Log.d(TAG, "created user " + user);
