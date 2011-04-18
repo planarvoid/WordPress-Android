@@ -100,7 +100,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
+                    am.setUserData(account,  Token.EXPIRES_IN, "" + token.expiresIn);
                     am.setUserData(account,  Token.SCOPE, token.scope);
                 }
             }

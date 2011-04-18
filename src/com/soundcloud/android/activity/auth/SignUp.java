@@ -16,6 +16,7 @@ import org.apache.http.HttpStatus;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 public class SignUp extends Activity {
+    public static final Uri TERMS_OF_USE = Uri.parse("http://m.soundcloud.com/terms-of-use");
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -96,11 +98,11 @@ public class SignUp extends Activity {
             }
         });
 
-        CloudUtils.clickify(((TextView)findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_terms_of_use),new ClickSpan.OnClickListener()
-         {
-            @Override
-            public void onClick() {
-                Log.i(getClass().getSimpleName(),"Go to terms of use ");
+        CloudUtils.clickify(((TextView)findViewById(R.id.txt_msg)),
+                getResources().getString(R.string.authentication_terms_of_use),
+                new ClickSpan.OnClickListener() {
+            @Override public void onClick() {
+                startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE));
             }
         });
     }

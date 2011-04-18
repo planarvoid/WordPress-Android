@@ -111,7 +111,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            throw new RuntimeException("CloudAPITests <username> <password>");
+            throw new RuntimeException("CloudAPIIntegrationTests <username> <password>");
         }
 
         Token token = new ApiWrapper(
