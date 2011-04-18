@@ -17,6 +17,9 @@ public interface CloudAPI {
     String REALM            = "SoundCloud";
     String OAUTH_SCHEME     = "oauth";
 
+    int MAX_COLLECTION_SIZE = 200;
+    int MAX_COLLECTION_OFFSET = 8000;
+
     /**
      * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
      * Resource Owner Password Credentials</a>
