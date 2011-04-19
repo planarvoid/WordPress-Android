@@ -13,7 +13,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Token;
 
-import android.accounts.AccountManager;
+import android.accounts.Account;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -57,6 +57,8 @@ public class Main extends TabActivity {
         mSplash = (ViewGroup) findViewById(R.id.splash);
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
+        checkAccount();
+
         if (isConnected() && app.getToken().valid() && !app.isEmailConfirmed()) {
             checkEmailConfirmed(app);
         } else if (visible) {
@@ -69,6 +71,31 @@ public class Main extends TabActivity {
         }
         handleIntent(getIntent());
     }
+
+    protected void checkAccount(){
+        Account account = ((SoundCloudApplication)this.getApplication()).getAccount();
+        if (account == null) {
+            ((SoundCloudApplication)this.getApplication()).addAccount(this, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> future) {
+                    try {
+                        // NB: important to call future.getResult() for side effects
+                        startActivity(new Intent(Main.this, Main.class)
+                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    } catch (OperationCanceledException e) {
+                        Log.d(TAG, "authorisation canceled");
+                    } catch (IOException e) {
+                        Log.w(TAG, e);
+                    } catch (AuthenticatorException e) {
+                        Log.w(TAG, e);
+                    }
+                }
+            });
+            finish();
+        }
+    }
+
 
     @Override
     protected void onResume() {
