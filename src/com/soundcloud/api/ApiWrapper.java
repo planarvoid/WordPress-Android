@@ -34,6 +34,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+
+/**
+ * Interface with SoundCloud, using OAuth2.
+ * This API wrapper makes a few assumptions - namely:
+ * <ul>
+ *     <li>Only resource owner passwords credentials is supported</li>
+ *     <li>Server responses are always requested in JSON format</li>
+ *     <li>Refresh-token handling is transparent to the client application</li>
+ * </ul>
+ * @version 1.0
+ * @author Jan Berkel <jan@soundcloud.com>
+ * @see CloudAPI
+ */
 public class ApiWrapper implements CloudAPI {
     public static final String INVALIDATED_TOKEN = "invalidated";
 

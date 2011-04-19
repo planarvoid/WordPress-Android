@@ -13,8 +13,12 @@ import java.io.IOException;
  *     <li>Server responses are always requested in JSON format</li>
  *     <li>Refresh-token handling is transparent to the client application</li>
  * </ul>
+ *
+ * This is the actual interface, for the implementation see ApiWrapper.
+ *
  * @version 1.0
  * @author Jan Berkel <jan@soundcloud.com>
+ * @see ApiWrapper
  */
 public interface CloudAPI {
     // grant types
