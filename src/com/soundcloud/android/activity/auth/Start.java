@@ -1,0 +1,73 @@
+
+package com.soundcloud.android.activity.auth;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.StartMenuAdapter;
+import com.soundcloud.android.utils.AnimUtils;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.RelativeLayout;
+
+public class Start extends Activity {
+
+    RelativeLayout animationHolder;
+    RelativeLayout startMenu;
+    Button facebookBtn;
+
+
+    private Handler mHandler = new Handler();
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.auth_start);
+
+        animationHolder = ((RelativeLayout) this.findViewById(R.id.animation_holder));
+        startMenu = (RelativeLayout)animationHolder.findViewById(R.id.start_menu);
+        facebookBtn = (Button)this.findViewById(R.id.facebook_btn);
+        facebookBtn.setVisibility(View.INVISIBLE);
+
+        GridView gv = (GridView) this.findViewById(R.id.grid_view);
+        gv.setCacheColorHint(0);
+        gv.setAdapter(new StartMenuAdapter(this));
+        gv.setBackgroundColor(getResources().getColor(R.color.white));
+
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(Start.this, (position == 0 ? Login.class : SignUp.class )));
+            }
+        });
+
+        mHandler.postDelayed(mShowAuthControls, 600);
+
+        animationHolder.removeView(startMenu);
+
+    }
+
+    private Runnable mShowAuthControls = new Runnable() {
+        public void run() {
+            AnimUtils.setLayoutAnim_slideupfrombottom(animationHolder, Start.this);
+            animationHolder.addView(startMenu);
+            mHandler.postDelayed(mShowFacebook, 500);
+        }
+     };
+
+     private Runnable mShowFacebook = new Runnable() {
+         public void run() {
+
+             AnimUtils.runFadeInAnimationOn(Start.this, facebookBtn);
+             facebookBtn.setVisibility(View.VISIBLE);
+         }
+      };
+
+
+}
