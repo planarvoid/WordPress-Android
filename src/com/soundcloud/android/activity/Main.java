@@ -13,6 +13,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Token;
 
+import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -50,14 +51,12 @@ public class Main extends TabActivity {
         Log.d(TAG, "onCreate("+state+")");
 
         setContentView(R.layout.main);
+        final SoundCloudApplication app = getApp();
 
-        long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
-        final boolean visible = lastDestroyed == 0 || System.currentTimeMillis() - lastDestroyed > SPLASH_PAUSE;
+        final boolean visible = showSplash(state);
         mSplash = (ViewGroup) findViewById(R.id.splash);
-
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
-        final SoundCloudApplication app = getApp();
         if (isConnected() && app.getToken().valid() && !app.isEmailConfirmed()) {
             checkEmailConfirmed(app);
         } else if (visible) {
@@ -74,6 +73,8 @@ public class Main extends TabActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "Main#onResume()");
+
         if (checkAccountExists(getApp()) && !tabsInitialized) {
             buildTabHost(getApp());
             tabsInitialized = true;
@@ -82,6 +83,11 @@ public class Main extends TabActivity {
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+    private boolean showSplash(Bundle state) {
+        long lastDestroyed = state == null ? 0 : state.getLong("lastDestroyed");
+        return lastDestroyed == 0 || System.currentTimeMillis() - lastDestroyed > SPLASH_PAUSE;
     }
 
     private boolean checkAccountExists(SoundCloudApplication app) {

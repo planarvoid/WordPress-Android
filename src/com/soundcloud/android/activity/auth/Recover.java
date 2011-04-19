@@ -58,9 +58,7 @@ public class Recover extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "cancel");
-                setResult(RESULT_CANCELED);
-                finish();
+                onBackPressed();
             }
         });
 
@@ -90,6 +88,12 @@ public class Recover extends Activity {
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     private void recoverPassword(final String email) {

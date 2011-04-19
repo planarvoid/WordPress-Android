@@ -74,7 +74,7 @@ public class SignUp extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
 
@@ -127,6 +127,12 @@ public class SignUp extends Activity {
                 startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE));
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     static class SignupTask extends AsyncApiTask<String, Void, User> implements CloudAPI.UserParams {

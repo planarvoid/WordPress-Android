@@ -96,7 +96,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Log.d(TAG, "onTokenRefreshed("+token+")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
-                if (account != null && token.starScoped() && token.valid()) {
+                if (account != null && token.valid() && token.starScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);

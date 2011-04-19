@@ -90,11 +90,9 @@ public class Login extends AccountAuthenticatorActivity {
                 if (emailField.getText().length() > 0) {
                     i.putExtra("email", emailField.getText().toString());
                 }
-
                 startActivityForResult(i, 0);
             }
         });
-
 
         findViewById(R.id.btn_signup).setOnClickListener(new View.OnClickListener() {
             @Override
