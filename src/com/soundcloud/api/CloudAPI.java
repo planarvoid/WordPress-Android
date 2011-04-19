@@ -5,6 +5,17 @@ import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 
+/**
+ * Interface with SoundCloud, using OAuth2.
+ * This API wrapper makes a few assumptions - namely:
+ * <ul>
+ *     <li>Only resource owner passwords credentials is supported</li>
+ *     <li>Server responses are always requested in JSON format</li>
+ *     <li>Refresh-token handling is transparent to the client application</li>
+ * </ul>
+ * @version 1.0
+ * @author Jan Berkel <jan@soundcloud.com>
+ */
 public interface CloudAPI {
     // grant types
     String PASSWORD           = "password";
@@ -15,8 +26,8 @@ public interface CloudAPI {
     // other constants
     String REALM              = "SoundCloud";
     String OAUTH_SCHEME       = "oauth";
-
-    String USER_AGENT         = "SoundCloud Java Wrapper 1.0";
+    String VERSION            = "1.0";
+    String USER_AGENT         = "SoundCloud Java Wrapper "+ VERSION;
 
     /**
      * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
@@ -35,6 +46,7 @@ public interface CloudAPI {
      * Client Credentials</a>. Note that not all apps are allowed to use this token type.
      * @return a valid token
      * @throws IOException IO/Error
+     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException if requested scope is not available
      */
     Token signupToken() throws IOException;
 

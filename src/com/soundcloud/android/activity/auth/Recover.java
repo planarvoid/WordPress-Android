@@ -130,11 +130,6 @@ public class Recover extends Activity {
             final String email = params[0];
             try {
                 final Token signup = api().signupToken();
-                if (!signup.signupScoped()) {
-                    warn("token has the wrong scope: " + signup);
-                    return false;
-                }
-
                 HttpResponse resp = api().postContent(
                         SEND_PASSWORD,
                         new Http.Params("email", email).withToken(signup));

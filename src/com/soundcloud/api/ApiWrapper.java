@@ -4,7 +4,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.HttpClient;
@@ -20,9 +19,6 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
@@ -34,7 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,8 +47,7 @@ public class ApiWrapper implements CloudAPI {
      * Constructs a new ApiWrapper instance.
      * @param clientId            the application client id
      * @param clientSecret        the application client secret
-     * @param accessToken               an access token, or null if not known
-     * @param refreshToken        an refresh token, or null if not known
+     * @param token               an valid token, or null if not known
      * @param env                 the environment to use (LIVE/SANDBOX)
      * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
      */
@@ -82,10 +76,15 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public Token signupToken() throws IOException {
-        return requestToken(new Http.Params(
+        final Token signup = requestToken(new Http.Params(
             "grant_type",    CLIENT_CREDENTIALS,
             "client_id",     mClientId,
             "client_secret", mClientSecret));
+        if (!signup.signupScoped()) {
+            throw new InvalidTokenException(200, "Could not obtain signup scope (got: "+
+                    signup.scope+")");
+        }
+        return signup;
     }
 
     @Override public Token refreshToken() throws IOException {
@@ -166,12 +165,20 @@ public class ApiWrapper implements CloudAPI {
         return SSLSocketFactory.getSocketFactory();
     }
 
+    /**
+     * User-Agent to identify ourselves with - defaults to USER_AGENT
+     * @see CloudAPI#USER_AGENT
+     * @return the agent to use
+     */
+    protected String getUserAgent() {
+        return USER_AGENT;
+    }
+
     public HttpClient getHttpClient() {
         if (httpClient == null) {
             final HttpParams params = getParams();
-            // we handle redirects ourselves
             HttpClientParams.setRedirecting(params, false);
-            HttpProtocolParams.setUserAgent(params, USER_AGENT);
+            HttpProtocolParams.setUserAgent(params, getUserAgent());
 
             final SchemeRegistry registry = new SchemeRegistry();
             registry.register(new Scheme("http", getSocketFactory(), 80));
