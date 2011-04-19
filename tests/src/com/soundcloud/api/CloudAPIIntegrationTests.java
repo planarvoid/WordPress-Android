@@ -1,12 +1,9 @@
 package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.http.HttpResponse;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,12 +51,9 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         assertThat(status, is(201));
     }
 
-    @Test
+    @Test(expected = CloudAPI.InvalidTokenException.class)
     public void shouldNotGetASignupTokenWhenInofficialApp() throws Exception {
-        Token signup = api.signupToken();
-        assertFalse(signup.signupScoped());
-        assertFalse(signup.starScoped());
-        assertThat(signup.scope, equalTo(""));
+        api.signupToken();
     }
 
     @Test
