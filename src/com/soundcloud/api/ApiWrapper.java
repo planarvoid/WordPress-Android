@@ -262,7 +262,7 @@ public class ApiWrapper implements CloudAPI {
 
     public static Header getOAuthHeader(Token token) {
         return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
-                (token == null || token.access == null ? INVALIDATED_TOKEN : token.access));
+                (token == null || !token.valid() ? INVALIDATED_TOKEN : token.access));
     }
 
     protected HttpRequest addAuthorization(HttpRequest request) {

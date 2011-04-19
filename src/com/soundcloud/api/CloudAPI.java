@@ -2,7 +2,6 @@ package com.soundcloud.api;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.mime.content.ContentBody;
 
 import java.io.IOException;
 
@@ -11,8 +10,9 @@ public interface CloudAPI {
     String PASSWORD           = "password";
     String REFRESH_TOKEN      = "refresh_token";
     String OAUTH1_TOKEN       = "oauth1_token";
-
     String CLIENT_CREDENTIALS = "client_credentials";
+
+    // other constants
     String REALM              = "SoundCloud";
     String OAUTH_SCHEME       = "oauth";
 
@@ -24,7 +24,7 @@ public interface CloudAPI {
      * @param password SoundCloud password
      * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
-     * @throws IOException In case of network errors
+     * @throws IOException In case of network/server errors
      */
     Token login(String username, String password) throws IOException;
 
@@ -32,7 +32,7 @@ public interface CloudAPI {
      * Request a signup token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
      * Client Credentials</a>. Note that not all apps are allowed to use this token type.
      * @return a valid token
-     * @throws IOException
+     * @throws IOException IO/Error
      */
     Token signupToken() throws IOException;
 
@@ -49,31 +49,61 @@ public interface CloudAPI {
      * Exchange an OAuth1 Token for new OAuth2 tokens
      * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
      * @return a valid token
-     * @throws IOException
-     * @throws InvalidGrantException
+     * @throws IOException IO/Error
+     * @throws InvalidTokenException Token error
      */
     Token exchangeToken(String oauth1AccessToken) throws IOException;
 
     /** Called to invalidate the current token */
     void invalidateToken();
 
-    /** GET resource */
+    /**
+     * @param resource resource to GET
+     * @return the HTTP response
+     * @throws IOException IO/Error
+     */
     HttpResponse getContent(String resource) throws IOException;
-    /** GET resource, with parameters */
+
+
+    /**
+     * @param resource resource to GET
+     * @param params query parameters
+     * @return the HTTP response
+     * @throws IOException IO/Error
+     */
     HttpResponse getContent(String resource, Http.Params params) throws IOException;
-    /** POST resource */
+
+    /**
+     * @param resource resource to POST
+     * @param params query parameters
+     * @return the HTTP response
+     * @throws IOException IO/Error
+     */
     HttpResponse postContent(String resource, Http.Params params) throws IOException;
-    /** PUT resource */
+
+    /**
+     * @param resource resource to PUT
+     * @param params query parameters
+     * @return the HTTP response
+     * @throws IOException IO/Error
+     */
     HttpResponse putContent(String resource, Http.Params params) throws IOException;
-    /** DELETE resource */
+
+    /**
+     * @param resource resource to DELETE
+     * @return the HTTP response
+     * @throws IOException IO/Error
+     */
     HttpResponse deleteContent(String resource) throws IOException;
 
-    /** Adds current access token to url */
+    /** Adds current access token to url
+     * @param url url to be signed
+     * @return signed url
+     */
     @Deprecated String signUrl(String url);
 
     /**
      * Resolve the given SoundCloud URI
-     *
      *
      * @param uri SoundCloud model URI, e.g. http://soundcloud.com/bob
      * @return the id or -1 if not resolved successfully
@@ -97,6 +127,7 @@ public interface CloudAPI {
         }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     interface Enddpoints { // TODO rename to Resources?
         String TOKEN = "/oauth2/token";
 
@@ -112,8 +143,8 @@ public interface CloudAPI {
         String USER_FAVORITES      = "/users/{user_id}/favorites";
         String USER_PLAYLISTS      = "/users/{user_id}/playlists";
 
-        String CONNECTIONS         = "/me/connections";
         String MY_DETAILS          = "/me";
+        String CONNECTIONS         = "/me/connections";
         String MY_ACTIVITIES       = "/me/activities/tracks";
         String MY_EXCLUSIVE_TRACKS = "/me/activities/tracks/exclusive";
         String MY_TRACKS           = "/me/tracks";
@@ -163,14 +194,15 @@ public interface CloudAPI {
 
 
     interface TokenStateListener {
-        /** Called when token was found to be invalid */
+        /**
+         * Called when token was found to be invalid
+         * @param token the invalid token
+         */
         void onTokenInvalid(Token token);
 
         /**
          * Called when the token got successfully refreshed
-         * @param access       the new access token
-         * @param refresh      the new refresh token
-         * @param expiresIn    point in time this token will expire, millisecs since epoch
+         * @param token      the refreshed token
          */
         void onTokenRefreshed(Token token);
     }

@@ -32,6 +32,9 @@ public class Token {
         this.access = null;
     }
 
+    /**
+     * @return null or the date of expiration of this token
+     */
     public Date getExpiresIn() {
         return expiresIn == 0 ? null : new Date(expiresIn);
     }
