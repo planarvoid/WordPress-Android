@@ -188,7 +188,7 @@ public class ApiWrapperTests {
 
     @Test
     public void testGetOAuthHeader() throws Exception {
-        Header h = ApiWrapper.getOAuthHeader(new Token("foo", null));
+        Header h = ApiWrapper.getOAuthHeader(new Token("foo", "refresh"));
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth foo"));
     }
