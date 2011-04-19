@@ -100,6 +100,13 @@ public class Login extends AccountAuthenticatorActivity {
                 startActivity(new Intent(Login.this, SignUp.class));
             }
         });
+
+        findViewById(R.id.btn_signup_facebook).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Login.this, Facebook.class));
+            }
+        });
     }
 
     @Override

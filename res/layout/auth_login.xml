@@ -52,6 +52,13 @@
                 android:text="Signup"
                 android:layout_below="@id/txt_msg"/>
 
+        <Button android:id="@+id/btn_signup_facebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Signup with Facebook"
+                android:layout_below="@id/btn_signup"/>
+
+
     </RelativeLayout>
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_alignParentBottom="true" android:id="@+id/control_layout"
