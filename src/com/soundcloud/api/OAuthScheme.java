@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OAuthScheme implements AuthScheme {
+class OAuthScheme implements AuthScheme {
     public HashMap<String, String> mParams;
     public HttpParams mHttpParams;
     private CloudAPI mApi;

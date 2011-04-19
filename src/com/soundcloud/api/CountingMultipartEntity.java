@@ -8,79 +8,74 @@ import java.io.OutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
-public class CountingMultipartEntity implements HttpEntity {
-    private HttpEntity delegate_;
-
-    private Http.ProgressListener listener_;
+class CountingMultipartEntity implements HttpEntity {
+    private HttpEntity mDelegate;
+    private Http.ProgressListener mListener;
 
     public CountingMultipartEntity(HttpEntity delegate, Http.ProgressListener listener) {
         super();
-        delegate_ = delegate;
-        listener_ = listener;
+        mDelegate = delegate;
+        mListener = listener;
     }
 
     public void consumeContent() throws IOException {
-        delegate_.consumeContent();
+        mDelegate.consumeContent();
     }
 
     public InputStream getContent() throws IOException, IllegalStateException {
-        return delegate_.getContent();
+        return mDelegate.getContent();
     }
 
     public Header getContentEncoding() {
-        return delegate_.getContentEncoding();
+        return mDelegate.getContentEncoding();
     }
 
     public long getContentLength() {
-        return delegate_.getContentLength();
+        return mDelegate.getContentLength();
     }
 
     public Header getContentType() {
-        return delegate_.getContentType();
+        return mDelegate.getContentType();
     }
 
     public boolean isChunked() {
-        return delegate_.isChunked();
+        return mDelegate.isChunked();
     }
 
     public boolean isRepeatable() {
-        return delegate_.isRepeatable();
+        return mDelegate.isRepeatable();
     }
 
     public boolean isStreaming() {
-        return delegate_.isStreaming();
+        return mDelegate.isStreaming();
     }
 
     public void writeTo(OutputStream outstream) throws IOException {
-        delegate_.writeTo(new CountingOutputStream(outstream, listener_));
+        mDelegate.writeTo(new CountingOutputStream(outstream, mListener));
     }
 
-    private class CountingOutputStream extends FilterOutputStream {
-
-        private final Http.ProgressListener listener;
-
-        private long transferred;
+    private static class CountingOutputStream extends FilterOutputStream {
+        private final Http.ProgressListener mListener;
+        private long mTransferred;
 
         public CountingOutputStream(final OutputStream out, final Http.ProgressListener listener) {
             super(out);
-            this.listener = listener;
-            this.transferred = 0;
+            this.mListener = listener;
+            this.mTransferred = 0;
         }
 
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
-            this.transferred += len;
-            if (listener != null)
-                this.listener.transferred(this.transferred);
+            this.mTransferred += len;
+            if (mListener != null) this.mListener.transferred(this.mTransferred);
         }
 
         @Override
         public void write(int b) throws IOException {
             out.write(b);
-            this.transferred++;
-            if (listener != null)
-                this.listener.transferred(this.transferred);
+            this.mTransferred++;
+            if (mListener != null) this.mListener.transferred(this.mTransferred);
         }
     }
 }
