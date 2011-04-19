@@ -83,7 +83,6 @@ public class AddInfo extends Activity {
         });
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
-            @SuppressWarnings("unchecked")
             @Override
             public void onClick(View v) {
                 final String newUsername = usernameField.getText().toString();
@@ -94,7 +93,7 @@ public class AddInfo extends Activity {
                     @Override
                     protected void onPreExecute() {
                         mProgressDialog = ProgressDialog.show(AddInfo.this, "",
-                                 AddInfo.this.getString(R.string.authentication_add_info_progress_message));
+                             getString(R.string.authentication_add_info_progress_message));
                     }
 
                     @Override
@@ -155,7 +154,11 @@ public class AddInfo extends Activity {
     }
 
     private void gotoDashboard(User user) {
-        startActivity(new Intent(AddInfo.this, Main.class));
+        final Intent intent = new Intent(AddInfo.this, Main.class);
+        if (user != null) {
+            intent.putExtra("user", user);
+        }
+        startActivity(intent);
         finish();
     }
 
@@ -270,7 +273,7 @@ public class AddInfo extends Activity {
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
                     return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
                 } else {
-                    warn("unexpected response ", resp);
+                    warn("unexpected response", resp);
                     return null;
                 }
             } catch (IOException e) {
