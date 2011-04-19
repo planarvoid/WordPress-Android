@@ -34,7 +34,8 @@ import java.util.regex.Pattern;
 public class SignUp extends Activity {
     public static final Uri TERMS_OF_USE = Uri.parse("http://m.soundcloud.com/terms-of-use");
 
-    public final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
+    private static final int MIN_PASSWORD_LENGTH = 4;
+    public static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
             "\\@" +
             "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
@@ -89,6 +90,8 @@ public class SignUp extends Activity {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
+                } else if (choosePasswordField.length() < MIN_PASSWORD_LENGTH) {
+                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_too_short);
                 } else {
                     Log.d(SoundCloudApplication.TAG, "Signup with "+emailField.getText().toString());
 
@@ -109,8 +112,8 @@ public class SignUp extends Activity {
 
                             if (user != null) {
                                 Log.d(TAG, "created user " + user);
-
                                 startActivity(new Intent(SignUp.this, AddInfo.class).putExtra("user", user));
+                                finish();
                             } else {
                                 CloudUtils.showToast(SignUp.this,  "Errorz");
                             }

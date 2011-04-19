@@ -27,6 +27,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -41,12 +42,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class AddInfo extends Activity {
-
     private File mAvatarFile;
     private Bitmap mAvatarBitmap;
     private ImageView mArtworkImg;
     private ProgressDialog mProgressDialog;
-
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -79,9 +78,7 @@ public class AddInfo extends Activity {
         findViewById(R.id.btn_skip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "skip");
-                startActivity(new Intent(AddInfo.this, Main.class));
-                finish();
+                gotoDashboard(user);
             }
         });
 
@@ -90,27 +87,26 @@ public class AddInfo extends Activity {
             @Override
             public void onClick(View v) {
                 final String newUsername = usernameField.getText().toString();
-                Log.d(TAG, "Save username " + newUsername);
-                if (!newUsername.equals(user.username) || mAvatarFile != null) {
-                    new AddUserInfoTask((AndroidCloudAPI)AddInfo.this.getApplication()) {
-                        @Override
-                        protected void onPreExecute() {
-                            super.onPreExecute();
-                            mProgressDialog = ProgressDialog.show(AddInfo.this, "", AddInfo.this.getString(R.string.authentication_add_info_progress_message));
-                        }
-
-                        @Override
-                        protected void onPostExecute(User user) {
-                            mProgressDialog.dismiss();
-                            if (user != null) {
-                                startActivity(new Intent(AddInfo.this, Main.class));
-                                finish();
-                            } else {
-                                CloudUtils.showToast(AddInfo.this, "There was a problem...");
-                            }
-                        }
-                    }.execute(new Pair<String,File>(newUsername, mAvatarFile));
+                if (!TextUtils.isEmpty(newUsername)) {
+                    user.username = newUsername;
                 }
+                new AddUserInfoTask((AndroidCloudAPI)AddInfo.this.getApplication()) {
+                    @Override
+                    protected void onPreExecute() {
+                        mProgressDialog = ProgressDialog.show(AddInfo.this, "",
+                                 AddInfo.this.getString(R.string.authentication_add_info_progress_message));
+                    }
+
+                    @Override
+                    protected void onPostExecute(User user) {
+                        mProgressDialog.dismiss();
+                        if (user != null) {
+                            gotoDashboard(user);
+                        } else {
+                            CloudUtils.showToast(AddInfo.this, "There was a problem...");
+                        }
+                    }
+                }.execute(new Pair<User, File>(user, mAvatarFile));
             }
         });
 
@@ -156,8 +152,11 @@ public class AddInfo extends Activity {
                 return true;
             }
         });
+    }
 
-
+    private void gotoDashboard(User user) {
+        startActivity(new Intent(AddInfo.this, Main.class));
+        finish();
     }
 
     private void setImage(String filePath) {
@@ -255,23 +254,23 @@ public class AddInfo extends Activity {
         }
     }
 
-    static class AddUserInfoTask extends AsyncApiTask<Pair<String,File>, Void, User> implements CloudAPI.UserParams{
-
+    static class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> implements CloudAPI.UserParams{
         public AddUserInfoTask(AndroidCloudAPI api) {
             super(api);
         }
 
-        @Override
-        protected User doInBackground(Pair<String, File>... params) {
-            final Pair<String,File> args = params[0];
+        protected User doInBackground(Pair<User, File>... params) {
+            final Pair<User,File> args = params[0];
+            final User u = args.first;
             try {
                 HttpResponse resp = api().putContent(MY_DETAILS,
-                        new Http.Params(NAME, args.first)
-                                .addFile(AVATAR, args.second));
+                    new Http.Params(NAME, u.username,
+                                    PERMALINK, u.permalink)
+                            .addFile(AVATAR, args.second));
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
                     return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
                 } else {
-                    warn("unexpected response "+resp);
+                    warn("unexpected response ", resp);
                     return null;
                 }
             } catch (IOException e) {

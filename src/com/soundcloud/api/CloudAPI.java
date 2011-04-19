@@ -147,6 +147,7 @@ public interface CloudAPI {
 
     interface UserParams {
         String NAME                  = "user[username]";
+        String PERMALINK             = "user[permalink]";
         String EMAIL                 = "user[email]";
         String PASSWORD              = "user[password]";
         String PASSWORD_CONFIRMATION = "user[password_confirmation]";
