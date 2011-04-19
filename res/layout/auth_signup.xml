@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:background="@color/createBackground">
-	<RelativeLayout android:padding="10dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
-		<TextView android:layout_height="wrap_content" style="@style/txt_auth_title"
-			android:layout_width="wrap_content" android:layout_alignParentLeft="true" android:text="@string/authentication_sign_up" android:id="@+id/txt_title"></TextView>
-		<EditText android:layout_height="wrap_content" android:id="@+id/txt_email_address"
-			android:hint="@string/authentication_your_email_address" android:layout_below="@+id/txt_title"
-			android:layout_alignLeft="@+id/txt_login" android:layout_width="fill_parent"
-			android:imeOptions="actionNext" android:singleLine="true"
-			style="@style/txt_auth_input" android:lines="1"/>
-		<EditText android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/txt_choose_a_password"
-			android:password="true" android:singleLine="true"
-			android:hint="@string/authentication_choose_a_password" android:layout_below="@id/txt_email_address"
-			android:imeOptions="actionNext"  android:lines="1"
-			android:layout_alignLeft="@id/txt_email_address"
-			android:layout_alignRight="@id/txt_email_address" style="@style/txt_auth_input" />
-		<EditText android:layout_height="wrap_content"
-            android:layout_width="wrap_content" android:id="@+id/txt_repeat_your_password"
-            android:password="true" android:singleLine="true"
-            android:hint="@string/authentication_repeat_your_password" android:layout_below="@id/txt_choose_a_password"
-            android:imeOptions="actionDone"  android:lines="1"
-            android:layout_alignLeft="@id/txt_choose_a_password"
-            android:layout_alignRight="@id/txt_choose_a_password" style="@style/txt_auth_input" />
-		<TextView android:layout_height="wrap_content" style="@style/txt_auth_msg"
-			android:layout_width="wrap_content" android:id="@+id/txt_msg"
-			android:layout_alignLeft="@+id/txt_password"
-			android:layout_alignRight="@+id/txt_password" android:layout_below="@+id/txt_repeat_your_password"
-			android:text="@string/authentication_by_signing_in_I_agree_to_the"></TextView>
+                android:layout_width="fill_parent" android:layout_height="fill_parent"
+                android:background="@color/createBackground">
+    <RelativeLayout android:padding="10dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <TextView android:layout_height="wrap_content" style="@style/txt_auth_title"
+                  android:layout_width="wrap_content" android:layout_alignParentLeft="true"
+                  android:text="@string/authentication_sign_up" android:id="@+id/txt_title"/>
+        <EditText android:layout_height="wrap_content" android:id="@+id/txt_email_address"
+                  android:hint="@string/authentication_your_email_address" android:layout_below="@+id/txt_title"
+                  android:layout_alignLeft="@+id/txt_login" android:layout_width="fill_parent"
+                  android:imeOptions="actionNext" android:singleLine="true"
+                  style="@style/txt_auth_input" android:lines="1"/>
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content" android:id="@+id/txt_choose_a_password"
+                  android:password="true" android:singleLine="true"
+                  android:hint="@string/authentication_choose_a_password" android:layout_below="@id/txt_email_address"
+                  android:imeOptions="actionNext" android:lines="1"
+                  android:layout_alignLeft="@id/txt_email_address"
+                  android:layout_alignRight="@id/txt_email_address" style="@style/txt_auth_input"/>
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content" android:id="@+id/txt_repeat_your_password"
+                  android:password="true" android:singleLine="true"
+                  android:hint="@string/authentication_repeat_your_password"
+                  android:layout_below="@id/txt_choose_a_password"
+                  android:imeOptions="actionDone" android:lines="1"
+                  android:layout_alignLeft="@id/txt_choose_a_password"
+                  android:layout_alignRight="@id/txt_choose_a_password" style="@style/txt_auth_input"/>
+        <TextView android:layout_height="wrap_content" style="@style/txt_auth_msg"
+                  android:layout_width="wrap_content" android:id="@+id/txt_msg"
+                  android:layout_alignLeft="@+id/txt_password"
+                  android:layout_alignRight="@+id/txt_password" android:layout_below="@+id/txt_repeat_your_password"
+                  android:text="@string/authentication_by_signing_in_I_agree_to_the"/>
     </RelativeLayout>
-	<RelativeLayout android:layout_width="fill_parent"
+    <RelativeLayout android:layout_width="fill_parent"
                     android:layout_alignParentBottom="true" android:id="@+id/control_layout"
                     android:background="@color/playerControlAlphaBackground" android:layout_height="wrap_content">
         <LinearLayout android:paddingBottom="5dip"
@@ -49,5 +51,4 @@
         <View android:layout_width="fill_parent" android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>
     </RelativeLayout>
-		
 </RelativeLayout>
