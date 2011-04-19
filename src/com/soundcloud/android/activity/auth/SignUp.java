@@ -36,8 +36,8 @@ public class SignUp extends Activity {
 
     private static final int MIN_PASSWORD_LENGTH = 4;
     public static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
-            "\\@" +
+            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
+            "@" +
             "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
             "(" +
             "\\." +
@@ -57,7 +57,6 @@ public class SignUp extends Activity {
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
-        final Button cancelBtn = (Button) findViewById(R.id.btn_cancel);
         final Button signupBtn = (Button) findViewById(R.id.btn_signup);
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -72,7 +71,7 @@ public class SignUp extends Activity {
             }
         });
 
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
@@ -86,11 +85,11 @@ public class SignUp extends Activity {
                         choosePasswordField.getText().length() == 0 ||
                         repeatPasswordField.getText().length() == 0) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
-                } else if (!checkEmail(emailField.getText().toString())){
+                } else if (!checkEmail(emailField.getText())){
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
-                } else if (choosePasswordField.length() < MIN_PASSWORD_LENGTH) {
+                } else if (!checkPassword(choosePasswordField.getText())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_too_short);
                 } else {
                     Log.d(SoundCloudApplication.TAG, "Signup with "+emailField.getText().toString());
@@ -166,7 +165,7 @@ public class SignUp extends Activity {
                     mApp.addUserAccount(user, api().login(email, password));
                     return user;
                 } else {
-                    warn("invalid response: " + code);
+                    warn("invalid response", resp);
                     return null;
                 }
             } catch (IOException e) {
@@ -176,8 +175,11 @@ public class SignUp extends Activity {
         }
     }
 
-    private boolean checkEmail(String email) {
+    static boolean checkEmail(CharSequence email) {
         return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
     }
 
+    static boolean checkPassword(CharSequence password) {
+        return password != null && password.length() >= MIN_PASSWORD_LENGTH;
+    }
 }
