@@ -81,8 +81,8 @@ public class ApiWrapper implements CloudAPI {
             "client_id",     mClientId,
             "client_secret", mClientSecret));
         if (!signup.signupScoped()) {
-            throw new InvalidTokenException(200, "Could not obtain signup scope (got: "+
-                    signup.scope+")");
+            throw new InvalidTokenException(200, "Could not obtain signup scope (got: '"+
+                    signup.scope+"')");
         }
         return signup;
     }
@@ -118,7 +118,7 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-    private Token requestToken(Http.Params params) throws IOException {
+    protected Token requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         post.setEntity(new StringEntity(params.queryString()));
@@ -126,8 +126,7 @@ public class ApiWrapper implements CloudAPI {
 
         final int status = response.getStatusLine().getStatusCode();
         final String json = Http.getString(response);
-
-        if (json == null) throw new IOException("JSON response is empty");
+        if (json == null || json.length() == 0) throw new IOException("JSON response is empty");
         try {
             JSONObject resp = new JSONObject(json);
             switch (status) {
@@ -270,26 +269,31 @@ public class ApiWrapper implements CloudAPI {
         listeners.add(listener);
     }
 
+    public HttpResponse execute(HttpRequest req) throws IOException {
+        return getHttpClient().execute(mEnv.sslHost, addHeaders(req));
+    }
+
     public static Header getOAuthHeader(Token token) {
         return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
                 (token == null || !token.valid() ? INVALIDATED_TOKEN : token.access));
     }
 
-    protected HttpRequest addAuthorization(HttpRequest request) {
+    protected HttpRequest addAuthHeader(HttpRequest request) {
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
             request.addHeader(getOAuthHeader(getToken()));
         }
         return request;
     }
 
-    protected HttpRequest addAccept(HttpRequest request) {
+    protected HttpRequest addAcceptHeader(HttpRequest request) {
         if (!request.containsHeader("Accept")) {
             request.addHeader("Accept", "application/json");
         }
         return request;
     }
 
-    public HttpResponse execute(HttpRequest req) throws IOException {
-        return getHttpClient().execute(mEnv.sslHost, addAccept(addAuthorization(req)));
+    protected HttpRequest addHeaders(HttpRequest req) {
+        return addAcceptHeader(
+                addAuthHeader(req));
     }
 }
