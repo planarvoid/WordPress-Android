@@ -39,7 +39,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
 public class AddInfo extends Activity {
 
@@ -87,14 +86,22 @@ public class AddInfo extends Activity {
         });
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("unchecked")
             @Override
             public void onClick(View v) {
                 final String newUsername = usernameField.getText().toString();
                 Log.d(TAG, "Save username " + newUsername);
                 if (!newUsername.equals(user.username) || mAvatarFile != null) {
-                    new AddUserInfoTask(AddInfo.this) {
+                    new AddUserInfoTask((AndroidCloudAPI)AddInfo.this.getApplication()) {
+                        @Override
+                        protected void onPreExecute() {
+                            super.onPreExecute();
+                            mProgressDialog = ProgressDialog.show(AddInfo.this, "", AddInfo.this.getString(R.string.authentication_add_info_progress_message));
+                        }
+
                         @Override
                         protected void onPostExecute(User user) {
+                            mProgressDialog.dismiss();
                             if (user != null) {
                                 startActivity(new Intent(AddInfo.this, Main.class));
                                 finish();
@@ -248,32 +255,10 @@ public class AddInfo extends Activity {
         }
     }
 
-    public void showProgress(){
-        mProgressDialog = ProgressDialog.show(AddInfo.this, "", AddInfo.this.getString(R.string.authentication_add_info_progress_message));
-    }
-
-    public void hideProgress(){
-        if (mProgressDialog != null) mProgressDialog.dismiss();
-    }
-
     static class AddUserInfoTask extends AsyncApiTask<Pair<String,File>, Void, User> implements CloudAPI.UserParams{
-        private WeakReference<AddInfo> mActivityRef;
 
-        public AddUserInfoTask(AddInfo addInfoActivity) {
-            super((AndroidCloudAPI)addInfoActivity.getApplication());
-            mActivityRef = new WeakReference<AddInfo>(addInfoActivity);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            if (mActivityRef.get() != null) mActivityRef.get().showProgress();
-        }
-
-        @Override
-        protected void onPostExecute(User result) {
-            super.onPostExecute(result);
-            if (mActivityRef.get() != null) mActivityRef.get().hideProgress();
+        public AddUserInfoTask(AndroidCloudAPI api) {
+            super(api);
         }
 
         @Override
