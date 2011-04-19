@@ -27,6 +27,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
@@ -170,6 +171,8 @@ public class ApiWrapper implements CloudAPI {
             final HttpParams params = getParams();
             // we handle redirects ourselves
             HttpClientParams.setRedirecting(params, false);
+            HttpProtocolParams.setUserAgent(params, USER_AGENT);
+
             final SchemeRegistry registry = new SchemeRegistry();
             registry.register(new Scheme("http", getSocketFactory(), 80));
             final SSLSocketFactory sslFactory = getSSLSocketFactory();

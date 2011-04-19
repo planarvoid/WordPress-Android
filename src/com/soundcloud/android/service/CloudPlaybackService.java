@@ -32,6 +32,7 @@ import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
 
+import com.soundcloud.api.CloudAPI;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -2028,7 +2029,7 @@ public class CloudPlaybackService extends Service {
         @Override
         public void run() {
             SoundCloudApplication app = (SoundCloudApplication) serviceRef.get().getApplication();
-            AndroidHttpClient cli = AndroidHttpClient.newInstance("SoundCloud Android");
+            AndroidHttpClient cli = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
 
             HttpGet method;
 

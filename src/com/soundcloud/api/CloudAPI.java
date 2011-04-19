@@ -16,6 +16,8 @@ public interface CloudAPI {
     String REALM              = "SoundCloud";
     String OAUTH_SCHEME       = "oauth";
 
+    String USER_AGENT         = "SoundCloud Java Wrapper 1.0";
+
     /**
      * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
      * Resource Owner Password Credentials</a>
