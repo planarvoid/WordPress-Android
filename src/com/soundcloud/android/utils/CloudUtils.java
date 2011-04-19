@@ -83,9 +83,7 @@ public class CloudUtils {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED  = 2;
         int DIALOG_CANCEL_UPLOAD = 3;
-        int DIALOG_AUTHENTICATION_CONTACTING = 4;
         int DIALOG_RESET_RECORDING = 5;
-        int DIALOG_CONFIRM_DELETE = 6;
     }
 
     public interface OptionsMenu {
@@ -244,12 +242,9 @@ public class CloudUtils {
 
     public static String md5(String s) {
         try {
-            // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            MessageDigest digest = MessageDigest.getInstance("MD5");
             digest.update(s.getBytes());
             byte messageDigest[] = digest.digest();
-
-            // Create Hex String
             StringBuilder hexString = new StringBuilder();
             for (byte aMessageDigest : messageDigest) hexString.append(Integer.toHexString(0xFF & aMessageDigest));
             return hexString.toString();
@@ -456,10 +451,6 @@ public class CloudUtils {
     public static boolean isTaskPending(AsyncTask lt) {
         return lt != null && lt.getStatus() == AsyncTask.Status.PENDING;
 
-    }
-
-    public static Long getPCMTime(File file, int sampleRate, int channels, int bitsPerSample) {
-        return file.length() / (sampleRate * channels * bitsPerSample / 8);
     }
 
     public static String formatTimestamp(long pos){
