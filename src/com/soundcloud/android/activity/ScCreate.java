@@ -20,7 +20,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.LightingColorFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;

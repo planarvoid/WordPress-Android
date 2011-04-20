@@ -96,6 +96,7 @@ public class CloudUtils {
 
     public interface GraphicsSizes {
         String T500  = "t500x500";
+        String CROP  = "crop";
         String LARGE = "large";
         String BADGE = "badge";
         String SMALL = "small";

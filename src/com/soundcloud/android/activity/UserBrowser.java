@@ -19,6 +19,7 @@ import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
@@ -120,6 +121,18 @@ public class UserBrowser extends ScActivity {
             mIcon.getLayoutParams().width = 67;
             mIcon.getLayoutParams().height = 67;
         }
+
+        mIcon.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (CloudUtils.checkIconShouldLoad(_iconURL)) {
+                    new FullImageDialog(UserBrowser.this, CloudUtils.formatGraphicsUrl(_iconURL,
+                            GraphicsSizes.CROP)).show();
+                }
+
+            }
+        });
 
         mFollow = (ImageButton) findViewById(R.id.btn_favorite);
         mFollow.setOnClickListener(new View.OnClickListener() {

@@ -60,6 +60,8 @@
   <string name="sandbox_consumer_key">0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
   <string name="sandbox_consumer_secret">0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
 
+  <string name="image_load_error">Error loading image</string>
+
   <string name="player_not_streamable">This track is not streamable</string>
   <string name="player_error">There was a playback error</string>
 
