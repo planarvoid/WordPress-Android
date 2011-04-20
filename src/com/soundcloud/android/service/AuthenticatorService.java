@@ -46,9 +46,6 @@ public class AuthenticatorService extends Service {
         public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
             Bundle reply = new Bundle();
             Intent intent = new Intent(mContext, Start.class);
-            intent.addFlags(Intent.FLAG_FROM_BACKGROUND |
-                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS|
-                    Intent.FLAG_ACTIVITY_NO_HISTORY);
             intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
             reply.putParcelable(AccountManager.KEY_INTENT, intent);
             return reply;

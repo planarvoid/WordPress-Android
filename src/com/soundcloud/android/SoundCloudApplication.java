@@ -79,6 +79,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi = new Wrapper(
                 getClientId(API_PRODUCTION),
                 getClientSecret(API_PRODUCTION),
+                REDIRECT_URI,
                 account == null ? null : getToken(account),
                 API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
         );
@@ -378,6 +379,18 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();
+    }
+
+    public Env getEnvironment() {
+        return mCloudApi.getEnvironment();
+    }
+
+    public String getConnectUrl(String... redirect_uri) {
+        return mCloudApi.getConnectUrl(redirect_uri);
+    }
+
+    public Token authorizationCode(String code) throws IOException {
+        return mCloudApi.authorizationCode(code);
     }
 
     public static boolean isRunningOnDalvik() {

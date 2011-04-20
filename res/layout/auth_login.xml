@@ -55,7 +55,7 @@
         <Button android:id="@+id/btn_signup_facebook"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Signup with Facebook"
+                android:text="Login with Facebook"
                 android:layout_below="@id/btn_signup"/>
 
 

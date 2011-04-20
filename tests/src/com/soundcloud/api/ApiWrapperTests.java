@@ -27,7 +27,7 @@ public class ApiWrapperTests {
 
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", null, CloudAPI.Env.SANDBOX);
+        api = new ApiWrapper("invalid", "invalid", null, null, CloudAPI.Env.SANDBOX);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,6 +86,23 @@ public class ApiWrapperTests {
         assertNotNull(t.getExpiresIn());
     }
 
+    @Test
+    public void shouldGetTokensWhenLoggingInViaAuthorizationCode() throws Exception {
+        Robolectric.addPendingHttpResponse(200, "{\n" +
+                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
+                "  \"expires_in\":    3600,\n" +
+                "  \"scope\":         \"*\",\n" +
+                "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
+                "}");
+
+        Token t = api.authorizationCode("code");
+
+        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
+        assertThat(t.scope, equalTo("*"));
+        assertNotNull(t.getExpiresIn());
+    }
+
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionWhenLoginFailed() throws Exception {
         Robolectric.addPendingHttpResponse(401, "{\n" +
@@ -121,7 +138,7 @@ public class ApiWrapperTests {
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
-        assertThat(new ApiWrapper("1234", "5678", new Token(null, "sofreshexciting"), CloudAPI.Env.SANDBOX)
+        assertThat(new ApiWrapper("1234", "5678", null, new Token(null, "sofreshexciting"), CloudAPI.Env.SANDBOX)
                 .refreshToken()
                 .access,
                 equalTo("fr3sh"));
@@ -198,5 +215,11 @@ public class ApiWrapperTests {
         Header h = ApiWrapper.getOAuthHeader(null);
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth invalidated"));
+    }
+
+    @Test
+    public void shouldReturnAValidConnectUrl() throws Exception {
+        String url = api.getConnectUrl("test://foo");
+        assertThat(url, equalTo("https://api.sandbox-soundcloud.com/connect?client_id=invalid&response_type=code&redirect_uri=test://foo"));
     }
 }

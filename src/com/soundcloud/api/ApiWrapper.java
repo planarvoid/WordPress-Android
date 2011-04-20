@@ -55,21 +55,25 @@ public class ApiWrapper implements CloudAPI {
     private Token mToken;
     private final Env mEnv;
     private Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
+    private final String mRedirectUri;
 
     /**
      * Constructs a new ApiWrapper instance.
      * @param clientId            the application client id
      * @param clientSecret        the application client secret
+     * @param redirectUri         the registered redirect url, or null
      * @param token               an valid token, or null if not known
      * @param env                 the environment to use (LIVE/SANDBOX)
      * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
+                      String redirectUri,
                       Token token,
                       Env env) {
         mClientId = clientId;
         mClientSecret = clientSecret;
+        mRedirectUri = redirectUri;
         mToken = token == null ? new Token(null, null) : token;
         mEnv = env;
     }
@@ -87,8 +91,20 @@ public class ApiWrapper implements CloudAPI {
         return mToken;
     }
 
-    @Override
-    public Token signupToken() throws IOException {
+    @Override public Token authorizationCode(String code) throws IOException {
+        if (code == null ) {
+            throw new IllegalArgumentException("username or password is null");
+        }
+        mToken = requestToken(new Http.Params(
+            "grant_type",    AUTHORIZATION_CODE,
+            "client_id",     mClientId,
+            "client_secret", mClientSecret,
+            "redirect_uri",  mRedirectUri,
+            "code",          code));
+        return mToken;
+    }
+
+    @Override public Token signupToken() throws IOException {
         final Token signup = requestToken(new Http.Params(
             "grant_type",    CLIENT_CREDENTIALS,
             "client_id",     mClientId,
@@ -129,6 +145,19 @@ public class ApiWrapper implements CloudAPI {
                 l.onTokenInvalid(mToken);
             }
         }
+    }
+
+    @Override
+    public Env getEnvironment() {
+        return mEnv;
+    }
+
+    @Override
+    public String getConnectUrl(String... redirect_uri) {
+        String host = mEnv.sslHost.toURI();
+        return host +"/connect?client_id="+mClientId
+                +"&response_type=code&redirect_uri="+
+                (redirect_uri == null || redirect_uri.length == 0 ? mRedirectUri : redirect_uri[0]);
     }
 
     protected Token requestToken(Http.Params params) throws IOException {

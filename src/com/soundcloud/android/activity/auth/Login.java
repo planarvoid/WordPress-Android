@@ -31,6 +31,8 @@ import android.widget.TextView;
 import java.io.IOException;
 
 public class Login extends AccountAuthenticatorActivity {
+    public static final int FACEBOOK_LOGIN = 1;
+    public static final int RECOVER_PASSWORD = 2;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -52,7 +54,6 @@ public class Login extends AccountAuthenticatorActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
                         (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                                 event.getAction() == KeyEvent.ACTION_DOWN)) {
-
                     return loginBtn.performClick();
                 } else {
                     return false;
@@ -80,7 +81,6 @@ public class Login extends AccountAuthenticatorActivity {
             }
         });
 
-
         CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                 getResources().getString(R.string.authentication_I_forgot_my_password),
                 new ClickSpan.OnClickListener() {
@@ -90,7 +90,7 @@ public class Login extends AccountAuthenticatorActivity {
                 if (emailField.getText().length() > 0) {
                     i.putExtra("email", emailField.getText().toString());
                 }
-                startActivityForResult(i, 0);
+                startActivityForResult(i, RECOVER_PASSWORD);
             }
         });
 
@@ -104,7 +104,7 @@ public class Login extends AccountAuthenticatorActivity {
         findViewById(R.id.btn_signup_facebook).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Login.this, Facebook.class));
+                startActivityForResult(new Intent(Login.this, Facebook.class), FACEBOOK_LOGIN);
             }
         });
     }
@@ -113,9 +113,19 @@ public class Login extends AccountAuthenticatorActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult("+requestCode+","+resultCode+","+data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == FACEBOOK_LOGIN) {
+                String code = data.getStringExtra("code");
+                login(code);
+            } else if (requestCode == RECOVER_PASSWORD) {
+                CloudUtils.showToast(this, "Password recovery sent");
+            }
+        } else {
+            CloudUtils.showToast(this, "Error");
+        }
     }
 
-    protected void login(final String username, final String password) {
+    protected void login(String... parameters) {
         final String type = getString(R.string.account_type);
         final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
@@ -151,7 +161,7 @@ public class Login extends AccountAuthenticatorActivity {
                     showError(mException);
                 }
             }
-        }.execute(username, password);
+        }.execute(parameters);
     }
 
     private void showError(IOException e) {

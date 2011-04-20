@@ -12,13 +12,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    String REDIRECT_URI = "soundcloud://auth";
+
     ObjectMapper getMapper();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         private ObjectMapper mMapper;
 
-        public Wrapper(String clientId, String clientSecret, Token token, Env env) {
-            super(clientId, clientSecret, token, env);
+        public Wrapper(String clientId, String clientSecret, String redirectUri, Token token, Env env) {
+            super(clientId, clientSecret, redirectUri, token, env);
         }
 
         // XXX reenable when sandbox certificate is working again

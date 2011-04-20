@@ -2,7 +2,9 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
 
 import android.app.Activity;
@@ -12,26 +14,22 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class Facebook extends Activity {
-    public static final String URL_SCHEME = "soundcloud-facebook://";
-
-    private WebView mWebView;
+    public static final String URL_SCHEME   = "soundcloud-facebook://android";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.facebook);
 
-        mWebView = (WebView) findViewById(R.id.webview);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setBlockNetworkImage(false);
-        mWebView.getSettings().setLoadsImagesAutomatically(true);
-
+        WebView view = (WebView) findViewById(R.id.webview);
+        view.getSettings().setJavaScriptEnabled(true);
+        view.getSettings().setBlockNetworkImage(false);
+        view.getSettings().setLoadsImagesAutomatically(true);
 
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setIndeterminate(false);
@@ -39,20 +37,22 @@ public class Facebook extends Activity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
-        mWebView.setWebChromeClient(new WebChromeClient() {
+        view.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progress.setProgress(newProgress);
             }
         });
 
-        final String url = "http://soundcloud.com/login/facebook/new"; //?redirect_uri="+URL_SCHEME+"android";
-
-        mWebView.getSettings().setUserAgentString(CloudAPI.USER_AGENT);
-        mWebView.setWebViewClient(new WebViewClient() {
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        final String host = app.getEnvironment().host.toHostString();
+        final String facebookLogin = "http://"+host+"/login/facebook/new?redirect_uri="+URL_SCHEME;
+        final String oldUserAgent = view.getSettings().getUserAgentString();
+        view.getSettings().setUserAgentString(CloudAPI.USER_AGENT);
+        view.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                if (url.equals(u)) progress.show();
+                progress.show();
             }
 
             @Override
@@ -61,31 +61,38 @@ public class Facebook extends Activity {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.d(TAG, "shouldOverrideUrlLoading("+url+")");
-
+            public boolean shouldOverrideUrlLoading(final WebView view, String url) {
                 if (url.startsWith(URL_SCHEME)) {
-                    Uri uri = Uri.parse(url);
-                    boolean success = "1".equalsIgnoreCase(uri.getQueryParameter("success"));
-
-                    setResult(RESULT_OK, new Intent()
-                            .setData(uri)
-                            .putExtra("success", success));
+                    view.stopLoading();
+                    view.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.getSettings().setUserAgentString(oldUserAgent);
+                            view.loadUrl(app.getConnectUrl());
+                        }
+                    });
+                    return true;
+                } else if (url.startsWith(AndroidCloudAPI.REDIRECT_URI)) {
+                    Log.d(TAG, "got " + url);
+                    Uri result = Uri.parse(url);
+                    String error = result.getQueryParameter("error");
+                    if (error == null) {
+                        //soundcloud://auth?&state=&code=0000000NKReaxPXjIYHGBr34f8GNQobh
+                        setResult(RESULT_OK, new Intent()
+                                .setData(result)
+                                .putExtra("state", result.getQueryParameter("state"))
+                                .putExtra("code", result.getQueryParameter("code")));
+                    } else {
+                        setResult(RESULT_CANCELED, new Intent()
+                                 .setData(result)
+                                 .putExtra("error", error));
+                    }
                     finish();
+                    return true;
                 }
                 return false;
             }
         });
-        mWebView.loadUrl(url);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
+        view.loadUrl(facebookLogin);
     }
 }

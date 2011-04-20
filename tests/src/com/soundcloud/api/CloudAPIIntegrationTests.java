@@ -35,6 +35,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
                 CLIENT_ID,
                 CLIENT_SECRET,
                 null,
+                null,
                 CloudAPI.Env.SANDBOX);
 
         api.login("api-testing", "testing");
@@ -111,6 +112,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
         Token token = new ApiWrapper(
                 CLIENT_ID,
                 CLIENT_SECRET,
+                null,
                 null,
                 CloudAPI.Env.SANDBOX).login(args[0], args[1]);
 

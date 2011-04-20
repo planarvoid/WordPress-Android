@@ -90,12 +90,6 @@ public class Recover extends Activity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-    }
-
     private void recoverPassword(final String email) {
         Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
@@ -108,14 +102,8 @@ public class Recover extends Activity {
             @Override
             protected void onPostExecute(Boolean success) {
                 progressDialog.dismiss();
-
-                if (success) {
-                    CloudUtils.showToast(Recover.this, "Success");
-                    setResult(RESULT_OK);
-                    finish();
-                } else {
-                    CloudUtils.showToast(Recover.this, "Failure");
-                }
+                setResult(success ? RESULT_OK : RESULT_CANCELED);
+                finish();
             }
         }.execute(email);
     }

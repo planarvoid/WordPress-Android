@@ -23,6 +23,7 @@ import java.io.IOException;
 public interface CloudAPI {
     // grant types
     String PASSWORD           = "password";
+    String AUTHORIZATION_CODE = "authorization_code";
     String REFRESH_TOKEN      = "refresh_token";
     String OAUTH1_TOKEN       = "oauth1_token";
     String CLIENT_CREDENTIALS = "client_credentials";
@@ -44,6 +45,17 @@ public interface CloudAPI {
      * @throws IOException In case of network/server errors
      */
     Token login(String username, String password) throws IOException;
+
+    /**
+     * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
+     * Authorization Code</a>
+     *
+     * @param code the authorization code
+     * @return a valid token
+     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
+     * @throws IOException In case of network/server errors
+     */
+    Token authorizationCode(String code) throws IOException;
 
     /**
      * Request a signup token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
@@ -81,7 +93,6 @@ public interface CloudAPI {
      * @throws IOException IO/Error
      */
     HttpResponse getContent(String resource) throws IOException;
-
 
     /**
      * @param resource resource to GET
@@ -133,10 +144,19 @@ public interface CloudAPI {
     void setToken(Token token);
     void addTokenStateListener(TokenStateListener listener);
 
+    Env getEnvironment();
+
+    /**
+     * Returns an URL suitable for OAuth2 authorisation via <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
+     * Authorization Code</a>
+     * @param redirect_uri the url to redirect after successful authorisation, or empty to use default
+     * @return the url
+     */
+    public String getConnectUrl(String... redirect_uri);
+
     enum Env {
         LIVE("api.soundcloud.com"),
         SANDBOX("api.sandbox-soundcloud.com");
-
         public final HttpHost host, sslHost;
 
         Env(String hostname) {
