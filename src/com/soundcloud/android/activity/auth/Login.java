@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Login extends AuthenticationActivity {
+public class Login extends LoginActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -81,7 +81,7 @@ public class Login extends AuthenticationActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult("+requestCode+","+resultCode+","+data);
+        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data);
         if (resultCode == RESULT_OK) {
             CloudUtils.showToast(this, "Password recovery sent");
         } else {

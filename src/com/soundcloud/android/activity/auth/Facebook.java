@@ -18,7 +18,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class Facebook extends AuthenticationActivity {
+public class Facebook extends LoginActivity {
     private static final String URL_SCHEME   = "soundcloud-facebook://android";
 
     @Override

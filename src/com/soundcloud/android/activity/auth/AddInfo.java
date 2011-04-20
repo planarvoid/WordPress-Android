@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -78,34 +77,13 @@ public class AddInfo extends Activity {
         findViewById(R.id.btn_skip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gotoDashboard(user);
+                finishSignup();
             }
         });
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String newUsername = usernameField.getText().toString();
-                if (!TextUtils.isEmpty(newUsername)) {
-                    user.username = newUsername;
-                }
-                new AddUserInfoTask((AndroidCloudAPI)AddInfo.this.getApplication()) {
-                    @Override
-                    protected void onPreExecute() {
-                        mProgressDialog = ProgressDialog.show(AddInfo.this, "",
-                             getString(R.string.authentication_add_info_progress_message));
-                    }
-
-                    @Override
-                    protected void onPostExecute(User user) {
-                        mProgressDialog.dismiss();
-                        if (user != null) {
-                            gotoDashboard(user);
-                        } else {
-                            CloudUtils.showToast(AddInfo.this, "There was a problem...");
-                        }
-                    }
-                }.execute(new Pair<User, File>(user, mAvatarFile));
+            @Override public void onClick(View v) {
+                addUserInfo(user, usernameField.getText().toString());
             }
         });
 
@@ -153,12 +131,31 @@ public class AddInfo extends Activity {
         });
     }
 
-    private void gotoDashboard(User user) {
-        final Intent intent = new Intent(AddInfo.this, Main.class);
-        if (user != null) {
-            intent.putExtra("user", user);
+    private void addUserInfo(User user, String newUsername) {
+        if (!TextUtils.isEmpty(newUsername)) {
+            user.username = newUsername;
         }
-        startActivity(intent);
+        new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+            @Override
+            protected void onPreExecute() {
+                mProgressDialog = ProgressDialog.show(AddInfo.this, "",
+                        getString(R.string.authentication_add_info_progress_message));
+            }
+
+            @Override
+            protected void onPostExecute(User user) {
+                mProgressDialog.dismiss();
+                if (user != null) {
+                    finishSignup();
+                } else {
+                    CloudUtils.showToast(AddInfo.this, "There was a problem...");
+                }
+            }
+        }.execute(new Pair<User, File>(user, mAvatarFile));
+    }
+
+    private void finishSignup() {
+        setResult(RESULT_OK, getIntent());
         finish();
     }
 

@@ -3,9 +3,12 @@ package com.soundcloud.api;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Token {
+public class Token implements Serializable {
+    private static final long serialVersionUID = 766168501082045382L;
+
     public static final String ACCESS_TOKEN  = "access_token";
     public static final String REFRESH_TOKEN = "refresh_token";
     public static final String SCOPE         = "scope";

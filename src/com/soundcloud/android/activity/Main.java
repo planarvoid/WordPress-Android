@@ -57,7 +57,7 @@ public class Main extends TabActivity {
         mSplash = (ViewGroup) findViewById(R.id.splash);
         mSplash.setVisibility(visible ? View.VISIBLE : View.GONE);
 
-        checkAccount();
+        if (!checkAccount()) return;
 
         if (isConnected() && app.getToken().valid() && !app.isEmailConfirmed()) {
             checkEmailConfirmed(app);
@@ -72,10 +72,11 @@ public class Main extends TabActivity {
         handleIntent(getIntent());
     }
 
-    protected void checkAccount(){
-        Account account = ((SoundCloudApplication)this.getApplication()).getAccount();
+    protected boolean checkAccount(){
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        Account account =app.getAccount();
         if (account == null) {
-            ((SoundCloudApplication)this.getApplication()).addAccount(this, new AccountManagerCallback<Bundle>() {
+            app.addAccount(this, new AccountManagerCallback<Bundle>() {
                 @Override
                 public void run(AccountManagerFuture<Bundle> future) {
                     try {
@@ -93,9 +94,11 @@ public class Main extends TabActivity {
                 }
             });
             finish();
+            return false;
+        } else {
+            return true;
         }
     }
-
 
     @Override
     protected void onResume() {
