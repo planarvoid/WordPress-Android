@@ -20,16 +20,17 @@ import android.webkit.WebViewClient;
 
 public class Facebook extends LoginActivity {
     private static final String URL_SCHEME   = "soundcloud-facebook://android";
+    private WebView mWebview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.facebook);
 
-        final WebView view = (WebView) findViewById(R.id.webview);
-        view.getSettings().setJavaScriptEnabled(true);
-        view.getSettings().setBlockNetworkImage(false);
-        view.getSettings().setLoadsImagesAutomatically(true);
+        mWebview = (WebView) findViewById(R.id.webview);
+        mWebview.getSettings().setJavaScriptEnabled(true);
+        mWebview.getSettings().setBlockNetworkImage(false);
+        mWebview.getSettings().setLoadsImagesAutomatically(true);
 
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setIndeterminate(false);
@@ -37,7 +38,7 @@ public class Facebook extends LoginActivity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
-        view.setWebChromeClient(new WebChromeClient() {
+        mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progress.setProgress(newProgress);
@@ -47,9 +48,9 @@ public class Facebook extends LoginActivity {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final String host = app.getEnvironment().host.toHostString();
         final String facebookLogin = "http://"+host+"/login/facebook/new?redirect_uri="+URL_SCHEME;
-        final String oldUserAgent = view.getSettings().getUserAgentString();
-        view.getSettings().setUserAgentString(CloudAPI.USER_AGENT);
-        view.setWebViewClient(new WebViewClient() {
+        final String oldUserAgent = mWebview.getSettings().getUserAgentString();
+        mWebview.getSettings().setUserAgentString(CloudAPI.USER_AGENT);
+        mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
                 progress.show();
@@ -89,6 +90,12 @@ public class Facebook extends LoginActivity {
                 }
             }
         });
-        view.loadUrl(facebookLogin);
+        mWebview.loadUrl(facebookLogin);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mWebview.stopLoading();
     }
 }

@@ -86,6 +86,7 @@ public class Main extends TabActivity {
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     } catch (OperationCanceledException e) {
                         Log.d(TAG, "authorisation canceled");
+                        finish();
                     } catch (IOException e) {
                         Log.w(TAG, e);
                     } catch (AuthenticatorException e) {
