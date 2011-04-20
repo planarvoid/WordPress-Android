@@ -259,10 +259,13 @@ public class AddInfo extends Activity {
             super(api);
         }
 
+        @Override
         protected User doInBackground(Pair<User, File>... params) {
             final Pair<User,File> args = params[0];
             final User u = args.first;
             try {
+                ImageUtils.resizeImageFile(args.second, args.second, 800, 800);
+
                 HttpResponse resp = api().putContent(MY_DETAILS,
                     new Http.Params(NAME, u.username,
                                     PERMALINK, u.permalink)
