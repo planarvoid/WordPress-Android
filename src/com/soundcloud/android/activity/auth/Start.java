@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.StartMenuAdapter;
 import com.soundcloud.android.utils.AnimUtils;
 
+import android.accounts.AccountAuthenticatorActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +16,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 
-public class Start extends Activity {
+public class Start extends AccountAuthenticatorActivity {
 
     RelativeLayout animationHolder;
     RelativeLayout startMenu;
@@ -35,6 +36,13 @@ public class Start extends Activity {
         facebookBtn = (Button)this.findViewById(R.id.facebook_btn);
         facebookBtn.setVisibility(View.INVISIBLE);
 
+        facebookBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Start.this, Facebook.class), 0);
+            }
+        });
+
         GridView gv = (GridView) this.findViewById(R.id.grid_view);
         gv.setCacheColorHint(0);
         gv.setAdapter(new StartMenuAdapter(this));
@@ -43,14 +51,11 @@ public class Start extends Activity {
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(Start.this, (position == 0 ? Login.class : SignUp.class )));
+                startActivityForResult(new Intent(Start.this, (position == 0 ? Login.class : SignUp.class)), 0);
             }
         });
-
         mHandler.postDelayed(mShowAuthControls, 600);
-
         animationHolder.removeView(startMenu);
-
     }
 
     private Runnable mShowAuthControls = new Runnable() {
@@ -69,5 +74,11 @@ public class Start extends Activity {
          }
       };
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == RESULT_OK) {
+        }
+    }
 }

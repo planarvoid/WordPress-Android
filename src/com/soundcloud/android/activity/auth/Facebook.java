@@ -5,20 +5,20 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class Facebook extends Activity {
+public class Facebook extends AuthenticationActivity {
     private static final String URL_SCHEME   = "soundcloud-facebook://android";
 
     @Override
@@ -76,18 +76,13 @@ public class Facebook extends Activity {
                     Log.d(TAG, "got " + url);
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
-                    if (error == null) {
-                        //soundcloud://auth?&state=&code=0000000NKReaxPXjIYHGBr34f8GNQobh
-                        setResult(RESULT_OK, new Intent()
-                                .setData(result)
-                                .putExtra("state", result.getQueryParameter("state"))
-                                .putExtra("code", result.getQueryParameter("code")));
+                    String code = result.getQueryParameter("code");
+                    if (!TextUtils.isEmpty(code) && error == null) {
+                        login(code);
                     } else {
-                        setResult(RESULT_CANCELED, new Intent()
-                                 .setData(result)
-                                 .putExtra("error", error));
+                        CloudUtils.showToast(Facebook.this, error);
+                        finish();
                     }
-                    finish();
                     return true;
                 } else {
                     return false;
