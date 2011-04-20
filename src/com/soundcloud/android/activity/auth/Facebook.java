@@ -19,14 +19,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class Facebook extends Activity {
-    public static final String URL_SCHEME   = "soundcloud-facebook://android";
+    private static final String URL_SCHEME   = "soundcloud-facebook://android";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.facebook);
 
-        WebView view = (WebView) findViewById(R.id.webview);
+        final WebView view = (WebView) findViewById(R.id.webview);
         view.getSettings().setJavaScriptEnabled(true);
         view.getSettings().setBlockNetworkImage(false);
         view.getSettings().setLoadsImagesAutomatically(true);
@@ -89,8 +89,9 @@ public class Facebook extends Activity {
                     }
                     finish();
                     return true;
+                } else {
+                    return false;
                 }
-                return false;
             }
         });
         view.loadUrl(facebookLogin);
