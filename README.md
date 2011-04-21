@@ -11,5 +11,11 @@ Clone and build it:
     $ ant debug
     $ adb install bin/soundcloud-debug.apk
 
+To run tests:
+
+    $ cd SoundCloud-Android
+    $ ant compile
+    $ cd tests
+    $ ant test
 
 [Android SDK]: http://developer.android.com/sdk/index.html
