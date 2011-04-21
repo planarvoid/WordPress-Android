@@ -1,4 +1,6 @@
-# Building
+# SoundCloud Android
+
+## Building
 
 Make sure the [Android SDK][] is installed:
 
