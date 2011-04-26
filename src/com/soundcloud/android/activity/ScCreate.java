@@ -20,8 +20,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,43 +46,23 @@ public class ScCreate extends ScActivity {
     private static final String TAG = "ScCreate";
 
     private TextView txtInstructions, txtRecordStatus;
-
     private LinearLayout mFileLayout;
-
     private PowerGauge mPowerGauge;
-
     private SeekBar mProgressBar;
-
     private ImageButton btnAction;
-
     private File mRecordFile, mRecordDir;
-
     private CreateState mLastState, mCurrentState;
-
-    private long mLastDisplayedTime = 0;
-
+    private long mLastDisplayedTime;
     private TextView mChrono;
-
     private long mDuration, mLastSeekEventTime;
-
     private int mAudioProfile;
-
-    private Location mRecordLocation;
-
     private String mRecordErrorMessage;
-
     private String mDurationFormatLong;
-
     private String mDurationFormatShort;
-
     private String mCurrentDurationString;
-
     private long mRecordingId;
-
-    private boolean mSampleInterrupted = false;
-
+    private boolean mSampleInterrupted;
     private RemainingTimeCalculator mRemainingTimeCalculator;
-
     private Thread mProgressThread;
 
     public enum CreateState {
@@ -92,27 +70,12 @@ public class ScCreate extends ScActivity {
     }
 
     public static int REC_SAMPLE_RATE = 44100;
-
     public static int PCM_REC_CHANNELS = 1;
-
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
-
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
-    // public static int PCM_REC_MAX_FILE_SIZE = 158760000; // 15 mins at
-    // 44100x16bitx2channels
-
-
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
-
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
-
-    private String mProvider;
-
-    private LocationManager getManager() {
-        return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,8 +85,9 @@ public class ScCreate extends ScActivity {
 
         setContentView(R.layout.sc_record);
 
-        if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0)
+        if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0) {
             mRecordingId = getIntent().getLongExtra("recordingId",0);
+        }
 
         initResourceRefs();
 
@@ -131,9 +95,7 @@ public class ScCreate extends ScActivity {
 
         mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
         if (!mRecordDir.exists()) mRecordDir.mkdirs();
-
         mRecordErrorMessage = "";
-
     }
 
     @Override
@@ -161,7 +123,9 @@ public class ScCreate extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (getSoundCloudApplication().getRecordListener() == recListener) getSoundCloudApplication().setRecordListener(null);
+        if (getSoundCloudApplication().getRecordListener() == recListener) {
+            getSoundCloudApplication().setRecordListener(null);
+        }
     }
 
     /*
@@ -242,11 +206,6 @@ public class ScCreate extends ScActivity {
                     } catch (RemoteException ignored) {
                     }
 
-                    if (mRecordLocation != null){
-                        r.latitude = mRecordLocation.getLatitude();
-                        r.longitude = mRecordLocation.getLongitude();
-                    }
-
                     Uri newRecordingUri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
@@ -261,8 +220,6 @@ public class ScCreate extends ScActivity {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
                     startActivityForResult(i,0);
                 }
-
-                //updateUi(true);
             }
         });
 
@@ -307,7 +264,7 @@ public class ScCreate extends ScActivity {
                 startProgressThread();
                 takeAction = true;
             } else if (!mRecordDir.exists()) {
-                // can happen when there's no mounted sdcard
+                // can happen when there's no mounted sd card
                 btnAction.setEnabled(false);
             } else {
                 // in this case, state should be based on what is in the recording directory
@@ -332,11 +289,6 @@ public class ScCreate extends ScActivity {
         updateUi(takeAction);
     }
 
-
-    @Override
-    public void onReauthenticate() {
-        onRefresh();
-    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {

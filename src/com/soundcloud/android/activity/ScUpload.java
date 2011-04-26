@@ -292,11 +292,6 @@ public class ScUpload extends ScActivity {
 
 
     @Override
-    public void onReauthenticate() {
-        onRefresh();
-    }
-
-    @Override
     public void onRefresh() {
         mConnectionList.getAdapter().clear();
         mConnectionList.getAdapter().loadIfNecessary();
@@ -510,5 +505,4 @@ public class ScUpload extends ScActivity {
                 }
         }
     }
-
 }

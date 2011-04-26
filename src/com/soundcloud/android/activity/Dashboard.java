@@ -85,11 +85,6 @@ public class Dashboard extends ScActivity {
         mTracklistView.onRefresh();
     }
 
-    @Override
-    protected void onReauthenticate() {
-        onRefresh();
-    }
-
     // legacy action, redirect to Main
     private boolean redirectToMain() {
         if (Intent.ACTION_MAIN.equals(getIntent().getAction())) {

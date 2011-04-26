@@ -81,8 +81,6 @@ public abstract class ScActivity extends Activity {
 
     protected static final int CONNECTIVITY_MSG = 0;
 
-    public boolean pendingIconsUpdate;
-
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
 
@@ -91,6 +89,9 @@ public abstract class ScActivity extends Activity {
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
     }
+
+
+
 
     protected void onServiceBound() {
         if (getSoundCloudApplication().getToken() == null) {
@@ -146,6 +147,9 @@ public abstract class ScActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        tracker = GoogleAnalyticsTracker.getInstance();
+        tracker.start(GA_TRACKING, this);
+
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
 
@@ -172,11 +176,6 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Get google tracker instance
-        tracker = GoogleAnalyticsTracker.getInstance();
-
-        // Start the tracker in manual dispatch mode...
-        tracker.start(GA_TRACKING, this);
 
         connectivityListener.startListening(this);
 
@@ -237,9 +236,6 @@ public abstract class ScActivity extends Activity {
         } else {
             getSoundCloudApplication().useAccount(account);
         }
-    }
-
-    protected void onReauthenticate() {
     }
 
     public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
