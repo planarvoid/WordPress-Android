@@ -3,11 +3,13 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -126,6 +128,18 @@ public class CommentBubble extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 mController.nextCommentInThread();
+            }
+
+        });
+
+        mTxtUsername.setFocusable(true);
+        mTxtUsername.setClickable(true);
+        mTxtUsername.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                intent.putExtra("userId", mComment.user.id);
+                mPlayer.startActivity(intent);
             }
 
         });

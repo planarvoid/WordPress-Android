@@ -267,6 +267,10 @@ public class UserBrowser extends ScActivity {
 
     private void loadUserById(long userId) {
         mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
+        if (mUserData == null) {
+            mUserData = new User();
+            mUserLoadId = mUserData.id = userId;
+        }
         build();
         checkFollowingStatus();
     }
@@ -337,7 +341,10 @@ public class UserBrowser extends ScActivity {
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), Track.class);
         if (isOtherUser()) {
             if (mUserData != null) {
-                adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text, mUserData.username));
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_tracks_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
             }
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
@@ -351,7 +358,10 @@ public class UserBrowser extends ScActivity {
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), Track.class);
         if (isOtherUser()){
             if (mUserData != null) {
-                adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text, mUserData.username));
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_favorites_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
             }
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));

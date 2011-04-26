@@ -13,6 +13,7 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.WaveformController;
@@ -628,7 +629,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         int spanStartIndex;
         int spanEndIndex;
 
-        for (Comment comment : mPlayingTrack.comments){
+        for (final Comment comment : mPlayingTrack.comments){
             commentText.clear();
 
             View v = new View(this);
@@ -663,6 +664,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             tv.setText(commentText);
             commentsList.addView(tv);
+
+            if (comment.user != null && comment.user.username != null) {
+                tv.setLinkTextColor(0xFF000000);
+                CloudUtils.clickify(tv, comment.user.username, new ClickSpan.OnClickListener(){
+                    @Override
+                    public void onClick() {
+                        Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
+                        intent.putExtra("userId", comment.user.id);
+                        startActivity(intent);
+                    }
+                });
+            }
         }
 
         //restore default sort
