@@ -580,10 +580,15 @@ public class CloudPlaybackService extends Service {
             contentValues.put(TrackPlays.TRACK_ID, track.id);
             contentValues.put(TrackPlays.USER_ID, ((SoundCloudApplication)this.getApplication()).getCurrentUserId());
             getContentResolver().insert(TrackPlays.CONTENT_URI, contentValues);
+
+            if (cursor != null) cursor.close();
         }
 
-        if (((SoundCloudApplication) this.getApplication()).getTrackFromCache(track.id) == null)
-            ((SoundCloudApplication) this.getApplication()).cacheTrack(track);
+        if (((SoundCloudApplication) getApplication()).getTrackFromCache(track.id) == null) {
+            ((SoundCloudApplication) getApplication()).cacheTrack(track);
+        }
+
+
 
 
         // meta has changed
