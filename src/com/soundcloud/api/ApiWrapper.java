@@ -148,9 +148,8 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-
     public URI loginViaFacebook() {
-        return  getURI(
+        return getURI(
                 CloudAPI.Enddpoints.FACEBOOK_LOGIN,
                 new Http.Params(
                         "redirect_uri",  mRedirectUri,
@@ -165,7 +164,6 @@ public class ApiWrapper implements CloudAPI {
                 (ssl ? mEnv.sslHost : mEnv.host).toURI() + resource +
                         (params == null ? "" : "?" + params.queryString()));
     }
-
 
     protected Token requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);

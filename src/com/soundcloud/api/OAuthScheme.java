@@ -70,15 +70,15 @@ class OAuthScheme implements AuthScheme {
             if (apiToken == null || apiToken.access == null || apiToken.access.equals(usedToken)) {
                 mApi.invalidateToken();
                 try {
-                    Token token = mApi.refreshToken() ;
-                    return ApiWrapper.getOAuthHeader(token);
+                    return ApiWrapper.getOAuthHeader(mApi.refreshToken());
                 } catch (IOException e) {
                     throw new AuthenticationException("Error refreshing token", e);
                 } catch (IllegalStateException e) {
                     throw new AuthenticationException("Error refreshing token", e);
                 }
+            } else {
+                return ApiWrapper.getOAuthHeader(apiToken);
             }
-            return ApiWrapper.getOAuthHeader(mApi.getToken());
         }
     }
 

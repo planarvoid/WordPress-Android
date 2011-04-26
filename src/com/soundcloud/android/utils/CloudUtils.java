@@ -565,7 +565,6 @@ public class CloudUtils {
     public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
         String note;
         if (!TextUtils.isEmpty(what)) {
-            Log.i(TAG,"Not empty what");
             if (!TextUtils.isEmpty(where)) {
                 note = String.format("%s at %s", what, where);
             } else {
@@ -573,10 +572,8 @@ public class CloudUtils {
             }
         } else {
             if (!TextUtils.isEmpty(where)) {
-                Log.i(TAG,"Not empty where");
                 note = String.format("Sounds from %s", where);
             } else {
-                Log.i(TAG,"Empty both");
                 note = String.format("Sounds from %s", recordingDateString(created_at));
             }
         }
