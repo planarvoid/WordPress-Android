@@ -81,11 +81,12 @@ public class Login extends LoginActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data);
         if (resultCode == RESULT_OK) {
-            CloudUtils.showToast(this, "Password recovery sent");
-        } else {
-            CloudUtils.showToast(this, "Error");
+            boolean success = data.getBooleanExtra("success", false);
+            CloudUtils.showToast(this,
+                    success ?
+                        R.string.authentication_recover_password_success :
+                        R.string.authentication_recover_password_failure);
         }
     }
 }

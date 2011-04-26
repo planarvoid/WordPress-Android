@@ -91,7 +91,6 @@ public class Recover extends Activity {
     }
 
     private void recoverPassword(final String email) {
-        Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
             private ProgressDialog progressDialog;
             @Override
@@ -102,7 +101,7 @@ public class Recover extends Activity {
             @Override
             protected void onPostExecute(Boolean success) {
                 progressDialog.dismiss();
-                setResult(success ? RESULT_OK : RESULT_CANCELED);
+                setResult(RESULT_OK, new Intent().putExtra("success", success));
                 finish();
             }
         }.execute(email);

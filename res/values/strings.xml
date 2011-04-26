@@ -26,6 +26,8 @@
   <string name="authentication_terms_of_use">Terms of Use</string>
   <string name="authentication_recover_password">Recover password</string>
   <string name="authentication_recover_password_msg">Enter your e-mail address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+  <string name="authentication_recover_password_success">Password recovery email sent.</string>
+  <string name="authentication_recover_password_failure">Error recovering password. Make sure you\'ve entered the correct email address.</string>
   <string name="authentication_support">support</string>
   <string name="authentication_add_info_msg">Your account got created, but maybe you want to give yourself a proper username and a nice image?</string>
   <string name="authentication_add_info_username_hint">User1234</string>
