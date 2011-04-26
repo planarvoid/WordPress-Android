@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -40,12 +41,13 @@ import java.util.Set;
  * Interface with SoundCloud, using OAuth2.
  * This API wrapper makes a few assumptions - namely:
  * <ul>
- *     <li>Only resource owner passwords credentials is supported</li>
- *     <li>Server responses are always requested in JSON format</li>
- *     <li>Refresh-token handling is transparent to the client application</li>
+ * <li>Only resource owner passwords credentials is supported</li>
+ * <li>Server responses are always requested in JSON format</li>
+ * <li>Refresh-token handling is transparent to the client application</li>
  * </ul>
- * @version 1.0
+ *
  * @author Jan Berkel <jan@soundcloud.com>
+ * @version 1.0
  * @see CloudAPI
  */
 public class ApiWrapper implements CloudAPI {
@@ -60,16 +62,17 @@ public class ApiWrapper implements CloudAPI {
 
     /**
      * Constructs a new ApiWrapper instance.
-     * @param clientId            the application client id
-     * @param clientSecret        the application client secret
-     * @param redirectUri         the registered redirect url, or null
-     * @param token               an valid token, or null if not known
-     * @param env                 the environment to use (LIVE/SANDBOX)
+     *
+     * @param clientId     the application client id
+     * @param clientSecret the application client secret
+     * @param redirectUri  the registered redirect url, or null
+     * @param token        an valid token, or null if not known
+     * @param env          the environment to use (LIVE/SANDBOX)
      * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      URI    redirectUri,
+                      URI redirectUri,
                       Token token,
                       Env env) {
         mClientId = clientId;
@@ -84,35 +87,35 @@ public class ApiWrapper implements CloudAPI {
             throw new IllegalArgumentException("username or password is null");
         }
         mToken = requestToken(new Http.Params(
-            "grant_type",    PASSWORD,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret,
-            "username",      username,
-            "password",      password));
+                "grant_type", PASSWORD,
+                "client_id", mClientId,
+                "client_secret", mClientSecret,
+                "username", username,
+                "password", password));
         return mToken;
     }
 
     @Override public Token authorizationCode(String code) throws IOException {
-        if (code == null ) {
+        if (code == null) {
             throw new IllegalArgumentException("username or password is null");
         }
         mToken = requestToken(new Http.Params(
-            "grant_type",    AUTHORIZATION_CODE,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret,
-            "redirect_uri",  mRedirectUri,
-            "code",          code));
+                "grant_type", AUTHORIZATION_CODE,
+                "client_id", mClientId,
+                "client_secret", mClientSecret,
+                "redirect_uri", mRedirectUri,
+                "code", code));
         return mToken;
     }
 
     @Override public Token signupToken() throws IOException {
         final Token signup = requestToken(new Http.Params(
-            "grant_type",    CLIENT_CREDENTIALS,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret));
+                "grant_type", CLIENT_CREDENTIALS,
+                "client_id", mClientId,
+                "client_secret", mClientSecret));
         if (!signup.signupScoped()) {
-            throw new InvalidTokenException(200, "Could not obtain signup scope (got: '"+
-                    signup.scope+"')");
+            throw new InvalidTokenException(200, "Could not obtain signup scope (got: '" +
+                    signup.scope + "')");
         }
         return signup;
     }
@@ -120,26 +123,24 @@ public class ApiWrapper implements CloudAPI {
     @Override public Token refreshToken() throws IOException {
         if (mToken == null || mToken.refresh == null) throw new IllegalStateException("no refresh token available");
         mToken = requestToken(new Http.Params(
-            "grant_type",    REFRESH_TOKEN,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret,
-            "refresh_token", mToken.refresh));
+                "grant_type", REFRESH_TOKEN,
+                "client_id", mClientId,
+                "client_secret", mClientSecret,
+                "refresh_token", mToken.refresh));
         return mToken;
     }
 
-    @Override
-    public Token exchangeToken(String oauth1AccessToken) throws IOException {
+    @Override public Token exchangeToken(String oauth1AccessToken) throws IOException {
         if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
         mToken = requestToken(new Http.Params(
-            "grant_type",    OAUTH1_TOKEN,
-            "client_id",     mClientId,
-            "client_secret", mClientSecret,
-            "refresh_token", oauth1AccessToken));
+                "grant_type", OAUTH1_TOKEN,
+                "client_id", mClientId,
+                "client_secret", mClientSecret,
+                "refresh_token", oauth1AccessToken));
         return mToken;
     }
 
-    @Override
-    public void invalidateToken() {
+    @Override public void invalidateToken() {
         if (mToken != null) {
             mToken.invalidate();
             for (TokenStateListener l : listeners) {
@@ -152,10 +153,10 @@ public class ApiWrapper implements CloudAPI {
         return getURI(
                 CloudAPI.Enddpoints.FACEBOOK_LOGIN,
                 new Http.Params(
-                        "redirect_uri",  mRedirectUri,
-                        "client_id",     mClientId,
+                        "redirect_uri", mRedirectUri,
+                        "client_id", mClientId,
                         "response_type", "code"
-                        ),
+                ),
                 true);
     }
 
@@ -187,34 +188,41 @@ public class ApiWrapper implements CloudAPI {
                     String error = resp.getString("error");
                     throw new InvalidTokenException(status, error);
                 default:
-                    throw new IOException("HTTP error "+status +" "+resp.getString("error"));
+                    throw new IOException("HTTP error " + status + " " + resp.getString("error"));
             }
         } catch (JSONException e) {
             throw new IOException("could not parse JSON document: " +
-                    (json.length() > 80 ? (json.substring(0,79)+"...") : json));
+                    (json.length() > 80 ? (json.substring(0, 79) + "...") : json));
         }
     }
 
 
-    /** @return parameters used by the underlying HttpClient */
+    /**
+     * @return parameters used by the underlying HttpClient
+     */
     protected HttpParams getParams() {
         return Http.defaultParams();
     }
 
-    /** @return SocketFactory used by the underlying HttpClient */
+    /**
+     * @return SocketFactory used by the underlying HttpClient
+     */
     protected SocketFactory getSocketFactory() {
         return PlainSocketFactory.getSocketFactory();
     }
 
-    /** @return SSL SocketFactory used by the underlying HttpClient */
+    /**
+     * @return SSL SocketFactory used by the underlying HttpClient
+     */
     protected SSLSocketFactory getSSLSocketFactory() {
         return SSLSocketFactory.getSocketFactory();
     }
 
     /**
      * User-Agent to identify ourselves with - defaults to USER_AGENT
-     * @see CloudAPI#USER_AGENT
+     *
      * @return the agent to use
+     * @see CloudAPI#USER_AGENT
      */
     protected String getUserAgent() {
         return USER_AGENT;
@@ -230,35 +238,47 @@ public class ApiWrapper implements CloudAPI {
             registry.register(new Scheme("http", getSocketFactory(), 80));
             final SSLSocketFactory sslFactory = getSSLSocketFactory();
             if (mEnv == Env.SANDBOX) {
-                // disable strict checks on sandbox
-                // XXX remove then certificate is fixed
+                // disable strict checks on sandbox XXX remove when certificate is fixed
                 sslFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             }
             registry.register(new Scheme("https", sslFactory, 443));
             httpClient = new DefaultHttpClient(
                     new ThreadSafeClientConnManager(params, registry),
                     params) {
+                {
+                    setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
+                        @Override
+                        public long getKeepAliveDuration(HttpResponse httpResponse, HttpContext httpContext) {
+                            return 20; // seconds
+                        }
+                    });
+
+                    getCredentialsProvider().setCredentials(
+                        new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM, OAUTH_SCHEME),
+                        OAuthScheme.EmptyCredentials.INSTANCE);
+
+                    getAuthSchemes().register(CloudAPI.OAUTH_SCHEME, new OAuthScheme.Factory(ApiWrapper.this));
+                }
+
                 @Override protected HttpContext createHttpContext() {
                     HttpContext ctxt = super.createHttpContext();
                     ctxt.setAttribute(ClientContext.AUTH_SCHEME_PREF,
                             Arrays.asList(CloudAPI.OAUTH_SCHEME, "digest", "basic"));
                     return ctxt;
                 }
+
                 @Override protected BasicHttpProcessor createHttpProcessor() {
                     BasicHttpProcessor processor = super.createHttpProcessor();
                     processor.addInterceptor(new OAuthHttpRequestInterceptor());
                     return processor;
                 }
             };
-            httpClient.getCredentialsProvider().setCredentials(
-                    new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM,
-                                  OAUTH_SCHEME), OAuthScheme.EmptyCredentials.INSTANCE);
-            httpClient.getAuthSchemes().register(CloudAPI.OAUTH_SCHEME, new OAuthScheme.Factory(this));
         }
         return httpClient;
     }
 
-    @Override public long resolve(String url) throws IOException {
+    @Override
+    public long resolve(String url) throws IOException {
         HttpResponse resp = getContent(Enddpoints.RESOLVE, new Http.Params("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
@@ -280,8 +300,7 @@ public class ApiWrapper implements CloudAPI {
         return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
-    @Override
-    public HttpResponse getContent(String resource) throws IOException {
+    @Override public HttpResponse getContent(String resource) throws IOException {
         return getContent(resource, null);
     }
 

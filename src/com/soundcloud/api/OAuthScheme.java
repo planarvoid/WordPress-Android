@@ -67,18 +67,18 @@ class OAuthScheme implements AuthScheme {
         // make sure only one refresh request gets sent out
         synchronized (OAuthScheme.class) {
             final Token apiToken = mApi.getToken();
+            Token newToken = apiToken;
             if (apiToken == null || apiToken.access == null || apiToken.access.equals(usedToken)) {
                 mApi.invalidateToken();
                 try {
-                    return ApiWrapper.getOAuthHeader(mApi.refreshToken());
+                    newToken = mApi.refreshToken();
                 } catch (IOException e) {
                     throw new AuthenticationException("Error refreshing token", e);
                 } catch (IllegalStateException e) {
                     throw new AuthenticationException("Error refreshing token", e);
                 }
-            } else {
-                return ApiWrapper.getOAuthHeader(apiToken);
             }
+            return ApiWrapper.getOAuthHeader(newToken);
         }
     }
 
