@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.isRunningOnDalvik;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
@@ -50,6 +51,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -66,8 +68,8 @@ import java.util.ArrayList;
 public abstract class ScActivity extends Activity {
     public static final String GA_TRACKING = "UA-2519404-11";
 
-    private Exception mException = null;
-    private String mError = null;
+    private Exception mException;
+    private String mError;
 
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
@@ -89,9 +91,6 @@ public abstract class ScActivity extends Activity {
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
     }
-
-
-
 
     protected void onServiceBound() {
         if (getSoundCloudApplication().getToken() == null) {
@@ -147,8 +146,10 @@ public abstract class ScActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        tracker = GoogleAnalyticsTracker.getInstance();
-        tracker.start(GA_TRACKING, this);
+        if (isRunningOnDalvik()) {
+            tracker = GoogleAnalyticsTracker.getInstance();
+            tracker.start(GA_TRACKING, this);
+        }
 
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
@@ -198,8 +199,10 @@ public abstract class ScActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
-        tracker.stop();
-        tracker = null;
+        if (tracker != null) {
+            tracker.stop();
+            tracker = null;
+        }
         connectivityListener.stopListening();
 
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
@@ -547,12 +550,14 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void pageTrack(String path) {
-        try {
-            tracker.trackPageView(path);
-            tracker.dispatch();
-        } catch (IllegalStateException ignored) {
-            // logs indicate this gets thrown occasionally
-            Log.w(TAG, ignored);
+        if (tracker != null && !TextUtils.isEmpty(path)) {
+            try {
+                tracker.trackPageView(path);
+                tracker.dispatch();
+            } catch (IllegalStateException ignored) {
+                // logs indicate this gets thrown occasionally
+                Log.w(TAG, ignored);
+            }
         }
     }
 
