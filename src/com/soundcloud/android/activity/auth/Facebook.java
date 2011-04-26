@@ -5,16 +5,19 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import java.net.URI;
 
 public class Facebook extends LoginActivity {
     private WebView mWebview;
@@ -42,8 +45,6 @@ public class Facebook extends LoginActivity {
             }
         });
 
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        final URI facebookLogin = app.loginViaFacebook();
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
@@ -76,7 +77,27 @@ public class Facebook extends LoginActivity {
                 }
             }
         });
-        mWebview.loadUrl(facebookLogin.toString());
+
+        if (isConnected()) {
+            final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            mWebview.loadUrl(app.loginViaFacebook().toString());
+        } else {
+            new AlertDialog.Builder(this).
+                    setMessage(R.string.authentication_error_no_connection_message).
+                    setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).create().show();
+        }
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info =  manager.getActiveNetworkInfo();
+        return info != null && info.isConnectedOrConnecting();
     }
 
     @Override
