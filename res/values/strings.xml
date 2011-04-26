@@ -766,6 +766,7 @@
     <string name="search_hint">Tracks</string>
 
     <string name="account_type">com.soundcloud.android.account</string>
+    <string name="account_one_active">You can only have one active account</string>
 
     <string name="settings_error_revoking_account_title">Error revoking access</string>
     <string name="settings_error_revoking_account_message">There was an error deleting the account.</string>
