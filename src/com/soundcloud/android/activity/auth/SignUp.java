@@ -143,7 +143,7 @@ public class SignUp extends Activity {
     }
 
     private void signupFail() {
-        CloudUtils.showToast(SignUp.this, "Errorz");
+        CloudUtils.showToast(SignUp.this, R.string.authentication_signup_failure);
     }
 
     @Override
