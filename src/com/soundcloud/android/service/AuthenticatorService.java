@@ -55,6 +55,7 @@ public class AuthenticatorService extends Service {
             final String message = mContext.getString(R.string.account_one_active);
             if (accounts.length == 0) {
                 Intent intent = new Intent(mContext, Start.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 reply.putParcelable(AccountManager.KEY_INTENT, intent);
             } else {
