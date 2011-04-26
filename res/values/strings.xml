@@ -13,7 +13,8 @@
   <string name="authentication_retrying_message">There was a problem contacting Soundcloud for account access. Retrying.</string>
   <string name="authentication_failed_title">Communication error</string>
   <string name="authentication_failed_message">Authentication failed.\nUnable to contact server. If possible, please ensure you are connected via wifi.</string>
-  
+  <string name="authentication_failed_access_denied">You have denied access</string>
+
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
   <string name="authentication_your_email_address">Your email address</string>

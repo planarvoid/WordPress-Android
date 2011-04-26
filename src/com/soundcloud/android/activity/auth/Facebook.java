@@ -64,7 +64,10 @@ public class Facebook extends LoginActivity {
                     if (!TextUtils.isEmpty(code) && error == null) {
                         login(code);
                     } else {
-                        CloudUtils.showToast(Facebook.this, error);
+                        final String message = "access_denied".equals(error) ?
+                                getString(R.string.authentication_failed_access_denied) :
+                                getString(R.string.authentication_failed_message);
+                        CloudUtils.showToast(Facebook.this, message);
                         finish();
                     }
                     return true;
