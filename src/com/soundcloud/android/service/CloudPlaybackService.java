@@ -29,10 +29,9 @@ import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
-import com.soundcloud.android.utils.play.MediaFrameworkChecker;
 import com.soundcloud.android.utils.play.PlayListManager;
-
 import com.soundcloud.api.CloudAPI;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -75,8 +74,10 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -253,8 +254,10 @@ public class CloudPlaybackService extends Service {
             isStagefright = false;
         } else {
             // 2.2+, check to see if stagefright enabled
-            determineSdk8Framework();
+            determineAudioFramework();
         }
+
+        Log.i(TAG,"::Using Stagefright Framework " + isStagefright);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that
@@ -271,62 +274,31 @@ public class CloudPlaybackService extends Service {
      * SDK 8 can be either open core or stagefright. This determines it as best
      * we can
      */
-    private void determineSdk8Framework() {
+    private void determineAudioFramework() {
         isStagefright = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                "isStagefright", false);
+                "isStagefright", true);
 
         // check the build file, works in most cases and will catch cases for
         // instant playback
         try {
-            // XXX throws IllegalArgumentException since pathname contains
-            // separators
-            InputStream instream = openFileInput("/system/build.prop");
+            File f = new File("/system/build.prop");
+            InputStream instream = new BufferedInputStream(new FileInputStream(f));
             if (instream != null) {
                 String line;
                 BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
                 while ((line = buffreader.readLine()) != null) {
+                    //Log.i(TAG,"~~~build.prop: " + line);
                     if (line.contains("media.stagefright.enable-player")) {
-                        if (line.contains("true")) {
-                            isStagefright = true;
-                        }
+                        if (line.contains("false")) isStagefright = false;
                         break;
                     }
                 }
-                instream.close();
             }
-        } catch (IllegalArgumentException ignored) {
+            instream.close();
+        } catch (Exception e) {
             // really need to catch exception here
-            Log.e(TAG, "error", ignored);
-        } catch (IOException ignored) {
-            // really need to catch exception here
-            Log.e(TAG, "error", ignored);
+            Log.e(TAG, "error", e);
         }
-
-        // check through a socket, only way to be sure, but takes a little time
-        final MediaFrameworkChecker mfc = new MediaFrameworkChecker();
-        mfc.start();
-        // Fire off a thread to do some work that we shouldn't do directly in
-        // the UI thread
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    MediaPlayer mp = new MediaPlayer();
-                    mp.setDataSource(String.format("http://127.0.0.1:%d/", mfc.getSocketPort()));
-                    mp.prepare();
-                    mp.start();
-                    while (mfc.isAlive()) {
-                        Thread.sleep(100);
-                    }
-                } catch (IOException ignored) {
-                } catch (InterruptedException ignored) {
-                }
-                isStagefright = mfc.isStagefright();
-                PreferenceManager.getDefaultSharedPreferences(CloudPlaybackService.this).edit()
-                        .putBoolean("isStagefright", isStagefright).commit();
-            }
-        };
-        t.start();
     }
 
     @Override
