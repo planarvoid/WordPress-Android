@@ -2,7 +2,6 @@ package com.soundcloud.android.view;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.reset;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
@@ -18,7 +17,7 @@ public class ConnectionListTests extends RoboApiBaseTests {
 
     @Test
     public void shouldLoadConnectionsFromApi() throws Exception {
-        expectGetRequestAndReturn(CONNECTIONS, 200, "connections.json");
+        expectGetRequestAndReturn(MY_CONNECTIONS, 200, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
         assertEquals(0, list.postToServiceIds().size());
@@ -34,7 +33,7 @@ public class ConnectionListTests extends RoboApiBaseTests {
 
     @Test
     public void shouldOnlyReloadIfNeeded() throws Exception {
-        expectGetRequestAndReturn(CONNECTIONS, 200, "connections.json");
+        expectGetRequestAndReturn(MY_CONNECTIONS, 200, "connections.json");
 
         ConnectionList list = new ConnectionList(new Activity());
 
@@ -44,7 +43,7 @@ public class ConnectionListTests extends RoboApiBaseTests {
 
         assertEquals(1, list.postToServiceIds().size());
 
-        expectGetRequestAndThrow(CONNECTIONS, new IOException());
+        expectGetRequestAndThrow(MY_CONNECTIONS, new IOException());
 
         list.getAdapter().loadIfNecessary();
         assertEquals(1, list.postToServiceIds().size());

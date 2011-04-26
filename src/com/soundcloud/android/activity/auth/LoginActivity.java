@@ -47,7 +47,7 @@ public abstract class LoginActivity extends Activity {
                                 showError(null);
                             }
                         }
-                    }.execute(CloudAPI.Enddpoints.MY_DETAILS);
+                    }.execute(CloudAPI.Endpoints.MY_DETAILS);
                 } else { // no tokens obtained
                     progress.dismiss();
                     showError(mException);

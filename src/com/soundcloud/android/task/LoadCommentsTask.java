@@ -28,7 +28,7 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
     @Override
     protected List<Comment> doInBackground(String... path) {
         return list(
-                CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mTrackId)),
+                CloudAPI.Endpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mTrackId)),
                 Comment.class);
     }
 

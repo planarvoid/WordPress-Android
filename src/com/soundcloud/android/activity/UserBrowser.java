@@ -507,12 +507,12 @@ public class UserBrowser extends ScActivity {
                     if (mUserData.current_user_following) {
                         mFollowResult =
                                 getSoundCloudApplication().putContent(
-                                        CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
+                                        CloudAPI.Endpoints.MY_FOLLOWINGS + "/"
                                                 + mUserData.id, null).getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
                                 getSoundCloudApplication().deleteContent(
-                                        CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
+                                        CloudAPI.Endpoints.MY_FOLLOWINGS + "/"
                                                 + mUserData.id).getStatusLine().getStatusCode();
                     }
 
@@ -723,29 +723,29 @@ public class UserBrowser extends ScActivity {
 
 
     private String getDetailsUrl() {
-        return CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}",
+        return CloudAPI.Endpoints.USER_DETAILS.replace("{user_id}",
                 Long.toString(mUserLoadId));
     }
 
     private String getUserTracksUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}",
+                CloudAPI.Endpoints.USER_TRACKS.replace("{user_id}",
                         Long.toString(mUserLoadId)), getTrackOrder());
     }
 
     private String getFavoritesUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}",
+                CloudAPI.Endpoints.USER_FAVORITES.replace("{user_id}",
                         Long.toString(mUserLoadId)), "favorited_at");
     }
 
     private String getFollowersUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}",
+        return CloudUtils.buildRequestPath(CloudAPI.Endpoints.USER_FOLLOWERS.replace("{user_id}",
                 Long.toString(mUserLoadId)), getUserOrder());
     }
 
     private String getFollowingsUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}",
+        return CloudUtils.buildRequestPath(CloudAPI.Endpoints.USER_FOLLOWINGS.replace("{user_id}",
                 Long.toString(mUserLoadId)), getUserOrder());
     }
 

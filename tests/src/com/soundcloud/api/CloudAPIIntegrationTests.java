@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
-public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.Enddpoints {
+public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.Endpoints {
     // http://sandbox-soundcloud.com/you/apps/java-api-wrapper-test-app
     static final String CLIENT_ID     = "yH1Jv2C5fhIbZfGTpKtujQ";
     static final String CLIENT_SECRET = "C6o8jc517b6PIw0RKtcfQsbOK3BjGpxWFLg977UiguY";
@@ -60,19 +60,19 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
     @Test
     public void shouldReturn401WithInvalidToken() throws Exception {
         api.setToken(new Token("invalid", "invalid"));
-        HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
+        HttpResponse resp = api.getContent(CloudAPI.Endpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(401));
     }
 
     @Test
     public void shouldRefreshAutomaticallyWhenTokenExpired() throws Exception {
-        HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
+        HttpResponse resp = api.getContent(CloudAPI.Endpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
 
         final Token oldToken = api.getToken();
         api.invalidateToken();
 
-        resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
+        resp = api.getContent(CloudAPI.Endpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
         // make sure we've got a new token
         assertThat(oldToken, not(equalTo(api.getToken())));
@@ -87,7 +87,7 @@ public class CloudAPIIntegrationTests implements CloudAPI.TrackParams, CloudAPI.
 
     @Test
     public void readMe() throws Exception {
-        HttpResponse resp = api.getContent(CloudAPI.Enddpoints.MY_DETAILS);
+        HttpResponse resp = api.getContent(CloudAPI.Endpoints.MY_DETAILS);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
         // writeResponse(resp, "me.json");
     }

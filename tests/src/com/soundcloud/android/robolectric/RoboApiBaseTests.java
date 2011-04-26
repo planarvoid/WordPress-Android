@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 import org.apache.http.HttpEntity;
@@ -19,7 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RoboApiBaseTests implements CloudAPI.Enddpoints {
+public class RoboApiBaseTests implements CloudAPI.Endpoints {
     protected AndroidCloudAPI api;
 
     @Before

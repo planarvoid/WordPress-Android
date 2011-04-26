@@ -154,7 +154,7 @@ public class Main extends TabActivity {
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }
-        }).execute(CloudAPI.Enddpoints.MY_DETAILS);
+        }).execute(CloudAPI.Endpoints.MY_DETAILS);
     }
 
     private Runnable addAccount = new Runnable() {
@@ -215,7 +215,7 @@ public class Main extends TabActivity {
                                  fallback.run();
                              }
                          }
-                     }.execute(CloudAPI.Enddpoints.MY_DETAILS);
+                     }.execute(CloudAPI.Endpoints.MY_DETAILS);
                 } else {
                     fallback.run();
                 }

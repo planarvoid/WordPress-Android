@@ -151,7 +151,7 @@ public class ApiWrapper implements CloudAPI {
 
     public URI loginViaFacebook() {
         return getURI(
-                CloudAPI.Enddpoints.FACEBOOK_LOGIN,
+                Endpoints.FACEBOOK_LOGIN,
                 new Http.Params(
                         "redirect_uri", mRedirectUri,
                         "client_id", mClientId,
@@ -167,7 +167,7 @@ public class ApiWrapper implements CloudAPI {
     }
 
     protected Token requestToken(Http.Params params) throws IOException {
-        HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
+        HttpPost post = new HttpPost(Endpoints.TOKEN);
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         post.setEntity(new StringEntity(params.queryString()));
         HttpResponse response = getHttpClient().execute(mEnv.sslHost, post);
@@ -279,7 +279,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public long resolve(String url) throws IOException {
-        HttpResponse resp = getContent(Enddpoints.RESOLVE, new Http.Params("url", url));
+        HttpResponse resp = getContent(Endpoints.RESOLVE, new Http.Params("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
             if (location != null) {
@@ -331,7 +331,8 @@ public class ApiWrapper implements CloudAPI {
         mToken = newToken;
     }
 
-    @Override public void addTokenStateListener(TokenStateListener listener) {
+    @Override
+    public void addTokenStateListener(TokenStateListener listener) {
         listeners.add(listener);
     }
 

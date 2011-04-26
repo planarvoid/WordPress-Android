@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,7 +16,7 @@ public class NewConnectionTaskTests extends RoboApiBaseTests {
 
     @Test
     public void shouldReturnUri() throws Exception {
-        expectPostRequestAndReturn(CONNECTIONS, 202, "{ \"authorize_url\": \"http://example.com\" }");
+        expectPostRequestAndReturn(MY_CONNECTIONS, 202, "{ \"authorize_url\": \"http://example.com\" }");
 
         NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
@@ -28,7 +27,7 @@ public class NewConnectionTaskTests extends RoboApiBaseTests {
 
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
-        expectPostRequestAndReturn(CONNECTIONS, 400, "Failz");
+        expectPostRequestAndReturn(MY_CONNECTIONS, 400, "Failz");
 
         NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);

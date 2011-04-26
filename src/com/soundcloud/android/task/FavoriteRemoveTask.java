@@ -19,7 +19,7 @@ public class FavoriteRemoveTask extends FavoriteTask {
     protected int executeResponse(Track t) throws IOException{
         return mScApp
         .deleteContent(
-                CloudAPI.Enddpoints.MY_FAVORITES + "/"
+                CloudAPI.Endpoints.MY_FAVORITES + "/"
                         + t.id).getStatusLine().getStatusCode();
     }
     

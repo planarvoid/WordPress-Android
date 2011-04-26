@@ -19,7 +19,7 @@ public class FavoriteAddTask extends FavoriteTask {
     protected int executeResponse(Track t) throws IOException{
         return mScApp
         .putContent(
-                CloudAPI.Enddpoints.MY_FAVORITES + "/"
+                CloudAPI.Endpoints.MY_FAVORITES + "/"
                         + t.id, null).getStatusLine().getStatusCode();
     }
 

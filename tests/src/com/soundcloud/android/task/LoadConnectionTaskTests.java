@@ -15,10 +15,10 @@ import java.util.List;
 public class LoadConnectionTaskTests extends RoboApiBaseTests {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
-        expectGetRequestAndReturn(CONNECTIONS, 200,"connections.json");
+        expectGetRequestAndReturn(MY_CONNECTIONS, 200,"connections.json");
 
         LoadConnectionsTask task = new LoadConnectionsTask(api);
-        List<Connection> connections = task.list(CONNECTIONS, Connection.class);
+        List<Connection> connections = task.list(MY_CONNECTIONS, Connection.class);
 
         assertEquals(6, connections.size());
         // make sure date gets deserialized properly

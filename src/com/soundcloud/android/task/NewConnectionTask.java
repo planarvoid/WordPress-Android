@@ -25,7 +25,7 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
 
 
         try {
-            HttpResponse response = api().postContent(CONNECTIONS, new Http.Params(
+            HttpResponse response = api().postContent(MY_CONNECTIONS, new Http.Params(
                     "service", svc.name,
                     "format",  "json",
                     "redirect_uri", URL_SCHEME+svc));

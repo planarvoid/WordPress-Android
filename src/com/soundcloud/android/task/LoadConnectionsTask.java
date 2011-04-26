@@ -12,6 +12,6 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
     }
 
     protected List<Connection> doInBackground(String... path) {
-        return list(CloudAPI.Enddpoints.CONNECTIONS, Connection.class);
+        return list(CloudAPI.Endpoints.MY_CONNECTIONS, Connection.class);
     }
 }

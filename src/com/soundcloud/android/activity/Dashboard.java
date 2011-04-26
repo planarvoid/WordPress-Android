@@ -33,12 +33,12 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             if ("incoming".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(CloudAPI.Enddpoints.MY_ACTIVITIES,
+                mTracklistView = createList(CloudAPI.Endpoints.MY_ACTIVITIES,
                         Event.class,
                         R.string.empty_incoming_text,
                         CloudUtils.ListId.LIST_INCOMING);
             } else if ("exclusive".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(CloudAPI.Enddpoints.MY_EXCLUSIVE_TRACKS,
+                mTracklistView = createList(CloudAPI.Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE);

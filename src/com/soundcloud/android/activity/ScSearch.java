@@ -132,12 +132,12 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(CloudAPI.Enddpoints.TRACKS, URLEncoder.encode(query));
+            mTrackAdpWrapper.setPath(CloudAPI.Endpoints.TRACKS, URLEncoder.encode(query));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
             mList.enableLongClickListener();
         } else {
-            mUserAdpWrapper.setPath(CloudAPI.Enddpoints.USERS, URLEncoder.encode(query));
+            mUserAdpWrapper.setPath(CloudAPI.Endpoints.USERS, URLEncoder.encode(query));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);
             mList.disableLongClickListener();

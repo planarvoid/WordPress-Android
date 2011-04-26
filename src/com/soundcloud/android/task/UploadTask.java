@@ -128,7 +128,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
 
-                    HttpResponse response = api.postContent(CloudAPI.Enddpoints.TRACKS,
+                    HttpResponse response = api.postContent(CloudAPI.Endpoints.TRACKS,
                             param.getApiParams().setProgressListener(UploadTask.this));
 
                     StatusLine status = response.getStatusLine();

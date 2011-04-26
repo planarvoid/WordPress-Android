@@ -50,7 +50,7 @@ public interface CloudAPI {
 
     /**
      * Request login/signup via Facebook.
-     * After the facebook login, control will go to the redirect URI (wrapper specific).
+     * After the Facebook login, control will go to the redirect URI (wrapper specific).
      * @return the URI to open in a browser/WebView etc.
      */
     URI loginViaFacebook();
@@ -165,7 +165,7 @@ public interface CloudAPI {
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    interface Enddpoints { // TODO rename to Resources?
+    interface Endpoints { // TODO rename to Resources?
         String TOKEN = "/oauth2/token";
 
         String TRACKS              = "/tracks";
@@ -181,7 +181,7 @@ public interface CloudAPI {
         String USER_PLAYLISTS      = "/users/{user_id}/playlists";
 
         String MY_DETAILS          = "/me";
-        String CONNECTIONS         = "/me/connections";
+        String MY_CONNECTIONS      = "/me/connections";
         String MY_ACTIVITIES       = "/me/activities/tracks";
         String MY_EXCLUSIVE_TRACKS = "/me/activities/tracks/exclusive";
         String MY_TRACKS           = "/me/tracks";

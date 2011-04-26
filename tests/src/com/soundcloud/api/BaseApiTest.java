@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Ignore
-public abstract class BaseApiTest implements CloudAPI.Enddpoints {
+public abstract class BaseApiTest implements CloudAPI.Endpoints {
     public CloudAPI api;
     public ObjectMapper mapper;
 

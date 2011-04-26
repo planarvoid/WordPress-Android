@@ -36,7 +36,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
         try {
             return mApplication.postContent(
-                    CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)),
+                    CloudAPI.Endpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)),
                     mApiParams).getStatusLine().getStatusCode() == HttpStatus.SC_CREATED;
         } catch (IOException e) {
            mException = e;

@@ -565,7 +565,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mPlayingTrack.load_info_task.setActivity(this);
             if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task))
                 mPlayingTrack.load_info_task.execute(
-                        CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
+                        CloudAPI.Endpoints.TRACK_DETAILS.replace("{track_id}",
                                 Long.toString(mPlayingTrack.id)));
 
             //mPlayingTrack.loadInfo(this);
