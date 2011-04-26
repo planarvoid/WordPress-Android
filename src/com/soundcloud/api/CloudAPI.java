@@ -4,6 +4,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 
 import java.io.IOException;
+import java.net.URI;
 
 /**
  * Interface with SoundCloud, using OAuth2.
@@ -45,6 +46,14 @@ public interface CloudAPI {
      * @throws IOException In case of network/server errors
      */
     Token login(String username, String password) throws IOException;
+
+
+    /**
+     * Request login/signup via Facebook.
+     * After the facebook login, control will go to the redirect URI (wrapper specific).
+     * @return the URI to open in a browser/WebView etc.
+     */
+    URI loginViaFacebook();
 
     /**
      * Log in to SoundCloud using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
@@ -144,16 +153,6 @@ public interface CloudAPI {
     void setToken(Token token);
     void addTokenStateListener(TokenStateListener listener);
 
-    Env getEnvironment();
-
-    /**
-     * Returns an URL suitable for OAuth2 authorisation via <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
-     * Authorization Code</a>
-     * @param redirect_uri the url to redirect after successful authorisation, or empty to use default
-     * @return the url
-     */
-    public String getConnectUrl(String... redirect_uri);
-
     enum Env {
         LIVE("api.soundcloud.com"),
         SANDBOX("api.sandbox-soundcloud.com");
@@ -195,6 +194,7 @@ public interface CloudAPI {
         String RESOLVE             = "/resolve";
 
         String SEND_PASSWORD       = "/passwords/reset-instructions";
+        String FACEBOOK_LOGIN      = "/connect/via/facebook";
     }
 
     interface TrackParams {

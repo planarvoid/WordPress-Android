@@ -1,25 +1,22 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.net.URI;
+
 public class Facebook extends LoginActivity {
-    private static final String URL_SCHEME   = "soundcloud-facebook://android";
     private WebView mWebview;
 
     @Override
@@ -46,10 +43,7 @@ public class Facebook extends LoginActivity {
         });
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        final String host = app.getEnvironment().host.toHostString();
-        final String facebookLogin = "http://"+host+"/login/facebook/new?redirect_uri="+URL_SCHEME;
-        final String oldUserAgent = mWebview.getSettings().getUserAgentString();
-        mWebview.getSettings().setUserAgentString(CloudAPI.USER_AGENT);
+        final URI facebookLogin = app.loginViaFacebook();
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
@@ -63,18 +57,7 @@ public class Facebook extends LoginActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                if (url.startsWith(URL_SCHEME)) {
-                    view.stopLoading();
-                    view.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            view.getSettings().setUserAgentString(oldUserAgent);
-                            view.loadUrl(app.getConnectUrl());
-                        }
-                    });
-                    return true;
-                } else if (url.startsWith(AndroidCloudAPI.REDIRECT_URI)) {
-                    Log.d(TAG, "got " + url);
+                if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
                     String code = result.getQueryParameter("code");
@@ -90,7 +73,7 @@ public class Facebook extends LoginActivity {
                 }
             }
         });
-        mWebview.loadUrl(facebookLogin);
+        mWebview.loadUrl(facebookLogin.toString());
     }
 
     @Override

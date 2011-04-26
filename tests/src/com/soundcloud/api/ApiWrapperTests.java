@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.net.URI;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -27,7 +28,7 @@ public class ApiWrapperTests {
 
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", null, null, CloudAPI.Env.SANDBOX);
+        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, CloudAPI.Env.SANDBOX);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -217,9 +218,36 @@ public class ApiWrapperTests {
         assertThat(h.getValue(), equalTo("OAuth invalidated"));
     }
 
+
     @Test
-    public void shouldReturnAValidConnectUrl() throws Exception {
-        String url = api.getConnectUrl("test://foo");
-        assertThat(url, equalTo("https://api.sandbox-soundcloud.com/connect?client_id=invalid&response_type=code&redirect_uri=test://foo"));
+    public void shouldGenerateUrlWithoutParameters() throws Exception {
+        assertThat(
+                api.getURI("/my-resource", null, true).toString(),
+                equalTo("https://api.sandbox-soundcloud.com/my-resource")
+        );
+    }
+
+    @Test
+    public void shouldGenerateUrlWithoutSSL() throws Exception {
+        assertThat(
+                api.getURI("/my-resource", null, false).toString(),
+                equalTo("http://api.sandbox-soundcloud.com/my-resource")
+        );
+    }
+
+    @Test
+    public void shouldGenerateUrlWithParameters() throws Exception {
+        assertThat(
+                api.getURI("/my-resource", new Http.Params("foo", "bar"), true).toString(),
+                equalTo("https://api.sandbox-soundcloud.com/my-resource?foo=bar")
+        );
+    }
+
+    @Test
+    public void shouldGenerateURIForLoginViaFacebook() throws Exception {
+        assertThat(
+                api.loginViaFacebook().toString(),
+                        equalTo("https://api.sandbox-soundcloud.com/connect/via/facebook?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
+                );
     }
 }

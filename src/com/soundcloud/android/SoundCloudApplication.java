@@ -35,6 +35,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -337,6 +338,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.signUrl(path);
     }
 
+    @Override
+    public URI loginViaFacebook() {
+        return mCloudApi.loginViaFacebook();
+    }
+
     public HttpResponse putContent(String resource, Http.Params params) throws IOException {
         return mCloudApi.putContent(resource, params);
     }
@@ -369,6 +375,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.addTokenStateListener(listener);
     }
 
+
     public Token exchangeToken(String oauth1AccessToken) throws IOException {
         return mCloudApi.exchangeToken(oauth1AccessToken);
     }
@@ -379,14 +386,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public ObjectMapper getMapper() {
         return mCloudApi.getMapper();
-    }
-
-    public Env getEnvironment() {
-        return mCloudApi.getEnvironment();
-    }
-
-    public String getConnectUrl(String... redirect_uri) {
-        return mCloudApi.getConnectUrl(redirect_uri);
     }
 
     public Token authorizationCode(String code) throws IOException {

@@ -30,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class ApiWrapper implements CloudAPI {
     private Token mToken;
     private final Env mEnv;
     private Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
-    private final String mRedirectUri;
+    private final URI mRedirectUri;
 
     /**
      * Constructs a new ApiWrapper instance.
@@ -68,7 +69,7 @@ public class ApiWrapper implements CloudAPI {
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      String redirectUri,
+                      URI    redirectUri,
                       Token token,
                       Env env) {
         mClientId = clientId;
@@ -147,18 +148,24 @@ public class ApiWrapper implements CloudAPI {
         }
     }
 
-    @Override
-    public Env getEnvironment() {
-        return mEnv;
+
+    public URI loginViaFacebook() {
+        return  getURI(
+                CloudAPI.Enddpoints.FACEBOOK_LOGIN,
+                new Http.Params(
+                        "redirect_uri",  mRedirectUri,
+                        "client_id",     mClientId,
+                        "response_type", "code"
+                        ),
+                true);
     }
 
-    @Override
-    public String getConnectUrl(String... redirect_uri) {
-        String host = mEnv.sslHost.toURI();
-        return host +"/connect?client_id="+mClientId
-                +"&response_type=code&redirect_uri="+
-                (redirect_uri == null || redirect_uri.length == 0 ? mRedirectUri : redirect_uri[0]);
+    public URI getURI(String resource, Http.Params params, boolean ssl) {
+        return URI.create(
+                (ssl ? mEnv.sslHost : mEnv.host).toURI() + resource +
+                        (params == null ? "" : "?" + params.queryString()));
     }
+
 
     protected Token requestToken(Http.Params params) throws IOException {
         HttpPost post = new HttpPost(CloudAPI.Enddpoints.TOKEN);
