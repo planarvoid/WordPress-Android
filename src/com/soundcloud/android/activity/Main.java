@@ -280,16 +280,16 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
         host.addTab(spec);
 
-        spec = host.newTabSpec("profile").setIndicator(
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you));
-        spec.setContent(new Intent(this, UserBrowser.class));
-        host.addTab(spec);
-
         spec = host.newTabSpec("record").setIndicator(
                 getString(R.string.tab_record),
                 getResources().getDrawable(R.drawable.ic_tab_record));
         spec.setContent(new Intent(this, ScCreate.class));
+        host.addTab(spec);
+
+        spec = host.newTabSpec("profile").setIndicator(
+                getString(R.string.tab_you),
+                getResources().getDrawable(R.drawable.ic_tab_you));
+        spec.setContent(new Intent(this, UserBrowser.class));
         host.addTab(spec);
 
         spec = host.newTabSpec("search").setIndicator(
