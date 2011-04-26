@@ -721,9 +721,12 @@ public class ScCreate extends ScActivity {
             cursor = getContentResolver().query(Recordings.CONTENT_URI, columns,
                     Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
             if ((cursor == null || cursor.getCount() == 0)
-                    && (file == null || f.lastModified() < file.lastModified()))
+                    && (file == null || f.lastModified() < file.lastModified())) {
                 file = f;
+            }
+            if (cursor != null) cursor.close();
         }
+
 
         if (file != null){
             setRecordFile(file);

@@ -52,6 +52,7 @@ public class SoundCloudDB {
                     } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
                         contentResolver.insert(Tracks.CONTENT_URI, track.buildContentValues());
                     }
+
                     cursor.close();
 
                     // write with insert only because a track will never come in with
@@ -68,7 +69,6 @@ public class SoundCloudDB {
             if (cursor.getCount() != 0) {
                 cursor.moveToFirst();
                 Track track = new Track(cursor);
-                cursor.close();
                 cursor.close();
 
                 User user = resolveUserById(contentResolver, track.user_id);
@@ -93,7 +93,8 @@ public class SoundCloudDB {
             if (null != cursor && cursor.moveToNext()) {
                 ret = true;
             }
-            cursor.close();
+
+            if (cursor != null) cursor.close();
             return ret;
         }
 
@@ -125,19 +126,14 @@ public class SoundCloudDB {
         }
 
         public User resolveUserById(ContentResolver contentResolver, long userId) {
-
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
-
-            if (cursor.getCount() != 0) {
+            User user = null;
+            if (cursor != null && cursor.getCount() != 0) {
                 cursor.moveToFirst();
-                User user = new User(cursor);
-                cursor.close();
-                return user;
+                user = new User(cursor);
             }
-
-            cursor.close();
-            return null;
-
+            if (cursor != null) cursor.close();
+            return user;
         }
 
         public boolean isUserInDb(ContentResolver contentResolver, long id) {
@@ -146,7 +142,7 @@ public class SoundCloudDB {
             if (null != cursor && cursor.moveToNext()) {
                 ret = true;
             }
-            cursor.close();
+            if (cursor != null) cursor.close();
             return ret;
         }
 
