@@ -1,19 +1,27 @@
 package com.soundcloud.api;
 
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.client.AuthenticationHandler;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.RedirectHandler;
+import org.apache.http.client.RequestDirector;
+import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -21,12 +29,15 @@ import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRequestDirector;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpRequestExecutor;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -228,6 +239,7 @@ public class ApiWrapper implements CloudAPI {
         return USER_AGENT;
     }
 
+
     public HttpClient getHttpClient() {
         if (httpClient == null) {
             final HttpParams params = getParams();
@@ -271,6 +283,23 @@ public class ApiWrapper implements CloudAPI {
                     BasicHttpProcessor processor = super.createHttpProcessor();
                     processor.addInterceptor(new OAuthHttpRequestInterceptor());
                     return processor;
+                }
+
+                // for testability only
+                @Override protected RequestDirector createClientRequestDirector(HttpRequestExecutor requestExec,
+                                                                      ClientConnectionManager conman,
+                                                                      ConnectionReuseStrategy reustrat,
+                                                                      ConnectionKeepAliveStrategy kastrat,
+                                                                      HttpRoutePlanner rouplan,
+                                                                      HttpProcessor httpProcessor,
+                                                                      HttpRequestRetryHandler retryHandler,
+                                                                      RedirectHandler redirectHandler,
+                                                                      AuthenticationHandler targetAuthHandler,
+                                                                      AuthenticationHandler proxyAuthHandler,
+                                                                      UserTokenHandler stateHandler,
+                                                                      HttpParams params) {
+                    return getRequestDirector(requestExec, conman, reustrat, kastrat, rouplan, httpProcessor, retryHandler,
+                            redirectHandler, targetAuthHandler, proxyAuthHandler, stateHandler, params);
                 }
             };
         }
@@ -362,5 +391,25 @@ public class ApiWrapper implements CloudAPI {
     protected HttpRequest addHeaders(HttpRequest req) {
         return addAcceptHeader(
                 addAuthHeader(req));
+    }
+
+
+    // this method mainly exists to make the wrapper more testable. oh, apache's insanity.
+    protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
+                                                 ClientConnectionManager conman,
+                                                 ConnectionReuseStrategy reustrat,
+                                                 ConnectionKeepAliveStrategy kastrat,
+                                                 HttpRoutePlanner rouplan,
+                                                 HttpProcessor httpProcessor,
+                                                 HttpRequestRetryHandler retryHandler,
+                                                 RedirectHandler redirectHandler,
+                                                 AuthenticationHandler targetAuthHandler,
+                                                 AuthenticationHandler proxyAuthHandler,
+                                                 UserTokenHandler stateHandler,
+                                                 HttpParams params
+    ) {
+        return new DefaultRequestDirector(requestExec, conman, reustrat, kastrat, rouplan,
+                httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
+                stateHandler, params);
     }
 }

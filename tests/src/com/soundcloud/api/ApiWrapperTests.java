@@ -7,28 +7,63 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.tester.org.apache.http.RequestMatcher;
+import com.soundcloud.api.fakehttp.FakeHttpLayer;
+import com.soundcloud.api.fakehttp.RequestMatcher;
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.AuthenticationHandler;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.RedirectHandler;
+import org.apache.http.client.RequestDirector;
+import org.apache.http.client.UserTokenHandler;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpRequestExecutor;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.URI;
 
 
-@RunWith(DefaultTestRunner.class)
 public class ApiWrapperTests {
     private ApiWrapper api;
-
+    final FakeHttpLayer layer = new FakeHttpLayer();
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, CloudAPI.Env.SANDBOX);
+        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, CloudAPI.Env.SANDBOX) {
+            @Override
+            protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
+                                                         ClientConnectionManager conman,
+                                                         ConnectionReuseStrategy reustrat,
+                                                         ConnectionKeepAliveStrategy kastrat,
+                                                         HttpRoutePlanner rouplan,
+                                                         HttpProcessor httpProcessor,
+                                                         HttpRequestRetryHandler retryHandler,
+                                                         RedirectHandler redirectHandler,
+                                                         AuthenticationHandler targetAuthHandler,
+                                                         AuthenticationHandler proxyAuthHandler,
+                                                         UserTokenHandler stateHandler,
+                                                         HttpParams params) {
+                return new RequestDirector() {
+                    @Override
+                    public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
+                            throws HttpException, IOException {
+                        return layer.emulateRequest(target, request, context, this);
+                    }
+                };
+            }
+        };
+        layer.clearHttpResponseRules();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -38,7 +73,7 @@ public class ApiWrapperTests {
 
     @Test
     public void signupToken() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "{\n" +
+        layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
                 "  \"expires_in\":    3600,\n" +
                 "  \"scope\":         \"signup\",\n" +
@@ -55,7 +90,7 @@ public class ApiWrapperTests {
 
     @Test
     public void exchangeOAuth1Token() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "{\n" +
+        layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
                 "  \"expires_in\":    3600,\n" +
                 "  \"scope\":         \"*\",\n" +
@@ -72,7 +107,7 @@ public class ApiWrapperTests {
 
     @Test
     public void shouldGetTokensWhenLoggingIn() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "{\n" +
+        layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
                 "  \"expires_in\":    3600,\n" +
                 "  \"scope\":         \"*\",\n" +
@@ -89,7 +124,7 @@ public class ApiWrapperTests {
 
     @Test
     public void shouldGetTokensWhenLoggingInViaAuthorizationCode() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "{\n" +
+        layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
                 "  \"expires_in\":    3600,\n" +
                 "  \"scope\":         \"*\",\n" +
@@ -106,7 +141,7 @@ public class ApiWrapperTests {
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionWhenLoginFailed() throws Exception {
-        Robolectric.addPendingHttpResponse(401, "{\n" +
+        layer.addPendingHttpResponse(401, "{\n" +
                 "  \"error\":  \"Error!\"\n" +
                 "}");
         api.login("foo", "bar");
@@ -115,13 +150,13 @@ public class ApiWrapperTests {
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptonWhenInvalidJSONReturned() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "I'm invalid JSON!");
+        layer.addPendingHttpResponse(200, "I'm invalid JSON!");
         api.login("foo", "bar");
     }
 
     @Test
     public void shouldContainInvalidJSONInExceptionMessage() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "I'm invalid JSON!");
+        layer.addPendingHttpResponse(200, "I'm invalid JSON!");
         try {
             api.login("foo", "bar");
             fail("expected IOException");
@@ -132,14 +167,16 @@ public class ApiWrapperTests {
 
     @Test
     public void shouldRefreshToken() throws Exception {
-        Robolectric.addPendingHttpResponse(200, "{\n" +
+        layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"fr3sh\",\n" +
                 "  \"expires_in\":    3600,\n" +
                 "  \"scope\":         null,\n" +
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
-        assertThat(new ApiWrapper("1234", "5678", null, new Token(null, "sofreshexciting"), CloudAPI.Env.SANDBOX)
+
+        api.setToken(new Token("access", "refresh"));
+        assertThat(api
                 .refreshToken()
                 .access,
                 equalTo("fr3sh"));
@@ -159,7 +196,7 @@ public class ApiWrapperTests {
         Header location = mock(Header.class);
         when(location.getValue()).thenReturn("http://api.soundcloud.com/users/1000");
         when(r.getFirstHeader(anyString())).thenReturn(location);
-        Robolectric.addHttpResponseRule(new RequestMatcher() {
+        layer.addHttpResponseRule(new RequestMatcher() {
             @Override
             public boolean matches(HttpRequest request) {
                 return true;
@@ -170,13 +207,13 @@ public class ApiWrapperTests {
 
     @Test
     public void resolveShouldReturnNegativeOneWhenInvalid() throws Exception {
-        Robolectric.addPendingHttpResponse(404, "Not found");
+        layer.addPendingHttpResponse(404, "Not found");
         assertThat(api.resolve("http://soundcloud.com/nonexisto"), equalTo(-1L));
     }
 
     @Test
     public void shouldGetContent() throws Exception {
-        Robolectric.addHttpResponseRule("/some/resource?a=1", "response");
+        layer.addHttpResponseRule("/some/resource?a=1", "response");
         assertThat(Http.getString(api.getContent("/some/resource", new Http.Params("a", "1"))),
                 equalTo("response"));
     }
@@ -184,7 +221,7 @@ public class ApiWrapperTests {
     @Test
     public void shouldPostContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        Robolectric.addHttpResponseRule("POST", "/foo/something?a=1", resp);
+        layer.addHttpResponseRule("POST", "/foo/something?a=1", resp);
         assertThat(api.postContent("/foo/something", new Http.Params("a", 1)),
                 equalTo(resp));
     }
@@ -192,7 +229,7 @@ public class ApiWrapperTests {
     @Test
     public void shouldPutContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        Robolectric.addHttpResponseRule("PUT", "/foo/something?a=1", resp);
+        layer.addHttpResponseRule("PUT", "/foo/something?a=1", resp);
         assertThat(api.putContent("/foo/something", new Http.Params("a", 1)),
                 equalTo(resp));
     }
@@ -200,7 +237,7 @@ public class ApiWrapperTests {
     @Test
     public void shouldDeleteContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        Robolectric.addHttpResponseRule("DELETE", "/foo/something", resp);
+        layer.addHttpResponseRule("DELETE", "/foo/something", resp);
         assertThat(api.deleteContent("/foo/something"), equalTo(resp));
     }
 
