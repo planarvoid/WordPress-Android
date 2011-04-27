@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.Recordings;
+import com.soundcloud.android.adapter.FollowerAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -16,6 +17,7 @@ import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
+import com.soundcloud.android.task.LoadFriendsTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -261,6 +263,7 @@ public class UserBrowser extends ScActivity {
             mapUser(u);
             mUserLoadId = u.id;
         }
+        loadUserFriends();
         build();
     }
 
@@ -384,7 +387,7 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
+        adp = new FollowerAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), User.class);
 
         final ScTabView followersView = mFollowersView = new ScTabView(this, adpWrap);
@@ -548,6 +551,14 @@ public class UserBrowser extends ScActivity {
 
             mFollow.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void loadUserFriends(){
+        new LoadFriendsTask(this.getSoundCloudApplication()) {
+            @Override
+            protected void onPreExecute() {
+            }
+        }.execute();
     }
 
     private void mapUser(User user) {
