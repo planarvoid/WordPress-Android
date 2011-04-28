@@ -25,6 +25,7 @@ public interface Endpoints {
     String MY_FAVORITES        = "/me/favorites";
     String MY_FOLLOWERS        = "/me/followers";
     String MY_FOLLOWINGS       = "/me/followings";
+    String MY_FRIENDS          = "/me/friends";
     String MY_CONFIRMATION     = "/me/email-confirmations";
 
     String RESOLVE             = "/resolve";
