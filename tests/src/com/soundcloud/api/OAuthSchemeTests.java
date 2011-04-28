@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,11 +19,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class OAuthSchemeTests extends BaseApiTest {
+public class OAuthSchemeTests {
     OAuthScheme scheme;
+    CloudAPI api;
 
     @Before
     public void setup() {
+        api = mock(CloudAPI.class);
         scheme = new OAuthScheme(api, null);
     }
 

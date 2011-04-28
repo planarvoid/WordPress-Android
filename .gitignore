@@ -16,6 +16,9 @@ ks/
 out
 tmp
 
+#vim
+*.swp
+
 # ant
 local.properties
 
@@ -28,3 +31,9 @@ soundcloud_sign
 
 #prefs
 com.soundcloud.android_preferences.xml
+#sbt
+project/boot
+project/plugins/project/
+target
+lib_managed
+src_managed

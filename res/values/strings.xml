@@ -19,6 +19,7 @@
 
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
+  <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
@@ -49,6 +50,7 @@
   <string name="authentication_recover_progress_message">Requesting password reset</string>
 
   <string name="authentication_signup_progress_message">Making you an account</string>
+  <string name="authentication_signup_failure">Error signing up.</string>
 
   <string name="authentication_login_progress_message">Logging you in</string>
   <string name="authentication_login_error_password_message">We couldn\'t log you in, sure you had the right username (or email) and password?</string>

@@ -5,13 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Params;
 import com.soundcloud.api.Token;
 
 import org.apache.http.HttpResponse;
@@ -120,7 +118,7 @@ public class SignUp extends Activity {
             }
 
             @Override
-            protected void onPostExecute(final User user) {
+            protected void onPostExecute(final com.soundcloud.android.objects.User user) {
                 progress.dismiss();
                 if (user != null) {
                     Log.d(TAG, "created user " + user);
@@ -143,7 +141,7 @@ public class SignUp extends Activity {
     }
 
     private void signupFail() {
-        CloudUtils.showToast(SignUp.this, "Errorz");
+        CloudUtils.showToast(SignUp.this, R.string.authentication_signup_failure);
     }
 
     @Override
@@ -154,19 +152,19 @@ public class SignUp extends Activity {
         finish();
     }
 
-    static class SignupTask extends AsyncApiTask<String, Void, User> implements CloudAPI.UserParams {
+    static class SignupTask extends AsyncApiTask<String, Void, com.soundcloud.android.objects.User> implements Params.User {
         public SignupTask(AndroidCloudAPI api) {
             super(api);
         }
 
         @Override
-        protected User doInBackground(String... params) {
+        protected com.soundcloud.android.objects.User doInBackground(String... params) {
             final String email = params[0];
             final String password = params[1];
 
             try {
                 final Token signup = api().signupToken();
-                HttpResponse resp = api().postContent(USERS, new Http.Params(
+                HttpResponse resp = api().postContent(USERS, new Params(
                         EMAIL, email,
                         PASSWORD, password,
                         PASSWORD_CONFIRMATION, password,
@@ -175,7 +173,7 @@ public class SignUp extends Activity {
 
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == SC_CREATED) {
-                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    return api().getMapper().readValue(resp.getEntity().getContent(), com.soundcloud.android.objects.User.class);
                 } else {
                     warn("invalid response", resp);
                     return null;

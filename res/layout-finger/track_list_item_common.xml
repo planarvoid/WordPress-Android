@@ -38,23 +38,24 @@
 			        android:layout_width="46dip"
 			        android:layout_height="14dip" />
 		    </LinearLayout>
-			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" 
-				style="@style/txt_list_sub_secondary"
-				android:layout_alignWithParentIfMissing="true"
-				android:id="@+id/track_by"
-		        android:layout_below="@id/track_layout"
-		        android:paddingRight="0dip"
-		        android:layout_toRightOf="@id/icon"
-		        android:text="@string/track_by" />
 			<TextView android:layout_height="wrap_content"
-				style="@style/txt_list_sub" 
+				style="@style/txt_list_sub"
 				android:id="@+id/user"
-		        android:layout_toRightOf="@id/track_by"
+		        android:layout_alignLeft="@id/track_layout"
 				android:text="user"
 				android:singleLine="true"
             	android:ellipsize="marquee" 
-				android:layout_width="fill_parent"
+				android:layout_width="wrap_content"
 				android:layout_below="@id/track_layout" />
+			<TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/txt_list_sub_secondary"
+                android:paddingLeft="0dip"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:id="@+id/track_created_at"
+                android:layout_below="@id/track_layout"
+                android:layout_toRightOf="@id/user"
+                android:text="" />
 		</RelativeLayout>
 </merge>

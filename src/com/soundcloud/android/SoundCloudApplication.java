@@ -8,7 +8,7 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Params;
 import com.soundcloud.api.Token;
 
 import org.acra.ACRA;
@@ -321,7 +321,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getContent(resource);
     }
 
-    public HttpResponse getContent(String resource, Http.Params params) throws IOException {
+    public HttpResponse getContent(String resource, Params params) throws IOException {
         return mCloudApi.getContent(resource, params);
     }
 
@@ -343,11 +343,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.loginViaFacebook();
     }
 
-    public HttpResponse putContent(String resource, Http.Params params) throws IOException {
+    public HttpResponse putContent(String resource, Params params) throws IOException {
         return mCloudApi.putContent(resource, params);
     }
 
-    public HttpResponse postContent(String resource, Http.Params params) throws IOException {
+    public HttpResponse postContent(String resource, Params params) throws IOException {
         return mCloudApi.postContent(resource, params);
     }
 

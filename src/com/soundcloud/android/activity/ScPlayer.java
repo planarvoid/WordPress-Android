@@ -17,7 +17,7 @@ import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.WaveformController;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -565,8 +565,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mPlayingTrack.load_info_task.setActivity(this);
             if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task))
                 mPlayingTrack.load_info_task.execute(
-                        CloudAPI.Endpoints.TRACK_DETAILS.replace("{track_id}",
-                                Long.toString(mPlayingTrack.id)));
+                        String.format(Endpoints.TRACK_DETAILS, mPlayingTrack.id));
 
             //mPlayingTrack.loadInfo(this);
 

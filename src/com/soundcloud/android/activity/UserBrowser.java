@@ -26,7 +26,7 @@ import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -510,12 +510,12 @@ public class UserBrowser extends ScActivity {
                     if (mUserData.current_user_following) {
                         mFollowResult =
                                 getSoundCloudApplication().putContent(
-                                        CloudAPI.Endpoints.MY_FOLLOWINGS + "/"
+                                        Endpoints.MY_FOLLOWINGS + "/"
                                                 + mUserData.id, null).getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
                                 getSoundCloudApplication().deleteContent(
-                                        CloudAPI.Endpoints.MY_FOLLOWINGS + "/"
+                                        Endpoints.MY_FOLLOWINGS + "/"
                                                 + mUserData.id).getStatusLine().getStatusCode();
                     }
 
@@ -734,30 +734,27 @@ public class UserBrowser extends ScActivity {
 
 
     private String getDetailsUrl() {
-        return CloudAPI.Endpoints.USER_DETAILS.replace("{user_id}",
-                Long.toString(mUserLoadId));
+        return  String.format(Endpoints.USER_DETAILS, mUserLoadId);
     }
 
     private String getUserTracksUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Endpoints.USER_TRACKS.replace("{user_id}",
-                        Long.toString(mUserLoadId)), getTrackOrder());
+                String.format(Endpoints.USER_TRACKS, mUserLoadId),getTrackOrder());
     }
 
     private String getFavoritesUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Endpoints.USER_FAVORITES.replace("{user_id}",
-                        Long.toString(mUserLoadId)), "favorited_at");
+                String.format(Endpoints.USER_FAVORITES, mUserLoadId), "favorited_at");
     }
 
     private String getFollowersUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Endpoints.USER_FOLLOWERS.replace("{user_id}",
-                Long.toString(mUserLoadId)), getUserOrder());
+        return CloudUtils.buildRequestPath(
+                String.format(Endpoints.USER_FOLLOWERS, mUserLoadId), getUserOrder());
     }
 
     private String getFollowingsUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Endpoints.USER_FOLLOWINGS.replace("{user_id}",
-                Long.toString(mUserLoadId)), getUserOrder());
+        return CloudUtils.buildRequestPath(
+                String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId), getUserOrder());
     }
 
     private String getUserOrder() {

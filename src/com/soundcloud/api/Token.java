@@ -6,6 +6,9 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Represents an OAuth2 access/refresh token pair.
+ */
 public class Token implements Serializable {
     private static final long serialVersionUID = 766168501082045382L;
 

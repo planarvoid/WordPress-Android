@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
 
 import android.os.AsyncTask;
 
@@ -48,7 +48,7 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
     protected int executeResponse(Track t) throws IOException{
         return mScApp
         .putContent(
-                CloudAPI.Endpoints.MY_FAVORITES + "/"
+                Endpoints.MY_FAVORITES + "/"
                         + t.id, null).getStatusLine().getStatusCode();
     }
 

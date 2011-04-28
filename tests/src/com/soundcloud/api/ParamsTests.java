@@ -27,40 +27,40 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class HttpTests {
+public class ParamsTests {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIllegalArguemntForNonEvenParams() throws Exception {
-        new Http.Params("1", 2, "3");
+        new Params("1", 2, "3");
     }
 
     @Test
     public void shouldBuildAQueryString() throws Exception {
         assertThat(
-                new Http.Params("foo", 100, "baz", 22.3f, "met\u00f8l", false).toString(),
+                new Params("foo", 100, "baz", 22.3f, "met\u00f8l", false).toString(),
                 equalTo("foo=100&baz=22.3&met%C3%B8l=false"));
     }
 
     @Test
     public void shouldHaveToStringAsQueryString() throws Exception {
-        Http.Params p = new Http.Params("foo", 100, "baz", 22.3f);
+        Params p = new Params("foo", 100, "baz", 22.3f);
         assertThat(p.queryString(), equalTo(p.toString()));
     }
 
     @Test
     public void shouldGenerateUrlWithParameters() throws Exception {
-        Http.Params p = new Http.Params("foo", 100, "baz", 22.3f);
+        Params p = new Params("foo", 100, "baz", 22.3f);
         assertThat(p.url("http://foo.com"), equalTo("http://foo.com?foo=100&baz=22.3"));
     }
 
     @Test
     public void shouldHaveSizeMethod() throws Exception {
-        Http.Params p = new Http.Params("foo", 100, "baz", 22.3f);
+        Params p = new Params("foo", 100, "baz", 22.3f);
         assertThat(p.size(), is(2));
     }
 
     @Test
     public void shouldSupportAdd() throws Exception {
-        Http.Params p = new Http.Params("foo", 100, "baz", 22.3f);
+        Params p = new Params("foo", 100, "baz", 22.3f);
         p.add("baz", 66);
         assertThat(p.size(), is(3));
         assertThat(p.queryString(), equalTo("foo=100&baz=22.3&baz=66"));
@@ -68,7 +68,7 @@ public class HttpTests {
 
     @Test
     public void shouldImplementIterable() throws Exception {
-        Http.Params p = new Http.Params("foo", 100, "baz", 22.3f);
+        Params p = new Params("foo", 100, "baz", 22.3f);
         Iterator<NameValuePair> it = p.iterator();
         assertThat(it.next().getName(), equalTo("foo"));
         assertThat(it.next().getName(), equalTo("baz"));
@@ -91,13 +91,13 @@ public class HttpTests {
 
     @Test
     public void shouldBuildARequest() throws Exception {
-        HttpGet request = new Http.Params("1", "2").buildRequest(HttpGet.class, "/foo");
+        HttpGet request = new Params("1", "2").buildRequest(HttpGet.class, "/foo");
         assertThat(request.getURI().toString(), equalTo("/foo?1=2"));
     }
 
     @Test
     public void shouldAddTokenToHeaderIfSpecified() throws Exception {
-        HttpGet request = new Http.Params("1", "2")
+        HttpGet request = new Params("1", "2")
                 .withToken(new Token("acc3ss", "r3fr3sh"))
                 .buildRequest(HttpGet.class, "/foo");
 
@@ -110,7 +110,7 @@ public class HttpTests {
     public void shouldCreateMultipartRequestWhenFilesAreAdded() throws Exception {
         File f = File.createTempFile("testing", "test");
 
-        HttpPost request = new Http.Params("key", "value")
+        HttpPost request = new Params("key", "value")
                 .addFile("foo", f)
                 .buildRequest(HttpPost.class, "/foo");
 
@@ -127,9 +127,9 @@ public class HttpTests {
 
     @Test
     public void whenAProgressListenerIsSpecifiedShouldHaveCountingMultipart() throws Exception {
-        HttpPost request = new Http.Params("key", "value")
+        HttpPost request = new Params("key", "value")
                 .addFile("foo", new File("/tmp"))
-                .setProgressListener(new Http.ProgressListener() {
+                .setProgressListener(new Params.ProgressListener() {
                     @Override
                     public void transferred(long amount) {
                     }

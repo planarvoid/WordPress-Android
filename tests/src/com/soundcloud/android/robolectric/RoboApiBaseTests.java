@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -18,7 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RoboApiBaseTests implements CloudAPI.Endpoints {
+public class RoboApiBaseTests implements Endpoints {
     protected AndroidCloudAPI api;
 
     @Before
@@ -66,7 +66,7 @@ public class RoboApiBaseTests implements CloudAPI.Endpoints {
         when(resp.getEntity()).thenReturn(ent);
         when(line.getStatusCode()).thenReturn(code);
         when(resp.getStatusLine()).thenReturn(line);
-        when(api.postContent(requestMatcher(request), Matchers.<Http.Params>anyObject())).thenReturn(resp);
+        when(api.postContent(requestMatcher(request), Matchers.<Params>anyObject())).thenReturn(resp);
     }
 
     private String requestMatcher(String request) {

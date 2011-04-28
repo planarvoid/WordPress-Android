@@ -3,7 +3,8 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -16,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Http.ProgressListener {
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Params.ProgressListener {
     private long transferred;
     private CloudAPI api;
 
@@ -82,8 +83,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             return !failed;
         }
 
-        public Http.Params getApiParams() {
-            final Http.Params apiParams = new Http.Params();
+        public com.soundcloud.api.Params getApiParams() {
+            final com.soundcloud.api.Params apiParams = new com.soundcloud.api.Params();
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                  if (entry.getValue() instanceof Iterable) {
                      for (Object o : (Iterable)entry.getValue()) {
@@ -93,8 +94,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     apiParams.add(entry.getKey(), entry.getValue().toString());
                  }
             }
-            return apiParams.addFile(CloudAPI.TrackParams.ASSET_DATA, trackFile)
-                            .addFile(CloudAPI.TrackParams.ARTWORK_DATA, artworkFile());
+            return apiParams.addFile(com.soundcloud.api.Params.Track.ASSET_DATA, trackFile)
+                            .addFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile());
         }
     }
 
@@ -128,7 +129,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
 
-                    HttpResponse response = api.postContent(CloudAPI.Endpoints.TRACKS,
+                    HttpResponse response = api.postContent(Endpoints.TRACKS,
                             param.getApiParams().setProgressListener(UploadTask.this));
 
                     StatusLine status = response.getStatusLine();

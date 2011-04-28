@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.api.Http;
 
+import com.soundcloud.api.Params;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -165,7 +166,7 @@ public class LocationPicker extends ListActivity {
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
             //http://developer.foursquare.com/docs/venues/search.html
-            Http.Params p = new Http.Params(
+            Params p = new Params(
                     "ll",            ll,
                     "limit",         VENUE_LIMIT,
                     "client_id",     client_id,

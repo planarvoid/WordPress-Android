@@ -4,10 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.adapter.StartMenuAdapter;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
@@ -15,17 +12,20 @@ import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 public class Start extends AccountAuthenticatorActivity {
-    RelativeLayout animationHolder;
-    RelativeLayout startMenu;
     Button facebookBtn;
+    Button loginBtn;
+    Button signupBtn;
+    Button forgotBtn;
     private Handler mHandler = new Handler();
 
     @Override
@@ -33,10 +33,7 @@ public class Start extends AccountAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_start);
 
-        animationHolder = ((RelativeLayout) this.findViewById(R.id.animation_holder));
-        startMenu = (RelativeLayout) animationHolder.findViewById(R.id.start_menu);
         facebookBtn = (Button) this.findViewById(R.id.facebook_btn);
-        facebookBtn.setVisibility(View.INVISIBLE);
         facebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,34 +41,53 @@ public class Start extends AccountAuthenticatorActivity {
             }
         });
 
-        final GridView gv = (GridView) this.findViewById(R.id.grid_view);
-        gv.setCacheColorHint(0);
-        gv.setAdapter(new StartMenuAdapter(this));
-        gv.setBackgroundColor(getResources().getColor(R.color.white));
-        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        loginBtn = (Button) this.findViewById(R.id.login_btn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivityForResult(new Intent(Start.this, (position == 0 ? Login.class : SignUp.class)), 0);
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
-        mHandler.postDelayed(mShowAuthControls, 600);
-        animationHolder.removeView(startMenu);
+
+        signupBtn = (Button) this.findViewById(R.id.signup_btn);
+        signupBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Start.this, SignUp.class), 0);
+            }
+        });
+
+        forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
+        forgotBtn.setText(Html.fromHtml("<u>"+getResources().getString(R.string.authentication_I_forgot_my_password) + "</u>"));
+        forgotBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Start.this, Recover.class), 0);
+            }
+        });
+
+        if (savedInstanceState == null){
+            ((LinearLayout) findViewById(R.id.animation_holder)).setVisibility(View.INVISIBLE);
+
+            Animation animation = new AlphaAnimation(0.0f, 1.0f);
+            animation.setDuration(700);
+
+            LayoutAnimationController controller = new LayoutAnimationController(animation, 0.25f);
+            ((LinearLayout) findViewById(R.id.animation_holder)).setLayoutAnimation(controller);
+
+            mHandler.postDelayed(mShowAuthControls, 500);
+
+        }
     }
 
     private Runnable mShowAuthControls = new Runnable() {
         public void run() {
-            AnimUtils.setLayoutAnim_slideupfrombottom(animationHolder, Start.this);
-            animationHolder.addView(startMenu);
-            mHandler.postDelayed(mShowFacebook, 500);
+            if (!Start.this.isFinishing()){
+                ((LinearLayout) findViewById(R.id.animation_holder)).setVisibility(View.VISIBLE);
+            }
         }
     };
 
-    private Runnable mShowFacebook = new Runnable() {
-        public void run() {
-            AnimUtils.runFadeInAnimationOn(Start.this, facebookBtn);
-            facebookBtn.setVisibility(View.VISIBLE);
-        }
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
