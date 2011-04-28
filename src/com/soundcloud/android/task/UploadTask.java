@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Params.ProgressListener {
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Params.TransferProgressListener {
     private long transferred;
     private CloudAPI api;
 
