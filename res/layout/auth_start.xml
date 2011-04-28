@@ -1,27 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical" android:background="@drawable/orange_gradient">
-	<RelativeLayout android:layout_width="fill_parent"  android:layout_height="wrap_content" android:layout_above="@+id/animation_holder"
-	       android:layout_alignParentTop="true" >
-        <ImageView android:src="@drawable/cloud"   android:layout_alignParentTop="true" 
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_width="fill_parent" android:layout_above="@+id/facebook_btn"
-        android:layout_height="wrap_content" android:scaleType="center"/>
-        <Button android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:id="@+id/facebook_btn" android:text="facebook"></Button>
-    </RelativeLayout>
-	
-	<RelativeLayout android:layout_width="fill_parent" android:layout_alignParentBottom="true"
-		android:id="@+id/animation_holder" android:layout_height="150dip">
-		<RelativeLayout android:layout_width="fill_parent"
-			android:id="@+id/start_menu" android:layout_height="wrap_content">
-			<View android:layout_width="fill_parent" android:layout_above="@+id/grid_view"
-				android:layout_height="5dip" android:background="@drawable/drop_shadow_up" />
-			<GridView android:layout_width="match_parent" android:id="@+id/grid_view"
-				android:layout_alignParentBottom="true"
-				android:layout_height="wrap_content" android:numColumns="1"
-				android:verticalSpacing="20dip" android:horizontalSpacing="20dip"
-				android:columnWidth="50dip" android:stretchMode="columnWidth" />
-		</RelativeLayout>
-	</RelativeLayout>
-</RelativeLayout>
+	<ImageView android:src="@drawable/cloud" android:padding="5dip"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:scaleType="centerInside" android:layout_weight="1" />
+	<include layout="@layout/auth_start_common" />
+</LinearLayout>
