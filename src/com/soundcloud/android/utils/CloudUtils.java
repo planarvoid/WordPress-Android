@@ -647,7 +647,7 @@ public class CloudUtils {
         }
     }
 
-    public static String ReadInputStream(InputStream in) throws IOException {
+    public static String readInputStream(InputStream in) throws IOException {
         StringBuffer stream = new StringBuffer();
         byte[] b = new byte[4096];
         for (int n; (n = in.read(b)) != -1;) {

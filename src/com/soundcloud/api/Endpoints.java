@@ -28,6 +28,8 @@ public interface Endpoints {
     String MY_FRIENDS          = "/me/friends";
     String MY_CONFIRMATION     = "/me/email-confirmations";
 
+    String SUGGESTED_USERS     = "/people";
+
     String RESOLVE             = "/resolve";
 
     String SEND_PASSWORD       = "/passwords/reset-instructions";

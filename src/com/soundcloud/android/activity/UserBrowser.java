@@ -13,10 +13,12 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
+import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadFriendsTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -55,6 +57,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserBrowser extends ScActivity {
     private static String TAG = "UserBrowser";
@@ -120,8 +123,8 @@ public class UserBrowser extends ScActivity {
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
-            mIcon.getLayoutParams().height = 67;
+            mIcon.getLayoutParams().width = 100;
+            mIcon.getLayoutParams().height = 100;
         }
 
         mIcon.setOnClickListener(new View.OnClickListener() {
@@ -557,6 +560,23 @@ public class UserBrowser extends ScActivity {
         new LoadFriendsTask(this.getSoundCloudApplication()) {
             @Override
             protected void onPreExecute() {
+            }
+        }.execute();
+    }
+
+    private void checkFacebookConnection(){
+        new LoadConnectionsTask(getSoundCloudApplication()) {
+            @Override
+            protected void onPreExecute() {
+            }
+
+            @Override
+            protected void onPostExecute(List<Connection> connections) {
+
+                if (connections != null) {
+                } else {
+                    // failed
+                }
             }
         }.execute();
     }
