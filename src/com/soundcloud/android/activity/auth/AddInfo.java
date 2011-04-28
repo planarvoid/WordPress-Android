@@ -4,13 +4,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
 
+import com.soundcloud.api.Params;
 import org.apache.http.HttpResponse;
 
 import android.app.Activity;
@@ -54,7 +52,7 @@ public class AddInfo extends Activity {
 
     protected void build() {
         setContentView(R.layout.auth_add_info);
-        final User user = getIntent().getParcelableExtra("user");
+        final com.soundcloud.android.objects.User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
         usernameField.setHint(user.username);
@@ -131,7 +129,7 @@ public class AddInfo extends Activity {
         });
     }
 
-    private void addUserInfo(User user, String newUsername) {
+    private void addUserInfo(com.soundcloud.android.objects.User user, String newUsername) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
         }
@@ -143,7 +141,7 @@ public class AddInfo extends Activity {
             }
 
             @Override
-            protected void onPostExecute(User user) {
+            protected void onPostExecute(com.soundcloud.android.objects.User user) {
                 mProgressDialog.dismiss();
                 if (user != null) {
                     finishSignup();
@@ -151,7 +149,7 @@ public class AddInfo extends Activity {
                     CloudUtils.showToast(AddInfo.this, "There was a problem...");
                 }
             }
-        }.execute(new Pair<User, File>(user, mAvatarFile));
+        }.execute(new Pair<com.soundcloud.android.objects.User, File>(user, mAvatarFile));
     }
 
     private void finishSignup() {
@@ -254,24 +252,24 @@ public class AddInfo extends Activity {
         }
     }
 
-    static class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> implements CloudAPI.UserParams{
+    static class AddUserInfoTask extends AsyncApiTask<Pair<com.soundcloud.android.objects.User,File>, Void, com.soundcloud.android.objects.User> implements Params.User {
         public AddUserInfoTask(AndroidCloudAPI api) {
             super(api);
         }
 
         @Override
-        protected User doInBackground(Pair<User, File>... params) {
-            final Pair<User,File> args = params[0];
-            final User u = args.first;
+        protected com.soundcloud.android.objects.User doInBackground(Pair<com.soundcloud.android.objects.User, File>... params) {
+            final Pair<com.soundcloud.android.objects.User,File> args = params[0];
+            final com.soundcloud.android.objects.User u = args.first;
             try {
                 ImageUtils.resizeImageFile(args.second, args.second, 800, 800);
 
                 HttpResponse resp = api().putContent(MY_DETAILS,
-                    new Http.Params(NAME, u.username,
+                    new Params(NAME, u.username,
                                     PERMALINK, u.permalink)
                             .addFile(AVATAR, args.second));
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
-                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    return api().getMapper().readValue(resp.getEntity().getContent(), com.soundcloud.android.objects.User.class);
                 } else {
                     warn("unexpected response", resp);
                     return null;

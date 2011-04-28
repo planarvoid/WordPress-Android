@@ -1,9 +1,9 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.api.Endpoints;
 
 import android.util.Log;
 
@@ -19,7 +19,7 @@ public class FavoriteRemoveTask extends FavoriteTask {
     protected int executeResponse(Track t) throws IOException{
         return mScApp
         .deleteContent(
-                CloudAPI.Endpoints.MY_FAVORITES + "/"
+                Endpoints.MY_FAVORITES + "/"
                         + t.id).getStatusLine().getStatusCode();
     }
     

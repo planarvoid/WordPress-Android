@@ -214,7 +214,7 @@ public class ApiWrapperTests {
     @Test
     public void shouldGetContent() throws Exception {
         layer.addHttpResponseRule("/some/resource?a=1", "response");
-        assertThat(Http.getString(api.getContent("/some/resource", new Http.Params("a", "1"))),
+        assertThat(Http.getString(api.getContent("/some/resource", new Params("a", "1"))),
                 equalTo("response"));
     }
 
@@ -222,7 +222,7 @@ public class ApiWrapperTests {
     public void shouldPostContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
         layer.addHttpResponseRule("POST", "/foo/something?a=1", resp);
-        assertThat(api.postContent("/foo/something", new Http.Params("a", 1)),
+        assertThat(api.postContent("/foo/something", new Params("a", 1)),
                 equalTo(resp));
     }
 
@@ -230,7 +230,7 @@ public class ApiWrapperTests {
     public void shouldPutContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
         layer.addHttpResponseRule("PUT", "/foo/something?a=1", resp);
-        assertThat(api.putContent("/foo/something", new Http.Params("a", 1)),
+        assertThat(api.putContent("/foo/something", new Params("a", 1)),
                 equalTo(resp));
     }
 
@@ -275,7 +275,7 @@ public class ApiWrapperTests {
     @Test
     public void shouldGenerateUrlWithParameters() throws Exception {
         assertThat(
-                api.getURI("/my-resource", new Http.Params("foo", "bar"), true).toString(),
+                api.getURI("/my-resource", new Params("foo", "bar"), true).toString(),
                 equalTo("https://api.sandbox-soundcloud.com/my-resource?foo=bar")
         );
     }

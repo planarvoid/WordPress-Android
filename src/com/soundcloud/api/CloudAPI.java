@@ -109,7 +109,7 @@ public interface CloudAPI {
      * @return the HTTP response
      * @throws IOException IO/Error
      */
-    HttpResponse getContent(String resource, Http.Params params) throws IOException;
+    HttpResponse getContent(String resource, Params params) throws IOException;
 
     /**
      * @param resource resource to POST
@@ -117,7 +117,7 @@ public interface CloudAPI {
      * @return the HTTP response
      * @throws IOException IO/Error
      */
-    HttpResponse postContent(String resource, Http.Params params) throws IOException;
+    HttpResponse postContent(String resource, Params params) throws IOException;
 
     /**
      * @param resource resource to PUT
@@ -125,7 +125,7 @@ public interface CloudAPI {
      * @return the HTTP response
      * @throws IOException IO/Error
      */
-    HttpResponse putContent(String resource, Http.Params params) throws IOException;
+    HttpResponse putContent(String resource, Params params) throws IOException;
 
     /**
      * @param resource resource to DELETE
@@ -162,72 +162,6 @@ public interface CloudAPI {
             host = new HttpHost(hostname, -1, "http");
             sslHost = new HttpHost(hostname, -1, "https");
         }
-    }
-
-    @SuppressWarnings({"UnusedDeclaration"})
-    interface Endpoints { // TODO rename to Resources?
-        String TOKEN = "/oauth2/token";
-
-        String TRACKS              = "/tracks";
-        String TRACK_DETAILS       = "/tracks/{track_id}";
-        String TRACK_COMMENTS      = "/tracks/{track_id}/comments";
-
-        String USERS               = "/users";
-        String USER_DETAILS        = "/users/{user_id}";
-        String USER_FOLLOWINGS     = "/users/{user_id}/followings";
-        String USER_FOLLOWERS      = "/users/{user_id}/followers";
-        String USER_TRACKS         = "/users/{user_id}/tracks";
-        String USER_FAVORITES      = "/users/{user_id}/favorites";
-        String USER_PLAYLISTS      = "/users/{user_id}/playlists";
-
-        String MY_DETAILS          = "/me";
-        String MY_CONNECTIONS      = "/me/connections";
-        String MY_ACTIVITIES       = "/me/activities/tracks";
-        String MY_EXCLUSIVE_TRACKS = "/me/activities/tracks/exclusive";
-        String MY_TRACKS           = "/me/tracks";
-        String MY_PLAYLISTS        = "/me/playlists";
-        String MY_FAVORITES        = "/me/favorites";
-        String MY_FOLLOWERS        = "/me/followers";
-        String MY_FOLLOWINGS       = "/me/followings";
-        String MY_CONFIRMATION     = "/me/email-confirmations";
-
-        String RESOLVE             = "/resolve";
-
-        String SEND_PASSWORD       = "/passwords/reset-instructions";
-        String FACEBOOK_LOGIN      = "/connect/via/facebook";
-    }
-
-    interface TrackParams {
-        String TITLE         = "track[title]";          // required
-        String TYPE          = "track[track_type]";
-        String ASSET_DATA    = "track[asset_data]";
-        String ARTWORK_DATA  = "track[artwork_data]";
-        String POST_TO       = "track[post_to][][id]";
-        String POST_TO_EMPTY = "track[post_to][]";
-        String TAG_LIST      = "track[tag_list]";
-        String SHARING       = "track[sharing]";
-        String STREAMABLE    = "track[streamable]";
-        String DOWNLOADABLE  = "track[downloadable]";
-        String SHARED_EMAILS = "track[shared_to][emails][][address]";
-        String SHARING_NOTE  = "track[sharing_note]";
-        String PUBLIC  = "public";
-        String PRIVATE = "private";
-    }
-
-    interface UserParams {
-        String NAME                  = "user[username]";
-        String PERMALINK             = "user[permalink]";
-        String EMAIL                 = "user[email]";
-        String PASSWORD              = "user[password]";
-        String PASSWORD_CONFIRMATION = "user[password_confirmation]";
-        String TERMS_OF_USE          = "user[terms_of_use]";
-        String AVATAR                = "user[avatar_data]";
-    }
-
-    interface CommentParams {
-        String BODY      = "comment[body]";
-        String TIMESTAMP = "comment[timestamp]";
-        String REPLY_TO  = "comment[reply_to]";
     }
 
 

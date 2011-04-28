@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.objects.Connection;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Params;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
@@ -25,7 +25,7 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
 
 
         try {
-            HttpResponse response = api().postContent(MY_CONNECTIONS, new Http.Params(
+            HttpResponse response = api().postContent(MY_CONNECTIONS, new Params(
                     "service", svc.name,
                     "format",  "json",
                     "redirect_uri", URL_SCHEME+svc));

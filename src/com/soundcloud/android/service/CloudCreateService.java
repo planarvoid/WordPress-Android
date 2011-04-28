@@ -592,7 +592,7 @@ public class CloudCreateService extends Service {
 
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
-            intent.putExtra("isPrivate", params.get(CloudAPI.TrackParams.SHARING).equals(CloudAPI.TrackParams.PRIVATE));
+            intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
             sendBroadcast(intent);
 
             ContentValues cv = new ContentValues();

@@ -1,13 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Params;
 import com.soundcloud.api.Token;
 
 import org.apache.http.HttpResponse;
@@ -17,7 +15,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -119,7 +116,7 @@ public class Recover extends Activity {
                 final Token signup = api().signupToken();
                 HttpResponse resp = api().postContent(
                         SEND_PASSWORD,
-                        new Http.Params("email", email).withToken(signup));
+                        new Params("email", email).withToken(signup));
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == HttpStatus.SC_ACCEPTED  ) {
                     return true;

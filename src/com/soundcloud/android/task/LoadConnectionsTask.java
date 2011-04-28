@@ -1,8 +1,8 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.objects.Connection;
+import com.soundcloud.api.Endpoints;
 
 import java.util.List;
 
@@ -12,6 +12,6 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
     }
 
     protected List<Connection> doInBackground(String... path) {
-        return list(CloudAPI.Endpoints.MY_CONNECTIONS, Connection.class);
+        return list(Endpoints.MY_CONNECTIONS, Connection.class);
     }
 }

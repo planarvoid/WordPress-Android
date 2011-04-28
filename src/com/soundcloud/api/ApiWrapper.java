@@ -62,13 +62,11 @@ import java.util.Set;
  * @see CloudAPI
  */
 public class ApiWrapper implements CloudAPI {
-    public static final String INVALIDATED_TOKEN = "invalidated";
-
-    private DefaultHttpClient httpClient;
-    private String mClientId, mClientSecret;
+    private HttpClient httpClient;
     private Token mToken;
+    private final String mClientId, mClientSecret;
     private final Env mEnv;
-    private Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
+    private final Set<TokenStateListener> listeners = new HashSet<TokenStateListener>();
     private final URI mRedirectUri;
 
     /**
@@ -97,7 +95,7 @@ public class ApiWrapper implements CloudAPI {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        mToken = requestToken(new Http.Params(
+        mToken = requestToken(new Params(
                 "grant_type", PASSWORD,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
@@ -110,7 +108,7 @@ public class ApiWrapper implements CloudAPI {
         if (code == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        mToken = requestToken(new Http.Params(
+        mToken = requestToken(new Params(
                 "grant_type", AUTHORIZATION_CODE,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
@@ -120,7 +118,7 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override public Token signupToken() throws IOException {
-        final Token signup = requestToken(new Http.Params(
+        final Token signup = requestToken(new Params(
                 "grant_type", CLIENT_CREDENTIALS,
                 "client_id", mClientId,
                 "client_secret", mClientSecret));
@@ -133,7 +131,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override public Token refreshToken() throws IOException {
         if (mToken == null || mToken.refresh == null) throw new IllegalStateException("no refresh token available");
-        mToken = requestToken(new Http.Params(
+        mToken = requestToken(new Params(
                 "grant_type", REFRESH_TOKEN,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
@@ -143,7 +141,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override public Token exchangeToken(String oauth1AccessToken) throws IOException {
         if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
-        mToken = requestToken(new Http.Params(
+        mToken = requestToken(new Params(
                 "grant_type", OAUTH1_TOKEN,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
@@ -163,7 +161,7 @@ public class ApiWrapper implements CloudAPI {
     public URI loginViaFacebook() {
         return getURI(
                 Endpoints.FACEBOOK_LOGIN,
-                new Http.Params(
+                new Params(
                         "redirect_uri", mRedirectUri,
                         "client_id", mClientId,
                         "response_type", "code"
@@ -171,13 +169,13 @@ public class ApiWrapper implements CloudAPI {
                 true);
     }
 
-    public URI getURI(String resource, Http.Params params, boolean ssl) {
+    public URI getURI(String resource, Params params, boolean ssl) {
         return URI.create(
                 (ssl ? mEnv.sslHost : mEnv.host).toURI() + resource +
                         (params == null ? "" : "?" + params.queryString()));
     }
 
-    protected Token requestToken(Http.Params params) throws IOException {
+    protected Token requestToken(Params params) throws IOException {
         HttpPost post = new HttpPost(Endpoints.TOKEN);
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         post.setEntity(new StringEntity(params.queryString()));
@@ -308,7 +306,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public long resolve(String url) throws IOException {
-        HttpResponse resp = getContent(Endpoints.RESOLVE, new Http.Params("url", url));
+        HttpResponse resp = getContent(Endpoints.RESOLVE, new Params("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
             if (location != null) {
@@ -333,23 +331,23 @@ public class ApiWrapper implements CloudAPI {
         return getContent(resource, null);
     }
 
-    @Override public HttpResponse getContent(String resource, Http.Params params) throws IOException {
-        if (params == null) params = new Http.Params();
+    @Override public HttpResponse getContent(String resource, Params params) throws IOException {
+        if (params == null) params = new Params();
         return execute(params.buildRequest(HttpGet.class, resource));
     }
 
-    @Override public HttpResponse putContent(String resource, Http.Params params) throws IOException {
-        if (params == null) params = new Http.Params();
+    @Override public HttpResponse putContent(String resource, Params params) throws IOException {
+        if (params == null) params = new Params();
         return execute(params.buildRequest(HttpPut.class, resource));
     }
 
-    @Override public HttpResponse postContent(String resource, Http.Params params) throws IOException {
-        if (params == null) params = new Http.Params();
+    @Override public HttpResponse postContent(String resource, Params params) throws IOException {
+        if (params == null) params = new Params();
         return execute(params.buildRequest(HttpPost.class, resource));
     }
 
     @Override public HttpResponse deleteContent(String resource) throws IOException {
-        return execute(new Http.Params().buildRequest(HttpDelete.class, resource));
+        return execute(new Params().buildRequest(HttpDelete.class, resource));
     }
 
     @Override public Token getToken() {
@@ -371,7 +369,7 @@ public class ApiWrapper implements CloudAPI {
 
     public static Header getOAuthHeader(Token token) {
         return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
-                (token == null || !token.valid() ? INVALIDATED_TOKEN : token.access));
+                (token == null || !token.valid() ? "invalidated" : token.access));
     }
 
     protected HttpRequest addAuthHeader(HttpRequest request) {
