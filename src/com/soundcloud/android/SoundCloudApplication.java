@@ -44,8 +44,9 @@ import java.util.List;
 public class SoundCloudApplication extends Application implements AndroidCloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
-    public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
+    public static final boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
             "sdk".equals(android.os.Build.PRODUCT);
+    public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
 
     public static boolean DEV_MODE;
 
@@ -70,7 +71,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public void onCreate() {
         super.onCreate();
 
-        if (isRunningOnDalvik() && !EMULATOR) {
+        if (DALVIK && !EMULATOR) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
         }
 
@@ -333,12 +334,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.login(username, password);
     }
 
-    @Deprecated
     public String signUrl(String path) {
         return mCloudApi.signUrl(path);
     }
 
-    @Override
     public URI loginViaFacebook() {
         return mCloudApi.loginViaFacebook();
     }
@@ -390,10 +389,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Token authorizationCode(String code) throws IOException {
         return mCloudApi.authorizationCode(code);
-    }
-
-    public static boolean isRunningOnDalvik() {
-        return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
     }
 
     public static interface RecordListener {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.isRunningOnDalvik;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
@@ -146,7 +145,7 @@ public abstract class ScActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (isRunningOnDalvik()) {
+        if (SoundCloudApplication.DALVIK) {
             tracker = GoogleAnalyticsTracker.getInstance();
             tracker.start(GA_TRACKING, this);
         }
