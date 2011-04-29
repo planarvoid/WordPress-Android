@@ -54,6 +54,11 @@ public class Connect extends Activity {
             }
 
             @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                // XXX handle this?
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
                 progress.dismiss();
             }
