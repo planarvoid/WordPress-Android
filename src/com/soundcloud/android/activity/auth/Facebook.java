@@ -47,6 +47,11 @@ public class Facebook extends LoginActivity {
 
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                showConnectionError(description);
+            }
+
+            @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
                 progress.show();
             }
@@ -82,17 +87,26 @@ public class Facebook extends LoginActivity {
             final SoundCloudApplication app = (SoundCloudApplication) getApplication();
             mWebview.loadUrl(app.loginViaFacebook().toString());
         } else {
-            new AlertDialog.Builder(this).
-                    setMessage(R.string.authentication_error_no_connection_message).
-                    setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).create().show();
+            showConnectionError(null);
         }
     }
+
+    private void showConnectionError(final String message) {
+        String error = getString(R.string.authentication_error_no_connection_message);
+        if (!TextUtils.isEmpty(message)) {
+            error += " ("+message+")";
+        }
+        new AlertDialog.Builder(this).
+                setMessage(error).
+                setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).create().show();
+    }
+
 
     private boolean isConnected() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
