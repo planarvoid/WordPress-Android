@@ -32,6 +32,7 @@ import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
 
+import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -1941,7 +1942,7 @@ public class CloudPlaybackService extends Service {
             InputStream is = null;
 
             try {
-                resp = app.getContent(track.stream_url);
+                resp = app.get(Request.to(track.stream_url));
                 if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) {
                   Log.w(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
                   return;

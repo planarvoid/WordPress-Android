@@ -11,6 +11,7 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.type.TypeFactory;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
  * data. Mostly, this code delegates to the subclass, to append the data in
  * the background thread and rebind the pending view once that is done.
  */
-public class AppendTask extends AsyncTask<String, Parcelable, Boolean> {
+public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
     private WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
@@ -92,12 +93,12 @@ public class AppendTask extends AsyncTask<String, Parcelable, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
-        final String req = params[0];
+    protected Boolean doInBackground(Request... request) {
+        final Request req = request[0];
         if (req == null) return false;
 
         try {
-            HttpResponse resp = mApp.getContent(req);
+            HttpResponse resp = mApp.get(req);
 
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());

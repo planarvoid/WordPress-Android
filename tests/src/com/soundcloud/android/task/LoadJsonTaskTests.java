@@ -14,7 +14,6 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class LoadJsonTaskTests extends RoboApiBaseTests {
-
     @Test
     public void shouldReturnAList() throws Exception {
         expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");

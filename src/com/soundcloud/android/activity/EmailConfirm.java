@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
 import android.app.Activity;
@@ -81,7 +82,7 @@ public class EmailConfirm extends Activity  {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                HttpResponse resp = api().postContent(MY_CONFIRMATION, null);
+                HttpResponse resp = api().post(Request.to(MY_CONFIRMATION));
                 switch (resp.getStatusLine().getStatusCode()) {
                     case SC_ACCEPTED:   return true;  // email sent
                     case SC_OK:         return false; // already confirmed, no email sent

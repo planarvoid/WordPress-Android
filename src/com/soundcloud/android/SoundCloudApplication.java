@@ -8,7 +8,7 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import org.acra.ACRA;
@@ -318,12 +318,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return AccountManager.get(this);
     }
 
-    public HttpResponse getContent(String resource) throws IOException {
-        return mCloudApi.getContent(resource);
-    }
-
-    public HttpResponse getContent(String resource, Params params) throws IOException {
-        return mCloudApi.getContent(resource, params);
+    public HttpResponse get(Request resource) throws IOException {
+        return mCloudApi.get(resource);
     }
 
     public Token signupToken() throws IOException {
@@ -342,16 +338,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.loginViaFacebook();
     }
 
-    public HttpResponse putContent(String resource, Params params) throws IOException {
-        return mCloudApi.putContent(resource, params);
+    public HttpResponse put(Request request) throws IOException {
+        return mCloudApi.put(request);
     }
 
-    public HttpResponse postContent(String resource, Params params) throws IOException {
-        return mCloudApi.postContent(resource, params);
+    public HttpResponse post(Request request) throws IOException {
+        return mCloudApi.post(request);
     }
 
-    public HttpResponse deleteContent(String resource) throws IOException {
-        return mCloudApi.deleteContent(resource);
+    public HttpResponse delete(Request request) throws IOException {
+        return mCloudApi.delete(request);
     }
 
     public Token refreshToken() throws IOException {

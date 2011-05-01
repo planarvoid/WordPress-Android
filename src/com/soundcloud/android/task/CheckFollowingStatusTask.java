@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
 import android.util.Log;
@@ -28,7 +29,7 @@ public class CheckFollowingStatusTask extends AsyncApiTask<Number, Void, Boolean
         try {
             Log.v(TAG, "checking following status for id " + id);
 
-            HttpResponse resp = api().getContent(MY_FOLLOWINGS + "/" + id);
+            HttpResponse resp = api().get(Request.to(MY_FOLLOWING, id));
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_SEE_OTHER: return true;

@@ -25,6 +25,7 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -179,13 +180,6 @@ public class UserBrowser extends ScActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //this.unregisterReceiver(mUpdateAdapterListener);
-    }
-
-
-    @Override
     protected void onResume() {
         pageTrack("/profile");
         super.onResume();
@@ -292,7 +286,7 @@ public class UserBrowser extends ScActivity {
         }
 
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(getDetailsUrl());
+            mLoadDetailsTask.execute(getDetailsRequest());
         }
     }
 
@@ -503,17 +497,16 @@ public class UserBrowser extends ScActivity {
         Thread t = new Thread() {
             @Override
             public void run() {
+                final Request request = Request.to(Endpoints.MY_FOLLOWING, mUserData.id);
                 try {
                     if (mUserData.current_user_following) {
                         mFollowResult =
-                                getSoundCloudApplication().putContent(
-                                        Endpoints.MY_FOLLOWINGS + "/"
-                                                + mUserData.id, null).getStatusLine().getStatusCode();
+                                getSoundCloudApplication().put(request)
+                                        .getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
-                                getSoundCloudApplication().deleteContent(
-                                        Endpoints.MY_FOLLOWINGS + "/"
-                                                + mUserData.id).getStatusLine().getStatusCode();
+                                getSoundCloudApplication().delete(request)
+                                        .getStatusLine().getStatusCode();
                     }
 
                 } catch (IOException e) {
@@ -722,8 +715,8 @@ public class UserBrowser extends ScActivity {
 
 
 
-    private String getDetailsUrl() {
-        return  String.format(Endpoints.USER_DETAILS, mUserLoadId);
+    private Request getDetailsRequest() {
+        return Request.to(Endpoints.USER_DETAILS, mUserLoadId);
     }
 
     private String getUserTracksUrl() {

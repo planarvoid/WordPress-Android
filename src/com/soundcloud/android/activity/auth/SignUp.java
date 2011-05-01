@@ -10,6 +10,7 @@ import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import org.apache.http.HttpResponse;
@@ -164,12 +165,12 @@ public class SignUp extends Activity {
 
             try {
                 final Token signup = api().signupToken();
-                HttpResponse resp = api().postContent(USERS, new Params(
+                HttpResponse resp = api().post(Request.to(USERS).with(
                         EMAIL, email,
                         PASSWORD, password,
                         PASSWORD_CONFIRMATION, password,
                         TERMS_OF_USE, "1"
-                ).withToken(signup));
+                ).usingToken(signup));
 
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == SC_CREATED) {

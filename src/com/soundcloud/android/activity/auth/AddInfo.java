@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
 import android.app.Activity;
@@ -264,10 +265,10 @@ public class AddInfo extends Activity {
             try {
                 ImageUtils.resizeImageFile(args.second, args.second, 800, 800);
 
-                HttpResponse resp = api().putContent(MY_DETAILS,
-                    new Params(NAME, u.username,
-                                    PERMALINK, u.permalink)
-                            .addFile(AVATAR, args.second));
+                HttpResponse resp = api().put(Request.to(MY_DETAILS).with(
+                        NAME, u.username,
+                        PERMALINK, u.permalink)
+                        .withFile(AVATAR, args.second));
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
                     return api().getMapper().readValue(resp.getEntity().getContent(), com.soundcloud.android.objects.User.class);
                 } else {

@@ -7,6 +7,7 @@ import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import android.app.Activity;
@@ -48,7 +49,7 @@ public abstract class LoginActivity extends Activity {
                                 showError(null);
                             }
                         }
-                    }.execute(Endpoints.MY_DETAILS);
+                    }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
                     progress.dismiss();
                     showError(mException);

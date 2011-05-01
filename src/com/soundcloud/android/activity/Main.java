@@ -11,6 +11,7 @@ import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
@@ -154,7 +155,7 @@ public class Main extends TabActivity {
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }
-        }).execute(Endpoints.MY_DETAILS);
+        }).execute(Request.to(Endpoints.MY_DETAILS));
     }
 
     private Runnable addAccount = new Runnable() {
@@ -215,7 +216,7 @@ public class Main extends TabActivity {
                                  fallback.run();
                              }
                          }
-                     }.execute(Endpoints.MY_DETAILS);
+                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else {
                     fallback.run();
                 }
