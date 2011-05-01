@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.utils.ClickSpan;
@@ -153,13 +154,13 @@ public class SignUp extends Activity {
         finish();
     }
 
-    static class SignupTask extends AsyncApiTask<String, Void, com.soundcloud.android.objects.User> implements Params.User {
+    static class SignupTask extends AsyncApiTask<String, Void, User> implements Params.User {
         public SignupTask(AndroidCloudAPI api) {
             super(api);
         }
 
         @Override
-        protected com.soundcloud.android.objects.User doInBackground(String... params) {
+        protected User doInBackground(String... params) {
             final String email = params[0];
             final String password = params[1];
 
