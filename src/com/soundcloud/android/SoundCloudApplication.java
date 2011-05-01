@@ -322,8 +322,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.get(resource);
     }
 
-    public Token signupToken() throws IOException {
-        return mCloudApi.signupToken();
+    public Token clientCredentials() throws IOException {
+        return mCloudApi.clientCredentials();
     }
 
     public Token login(String username, String password) throws IOException {
@@ -331,7 +331,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public String signUrl(String path) {
-        return mCloudApi.signUrl(path);
+        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
     public URI loginViaFacebook() {

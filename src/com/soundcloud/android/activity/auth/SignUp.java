@@ -165,7 +165,7 @@ public class SignUp extends Activity {
             final String password = params[1];
 
             try {
-                final Token signup = api().signupToken();
+                final Token signup = api().clientCredentials();
                 HttpResponse resp = api().post(Request.to(USERS).with(
                         EMAIL, email,
                         PASSWORD, password,

@@ -113,7 +113,7 @@ public class Recover extends Activity {
         protected Boolean doInBackground(String... params) {
             final String email = params[0];
             try {
-                final Token signup = api().signupToken();
+                final Token signup = api().clientCredentials();
                 HttpResponse resp = api().post(
                         Request.to(SEND_PASSWORD).with("email", email).usingToken(signup));
                 final int code = resp.getStatusLine().getStatusCode();
