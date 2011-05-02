@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.util.StdDateFormat;

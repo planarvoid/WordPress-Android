@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -31,7 +32,7 @@ public class RoboApiBaseTests implements Endpoints {
     @Before
     public void setup() {
         api = mock(AndroidCloudAPI.class);
-        realApi = new AndroidCloudAPI.Wrapper(null, null, null, new Token("1", "2"), CloudAPI.Env.SANDBOX);
+        realApi = new AndroidCloudAPI.Wrapper(null, null, null, new Token("1", "2"), Env.SANDBOX);
         when(api.getMapper()).thenReturn(AndroidCloudAPI.Wrapper.createMapper());
     }
 

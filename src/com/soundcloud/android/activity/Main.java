@@ -189,7 +189,7 @@ public class Main extends TabActivity {
             @Override
             protected AndroidCloudAPI doInBackground(String... params) {
                 try {
-                    return (AndroidCloudAPI) api().exchangeToken(params[0]);
+                    return (AndroidCloudAPI) api().exchangeOAuth1Token(params[0]);
                 } catch (IOException e) {
                     return null;
                 }

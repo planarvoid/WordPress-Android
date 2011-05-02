@@ -8,6 +8,7 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
@@ -83,7 +84,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 getClientSecret(API_PRODUCTION),
                 REDIRECT_URI,
                 account == null ? null : getToken(account),
-                API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
+                API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
         mCloudApi.addTokenStateListener(new TokenStateListener() {
@@ -370,9 +371,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.addTokenStateListener(listener);
     }
 
-
-    public Token exchangeToken(String oauth1AccessToken) throws IOException {
-        return mCloudApi.exchangeToken(oauth1AccessToken);
+    public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
+        return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
     }
 
     public void invalidateToken() {
