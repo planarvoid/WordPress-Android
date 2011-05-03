@@ -15,17 +15,13 @@ import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 public class Start extends AccountAuthenticatorActivity {
-    Button facebookBtn;
-    Button loginBtn;
-    Button signupBtn;
-    Button forgotBtn;
     private Handler mHandler = new Handler();
 
     @Override
@@ -33,32 +29,27 @@ public class Start extends AccountAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_start);
 
-        facebookBtn = (Button) this.findViewById(R.id.facebook_btn);
-        facebookBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, Facebook.class), 0);
             }
         });
 
-        loginBtn = (Button) this.findViewById(R.id.login_btn);
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        this.findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
 
-        signupBtn = (Button) this.findViewById(R.id.signup_btn);
-        signupBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        this.findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }
         });
 
-        forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
-        forgotBtn.setText(Html.fromHtml("<u>"+getResources().getString(R.string.authentication_I_forgot_my_password) + "</u>"));
+        Button forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
+        forgotBtn.setText(Html.fromHtml("<u>"+getResources().getString(R.string.authentication_I_forgot_my_password)
+                + "</u>"));
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,27 +58,23 @@ public class Start extends AccountAuthenticatorActivity {
         });
 
         if (savedInstanceState == null){
-            ((LinearLayout) findViewById(R.id.animation_holder)).setVisibility(View.INVISIBLE);
-
+            findViewById(R.id.animation_holder).setVisibility(View.INVISIBLE);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
             animation.setDuration(700);
 
-            LayoutAnimationController controller = new LayoutAnimationController(animation, 0.25f);
-            ((LinearLayout) findViewById(R.id.animation_holder)).setLayoutAnimation(controller);
-
+            ((ViewGroup) findViewById(R.id.animation_holder)).setLayoutAnimation(
+                    new LayoutAnimationController(animation, 0.25f));
             mHandler.postDelayed(mShowAuthControls, 500);
-
         }
     }
 
     private Runnable mShowAuthControls = new Runnable() {
         public void run() {
             if (!Start.this.isFinishing()){
-                ((LinearLayout) findViewById(R.id.animation_holder)).setVisibility(View.VISIBLE);
+                findViewById(R.id.animation_holder).setVisibility(View.VISIBLE);
             }
         }
     };
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
