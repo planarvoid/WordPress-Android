@@ -85,8 +85,9 @@ public class Start extends AccountAuthenticatorActivity {
 
             User user = data.getParcelableExtra("user");
             Token token = (Token) data.getSerializableExtra("token");
-
-            if (app.addUserAccount(user, token)) {
+            boolean viaSignup = data.getBooleanExtra("signup", false);
+            // signup will already have created the account
+            if (viaSignup || app.addUserAccount(user, token)) {
                 final Bundle result = new Bundle();
                 result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                 result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));

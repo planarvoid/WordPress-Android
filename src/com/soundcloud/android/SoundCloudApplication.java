@@ -144,7 +144,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }, /*handler*/ null);
         }
 
-
         mCloudApi.invalidateToken();
     }
 

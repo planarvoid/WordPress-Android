@@ -130,9 +130,7 @@ public class AddInfo extends Activity {
         });
     }
 
-    void addUserInfo(User user,
-                             String newUsername,
-                             File avatarFile) {
+    void addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
         }
@@ -155,7 +153,7 @@ public class AddInfo extends Activity {
                     CloudUtils.showToast(AddInfo.this, "There was a problem...");
                 }
             }
-        }.execute(new Pair<User, File>(user, avatarFile));
+        }.execute(Pair.create(user, avatarFile));
     }
 
     private void finishSignup() {
