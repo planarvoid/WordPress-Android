@@ -115,7 +115,13 @@ public class ScSearch extends ScActivity {
         });
      }
 
-     void doSearch(final String query) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pageTrack("/search");
+    }
+
+    void doSearch(final String query) {
         txtQuery.setText(query); // when called from Main
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

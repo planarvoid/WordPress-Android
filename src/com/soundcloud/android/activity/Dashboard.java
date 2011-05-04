@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class Dashboard extends ScActivity {
     protected LazyListView mListView;
     private ScTabView mTracklistView;
+    private String mTrackingPath;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -36,12 +37,13 @@ public class Dashboard extends ScActivity {
                         Event.class,
                         R.string.empty_incoming_text,
                         CloudUtils.ListId.LIST_INCOMING);
+                mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE);
-
+                mTrackingPath = "/exclusive";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
@@ -51,14 +53,15 @@ public class Dashboard extends ScActivity {
         }
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null)
+        if (mPreviousState != null) {
             ((LazyEndlessAdapter) mTracklistView.adapter).restoreState(mPreviousState);
+        }
     }
 
     @Override
     public void onResume() {
-        pageTrack("/dashboard");
         super.onResume();
+        pageTrack(mTrackingPath);
     }
 
     protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId) {
