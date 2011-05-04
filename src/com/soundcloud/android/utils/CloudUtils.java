@@ -473,7 +473,9 @@ public class CloudUtils {
         return sFormatter.format(stringFormat, arg).toString();
     }
 
+    /** @see CloudUtils.formatTimestamp() */
     public static String makeTimeString(String durationformat, long secs) {
+        // XXX global state
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
         timeArgs[0] = secs / 3600;

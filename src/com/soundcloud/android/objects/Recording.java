@@ -38,6 +38,7 @@ public class Recording extends BaseObj implements Parcelable {
     public String what_text;
     public String where_text;
     public String audio_path;
+    /** in msecs */
     public long duration;
     public String artwork_path;
     public String four_square_venue_id;
@@ -245,9 +246,15 @@ public class Recording extends BaseObj implements Parcelable {
         } else {
             return CloudUtils.getTimeElapsed(resources, timestamp)
                     + ", "
+                    + formattedDuration()
+                    + ", "
                     + (upload_error ?
                     resources.getString(R.string.cloud_upload_upload_failed) :
                     resources.getString(R.string.cloud_upload_not_yet_uploaded));
         }
+    }
+
+    public String formattedDuration() {
+        return  CloudUtils.formatTimestamp(duration);
     }
 }

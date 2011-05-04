@@ -29,6 +29,7 @@ public class RecordingTests {
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
         r.audio_path  = "/tmp/foo";
+        r.duration = 86 * 1000;
     }
 
     @Test
@@ -65,11 +66,19 @@ public class RecordingTests {
     }
 
     @Test
-    public void shouldGenerateStatusWithUploaded() throws Exception {
+    public void shouldGenerateStatusWithNotUploaded() throws Exception {
         assertThat(
                 r.getStatus(Robolectric.application.getResources()),
-                equalTo("null, not yet uploaded"));
+                equalTo("null, 1.26, not yet uploaded"));
     }
+
+    @Test
+     public void shouldGenerateStatusWithError() throws Exception {
+        r.upload_error = true;
+        assertThat(
+                 r.getStatus(Robolectric.application.getResources()),
+                 equalTo("null, 1.26, upload failed"));
+     }
 
     @Test
     public void shouldGenerateStatusWithCurrentlyUploading() throws Exception {
@@ -77,5 +86,10 @@ public class RecordingTests {
         assertThat(
                 r.getStatus(Robolectric.application.getResources()),
                 equalTo("Uploading, progress is in notifications"));
+    }
+
+    @Test
+    public void shouldHaveFormattedDuration() throws Exception {
+        assertThat(r.formattedDuration(), equalTo("1.26"));
     }
 }
