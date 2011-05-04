@@ -1,11 +1,20 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
+import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,11 +25,12 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -30,11 +40,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class AddInfo extends Activity {
-
     private File mAvatarFile;
     private Bitmap mAvatarBitmap;
     private ImageView mArtworkImg;
-
+    private ProgressDialog mProgressDialog;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -44,10 +53,10 @@ public class AddInfo extends Activity {
 
     protected void build() {
         setContentView(R.layout.auth_add_info);
+        final com.soundcloud.android.objects.User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
-        final Button skipBtn = (Button) findViewById(R.id.btn_skip);
-        final Button saveBtn = (Button) findViewById(R.id.btn_save);
+        usernameField.setHint(user.username);
 
         mArtworkImg = (ImageView) findViewById(R.id.artwork);
         final TextView artworkField = (TextView) findViewById(R.id.txt_artwork_bg);
@@ -57,27 +66,23 @@ public class AddInfo extends Activity {
                 if (actionId == EditorInfo.IME_ACTION_NEXT ||
                         (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                                 event.getAction() == KeyEvent.ACTION_DOWN)) {
-                    if (mAvatarFile == null)
-                        return artworkField.performClick();
-                    else
-                        return false;
+                    return mAvatarFile == null && artworkField.performClick();
                 } else {
                     return false;
                 }
             }
         });
 
-        skipBtn.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_skip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(getClass().getSimpleName(),"skip");
+                finishSignup();
             }
         });
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(getClass().getSimpleName(),"Save username " + usernameField.getText().toString());
+        findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                addUserInfo(user, usernameField.getText().toString());
             }
         });
 
@@ -102,7 +107,7 @@ public class AddInfo extends Activity {
                                     i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(mAvatarFile));
                                     startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.w(TAG, "error", e);
                                 }
                             }
                         }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
@@ -123,15 +128,41 @@ public class AddInfo extends Activity {
                 return true;
             }
         });
-
-
     }
 
-    public void setImage(String filePath) {
+    private void addUserInfo(com.soundcloud.android.objects.User user, String newUsername) {
+        if (!TextUtils.isEmpty(newUsername)) {
+            user.username = newUsername;
+        }
+        new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+            @Override
+            protected void onPreExecute() {
+                mProgressDialog = ProgressDialog.show(AddInfo.this, "",
+                        getString(R.string.authentication_add_info_progress_message));
+            }
+
+            @Override
+            protected void onPostExecute(com.soundcloud.android.objects.User user) {
+                mProgressDialog.dismiss();
+                if (user != null) {
+                    finishSignup();
+                } else {
+                    CloudUtils.showToast(AddInfo.this, "There was a problem...");
+                }
+            }
+        }.execute(new Pair<com.soundcloud.android.objects.User, File>(user, mAvatarFile));
+    }
+
+    private void finishSignup() {
+        setResult(RESULT_OK, getIntent());
+        finish();
+    }
+
+    private void setImage(String filePath) {
         setImage(new File(filePath));
     }
 
-    public void setImage(File imageFile) {
+    private void setImage(File imageFile) {
         mAvatarFile = imageFile;
 
         try {
@@ -175,7 +206,7 @@ public class AddInfo extends Activity {
             mArtworkImg.setVisibility(View.VISIBLE);
 
         } catch (IOException e) {
-            Log.e(getClass().getSimpleName(), "error", e);
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -190,6 +221,12 @@ public class AddInfo extends Activity {
 
     private File createTempAvatarFile() throws IOException {
         return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", CloudUtils.getCacheDir(this));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        clearArtwork();
     }
 
     @Override
@@ -216,4 +253,32 @@ public class AddInfo extends Activity {
         }
     }
 
+    static class AddUserInfoTask extends AsyncApiTask<Pair<com.soundcloud.android.objects.User,File>, Void, com.soundcloud.android.objects.User> implements Params.User {
+        public AddUserInfoTask(AndroidCloudAPI api) {
+            super(api);
+        }
+
+        @Override
+        protected com.soundcloud.android.objects.User doInBackground(Pair<com.soundcloud.android.objects.User, File>... params) {
+            final Pair<com.soundcloud.android.objects.User,File> args = params[0];
+            final com.soundcloud.android.objects.User u = args.first;
+            try {
+                ImageUtils.resizeImageFile(args.second, args.second, 800, 800);
+
+                HttpResponse resp = api().put(Request.to(MY_DETAILS).with(
+                        NAME, u.username,
+                        PERMALINK, u.permalink)
+                        .withFile(AVATAR, args.second));
+                if (resp.getStatusLine().getStatusCode() == SC_OK) {
+                    return api().getMapper().readValue(resp.getEntity().getContent(), com.soundcloud.android.objects.User.class);
+                } else {
+                    warn("unexpected response", resp);
+                    return null;
+                }
+            } catch (IOException e) {
+                warn("error updating details", e);
+                return null;
+            }
+        }
+    }
 }

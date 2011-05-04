@@ -2,23 +2,27 @@ package com.soundcloud.android;
 
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.util.StdDateFormat;
 
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    URI REDIRECT_URI = URI.create("soundcloud://auth");
+
     ObjectMapper getMapper();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         private ObjectMapper mMapper;
 
-        public Wrapper(String clientId, String clientSecret, Token token, Env env) {
-            super(clientId, clientSecret, token, env);
+        public Wrapper(String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
+            super(clientId, clientSecret, redirectUri, token, env);
         }
 
         // XXX reenable when sandbox certificate is working again

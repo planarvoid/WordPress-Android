@@ -1,21 +1,20 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -56,9 +55,7 @@ public class Recover extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "cancel");
-                setResult(RESULT_CANCELED);
-                finish();
+                onBackPressed();
             }
         });
 
@@ -91,15 +88,18 @@ public class Recover extends Activity {
     }
 
     private void recoverPassword(final String email) {
-        Log.d(TAG, "Recover with " + email);
         new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
+            private ProgressDialog progressDialog;
+            @Override
+            protected void onPreExecute() {
+                progressDialog = ProgressDialog.show(Recover.this, "", Recover.this.getString(R.string.authentication_recover_progress_message));
+            }
+
             @Override
             protected void onPostExecute(Boolean success) {
-                if (success) {
-                    CloudUtils.showToast(Recover.this, "Success");
-                } else {
-                    CloudUtils.showToast(Recover.this, "Failure");
-                }
+                progressDialog.dismiss();
+                setResult(RESULT_OK, new Intent().putExtra("success", success));
+                finish();
             }
         }.execute(email);
     }
@@ -113,9 +113,9 @@ public class Recover extends Activity {
         protected Boolean doInBackground(String... params) {
             final String email = params[0];
             try {
-                Token signup = api().login();
-                HttpResponse resp = api().postContent(SEND_PASSWORD,
-                        new Http.Params("email", email).withToken(signup));
+                final Token signup = api().clientCredentials();
+                HttpResponse resp = api().post(
+                        Request.to(SEND_PASSWORD).with("email", email).usingToken(signup));
                 final int code = resp.getStatusLine().getStatusCode();
                 if (code == HttpStatus.SC_ACCEPTED  ) {
                     return true;

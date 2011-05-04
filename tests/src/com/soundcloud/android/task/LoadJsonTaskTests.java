@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,18 +15,17 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class LoadJsonTaskTests extends RoboApiBaseTests {
-
     @Test
     public void shouldReturnAList() throws Exception {
         expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
-            protected List<Foo> doInBackground(String... strings) {
+            protected List<Foo> doInBackground(Request... r) {
                 return null;
             }
         };
 
-        List<Foo> l = task.list("/foo", Foo.class);
+        List<Foo> l = task.list(Request.to("/foo"), Foo.class);
         assertEquals(1, l.size());
         assertEquals("baz", l.get(0).bar);
     }
@@ -36,11 +36,11 @@ public class LoadJsonTaskTests extends RoboApiBaseTests {
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
-            protected List<Foo> doInBackground(String... strings) {
+            protected List<Foo> doInBackground(Request... strings) {
                 return null;
             }
         };
-        List<Foo> l = task.list("/foo", Foo.class);
+        List<Foo> l = task.list(Request.to("/foo"), Foo.class);
         assertNull(l);
     }
 
@@ -50,11 +50,11 @@ public class LoadJsonTaskTests extends RoboApiBaseTests {
 
         LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
             @Override
-            protected List<Foo> doInBackground(String... strings) {
+            protected List<Foo> doInBackground(Request... r) {
                 return null;
             }
         };
-        task.list("/foo", Foo.class, true);
+        task.list(Request.to("/foo"), Foo.class, true);
     }
 
     public static class Foo {

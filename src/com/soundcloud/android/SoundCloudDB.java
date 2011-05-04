@@ -1,14 +1,18 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.objects.Activities;
+import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.provider.ScContentProvider;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +36,32 @@ public class SoundCloudDB {
             return instance;
         }
 
+     // ---Make sure the database is up to date with this track info---
+        public void insertActivities(ContentResolver contentResolver, Activities activities, Long currentUserId) {
+            insertActivities(contentResolver, activities, currentUserId, 0);
+        }
+
+        public void insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long onlyAfter) {
+
+            List<ContentValues> tracksCV = new ArrayList<ContentValues>();
+            List<ContentValues> eventsCV = new ArrayList<ContentValues>();
+            List<ContentValues> usersCV = new ArrayList<ContentValues>();
+
+            for (Event evt : activities) {
+                if (evt.created_at.getTime() >= onlyAfter){
+                    tracksCV.add(evt.getTrack().buildContentValues());
+                    eventsCV.add(evt.buildContentValues(currentUserId, false));
+                    usersCV.add(evt.getTrack().user.buildContentValues(false));
+                } else {
+                    break;
+                }
+            }
+
+            contentResolver.bulkInsert(Tracks.CONTENT_URI, tracksCV.toArray(new ContentValues[tracksCV.size()]));
+            contentResolver.bulkInsert(Users.CONTENT_URI, usersCV.toArray(new ContentValues[usersCV.size()]));
+            contentResolver.bulkInsert(Events.CONTENT_URI, eventsCV.toArray(new ContentValues[eventsCV.size()]));
+        }
+
         // ---Make sure the database is up to date with this track info---
         public void resolveTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
 
@@ -52,6 +82,7 @@ public class SoundCloudDB {
                     } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
                         contentResolver.insert(Tracks.CONTENT_URI, track.buildContentValues());
                     }
+
                     cursor.close();
 
                     // write with insert only because a track will never come in with
@@ -68,7 +99,6 @@ public class SoundCloudDB {
             if (cursor.getCount() != 0) {
                 cursor.moveToFirst();
                 Track track = new Track(cursor);
-                cursor.close();
                 cursor.close();
 
                 User user = resolveUserById(contentResolver, track.user_id);
@@ -93,17 +123,20 @@ public class SoundCloudDB {
             if (null != cursor && cursor.moveToNext()) {
                 ret = true;
             }
-            cursor.close();
+
+            if (cursor != null) cursor.close();
             return ret;
         }
 
-        public int trimTracks(ContentResolver contentResolver, long[] currentPlaylist) {
-            String[] whereArgs = new String[2];
-            whereArgs[0] = whereArgs[1] = Boolean.toString(false);
-            return contentResolver.delete(Tracks.CONTENT_URI,
-                    "(user_favorite = 0 AND user_played = 0) AND id NOT IN ("
-                            + joinArray(currentPlaylist, ",") + ")", null);
-        }
+    public int trimTracks(ContentResolver contentResolver, long[] currentPlaylist) {
+        String[] whereArgs = new String[2];
+        whereArgs[0] = whereArgs[1] = Boolean.toString(false);
+        return contentResolver.delete(
+                Tracks.CONTENT_URI,
+                "(user_favorite = 0 AND user_played = 0) AND id NOT IN ("
+                        + joinArray(currentPlaylist, ",")
+                        + ") AND id NOT IN (SELECT DISTINCT(origin_id) FROM Events)", null);
+    }
 
         public void resolveUser(ContentResolver contentResolver,User user, WriteState writeState,
                 Long currentUserId) {
@@ -125,19 +158,14 @@ public class SoundCloudDB {
         }
 
         public User resolveUserById(ContentResolver contentResolver, long userId) {
-
             Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
-
-            if (cursor.getCount() != 0) {
+            User user = null;
+            if (cursor != null && cursor.getCount() != 0) {
                 cursor.moveToFirst();
-                User user = new User(cursor);
-                cursor.close();
-                return user;
+                user = new User(cursor);
             }
-
-            cursor.close();
-            return null;
-
+            if (cursor != null) cursor.close();
+            return user;
         }
 
         public boolean isUserInDb(ContentResolver contentResolver, long id) {
@@ -146,7 +174,7 @@ public class SoundCloudDB {
             if (null != cursor && cursor.moveToNext()) {
                 ret = true;
             }
-            cursor.close();
+            if (cursor != null) cursor.close();
             return ret;
         }
 
@@ -197,6 +225,7 @@ public class SoundCloudDB {
 
             public static final String ID = "_id";
             public static final String PERMALINK = "permalink";
+            public static final String CREATED_AT = "created_at";
             public static final String DURATION = "duration";
             public static final String TAG_LIST = "tag_list";
             public static final String TRACK_TYPE = "track_type";
@@ -286,6 +315,26 @@ public class SoundCloudDB {
             public static final String AUDIO_PROFILE = "audio_profile";
             public static final String UPLOAD_STATUS = "upload_status";
             public static final String UPLOAD_ERROR = "upload_error";
+        }
+
+        public static final class Events implements BaseColumns {
+            private Events() {
+            }
+
+            public static final Uri CONTENT_URI = Uri.parse("content://"
+                    + ScContentProvider.AUTHORITY + "/Events");
+
+            public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.events";
+            public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.events";
+
+            public static final String ID = "_id";
+            public static final String USER_ID = "user_id";
+            public static final String TYPE = "type";
+            public static final String CREATED_AT = "created_at";
+            public static final String TAGS = "tags";
+            public static final String LABEL = "label";
+            public static final String ORIGIN_ID = "origin_id";
+            public static final String NEXT_CURSOR = "next_cursor";
         }
 
 

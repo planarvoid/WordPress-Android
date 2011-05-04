@@ -8,13 +8,13 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
-
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.accounts.Account;
@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -36,6 +37,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,8 +46,8 @@ import java.util.List;
 public class SoundCloudApplication extends Application implements AndroidCloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
-    public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
-            "sdk".equals(android.os.Build.PRODUCT);
+    public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
+    public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
 
     public static boolean DEV_MODE;
 
@@ -70,7 +72,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public void onCreate() {
         super.onCreate();
 
-        if (isRunningOnDalvik() && !EMULATOR) {
+        if (DALVIK && !EMULATOR) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
         }
 
@@ -80,8 +82,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi = new Wrapper(
                 getClientId(API_PRODUCTION),
                 getClientSecret(API_PRODUCTION),
+                REDIRECT_URI,
                 account == null ? null : getToken(account),
-                API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
+                API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
         mCloudApi.addTokenStateListener(new TokenStateListener() {
@@ -97,11 +100,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Log.d(TAG, "onTokenRefreshed("+token+")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
-                if (account != null && token.access != null && token.refresh != null) {
+                if (account != null && token.valid() && token.starScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
+                    am.setUserData(account,  Token.EXPIRES_IN, "" + token.expiresIn);
+                    am.setUserData(account,  Token.SCOPE, token.scope);
                 }
             }
         });
@@ -215,14 +219,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Token.ACCESS_TOKEN, null, null, activity, callback, null);
     }
 
-    public boolean addUserAccount(User user, String... tokens) {
+    public boolean addUserAccount(User user, Token token) {
         final String type = getString(R.string.account_type);
         final Account account = new Account(user.username, type);
         final AccountManager am = getAccountManager();
-        final boolean created = am.addAccountExplicitly(account, tokens[0], null);
+        final boolean created = am.addAccountExplicitly(account, token.access, null);
         if (created) {
-            am.setAuthToken(account, Token.ACCESS_TOKEN,  tokens[0]);
-            am.setAuthToken(account, Token.REFRESH_TOKEN, tokens[1]);
+            am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
+            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
@@ -315,41 +319,36 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return AccountManager.get(this);
     }
 
-    public HttpResponse getContent(String resource) throws IOException {
-        return mCloudApi.getContent(resource);
+    public HttpResponse get(Request resource) throws IOException {
+        return mCloudApi.get(resource);
     }
 
-    public HttpResponse getContent(String resource, Http.Params params) throws IOException {
-        return mCloudApi.getContent(resource, params);
-    }
-
-    public Token login() throws IOException {
-        return mCloudApi.login();
+    public Token clientCredentials() throws IOException {
+        return mCloudApi.clientCredentials();
     }
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
     }
 
-    @Deprecated
     public String signUrl(String path) {
-        return mCloudApi.signUrl(path);
+        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
-    public HttpResponse putContent(String resource, Http.Params params) throws IOException {
-        return mCloudApi.putContent(resource, params);
+    public URI loginViaFacebook() {
+        return mCloudApi.loginViaFacebook();
     }
 
-    public HttpResponse postContent(String resource, Http.Params params) throws IOException {
-        return mCloudApi.postContent(resource, params);
+    public HttpResponse put(Request request) throws IOException {
+        return mCloudApi.put(request);
     }
 
-    public HttpResponse deleteContent(String resource) throws IOException {
-        return mCloudApi.deleteContent(resource);
+    public HttpResponse post(Request request) throws IOException {
+        return mCloudApi.post(request);
     }
 
-    public HttpResponse uploadTrack(ContentBody trackBody, ContentBody artworkBody, Http.Params params, ProgressListener listener) throws IOException {
-        return mCloudApi.uploadTrack(trackBody, artworkBody, params, listener);
+    public HttpResponse delete(Request request) throws IOException {
+        return mCloudApi.delete(request);
     }
 
     public Token refreshToken() throws IOException {
@@ -372,8 +371,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.addTokenStateListener(listener);
     }
 
-    public Token exchangeToken(String oauth1AccessToken) throws IOException {
-        return mCloudApi.exchangeToken(oauth1AccessToken);
+    public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
+        return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
     }
 
     public void invalidateToken() {
@@ -384,11 +383,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getMapper();
     }
 
-    public static boolean isRunningOnDalvik() {
-        return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
+    public Token authorizationCode(String code) throws IOException {
+        return mCloudApi.authorizationCode(code);
     }
 
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
+
 }

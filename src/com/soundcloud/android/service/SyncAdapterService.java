@@ -2,8 +2,13 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.Events;
+import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -20,7 +25,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.net.Uri;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -33,6 +38,9 @@ public class SyncAdapterService extends Service {
     private static final String TAG = "ContactsSyncAdapterService";
     private static ScSyncAdapter sSyncAdapter = null;
     private static ContentResolver mContentResolver = null;
+
+    private static final int MAX_COLLECTION_SIZE = 200;
+    private static final int MAX_EVENTS_STORED = 200;
 
     public SyncAdapterService() {
         super();
@@ -81,9 +89,32 @@ public class SyncAdapterService extends Service {
 
         app.useAccount(account);
 
-        List<Track> favorites = null;
+        long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
+        long firstTimestamp = 0;
+
+        // get the timestamp of the newest record in the database
+        Cursor firstCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
+            Events.CREATED_AT,
+        }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
+                + MAX_EVENTS_STORED);
+
+        if (firstCursor.getCount() > 0){
+            firstCursor.moveToFirst();
+            firstTimestamp = firstCursor.getLong(0);
+        }
+        firstCursor.close();
+
+        boolean caughtUp = false;
         try {
-            favorites = fetchAllTracks(app, CloudAPI.Enddpoints.MY_FAVORITES);
+            HttpResponse response = app.get(buildRequest(Endpoints.MY_ACTIVITIES, 0));
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                Activities activities = app.getMapper().readValue(
+                        response.getEntity().getContent(), Activities.class);
+                activities.setCursorToLastEvent();
+                SoundCloudDB.getInstance().insertActivities(app.getContentResolver(), activities,
+                        user_id, firstTimestamp);
+            }
+
         } catch (JsonParseException e) {
             syncResult.stats.numParseExceptions++;
             e.printStackTrace();
@@ -98,8 +129,47 @@ public class SyncAdapterService extends Service {
         }
 
 
-        Log.i(TAG, "favorites count: " + (favorites == null ? "null" : favorites.size()));
 
+        Cursor countCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
+            "count(" + Events.ID + ")",
+        }, Events.USER_ID + " = " + user_id, null, null);
+
+        countCursor.moveToFirst();
+        int eventsCount = countCursor.getInt(0);
+        countCursor.close();
+
+        // if there are older entries, delete them as necessary
+        if (firstTimestamp > 0) {
+
+            if (caughtUp) {
+
+                if (eventsCount > MAX_EVENTS_STORED) {
+                    Cursor lastCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
+                        Events.CREATED_AT,
+                    }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
+                            + MAX_EVENTS_STORED);
+
+                    lastCursor.moveToLast();
+                    long lastTimestamp = lastCursor.getLong(0);
+
+                    Log.i(TAG,
+                            "Deleting rows "
+                                    + lastTimestamp
+                                    + " "
+                                    + mContentResolver.delete(Events.CONTENT_URI, Events.USER_ID
+                                            + " = " + user_id + " AND " + Events.CREATED_AT + " < "
+                                            + lastTimestamp, null));
+                }
+
+            } else {
+                // we never reached the older entries, so delete them
+                Log.i(TAG,
+                        "Deleting rows "
+                                + mContentResolver.delete(Events.CONTENT_URI, Events.USER_ID
+                                        + " = " + user_id + " AND " + Events.CREATED_AT + " <= "
+                                        + firstTimestamp, null));
+            }
+        }
 
     }
 
@@ -108,13 +178,14 @@ public class SyncAdapterService extends Service {
      *
      * @return the url
      */
-    private static String buildRequest(String endpoint, int page) {
-        Uri u = Uri.parse(endpoint);
-        Uri.Builder builder = u.buildUpon();
-        builder.appendQueryParameter("limit", Integer.toString(CloudAPI.MAX_COLLECTION_SIZE));
-        builder.appendQueryParameter("offset", String.valueOf(CloudAPI.MAX_COLLECTION_SIZE * page));
-        return builder.build().toString();
+    private static Request buildRequest(String endpoint, int page) {
+        Request request = Request.to(endpoint);
+        request.add("limit",  Integer.toString(MAX_COLLECTION_SIZE));
+        request.add("offset", String.valueOf(MAX_COLLECTION_SIZE * page));
+        return request;
     }
+
+    //{"collection":[{"type":"track","created_at":"2011/05/02 16:33:18 +0000","origin":{"id":14559625,"created_at":"2011/05/02 16:33:18 +0000","user_id":2490,"duration":4416,"commentable":true,"state":"finished","sharing":"public","tag_list":"","permalink":"may_02_2011-001-edit","description":"","streamable":true,"downloadable":true,"genre":"","release":"","purchase_url":null,"label_id":null,"label_name":"","isrc":"","video_url":null,"track_type":"","key_signature":"","bpm":null,"title":"Quick Monday is quick","release_year":null,"release_month":null,"release_day":null,"original_format":"wav","license":"cc-by-nc-sa","uri":"https://api.soundcloud.com/tracks/14559625","permalink_url":"http://soundcloud.com/david/may_02_2011-001-edit","artwork_url":null,"waveform_url":"http://w1.sndcdn.com/sWJO1byxkgl5_m.png","user":{"id":2490,"permalink":"david","username":"David No\u00ebl","uri":"https://api.soundcloud.com/users/2490","permalink_url":"http://soundcloud.com/david","avatar_url":"http://i1.sndcdn.com/avatars-000003312251-vi5p6e-large.jpg?af2741b"},"stream_url":"https://api.soundcloud.com/tracks/14559625/stream","download_url":"https://api.soundcloud.com/tracks/14559625/download","user_playback_count":1,"user_favorite":false,"playback_count":32,"download_count":0,"favoritings_count":2,"comment_count":1,"created_with":{"id":3884,"name":"iRig Recorder","uri":"https://api.soundcloud.com/apps/3884","permalink_url":"http://soundcloud.com/apps/irig-recorder"},"attachments_uri":"https://api.soundcloud.com/tracks/14559625/attachments","sharing_note":{"text":"Mondays with @thisisparker are always a little bit faster","created_at":"2011/05/02 16:38:00 +0000"}},"tags":"affiliated"},{"type":"track","created_at":"2011/05/02 15:02:22 +0000","origin":{"id":14555387,"created_at":"2011/05/02 15:02:22 +0000","user_id":4606,"duration":366113,"commentable":true,"state":"finished","sharing":"public","tag_list":"nina simone feeling good hrdvsion remix sun closed eyes sleep forever","permalink":"nina-simone-feeling-good","description":"","streamable":true,"downloadable":true,"genre":"","release":"","purchase_url":null,"label_id":null,"label_name":"","isrc":"","video_url":null,"track_type":"remix","key_signature":"","bpm":null,"title":"Nina Simone - Feeling Good (Hrdvsion Remix)","release_year":null,"release_month":null,"release_day":null,"original_format":"mp3","license":"all-rights-reserved","uri":"https://api.soundcloud.com/tracks/14555387","permalink_url":"http://soundcloud.com/hrdvsion/nina-simone-feeling-good","artwork_url":"http://i1.sndcdn.com/artworks-000006889448-5kcm2w-large.jpg?af2741b","waveform_url":"http://w1.sndcdn.com/SzxkcLi84GTl_m.png","user":{"id":4606,"permalink":"hrdvsion","username":"Hrdvsion","uri":"https://api.soundcloud.com/users/4606","permalink_url":"http://soundcloud.com/hrdvsion","avatar_url":"http://i1.sndcdn.com/avatars-000000981338-vjhn9o-large.jpg?af2741b"},"stream_url":"https://api.soundcloud.com/tracks/14555387/stream","download_url":"https://api.soundcloud.com/tracks/14555387/download","user_playback_count":1,"user_favorite":false,"playback_count":186,"download_count":64,"favoritings_count":16,"comment_count":15,"attachments_uri":"https://api.soundcloud.com/tracks/14555387/attachments","sharing_note":{"text":"nina simone... sun, eyes closed in the brightness, sleep forever.","created_at":"2011/05/02 15:02:22 +0000"}},"tags":"affiliated"}],"next_href":"https://api.soundcloud.com/me/activities/tracks?cursor=c5751842-74a0-11e0-96d2-d41dad77532f\u0026limit=2"}
 
     private static List<Track> fetchAllTracks(SoundCloudApplication app, String endpoint) throws JsonParseException, JsonMappingException, IllegalStateException, IOException {
         boolean keepGoing = true;
@@ -124,7 +195,7 @@ public class SyncAdapterService extends Service {
             List<Track> result;
                 result = fetchTracks(app, buildRequest(endpoint, currentPage));
                 if (result != null && result.size() > 0){
-                    if (result.size() != CloudAPI.MAX_COLLECTION_SIZE) keepGoing = false;
+                    if (result.size() != MAX_COLLECTION_SIZE) keepGoing = false;
                     tracks.addAll(result);
                 } else{
                     keepGoing = false;
@@ -134,9 +205,9 @@ public class SyncAdapterService extends Service {
         return tracks;
     }
 
-    private static List<Track> fetchTracks(SoundCloudApplication app, String path) throws JsonParseException, JsonMappingException, IllegalStateException, IOException {
+    private static List<Track> fetchTracks(SoundCloudApplication app, Request path) throws JsonParseException, JsonMappingException, IllegalStateException, IOException {
 
-        HttpResponse response = app.getContent(path);
+        HttpResponse response = app.get(path);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return app.getMapper().readValue(response.getEntity().getContent(),
                     TypeFactory.collectionType(ArrayList.class, Track.class));
@@ -145,4 +216,5 @@ public class SyncAdapterService extends Service {
             return null;
         }
     }
+
 }

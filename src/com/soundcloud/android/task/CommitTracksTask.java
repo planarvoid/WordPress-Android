@@ -6,7 +6,6 @@ import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.Track;
 
 import android.content.ContentResolver;
-import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
@@ -40,6 +39,7 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
     protected Boolean doInBackground(Track... params) {
 
         for (int i = 0; i < params.length; i++) {
+            if (params[i] != null && params[i] instanceof Track)
                 SoundCloudDB.getInstance().resolveTrack(contentResolver, params[i],
                         WriteState.all, currentUserId);
         }

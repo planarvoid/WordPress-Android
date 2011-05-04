@@ -15,6 +15,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -109,9 +110,19 @@ public class Settings extends PreferenceActivity {
     }
 
     private void setClearCacheTitle() {
-        this.findPreference("clearCache").setTitle(
-                getResources().getString(R.string.pref_clear_cache) +
-                " [" + CloudCache.cacheSizeInMbString(this) + " MB]");
+        final Handler handler = new Handler();
+        new Thread() {
+            @Override public void run() {
+                final String cacheSize = CloudCache.cacheSizeInMbString(Settings.this);
+                handler.post(new Runnable() {
+                    @Override public void run() {
+                        Settings.this.findPreference("clearCache").setTitle(
+                                getResources().getString(R.string.pref_clear_cache) +
+                                " [" + cacheSize + " MB]");
+                    }
+                });
+            }
+        }.start();
     }
 
     @Override
@@ -172,26 +183,30 @@ public class Settings extends PreferenceActivity {
     public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {
         @Override
         protected void onPreExecute() {
-            if (mActivityRef.get() != null)
-                ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETING);
+            Settings settings = (Settings) mActivityRef.get();
+            if (settings != null) {
+                settings.safeShowDialog(DIALOG_CACHE_DELETING);
+            }
         }
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-            if (mActivityRef.get() != null) {
-                ((Settings) mActivityRef.get()).mDeleteDialog.setIndeterminate(false);
-                ((Settings) mActivityRef.get()).mDeleteDialog.setMax(progress[1]);
-                ((Settings) mActivityRef.get()).mDeleteDialog.setProgress(progress[0]);
+        Settings settings = (Settings) mActivityRef.get();
+            if (settings != null) {
+                settings.mDeleteDialog.setIndeterminate(false);
+                settings.mDeleteDialog.setMax(progress[1]);
+                settings.mDeleteDialog.setProgress(progress[0]);
             }
 
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (mActivityRef.get() != null) {
-                mActivityRef.get().removeDialog(DIALOG_CACHE_DELETING);
-                ((Settings) mActivityRef.get()).safeShowDialog(DIALOG_CACHE_DELETED);
-                ((Settings) mActivityRef.get()).setClearCacheTitle();
+            Settings settings = (Settings) mActivityRef.get();
+            if (settings != null) {
+                settings.removeDialog(DIALOG_CACHE_DELETING);
+                settings.safeShowDialog(DIALOG_CACHE_DELETED);
+                settings.setClearCacheTitle();
             }
         }
     }

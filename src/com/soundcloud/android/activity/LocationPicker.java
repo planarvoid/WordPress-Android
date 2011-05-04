@@ -5,9 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Capitalizer;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
-
-import org.apache.http.HttpHost;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -88,6 +89,7 @@ public class LocationPicker extends ListActivity {
                 return true;
             }
         });
+
         where.addTextChangedListener(new Capitalizer(where));
 
         if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
@@ -158,23 +160,22 @@ public class LocationPicker extends ListActivity {
         @Override
         protected List<Venue> doInBackground(Location... locations) {
             Location loc = locations[0];
-            // XXX: AndroidHttpClient
             HttpClient client = new DefaultHttpClient(Http.defaultParams());
-            HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
+                    // XXX should be AndroidHttpClient - robolectric testing issues
+                    //AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
 
             final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
             //http://developer.foursquare.com/docs/venues/search.html
-            Http.Params p = new Http.Params(
+            Request r = new Request("https://api.foursquare.com/v2/venues/search").with(
                     "ll",            ll,
                     "limit",         VENUE_LIMIT,
                     "client_id",     client_id,
                     "client_secret", client_secret);
 
-            if (loc.hasAccuracy()) p.add("llAcc", loc.getAccuracy());
+            if (loc.hasAccuracy()) r.add("llAcc", loc.getAccuracy());
 
-            HttpGet request = new HttpGet("/v2/venues/search?" + p);
             try {
-                HttpResponse resp = client.execute(host, request);
+                HttpResponse resp = client.execute(r.buildRequest(HttpGet.class));
                 switch (resp.getStatusLine().getStatusCode()) {
                     case HttpStatus.SC_OK:
                         JsonNode root = mapper.readTree(resp.getEntity().getContent());

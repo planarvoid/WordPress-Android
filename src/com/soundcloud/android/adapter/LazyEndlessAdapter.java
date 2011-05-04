@@ -12,8 +12,8 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.api.Request;
 
-import android.net.Uri;
 import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -29,39 +29,19 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LazyEndlessAdapter extends AdapterWrapper {
-
-    private static final String TAG = "LazyEndlessAdapter";
-
     private View pendingView = null;
-
     private int pendingPosition = -1;
-
     private AppendTask appendTask;
-
     private String mUrl;
-
     private String mQuery;
-
     private Class<?> mLoadModel;
-
     private View mEmptyView;
-
     private LazyListView mListView;
-
     private int mCurrentPage;
-
     protected ScActivity mActivity;
-
     protected AtomicBoolean keepOnAppending = new AtomicBoolean(true);
-
     protected Boolean mException = false;
-
     private String mEmptyViewText = "";
-
-
-
-
-
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
                               Class<?> model) {
@@ -292,6 +272,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setAdapter(this);
+
                     appendTask.execute(buildRequest());
                 }
 
@@ -462,14 +443,13 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    private String buildRequest() {
-        String baseUrl = getUrl();
+    private Request buildRequest() {
+        Request request = Request.to(getUrl());
         String query = getQuery();
-        Uri u = Uri.parse(baseUrl);
-        Uri.Builder builder = u.buildUpon();
-        if (!TextUtils.isEmpty(query)) builder.appendQueryParameter("q", query);
-        if (baseUrl.indexOf("limit") == -1) builder.appendQueryParameter("limit", String.valueOf(getPageSize()));
-        builder.appendQueryParameter("offset", String.valueOf(getPageSize() * (getCurrentPage())));
-        return builder.build().toString();
+        if (!TextUtils.isEmpty(query)) request.add("q", query);
+        if (getUrl().indexOf("limit") == -1) request.add("limit", getPageSize());
+        getWrappedAdapter().addRequestExtra(request);
+        request.add("offset", getPageSize() * getCurrentPage());
+        return request;
     }
 }

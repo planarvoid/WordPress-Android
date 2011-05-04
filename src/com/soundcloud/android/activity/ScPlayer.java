@@ -13,10 +13,12 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.WaveformController;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -562,13 +564,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mPlayingTrack.load_info_task = new LoadTrackInfoTask(getSoundCloudApplication(), mPlayingTrack.id);
 
             mPlayingTrack.load_info_task.setActivity(this);
-            if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task))
-                mPlayingTrack.load_info_task.execute(
-                        CloudAPI.Enddpoints.TRACK_DETAILS.replace("{track_id}",
-                                Long.toString(mPlayingTrack.id)));
-
-            //mPlayingTrack.loadInfo(this);
-
+            if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task)) {
+                mPlayingTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlayingTrack.id));
+            }
         } else {
             ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(Integer.toString(mPlayingTrack.playback_count));
             ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.favoritings_count));
@@ -628,7 +626,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         int spanStartIndex;
         int spanEndIndex;
 
-        for (Comment comment : mPlayingTrack.comments){
+        for (final Comment comment : mPlayingTrack.comments){
             commentText.clear();
 
             View v = new View(this);
@@ -655,7 +653,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
 
             spanStartIndex = commentText.length();
-            commentText.append(" said " + CloudUtils.getTimeElapsed(this, comment.created_at.getTime()));
+            commentText.append(" said ").append(CloudUtils.getTimeElapsed(this, comment.created_at.getTime()));
 
             spanEndIndex = commentText.length();
             commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -663,6 +661,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             tv.setText(commentText);
             commentsList.addView(tv);
+
+            if (comment.user != null && comment.user.username != null) {
+                tv.setLinkTextColor(0xFF000000);
+                CloudUtils.clickify(tv, comment.user.username, new ClickSpan.OnClickListener(){
+                    @Override
+                    public void onClick() {
+                        Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
+                        intent.putExtra("userId", comment.user.id);
+                        startActivity(intent);
+                    }
+                });
+            }
         }
 
         //restore default sort

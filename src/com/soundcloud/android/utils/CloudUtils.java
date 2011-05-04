@@ -83,9 +83,7 @@ public class CloudUtils {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED  = 2;
         int DIALOG_CANCEL_UPLOAD = 3;
-        int DIALOG_AUTHENTICATION_CONTACTING = 4;
         int DIALOG_RESET_RECORDING = 5;
-        int DIALOG_CONFIRM_DELETE = 6;
     }
 
     public interface OptionsMenu {
@@ -98,6 +96,7 @@ public class CloudUtils {
 
     public interface GraphicsSizes {
         String T500  = "t500x500";
+        String CROP  = "crop";
         String LARGE = "large";
         String BADGE = "badge";
         String SMALL = "small";
@@ -143,13 +142,11 @@ public class CloudUtils {
 
     public static void showToast(Context c, int resId) {
         Toast toast = Toast.makeText(c, c.getText(resId), Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 
     public static void showToast(Context c, CharSequence text) {
         Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 
@@ -246,12 +243,9 @@ public class CloudUtils {
 
     public static String md5(String s) {
         try {
-            // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            MessageDigest digest = MessageDigest.getInstance("MD5");
             digest.update(s.getBytes());
             byte messageDigest[] = digest.digest();
-
-            // Create Hex String
             StringBuilder hexString = new StringBuilder();
             for (byte aMessageDigest : messageDigest) hexString.append(Integer.toHexString(0xFF & aMessageDigest));
             return hexString.toString();
@@ -460,10 +454,6 @@ public class CloudUtils {
 
     }
 
-    public static Long getPCMTime(File file, int sampleRate, int channels, int bitsPerSample) {
-        return file.length() / (sampleRate * channels * bitsPerSample / 8);
-    }
-
     public static String formatTimestamp(long pos){
         return CloudUtils.makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
                 : DURATION_FORMAT_LONG, pos / 1000);
@@ -575,7 +565,6 @@ public class CloudUtils {
     public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
         String note;
         if (!TextUtils.isEmpty(what)) {
-            Log.i(TAG,"Not empty what");
             if (!TextUtils.isEmpty(where)) {
                 note = String.format("%s at %s", what, where);
             } else {
@@ -583,10 +572,8 @@ public class CloudUtils {
             }
         } else {
             if (!TextUtils.isEmpty(where)) {
-                Log.i(TAG,"Not empty where");
                 note = String.format("Sounds from %s", where);
             } else {
-                Log.i(TAG,"Empty both");
                 note = String.format("Sounds from %s", recordingDateString(created_at));
             }
         }

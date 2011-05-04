@@ -19,11 +19,13 @@ public class GetTokensTask extends AsyncApiTask<String, Void, Token> {
 
     @Override
     protected Token doInBackground(String... params) {
-        if (params == null || params.length < 2) throw new IllegalArgumentException(Arrays.toString(params));
-        String login = params[0];
-        String password = params[1];
         try {
-            return api().login(login, password);
+            switch (params.length) {
+                case 0: throw new IllegalArgumentException("need at least one parameter");
+                case 1: return api().authorizationCode(params[0]);
+                case 2: return api().login(params[0], params[1]);
+                default:throw new IllegalArgumentException("too many parameters");
+            }
         } catch (IOException e) {
             mException = e;
             Log.e(TAG, "error logging in", e);

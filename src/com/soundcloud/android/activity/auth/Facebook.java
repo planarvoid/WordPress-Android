@@ -1,0 +1,122 @@
+package com.soundcloud.android.activity.auth;
+
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.CloudUtils;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+public class Facebook extends LoginActivity {
+    private WebView mWebview;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.facebook);
+
+        mWebview = (WebView) findViewById(R.id.webview);
+        mWebview.getSettings().setJavaScriptEnabled(true);
+        mWebview.getSettings().setBlockNetworkImage(false);
+        mWebview.getSettings().setLoadsImagesAutomatically(true);
+
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setIndeterminate(false);
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setTitle(R.string.connect_progress);
+        progress.setMax(100);
+
+        mWebview.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                progress.setProgress(newProgress);
+            }
+        });
+
+        mWebview.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                showConnectionError(description);
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String u, Bitmap favicon) {
+                progress.show();
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                progress.dismiss();
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+                if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
+                    Uri result = Uri.parse(url);
+                    String error = result.getQueryParameter("error");
+                    String code = result.getQueryParameter("code");
+                    if (!TextUtils.isEmpty(code) && error == null) {
+                        login(code);
+                    } else {
+                        final String message = "access_denied".equals(error) ?
+                                getString(R.string.authentication_failed_access_denied) :
+                                getString(R.string.authentication_failed_message);
+                        CloudUtils.showToast(Facebook.this, message);
+                        finish();
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        if (isConnected()) {
+            final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            mWebview.loadUrl(app.loginViaFacebook().toString());
+        } else {
+            showConnectionError(null);
+        }
+    }
+
+    private void showConnectionError(final String message) {
+        String error = getString(R.string.authentication_error_no_connection_message);
+        if (!TextUtils.isEmpty(message)) {
+            error += " ("+message+")";
+        }
+        new AlertDialog.Builder(this).
+                setMessage(error).
+                setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).create().show();
+    }
+
+
+    private boolean isConnected() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info =  manager.getActiveNetworkInfo();
+        return info != null && info.isConnectedOrConnecting();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mWebview.stopLoading();
+    }
+}

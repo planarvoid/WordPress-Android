@@ -5,8 +5,8 @@ import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
-import com.soundcloud.api.CloudAPI;
 
+import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentValues;
@@ -150,9 +150,9 @@ public class Recording extends BaseObj implements Parcelable {
         if (audio_path == null) throw new IllegalStateException("need audio_path set");
 
         upload_data = new HashMap<String, Object>();
-        upload_data.put(CloudAPI.TrackParams.SHARING, is_private ? CloudAPI.TrackParams.PRIVATE : CloudAPI.TrackParams.PUBLIC);
-        upload_data.put(CloudAPI.TrackParams.DOWNLOADABLE, false);
-        upload_data.put(CloudAPI.TrackParams.STREAMABLE, true);
+        upload_data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
+        upload_data.put(Params.Track.DOWNLOADABLE, false);
+        upload_data.put(Params.Track.STREAMABLE, true);
 
         if (!is_private) {
 
@@ -164,17 +164,17 @@ public class Recording extends BaseObj implements Parcelable {
 
              if (!serviceIds.isEmpty()) {
                 upload_data.put(
-                        CloudAPI.TrackParams.SHARING_NOTE,
+                        Params.Track.SHARING_NOTE,
                         CloudUtils.generateRecordingSharingNote(what_text,
                                 where_text, timestamp));
-                upload_data.put(CloudAPI.TrackParams.POST_TO, serviceIds);
+                upload_data.put(Params.Track.POST_TO, serviceIds);
              } else {
-                upload_data.put(CloudAPI.TrackParams.POST_TO_EMPTY, "");
+                upload_data.put(Params.Track.POST_TO_EMPTY, "");
              }
         } else {
 
              if (!TextUtils.isEmpty(shared_emails)) {
-                 upload_data.put(CloudAPI.TrackParams.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
+                 upload_data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
              }
         }
 
@@ -183,8 +183,8 @@ public class Recording extends BaseObj implements Parcelable {
         final String title = CloudUtils.generateRecordingSharingNote(what_text,
                 where_text, timestamp);
 
-        upload_data.put(CloudAPI.TrackParams.TITLE, title);
-        upload_data.put(CloudAPI.TrackParams.TYPE, "recording");
+        upload_data.put(Params.Track.TITLE, title);
+        upload_data.put(Params.Track.TYPE, "recording");
 
         // add machine tags
         List<String> tags = new ArrayList<String>();
@@ -200,7 +200,7 @@ public class Recording extends BaseObj implements Parcelable {
         if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
         if (latitude  != 0) tags.add("geo:lat="+latitude);
         if (longitude != 0) tags.add("geo:lon="+longitude);
-        upload_data.put(CloudAPI.TrackParams.TAG_LIST, TextUtils.join(" ", tags));
+        upload_data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
 
         File audio_file = new File(audio_path);
         if (audio_profile == Profile.RAW && !external_upload) {

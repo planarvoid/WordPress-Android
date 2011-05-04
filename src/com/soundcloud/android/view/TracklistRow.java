@@ -13,6 +13,7 @@ import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -197,7 +198,12 @@ public class TracklistRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
+
+        Log.i("asdf","DDDISPLAY 1 " + position);
+
         mTrack = getTrackFromParcelable((Parcelable) mAdapter.getItem(position));
+
+        Log.i("asdf","DDDISPLAY 2 " + mTrack);
 
         super.display(position);
 
@@ -212,8 +218,9 @@ public class TracklistRow extends LazyRow {
             // my tracklist row
             mCloseIcon.setVisibility(View.GONE);
             mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
-            mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity, mTrack.created_at.getTime()));
         }
+
+        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity, mTrack.created_at.getTime()));
 
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);

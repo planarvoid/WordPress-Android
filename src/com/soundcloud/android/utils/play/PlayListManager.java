@@ -96,17 +96,24 @@ public class PlayListManager {
 
         mPlayList = new long[playlistCache.size()];
 
-        for (int i = 0; i < playlistCache.size(); i++) {
-            if (playlistCache.get(i) instanceof Track) {
-                mPlayListCache[i] = (Track) playlistCache.get(i);
-            } else if (playlistCache.get(i) instanceof Event) {
-                mPlayListCache[i] = ((Event) playlistCache.get(i)).getTrack();
+        int i = 0;
+        for (Parcelable p : playlistCache){
+            if (p instanceof Track) {
+                mPlayListCache[i] = (Track) p;
+            } else if (p instanceof Event) {
+                mPlayListCache[i] = ((Event) p).getTrack();
+            } else {
+                // not playable, must be a recording.
+                // ignore it and decrease play index to account for it
+                playPos--;
+                continue;
             }
             mPlayList[i] = mPlayListCache[i].id;
+            i++;
         }
 
         mPlayPos = playPos;
-        mPlayListLen = playlistCache.size();
+        mPlayListLen = i;
 
         new CommitPlaylistTask(mPlaybackService.getContentResolver(),
                 ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId(),

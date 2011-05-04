@@ -3,7 +3,8 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Comment;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -26,10 +27,8 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
     }
 
     @Override
-    protected List<Comment> doInBackground(String... path) {
-        return list(
-                CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mTrackId)),
-                Comment.class);
+    protected List<Comment> doInBackground(Request... path) {
+        return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId), Comment.class);
     }
 
     @Override

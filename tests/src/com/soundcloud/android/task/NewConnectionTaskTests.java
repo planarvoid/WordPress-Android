@@ -14,23 +14,19 @@ import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
 public class NewConnectionTaskTests extends RoboApiBaseTests {
-
     @Test
     public void shouldReturnUri() throws Exception {
-        expectPostRequestAndReturn(CONNECTIONS, 202, "{ \"authorize_url\": \"http://example.com\" }");
-
-        NewConnectionTask task = new NewConnectionTask(api);
+        Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
+        NewConnectionTask task = new NewConnectionTask(realApi);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
-
         assertNotNull(uri);
         assertEquals("http://example.com", uri.toString());
     }
 
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
-        expectPostRequestAndReturn(CONNECTIONS, 400, "Failz");
-
-        NewConnectionTask task = new NewConnectionTask(api);
+        Robolectric.addPendingHttpResponse(400, "Failz");
+        NewConnectionTask task = new NewConnectionTask(realApi);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNull(uri);
     }

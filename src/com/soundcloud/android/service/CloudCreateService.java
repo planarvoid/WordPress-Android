@@ -26,11 +26,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.AudioManager;
-import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -43,9 +39,7 @@ import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
@@ -268,11 +262,11 @@ public class CloudCreateService extends Service {
     }
 
     private void stopRecording() {
-
-        mRecorder.stop();
-        mRecorder.release();
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+        }
         mRecording = false;
-
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
     }
@@ -492,7 +486,7 @@ public class CloudCreateService extends Service {
     }
 
     private class ImageResizeTask extends AsyncTask<UploadTask.Params, Integer, UploadTask.Params> {
-        private static final int RECOMMENDED_SIZE = 500;
+        private static final int RECOMMENDED_SIZE = 800;
         private AsyncTask<UploadTask.Params, ?, ?> nextTask;
 
 
@@ -515,62 +509,9 @@ public class CloudCreateService extends Service {
             final UploadTask.Params param = params[0];
 
             try {
-                final long start = System.currentTimeMillis();
-                BitmapFactory.Options options =
-                        ImageUtils.determineResizeOptions(param.artworkFile,
-                            RECOMMENDED_SIZE, RECOMMENDED_SIZE);
-
-                int sampleSize = options.inSampleSize;
-                int degree = 0;
-                    ExifInterface exif = new ExifInterface(param.artworkFile.getAbsolutePath());
-                    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-                    if (orientation != -1) {
-                        // We only recognize a subset of orientation tag values.
-                        switch (orientation) {
-                        case ExifInterface.ORIENTATION_ROTATE_90:
-                            degree = 90;
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_180:
-                            degree = 180;
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_270:
-                            degree = 270;
-                            break;
-                        default:
-                            degree = 0;
-                            break;
-                        }
-                    }
-
-
-                if (sampleSize > 1 || degree > 0) {
-                    InputStream is = new FileInputStream(param.artworkFile);
-
-                    options = new BitmapFactory.Options();
-                    options.inSampleSize = sampleSize;
-                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
-                    is.close();
-
-                    if (degree != 0){
-                        Bitmap preRotate = bitmap;
-                        Matrix mat = new Matrix();
-                        mat.postRotate(degree);
-                        bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(), preRotate.getHeight(), mat, true);
-                        preRotate.recycle();
-                    }
-
-                    if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
-
-                    File resized = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
-                    FileOutputStream out = new FileOutputStream(resized);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-
-                    out.close();
-                    ImageUtils.clearBitmap(bitmap);
-                    param.resizedFile = resized;
-
-                    Log.v(TAG, String.format("resized image in %d ms", System.currentTimeMillis() - start));
-                }
+                File outFile = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
+                ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE);
+                param.resizedFile = outFile;
                 return param;
             } catch (IOException e) {
                 Log.e(TAG, "error resizing", e);
@@ -651,7 +592,7 @@ public class CloudCreateService extends Service {
 
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
-            intent.putExtra("isPrivate", params.get(CloudAPI.TrackParams.SHARING).equals(CloudAPI.TrackParams.PRIVATE));
+            intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
             sendBroadcast(intent);
 
             ContentValues cv = new ContentValues();

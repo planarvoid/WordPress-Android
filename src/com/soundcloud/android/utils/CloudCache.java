@@ -58,9 +58,6 @@ public class CloudCache extends FileResponseCache {
         return maxDigitsFormatter.format(sizeRaw);
     }
 
-    /**
-     * Return the size of a directory in bytes
-     */
     private static long dirSize(File dir) {
         long result = 0;
         File[] fileList = dir.listFiles();
@@ -138,22 +135,15 @@ public class CloudCache extends FileResponseCache {
 
     public static class DeleteCacheTask extends AsyncTask<String, Integer, Boolean> {
         public WeakReference<Activity> mActivityRef;
-
-        public Boolean preserveDirs = false;
+        public boolean preserveDirs = false;
 
         public void setActivity(Activity activity) {
             mActivityRef = new WeakReference<Activity>(activity);
         }
 
         @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
         protected Boolean doInBackground(String... params) {
-            if (mActivityRef.get() == null)
-                return false;
-
+            if (mActivityRef.get() == null) return false;
             File folder = getCacheDir(mActivityRef.get());
             File[] files = folder.listFiles();
             File file;
@@ -161,20 +151,11 @@ public class CloudCache extends FileResponseCache {
             for (int i = 0; i < length; i++) {
                 file = files[i];
                 if (!preserveDirs || file.isFile()) {
-                    file.delete();
+                    if (!file.delete()) Log.w(TAG, "could not delete file "+file);
                     publishProgress(i, length);
                 }
             }
             return true;
         }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-        }
     }
-
 }

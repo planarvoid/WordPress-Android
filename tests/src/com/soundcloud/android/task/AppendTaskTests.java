@@ -2,15 +2,15 @@ package com.soundcloud.android.task;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,7 +47,7 @@ public class AppendTaskTests {
         task.setAdapter(adapter);
 
         Robolectric.addPendingHttpResponse(200, slurp("tracks.json"));
-        task.doInBackground("http://foo.com");
+        task.doInBackground(Request.to("http://foo.com"));
 
         assertThat(task.newItems, not(nullValue()));
         assertThat(task.newItems.size(), equalTo(11));
@@ -70,7 +70,7 @@ public class AppendTaskTests {
         task.setAdapter(adapter);
 
         Robolectric.addPendingHttpResponse(200, slurp("users.json"));
-        task.doInBackground("http://foo.com");
+        task.doInBackground(Request.to("http://foo.com"));
 
         assertThat(task.newItems, not(nullValue()));
         assertThat(task.newItems.size(), equalTo(1));

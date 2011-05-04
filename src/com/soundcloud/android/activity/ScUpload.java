@@ -115,14 +115,12 @@ public class ScUpload extends ScActivity {
             if (uploadFile.exists()) {
                 mapFromRecording();
             } else {
-                cursor.close();
                 errorOut("Record file is missing");
             }
             cursor.close();
         } else {
             errorOut("Recording not found");
         }
-
     }
 
     @Override
@@ -291,11 +289,6 @@ public class ScUpload extends ScActivity {
         finish();
     }
 
-
-    @Override
-    public void onReauthenticate() {
-        onRefresh();
-    }
 
     @Override
     public void onRefresh() {
@@ -511,5 +504,4 @@ public class ScUpload extends ScActivity {
                 }
         }
     }
-
 }

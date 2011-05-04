@@ -18,7 +18,7 @@ import android.view.animation.TranslateAnimation;
  * AnimationUtils is a helper class to make it easy to apply certain animation
  * effects to layouts and components. It also demonstrates various ways of
  * loading animation sequence definitions - from XML and generated in Java code.
- * 
+ *
  * @author Nazmul Idris
  * @version 1.0
  * @since Jun 24, 2008, 1:22:27 PM
@@ -69,6 +69,12 @@ public class AnimUtils {
         LayoutAnimationController controller = new LayoutAnimationController(set, 0.25f);
         panel.setLayoutAnimation(controller);
 
+    }
+
+    public static Animation runFadeInAnimationOn(Activity ctx, View target) {
+        Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_in);
+        target.startAnimation(animation);
+        return animation;
     }
 
     public static Animation runFadeOutAnimationOn(Activity ctx, View target) {

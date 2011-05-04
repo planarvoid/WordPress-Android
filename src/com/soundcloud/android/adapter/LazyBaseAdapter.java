@@ -3,8 +3,9 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.utils.FastBitmapDrawable;
+import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.api.Request;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -64,6 +65,10 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     public long getItemId(int i) {
         return i;
+    }
+
+    public void addRequestExtra(Request request) {
+
     }
 
     public View getView(int index, View row, ViewGroup parent) {

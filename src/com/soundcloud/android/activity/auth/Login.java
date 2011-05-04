@@ -2,25 +2,12 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.GetTokensTask;
-import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Token;
 
-import android.accounts.AccountAuthenticatorActivity;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -28,10 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.IOException;
-
-public class Login extends AccountAuthenticatorActivity {
-
+public class Login extends LoginActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -52,7 +36,6 @@ public class Login extends AccountAuthenticatorActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
                         (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                                 event.getAction() == KeyEvent.ACTION_DOWN)) {
-
                     return loginBtn.performClick();
                 } else {
                     return false;
@@ -73,89 +56,36 @@ public class Login extends AccountAuthenticatorActivity {
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
                     CloudUtils.showToast(Login.this, R.string.authentication_error_incomplete_fields);
                 } else {
-                    final String email =  emailField.getText().toString();
+                    final String email = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
                     login(email, password);
                 }
             }
         });
 
-
         CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                 getResources().getString(R.string.authentication_I_forgot_my_password),
                 new ClickSpan.OnClickListener() {
-            @Override
-            public void onClick() {
-                Intent i = new Intent(Login.this, Recover.class);
-                if (emailField.getText().length() > 0) {
-                    i.putExtra("email", emailField.getText().toString());
-                }
-                startActivityForResult(i, 0);
-            }
-        });
+                    @Override
+                    public void onClick() {
+                        Intent i = new Intent(Login.this, Recover.class);
+                        if (emailField.getText().length() > 0) {
+                            i.putExtra("email", emailField.getText().toString());
+                        }
+                        startActivityForResult(i, 0);
+                    }
+                });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult("+requestCode+","+resultCode+","+data);
-    }
-
-    protected void login(final String username, final String password) {
-        final String type = getString(R.string.account_type);
-        final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
-
-        new GetTokensTask(api) {
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                progress = new ProgressDialog(Login.this);
-                progress.setIndeterminate(true);
-                progress.setTitle(R.string.progress_sc_connect_title);
-                progress.show();
-            }
-
-            @Override
-            protected void onPostExecute(final Token token) {
-                if (token != null) {
-                    new LoadTask.LoadUserTask(api) {
-                        @Override
-                        protected void onPostExecute(User user) {
-                            progress.dismiss();
-                            SoundCloudApplication app = (SoundCloudApplication) getApplication();
-                            if (user != null && app.addUserAccount(user, token.access, token.refresh)) {
-                                final Bundle result = new Bundle();
-                                result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                                result.putString(AccountManager.KEY_ACCOUNT_TYPE, type);
-                                setAccountAuthenticatorResult(result);
-                                finish();
-                            } else { // user request failed
-                                showError(null);
-                            }
-                        }
-                    }.execute(CloudAPI.Enddpoints.MY_DETAILS);
-                } else { // no tokens obtained
-                    progress.dismiss();
-                    showError(mException);
-                }
-            }
-        }.execute(username, password);
-    }
-
-    private void showError(IOException e) {
-        final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
-        new AlertDialog.Builder(Login.this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.error_sc_connect_error_title)
-                .setMessage(tokenError ? R.string.error_sc_connect_invalid_password : R.string.error_sc_connect_error_message)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // finish();
-                    }
-                })
-                .create()
-                .show();
+        if (resultCode == RESULT_OK) {
+            boolean success = data.getBooleanExtra("success", false);
+            CloudUtils.showToast(this,
+                    success ?
+                        R.string.authentication_recover_password_success :
+                        R.string.authentication_recover_password_failure);
+        }
     }
 }

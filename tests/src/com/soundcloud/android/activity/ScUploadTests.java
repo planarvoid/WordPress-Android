@@ -12,7 +12,7 @@ import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Params;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 @SuppressWarnings({"ALL"})
 @RunWith(DefaultTestRunner.class)
-public class ScUploadTests implements CloudAPI.TrackParams {
+public class ScUploadTests implements Params.Track {
     ScUpload create;
     ICloudCreateService service;
 

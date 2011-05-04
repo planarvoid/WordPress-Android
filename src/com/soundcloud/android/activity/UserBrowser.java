@@ -19,11 +19,13 @@ import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -121,6 +123,18 @@ public class UserBrowser extends ScActivity {
             mIcon.getLayoutParams().height = 67;
         }
 
+        mIcon.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (CloudUtils.checkIconShouldLoad(_iconURL)) {
+                    new FullImageDialog(UserBrowser.this, CloudUtils.formatGraphicsUrl(_iconURL,
+                            GraphicsSizes.CROP)).show();
+                }
+
+            }
+        });
+
         mFollow = (ImageButton) findViewById(R.id.btn_favorite);
         mFollow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -164,13 +178,6 @@ public class UserBrowser extends ScActivity {
 
         loadDetails();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //this.unregisterReceiver(mUpdateAdapterListener);
-    }
-
 
     @Override
     protected void onResume() {
@@ -254,6 +261,10 @@ public class UserBrowser extends ScActivity {
 
     private void loadUserById(long userId) {
         mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
+        if (mUserData == null) {
+            mUserData = new User();
+            mUserLoadId = mUserData.id = userId;
+        }
         build();
         checkFollowingStatus();
     }
@@ -275,7 +286,7 @@ public class UserBrowser extends ScActivity {
         }
 
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(getDetailsUrl());
+            mLoadDetailsTask.execute(getDetailsRequest());
         }
     }
 
@@ -324,7 +335,10 @@ public class UserBrowser extends ScActivity {
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl(), Track.class);
         if (isOtherUser()) {
             if (mUserData != null) {
-                adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_tracks_text, mUserData.username));
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_tracks_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
             }
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
@@ -338,7 +352,10 @@ public class UserBrowser extends ScActivity {
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl(), Track.class);
         if (isOtherUser()){
             if (mUserData != null) {
-                adpWrap.setEmptyViewText(getResources().getString(R.string.empty_user_favorites_text, mUserData.username));
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_favorites_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
             }
         } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
@@ -480,17 +497,16 @@ public class UserBrowser extends ScActivity {
         Thread t = new Thread() {
             @Override
             public void run() {
+                final Request request = Request.to(Endpoints.MY_FOLLOWING, mUserData.id);
                 try {
                     if (mUserData.current_user_following) {
                         mFollowResult =
-                                getSoundCloudApplication().putContent(
-                                        CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
-                                                + mUserData.id, null).getStatusLine().getStatusCode();
+                                getSoundCloudApplication().put(request)
+                                        .getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
-                                getSoundCloudApplication().deleteContent(
-                                        CloudAPI.Enddpoints.MY_FOLLOWINGS + "/"
-                                                + mUserData.id).getStatusLine().getStatusCode();
+                                getSoundCloudApplication().delete(request)
+                                        .getStatusLine().getStatusCode();
                     }
 
                 } catch (IOException e) {
@@ -699,31 +715,28 @@ public class UserBrowser extends ScActivity {
 
 
 
-    private String getDetailsUrl() {
-        return CloudAPI.Enddpoints.USER_DETAILS.replace("{user_id}",
-                Long.toString(mUserLoadId));
+    private Request getDetailsRequest() {
+        return Request.to(Endpoints.USER_DETAILS, mUserLoadId);
     }
 
     private String getUserTracksUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_TRACKS.replace("{user_id}",
-                        Long.toString(mUserLoadId)), getTrackOrder());
+                String.format(Endpoints.USER_TRACKS, mUserLoadId),getTrackOrder());
     }
 
     private String getFavoritesUrl() {
         return CloudUtils.buildRequestPath(
-                CloudAPI.Enddpoints.USER_FAVORITES.replace("{user_id}",
-                        Long.toString(mUserLoadId)), "favorited_at");
+                String.format(Endpoints.USER_FAVORITES, mUserLoadId), "favorited_at");
     }
 
     private String getFollowersUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWERS.replace("{user_id}",
-                Long.toString(mUserLoadId)), getUserOrder());
+        return CloudUtils.buildRequestPath(
+                String.format(Endpoints.USER_FOLLOWERS, mUserLoadId), getUserOrder());
     }
 
     private String getFollowingsUrl() {
-        return CloudUtils.buildRequestPath(CloudAPI.Enddpoints.USER_FOLLOWINGS.replace("{user_id}",
-                Long.toString(mUserLoadId)), getUserOrder());
+        return CloudUtils.buildRequestPath(
+                String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId), getUserOrder());
     }
 
     private String getUserOrder() {

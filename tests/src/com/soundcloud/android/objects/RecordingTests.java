@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class RecordingTests {
     @Test
     public void itShouldHaveANiceSharingNote() throws Exception {
         r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(CloudAPI.TrackParams.SHARING_NOTE));
+        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
         assertThat(note, equalTo("Sounds from Thursday afternoon"));
     }
 
@@ -44,7 +44,7 @@ public class RecordingTests {
     public void shouldGenerateASharingNoteWithLocation() throws Exception {
         r.where_text = "Mars";
         r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(CloudAPI.TrackParams.SHARING_NOTE));
+        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
         assertThat(note, equalTo("Sounds from Mars"));
     }
 
@@ -53,7 +53,7 @@ public class RecordingTests {
         r.what_text = "Party";
         r.where_text = "Mars";
         r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(CloudAPI.TrackParams.SHARING_NOTE));
+        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
         assertThat(note, equalTo("Party at Mars"));
     }
 
@@ -61,7 +61,7 @@ public class RecordingTests {
     public void shouldGenerateASharingNoteWithTitle() throws Exception {
         r.what_text = "Party";
         r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(CloudAPI.TrackParams.SHARING_NOTE));
+        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
         assertThat(note, equalTo("Party"));
     }
 
@@ -69,7 +69,7 @@ public class RecordingTests {
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
         r.external_upload = true;
         r.prepareForUpload();
-        String tags = String.valueOf(r.upload_data.get(CloudAPI.TrackParams.TAG_LIST));
+        String tags = String.valueOf(r.upload_data.get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
         assertThat(tagList, hasItem("soundcloud:source=android-3rdparty-upload"));
     }

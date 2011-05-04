@@ -1,7 +1,10 @@
 package com.soundcloud.android.task;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -14,9 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements CloudAPI.ProgressListener {
-    private static final String TAG = UploadTask.class.getSimpleName();
-
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Request.TransferProgressListener {
     private long transferred;
     private CloudAPI api;
 
@@ -82,18 +83,20 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             return !failed;
         }
 
-        public Http.Params getApiParams() {
-            final Http.Params apiParams = new Http.Params();
+        public Request getRequest(Request.TransferProgressListener listener) {
+            final Request request = new Request(Endpoints.TRACKS);
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                  if (entry.getValue() instanceof Iterable) {
                      for (Object o : (Iterable)entry.getValue()) {
-                         apiParams.add(entry.getKey(), o.toString());
+                         request.add(entry.getKey(), o.toString());
                      }
                  } else {
-                    apiParams.add(entry.getKey(), entry.getValue().toString());
+                    request.add(entry.getKey(), entry.getValue().toString());
                  }
             }
-            return apiParams;
+            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, trackFile)
+                          .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile())
+                          .setProgressListener(listener);
         }
     }
 
@@ -126,9 +129,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
-                    HttpResponse response = api.uploadTrack(track, artwork, param.getApiParams(), UploadTask.this);
+                    HttpResponse response = api.post(param.getRequest(UploadTask.this));
                     StatusLine status = response.getStatusLine();
-
                     if (status.getStatusCode() == HttpStatus.SC_CREATED) {
                         Log.d(TAG, "Upload successful");
                     } else {

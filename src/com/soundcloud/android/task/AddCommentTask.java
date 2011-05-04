@@ -2,24 +2,24 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
 
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
 import android.os.AsyncTask;
 
 import java.io.IOException;
 
-public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
+public class AddCommentTask extends AsyncTask<com.soundcloud.android.objects.Comment, String, Boolean> {
 
     SoundCloudApplication mApplication;
     AddCommentListener mAddCommentListener;
-    Comment mAddComment;
+    com.soundcloud.android.objects.Comment mAddComment;
 
     Exception mException;
-    Http.Params mApiParams;
+    Request mRequest;
 
     public AddCommentTask(SoundCloudApplication app, AddCommentListener addCommentListener) {
         mApplication = app;
@@ -27,17 +27,16 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Comment... params) {
+    protected Boolean doInBackground(com.soundcloud.android.objects.Comment... params) {
         mAddComment = params[0];
-        mApiParams = new Http.Params();
-        mApiParams.add(CloudAPI.CommentParams.BODY, mAddComment.body);
-        if (mAddComment.timestamp > -1) mApiParams.add(CloudAPI.CommentParams.TIMESTAMP, Long.toString(mAddComment.timestamp));
-        if (mAddComment.reply_to_id > 0) mApiParams.add(CloudAPI.CommentParams.REPLY_TO, Long.toString(mAddComment.reply_to_id));
+        mRequest = Request.to(Endpoints.TRACK_COMMENTS, mAddComment.track_id)
+                          .add(Params.Comment.BODY, mAddComment.body);
+
+        if (mAddComment.timestamp > -1) mRequest.add(Params.Comment.TIMESTAMP, mAddComment.timestamp);
+        if (mAddComment.reply_to_id > 0) mRequest.add(Params.Comment.REPLY_TO, mAddComment.reply_to_id);
 
         try {
-            return mApplication.postContent(
-                    CloudAPI.Enddpoints.TRACK_COMMENTS.replace("{track_id}", Long.toString(mAddComment.track_id)),
-                    mApiParams).getStatusLine().getStatusCode() == HttpStatus.SC_CREATED;
+            return mApplication.post(mRequest).getStatusLine().getStatusCode() == HttpStatus.SC_CREATED;
         } catch (IOException e) {
            mException = e;
            return false;
@@ -54,7 +53,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     // Define our custom Listener interface
     public interface AddCommentListener {
-        void onCommentAdd(boolean success, Comment c);
-        void onException(Comment c, Exception e);
+        void onCommentAdd(boolean success, com.soundcloud.android.objects.Comment c);
+        void onException(com.soundcloud.android.objects.Comment c, Exception e);
     }
 }

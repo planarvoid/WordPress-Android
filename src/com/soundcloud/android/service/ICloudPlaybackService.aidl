@@ -1,9 +1,6 @@
 package com.soundcloud.android.service;
 
-import android.graphics.Bitmap;
 import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.Comment;
-
 interface ICloudPlaybackService
 {
     void playFromAppCache(int playPos);
