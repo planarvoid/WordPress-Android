@@ -44,6 +44,7 @@ public class Facebook extends LoginActivity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
+        mWebview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
