@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -87,6 +88,13 @@ public class Facebook extends LoginActivity {
                         CloudUtils.showToast(Facebook.this, message);
                         finish();
                     }
+                    return true;
+                } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
+                           url.startsWith("http://m.facebook.com") ||    /* signup */
+                           url.startsWith("http://touch.facebook.com/reset.php")) { /* password reset */
+
+                    // launch external browser
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
                 } else {
                     return false;
