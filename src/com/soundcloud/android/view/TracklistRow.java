@@ -13,7 +13,6 @@ import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -199,11 +198,7 @@ public class TracklistRow extends LazyRow {
     @Override
     public void display(int position) {
 
-        Log.i("asdf","DDDISPLAY 1 " + position);
-
         mTrack = getTrackFromParcelable((Parcelable) mAdapter.getItem(position));
-
-        Log.i("asdf","DDDISPLAY 2 " + mTrack);
 
         super.display(position);
 
