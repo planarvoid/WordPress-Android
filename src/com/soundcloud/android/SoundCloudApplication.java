@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
@@ -32,6 +33,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -45,6 +47,7 @@ import java.util.List;
 @ReportsCrashes(formKey = "dFNJa3pCWHFOYW1Nd2hTb29KVlFybFE6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
+    public static final String GA_TRACKING = "UA-2519404-11";
 
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
@@ -58,6 +61,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private AndroidCloudAPI mCloudApi;
     private List<Parcelable> mPlaylistCache;
     private ImageLoader mImageLoader;
+    private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
+    private GoogleAnalyticsTracker tracker;
 
     public boolean playerWaitForArtwork;
 
@@ -66,14 +71,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
 
-    private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
-
     @Override
     public void onCreate() {
         super.onCreate();
 
-        if (DALVIK && !EMULATOR) {
-            ACRA.init(this); // don't use ACRA when running unit tests / emulator
+        if (DALVIK) {
+            if (!EMULATOR) {
+                ACRA.init(this); // don't use ACRA when running unit tests / emulator
+            }
+            tracker = GoogleAnalyticsTracker.getInstance();
+            tracker.start(GA_TRACKING, this);
         }
 
         createImageLoaders();
@@ -274,6 +281,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             return true;
         }
     }
+
+    public void pageTrack(String path) {
+        if (tracker != null && !TextUtils.isEmpty(path)) {
+            try {
+                tracker.trackPageView(path);
+                tracker.dispatch();
+            } catch (IllegalStateException ignored) {
+                // logs indicate this gets thrown occasionally
+                Log.w(TAG, ignored);
+            }
+        }
+    }
+
 
     private String getClientId(boolean production) {
         return getResources().getString(production ?

@@ -1,6 +1,8 @@
 package com.soundcloud.android.activity;
 
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
@@ -56,8 +58,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class UserBrowser extends ScActivity {
-    private static String TAG = "UserBrowser";
-
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
@@ -73,11 +73,6 @@ public class UserBrowser extends ScActivity {
     private ImageButton mFollow;
 
     private String _iconURL;
-
-    private ScTabView mTracksView;
-    private ScTabView mFavoritesView;
-    private ScTabView mFollowersView;
-    private ScTabView mFollowingsView;
 
     private WorkspaceView mWorkspaceView;
 
@@ -124,7 +119,6 @@ public class UserBrowser extends ScActivity {
         }
 
         mIcon.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 if (CloudUtils.checkIconShouldLoad(_iconURL)) {
@@ -175,7 +169,6 @@ public class UserBrowser extends ScActivity {
                 loadYou();
             }
         }
-
         loadDetails();
     }
 
@@ -344,8 +337,8 @@ public class UserBrowser extends ScActivity {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
         }
 
-        mTracksView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, mTracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
+        ScTabView tracksView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
         CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>());
@@ -362,8 +355,8 @@ public class UserBrowser extends ScActivity {
         }
 
 
-        mFavoritesView = new ScTabView(this, adpWrap);
-        CloudUtils.createTabList(this, mFavoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
+        ScTabView favoritesView = new ScTabView(this, adpWrap);
+        CloudUtils.createTabList(this, favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
         CloudUtils.createTab(mTabHost, "favorites", getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
@@ -374,14 +367,14 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl(), User.class);
 
-        final ScTabView followingsView = mFollowingsView = new ScTabView(this, adpWrap);
+        final ScTabView followingsView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>());
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl(), User.class);
 
-        final ScTabView followersView = mFollowersView = new ScTabView(this, adpWrap);
+        final ScTabView followersView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
@@ -396,10 +389,10 @@ public class UserBrowser extends ScActivity {
             mWorkspaceView.initWorkspace(0);
         }
 
-        mWorkspaceView.addView(mTracksView);
-        mWorkspaceView.addView(mFavoritesView);
+        mWorkspaceView.addView(tracksView);
+        mWorkspaceView.addView(favoritesView);
         mWorkspaceView.addView(detailsView);
-        mWorkspaceView.addView(mFollowingsView);
+        mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
 
         mTabWidget.invalidate();

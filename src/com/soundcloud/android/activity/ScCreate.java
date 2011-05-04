@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB.Recordings;
@@ -43,8 +45,6 @@ import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
 public class ScCreate extends ScActivity {
-    private static final String TAG = "ScCreate";
-
     private TextView txtInstructions, txtRecordStatus;
     private LinearLayout mFileLayout;
     private PowerGauge mPowerGauge;
@@ -84,18 +84,22 @@ public class ScCreate extends ScActivity {
         mCurrentState = CreateState.IDLE_RECORD;
 
         setContentView(R.layout.sc_record);
-
         if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0) {
             mRecordingId = getIntent().getLongExtra("recordingId",0);
         }
 
         initResourceRefs();
-
         updateUi(false);
 
         mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
         if (!mRecordDir.exists()) mRecordDir.mkdirs();
         mRecordErrorMessage = "";
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pageTrack("/record");
     }
 
     @Override
@@ -250,8 +254,7 @@ public class ScCreate extends ScActivity {
                 }
             }
 
-
-            Log.i(TAG,"service bound Current state " + mCurrentState + " " + mRecordingId + " " + mCreateService.getPlaybackLocalId());
+            Log.d(TAG, "service bound Current state " + mCurrentState + " " + mRecordingId + " " + mCreateService.getPlaybackLocalId());
             if (mCreateService.isRecording() && mRecordingId == 0) {
                 mCurrentState = CreateState.RECORD;
                 setRecordFile(new File(mCreateService.getRecordingPath()));
@@ -270,8 +273,9 @@ public class ScCreate extends ScActivity {
                 // in this case, state should be based on what is in the recording directory
                 if (mRecordFile == null) setValidOldestFile();
 
-                if (mRecordFile != null)
+                if (mRecordFile != null) {
                     Log.i(TAG,"Loading file " + mRecordFile.getAbsolutePath() + "  with profile of " + mAudioProfile);
+                }
 
                 if (mRecordFile != null) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
