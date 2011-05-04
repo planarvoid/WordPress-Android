@@ -5,9 +5,13 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadFollowingsTask;
+import com.soundcloud.android.task.LoadFollowingsTask.FollowingsListener;
 import com.soundcloud.android.utils.CloudCache;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -40,6 +44,7 @@ import java.net.ContentHandler;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @ReportsCrashes(formKey = "dFNJa3pCWHFOYW1Nd2hTb29KVlFybFE6MQ")
@@ -67,6 +72,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             new LruCache<String, Throwable>(256);
 
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
+
+    public HashMap<Long,Boolean> followingsMap;
+    private LoadFollowingsTask mFollowingsTask;
 
     @Override
     public void onCreate() {
@@ -388,5 +396,13 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
+    }
+
+    public void requestUserFollowings(FollowingsListener listener){
+        if (CloudUtils.isTaskFinished(mFollowingsTask)){
+            mFollowingsTask = new LoadFollowingsTask(this);
+            mFollowingsTask.execute(Request.to(Endpoints.MY_FOLLOWINGS));
+        }
+        mFollowingsTask.addListener(listener);
     }
 }

@@ -1,22 +1,37 @@
 
 package com.soundcloud.android.adapter;
 
-import java.util.ArrayList;
-
-import android.os.Parcelable;
-
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.task.LoadFollowingsTask.FollowingsListener;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
 
-public class UserlistAdapter extends LazyBaseAdapter {
+import android.os.Parcelable;
+
+import java.util.ArrayList;
+
+public class UserlistAdapter extends LazyBaseAdapter implements FollowingsListener {
 
     public static final String IMAGE = "UserlistAdapter_image";
 
     public static final String TAG = "UserlistAdapter";
 
+    public boolean gotFollowings;
+
     public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
         super(activity, data);
+
+        if (activity.getSoundCloudApplication().followingsMap == null){
+            activity.getSoundCloudApplication().requestUserFollowings(this);
+        }
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        gotFollowings = false;
+        mActivity.getSoundCloudApplication().followingsMap = null;
+        mActivity.getSoundCloudApplication().requestUserFollowings(this);
     }
 
     @Override
@@ -24,4 +39,8 @@ public class UserlistAdapter extends LazyBaseAdapter {
         return new UserlistRow(mActivity, this);
     }
 
+    @Override
+    public void onFollowings(boolean success) {
+        gotFollowings = !success;
+    }
 }
