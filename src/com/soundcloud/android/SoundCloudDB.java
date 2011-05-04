@@ -11,17 +11,16 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class SoundCloudDB {
+    private static final String TAG = "ScSyncAdapterService";
 
-        /**
-         *
-         */
-        private SoundCloudDB () {
+    private SoundCloudDB () {
         }
 
         public enum WriteState {
@@ -41,14 +40,16 @@ public class SoundCloudDB {
             insertActivities(contentResolver, activities, currentUserId, 0);
         }
 
-        public void insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long onlyAfter) {
+        public int insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long onlyAfter) {
 
             List<ContentValues> tracksCV = new ArrayList<ContentValues>();
             List<ContentValues> eventsCV = new ArrayList<ContentValues>();
             List<ContentValues> usersCV = new ArrayList<ContentValues>();
 
+            int inserted = 0;
             for (Event evt : activities) {
                 if (evt.created_at.getTime() >= onlyAfter){
+                    inserted++;
                     tracksCV.add(evt.getTrack().buildContentValues());
                     eventsCV.add(evt.buildContentValues(currentUserId, false));
                     usersCV.add(evt.getTrack().user.buildContentValues(false));
@@ -60,7 +61,46 @@ public class SoundCloudDB {
             contentResolver.bulkInsert(Tracks.CONTENT_URI, tracksCV.toArray(new ContentValues[tracksCV.size()]));
             contentResolver.bulkInsert(Users.CONTENT_URI, usersCV.toArray(new ContentValues[usersCV.size()]));
             contentResolver.bulkInsert(Events.CONTENT_URI, eventsCV.toArray(new ContentValues[eventsCV.size()]));
+            return inserted;
         }
+
+    public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents) {
+        Log.i(TAG,"Cleaning Stale Activities for user " + userId + ", keeping a max of " + maxEvents);
+        Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
+            "count(" + Events.ID + ")",
+        }, Events.USER_ID + " = " + userId, null, null);
+
+        countCursor.moveToFirst();
+        int eventsCount = countCursor.getInt(0);
+        countCursor.close();
+
+        // if there are older entries, delete them as necessary
+        if (eventsCount > maxEvents) {
+            Cursor lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
+                Events.CREATED_AT,
+            }, Events.USER_ID + " = " + userId, null, Events.CREATED_AT + " DESC LIMIT "
+                    + maxEvents);
+
+            lastCursor.moveToLast();
+            long lastTimestamp = lastCursor.getLong(0);
+
+            Log.i(TAG,
+                    "Deleting rows " + lastTimestamp + " "
+                            + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                                    + userId + " AND " + Events.CREATED_AT + " < " + lastTimestamp,
+                                    null));
+        }
+
+    }
+
+    public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long beforeTime) {
+        Log.i(TAG, "Deleting rows  before " + beforeTime + " "
+                        + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                                + userId + " AND " + Events.CREATED_AT + " <= " + beforeTime, null));
+
+    }
+
+
 
         // ---Make sure the database is up to date with this track info---
         public void resolveTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
@@ -336,6 +376,8 @@ public class SoundCloudDB {
             public static final String ORIGIN_ID = "origin_id";
             public static final String NEXT_CURSOR = "next_cursor";
         }
+
+
 
 
 

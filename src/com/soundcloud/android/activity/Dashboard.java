@@ -10,7 +10,11 @@ import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -20,6 +24,10 @@ public class Dashboard extends ScActivity {
     protected LazyListView mListView;
     private ScTabView mTracklistView;
     private String mTrackingPath;
+    private IntentFilter mSyncCheckFilter;
+
+    public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
+
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -56,6 +64,16 @@ public class Dashboard extends ScActivity {
         if (mPreviousState != null) {
             ((LazyEndlessAdapter) mTracklistView.adapter).restoreState(mPreviousState);
         }
+
+        mSyncCheckFilter = new IntentFilter();
+        mSyncCheckFilter.addAction(SYNC_CHECK_ACTION);
+        registerReceiver(mIntentReceiver, mSyncCheckFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mIntentReceiver);
     }
 
     @Override
@@ -86,6 +104,16 @@ public class Dashboard extends ScActivity {
     public void onRefresh() {
         mTracklistView.onRefresh();
     }
+
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(SYNC_CHECK_ACTION)) {
+                this.setResultCode(Activity.RESULT_OK);
+            }
+        }
+    };
 
     // legacy action, redirect to Main
     private boolean redirectToMain() {

@@ -14,6 +14,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -43,6 +44,7 @@ public class EventsAdapter extends TracklistAdapter {
     @Override
     public void addRequestExtra(Request request) {
         if (mData.size() > 0){
+            Log.i(TAG,"Adding extra " + ((Event) mData.get(mData.size()-1)).next_cursor);
             request.add("cursor", ((Event) mData.get(mData.size()-1)).next_cursor);
         }
     }

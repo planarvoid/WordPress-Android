@@ -109,6 +109,11 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
             if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {
                 newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
             } else if (Event.class.equals(loadModel)) {
+
+               // Log.i(TAG,"GOT SOMETHING " + CloudUtils.ReadInputStream(is));
+                //resp = mApp.get(req);
+                //is = resp.getEntity().getContent();
+
                 Activities activities = mApp.getMapper().readValue(is, Activities.class);
                 activities.setCursorToLastEvent();
                 SoundCloudDB.getInstance().insertActivities(mApp.getContentResolver(), activities, mApp.getCurrentUserId());

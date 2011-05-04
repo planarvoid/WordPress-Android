@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.lang.reflect.Field;
+import java.util.Comparator;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -126,6 +127,14 @@ public class Event extends BaseObj implements Parcelable {
         cv.put(Events.USER_ID, user_id);
         cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
+    }
+
+
+    public static class CompareCreatedAt implements Comparator<Event>{
+        @Override
+        public int compare(Event c1, Event c2) {
+            return c2.created_at.compareTo(c1.created_at);
+        }
     }
 
 }

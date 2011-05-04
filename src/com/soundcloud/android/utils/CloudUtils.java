@@ -43,6 +43,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -642,4 +644,13 @@ public class CloudUtils {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
+
+    public static String ReadInputStream(InputStream in) throws IOException {
+        StringBuffer stream = new StringBuffer();
+        byte[] b = new byte[4096];
+        for (int n; (n = in.read(b)) != -1;) {
+        stream.append(new String(b, 0, n));
+        }
+        return stream.toString();
+        }
 }

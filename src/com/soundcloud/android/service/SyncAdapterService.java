@@ -4,6 +4,7 @@ package com.soundcloud.android.service;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.Events;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
@@ -18,8 +19,10 @@ import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -35,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SyncAdapterService extends Service {
-    private static final String TAG = "ContactsSyncAdapterService";
+    private static final String TAG = "ScSyncAdapterService";
     private static ScSyncAdapter sSyncAdapter = null;
     private static ContentResolver mContentResolver = null;
 
@@ -89,8 +92,8 @@ public class SyncAdapterService extends Service {
 
         app.useAccount(account);
 
-        long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
-        long firstTimestamp = 0;
+        final long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
+
 
         // get the timestamp of the newest record in the database
         Cursor firstCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
@@ -98,21 +101,24 @@ public class SyncAdapterService extends Service {
         }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
                 + MAX_EVENTS_STORED);
 
-        if (firstCursor.getCount() > 0){
-            firstCursor.moveToFirst();
-            firstTimestamp = firstCursor.getLong(0);
-        }
+        if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
+
+        final long firstTimestamp = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(0);
         firstCursor.close();
 
-        boolean caughtUp = false;
+
+        int added = 0;
+        Activities activities = null;
         try {
             HttpResponse response = app.get(buildRequest(Endpoints.MY_ACTIVITIES, 0));
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Activities activities = app.getMapper().readValue(
+                activities = app.getMapper().readValue(
                         response.getEntity().getContent(), Activities.class);
                 activities.setCursorToLastEvent();
-                SoundCloudDB.getInstance().insertActivities(app.getContentResolver(), activities,
+                added = SoundCloudDB.getInstance().insertActivities(app.getContentResolver(), activities,
                         user_id, firstTimestamp);
+
+                Log.i(TAG,"Inserted " + added + " of " + activities.size() + " activities");
             }
 
         } catch (JsonParseException e) {
@@ -128,48 +134,34 @@ public class SyncAdapterService extends Service {
             e.printStackTrace();
         }
 
+        final boolean caughtUp = (activities != null && added != activities.size());
 
+        Intent intent = new Intent();
+        intent.setAction(Dashboard.SYNC_CHECK_ACTION);
+        app.sendOrderedBroadcast(intent, null, new BroadcastReceiver() {
 
-        Cursor countCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
-            "count(" + Events.ID + ")",
-        }, Events.USER_ID + " = " + user_id, null, null);
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int result = getResultCode();
 
-        countCursor.moveToFirst();
-        int eventsCount = countCursor.getInt(0);
-        countCursor.close();
-
-        // if there are older entries, delete them as necessary
-        if (firstTimestamp > 0) {
-
-            if (caughtUp) {
-
-                if (eventsCount > MAX_EVENTS_STORED) {
-                    Cursor lastCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
-                        Events.CREATED_AT,
-                    }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
-                            + MAX_EVENTS_STORED);
-
-                    lastCursor.moveToLast();
-                    long lastTimestamp = lastCursor.getLong(0);
-
-                    Log.i(TAG,
-                            "Deleting rows "
-                                    + lastTimestamp
-                                    + " "
-                                    + mContentResolver.delete(Events.CONTENT_URI, Events.USER_ID
-                                            + " = " + user_id + " AND " + Events.CREATED_AT + " < "
-                                            + lastTimestamp, null));
+                if (result == Activity.RESULT_CANCELED) { // Activity caught it
+                    Log.d(TAG, "No Dashboard Activity, go ahead delete events as necessary");
+                    // if there are older entries, delete them as necessary
+                    if (firstTimestamp > 0) {
+                        if (caughtUp) {
+                            SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED);
+                        } else {
+                            // we never reached the older entries, so delete them
+                            SoundCloudDB.getInstance().deleteActivitiesBefore(mContentResolver, user_id, firstTimestamp);
+                        }
+                    }
+                    return;
                 }
-
-            } else {
-                // we never reached the older entries, so delete them
-                Log.i(TAG,
-                        "Deleting rows "
-                                + mContentResolver.delete(Events.CONTENT_URI, Events.USER_ID
-                                        + " = " + user_id + " AND " + Events.CREATED_AT + " <= "
-                                        + firstTimestamp, null));
             }
-        }
+        }, null, Activity.RESULT_CANCELED, null, null);
+
+
+
 
     }
 
