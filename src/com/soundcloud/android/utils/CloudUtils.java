@@ -63,9 +63,6 @@ public class CloudUtils {
 
     public static final String DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
 
-    public static final String DEPRECATED_RECORDINGS_FOLDER_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud/.rec";
-    public static final String NEW_RECORDINGS_ABS_PATH = Environment.getExternalStorageDirectory()+"/SoundCloud/recordings";
-
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files/.cache/");
@@ -600,21 +597,20 @@ public class CloudUtils {
     }
 
 
-    public static String getTimeElapsed(Context c, long eventTimestamp){
+    public static String getTimeElapsed(android.content.res.Resources r, long eventTimestamp){
         long elapsed = (System.currentTimeMillis() - eventTimestamp)/1000;
-
         if (elapsed < 60) {
-            return c.getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
+            return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
         } else if (elapsed < 3600) {
-            return c.getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60));
+            return r.getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60));
         } else if (elapsed < 86400) {
-            return c.getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600));
+            return r.getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600));
         } else if (elapsed < 2592000) {
-            return c.getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400));
+            return r.getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400));
         } else if (elapsed < 31536000) {
-            return c.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
+            return r.getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
         } else {
-            return c.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
+            return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
         }
     }
 

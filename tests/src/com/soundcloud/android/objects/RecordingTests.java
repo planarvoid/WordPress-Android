@@ -4,8 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Params;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,11 +16,9 @@ import java.util.Calendar;
 import java.util.List;
 
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class RecordingTests {
-
     Recording r;
-
 
     @Before
     public void setup() throws Exception {
@@ -30,39 +29,30 @@ public class RecordingTests {
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
         r.audio_path  = "/tmp/foo";
-
     }
 
     @Test
     public void itShouldHaveANiceSharingNote() throws Exception {
-        r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
-        assertThat(note, equalTo("Sounds from Thursday afternoon"));
+        assertThat(r.sharingNote(), equalTo("Sounds from Thursday afternoon"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithLocation() throws Exception {
         r.where_text = "Mars";
-        r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
-        assertThat(note, equalTo("Sounds from Mars"));
+        assertThat(r.sharingNote(), equalTo("Sounds from Mars"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
         r.what_text = "Party";
         r.where_text = "Mars";
-        r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
-        assertThat(note, equalTo("Party at Mars"));
+        assertThat(r.sharingNote(), equalTo("Party at Mars"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithTitle() throws Exception {
         r.what_text = "Party";
-        r.prepareForUpload();
-        String note = String.valueOf(r.upload_data.get(Params.Track.SHARING_NOTE));
-        assertThat(note, equalTo("Party"));
+        assertThat(r.sharingNote(), equalTo("Party"));
     }
 
     @Test
@@ -72,5 +62,20 @@ public class RecordingTests {
         String tags = String.valueOf(r.upload_data.get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
         assertThat(tagList, hasItem("soundcloud:source=android-3rdparty-upload"));
+    }
+
+    @Test
+    public void shouldGenerateStatusWithUploaded() throws Exception {
+        assertThat(
+                r.getStatus(Robolectric.application.getResources()),
+                equalTo("null, not yet uploaded"));
+    }
+
+    @Test
+    public void shouldGenerateStatusWithCurrentlyUploading() throws Exception {
+        r.upload_status = 1;
+        assertThat(
+                r.getStatus(Robolectric.application.getResources()),
+                equalTo("Uploading, progress is in notifications"));
     }
 }

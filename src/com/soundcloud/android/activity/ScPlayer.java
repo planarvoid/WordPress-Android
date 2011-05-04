@@ -654,7 +654,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
 
             spanStartIndex = commentText.length();
-            commentText.append(" said ").append(CloudUtils.getTimeElapsed(this, comment.created_at.getTime()));
+            commentText.append(" said ").append(CloudUtils.getTimeElapsed(getResources(), comment.created_at.getTime()));
 
             spanEndIndex = commentText.length();
             commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
