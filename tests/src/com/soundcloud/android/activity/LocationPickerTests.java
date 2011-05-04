@@ -5,27 +5,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.location.Location;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LocationPickerTests {
-
-    private String slurp(String res) throws IOException {
-        StringBuilder sb = new StringBuilder(65536);
-        int n;
-        byte[] buffer = new byte[8192];
-        InputStream is = getClass().getResourceAsStream(res);
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
-        return sb.toString();
-    }
+public class LocationPickerTests extends RoboApiBaseTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {

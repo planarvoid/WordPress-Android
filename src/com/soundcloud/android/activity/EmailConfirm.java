@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -12,7 +13,6 @@ import org.apache.http.HttpResponse;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -62,18 +62,16 @@ public class EmailConfirm extends Activity  {
     }
 
     private void updateLastReminded() {
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putLong(PREF_LAST_REMINDED, System.currentTimeMillis())
-                .commit();
+        getApp().setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
     }
 
     private long getLastReminded() {
-        return PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .getLong(PREF_LAST_REMINDED, -1);
+        return getApp().getAccountDataLong(PREF_LAST_REMINDED);
     }
 
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {
         public ResendConfirmationTask(AndroidCloudAPI api) {
             super(api);

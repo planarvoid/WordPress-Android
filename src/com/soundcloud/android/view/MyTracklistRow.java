@@ -1,40 +1,35 @@
 
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.FastBitmapDrawable;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MyTracklistRow extends TracklistRow {
-
-    private static final String TAG = "MyTracklistRow";
-
     private boolean mIsPendingUpload;
-
-    private final Bitmap mPendingDefaultIconBitmap;
 
     private final FastBitmapDrawable mPendingDefaultIcon;
 
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
-
-        mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(),R.drawable.artwork_badge_onhold);
+        Bitmap mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.artwork_badge_onhold);
         mPendingDefaultIcon = new FastBitmapDrawable(mPendingDefaultIconBitmap);
-
     }
 
     @Override
@@ -52,25 +47,18 @@ public class MyTracklistRow extends TracklistRow {
             setBackgroundColor(0xFFFFFFFF);
             mIsPendingUpload = false;
             super.display(position);
-
         }
-
     }
 
     private void fillRowFromRecording(Recording recording){
-
-        //get rid of submenu if it exists
-        onNoSubmenu();
+        onNoSubmenu(); //get rid of submenu if it exists
         if (findViewById(R.id.row_submenu) != null) {
             findViewById(R.id.row_submenu).setVisibility(View.GONE);
         }
 
         mPlayIndicator.setVisibility(View.GONE);
 
-        mTitle.setText(CloudUtils.generateRecordingSharingNote(
-                recording.what_text,
-                recording.where_text,
-                recording.timestamp));
+        mTitle.setText(recording.sharingNote());
         mTitle.setTextColor(0xFFFFFFFF);
 
         if (recording.is_private){
@@ -80,13 +68,7 @@ public class MyTracklistRow extends TracklistRow {
         }
 
         mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtRecSecondary));
-        mCreatedAt.setText(recording.upload_status == 1 ? mActivity
-                .getString(R.string.cloud_upload_currently_uploading) : CloudUtils
-                .getTimeElapsed(mActivity, recording.timestamp)
-                + ", "
-                + (recording.upload_error ? mActivity
-                        .getString(R.string.cloud_upload_upload_failed) : mActivity
-                        .getString(R.string.cloud_upload_not_yet_uploaded)));
+        mCreatedAt.setText(recording.getStatus(mActivity.getResources()));
 
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
@@ -96,7 +78,7 @@ public class MyTracklistRow extends TracklistRow {
             return;
         }
 
-        BindResult result = BindResult.ERROR;
+        BindResult result;
         ImageLoader.Options options = new ImageLoader.Options();
         try {
             options.decodeInSampleSize = ImageUtils.determineResizeOptions(
@@ -104,7 +86,7 @@ public class MyTracklistRow extends TracklistRow {
                             (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
                             (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, "error", e);
         }
         result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,options);
 
@@ -143,6 +125,5 @@ public class MyTracklistRow extends TracklistRow {
                 setBackgroundColor(0x00000000);
             }
         }
-
     }
 }

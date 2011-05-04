@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -43,7 +44,6 @@ public class AddInfo extends Activity {
     private File mAvatarFile;
     private Bitmap mAvatarBitmap;
     private ImageView mArtworkImg;
-    private ProgressDialog mProgressDialog;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -53,7 +53,7 @@ public class AddInfo extends Activity {
 
     protected void build() {
         setContentView(R.layout.auth_add_info);
-        final com.soundcloud.android.objects.User user = getIntent().getParcelableExtra("user");
+        final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
         usernameField.setHint(user.username);
@@ -82,7 +82,7 @@ public class AddInfo extends Activity {
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                addUserInfo(user, usernameField.getText().toString());
+                addUserInfo(user, usernameField.getText().toString(), mAvatarFile);
             }
         });
 
@@ -130,27 +130,30 @@ public class AddInfo extends Activity {
         });
     }
 
-    private void addUserInfo(com.soundcloud.android.objects.User user, String newUsername) {
+    void addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
         }
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
+            ProgressDialog dialog;
+
             @Override
             protected void onPreExecute() {
-                mProgressDialog = ProgressDialog.show(AddInfo.this, "",
+                dialog = ProgressDialog.show(AddInfo.this, "",
                         getString(R.string.authentication_add_info_progress_message));
             }
 
             @Override
-            protected void onPostExecute(com.soundcloud.android.objects.User user) {
-                mProgressDialog.dismiss();
+            protected void onPostExecute(User user) {
+                dialog.dismiss();
                 if (user != null) {
                     finishSignup();
                 } else {
+                    // XXX wording
                     CloudUtils.showToast(AddInfo.this, "There was a problem...");
                 }
             }
-        }.execute(new Pair<com.soundcloud.android.objects.User, File>(user, mAvatarFile));
+        }.execute(Pair.create(user, avatarFile));
     }
 
     private void finishSignup() {
@@ -253,24 +256,29 @@ public class AddInfo extends Activity {
         }
     }
 
-    static class AddUserInfoTask extends AsyncApiTask<Pair<com.soundcloud.android.objects.User,File>, Void, com.soundcloud.android.objects.User> implements Params.User {
+    static class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
         public AddUserInfoTask(AndroidCloudAPI api) {
             super(api);
         }
 
         @Override
-        protected com.soundcloud.android.objects.User doInBackground(Pair<com.soundcloud.android.objects.User, File>... params) {
-            final Pair<com.soundcloud.android.objects.User,File> args = params[0];
-            final com.soundcloud.android.objects.User u = args.first;
+        protected User doInBackground(final Pair<User, File>... params) {
+            final User u = params[0].first;
+            final File file = params[0].second;
             try {
-                ImageUtils.resizeImageFile(args.second, args.second, 800, 800);
+                Request updateMe = Request.to(MY_DETAILS).with(
+                        Params.User.NAME, u.username,
+                        Params.User.PERMALINK, u.permalink);
 
-                HttpResponse resp = api().put(Request.to(MY_DETAILS).with(
-                        NAME, u.username,
-                        PERMALINK, u.permalink)
-                        .withFile(AVATAR, args.second));
+                // resize and attach file if present
+                if (file != null && file.canWrite()) {
+                    // XXX really overwrite file?
+                    ImageUtils.resizeImageFile(file, file, 800, 800);
+                    updateMe.withFile(Params.User.AVATAR, file);
+                }
+                HttpResponse resp = api().put(updateMe);
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
-                    return api().getMapper().readValue(resp.getEntity().getContent(), com.soundcloud.android.objects.User.class);
+                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
                 } else {
                     warn("unexpected response", resp);
                     return null;

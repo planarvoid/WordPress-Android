@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.objects;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -37,6 +38,7 @@ public class Recording extends BaseObj implements Parcelable {
     public String what_text;
     public String where_text;
     public String audio_path;
+    /** in msecs */
     public long duration;
     public String artwork_path;
     public String four_square_venue_id;
@@ -165,8 +167,7 @@ public class Recording extends BaseObj implements Parcelable {
              if (!serviceIds.isEmpty()) {
                 upload_data.put(
                         Params.Track.SHARING_NOTE,
-                        CloudUtils.generateRecordingSharingNote(what_text,
-                                where_text, timestamp));
+                        sharingNote());
                 upload_data.put(Params.Track.POST_TO, serviceIds);
              } else {
                 upload_data.put(Params.Track.POST_TO_EMPTY, "");
@@ -229,5 +230,31 @@ public class Recording extends BaseObj implements Parcelable {
     private String generateFilename(String title, String extension) {
         return String.format("%s_%s.%s", URLEncoder.encode(title.replace(" ","_")),
                DateFormat.format("yyyy-MM-dd-hh-mm-ss", timestamp), extension);
+    }
+
+    public String sharingNote() {
+        return CloudUtils.generateRecordingSharingNote(
+                what_text,
+                where_text,
+                timestamp);
+    }
+
+
+    public String getStatus(android.content.res.Resources resources) {
+        if (upload_status == 1) {
+            return resources.getString(R.string.cloud_upload_currently_uploading);
+        } else {
+            return CloudUtils.getTimeElapsed(resources, timestamp)
+                    + ", "
+                    + formattedDuration()
+                    + ", "
+                    + (upload_error ?
+                    resources.getString(R.string.cloud_upload_upload_failed) :
+                    resources.getString(R.string.cloud_upload_not_yet_uploaded));
+        }
+    }
+
+    public String formattedDuration() {
+        return  CloudUtils.formatTimestamp(duration);
     }
 }

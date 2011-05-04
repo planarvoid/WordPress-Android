@@ -44,6 +44,7 @@ import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -465,9 +466,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         refreshComments();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK &&
+             mTrackFlipper.getDisplayedChild() != 0) {
+            onTrackInfoFlip();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
     private void onTrackInfoFlip() {
-
-
         if (mTrackFlipper.getDisplayedChild() == 0) {
             mWaveformController.closeComment();
 
@@ -495,11 +505,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                             R.drawable.artwork_player_sm));
                 }
             }
-            else
+            else {
                 mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player_sm));
+            }
 
             mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_info_artwork_states));
-
         } else {
             ImageLoader.get(this).unbind(mInfoButton);
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
@@ -527,9 +537,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                                 getResources().getString(R.string.info_error)),
                         mTrackInfo.getChildCount() - 2);
             }
-
             mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
-
         } else {
             mPlayingTrack = track;
             fillTrackDetails();
@@ -537,9 +545,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackInfo.findViewById(android.R.id.empty) != null) {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
             }
-
             mTrackInfo.findViewById(R.id.info_view).setVisibility(View.VISIBLE);
-
         }
     }
 
@@ -610,14 +616,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
         }
 
-
         if (mPlayingTrack.comments == null)
             return;
 
         //sort by created date descending for this list
         Collections.sort(mPlayingTrack.comments, new Comment.CompareCreatedAt());
-
-
 
         final SpannableStringBuilder commentText = new SpannableStringBuilder();
         final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.commentGray));
@@ -637,10 +640,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             TextView tv = new TextView(this);
             tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
             tv.setPadding(10, 5, 10, 5);
-            //((LinearLayout.LayoutParams) tv.getLayoutParams()).
             tv.setTextSize(14);
             tv.setLineSpacing(5, 1);
-
 
             if (comment.user != null && comment.user.username != null) {
                 commentText.append(comment.user.username).append(' ');
@@ -653,7 +654,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
 
             spanStartIndex = commentText.length();
-            commentText.append(" said ").append(CloudUtils.getTimeElapsed(this, comment.created_at.getTime()));
+            commentText.append(" said ").append(CloudUtils.getTimeElapsed(getResources(), comment.created_at.getTime()));
 
             spanEndIndex = commentText.length();
             commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -674,12 +675,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 });
             }
         }
-
         //restore default sort
         Collections.sort(mPlayingTrack.comments, new Comment.CompareTimestamp());
-
     }
-
 
     private void setPauseButtonImage() {
         try {
@@ -702,9 +700,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private long refreshNow() {
-
         try {
-
             if (mPlaybackService == null)
                 return 500;
 
@@ -734,7 +730,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-
         return 500;
     }
 
@@ -799,7 +794,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 updateTrackInfo();
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
                 // setPauseButtonImage();
-
             }
         }
     };
@@ -1091,7 +1085,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void setFavoriteStatus() {
-
         if (mPlayingTrack == null || mFavoriteButton == null) {
             return;
         }
@@ -1106,7 +1099,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void toggleFavorite() {
-
         if (mPlayingTrack == null)
             return;
 
@@ -1126,7 +1118,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
         setFavoriteStatus();
     }
-
 
     public void refreshComments(){
         if (mPlayingTrack == null) return;
@@ -1172,7 +1163,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             handleException();
         }
     };
-
 
     // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
     private static void initializeRemoteControlRegistrationMethods() {

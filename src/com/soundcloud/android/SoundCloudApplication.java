@@ -144,7 +144,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }, /*handler*/ null);
         }
 
-
         mCloudApi.invalidateToken();
     }
 
@@ -335,8 +334,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
-    public URI loginViaFacebook() {
-        return mCloudApi.loginViaFacebook();
+    public URI authorizationCodeUrl(String... options) {
+        return mCloudApi.authorizationCodeUrl(options);
     }
 
     public HttpResponse put(Request request) throws IOException {

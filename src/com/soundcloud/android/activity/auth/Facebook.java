@@ -4,17 +4,23 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -38,6 +44,7 @@ public class Facebook extends LoginActivity {
         progress.setTitle(R.string.connect_progress);
         progress.setMax(100);
 
+        mWebview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY); // fix white bar
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -49,6 +56,12 @@ public class Facebook extends LoginActivity {
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 showConnectionError(description);
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.cancel();
+                showConnectionError(error.toString());
             }
 
             @Override
@@ -77,6 +90,13 @@ public class Facebook extends LoginActivity {
                         finish();
                     }
                     return true;
+                } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
+                           url.startsWith("http://m.facebook.com") ||    /* signup */
+                           url.startsWith("http://touch.facebook.com/reset.php")) { /* password reset */
+
+                    // launch external browser
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
                 } else {
                     return false;
                 }
@@ -85,7 +105,8 @@ public class Facebook extends LoginActivity {
 
         if (isConnected()) {
             final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-            mWebview.loadUrl(app.loginViaFacebook().toString());
+            removeAllCookies();
+            mWebview.loadUrl(app.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString());
         } else {
             showConnectionError(null);
         }
@@ -107,6 +128,10 @@ public class Facebook extends LoginActivity {
                 }).create().show();
     }
 
+    private void removeAllCookies() {
+        CookieSyncManager.createInstance(this);
+        CookieManager.getInstance().removeAllCookie();
+    }
 
     private boolean isConnected() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

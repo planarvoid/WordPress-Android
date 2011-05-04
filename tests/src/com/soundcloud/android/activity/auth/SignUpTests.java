@@ -3,12 +3,12 @@ package com.soundcloud.android.activity.auth;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(DefaultTestRunner.class)
 public class SignUpTests {
     @Test
     public void shouldCheckEmail() throws Exception {
