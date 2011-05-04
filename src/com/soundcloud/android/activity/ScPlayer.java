@@ -44,6 +44,7 @@ import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -463,6 +464,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
         refreshComments();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK &&
+             mTrackFlipper.getDisplayedChild() != 0) {
+            onTrackInfoFlip();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     private void onTrackInfoFlip() {
