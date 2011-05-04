@@ -4,6 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -93,7 +94,7 @@ public class Facebook extends LoginActivity {
 
         if (isConnected()) {
             final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-            mWebview.loadUrl(app.loginViaFacebook().toString());
+            mWebview.loadUrl(app.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString());
         } else {
             showConnectionError(null);
         }
