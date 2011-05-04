@@ -17,6 +17,8 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -94,6 +96,7 @@ public class Facebook extends LoginActivity {
 
         if (isConnected()) {
             final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+            removeAllCookies();
             mWebview.loadUrl(app.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString());
         } else {
             showConnectionError(null);
@@ -116,6 +119,10 @@ public class Facebook extends LoginActivity {
                 }).create().show();
     }
 
+    private void removeAllCookies() {
+        CookieSyncManager.createInstance(this);
+        CookieManager.getInstance().removeAllCookie();
+    }
 
     private boolean isConnected() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
