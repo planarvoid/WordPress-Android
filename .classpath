@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="lib-proguard/httpmime-4.0.3.jar"/>
 	<classpathentry kind="lib" path="/Developer/sc_workspace/SoundCloud-Android/lib/libGoogleAnalytics-1.1.jar"/>
 	<classpathentry kind="lib" path="/Developer/sc_workspace/SoundCloud-Android/lib/acra-3.1.2.jar"/>
+	<classpathentry kind="lib" path="/Developer/sc_workspace/SoundCloud-Android/lib/java-api-wrapper-1.0.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

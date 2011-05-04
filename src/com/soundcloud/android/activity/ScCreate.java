@@ -215,10 +215,10 @@ public class ScCreate extends ScActivity {
                     mRecordFile = null;
                     mCurrentState = CreateState.IDLE_RECORD;
                 } else {
-                    Intent i = new Intent(ScCreate.this,ScUpload.class);
+                    Intent i = new Intent(ScCreate.this, ScUpload.class);
                     i.putExtra("recordingId", mRecordingId);
                     //start for result, because if an upload starts, finish, playback should not longer be possible
-                    startActivityForResult(i,0);
+                    startActivityForResult(i, 0);
                 }
             }
         });
@@ -404,8 +404,6 @@ public class ScCreate extends ScActivity {
         mLastState = mCurrentState;
         btnAction.setEnabled(true);
     }
-
-
 
     private void startRecording() {
         pause(true);

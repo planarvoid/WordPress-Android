@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical" android:background="#FFFFFFFF">
+    <TextView android:id="@+id/textView1"
+	android:layout_height="wrap_content" android:layout_width="match_parent"
+	android:text="@string/suggested_users_msg" android:textSize="16sp"
+	android:layout_marginTop="15dip" android:layout_marginLeft="17dip"
+	android:layout_marginRight="17dip" android:layout_marginBottom="10dip"></TextView>
+	<Button android:layout_height="wrap_content"
+		android:layout_marginBottom="10dip" android:layout_marginLeft="10dip"
+		android:textSize="18sp" android:layout_marginRight="10dip"
+		android:textColor="#FFFFFFFF" android:layout_width="fill_parent"
+		android:background="@drawable/btn_fb_bg_states" android:id="@+id/facebook_btn"
+		android:text="@string/authentication_log_in_with_facebook"></Button>
+	    <TextView android:id="@+id/textView1"
+    android:layout_height="wrap_content" android:layout_width="match_parent"
+    android:text="@string/suggested_users" android:paddingTop="5dip" android:paddingBottom="5dip" android:paddingLeft="10dip" android:paddingRight="10dip" android:enabled="true" android:background="#FFEFEFEF" android:textColor="@color/listTxtSecondary" android:textSize="16sp" android:textStyle="bold" android:layout_marginLeft="10dip" android:layout_marginRight="10dip" android:layout_marginTop="10dip"></TextView>
+	    <FrameLayout android:layout_width="match_parent" android:id="@+id/listHolder" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="10dip" android:layout_marginRight="10dip"></FrameLayout>
+</LinearLayout>

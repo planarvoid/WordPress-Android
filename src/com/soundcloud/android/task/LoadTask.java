@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -17,12 +18,12 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<String, Parcelable, Model> {
+public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Request, Parcelable, Model> {
     private final static String TAG = "LoadTask";
     private AndroidCloudAPI mApi;
-    private Class<?> mModel;
+    private Class<? extends Model> mModel;
 
-    public LoadTask(AndroidCloudAPI api, Class<?> model) {
+    public LoadTask(AndroidCloudAPI api, Class<? extends Model> model) {
         mApi = api;
         mModel = model;
     }
@@ -45,15 +46,15 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Strin
     }
 
     @Override
-    protected Model doInBackground(String... path) {
-        if (path == null || path.length == 0) throw new IllegalArgumentException("need path to load");
+    protected Model doInBackground(Request... request) {
+        if (request == null || request.length == 0) throw new IllegalArgumentException("need path to load");
 
         try {
-            HttpResponse resp = mApi.getContent(path[0]);
+            HttpResponse resp = mApi.get(request[0]);
             if (isCancelled()) return null;
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Model model = (Model) mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
+                Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
                 if (mApi instanceof SoundCloudApplication) {
                     CloudUtils.resolveParcelable((Context) mApi, model, ((SoundCloudApplication) mApi).getCurrentUserId());
                 }

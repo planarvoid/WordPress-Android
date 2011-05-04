@@ -117,7 +117,7 @@ public class ImageUtils {
 
     public static void resizeImageFile(File inputFile, File outputFile, int width, int height)
             throws IOException {
-        BitmapFactory.Options options = ImageUtils.determineResizeOptions(inputFile, width, height);
+        BitmapFactory.Options options = determineResizeOptions(inputFile, width, height);
 
         int sampleSize = options.inSampleSize;
         int degree = 0;

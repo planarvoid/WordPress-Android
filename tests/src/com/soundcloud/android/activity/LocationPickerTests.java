@@ -1,37 +1,21 @@
 package com.soundcloud.android.activity;
 
-import android.location.Location;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.Params;
-import com.xtremelabs.robolectric.Robolectric;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-@RunWith(DefaultTestRunner.class)
-public class LocationPickerTests {
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-    private String slurp(String res) throws IOException {
-        StringBuilder sb = new StringBuilder(65536);
-        int n;
-        byte[] buffer = new byte[8192];
-        InputStream is = getClass().getResourceAsStream(res);
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
-        return sb.toString();
-    }
+import android.location.Location;
+
+import java.util.List;
+
+@RunWith(DefaultTestRunner.class)
+public class LocationPickerTests extends RoboApiBaseTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {
@@ -79,39 +63,5 @@ public class LocationPickerTests {
         LocationPicker.FoursquareApiTask task = new LocationPicker.FoursquareApiTask();
         Location loc = new Location("mock");
         assertThat(task.doInBackground(loc).size(), equalTo(0));
-    }
-
-
-    @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
-    public static void main(String[] args) throws Exception {
-
-        HttpClient client = new DefaultHttpClient();
-        HttpHost host = new HttpHost("api.foursquare.com", -1, "https");
-
-        //http://developer.foursquare.com/docs/venues/search.html
-        HttpGet request = new HttpGet("/v2/venues/search?" + new Params(
-                "ll", "52.499229,13.418405",
-                "llAcc", 5,
-                "limit", 50,
-                "client_id", LocationPicker.FoursquareApiTask.client_id,
-                "client_secret", LocationPicker.FoursquareApiTask.client_secret
-        ));
-
-        HttpResponse resp = client.execute(host, request);
-        if (resp.getStatusLine().getStatusCode() == 200) {
-            byte[] buffer = new byte[8192];
-            InputStream content = resp.getEntity().getContent();
-
-            System.out.println();
-            int n;
-            while ((n = content.read(buffer)) != -1) {
-                System.out.print(new String(buffer, 0, n));
-            }
-            System.out.println();
-
-
-        } else {
-            System.err.println(resp.getStatusLine());
-        }
     }
 }

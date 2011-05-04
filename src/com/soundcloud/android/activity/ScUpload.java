@@ -121,7 +121,6 @@ public class ScUpload extends ScActivity {
         } else {
             errorOut("Recording not found");
         }
-
     }
 
     @Override

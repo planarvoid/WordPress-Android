@@ -214,7 +214,7 @@ public class TracklistRow extends LazyRow {
             mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
         }
 
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity, mTrack.created_at.getTime()));
+        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mTrack.created_at.getTime()));
 
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);

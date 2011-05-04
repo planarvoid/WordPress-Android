@@ -59,6 +59,9 @@
 
   <string name="authentication_error_title">Authentication error</string>
   <string name="authentication_error_no_connection_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
+  
+  <string name="suggested_users">Suggested Users</string>
+  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
@@ -641,6 +644,9 @@
     5 - second%60
     -->
     <skip/>
+
+    <!-- XXX still needed? CloudUtils.formatTimestamp() -->
+
     <!-- Do not translate. Duration format for duration < 1 hour -->
     <string translatable="false" name="durationformatshort"><xliff:g id="format">%2$d.%5$02d</xliff:g></string>
     <!-- Do not translate. Duration format for duration >= 1 hour -->

@@ -262,11 +262,11 @@ public class CloudCreateService extends Service {
     }
 
     private void stopRecording() {
-
-        mRecorder.stop();
-        mRecorder.release();
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+        }
         mRecording = false;
-
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
     }

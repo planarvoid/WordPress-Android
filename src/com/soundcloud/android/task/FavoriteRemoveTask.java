@@ -4,6 +4,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.util.Log;
 
@@ -17,10 +18,8 @@ public class FavoriteRemoveTask extends FavoriteTask {
     
     @Override
     protected int executeResponse(Track t) throws IOException{
-        return mScApp
-        .deleteContent(
-                Endpoints.MY_FAVORITES + "/"
-                        + t.id).getStatusLine().getStatusCode();
+        return mScApp.delete(Request.to(Endpoints.MY_FAVORITES, t.id))
+                .getStatusLine().getStatusCode();
     }
     
     @Override
@@ -28,11 +27,7 @@ public class FavoriteRemoveTask extends FavoriteTask {
         Log.i("RemoveFavorite","process response " + responseCode);
         boolean favorite = true;
         if (responseCode != 0) {
-            if (responseCode == 200 || responseCode == 404) {
-                favorite = false;
-            } else {
-                favorite = true;
-            }
+            favorite = !(responseCode == 200 || responseCode == 404);
         }
         return favorite;
     }

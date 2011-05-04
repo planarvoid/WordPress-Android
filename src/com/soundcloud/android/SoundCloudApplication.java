@@ -8,7 +8,8 @@ import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Params;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import org.acra.ACRA;
@@ -28,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -44,12 +46,12 @@ import java.util.List;
 public class SoundCloudApplication extends Application implements AndroidCloudAPI {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
-    public static boolean EMULATOR = "google_sdk".equals(android.os.Build.PRODUCT) ||
-            "sdk".equals(android.os.Build.PRODUCT);
+    public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
+    public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
 
     public static boolean DEV_MODE;
 
-    static final boolean API_PRODUCTION = true;
+    static final boolean API_PRODUCTION = false;
 
     private RecordListener mRecListener;
 
@@ -70,7 +72,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public void onCreate() {
         super.onCreate();
 
-        if (isRunningOnDalvik() && !EMULATOR) {
+        if (DALVIK && !EMULATOR) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
         }
 
@@ -82,7 +84,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 getClientSecret(API_PRODUCTION),
                 REDIRECT_URI,
                 account == null ? null : getToken(account),
-                API_PRODUCTION ? CloudAPI.Env.LIVE : CloudAPI.Env.SANDBOX
+                API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
         mCloudApi.addTokenStateListener(new TokenStateListener() {
@@ -141,7 +143,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             }, /*handler*/ null);
         }
-
 
         mCloudApi.invalidateToken();
     }
@@ -317,42 +318,36 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return AccountManager.get(this);
     }
 
-    public HttpResponse getContent(String resource) throws IOException {
-        return mCloudApi.getContent(resource);
+    public HttpResponse get(Request resource) throws IOException {
+        return mCloudApi.get(resource);
     }
 
-    public HttpResponse getContent(String resource, Params params) throws IOException {
-        return mCloudApi.getContent(resource, params);
-    }
-
-    public Token signupToken() throws IOException {
-        return mCloudApi.signupToken();
+    public Token clientCredentials() throws IOException {
+        return mCloudApi.clientCredentials();
     }
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
     }
 
-    @Deprecated
     public String signUrl(String path) {
-        return mCloudApi.signUrl(path);
+        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
     }
 
-    @Override
-    public URI loginViaFacebook() {
-        return mCloudApi.loginViaFacebook();
+    public URI authorizationCodeUrl(String... options) {
+        return mCloudApi.authorizationCodeUrl(options);
     }
 
-    public HttpResponse putContent(String resource, Params params) throws IOException {
-        return mCloudApi.putContent(resource, params);
+    public HttpResponse put(Request request) throws IOException {
+        return mCloudApi.put(request);
     }
 
-    public HttpResponse postContent(String resource, Params params) throws IOException {
-        return mCloudApi.postContent(resource, params);
+    public HttpResponse post(Request request) throws IOException {
+        return mCloudApi.post(request);
     }
 
-    public HttpResponse deleteContent(String resource) throws IOException {
-        return mCloudApi.deleteContent(resource);
+    public HttpResponse delete(Request request) throws IOException {
+        return mCloudApi.delete(request);
     }
 
     public Token refreshToken() throws IOException {
@@ -375,9 +370,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.addTokenStateListener(listener);
     }
 
-
-    public Token exchangeToken(String oauth1AccessToken) throws IOException {
-        return mCloudApi.exchangeToken(oauth1AccessToken);
+    public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
+        return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
     }
 
     public void invalidateToken() {
@@ -390,10 +384,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Token authorizationCode(String code) throws IOException {
         return mCloudApi.authorizationCode(code);
-    }
-
-    public static boolean isRunningOnDalvik() {
-        return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
     }
 
     public static interface RecordListener {
