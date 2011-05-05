@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
@@ -44,13 +43,13 @@ public class Dashboard extends ScActivity {
                 mTracklistView = createList(Endpoints.MY_ACTIVITIES,
                         Event.class,
                         R.string.empty_incoming_text,
-                        CloudUtils.ListId.LIST_INCOMING);
+                        CloudUtils.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,
-                        CloudUtils.ListId.LIST_EXCLUSIVE);
+                        CloudUtils.ListId.LIST_EXCLUSIVE, true);
                 mTrackingPath = "/exclusive";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
@@ -82,9 +81,9 @@ public class Dashboard extends ScActivity {
         pageTrack(mTrackingPath);
     }
 
-    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId) {
-        LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
+    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
+        EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, "collection");
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));

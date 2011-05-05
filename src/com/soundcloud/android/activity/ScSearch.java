@@ -73,11 +73,11 @@ public class ScSearch extends ScActivity {
         ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
 
-        LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>());
-        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "", Track.class);
+        LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
+        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "");
 
-        LazyBaseAdapter adpUser = new UserlistAdapter(this, new ArrayList<Parcelable>());
-        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "", User.class);
+        LazyBaseAdapter adpUser = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "");
 
         mList.setAdapter(mTrackAdpWrapper);
         mList.setId(android.R.id.list);

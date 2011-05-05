@@ -1,20 +1,22 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Events;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.QueryTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EventsRow;
 import com.soundcloud.android.view.LazyRow;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import android.database.Cursor;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,10 +27,14 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     public static final String TAG = "EventsAdapter";
     public String nextCursor;
 
+    private boolean mExclusive;
+    private QueryTask mQueryTask;
+
   //private ChangeObserver mChangeObserver;
 
-    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data) {
-        super(context, data);
+    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isExclusive, Class<?> model) {
+        super(context, data, model);
+        mExclusive = isExclusive;
         refreshCursor();
     }
 
@@ -42,29 +48,38 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         return ((Event) getItem(index)).getTrack();
     }
 
+    @Override
+    public boolean isQuerying(){
+        Log.i(TAG,"IS QUERYYYYYING " + mQueryTask + " " + (mQueryTask == null ? "" : mQueryTask.getStatus()));
+        return !CloudUtils.isTaskFinished(mQueryTask);
+    }
+
+    @Override
+    public void onPostQueryExecute() {
+        super.onPostQueryExecute();
+        if (mData.size() > 0
+                && ((mExclusive && mActivity.getSoundCloudApplication()
+                        .requestRecentExclusive(this)) || (!mExclusive && mActivity
+                        .getSoundCloudApplication().requestRecentIncoming(this)))) {
+        }
+        this.notifyDataSetChanged();
+    }
 
     private void refreshCursor() {
         mData = new ArrayList<Parcelable>();
-        Cursor cursor = mActivity.getContentResolver().query(Events.CONTENT_URI, null,
-                Events.USER_ID + "='" + mActivity.getUserId() + "'", null,
-                Events.ID + " DESC");
 
-        if (cursor != null && !cursor.isClosed()) {
-            Event e = null;
-            while (cursor.moveToNext()) {
-                e = new Event(cursor);
-                e.track = SoundCloudDB.getInstance().resolveTrackById(
-                        mActivity.getContentResolver(), e.origin_id, mActivity.getUserId());
-                mData.add(e);
-            }
-            nextCursor = e != null ? e.next_cursor : "";
-            cursor.close();
-        }
+        if (CloudUtils.isTaskFinished(mQueryTask)){
+            mQueryTask = new QueryTask(mActivity.getSoundCloudApplication());
+            mQueryTask.setAdapter(this);
+            mQueryTask.setQuery(Events.CONTENT_URI, null,
+                    Events.USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.EXCLUSIVE
+                            + " = " + (mExclusive ? "1" : "0"), null, Events.ID + " DESC");
+            mQueryTask.execute();
+        } else
+            mQueryTask.setAdapter(this);
 
-        if (mData.size() > 0 && mActivity.getSoundCloudApplication().requestRecentIncoming(this)){
-            // getting most recent, show the bar
-        }
     }
+
 
 
     @Override
@@ -85,11 +100,14 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     @Override
     public void onUpdate(boolean success) {
         if (success){
-            //hide notification
             refreshCursor();
         } else {
-            //on error
+            mActivity.showToast(mExclusive ? R.string.error_updating_exclusive : R.string.error_updating_incoming);
         }
 
+    }
+
+    public void onNextEventsCursor(String mNextCursor) {
+        nextCursor = mNextCursor;
     }
 }

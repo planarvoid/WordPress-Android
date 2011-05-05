@@ -23,8 +23,9 @@ public class MyTracksAdapter extends TracklistAdapter {
     private ChangeObserver mChangeObserver;
     private List<Recording> mRecordingData;
 
-    public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data) {
-        super(activity, data);
+    public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data,
+            Class<?> model) {
+        super(activity, data, model);
         refreshCursor();
     }
 

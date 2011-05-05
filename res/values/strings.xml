@@ -9,6 +9,12 @@
   <string name="error_loading_title">Network error</string>
   <string name="error_loading_message">There was a problem contacting Soundcloud.</string>
 
+  <string name="incoming_updating_message">Getting your latest incoming tracks.</string>
+  <string name="exclusive_updating_message">Getting your latest exclusive tracks.</string>
+
+  <string name="error_updating_incoming">Error updating your incoming tracks.</string>
+  <string name="error_updating_exclusive">Error updating your exclusive tracks.</string>
+
   <string name="authentication_contacting_title"></string>
   <string name="authentication_contacting_message">Contacting SoundCloud...</string>
   <string name="authentication_retrying_title">Communication error</string>

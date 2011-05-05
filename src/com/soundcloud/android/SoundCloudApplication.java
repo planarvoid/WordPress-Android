@@ -422,11 +422,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
 
-        Log.i("EventsAdapter","Request recent incoming " + mUpdateRecentIncomingTask);
-
         if (CloudUtils.isTaskFinished(mUpdateRecentIncomingTask)){
-            Log.i("EventsAdapter","Last incoming sync " + (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC)));
 
+            // only auto request if 5 minutes have gone by since sync
             if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
                 return false;
 

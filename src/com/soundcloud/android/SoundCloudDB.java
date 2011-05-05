@@ -70,7 +70,7 @@ public class SoundCloudDB {
 
         do {
             Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES);
-            request.add("limit", Integer.toString(200));
+            request.add("limit", Integer.toString(20));
 
             if (activities != null) { // add next cursor if applicable
                 List<NameValuePair> params = URLEncodedUtils.parse( URI.create(activities.next_href), "UTF-8");
@@ -103,13 +103,15 @@ public class SoundCloudDB {
                         tracksCV.add(0, evt.getTrack().buildContentValues());
                         usersCV.add(0, evt.getTrack().user.buildContentValues(false));
                         eventsCV.add(0, evt.buildContentValues(currentUserId, exclusive));
+
+
                     } else {
                         caughtUp = true;
                         break;
                     }
                 }
 
-                if (firstTrackId <= 0 && added > 200)
+                if (firstTrackId <= 0 && added > 100)
                     caughtUp = true;
 
                 Log.i(TAG, "keeping " + added + " of " + activities.size() + " activities");
@@ -159,7 +161,6 @@ public class SoundCloudDB {
         }
 
     public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
-        Log.i(TAG,"Cleaning Stale Activities for user " + userId + ", keeping a max of " + maxEvents);
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
         }, Events.USER_ID + " = " + userId, null, null);
@@ -167,6 +168,8 @@ public class SoundCloudDB {
         countCursor.moveToFirst();
         int eventsCount = countCursor.getInt(0);
         countCursor.close();
+
+        Log.i(TAG,"Cleaning Stale Activities for user " + userId + ", deleting" + Math.max(0,(eventsCount - maxEvents)) + " of " + eventsCount);
 
         // if there are older entries, delete them as necessary
         if (eventsCount > maxEvents) {

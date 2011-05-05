@@ -9,8 +9,8 @@ import android.text.TextUtils;
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            Class<?> loadModel, String collectionKey) {
-        super(activity, wrapped, url, loadModel, collectionKey);
+            String collectionKey) {
+        super(activity, wrapped, url, collectionKey);
     }
 
     @Override

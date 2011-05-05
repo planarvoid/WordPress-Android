@@ -1,13 +1,13 @@
 
 package com.soundcloud.android.adapter;
 
-import java.util.ArrayList;
-
-import android.os.Parcelable;
-
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
+
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 
 public class UserlistAdapter extends LazyBaseAdapter {
 
@@ -15,8 +15,9 @@ public class UserlistAdapter extends LazyBaseAdapter {
 
     public static final String TAG = "UserlistAdapter";
 
-    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
-        super(activity, data);
+    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data,
+            Class<?> model) {
+        super(activity, data, model);
     }
 
     @Override
