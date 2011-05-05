@@ -16,7 +16,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -50,12 +49,12 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
 
     @Override
     public boolean isQuerying(){
-        Log.i(TAG,"IS QUERYYYYYING " + mQueryTask + " " + (mQueryTask == null ? "" : mQueryTask.getStatus()));
         return !CloudUtils.isTaskFinished(mQueryTask);
     }
 
     @Override
     public void onPostQueryExecute() {
+        mQueryTask = null;
         super.onPostQueryExecute();
         if (mData.size() > 0
                 && ((mExclusive && mActivity.getSoundCloudApplication()
