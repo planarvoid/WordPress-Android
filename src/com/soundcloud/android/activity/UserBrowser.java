@@ -687,7 +687,7 @@ public class UserBrowser extends ScActivity {
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(_iconURL)) {
             if ((avatarResult = ImageLoader.get(this).bind(mIcon, _iconURL, null)) != BindResult.OK) {
-                mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
+                mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
             }
         }
     }

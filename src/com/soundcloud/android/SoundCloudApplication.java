@@ -56,7 +56,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static boolean DEV_MODE;
 
-    static final boolean API_PRODUCTION = false;
+    static final boolean API_PRODUCTION = true;
 
     private RecordListener mRecListener;
 
