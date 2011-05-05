@@ -97,13 +97,14 @@ public class SyncAdapterService extends Service {
 
         // get the timestamp of the newest record in the database
         Cursor firstCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
-            Events.CREATED_AT,
+            Events.ID, Events.ORIGIN_ID,
         }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
                 + MAX_EVENTS_STORED);
 
         if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
 
-        final long firstTimestamp = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(0);
+        final long firstOriginId = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(0);
+        final long firstTrackId = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(1);
         firstCursor.close();
 
 
@@ -116,7 +117,7 @@ public class SyncAdapterService extends Service {
                         response.getEntity().getContent(), Activities.class);
                 activities.setCursorToLastEvent();
                 added = SoundCloudDB.getInstance().insertActivities(app.getContentResolver(), activities,
-                        user_id, firstTimestamp);
+                        user_id, firstTrackId);
 
                 Log.i(TAG,"Inserted " + added + " of " + activities.size() + " activities");
             }
@@ -147,12 +148,12 @@ public class SyncAdapterService extends Service {
                 if (result == Activity.RESULT_CANCELED) { // Activity caught it
                     Log.d(TAG, "No Dashboard Activity, go ahead delete events as necessary");
                     // if there are older entries, delete them as necessary
-                    if (firstTimestamp > 0) {
+                    if (firstTrackId > 0) {
                         if (caughtUp) {
                             SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED);
                         } else {
                             // we never reached the older entries, so delete them
-                            SoundCloudDB.getInstance().deleteActivitiesBefore(mContentResolver, user_id, firstTimestamp);
+                            SoundCloudDB.getInstance().deleteActivitiesBefore(mContentResolver, user_id, firstOriginId);
                         }
                     }
                     return;

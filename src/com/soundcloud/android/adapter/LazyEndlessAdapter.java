@@ -377,8 +377,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    protected String getUrl() {
-        return mUrl;
+    protected Request getRequest() {
+        return Request.to(mUrl);
     }
 
     /**
@@ -444,12 +444,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @return the url
      */
     private Request buildRequest() {
-        Request request = Request.to(getUrl());
-        String query = getQuery();
-        if (!TextUtils.isEmpty(query)) request.add("q", query);
-        if (getUrl().indexOf("limit") == -1) request.add("limit", getPageSize());
-        getWrappedAdapter().addRequestExtra(request);
+        Request request = getRequest();
+        request.add("limit", getPageSize());
         request.add("offset", getPageSize() * getCurrentPage());
+        if (!TextUtils.isEmpty(mQuery)) request.add("q", mQuery);
         return request;
     }
 }

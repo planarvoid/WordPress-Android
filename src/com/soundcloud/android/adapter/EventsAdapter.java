@@ -8,11 +8,8 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.EventsRow;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.api.Request;
 
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
 
@@ -24,7 +21,9 @@ public class EventsAdapter extends TracklistAdapter {
 
     private Cursor mCursor;
     private boolean mDataValid;
-    private ChangeObserver mChangeObserver;
+    private ArrayList<Event> mLocalData;
+
+  //private ChangeObserver mChangeObserver;
 
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data) {
         super(context, data);
@@ -38,20 +37,58 @@ public class EventsAdapter extends TracklistAdapter {
 
     @Override
     public Track getTrackAt(int index) {
-        return ((Event) mData.get(index)).getTrack();
+        return ((Event) getItem(index)).getTrack();
     }
 
+    public int getLocalDataCount(){
+        return mLocalData == null ? 0 : mLocalData.size();
+    }
+
+
     @Override
-    public void addRequestExtra(Request request) {
-        if (mData.size() > 0){
-            Log.i(TAG,"Adding extra " + ((Event) mData.get(mData.size()-1)).next_cursor);
-            request.add("cursor", ((Event) mData.get(mData.size()-1)).next_cursor);
+    public int getCount() {
+        if (mDataValid && mLocalData != null) {
+            return mLocalData.size() + super.getCount();
+        } else {
+            return super.getCount();
+        }
+    }
+    @Override
+    public Object getItem(int position) {
+        if (mDataValid && mLocalData != null) {
+            if (position < mLocalData.size()){
+                return mLocalData.get(position);
+            } else
+                return super.getItem(position - mLocalData.size());
+        } else {
+            return super.getItem(position);
         }
     }
 
+    @Override
+    public long getItemId(int position) {
+        if (mDataValid && mLocalData != null) {
+            if (position < mLocalData.size()){
+                return mLocalData.get(position).id;
+            } else {
+                return super.getItemId(position - mLocalData.size());
+            }
+        } else {
+            return super.getItemId(position);
+        }
+    }
+
+    public String getNextCursor() {
+        if (mLocalData.size() > 0){
+            Log.i(TAG,"Adding extra " + (mLocalData.get(mLocalData.size()-1)).next_cursor);
+            return (mLocalData.get(mLocalData.size()-1)).next_cursor;
+        }
+        return "";
+}
+
     private void refreshCursor() {
         if (mCursor != null) {
-            mCursor.unregisterContentObserver(mChangeObserver);
+            //mCursor.unregisterContentObserver(mChangeObserver);
             mCursor.close();
         }
 
@@ -59,11 +96,13 @@ public class EventsAdapter extends TracklistAdapter {
                 Events.USER_ID + "='" + mActivity.getUserId() + "'", null,
                 Events.CREATED_AT + " DESC");
 
-        mChangeObserver = new ChangeObserver();
+
         if (mCursor != null) {
             mDataValid = true;
-            mCursor.registerContentObserver(mChangeObserver);
             loadEvents(mCursor);
+
+            //mChangeObserver = new ChangeObserver();
+            //mCursor.registerContentObserver(mChangeObserver);
         } else {
             mDataValid = false;
         }
@@ -78,6 +117,21 @@ public class EventsAdapter extends TracklistAdapter {
         refreshCursor();
     }
 
+
+    private void loadEvents(Cursor cursor) {
+        mLocalData = new ArrayList<Event>();
+        if (cursor != null && !cursor.isClosed()) {
+            while (cursor.moveToNext()) {
+                Event e = new Event(cursor);
+                e.track = SoundCloudDB.getInstance().resolveTrackById(mActivity.getContentResolver(), e.origin_id, mActivity.getUserId());
+                mLocalData.add(e);
+            }
+        }
+
+    }
+
+    /*
+
     protected void onContentChanged() {
         if (mCursor != null && !mCursor.isClosed()) {
             mDataValid = mCursor.requery();
@@ -87,18 +141,6 @@ public class EventsAdapter extends TracklistAdapter {
         animateSubmenuIndex = -1;
         loadEvents(mCursor);
         notifyDataSetChanged();
-    }
-
-    private void loadEvents(Cursor cursor) {
-        mData = new ArrayList<Parcelable>();
-        if (cursor != null && !cursor.isClosed()) {
-            while (cursor.moveToNext()) {
-                Event e = new Event(cursor);
-                e.track = SoundCloudDB.getInstance().resolveTrackById(mActivity.getContentResolver(), e.origin_id, mActivity.getUserId());
-                mData.add(e);
-                //Log.i(TAG,"Added Track " + mData.size() + " " + ((Event) mData.get(mData.size()-1)).getTrack().id);
-            }
-        }
     }
 
 
@@ -117,4 +159,8 @@ public class EventsAdapter extends TracklistAdapter {
             onContentChanged();
         }
     }
+
+*/
+
+
 }

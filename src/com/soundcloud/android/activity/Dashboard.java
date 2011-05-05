@@ -2,8 +2,8 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
@@ -62,7 +62,7 @@ public class Dashboard extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            ((LazyEndlessAdapter) mTracklistView.adapter).restoreState(mPreviousState);
+            ((EventsAdapterWrapper) mTracklistView.adapter).restoreState(mPreviousState);
         }
 
         mSyncCheckFilter = new IntentFilter();
@@ -84,7 +84,7 @@ public class Dashboard extends ScActivity {
 
     protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId) {
         LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, endpoint, model, "collection");
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));
@@ -97,7 +97,7 @@ public class Dashboard extends ScActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return ((LazyEndlessAdapter) mTracklistView.adapter).saveState();
+        return ((EventsAdapterWrapper) mTracklistView.adapter).saveState();
     }
 
     @Override

@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SoundCloud";
     private static final int DATABASE_VERSION = 6;
 
-    static final String DATABASE_CREATE_EVENTS = "create table Events (_id integer primary key, "
+    static final String DATABASE_CREATE_EVENTS = "create table Events (_id integer primary key AUTOINCREMENT, "
         + "created_at integer null, "
         + "user_id integer null, "
         + "type string null, "

@@ -40,7 +40,7 @@ public class SoundCloudDB {
             insertActivities(contentResolver, activities, currentUserId, 0);
         }
 
-        public int insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long onlyAfter) {
+        public int insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long stopAtTrackId) {
 
             List<ContentValues> tracksCV = new ArrayList<ContentValues>();
             List<ContentValues> eventsCV = new ArrayList<ContentValues>();
@@ -48,11 +48,11 @@ public class SoundCloudDB {
 
             int inserted = 0;
             for (Event evt : activities) {
-                if (evt.created_at.getTime() >= onlyAfter){
+                if (evt.getTrack().id != stopAtTrackId){
                     inserted++;
-                    tracksCV.add(evt.getTrack().buildContentValues());
-                    eventsCV.add(evt.buildContentValues(currentUserId, false));
-                    usersCV.add(evt.getTrack().user.buildContentValues(false));
+                    tracksCV.add(0, evt.getTrack().buildContentValues());
+                    eventsCV.add(0, evt.buildContentValues(currentUserId, false));
+                    usersCV.add(0, evt.getTrack().user.buildContentValues(false));
                 } else {
                     break;
                 }
@@ -77,26 +77,26 @@ public class SoundCloudDB {
         // if there are older entries, delete them as necessary
         if (eventsCount > maxEvents) {
             Cursor lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
-                Events.CREATED_AT,
-            }, Events.USER_ID + " = " + userId, null, Events.CREATED_AT + " DESC LIMIT "
+                Events.ID,
+            }, Events.USER_ID + " = " + userId, null, Events.ID + " DESC LIMIT "
                     + maxEvents);
 
             lastCursor.moveToLast();
-            long lastTimestamp = lastCursor.getLong(0);
+            long lastId = lastCursor.getLong(0);
 
             Log.i(TAG,
-                    "Deleting rows " + lastTimestamp + " "
+                    "Deleting rows " + lastId + " "
                             + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
-                                    + userId + " AND " + Events.CREATED_AT + " < " + lastTimestamp,
+                                    + userId + " AND " + Events.ID + " < " + lastId,
                                     null));
         }
 
     }
 
-    public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long beforeTime) {
-        Log.i(TAG, "Deleting rows  before " + beforeTime + " "
+    public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId) {
+        Log.i(TAG, "Deleting rows  before " + lastId + " "
                         + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
-                                + userId + " AND " + Events.CREATED_AT + " <= " + beforeTime, null));
+                                + userId + " AND " + Events.ID + " <= " + lastId, null));
 
     }
 
