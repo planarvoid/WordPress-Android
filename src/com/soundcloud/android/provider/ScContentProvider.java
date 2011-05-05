@@ -15,7 +15,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
 
 import java.util.HashMap;
 
@@ -256,7 +255,6 @@ public class ScContentProvider extends ContentProvider {
             int numValues = values.length;
             for (int i = 0; i < numValues; i++) {
                 if (db.replace(tblName, null, values[i]) < 0) return 0;
-                Log.v(TAG,tblName + " <- " + values[i]);
             }
             db.setTransactionSuccessful();
         } finally {

@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudDB.Events;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.view.EventsRow;
 import com.soundcloud.android.view.LazyRow;
 
@@ -19,7 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventsAdapter extends TracklistAdapter {
+public class EventsAdapter extends TracklistAdapter implements UpdateRecentActivitiesListener {
 
     public static final String TAG = "EventsAdapter";
     public String nextCursor;
@@ -46,7 +47,7 @@ public class EventsAdapter extends TracklistAdapter {
         mData = new ArrayList<Parcelable>();
         Cursor cursor = mActivity.getContentResolver().query(Events.CONTENT_URI, null,
                 Events.USER_ID + "='" + mActivity.getUserId() + "'", null,
-                Events.CREATED_AT + " DESC");
+                Events.ID + " DESC");
 
         if (cursor != null && !cursor.isClosed()) {
             Event e = null;
@@ -59,12 +60,15 @@ public class EventsAdapter extends TracklistAdapter {
             nextCursor = e != null ? e.next_cursor : "";
             cursor.close();
         }
+
+        if (mData.size() > 0 && mActivity.getSoundCloudApplication().requestRecentIncoming(this)){
+            // getting most recent, show the bar
+        }
     }
 
 
     @Override
     public void reset() {
-        nextCursor = "";
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;
@@ -76,5 +80,16 @@ public class EventsAdapter extends TracklistAdapter {
         for (NameValuePair param : params){
             if (param.getName().equalsIgnoreCase("cursor")) nextCursor = param.getValue();
         }
+    }
+
+    @Override
+    public void onUpdate(boolean success) {
+        if (success){
+            //hide notification
+            refreshCursor();
+        } else {
+            //on error
+        }
+
     }
 }

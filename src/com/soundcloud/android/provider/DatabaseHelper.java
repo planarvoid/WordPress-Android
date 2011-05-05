@@ -27,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + "created_at integer null, "
         + "user_id integer null, "
         + "type string null, "
+        + "exclusive boolean false, "
         + "origin_id integer null, "
         + "tags string null, "
         + "label string null, "

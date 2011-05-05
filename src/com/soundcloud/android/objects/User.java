@@ -204,5 +204,8 @@ public class User extends BaseObj implements Parcelable {
         // legacy
         String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
         String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
+
+        String LAST_INCOMING_SYNC = "last_incoming_sync";
+        String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
     }
 }

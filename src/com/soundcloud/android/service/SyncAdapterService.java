@@ -3,12 +3,9 @@ package com.soundcloud.android.service;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.Events;
 import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import org.apache.http.HttpResponse;
@@ -28,7 +25,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -93,35 +89,9 @@ public class SyncAdapterService extends Service {
         app.useAccount(account);
 
         final long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
-
-
-        // get the timestamp of the newest record in the database
-        Cursor firstCursor = mContentResolver.query(Events.CONTENT_URI, new String[] {
-            Events.ID, Events.ORIGIN_ID,
-        }, Events.USER_ID + " = " + user_id, null, Events.CREATED_AT + " DESC LIMIT "
-                + MAX_EVENTS_STORED);
-
-        if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
-
-        final long firstOriginId = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(0);
-        final long firstTrackId = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(1);
-        firstCursor.close();
-
-
-        int added = 0;
-        Activities activities = null;
         try {
-            HttpResponse response = app.get(buildRequest(Endpoints.MY_ACTIVITIES, 0));
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                activities = app.getMapper().readValue(
-                        response.getEntity().getContent(), Activities.class);
-                activities.setCursorToLastEvent();
-                added = SoundCloudDB.getInstance().insertActivities(app.getContentResolver(), activities,
-                        user_id, firstTrackId);
-
-                Log.i(TAG,"Inserted " + added + " of " + activities.size() + " activities");
-            }
-
+            SoundCloudDB.getInstance().updateActivities(app, mContentResolver, user_id, false);
+            SoundCloudDB.getInstance().updateActivities(app, mContentResolver, user_id, true);
         } catch (JsonParseException e) {
             syncResult.stats.numParseExceptions++;
             e.printStackTrace();
@@ -135,35 +105,20 @@ public class SyncAdapterService extends Service {
             e.printStackTrace();
         }
 
-        final boolean caughtUp = (activities != null && added != activities.size());
-
         Intent intent = new Intent();
         intent.setAction(Dashboard.SYNC_CHECK_ACTION);
         app.sendOrderedBroadcast(intent, null, new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                int result = getResultCode();
-
-                if (result == Activity.RESULT_CANCELED) { // Activity caught it
+                if (getResultCode() == Activity.RESULT_CANCELED) { // Activity caught it
                     Log.d(TAG, "No Dashboard Activity, go ahead delete events as necessary");
-                    // if there are older entries, delete them as necessary
-                    if (firstTrackId > 0) {
-                        if (caughtUp) {
-                            SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED);
-                        } else {
-                            // we never reached the older entries, so delete them
-                            SoundCloudDB.getInstance().deleteActivitiesBefore(mContentResolver, user_id, firstOriginId);
-                        }
-                    }
+                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED, true);
+                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED, false);
                     return;
                 }
             }
         }, null, Activity.RESULT_CANCELED, null, null);
-
-
-
-
     }
 
     /**

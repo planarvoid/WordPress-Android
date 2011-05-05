@@ -28,6 +28,7 @@ public class Event extends BaseObj implements Parcelable {
     // locally used field
     public long user_id;
     public long origin_id;
+    public boolean exclusive;
     public String next_cursor;
     public Track track;
 
@@ -116,10 +117,10 @@ public class Event extends BaseObj implements Parcelable {
         return 0;
     }
 
-    public ContentValues buildContentValues(long user_id, boolean for_insert){
+    public ContentValues buildContentValues(long user_id, boolean exclusive){
         ContentValues cv = new ContentValues();
-        cv.put(Events.ID, created_at.getTime());
         cv.put(Events.TYPE, type);
+        cv.put(Events.EXCLUSIVE, exclusive);
         cv.put(Events.CREATED_AT, created_at.getTime());
         cv.put(Events.TAGS, tags);
         cv.put(Events.LABEL, label);

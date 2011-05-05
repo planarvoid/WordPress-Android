@@ -6,7 +6,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,8 +19,6 @@ public class Activities implements Iterable<Event> {
     }
 
     public void setCursorToLastEvent(){
-
-        Collections.sort(collection, new Event.CompareCreatedAt());
 
         for (Event e : collection){
             Log.i("EventsAdapter","Added Track "  +e.created_at + " " + e.created_at.getTime()+ " " + e.getTrack().id);
