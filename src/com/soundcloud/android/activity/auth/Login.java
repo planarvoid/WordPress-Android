@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
@@ -23,7 +21,7 @@ public class Login extends LoginActivity {
     }
 
     protected void build() {
-        setContentView(R.layout.auth_login);
+        setContentView(R.layout.login);
 
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);

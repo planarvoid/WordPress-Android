@@ -5,5 +5,5 @@
 	<ImageView android:src="@drawable/cloud" android:padding="5dip"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:scaleType="centerInside" android:layout_weight="1" />
-	<include layout="@layout/auth_start_common" />
+	<include layout="@layout/start_common" />
 </LinearLayout>

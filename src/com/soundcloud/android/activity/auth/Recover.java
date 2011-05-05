@@ -33,7 +33,7 @@ public class Recover extends Activity {
     }
 
     protected void build() {
-        setContentView(R.layout.auth_recover);
+        setContentView(R.layout.recover);
 
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button cancelBtn = (Button) findViewById(R.id.btn_cancel);
