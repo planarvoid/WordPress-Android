@@ -53,14 +53,13 @@
                       android:orientation="horizontal"
                       android:layout_width="fill_parent" android:layout_height="wrap_content"
                       android:paddingTop="5dip" android:layout_marginTop="5dip">
-            <Button android:id="@+id/btn_cancel" android:text="@string/btn_cancel"
-                    android:layout_weight="1" android:layout_width="wrap_content"
-                    android:layout_marginLeft="10dip" android:layout_marginRight="15dip"
-                    android:layout_height="fill_parent"/>
-            <Button android:id="@+id/btn_login" android:text="@string/btn_login"
+            <Button android:id="@+id/btn_login"
+                    android:text="@string/btn_login"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content" android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip" android:layout_height="fill_parent"/>
+                    android:layout_width="fill_parent"
+                    android:layout_marginLeft="15dip"
+                    android:layout_marginRight="10dip"
+                    android:layout_height="fill_parent"/>
         </LinearLayout>
         <View android:layout_width="fill_parent" android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>

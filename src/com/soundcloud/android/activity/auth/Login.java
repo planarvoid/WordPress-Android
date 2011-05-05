@@ -25,7 +25,6 @@ public class Login extends LoginActivity {
 
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);
-        final Button cancelBtn = (Button) findViewById(R.id.btn_cancel);
         final Button loginBtn = (Button) findViewById(R.id.btn_login);
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -38,13 +37,6 @@ public class Login extends LoginActivity {
                 } else {
                     return false;
                 }
-            }
-        });
-
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         });
 
