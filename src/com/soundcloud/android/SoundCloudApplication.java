@@ -77,6 +77,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             new LruCache<String, Throwable>(256);
 
     public HashMap<Long,Boolean> followingsMap;
+    public List<User> followings;
     private LoadFollowingsTask mFollowingsTask;
 
     @Override
