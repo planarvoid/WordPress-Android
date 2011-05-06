@@ -15,8 +15,8 @@ public class FollowerAdapter extends UserlistAdapter {
 
     public static final String TAG = "FollowerAdapter";
 
-    public FollowerAdapter(ScActivity activity, ArrayList<Parcelable> data) {
-        super(activity, data);
+    public FollowerAdapter(ScActivity activity, ArrayList<Parcelable> data, Class<?> model) {
+        super(activity, data, model);
     }
 
     @Override

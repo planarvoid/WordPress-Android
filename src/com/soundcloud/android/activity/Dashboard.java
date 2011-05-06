@@ -1,17 +1,19 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -21,6 +23,10 @@ public class Dashboard extends ScActivity {
     protected LazyListView mListView;
     private ScTabView mTracklistView;
     private String mTrackingPath;
+    private IntentFilter mSyncCheckFilter;
+
+    public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
+
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -37,13 +43,13 @@ public class Dashboard extends ScActivity {
                 mTracklistView = createList(Endpoints.MY_ACTIVITIES,
                         Event.class,
                         R.string.empty_incoming_text,
-                        CloudUtils.ListId.LIST_INCOMING);
+                        CloudUtils.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,
-                        CloudUtils.ListId.LIST_EXCLUSIVE);
+                        CloudUtils.ListId.LIST_EXCLUSIVE, true);
                 mTrackingPath = "/exclusive";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
@@ -55,8 +61,18 @@ public class Dashboard extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            ((LazyEndlessAdapter) mTracklistView.adapter).restoreState(mPreviousState);
+            ((EventsAdapterWrapper) mTracklistView.adapter).restoreState(mPreviousState);
         }
+
+        mSyncCheckFilter = new IntentFilter();
+        mSyncCheckFilter.addAction(SYNC_CHECK_ACTION);
+        registerReceiver(mIntentReceiver, mSyncCheckFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mIntentReceiver);
     }
 
     @Override
@@ -65,9 +81,9 @@ public class Dashboard extends ScActivity {
         pageTrack(mTrackingPath);
     }
 
-    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId) {
-        LazyBaseAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>());
-        LazyEndlessAdapter adpWrap = new EventsAdapterWrapper(this, adp, endpoint, model, "collection");
+    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
+        EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, "collection");
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));
@@ -80,13 +96,23 @@ public class Dashboard extends ScActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return ((LazyEndlessAdapter) mTracklistView.adapter).saveState();
+        return ((EventsAdapterWrapper) mTracklistView.adapter).saveState();
     }
 
     @Override
     public void onRefresh() {
         mTracklistView.onRefresh();
     }
+
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(SYNC_CHECK_ACTION)) {
+                this.setResultCode(Activity.RESULT_OK);
+            }
+        }
+    };
 
     // legacy action, redirect to Main
     private boolean redirectToMain() {

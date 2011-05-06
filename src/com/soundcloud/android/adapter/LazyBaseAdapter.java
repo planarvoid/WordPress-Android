@@ -3,8 +3,8 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.utils.FastBitmapDrawable;
+import com.soundcloud.android.view.LazyRow;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,28 +18,30 @@ import java.util.List;
 public class LazyBaseAdapter extends BaseAdapter {
 
     public int submenuIndex = -1;
-
     public int animateSubmenuIndex = -1;
-
     protected ScActivity mActivity;
-
+    protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
-
     protected int mPage = 1;
-
     protected boolean mDone = false;
-
     private final Bitmap mDefaultIconBitmap;
     private final FastBitmapDrawable mDefaultIcon;
+    private Class<?> mLoadModel;
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data) {
+    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data,
+            Class<?> model) {
         mData = (List<Parcelable>) data;
         mActivity = activity;
+        mLoadModel = model;
 
         mDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(), getDefaultIconResource());
         mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
 
+    }
+
+    public void setWrapper(LazyEndlessAdapter wrapper) {
+        mWrapper = wrapper;
     }
 
     public FastBitmapDrawable getDefaultIcon() {
@@ -94,4 +96,15 @@ public class LazyBaseAdapter extends BaseAdapter {
         submenuIndex = -1;
         animateSubmenuIndex = -1;
     }
+
+    public Class<?> getLoadModel() {
+        return mLoadModel;
+    }
+
+    public boolean isQuerying() { return false;}
+
+    public void onPostQueryExecute() {
+        if (mWrapper != null) mWrapper.onPostQueryExecute();
+    }
+
 }

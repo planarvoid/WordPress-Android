@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadFollowingsTask.FollowingsListener;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
@@ -18,8 +19,8 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowingsListen
 
     public boolean gotFollowings;
 
-    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
-        super(activity, data);
+    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data,  Class<?> model) {
+        super(activity, data, model);
 
         if (activity.getSoundCloudApplication().followingsMap == null){
             activity.getSoundCloudApplication().requestUserFollowings(this);
@@ -42,5 +43,10 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowingsListen
     @Override
     public void onFollowings(boolean success) {
         gotFollowings = !success;
+    }
+
+    @Override
+    public void onFollowingsPage(User[] followings) {
+
     }
 }

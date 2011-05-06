@@ -149,6 +149,8 @@ public class Track extends BaseObj implements Parcelable {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
                         } else if (f.getType() == Boolean.TYPE) {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
+                        } else if (f.getType() == Date.class) {
+                            f.set(this, new Date(cursor.getLong(cursor.getColumnIndex(key))));
                         }
                     }
                 } catch (IllegalArgumentException e) {
@@ -197,6 +199,7 @@ public class Track extends BaseObj implements Parcelable {
         cv.put(Tracks.ID, id);
         cv.put(Tracks.PERMALINK, permalink);
         cv.put(Tracks.DURATION, duration);
+        cv.put(Tracks.CREATED_AT, created_at.getTime());
         cv.put(Tracks.TAG_LIST, tag_list);
         cv.put(Tracks.TRACK_TYPE, track_type);
         cv.put(Tracks.TITLE, title);

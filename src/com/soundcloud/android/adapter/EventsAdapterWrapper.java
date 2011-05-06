@@ -1,43 +1,34 @@
 
 package com.soundcloud.android.adapter;
 
-import android.text.TextUtils;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.api.Request;
+
+import android.text.TextUtils;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
-    private String mNextEventsParams;
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            Class<?> loadModel, String collectionKey) {
-        super(activity, wrapped, url, loadModel, collectionKey);
-    }
-
-    @Override
-    public void clear() {
-        mNextEventsParams = "";
-        super.clear();
+            String collectionKey) {
+        super(activity, wrapped, url, collectionKey);
     }
 
     @Override
     public String saveExtraData() {
-        return mNextEventsParams;
+        return ((EventsAdapter)getWrappedAdapter()).nextCursor;
     }
 
     @Override
     public void restoreExtraData(String restore) {
-        mNextEventsParams = restore;
+        ((EventsAdapter)getWrappedAdapter()).nextCursor = restore;
     }
 
     @Override
-    protected String getUrl() {
-        if (TextUtils.isEmpty(mNextEventsParams)) {
-            return super.getUrl();
-        } else {
-            return super.getUrl() + mNextEventsParams;
+    protected Request getRequest() {
+        Request request = super.getRequest();
+        if (!TextUtils.isEmpty(((EventsAdapter)getWrappedAdapter()).nextCursor)){
+            request.add("cursor", ((EventsAdapter)getWrappedAdapter()).nextCursor);
         }
-    }
-
-    public void onNextEventsParam(String nextEventsHref) {
-        mNextEventsParams = nextEventsHref.substring(nextEventsHref.indexOf("?"));
+        return request;
     }
 }

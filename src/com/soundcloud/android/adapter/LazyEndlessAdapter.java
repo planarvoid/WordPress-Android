@@ -34,7 +34,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     private AppendTask appendTask;
     private String mUrl;
     private String mQuery;
-    private Class<?> mLoadModel;
     private View mEmptyView;
     private LazyListView mListView;
     private int mCurrentPage;
@@ -43,18 +42,16 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected Boolean mException = false;
     private String mEmptyViewText = "";
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
-                              Class<?> model) {
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url) {
 
         super(wrapped);
 
         mActivity = activity;
         mCurrentPage = 0;
         mQuery = "";
-
-
         mUrl = url;
-        mLoadModel = model;
+
+        wrapped.setWrapper(this);
 
     }
 
@@ -67,8 +64,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @param collectionKey : if the return data is not an array, this key in
      */
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            Class<?> model, String collectionKey) {
-        this(activity, wrapped, url, model);
+            String collectionKey) {
+        this(activity, wrapped, url);
     }
 
     /**
@@ -119,20 +116,20 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         String textToSet = "";
 
 
-        if (Track.class.equals(mLoadModel)) {
+        if (Track.class.equals(getWrappedAdapter().getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
-        } else if (User.class.equals(mLoadModel)) {
+        } else if (User.class.equals(getWrappedAdapter().getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
-        } else if (Comment.class.equals(mLoadModel)) {
+        } else if (Comment.class.equals(getWrappedAdapter().getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
-        } else if (Event.class.equals(mLoadModel)) {
+        } else if (Event.class.equals(getWrappedAdapter().getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
@@ -230,7 +227,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     public Class<?> getLoadModel() {
-        return mLoadModel;
+        return getWrappedAdapter().getLoadModel();
     }
 
     public int getCurrentPage() {
@@ -267,7 +264,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
             if (pendingView == null) {
                 pendingView = getPendingView(parent);
                 pendingPosition = position;
-                if (appendTask == null || CloudUtils.isTaskFinished(appendTask)) {
+                if (!getWrappedAdapter().isQuerying()
+                        && (appendTask == null || CloudUtils.isTaskFinished(appendTask))) {
                     appendTask = new AppendTask(mActivity.getSoundCloudApplication());
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
@@ -377,8 +375,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    protected String getUrl() {
-        return mUrl;
+    protected Request getRequest() {
+        return Request.to(mUrl);
     }
 
     /**
@@ -444,11 +442,16 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @return the url
      */
     private Request buildRequest() {
-        Request request = Request.to(getUrl());
-        String query = getQuery();
-        if (!TextUtils.isEmpty(query)) request.add("q", query);
-        if (getUrl().indexOf("limit") == -1) request.add("limit", getPageSize());
+        Request request = getRequest();
+        request.add("limit", getPageSize());
         request.add("offset", getPageSize() * getCurrentPage());
+        if (!TextUtils.isEmpty(mQuery)) request.add("q", mQuery);
         return request;
+    }
+
+    public void onPostQueryExecute() {
+        rebindPendingView(pendingPosition, pendingView);
+        pendingView = null;
+        pendingPosition = -1;
     }
 }

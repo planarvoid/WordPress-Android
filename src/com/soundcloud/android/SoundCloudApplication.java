@@ -8,6 +8,8 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.task.LoadFollowingsTask.FollowingsListener;
+import com.soundcloud.android.task.UpdateRecentActivitiesTask;
+import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
@@ -79,6 +81,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public HashMap<Long,Boolean> followingsMap;
     public List<User> followings;
     private LoadFollowingsTask mFollowingsTask;
+
+    private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
+    private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
 
     @Override
     public void onCreate() {
@@ -281,6 +286,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return setAccountData(key, Boolean.toString(value));
     }
 
+    public boolean setAccountData(String key, long value) {
+        return setAccountData(key, Long.toString(value));
+    }
+
     public boolean setAccountData(String key, String value) {
         Account account = getAccount();
         if (account == null) {
@@ -426,4 +435,32 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
         mFollowingsTask.addListener(listener);
     }
+
+    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
+
+        if (CloudUtils.isTaskFinished(mUpdateRecentIncomingTask)){
+
+            // only auto request if 5 minutes have gone by since sync
+            if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
+                return false;
+
+            mUpdateRecentIncomingTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), false);
+            mUpdateRecentIncomingTask.execute();
+        }
+        mUpdateRecentIncomingTask.addListener(listener);
+        return true;
+    }
+
+    public boolean requestRecentExclusive(UpdateRecentActivitiesListener listener){
+        if (CloudUtils.isTaskFinished(mUpdateRecentExclusiveTask)){
+            if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_EXCLUSIVE_SYNC) < 5*60*1000)
+                return false;
+
+            mUpdateRecentExclusiveTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), true);
+            mUpdateRecentExclusiveTask.execute();
+        }
+        mUpdateRecentExclusiveTask.addListener(listener);
+        return true;
+    }
+
 }

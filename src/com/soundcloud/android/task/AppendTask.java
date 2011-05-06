@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.objects.Activities;
@@ -10,8 +11,8 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
-
 import com.soundcloud.api.Request;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.type.TypeFactory;
@@ -76,7 +77,11 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     protected void onPostExecute(Boolean keepGoing) {
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
-            if (!TextUtils.isEmpty(mNextEventsHref)) ((EventsAdapterWrapper) adapter).onNextEventsParam(mNextEventsHref);
+            if (!TextUtils.isEmpty(mNextEventsHref)){
+                ((EventsAdapter)((EventsAdapterWrapper)adapter).getWrappedAdapter())
+                        .onNextEventsParam(mNextEventsHref);
+            }
+
             if (mException == null){
                 adapter.incrementPage();
             } else {

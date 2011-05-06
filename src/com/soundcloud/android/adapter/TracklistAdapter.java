@@ -19,8 +19,9 @@ public class TracklistAdapter extends LazyBaseAdapter {
     public long playingId = -1;
     public boolean isPlaying = false;
 
-    public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data) {
-        super(activity, data);
+    public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data,
+            Class<?> model) {
+        super(activity, data, model);
     }
 
     @Override
