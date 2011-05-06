@@ -2,9 +2,7 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.activity.ScActivity.GA_TRACKING;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudCache;
@@ -30,17 +28,10 @@ public class Settings extends PreferenceActivity {
 
     private DeleteCacheTask mDeleteTask;
 
-    private GoogleAnalyticsTracker tracker;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        tracker = GoogleAnalyticsTracker.getInstance();
-        tracker.start(GA_TRACKING, this);
-
         addPreferencesFromResource(R.layout.settings);
-
         setClearCacheTitle();
 
         findPreference("revokeAccess").setOnPreferenceClickListener(
@@ -99,14 +90,8 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        pageTrack("/settings");
+        ((SoundCloudApplication)getApplication()).pageTrack("/settings");
         super.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        tracker.stop();
     }
 
     private void setClearCacheTitle() {
@@ -208,16 +193,6 @@ public class Settings extends PreferenceActivity {
                 settings.safeShowDialog(DIALOG_CACHE_DELETED);
                 settings.setClearCacheTitle();
             }
-        }
-    }
-
-    protected void pageTrack(String path) {
-        try {
-            tracker.trackPageView(path);
-            tracker.dispatch();
-        } catch (IllegalStateException ignored) {
-            // logs indicate this gets thrown occasionally
-            Log.w(TAG, ignored);
         }
     }
 }

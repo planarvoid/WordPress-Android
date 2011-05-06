@@ -33,10 +33,9 @@ public class Recover extends Activity {
     }
 
     protected void build() {
-        setContentView(R.layout.auth_recover);
+        setContentView(R.layout.recover);
 
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
-        final Button cancelBtn = (Button) findViewById(R.id.btn_cancel);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
         emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -49,13 +48,6 @@ public class Recover extends Activity {
                 } else {
                     return false;
                 }
-            }
-        });
-
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
             }
         });
 

@@ -8,24 +8,24 @@
 		android:textSize="18sp" android:layout_marginRight="10dip"
 		android:textColor="#FFFFFFFF" android:layout_width="fill_parent"
 		android:background="@drawable/btn_fb_bg_states" android:id="@+id/facebook_btn"
-		android:text="@string/authentication_log_in_with_facebook"></Button>
+		android:text="@string/authentication_log_in_with_facebook"/>
 	<Button android:layout_height="wrap_content" android:id="@+id/login_btn"
 		android:layout_width="fill_parent" android:layout_marginBottom="5dip"
 		android:layout_marginLeft="10dip" android:background="@drawable/btn_login_bg_states"
 		android:layout_marginRight="10dip" android:textSize="24sp"
 		android:gravity="left|center" android:paddingLeft="18dip"
-		android:text="@string/authentication_log_in"></Button>
+		android:text="@string/authentication_log_in"/>
 	<Button android:layout_height="wrap_content" android:id="@+id/signup_btn"
 		android:layout_width="fill_parent" android:layout_marginBottom="10dip"
 		android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
 		android:textSize="24sp" android:gravity="left|center"
 		android:paddingLeft="18dip" android:text="@string/authentication_sign_up"
-		android:background="@drawable/btn_login_bg_states"></Button>
+		android:background="@drawable/btn_login_bg_states"/>
 	<Button android:layout_height="wrap_content" android:id="@+id/forgot_btn"
 		android:layout_width="wrap_content" android:layout_marginBottom="13dip"
 		android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
 		android:textSize="16sp" android:gravity="left|center"
 		android:textColor="@drawable/txt_start_light_states"
 		android:paddingLeft="10dip" android:paddingRight="18dip"
-		android:text="@string/authentication_sign_up" android:background="#00000000"></Button>
+		android:text="@string/authentication_sign_up" android:background="#00000000"/>
 </LinearLayout>

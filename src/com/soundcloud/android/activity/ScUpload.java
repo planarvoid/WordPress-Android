@@ -14,20 +14,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -35,13 +30,10 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class ScUpload extends ScActivity {
-    private static final String TAG = "ScCreate";
-
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     /* package */ RadioButton mRdoPrivate, mRdoPublic;
@@ -50,7 +42,6 @@ public class ScUpload extends ScActivity {
 
     private ImageView mArtwork;
     private File mImageDir, mArtworkFile;
-    private Bitmap mArtworkBitmap;
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
     private String mFourSquareVenueId;
@@ -72,8 +63,8 @@ public class ScUpload extends ScActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.sc_upload);
         initResourceRefs();
 
@@ -91,6 +82,9 @@ public class ScUpload extends ScActivity {
 
         Cursor cursor = null;
         if (uploadFile != null && uploadFile.exists()) {
+            // 3rd party upload, disable "record another sound button"
+            findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
@@ -146,10 +140,6 @@ public class ScUpload extends ScActivity {
         clearArtwork();
     }
 
-    /*
-     * Whenever the UI is re-created (due f.ex. to orientation change) we have
-     * to reinitialize references to the views.
-     */
     private void initResourceRefs() {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
@@ -310,7 +300,6 @@ public class ScUpload extends ScActivity {
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-
         mWhatText.setText(state.getString("createWhatValue"));
         mWhereText.setText(state.getString("createWhereValue"));
 
@@ -321,63 +310,14 @@ public class ScUpload extends ScActivity {
         }
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
-            setImage(state.getString("createArtworkPath"));
+            setImage(new File(state.getString("createArtworkPath")));
         }
-
         super.onRestoreInstanceState(state);
     }
 
-    public void setImage(String filePath) {
-        setImage(new File(filePath));
-    }
-
-    public void setImage(File imageFile) {
-        // TODO move this code into a helper class
-        mArtworkFile = imageFile;
-
-        try {
-            final int density = (int) (getResources().getDisplayMetrics().density * 100);
-            Options opt = ImageUtils.determineResizeOptions(mArtworkFile, density, density);
-
-
-            if (mArtworkBitmap != null) {
-                ImageUtils.clearBitmap(mArtworkBitmap);
-            }
-
-            Options sampleOpt = new BitmapFactory.Options();
-            sampleOpt.inSampleSize = opt.inSampleSize;
-
-            mArtworkBitmap = BitmapFactory.decodeFile(mArtworkFile.getAbsolutePath(), sampleOpt);
-
-            Matrix m = new Matrix();
-            float scale;
-            float dx = 0, dy = 0;
-
-            // assumes height and width are the same
-            int viewDimension = (int) (getResources().getDisplayMetrics().density * 100);
-
-            if (mArtworkBitmap.getWidth() > mArtworkBitmap.getHeight()) {
-                scale = (float) viewDimension / (float) mArtworkBitmap.getHeight();
-                dx = (viewDimension - mArtworkBitmap.getWidth() * scale) * 0.5f;
-            } else {
-                scale = (float) viewDimension / (float) mArtworkBitmap.getWidth();
-                dy = (viewDimension - mArtworkBitmap.getHeight() * scale) * 0.5f;
-            }
-
-            m.setScale(scale, scale);
-            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            if (ImageUtils.getExifRotation(mArtworkFile.getAbsolutePath()) != 0) {
-                m.postRotate(90, viewDimension / 2, viewDimension / 2);
-            }
-
-            mArtwork.setScaleType(ScaleType.MATRIX);
-            mArtwork.setImageMatrix(m);
-
-            mArtwork.setImageBitmap(mArtworkBitmap);
-            mArtwork.setVisibility(View.VISIBLE);
-        } catch (IOException e) {
-            Log.e(TAG, "error", e);
-        }
+    public void setImage(File file) {
+        mArtworkFile = file;
+        ImageUtils.setImage(file, mArtwork, getResources().getDisplayMetrics());
     }
 
     // for testing purposes
@@ -386,19 +326,16 @@ public class ScUpload extends ScActivity {
         mapToRecording();
     }
 
-    public void clearArtwork() {
+    private void clearArtwork() {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
-
-        if (mArtworkBitmap != null) {
-            ImageUtils.clearBitmap(mArtworkBitmap);
-        }
+        ImageUtils.clearBitmap(((BitmapDrawable)mArtwork.getDrawable()).getBitmap());
     }
 
     private void mapFromRecording(){
         if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
         if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
-        if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(mRecording.artwork_path);
+        if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(new File(mRecording.artwork_path));
         if (!TextUtils.isEmpty(mRecording.shared_emails)) setPrivateShareEmails(mRecording.shared_emails.split(","));
 
         setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
@@ -436,7 +373,6 @@ public class ScUpload extends ScActivity {
                 mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
             }
         }
-
     }
 
     private File getCurrentImageFile(){
@@ -447,7 +383,6 @@ public class ScUpload extends ScActivity {
             return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
@@ -462,12 +397,12 @@ public class ScUpload extends ScActivity {
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
-                    setImage(filePath);
+                    setImage(new File(filePath));
                 }
                 break;
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    setImage(getCurrentImageFile());
+                    ImageUtils.setImage(getCurrentImageFile(), mArtwork, getResources().getDisplayMetrics());
                 }
                 break;
 
@@ -482,6 +417,7 @@ public class ScUpload extends ScActivity {
                 break;
             case LocationPicker.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
+                    // XXX candidate for model?
                     setWhere(result.getStringExtra("name"),
                             result.getStringExtra("id"),
                             result.getDoubleExtra("longitude", 0),

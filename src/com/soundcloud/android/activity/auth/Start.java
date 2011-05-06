@@ -27,7 +27,7 @@ public class Start extends AccountAuthenticatorActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.auth_start);
+        setContentView(R.layout.start);
 
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {

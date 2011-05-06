@@ -52,7 +52,7 @@ public class AddInfo extends Activity {
     }
 
     protected void build() {
-        setContentView(R.layout.auth_add_info);
+        setContentView(R.layout.add_info);
         final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);

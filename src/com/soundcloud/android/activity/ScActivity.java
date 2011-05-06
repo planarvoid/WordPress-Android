@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -50,7 +49,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -65,7 +63,6 @@ import java.util.ArrayList;
 
 
 public abstract class ScActivity extends Activity {
-    public static final String GA_TRACKING = "UA-2519404-11";
 
     private Exception mException;
     private String mError;
@@ -85,7 +82,6 @@ public abstract class ScActivity extends Activity {
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
 
-    private GoogleAnalyticsTracker tracker;
 
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
@@ -145,11 +141,6 @@ public abstract class ScActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (SoundCloudApplication.DALVIK) {
-            tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.start(GA_TRACKING, this);
-        }
-
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
 
@@ -197,11 +188,6 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (tracker != null) {
-            tracker.stop();
-            tracker = null;
-        }
         connectivityListener.stopListening();
 
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
@@ -295,6 +281,7 @@ public abstract class ScActivity extends Activity {
     }
 
     // WTF? why is this in ScActivity?
+    // called from UserBrowser XXX replace with intent
     public boolean startUpload(Recording r) {
         if (mCreateService == null) return false;
 
@@ -548,16 +535,8 @@ public abstract class ScActivity extends Activity {
     public void onRefresh() {
     }
 
-    protected void pageTrack(String path) {
-        if (tracker != null && !TextUtils.isEmpty(path)) {
-            try {
-                tracker.trackPageView(path);
-                tracker.dispatch();
-            } catch (IllegalStateException ignored) {
-                // logs indicate this gets thrown occasionally
-                Log.w(TAG, ignored);
-            }
-        }
+    public void pageTrack(String path) {
+        getSoundCloudApplication().pageTrack(path);
     }
 
     protected void handleRecordingClick(Recording recording) {
