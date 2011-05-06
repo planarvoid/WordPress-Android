@@ -1,5 +1,8 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.graphics.Bitmap;
@@ -15,6 +18,10 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,14 +81,16 @@ public class ImageUtils {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error", e);
         }
         return -1;
     }
 
     public static void clearBitmap(Bitmap bmp) {
-        bmp.recycle();
-        System.gc();
+        if (bmp != null) {
+            bmp.recycle();
+            System.gc();
+        }
     }
 
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
@@ -93,12 +102,11 @@ public class ImageUtils {
         final Paint paint = new Paint();
         final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
         final RectF rectF = new RectF(rect);
-        final float roundPx = pixels;
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
         paint.setColor(color);
-        canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawRoundRect(rectF, pixels, pixels, paint);
 
         paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
@@ -113,6 +121,48 @@ public class ImageUtils {
             return null;
         }
         return BitmapFactory.decodeStream(input);
+    }
+
+    public static boolean setImage(File imageFile, ImageView imageView, DisplayMetrics metrics) {
+        Bitmap bitmap;
+        try {
+            final int viewDimension = (int) metrics.density * 100;
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewDimension, viewDimension);
+
+            BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
+
+            bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+
+            Matrix m = new Matrix();
+            float scale;
+            float dx = 0, dy = 0;
+
+            // assumes height and width are the same
+            if (bitmap.getWidth() > bitmap.getHeight()) {
+                scale = (float) viewDimension / (float) bitmap.getHeight();
+                dx = (viewDimension - bitmap.getWidth() * scale) * 0.5f;
+            } else {
+                scale = (float) viewDimension / (float) bitmap.getWidth();
+                dy = (viewDimension - bitmap.getHeight() * scale) * 0.5f;
+            }
+
+            m.setScale(scale, scale);
+            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+            if (getExifRotation(imageFile.getAbsolutePath()) != 0) {
+                m.postRotate(90, viewDimension / 2, viewDimension / 2);
+            }
+
+            imageView.setScaleType(ImageView.ScaleType.MATRIX);
+            imageView.setImageMatrix(m);
+
+            imageView.setImageBitmap(bitmap);
+            imageView.setVisibility(View.VISIBLE);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+            return false;
+        }
     }
 
     public static void resizeImageFile(File inputFile, File outputFile, int width, int height)
