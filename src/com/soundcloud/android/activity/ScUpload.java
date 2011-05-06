@@ -63,8 +63,8 @@ public class ScUpload extends ScActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.sc_upload);
         initResourceRefs();
 
@@ -82,6 +82,9 @@ public class ScUpload extends ScActivity {
 
         Cursor cursor = null;
         if (uploadFile != null && uploadFile.exists()) {
+            // 3rd party upload, disable "record another sound button"
+            findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
@@ -137,10 +140,6 @@ public class ScUpload extends ScActivity {
         clearArtwork();
     }
 
-    /*
-     * Whenever the UI is re-created (due f.ex. to orientation change) we have
-     * to reinitialize references to the views.
-     */
     private void initResourceRefs() {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
@@ -301,7 +300,6 @@ public class ScUpload extends ScActivity {
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-
         mWhatText.setText(state.getString("createWhatValue"));
         mWhereText.setText(state.getString("createWhereValue"));
 
@@ -314,7 +312,6 @@ public class ScUpload extends ScActivity {
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
             setImage(new File(state.getString("createArtworkPath")));
         }
-
         super.onRestoreInstanceState(state);
     }
 
@@ -376,7 +373,6 @@ public class ScUpload extends ScActivity {
                 mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
             }
         }
-
     }
 
     private File getCurrentImageFile(){
@@ -387,7 +383,6 @@ public class ScUpload extends ScActivity {
             return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
@@ -422,6 +417,7 @@ public class ScUpload extends ScActivity {
                 break;
             case LocationPicker.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
+                    // XXX candidate for model?
                     setWhere(result.getStringExtra("name"),
                             result.getStringExtra("id"),
                             result.getDoubleExtra("longitude", 0),
