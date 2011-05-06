@@ -181,8 +181,7 @@ public class Recording extends BaseObj implements Parcelable {
 
         upload_data.put(UploadTask.Params.SOURCE_PATH, audio_path);
 
-        final String title = CloudUtils.generateRecordingSharingNote(what_text,
-                where_text, timestamp);
+        final String title = sharingNote();
 
         upload_data.put(Params.Track.TITLE, title);
         upload_data.put(Params.Track.TYPE, "recording");
