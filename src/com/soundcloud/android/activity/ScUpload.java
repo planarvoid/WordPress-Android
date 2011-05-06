@@ -317,6 +317,10 @@ public class ScUpload extends ScActivity {
         if (mArtworkFile != null) {
             state.putString("createArtworkPath", mArtworkFile.getAbsolutePath());
         }
+
+        state.putParcelableArrayList("venues", mVenues);
+        state.putParcelable("location", mLocation);
+
         super.onSaveInstanceState(state);
     }
 
@@ -330,6 +334,9 @@ public class ScUpload extends ScActivity {
         } else {
             mRdoPublic.setChecked(true);
         }
+
+        mVenues = state.getParcelableArrayList("venues");
+        mLocation = state.getParcelable("location");
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
             setImage(new File(state.getString("createArtworkPath")));

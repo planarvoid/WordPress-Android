@@ -20,7 +20,8 @@ public class FoursquareVenue implements Parcelable {
     public FoursquareVenue(Parcel in) {
         id = in.readString();
         name = in.readString();
-        in.readTypedList(new ArrayList<Category>(), Category.CREATOR);
+        categories = new ArrayList<Category>();
+        in.readTypedList(categories, Category.CREATOR);
     }
 
     public Category getCategory() {
@@ -33,7 +34,6 @@ public class FoursquareVenue implements Parcelable {
         Category c = getCategory();
         return c == null ? null : c.icon;
     }
-
 
     @Override
     public String toString() {
@@ -104,7 +104,7 @@ public class FoursquareVenue implements Parcelable {
             dest.writeString(id);
             dest.writeString(name);
             dest.writeInt(primary ? 1 : 0);
-            dest.writeString(icon.toASCIIString());
+            dest.writeString(icon.toString());
         }
 
         @SuppressWarnings({"UnusedDeclaration"})
