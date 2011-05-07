@@ -196,8 +196,10 @@ public class ScUpload extends ScActivity {
                 if (mRecording.latitude != 0) {
                     intent.putExtra("lat", mRecording.latitude);
                 }
-                intent.putParcelableArrayListExtra("venues", mVenues);
-                intent.putExtra("location", mLocation);
+                synchronized (mVenues) {
+                  intent.putParcelableArrayListExtra("venues", mVenues);
+                  intent.putExtra("location", mLocation);
+                }
                 startActivityForResult(intent, LocationPicker.PICK_VENUE);
             }
         });
@@ -420,14 +422,16 @@ public class ScUpload extends ScActivity {
         Criteria c = new Criteria();
         String provider = mgr.getBestProvider(c, true);
         if (provider != null) {
-            Location location = mgr.getLastKnownLocation(provider);
+            final Location location = mgr.getLastKnownLocation(provider);
             if (location != null) {
-                mLocation = location;
                 new FoursquareVenueTask() {
                     @Override
                     protected void onPostExecute(List<FoursquareVenue> venues) {
-                        if (venues != null) {
-                            mVenues.addAll(venues);
+                        if (venues != null && !venues.isEmpty()) {
+                            synchronized (mVenues) {
+                              mLocation = location;
+                              mVenues.addAll(venues);
+                            }
                         }
                     }
                 }.execute(location);
