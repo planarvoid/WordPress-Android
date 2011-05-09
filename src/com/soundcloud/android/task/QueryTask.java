@@ -5,6 +5,7 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -101,7 +102,7 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
     @Override
     protected Boolean doInBackground(String... param) {
 
-        Log.i("EventsAdapter","DO QUERY");
+        Log.i("EventsAdapter","DO QUERY ");
         Cursor cursor = mApp.getContentResolver().query(
                 mQueryUri,
                 mQueryProjection,
@@ -118,8 +119,9 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
                 //TODO Horribly inefficient way of building an event from the DB. Figure out something
                 //besides pulling the tracks one by one
 
-                    e = new Event(cursor);
-                    e.track = new Track(cursor);
+                    e = new Event(cursor, true);
+                    e.track = new Track(cursor, true);
+                    e.track.user = new User(cursor,true);
                     publishProgress(e);
                 }
                 mNextCursor = e != null ? e.next_cursor : "";

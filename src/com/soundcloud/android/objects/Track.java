@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.objects;
 
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
@@ -133,9 +134,15 @@ public class Track extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Track(Cursor cursor) {
+    public Track(Cursor cursor, boolean concreteOnly ) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
+
+            if (concreteOnly){
+                if (!key.contains(Tables.USERS+".")) continue;
+                key = key.substring(5);
+            }
+
             if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
             else
                 try {

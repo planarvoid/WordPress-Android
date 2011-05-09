@@ -52,7 +52,7 @@ public class SoundCloudDB {
         // get the timestamp of the newest record in the database
         Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
                 Events.ID, Events.ORIGIN_ID,
-        }, Events.USER_ID + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
+        }, Events.BELONGS_TO_USER + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
 
         if (firstCursor.getCount() > 0)
             firstCursor.moveToFirst();
@@ -86,6 +86,8 @@ public class SoundCloudDB {
                 activities = app.getMapper().readValue(response.getEntity().getContent(),
                         Activities.class);
 
+                Log.i(TAG,"GOT ACTIVITIES " + activities.size() + " " + firstTrackId);
+
                 if (activities.size() == 0) {
                     caughtUp = true;
                     break;
@@ -94,6 +96,7 @@ public class SoundCloudDB {
                 activities.setCursorToLastEvent();
 
                 for (Event evt : activities) {
+                    Log.i(TAG,"GOT ACTIVITIES " + evt.getTrack().id + " " + firstTrackId);
                     if (evt.getTrack().id != firstTrackId) {
                         added++;
 
@@ -163,7 +166,7 @@ public class SoundCloudDB {
     public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
-        }, Events.USER_ID + " = " + userId, null, null);
+        }, Events.BELONGS_TO_USER + " = " + userId, null, null);
 
         countCursor.moveToFirst();
         int eventsCount = countCursor.getInt(0);
@@ -175,7 +178,7 @@ public class SoundCloudDB {
         if (eventsCount > maxEvents) {
             Cursor lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
                 Events.ID,
-            }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT "
+            }, Events.BELONGS_TO_USER + " = " + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT "
                     + maxEvents);
 
             lastCursor.moveToLast();
@@ -183,7 +186,7 @@ public class SoundCloudDB {
 
             Log.i(TAG,
                     "Deleting rows " + lastId + " "
-                            + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                            + contentResolver.delete(Events.CONTENT_URI, Events.BELONGS_TO_USER + " = "
                                     + userId + " AND " + Events.ID + " < " + lastId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
                                     null));
         }
@@ -192,7 +195,7 @@ public class SoundCloudDB {
 
     public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId, boolean exclusive) {
         Log.i(TAG, "Deleting rows  before " + lastId + " "
-                        + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                        + +contentResolver.delete(Events.CONTENT_URI, Events.BELONGS_TO_USER + " = "
                                 + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0") + " AND " + Events.ID + " <= " + lastId, null));
 
     }
@@ -235,7 +238,7 @@ public class SoundCloudDB {
             Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + TrackId + "'", null, null);
             if (cursor.getCount() != 0) {
                 cursor.moveToFirst();
-                Track track = new Track(cursor);
+                Track track = new Track(cursor, false);
                 cursor.close();
 
                 User user = resolveUserById(contentResolver, track.user_id);
@@ -299,7 +302,7 @@ public class SoundCloudDB {
             User user = null;
             if (cursor != null && cursor.getCount() != 0) {
                 cursor.moveToFirst();
-                user = new User(cursor);
+                user = new User(cursor, false);
             }
             if (cursor != null) cursor.close();
             return user;

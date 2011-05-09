@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
+import com.soundcloud.android.provider.DatabaseHelper.Views;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -15,6 +16,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -184,10 +186,9 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(
                         Tracks.CONCRETE_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
             case TRACKS:
-                if (projection == null) projection = FULL_TRACK_PROJECTION;
-                qb.setTables(DbTable.Tracks.tblName + " LEFT OUTER JOIN "
-                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.CONCRETE_ID + " = " + TrackPlays.TRACK_ID + ")");
-                qb.setProjectionMap(tracksProjectionMap);
+                //if (projection == null) projection = FULL_TRACK_PROJECTION;
+                qb.setTables(Views.TRACKLIST_ROW);
+                //qb.setProjectionMap(tracksProjectionMap);
                 break;
             case USERS_ID:
                 qb.appendWhere(
@@ -216,11 +217,10 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case EVENTS_EXCLUSIVE_TRACKS:
             case EVENTS_INCOMING_TRACKS:
-                if (projection == null) projection = FULL_TRACK_PROJECTION;
-                qb.setTables(DbTable.Events.tblName + " LEFT OUTER JOIN "
-                        + DbTable.Tracks.tblName + " ON (" + Events.ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ") LEFT OUTER JOIN "
-                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.CONCRETE_ID + " = " + TrackPlays.TRACK_ID + ")");
-                qb.setProjectionMap(tracksProjectionMap);
+                //if (projection == null) projection = FULL_TRACK_PROJECTION;
+                Log.i(TAG,"QQQUERYING THAT THINGA " + selection);
+                qb.setTables(Views.EVENTLIST_TRACK_ROW);
+                //qb.setProjectionMap(tracksProjectionMap);
                 break;
 
             default:
@@ -362,9 +362,8 @@ public class ScContentProvider extends ContentProvider {
         trackPlaysProjectionMap.put(TrackPlays.USER_ID, TrackPlays.USER_ID);
 
         eventsProjectionMap = new HashMap<String, String>();
-        eventsProjectionMap.put(COLUMN_ALL_FROM_EVENTS, COLUMN_ALL_FROM_EVENTS);
         eventsProjectionMap.put(Events.ID, Events.ID);
-        eventsProjectionMap.put(Events.USER_ID, Events.USER_ID);
+        eventsProjectionMap.put(Events.BELONGS_TO_USER, Events.BELONGS_TO_USER);
         eventsProjectionMap.put(Events.TYPE, Events.TYPE);
         eventsProjectionMap.put(Events.CREATED_AT, Events.CREATED_AT);
         eventsProjectionMap.put(Events.TAGS, Events.TAGS);

@@ -2,6 +2,7 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -50,9 +51,15 @@ public class User extends BaseObj implements Parcelable {
     }
 
 
-    public User(Cursor cursor) {
+    public User(Cursor cursor, boolean concreteOnly) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
+
+            if (concreteOnly){
+                if (!key.contains(Tables.USERS+".")) continue;
+                key = key.substring(6);
+            }
+
             if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
             else
                 try {

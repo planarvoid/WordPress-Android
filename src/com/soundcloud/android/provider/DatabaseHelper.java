@@ -33,6 +33,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String RECORDINGS = "Recordings";
     }
 
+    public interface Views {
+        public static final String TRACKLIST_ROW = "view_tracklist_row";
+        public static final String EVENTLIST_TRACK_ROW = "view_eventlist_track_row";
+    }
+
+
     public static final class Tracks implements BaseColumns {
         private Tracks() {
         }
@@ -131,6 +137,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String DESCRIPTION = "description";
 
         public static final String CONCRETE_ID = Tables.USERS + "." + _ID;
+        public static final String CONCRETE_USERNAME = Tables.USERS + "." + USERNAME;
         public static final String CONCRETE_PERMALINK = Tables.USERS + "." + PERMALINK;
         public static final String CONCRETE_AVATAR_URL = Tables.USERS + "." + AVATAR_URL;
         public static final String CONCRETE_CITY = Tables.USERS + "." + CITY;
@@ -212,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.events";
 
         public static final String ID = _ID;
-        public static final String USER_ID = "user_id";
+        public static final String BELONGS_TO_USER = "belongs_to_user";
         public static final String TYPE = "type";
         public static final String CREATED_AT = "created_at";
         public static final String EXCLUSIVE = "exclusive";
@@ -222,7 +229,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String NEXT_CURSOR = "next_cursor";
 
         public static final String CONCRETE_ID = Tables.EVENTS + "." + ID;
-        public static final String CONCRETE_USER_ID = Tables.EVENTS + "." + USER_ID;
+        public static final String CONCRETE_BELONGS_TO_USER = Tables.EVENTS + "." + BELONGS_TO_USER;
         public static final String CONCRETE_TYPE = Tables.EVENTS + "." + TYPE;
         public static final String CONCRETE_CREATED_AT = Tables.EVENTS + "." + CREATED_AT;
         public static final String CONCRETE_EXCLUSIVE = Tables.EVENTS + "." + EXCLUSIVE;
@@ -244,6 +251,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
+
+            createTrackViews(db);
+            createEventViews(db);
+
         } catch (SQLiteException e) {
             e.printStackTrace();
         }
@@ -351,6 +362,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 alterTableColumns(db, DbTable.Users, null, null);
 
                 createTrackViews(db);
+                createEventViews(db);
 
                 return true;
             } catch (Exception e) {
@@ -383,11 +395,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
         private static void createTrackViews(SQLiteDatabase db) {
+            String tracklistSelect = "SELECT "
+                + Tracks.CONCRETE_ID + ","
+                + Tracks.CONCRETE_TITLE + ", "
+                + Users.CONCRETE_USERNAME + ", "
+                + Users.CONCRETE_ID + ", "
+                + Tracks.CONCRETE_STREAMABLE + ", "
+                + Tracks.CONCRETE_SHARING + ", "
+                + Tracks.CONCRETE_CREATED_AT + ", "
+                + Tracks.CONCRETE_DURATION + ", "
+                + " CASE when " + TrackPlays.CONCRETE_TRACK_ID + " is null then 0 else 1 END AS " + Tracks.USER_PLAYED
+                + " FROM " + Tables.TRACKS
+                + " JOIN " + Tables.USERS + " ON("
+                +   Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
+                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
+                +   Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
 
+            db.execSQL("CREATE VIEW " + Views.TRACKLIST_ROW + " AS " + tracklistSelect);
         }
+
+
         private static void createEventViews(SQLiteDatabase db) {
+            String eventlistTrackSelect = "SELECT "
+                + Events.CONCRETE_ID + ","
+                + Events.CONCRETE_BELONGS_TO_USER + ","
+                + Events.CONCRETE_EXCLUSIVE + ","
+                + Tracks.CONCRETE_ID + " as " + Tracks.ID + ","
+                + Tracks.CONCRETE_TITLE + ", "
+                + Users.CONCRETE_USERNAME + ", "
+                + Users.CONCRETE_ID + ", "
+                + Tracks.CONCRETE_STREAMABLE + ", "
+                + Tracks.CONCRETE_SHARING + ", "
+                + Tracks.CONCRETE_CREATED_AT  + ", "
+                + Tracks.CONCRETE_DURATION + ", "
+                + " CASE when " + TrackPlays.TRACK_ID + " is null then 0 else 1 END AS " + Tracks.USER_PLAYED
+                + " FROM " + Tables.EVENTS
+                + " JOIN " + Tables.TRACKS + " ON("
+                +   Events.CONCRETE_ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ")"
+                + " JOIN " + Tables.USERS + " ON("
+                +   Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
+                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
+                +   Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
 
+            Log.i(TAG,"~D~~~~~!!CCC!! " + eventlistTrackSelect);
+
+            db.execSQL("CREATE VIEW " + Views.EVENTLIST_TRACK_ROW + " AS " + eventlistTrackSelect);
         }
+
+        /*
+        private static void createEventViews(SQLiteDatabase db) {
+            String rawContactsSelect = "SELECT "
+                + Events.CONCRETE_ID + ","
+                + Events.CONCRETE_USER_ID + ", "
+                + Events.DELETED + ", "
+
+                + Tracks.USER_ID + ","URCE  + ", "
+                + Events.DISPLAY_NAME_PRIMARY  +                + Users.USERNAME + " as " + Tracks.ID + ","
+                                 + Events.CONCRETE_USER_ID + ", "
+                public static final String CONCRETE_ID = Tables.TRACKS + "." + ID;
+            public static final String CONCRETE_PERMALINK = Tables.TRACKS + "." + PERMALINK;
+            public static final String CONCRETE_CREATED_AT = Tables.TRACKS + "." + CREATED_AT;
+            public static final String CONCRETE_DURATION = Tables.TRACKS + "." + DURATION;
+            public static final String CONCRETE_TAG_LIST = Tables.TRACKS + "." + TAG_LIST;
+            public static final String CONCRETE_TRACK_TYPE = Tables.TRACKS + "." + TRACK_TYPE;
+            public static final String CONCRETE_TITLE = Tables.TRACKS + "." + TITLE;
+            public static final String CONCRETE_PERMALINK_URL = Tables.TRACKS + "." + PERMALINK_URL;
+            public static final String CONCRETE_ARTWORK_URL = Tables.TRACKS + "." + ARTWORK_URL;
+            public static final String CONCRETE_WAVEFORM_URL = Tables.TRACKS + "." + WAVEFORM_URL;
+            public static final String CONCRETE_DOWNLOADABLE = Tables.TRACKS + "." + DOWNLOADABLE;
+            public static final String CONCRETE_DOWNLOAD_URL = Tables.TRACKS + "." + DOWNLOAD_URL;
+            public static final String CONCRETE_STREAM_URL = Tables.TRACKS + "." + STREAM_URL;
+            public static final String CONCRETE_STREAMABLE = Tables.TRACKS + "." + STREAMABLE;
+            public static final String CONCRETE_SHARING = Tables.TRACKS + "." + SHARING;
+            public static final String CONCRETE_USER_ID = Tables.TRACKS + "." + USER_ID;
+            public static final String CONCRETE_USER_FAVORITE = Tables.TRACKS + "." + USER_FAVORITE;
+            public static final String CONCRETE_USER_PLAYED = Tables.TRACKS + "." + USER_PLAYED;
+            public static final String CONCRETE_FILELENGTH = Tables.TRACKS + "." + FILELENGTH; + rawContactOptionColumns + ", "
+                + syncColumns
+                + " FROM " + Tables.RAW_CONTACTS;
+
+            public static final String CONCRETE_ID = Tables.EVENTS + "." + ID;
+            public static final String CONCRETE_USER_ID = Tables.EVENTS + "." + USER_ID;
+            public static final String CONCRETE_TYPE = Tables.EVENTS + "." + TYPE;
+            public static final String CONCRETE_CREATED_AT = Tables.EVENTS + "." + CREATED_AT;
+            public static final String CONCRETE_EXCLUSIVE = Tables.EVENTS + "." + EXCLUSIVE;
+            public static final String CONCRETE_TAGS = Tables.EVENTS + "." + TAGS;
+            public static final String CONCRETE_LABEL = Tables.EVENTS + "." + LABEL;
+            public static final String CONCRETE_ORIGIN_ID = Tables.EVENTS + "." + ORIGIN_ID;
+            public static final String CONCRETE_NEXT_CURSOR = Tables.EVENTS + "." + NEXT_CURSOR;
+        }
+        */
 
     public static boolean isValidTable(String name) {
         return mValidTables.contains(name);
@@ -412,7 +509,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_EVENTS = "create table Events (_id integer primary key AUTOINCREMENT, "
         + "created_at integer null, "
-        + "user_id integer null, "
+        + "belongs_to_user integer null, "
         + "type string null, "
         + "exclusive boolean false, "
         + "origin_id integer null, "

@@ -72,7 +72,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
             mQueryTask.setAdapter(this);
             mQueryTask.setQuery((mExclusive ? Events.CONTENT_EXCLUSIVE_TRACKS_URI
                     : Events.CONTENT_INCOMING_TRACKS_URI), null,
-                    Events.USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.EXCLUSIVE
+                    Events.BELONGS_TO_USER + "='" + mActivity.getUserId() + "' AND " + Events.EXCLUSIVE
                             + " = " + (mExclusive ? "1" : "0"), null, Events.ID + " DESC");
             mQueryTask.execute();
         } else

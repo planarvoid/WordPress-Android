@@ -2,6 +2,7 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.provider.DatabaseHelper.Events;
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -44,13 +45,17 @@ public class Event extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Event(Cursor cursor) {
+    public Event(Cursor cursor, boolean concreteOnly) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
             // Events Cursors are preceded by the tablename, as they are often times
             // part of a join with another object
-            if (!key.contains("Events.")) continue;
-            key = key.substring(7);
+            if (concreteOnly){
+                if (!key.contains(Tables.EVENTS+".")) continue;
+                key = key.substring(7);
+            }
+
+
 
             if (key.contentEquals("_id"))
                 id = cursor.getLong(cursor.getColumnIndex(key));
@@ -123,6 +128,7 @@ public class Event extends BaseObj implements Parcelable {
     }
 
     public ContentValues buildContentValues(long user_id, boolean exclusive){
+        Log.i("EventsAdapter","ADDING AN EVENT " + user_id);
         ContentValues cv = new ContentValues();
         cv.put(Events.TYPE, type);
         cv.put(Events.EXCLUSIVE, exclusive);
@@ -130,7 +136,7 @@ public class Event extends BaseObj implements Parcelable {
         cv.put(Events.TAGS, tags);
         cv.put(Events.LABEL, label);
         cv.put(Events.ORIGIN_ID, getOriginId());
-        cv.put(Events.USER_ID, user_id);
+        cv.put(Events.BELONGS_TO_USER, user_id);
         cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
     }
