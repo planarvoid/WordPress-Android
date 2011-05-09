@@ -1,9 +1,10 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.task;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,24 +16,24 @@ import android.location.Location;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LocationPickerTests extends RoboApiBaseTests {
+public class FoursquareVenueTaskTests extends RoboApiBaseTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {
         Robolectric.addPendingHttpResponse(200, slurp("foursquare_venues.json"));
 
-        LocationPicker.FoursquareApiTask task = new LocationPicker.FoursquareApiTask();
+        FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
 
         loc.setLongitude(52.499229);
         loc.setLatitude(13.418405);
         loc.setAccuracy(5);
 
-        List<LocationPicker.Venue> venues = task.doInBackground(loc);
+        List<FoursquareVenue> venues = task.doInBackground(loc);
         assertNotNull(venues);
         assertThat(venues.size(), equalTo(50));
 
-        LocationPicker.Venue kotti = venues.get(0);
+        FoursquareVenue kotti = venues.get(0);
 
         assertThat(kotti.name, equalTo("U-Bhf Kottbusser Tor - U1, U8"));
         assertThat(kotti.id, equalTo("4adcda7ef964a520b74721e3"));
@@ -50,7 +51,7 @@ public class LocationPickerTests extends RoboApiBaseTests {
     @Test
     public void taskShouldReturnNullWhenError() throws Exception {
         Robolectric.addPendingHttpResponse(400, "Error");
-        LocationPicker.FoursquareApiTask task = new LocationPicker.FoursquareApiTask();
+        FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
         assertNull(task.doInBackground(loc));
     }
@@ -60,7 +61,7 @@ public class LocationPickerTests extends RoboApiBaseTests {
         String empty = "{\"meta\":{\"code\":200},\"response\":{\"groups\":[]}}";
         Robolectric.addPendingHttpResponse(200, empty);
 
-        LocationPicker.FoursquareApiTask task = new LocationPicker.FoursquareApiTask();
+        FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
         assertThat(task.doInBackground(loc).size(), equalTo(0));
     }

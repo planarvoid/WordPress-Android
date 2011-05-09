@@ -1,8 +1,13 @@
 package com.soundcloud.android.activity;
 
+
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
+import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -10,11 +15,15 @@ import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -30,6 +39,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,19 +58,10 @@ public class ScUpload extends ScActivity {
     private double mLong, mLat;
     private Recording mRecording;
 
-    public void setPrivateShareEmails(String[] emails) {
-        mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
-    }
 
-    /* package */ void setWhere(String where, String id, double lng, double lat) {
-        if (where != null) {
-            mWhereText.setTextKeepState(where);
-        }
-        mFourSquareVenueId = id;
-        mLong = lng;
-        mLat = lat;
-    }
-
+    // used for preloading foursquare venues
+    private ArrayList<FoursquareVenue> mVenues = new ArrayList<FoursquareVenue>();
+    private Location mLocation;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -69,7 +70,7 @@ public class ScUpload extends ScActivity {
         initResourceRefs();
 
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
-        if (!mImageDir.exists()) mImageDir.mkdirs();
+        mkdirs(mImageDir);
 
         File uploadFile = null;
         Intent intent = getIntent();
@@ -115,6 +116,8 @@ public class ScUpload extends ScActivity {
         } else {
             errorOut("Recording not found");
         }
+
+        preloadLocations();
     }
 
     @Override
@@ -140,15 +143,29 @@ public class ScUpload extends ScActivity {
         clearArtwork();
     }
 
+    private void setPrivateShareEmails(String[] emails) {
+        mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
+    }
+
+    /* package */ void setWhere(String where, String id, double lng, double lat) {
+        if (where != null) {
+            mWhereText.setTextKeepState(where);
+        }
+        mFourSquareVenueId = id;
+        mLong = lng;
+        mLat = lat;
+    }
+
+
     private void initResourceRefs() {
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = (new Intent(ScUpload.this, Main.class))
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", "record");
+                        .addCategory(Intent.CATEGORY_LAUNCHER)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra("tabTag", "record");
                 startActivity(i);
             }
         });
@@ -157,7 +174,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 mapToRecording();
-                if (startUpload()){
+                if (startUpload()) {
                     setResult(RESULT_OK);
                     finish();
                 }
@@ -174,12 +191,16 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ScUpload.this, LocationPicker.class);
-                intent.putExtra("name", ((TextView)v).getText().toString());
+                intent.putExtra("name", ((TextView) v).getText().toString());
                 if (mRecording.longitude != 0) {
                     intent.putExtra("long", mRecording.longitude);
                 }
                 if (mRecording.latitude != 0) {
                     intent.putExtra("lat", mRecording.latitude);
+                }
+                synchronized (ScUpload.this) {
+                  intent.putParcelableArrayListExtra("venues", mVenues);
+                  intent.putExtra("location", mLocation);
                 }
                 startActivityForResult(intent, LocationPicker.PICK_VENUE);
             }
@@ -191,11 +212,16 @@ public class ScUpload extends ScActivity {
         mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
         mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
 
-        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
-            @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
-                    case R.id.rdo_public:   mSharingFlipper.setDisplayedChild(0); break;
-                    case R.id.rdo_private:  mSharingFlipper.setDisplayedChild(1); break;
+                    case R.id.rdo_public:
+                        mSharingFlipper.setDisplayedChild(0);
+                        break;
+                    case R.id.rdo_private:
+                        mSharingFlipper.setDisplayedChild(1);
+                        break;
                 }
             }
         });
@@ -211,7 +237,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(ScUpload.this)
-                .setMessage("Where would you like to get the image?").setPositiveButton(
+                        .setMessage("Where would you like to get the image?").setPositiveButton(
                         "Take a new picture", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -220,13 +246,13 @@ public class ScUpload extends ScActivity {
                                 startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
                             }
                         }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                intent.setType("image/*");
-                                startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                            }
-                        }).create().show();
+                    @Override
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                    }
+                }).create().show();
             }
         });
 
@@ -274,7 +300,7 @@ public class ScUpload extends ScActivity {
         return mRecording != null && startUpload(mRecording);
     }
 
-    private void errorOut(CharSequence error){
+    private void errorOut(CharSequence error) {
         showToast(error);
         finish();
     }
@@ -295,6 +321,10 @@ public class ScUpload extends ScActivity {
         if (mArtworkFile != null) {
             state.putString("createArtworkPath", mArtworkFile.getAbsolutePath());
         }
+
+        state.putParcelableArrayList("venues", mVenues);
+        state.putParcelable("location", mLocation);
+
         super.onSaveInstanceState(state);
     }
 
@@ -308,6 +338,9 @@ public class ScUpload extends ScActivity {
         } else {
             mRdoPublic.setChecked(true);
         }
+
+        mVenues = state.getParcelableArrayList("venues");
+        mLocation = state.getParcelable("location");
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
             setImage(new File(state.getString("createArtworkPath")));
@@ -329,10 +362,12 @@ public class ScUpload extends ScActivity {
     private void clearArtwork() {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
-        ImageUtils.clearBitmap(((BitmapDrawable)mArtwork.getDrawable()).getBitmap());
+        if (mArtwork.getDrawable() instanceof BitmapDrawable) {
+            ImageUtils.clearBitmap(((BitmapDrawable) mArtwork.getDrawable()).getBitmap());
+        }
     }
 
-    private void mapFromRecording(){
+    private void mapFromRecording() {
         if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
         if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
         if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(new File(mRecording.artwork_path));
@@ -341,7 +376,7 @@ public class ScUpload extends ScActivity {
         setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
                 TextUtils.isEmpty(mRecording.four_square_venue_id) ? ""
                         : mRecording.four_square_venue_id, mRecording.longitude,
-                        mRecording.latitude);
+                mRecording.latitude);
 
         if (mRecording.is_private) {
             mRdoPrivate.setChecked(true);
@@ -350,7 +385,7 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    private void mapToRecording(){
+    private void mapToRecording() {
         mRecording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         mRecording.what_text = mWhatText.getText().toString();
         mRecording.where_text = mWhereText.getText().toString();
@@ -362,25 +397,47 @@ public class ScUpload extends ScActivity {
         }
         mRecording.latitude = mLat;
         mRecording.longitude = mLong;
-        if (!mRecording.is_private){
+        if (!mRecording.is_private) {
             if (mConnectionList.postToServiceIds() != null) {
-                mRecording.service_ids = TextUtils.join(",",mConnectionList.postToServiceIds());
+                mRecording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
             }
             mRecording.shared_emails = null;
         } else {
             mRecording.service_ids = null;
             if (mAccessList.getAdapter().getAccessList() != null) {
-                mRecording.shared_emails = TextUtils.join(",",mAccessList.getAdapter().getAccessList());
+                mRecording.shared_emails = TextUtils.join(",", mAccessList.getAdapter().getAccessList());
             }
         }
     }
 
-    private File getCurrentImageFile(){
+    private File getCurrentImageFile() {
         if (mRecording == null) {
             return null;
-        } else{
+        } else {
             File f = new File(mRecording.audio_path);
             return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
+        }
+    }
+
+    private void preloadLocations() {
+        LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria c = new Criteria();
+        String provider = mgr.getBestProvider(c, true);
+        if (provider != null) {
+            final Location location = mgr.getLastKnownLocation(provider);
+            if (location != null) {
+                new FoursquareVenueTask() {
+                    @Override
+                    protected void onPostExecute(List<FoursquareVenue> venues) {
+                        if (venues != null && !venues.isEmpty()) {
+                            synchronized (ScUpload.this) {
+                              mLocation = location;
+                              mVenues.addAll(venues);
+                            }
+                        }
+                    }
+                }.execute(location);
+            }
         }
     }
 
@@ -390,7 +447,7 @@ public class ScUpload extends ScActivity {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
                     Uri selectedImage = result.getData();
-                    String[] filePathColumn = { MediaStore.MediaColumns.DATA };
+                    String[] filePathColumn = {MediaStore.MediaColumns.DATA};
                     Cursor cursor = getContentResolver().query(selectedImage,
                             filePathColumn, null, null, null);
                     cursor.moveToFirst();
@@ -408,7 +465,7 @@ public class ScUpload extends ScActivity {
 
 
             case EmailPicker.PICK_EMAILS:
-                if (resultCode == RESULT_OK &&result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
+                if (resultCode == RESULT_OK && result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
                     String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
                     if (emails != null) {
                         setPrivateShareEmails(emails);
@@ -429,7 +486,7 @@ public class ScUpload extends ScActivity {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(
                             success ? R.string.connect_success : R.string.connect_failure,
-                                    result.getStringExtra("service"));
+                            result.getStringExtra("service"));
                     Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.BOTTOM, 0, 0);
                     toast.show();

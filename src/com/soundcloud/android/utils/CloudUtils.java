@@ -171,7 +171,7 @@ public class CloudUtils {
                                         EXTERNAL_STORAGE_DIRECTORY));
             }
 
-            EXTERNAL_STORAGE_DIRECTORY.mkdirs();
+            mkdirs(EXTERNAL_STORAGE_DIRECTORY);
         }
         // do a check??
     }
@@ -212,7 +212,7 @@ public class CloudUtils {
     public static File ensureUpdatedDirectory(String validPath, String deprecatedPath){
         File depDir = new File(deprecatedPath);
         File newDir = new File(validPath);
-        if (!newDir.exists()) newDir.mkdirs();
+        mkdirs(newDir);
 
         if (depDir.exists()){
             for (File f : depDir.listFiles()){
@@ -653,4 +653,14 @@ public class CloudUtils {
         }
         return stream.toString();
         }
+
+    public static boolean mkdirs(File d) {
+        if (!d.exists()) {
+            final boolean success = d.mkdirs();
+            if (!success) Log.w(TAG, "mkdir "+d.getAbsolutePath()+" returned false");
+            return success;
+        } else {
+            return false;
+        }
+    }
 }

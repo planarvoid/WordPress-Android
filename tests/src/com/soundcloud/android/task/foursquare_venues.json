@@ -5,6 +5,13 @@
   "response": {
     "groups": [
       {
+
+      },
+      {
+        "type": "trending",
+        "items": []
+      },
+      {
         "type": "nearby",
         "name": "Nearby",
         "items": [

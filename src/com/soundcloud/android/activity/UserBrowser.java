@@ -699,8 +699,7 @@ public class UserBrowser extends ScActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(true);
-        builder.setTitle(CloudUtils.generateRecordingSharingNote(recording.where_text,
-                recording.what_text, recording.timestamp));
+        builder.setTitle(recording.sharingNote());
         builder.setNegativeButton(getString(android.R.string.cancel), null);
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {

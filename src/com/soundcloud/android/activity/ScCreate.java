@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -92,7 +93,7 @@ public class ScCreate extends ScActivity {
         updateUi(false);
 
         mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
-        if (!mRecordDir.exists()) mRecordDir.mkdirs();
+        mkdirs(mRecordDir);
         mRecordErrorMessage = "";
     }
 

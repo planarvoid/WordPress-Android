@@ -4,8 +4,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.api.Request;
 
-import android.os.Parcelable;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +35,9 @@ public class LoadFollowingsTask extends LoadJsonTask<User> {
         List<User> followingsList = new ArrayList<User>();
         do{
             followingsPage = list(path[0], User.class);
-            publishProgress((Parcelable[])followingsPage.toArray());
-            followingsList.addAll(followingsPage);
+            if (followingsPage != null && followingsPage.size() > 0){
+                followingsList.addAll(followingsPage);
+            }
 
         } while (followingsPage != null && followingsPage.size() == MAX_PAGE_SIZE);
         return followingsList;
@@ -48,21 +47,6 @@ public class LoadFollowingsTask extends LoadJsonTask<User> {
     protected void onPreExecute() {
         mApp.followings = new ArrayList<User>();
     }
-
-    @Override
-    protected void onProgressUpdate(Parcelable... updates) {
-
-        for (Parcelable user : updates){
-            mApp.followings.add((User)user);
-        }
-
-        for (WeakReference<FollowingsListener> listenerRef : mListeners){
-            if (listenerRef.get() != null) {
-                listenerRef.get().onFollowingsPage((User[])updates);
-            }
-        }
-    }
-
 
     @Override
     public void onPostExecute(List<User> result){
@@ -84,6 +68,5 @@ public class LoadFollowingsTask extends LoadJsonTask<User> {
  // Define our custom Listener interface
     public interface FollowingsListener {
         public abstract void onFollowings(boolean success);
-        public abstract void onFollowingsPage(User[] followings);
     }
 }
