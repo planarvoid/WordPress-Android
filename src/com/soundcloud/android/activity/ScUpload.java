@@ -1,6 +1,8 @@
 package com.soundcloud.android.activity;
 
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.FoursquareVenue;
@@ -68,7 +70,7 @@ public class ScUpload extends ScActivity {
         initResourceRefs();
 
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
-        if (!mImageDir.exists()) mImageDir.mkdirs();
+        mkdirs(mImageDir);
 
         File uploadFile = null;
         Intent intent = getIntent();
@@ -196,7 +198,7 @@ public class ScUpload extends ScActivity {
                 if (mRecording.latitude != 0) {
                     intent.putExtra("lat", mRecording.latitude);
                 }
-                synchronized (mVenues) {
+                synchronized (ScUpload.this) {
                   intent.putParcelableArrayListExtra("venues", mVenues);
                   intent.putExtra("location", mLocation);
                 }
@@ -428,7 +430,7 @@ public class ScUpload extends ScActivity {
                     @Override
                     protected void onPostExecute(List<FoursquareVenue> venues) {
                         if (venues != null && !venues.isEmpty()) {
-                            synchronized (mVenues) {
+                            synchronized (ScUpload.this) {
                               mLocation = location;
                               mVenues.addAll(venues);
                             }

@@ -16,6 +16,8 @@
 
 package com.soundcloud.android.service;
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -889,8 +891,7 @@ public class CloudPlaybackService extends Service {
                 }
             }
         } else {
-            if (!cacheDir.mkdirs())
-                Log.w(TAG, "error creating " + cacheDir);
+            mkdirs(cacheDir);
         }
     }
 

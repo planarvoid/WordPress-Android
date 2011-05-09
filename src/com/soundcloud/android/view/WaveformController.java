@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
@@ -218,7 +220,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mOverlay.setScaleType(ScaleType.FIT_XY);
 
         File dirFile = new File(CloudUtils.getCacheDirPath(mPlayer) + "/waves/");
-        if (!dirFile.exists() && !dirFile.mkdirs()) Log.w(TAG, "error creating " + dirFile);
+
+        mkdirs(dirFile);
     }
 
     public void onStop() {
