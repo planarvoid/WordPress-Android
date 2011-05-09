@@ -89,10 +89,10 @@ public class ScUpload extends ScActivity {
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
+            r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
             Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
             getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
             cursor = getContentResolver().query(uri, null, null, null, null);
-
         } else if (intent != null && intent.hasExtra("recordingId")
                 && intent.getLongExtra("recordingId", 0) != 0) {
             cursor = getContentResolver().query(Recordings.CONTENT_URI, null,
@@ -182,8 +182,6 @@ public class ScUpload extends ScActivity {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        TextView mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
-
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
@@ -233,7 +231,7 @@ public class ScUpload extends ScActivity {
             }
         });
 
-        mArtworkBg.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.txt_artwork_bg).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(ScUpload.this)

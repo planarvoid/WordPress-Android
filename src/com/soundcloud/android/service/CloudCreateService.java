@@ -395,21 +395,22 @@ public class CloudCreateService extends Service {
         acquireWakeLock();
 
         if (mPlaybackFile != null
-                && mPlaybackFile.getAbsolutePath().contentEquals(String.valueOf(trackdata
-                        .get(UploadTask.Params.SOURCE_PATH))))
+                && mPlaybackFile.getAbsolutePath().contentEquals(
+                    String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH)))) {
             stopPlayback();
+        }
 
 
         mCurrentUploadCancelled = false;
 
         Intent i = (new Intent(this, Main.class))
-        .addCategory(Intent.CATEGORY_LAUNCHER)
-        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        .putExtra("tabTag", "profile");
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .putExtra("tabTag", "profile");
 
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
 
-        CharSequence trackText = (CharSequence) trackdata.get("track[title]");
+        CharSequence trackText = (CharSequence) trackdata.get(com.soundcloud.api.Params.Track.TITLE);
         mUploadNotificationView.setTextViewText(R.id.message, trackText);
         mUploadNotificationView.setTextViewText(R.id.percentage, "0");
         mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
@@ -463,6 +464,7 @@ public class CloudCreateService extends Service {
                 if (param.encode && param.trackFile.exists()) {
                     //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
                     param.encodedFile.setLastModified(param.trackFile.lastModified());
+                    // XXX always delete here?
                     param.trackFile.delete();
 
                     ContentValues cv = new ContentValues();
@@ -582,13 +584,16 @@ public class CloudCreateService extends Service {
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 
         if (params.isSuccess()) {
-            if (params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
+            // XXX make really, really sure 3rd party uploads don't get deleted
+            if (params.encode &&
+                    params.trackFile != null &&
+                    params.trackFile.exists()) params.trackFile.delete();
             if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
 
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_finished_title), String.format(
                             getString(R.string.cloud_uploader_notification_finished_message),
-                            params.get("track[title]")), contentIntent);
+                            params.get(com.soundcloud.api.Params.Track.TITLE)), contentIntent);
 
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
@@ -604,7 +609,7 @@ public class CloudCreateService extends Service {
             notification.setLatestEventInfo(this,
                     getString(R.string.cloud_uploader_notification_error_title), String.format(
                             getString(R.string.cloud_uploader_notification_error_message),
-                            params.get("track[title]")), contentIntent);
+                            params.get(com.soundcloud.api.Params.Track.TITLE)), contentIntent);
 
             sendBroadcast(new Intent(UPLOAD_ERROR));
 
