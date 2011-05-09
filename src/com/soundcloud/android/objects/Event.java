@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.SoundCloudDB.Events;
+import com.soundcloud.android.provider.DatabaseHelper.Events;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -47,6 +47,11 @@ public class Event extends BaseObj implements Parcelable {
     public Event(Cursor cursor) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
+            // Events Cursors are preceded by the tablename, as they are often times
+            // part of a join with another object
+            if (!key.contains("Events.")) continue;
+            key = key.substring(7);
+
             if (key.contentEquals("_id"))
                 id = cursor.getLong(cursor.getColumnIndex(key));
             else

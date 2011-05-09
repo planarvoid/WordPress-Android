@@ -5,10 +5,10 @@ import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.UploadTask.Params;

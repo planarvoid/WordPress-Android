@@ -1,10 +1,10 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.SoundCloudDB.Events;
-import com.soundcloud.android.SoundCloudDB.Recordings;
-import com.soundcloud.android.SoundCloudDB.TrackPlays;
-import com.soundcloud.android.SoundCloudDB.Tracks;
-import com.soundcloud.android.SoundCloudDB.Users;
+import com.soundcloud.android.provider.DatabaseHelper.Events;
+import com.soundcloud.android.provider.DatabaseHelper.Recordings;
+import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
+import com.soundcloud.android.provider.DatabaseHelper.Tracks;
+import com.soundcloud.android.provider.DatabaseHelper.Users;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -28,7 +28,10 @@ public class ScContentProvider extends ContentProvider {
     static final int USERS = 2;
     static final int RECORDINGS = 3;
     static final int TRACK_PLAYS = 4;
-    static final int EVENTS = 5;
+
+    static final int EVENTS = 10;
+    static final int EVENTS_INCOMING_TRACKS = 11;
+    static final int EVENTS_EXCLUSIVE_TRACKS = 12;
 
     static final int TRACKS_ID = 101;
     static final int USERS_ID = 102;
@@ -50,9 +53,11 @@ public class ScContentProvider extends ContentProvider {
     private static String COLUMN_ALL_FROM_EVENTS = "Events.*";
 
     public static String[] FULL_TRACK_PROJECTION = {COLUMN_ALL_FROM_TRACKS,COLUMN_TRACK_USER_PLAYED};
-    public static String[] FULL_USER_PROJECTION = {COLUMN_ALL_FROM_USERS,COLUMN_ALL_FROM_USERS};
-    public static String[] FULL_RECORDING_PROJECTION = {COLUMN_ALL_FROM_RECORDINGS,COLUMN_ALL_FROM_RECORDINGS};
-    public static String[] FULL_EVENT_PROJECTION = {COLUMN_ALL_FROM_EVENTS,COLUMN_ALL_FROM_EVENTS};
+    public static String[] FULL_USER_PROJECTION = {COLUMN_ALL_FROM_USERS};
+    public static String[] FULL_RECORDING_PROJECTION = {COLUMN_ALL_FROM_RECORDINGS};
+    public static String[] FULL_EVENT_PROJECTION = {COLUMN_ALL_FROM_EVENTS};
+
+    public static String[] FULL_EVENT_TRACK_PROJECTION = {COLUMN_ALL_FROM_EVENTS};
 
     public enum DbTable {
         Tracks(TRACKS,"Tracks",DatabaseHelper.DATABASE_CREATE_TRACKS,tracksProjectionMap),
@@ -177,11 +182,11 @@ public class ScContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case TRACKS_ID:
                 qb.appendWhere(
-                        Tracks.FULL_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                        Tracks.CONCRETE_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
             case TRACKS:
                 if (projection == null) projection = FULL_TRACK_PROJECTION;
                 qb.setTables(DbTable.Tracks.tblName + " LEFT OUTER JOIN "
-                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.FULL_ID + " = " + TrackPlays.TRACK_ID + ")");
+                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.CONCRETE_ID + " = " + TrackPlays.TRACK_ID + ")");
                 qb.setProjectionMap(tracksProjectionMap);
                 break;
             case USERS_ID:
@@ -208,6 +213,14 @@ public class ScContentProvider extends ContentProvider {
                 if (projection == null) projection = FULL_EVENT_PROJECTION;
                 qb.setTables(DbTable.Events.tblName);
                 qb.setProjectionMap(eventsProjectionMap);
+                break;
+            case EVENTS_EXCLUSIVE_TRACKS:
+            case EVENTS_INCOMING_TRACKS:
+                if (projection == null) projection = FULL_TRACK_PROJECTION;
+                qb.setTables(DbTable.Events.tblName + " LEFT OUTER JOIN "
+                        + DbTable.Tracks.tblName + " ON (" + Events.ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ") LEFT OUTER JOIN "
+                        + DbTable.TrackPlays.tblName + " ON (" + Tracks.CONCRETE_ID + " = " + TrackPlays.TRACK_ID + ")");
+                qb.setProjectionMap(tracksProjectionMap);
                 break;
 
             default:
@@ -272,6 +285,9 @@ public class ScContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, DbTable.Recordings.tblName, RECORDINGS);
         sUriMatcher.addURI(AUTHORITY, DbTable.TrackPlays.tblName, TRACK_PLAYS);
         sUriMatcher.addURI(AUTHORITY, DbTable.Events.tblName, EVENTS);
+
+        sUriMatcher.addURI(AUTHORITY, DbTable.Events.tblName+"/Incoming/Tracks", EVENTS_INCOMING_TRACKS);
+        sUriMatcher.addURI(AUTHORITY, DbTable.Events.tblName+"/Exclusive/Tracks", EVENTS_EXCLUSIVE_TRACKS);
 
         sUriMatcher.addURI(AUTHORITY, DbTable.Tracks.tblName+"/#", TRACKS_ID);
         sUriMatcher.addURI(AUTHORITY, DbTable.Users.tblName+"/#", USERS_ID);

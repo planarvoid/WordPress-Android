@@ -1,10 +1,10 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Track;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -119,8 +119,7 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
                 //besides pulling the tracks one by one
 
                     e = new Event(cursor);
-                    e.track = SoundCloudDB.getInstance().resolveTrackById(
-                            mApp.getContentResolver(), e.origin_id, mApp.getCurrentUserId());
+                    e.track = new Track(cursor);
                     publishProgress(e);
                 }
                 mNextCursor = e != null ? e.next_cursor : "";

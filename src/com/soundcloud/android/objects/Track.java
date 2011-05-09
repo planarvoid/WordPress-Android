@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.SoundCloudDB.Tracks;
+import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 

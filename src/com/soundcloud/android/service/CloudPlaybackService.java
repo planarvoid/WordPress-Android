@@ -19,10 +19,10 @@ package com.soundcloud.android.service;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.TrackPlays;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
@@ -31,8 +31,8 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
-
 import com.soundcloud.api.Request;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

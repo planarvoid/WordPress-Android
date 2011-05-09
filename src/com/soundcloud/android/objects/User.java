@@ -2,7 +2,7 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB.Users;
+import com.soundcloud.android.provider.DatabaseHelper.Users;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 

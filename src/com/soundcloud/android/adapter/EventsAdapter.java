@@ -2,10 +2,10 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB.Events;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.task.QueryTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudUtils;
@@ -70,7 +70,8 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         if (CloudUtils.isTaskFinished(mQueryTask)){
             mQueryTask = new QueryTask(mActivity.getSoundCloudApplication());
             mQueryTask.setAdapter(this);
-            mQueryTask.setQuery(Events.CONTENT_URI, null,
+            mQueryTask.setQuery((mExclusive ? Events.CONTENT_EXCLUSIVE_TRACKS_URI
+                    : Events.CONTENT_INCOMING_TRACKS_URI), null,
                     Events.USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.EXCLUSIVE
                             + " = " + (mExclusive ? "1" : "0"), null, Events.ID + " DESC");
             mQueryTask.execute();
