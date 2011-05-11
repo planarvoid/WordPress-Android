@@ -101,8 +101,8 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     }
 
     @Override
-    public void onUpdate(boolean success) {
-        if (success){
+    public void onUpdate(int added) {
+        if (added > 0){
             refreshCursor();
         } else {
             mActivity.showToast(mExclusive ? R.string.error_updating_exclusive : R.string.error_updating_incoming);

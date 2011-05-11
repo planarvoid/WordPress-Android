@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Boolean> {
+public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Integer> {
 
     private SoundCloudApplication mApp;
     private ContentResolver mContentResolver;
@@ -56,7 +56,7 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Boo
     }
 
     @Override
-    protected Boolean doInBackground(Track... params) {
+    protected Integer doInBackground(Track... params) {
         try {
             return SoundCloudDB.getInstance().updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
         } catch (JsonParseException e) {
@@ -68,14 +68,14 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Boo
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     protected void afterCommitInBg() {
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(Integer result) {
         Log.i(getClass().getName(), "Done event update with result " + result);
 
         for (WeakReference<UpdateRecentActivitiesListener> listener : mListeners){
@@ -85,7 +85,7 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Boo
 
  // Define our custom Listener interface
     public interface UpdateRecentActivitiesListener {
-        public abstract void onUpdate(boolean success);
+        public abstract void onUpdate(int added);
     }
 
 }

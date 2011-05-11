@@ -190,5 +190,8 @@ public class User extends BaseObj implements Parcelable {
 
         String LAST_INCOMING_SYNC = "last_incoming_sync";
         String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
+
+        String CURRENT_INCOMING_UNHEARD = "current_incoming_unheard";
+        String CURRENT_EXCLUSIVE_UNHEARD = "current_exclusive_unheard";
     }
 }

@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -54,8 +55,10 @@ public class Event extends BaseObj implements Parcelable {
                             this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),
                             cursor, key);
                 } catch (SecurityException e) {
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 } catch (NoSuchFieldException e) {
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 }
             }

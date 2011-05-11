@@ -44,7 +44,7 @@ public class SoundCloudDB {
         return instance;
     }
 
-    public boolean updateActivities(SoundCloudApplication app, ContentResolver contentResolver,
+    public Integer updateActivities(SoundCloudApplication app, ContentResolver contentResolver,
             Long currentUserId, boolean exclusive) throws JsonParseException, JsonMappingException,
             IllegalStateException, IOException {
 
@@ -117,7 +117,7 @@ public class SoundCloudDB {
 
                 Log.i(TAG, "Fetched " + added + " activities so far");
             } else {
-                return false;
+                return 0;
             }
         } while (!caughtUp);
 
@@ -128,7 +128,7 @@ public class SoundCloudDB {
         contentResolver.bulkInsert(Events.CONTENT_URI,
                 eventsCV.toArray(new ContentValues[eventsCV.size()]));
 
-        return true;
+        return added;
 
     }
 
