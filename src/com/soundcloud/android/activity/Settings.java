@@ -77,8 +77,10 @@ public class Settings extends PreferenceActivity {
         );
         recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
 
-        if (!SoundCloudApplication.DEV_MODE)
+        if (!SoundCloudApplication.DEV_MODE){
             this.getPreferenceScreen().removePreference(findPreference("defaultRecordingHighQualityType"));
+            this.getPreferenceScreen().removePreference(findPreference("dashboardMaxStored"));
+        }
 
     }
 

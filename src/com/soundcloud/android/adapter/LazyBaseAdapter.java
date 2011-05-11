@@ -86,7 +86,7 @@ public class LazyBaseAdapter extends BaseAdapter {
         return new LazyRow(mActivity, this);
     }
 
-    public void clear() {
+    public void refresh() {
         mData.clear();
         reset();
     }

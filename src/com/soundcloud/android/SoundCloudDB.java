@@ -21,6 +21,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -48,15 +50,18 @@ public class SoundCloudDB {
             Long currentUserId, boolean exclusive) throws JsonParseException, JsonMappingException,
             IllegalStateException, IOException {
 
-      app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC,System.currentTimeMillis());
+        app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC, System.currentTimeMillis());
+
+        int maxStored = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(app)
+                .getString("dashboardMaxStored", "100"));
 
         // get the timestamp of the newest record in the database
         Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
                 Events.ID, Events.ORIGIN_ID,
-        }, Events.USER_ID + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
+        }, Events.USER_ID + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = "
+                + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
 
-        if (firstCursor.getCount() > 0)
-            firstCursor.moveToFirst();
+        if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
 
         final long firstTrackId = firstCursor.getCount() == 0 ? 0 : firstCursor.getLong(1);
         firstCursor.close();
@@ -70,11 +75,13 @@ public class SoundCloudDB {
         List<ContentValues> usersCV = new ArrayList<ContentValues>();
 
         do {
-            Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES);
+            Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS
+                    : Endpoints.MY_ACTIVITIES);
             request.add("limit", Integer.toString(20));
 
             if (activities != null) { // add next cursor if applicable
-                List<NameValuePair> params = URLEncodedUtils.parse( URI.create(activities.next_href), "UTF-8");
+                List<NameValuePair> params = URLEncodedUtils.parse(
+                        URI.create(activities.next_href), "UTF-8");
                 for (NameValuePair param : params) {
                     if (param.getName().equalsIgnoreCase("cursor")) {
                         request.add("cursor", param.getValue());
@@ -98,13 +105,13 @@ public class SoundCloudDB {
                     if (evt.getTrack().id != firstTrackId) {
                         added++;
 
-                        // TODO do not always add every user and track. keep a map to check against
+                        // TODO do not always add every user and track. keep a
+                        // map to check against
                         // what was already added, otherwise unnecessary db IO
 
                         tracksCV.add(0, evt.getTrack().buildContentValues());
                         usersCV.add(0, evt.getTrack().user.buildContentValues(false));
                         eventsCV.add(0, evt.buildContentValues(currentUserId, exclusive));
-
 
                     } else {
                         caughtUp = true;
@@ -112,21 +119,27 @@ public class SoundCloudDB {
                     }
                 }
 
-                if (firstTrackId <= 0 && added >= 100)
+                if (firstTrackId <= 0 && added >= maxStored)
                     caughtUp = true;
 
-                Log.i(TAG, "Fetched " + added + " activities so far");
+                Log.i(TAG, "Adding " + added + " activities");
             } else {
                 return 0;
             }
         } while (!caughtUp);
 
-        contentResolver.bulkInsert(Content.TRACKS,
-                tracksCV.toArray(new ContentValues[tracksCV.size()]));
-        contentResolver.bulkInsert(Content.USERS,
-                usersCV.toArray(new ContentValues[usersCV.size()]));
-        contentResolver.bulkInsert(Events.CONTENT_URI,
-                eventsCV.toArray(new ContentValues[eventsCV.size()]));
+        if (tracksCV.size() > 0) {
+            contentResolver.bulkInsert(Content.TRACKS,
+                    tracksCV.toArray(new ContentValues[tracksCV.size()]));
+        }
+        if (usersCV.size() > 0) {
+            contentResolver.bulkInsert(Content.USERS,
+                    usersCV.toArray(new ContentValues[usersCV.size()]));
+        }
+        if (eventsCV.size() > 0) {
+            contentResolver.bulkInsert(Events.CONTENT_URI,
+                    eventsCV.toArray(new ContentValues[eventsCV.size()]));
+        }
 
         return added;
 
@@ -164,29 +177,58 @@ public class SoundCloudDB {
     public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
-        }, Events.USER_ID + " = " + userId, null, null);
+        }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = "
+                + (exclusive ? "1" : "0"), null, null);
 
         countCursor.moveToFirst();
         int eventsCount = countCursor.getInt(0);
         countCursor.close();
 
-        Log.i(TAG,"Cleaning Stale Activities for user " + userId + ", deleting" + Math.max(0,(eventsCount - maxEvents)) + " of " + eventsCount);
-
         // if there are older entries, delete them as necessary
         if (eventsCount > maxEvents) {
-            Cursor lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
-                Events.ID,
-            }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT "
-                    + maxEvents);
 
-            lastCursor.moveToLast();
-            long lastId = lastCursor.getLong(0);
+            Log.i(TAG,"Cleaning Stale Activities for user " + userId + ", deleting " + Math.max(0,(eventsCount - maxEvents)) + " of " + eventsCount);
+            long lastId = 0;
+            int limit = maxEvents;
+            Cursor lastCursor = null;
 
-            Log.i(TAG,
-                    "Deleting rows " + lastId + " "
-                            + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
-                                    + userId + " AND " + Events.ID + " < " + lastId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
-                                    null));
+            // find something with a next_cursor to keep so we have a continuous dashboard
+            do {
+                if (lastCursor != null) {
+                    limit += 10;
+                    lastCursor.close();
+                }
+
+                lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
+                    Events.ID,  Events.NEXT_CURSOR
+                }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = "
+                        + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT " + limit);
+
+                if (lastCursor != null){
+                    lastCursor.moveToLast();
+                    while(!lastCursor.isBeforeFirst() && TextUtils.isEmpty(lastCursor.getString(1))){
+                        lastCursor.moveToPrevious();
+                    }
+                    lastId = lastCursor.isBeforeFirst() ? 0 : lastCursor.getLong(0);
+                }
+            } while (lastId == 0 && limit < eventsCount);
+
+            lastCursor.close();
+
+            if (lastId > 0){
+                Log.i(TAG,
+                        "Deleting rows before id " + lastId + " "
+                                + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                                        + userId + " AND " + Events.ID + " < " + lastId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
+                                        null) + " deleted ");
+            } else {
+                Log.i(TAG,
+                        "Deleting all rows " +
+                                + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
+                                        + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
+                                        null));
+            }
+
         }
 
     }

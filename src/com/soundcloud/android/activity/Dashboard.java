@@ -4,12 +4,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +27,7 @@ public class Dashboard extends ScActivity {
     private ScTabView mTracklistView;
     private String mTrackingPath;
     private IntentFilter mSyncCheckFilter;
+    private boolean mExclusive;
 
     public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
 
@@ -46,6 +50,7 @@ public class Dashboard extends ScActivity {
                         CloudUtils.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
+                mExclusive = true;
                 mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,
@@ -66,19 +71,38 @@ public class Dashboard extends ScActivity {
 
         mSyncCheckFilter = new IntentFilter();
         mSyncCheckFilter.addAction(SYNC_CHECK_ACTION);
-        registerReceiver(mIntentReceiver, mSyncCheckFilter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mIntentReceiver);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         pageTrack(mTrackingPath);
+
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nm = (NotificationManager) getSoundCloudApplication().getSystemService(ns);
+
+        nm.cancel(SyncAdapterService.DASHBOARD_NOTIFICATION_ID);
+
+        if (mExclusive){
+            getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN,"0");
+        } else {
+            getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN,"0");
+        }
+
+        registerReceiver(mIntentReceiver, mSyncCheckFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(mIntentReceiver);
     }
 
     protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {

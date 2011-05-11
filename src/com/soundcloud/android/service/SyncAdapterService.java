@@ -4,20 +4,22 @@ package com.soundcloud.android.service;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.utils.CloudUtils;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,6 +27,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -34,8 +37,7 @@ public class SyncAdapterService extends Service {
     private static ScSyncAdapter sSyncAdapter = null;
     private static ContentResolver mContentResolver = null;
 
-    private static final int MAX_COLLECTION_SIZE = 200;
-    private static final int MAX_EVENTS_STORED = 200;
+    public static int DASHBOARD_NOTIFICATION_ID = R.layout.player_touch_bar;
 
     public SyncAdapterService() {
         super();
@@ -75,7 +77,7 @@ public class SyncAdapterService extends Service {
         return sSyncAdapter;
     }
 
-    private static void performSync(SoundCloudApplication app, Context context, Account account, Bundle extras,
+    private static void performSync(final SoundCloudApplication app, Context context, Account account, Bundle extras,
             String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
         mContentResolver = context.getContentResolver();
@@ -84,8 +86,8 @@ public class SyncAdapterService extends Service {
 
         app.useAccount(account);
 
-        int incomingUnheard = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNHEARD);
-        int exclusiveUnheard =app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNHEARD);
+        int incomingUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN);
+        int exclusiveUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN);
 
         int newIncoming = 0;
         int newExclusive = 0;
@@ -108,41 +110,92 @@ public class SyncAdapterService extends Service {
             e.printStackTrace();
         }
 
-        SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED, true);
-        SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id, MAX_EVENTS_STORED, false);
+        app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN, incomingUnseen + newIncoming);
+        app.setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN, exclusiveUnseen + newExclusive);
 
-        if (newIncoming > 0 || newExclusive > 0){
+        Log.i(TAG,"Set new incoming to " + (incomingUnseen + newIncoming));
 
-            incomingUnheard += newIncoming;
-            exclusiveUnheard += newExclusive;
+        final boolean updatedIncoming = newIncoming > 0;
+        final boolean updatedExclusive = newExclusive > 0;
 
-            app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNHEARD, incomingUnheard);
-            app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNHEARD, exclusiveUnheard);
+        Intent intent = new Intent();
+        intent.setAction(Dashboard.SYNC_CHECK_ACTION);
+        app.sendOrderedBroadcast(intent, null, new BroadcastReceiver() {
 
-            String ns = Context.NOTIFICATION_SERVICE;
-            NotificationManager mNotificationManager = (NotificationManager) app.getSystemService(ns);
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (getResultCode() == Activity.RESULT_CANCELED) { // Activity caught it
+                    Log.d(TAG, "No Dashboard Activity found in the foreground");
 
-            CharSequence tickerText = app.getApplicationContext().getString(R.string.dashboard_notifications_ticker);
+                    int maxStored = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(
+                            app).getString("dashboardMaxStored", "100"));
 
-            Intent i = (new Intent(app, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabTag", (newIncoming == 0 ? "exclusive" : "incoming"));
+                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id,
+                            maxStored, true);
+                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id,
+                            maxStored, false);
 
-            PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                    if (updatedIncoming || updatedExclusive) {
 
-            int icon = R.drawable.statusbar;
-            Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
-            notification.contentIntent = pi;
+                        int incomingUnseen = app
+                                .getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN);
+                        int exclusiveUnseen = app
+                                .getAccountDataInt(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN);
 
-            String title = app.getApplicationContext().getString(R.string.dashboard_notifications_title);
-            String incomingMsg = String.format(app.getApplicationContext().getString(R.string.dashboard_notifications_message_incoming), incomingUnheard);
-            String exclusiveMsg = String.format(app.getApplicationContext().getString(R.string.dashboard_notifications_message_exclusive), exclusiveUnheard);
-            String message = incomingMsg + ", " + exclusiveMsg;
+                        Log.i(TAG,"Incoming unseen is " + incomingUnseen);
 
-            notification.setLatestEventInfo(app.getApplicationContext(), title, CloudUtils.formatString(message, 0), pi);
+                        String ns = Context.NOTIFICATION_SERVICE;
+                        NotificationManager mNotificationManager = (NotificationManager)app
+                                .getSystemService(ns);
 
-            mNotificationManager.notify(R.layout.player_touch_bar, notification);
-        }
+                        CharSequence tickerText = app.getApplicationContext().getString(
+                                R.string.dashboard_notifications_ticker);
+
+                        Intent i = (new Intent(app, Main.class))
+                                .addCategory(Intent.CATEGORY_LAUNCHER)
+                                .setFlags(
+                                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                                | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                .putExtra("tabTag", (!updatedIncoming ? "exclusive" : "incoming"));
+
+                        PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(),
+                                0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        int icon = R.drawable.statusbar;
+                        Notification notification = new Notification(icon, tickerText, System
+                                .currentTimeMillis());
+                        notification.contentIntent = pi;
+                        notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+                        String title = app.getApplicationContext().getString(
+                                R.string.dashboard_notifications_title);
+                        StringBuilder message = new StringBuilder();
+                        if (incomingUnseen != 0) {
+                            message.append(String.format(
+                                    app.getApplicationContext().getString(
+                                            R.string.dashboard_notifications_message_incoming),
+                                    incomingUnseen >= 99 ? app.getApplicationContext().getString(
+                                            R.string.dashboard_99_or_more) : incomingUnseen));
+                            if (exclusiveUnseen != 0) message.append(", ");
+                        }
+
+                        if (exclusiveUnseen != 0) {
+                            message.append(String.format(
+                                    app.getApplicationContext().getString(
+                                            R.string.dashboard_notifications_message_exclusive),
+                                    exclusiveUnseen >= 99 ? app.getApplicationContext().getString(
+                                            R.string.dashboard_99_or_more) : exclusiveUnseen));
+                        }
+
+                        notification.setLatestEventInfo(app.getApplicationContext(), title,
+                                message, pi);
+                        mNotificationManager.notify(DASHBOARD_NOTIFICATION_ID, notification);
+                    }
+
+                    return;
+                }
+            }
+        }, null, Activity.RESULT_CANCELED, null, null);
 
     }
 

@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.Comparator;
@@ -114,7 +115,7 @@ public class Event extends BaseObj implements Parcelable {
         cv.put(Events.LABEL, label);
         cv.put(Events.ORIGIN_ID, getOriginId());
         cv.put(Events.USER_ID, user_id);
-        cv.put(Events.NEXT_CURSOR, next_cursor);
+        if (!TextUtils.isEmpty(next_cursor)) cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
     }
 

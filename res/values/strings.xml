@@ -17,8 +17,9 @@
 
   <string name="dashboard_notifications_ticker">New SoundCloud tracks</string>
   <string name="dashboard_notifications_title">You have new SoundCloud tracks.</string>
-  <string name="dashboard_notifications_message_incoming">Incoming: %d</string>
-  <string name="dashboard_notifications_message_exclusive">Exclusive: %d</string>
+  <string name="dashboard_notifications_message_incoming">Incoming: %s</string>
+  <string name="dashboard_notifications_message_exclusive">Exclusive: %s</string>
+  <string name="dashboard_99_or_more">99+</string>
 
   <string name="authentication_contacting_title"></string>
   <string name="authentication_contacting_message">Contacting SoundCloud...</string>
@@ -612,6 +613,9 @@
 
   <string name="pref_record_high_quality_type">High quality type</string>
   <string name="pref_record_high_quality_type_desc">Choose your preferred high quality recording type</string>
+
+  <string name="pref_dashboard_store_max">Dashboard maximum storage</string>
+  <string name="pref_dashboard_store_max_desc">How many dashboard tracks do you want to store</string>
 
   <string name="low">Low</string>
   <string name="high">High</string>

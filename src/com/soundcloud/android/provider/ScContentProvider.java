@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Content_Codes;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -18,6 +19,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 public class ScContentProvider extends ContentProvider {
 
@@ -162,11 +164,17 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+        if (SoundCloudApplication.DEV_MODE){
+            Log.i(TAG,"++++Query: " + qb.buildQuery(projection, selection, selectionArgs, null, null, sortOrder,null));
+        }
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
+
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {

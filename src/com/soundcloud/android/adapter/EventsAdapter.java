@@ -7,6 +7,7 @@ import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
+import com.soundcloud.android.task.DashboardQueryTask;
 import com.soundcloud.android.task.QueryTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudUtils;
@@ -16,6 +17,8 @@ import com.soundcloud.android.view.LazyRow;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
+import android.database.ContentObserver;
+import android.os.Handler;
 import android.os.Parcelable;
 
 import java.net.URI;
@@ -30,12 +33,13 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     private boolean mExclusive;
     private QueryTask mQueryTask;
 
-  //private ChangeObserver mChangeObserver;
+    private ChangeObserver mChangeObserver;
 
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isExclusive, Class<?> model) {
         super(context, data, model);
         mExclusive = isExclusive;
-        refreshCursor();
+        mChangeObserver = new ChangeObserver();
+        addLocalEvents();
     }
 
     @Override
@@ -62,15 +66,22 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
                         .requestRecentExclusive(this)) || (!mExclusive && mActivity
                         .getSoundCloudApplication().requestRecentIncoming(this)))) {
         }
+        mActivity.getContentResolver().registerContentObserver(Events.CONTENT_URI, true, mChangeObserver);
+
+
         this.notifyDataSetChanged();
+        submenuIndex = -1;
+        animateSubmenuIndex = -1;
+
     }
 
 
-    private void refreshCursor() {
-        mData = new ArrayList<Parcelable>();
+    private void addLocalEvents() {
+        mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
 
+        mData = new ArrayList<Parcelable>();
         if (CloudUtils.isTaskFinished(mQueryTask)){
-            mQueryTask = new QueryTask(mActivity.getSoundCloudApplication());
+            mQueryTask = new DashboardQueryTask(mActivity.getSoundCloudApplication());
             mQueryTask.setAdapter(this);
             mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS
                     : Content.INCOMING_TRACKS), null,
@@ -82,6 +93,11 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
 
     }
 
+    @Override
+    public void refresh() {
+        mData.clear();
+        reset();
+    }
 
 
     @Override
@@ -90,7 +106,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         submenuIndex = -1;
         animateSubmenuIndex = -1;
         nextCursor = "";
-        refreshCursor();
+        addLocalEvents();
     }
 
     public void onNextEventsParam(String nextEventsHref) {
@@ -103,7 +119,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     @Override
     public void onUpdate(int added) {
         if (added > 0){
-            refreshCursor();
+            addLocalEvents();
         } else {
             mActivity.showToast(mExclusive ? R.string.error_updating_exclusive : R.string.error_updating_incoming);
         }
@@ -112,5 +128,25 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
 
     public void onNextEventsCursor(String mNextCursor) {
         nextCursor = mNextCursor;
+    }
+
+    protected void onContentChanged() {
+        addLocalEvents();
+    }
+
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            onContentChanged();
+        }
     }
 }

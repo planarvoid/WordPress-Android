@@ -1,7 +1,6 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
@@ -11,10 +10,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -23,10 +22,8 @@ import java.util.ArrayList;
  */
 public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
-    private WeakReference<LazyBaseAdapter> mAdapterReference;
+    protected WeakReference<LazyBaseAdapter> mAdapterReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
-
-    private String mNextCursor;
 
     public Class<?> loadModel;
 
@@ -36,8 +33,11 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
     private String[] mQuerySelectionArgs;
     private String mQuerySortOrder;
 
+    protected AtomicBoolean keepMoving;
+
     public QueryTask(SoundCloudApplication app){
         mApp = app;
+        keepMoving = new AtomicBoolean();
     }
 
     /**
@@ -62,6 +62,7 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
      */
     @Override
     protected void onPreExecute() {
+        keepMoving.set(true);
         LazyBaseAdapter adapter = mAdapterReference.get();
         if (adapter != null){
             loadModel = adapter.getLoadModel();
@@ -76,10 +77,6 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
     protected void onPostExecute(Boolean keepGoing) {
         LazyBaseAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
-            if (!TextUtils.isEmpty(mNextCursor)){
-                ((EventsAdapter)mAdapterReference.get())
-                        .onNextEventsCursor(mNextCursor);
-            }
             adapter.onPostQueryExecute();
         }
     }
@@ -109,17 +106,16 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
         if (cursor != null && !cursor.isClosed()) {
             if (Event.class.equals(loadModel)) {
             Event e = null;
-            while (cursor.moveToNext()) {
+            while (cursor.moveToNext() && keepMoving.get()) {
                     e = new Event(cursor, true);
                     e.track = new Track(cursor, true);
                     e.track.user = new User(cursor,true);
                     publishProgress(e);
                 }
-                mNextCursor = e != null ? e.next_cursor : "";
             }
-
             cursor.close();
         }
         return true;
     }
+
 }
