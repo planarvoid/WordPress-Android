@@ -13,7 +13,7 @@ import android.app.Activity;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-public class ConnectionListTests extends RoboApiBaseTests {
+public class ConnectionListTest extends RoboApiBaseTests {
 
     @Test
     public void shouldLoadConnectionsFromApi() throws Exception {

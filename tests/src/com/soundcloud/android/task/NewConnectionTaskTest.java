@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class NewConnectionTaskTests extends RoboApiBaseTests {
+public class NewConnectionTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldReturnUri() throws Exception {
         Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");

@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LoadConnectionTaskTests extends RoboApiBaseTests {
+public class LoadConnectionTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
         expectGetRequestAndReturn(MY_CONNECTIONS, 200,"connections.json");

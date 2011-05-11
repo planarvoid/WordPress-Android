@@ -13,7 +13,7 @@ import java.io.IOException;
 
 
 @RunWith(DefaultTestRunner.class)
-public class CheckFollowingStatusTaskTests extends RoboApiBaseTests {
+public class CheckFollowingStatusTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldReturnFalseIfNotFollowing() throws Exception {
         expectGetRequestAndReturn(null, 404, null);

@@ -16,7 +16,7 @@ import android.location.Location;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class FoursquareVenueTaskTests extends RoboApiBaseTests {
+public class FoursquareVenueTaskTest extends RoboApiBaseTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {

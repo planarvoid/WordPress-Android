@@ -15,7 +15,7 @@ import android.util.Pair;
 import java.io.File;
 
 @RunWith(DefaultTestRunner.class)
-public class AddInfoTests extends RoboApiBaseTests {
+public class AddInfoTest extends RoboApiBaseTests {
 
     @Test
     public void shouldWorkWithNullFile() throws Exception {

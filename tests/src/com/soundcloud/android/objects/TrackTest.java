@@ -9,7 +9,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @RunWith(DefaultTestRunner.class)
-public class TrackTests {
+public class TrackTest {
     @Test
     public void shouldFilterOutMachineTags() throws Exception {
         Track t = new Track();

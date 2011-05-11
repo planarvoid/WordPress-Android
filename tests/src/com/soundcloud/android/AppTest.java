@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class AppTests {
+public class AppTest {
 
     @Test @SuppressWarnings({"ConstantConditions"})
     public void shouldHaveProductionEnabled() throws Exception {

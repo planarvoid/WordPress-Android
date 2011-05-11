@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SignUpTests {
+public class SignUpTest {
     @Test
     public void shouldCheckEmail() throws Exception {
         assertTrue(SignUp.checkEmail("foo@bar.com"));

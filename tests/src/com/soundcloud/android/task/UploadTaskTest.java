@@ -29,7 +29,7 @@ import java.util.Map;
 
 @SuppressWarnings({"unchecked"})
 @RunWith(DefaultTestRunner.class)
-public class UploadTaskTests extends RoboApiBaseTests {
+public class UploadTaskTest extends RoboApiBaseTests {
     UploadTask task;
 
     @Before

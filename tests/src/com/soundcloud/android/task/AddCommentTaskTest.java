@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 
 
 @RunWith(DefaultTestRunner.class)
-public class AddCommentTaskTests {
+public class AddCommentTaskTest {
     private SoundCloudApplication mApp;
 
     @Before

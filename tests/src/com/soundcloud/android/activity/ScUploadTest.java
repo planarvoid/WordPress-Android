@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import static junit.framework.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,7 +25,7 @@ import java.util.Map;
 
 @SuppressWarnings({"ALL"})
 @RunWith(DefaultTestRunner.class)
-public class ScUploadTests implements Params.Track {
+public class ScUploadTest implements Params.Track {
     ScUpload create;
     ICloudCreateService service;
 
@@ -106,7 +105,7 @@ public class ScUploadTests implements Params.Track {
 
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
 
-        assertThat(tags, hasItem("foursquare:venue=123"));
+        assertThat(tags.contains("foursquare:venue=123"), is(true));
     }
 
     @Test
@@ -117,8 +116,8 @@ public class ScUploadTests implements Params.Track {
         assertThat(args.get(TAG_LIST), not(is(nullValue())));
 
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags, hasItem("geo:lon=0.1"));
-        assertThat(tags, hasItem("geo:lat=0.2"));
+        assertThat(tags.contains("geo:lon=0.1"), is(true));
+        assertThat(tags.contains("geo:lat=0.2"), is(true));
     }
 
     @Test
@@ -127,7 +126,7 @@ public class ScUploadTests implements Params.Track {
 
         assertThat(args.get(TAG_LIST), not(is(nullValue())));
         List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags, hasItem("soundcloud:source=android-record"));
+        assertThat(tags.contains("soundcloud:source=android-record"), is(true));
     }
 
 
