@@ -157,7 +157,6 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-
         Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + id, null,
                 null);
 
@@ -190,20 +189,15 @@ public class Track extends BaseObj implements Parcelable {
             user.updateFromDb(contentResolver, currentUserId);
     }
 
-    // ---Make sure the database is up to date with this track info---
     public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='"
+                + id + "' AND " + TrackPlays.USER_ID + " = " + currentUserId, null, null);
 
-        synchronized (this) {
-            Cursor cursor = contentResolver
-                    .query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='" + id + "' AND "
-                            + TrackPlays.USER_ID + " = " + currentUserId, null, null);
-
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    user_played = true;
-                }
-                cursor.close();
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                user_played = true;
             }
+            cursor.close();
         }
     }
 
