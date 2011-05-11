@@ -531,18 +531,13 @@ public class CloudUtils {
         return emptyView;
     }
 
-
-    public static void resolveParcelable(Context c, Parcelable p, long user_id) {
+    public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
         if (p instanceof Track) {
-            SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(), (Track) p,
-                    SoundCloudDB.WriteState.none, user_id);
-        } else if (p instanceof Event) {
-            if (((Event) p).getTrack() != null)
-                SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(),
-                        ((Event) p).getTrack(), SoundCloudDB.WriteState.none, user_id);
+            ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
+        } else if (p instanceof Event && ((Event)p).getTrack() != null) {
+            ((Event)p).getTrack().updateUserPlayedFromDb(c.getContentResolver(), user_id);
         } else if (p instanceof User) {
-            SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p,
-                    SoundCloudDB.WriteState.none, user_id);
+            // check if they are a follower
         }
     }
 
@@ -555,7 +550,7 @@ public class CloudUtils {
         comment.track_id = trackId;
         comment.created_at = new Date(System.currentTimeMillis());
         comment.user_id = userId;
-        comment.user = SoundCloudDB.getInstance().resolveUserById(context.getContentResolver(), comment.user_id);
+        comment.user = SoundCloudDB.getInstance().getUserById(context.getContentResolver(), comment.user_id);
         comment.timestamp = timestamp;
         comment.body = commentBody;
         comment.reply_to_id = replyToId;

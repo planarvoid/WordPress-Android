@@ -121,7 +121,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
 
             // resolve data
             if (newItems != null) {
-                for (Parcelable p : newItems) CloudUtils.resolveParcelable(mApp, p, mApp.getCurrentUserId());
+                for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
                      // we have less than the requested number of items, so we are
                 // done grabbing items for this list
                 return newItems.size() >= pageSize;

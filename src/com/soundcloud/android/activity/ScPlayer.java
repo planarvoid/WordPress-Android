@@ -5,6 +5,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -828,8 +829,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mPlayingTrack = null;
             } else if (mPlayingTrack == null || mPlayingTrack.id != trackId){
 
-                if (getSoundCloudApplication().getTrackFromCache(trackId) == null)
-                    getSoundCloudApplication().cacheTrack(mPlaybackService.getTrack());
+                Log.i(TAG,"Get Playing Track " + trackId);
+                if (getSoundCloudApplication().getTrackFromCache(trackId) == null){
+
+                    Track t = SoundCloudDB.getInstance().getTrackById(getContentResolver(), trackId, getUserId());
+                    Log.i(TAG,"Get Playing Track from db " + t);
+                    getSoundCloudApplication().cacheTrack(t != null ? t : mPlaybackService.getTrack());
+                }
 
                 mPlayingTrack = getSoundCloudApplication().getTrackFromCache(trackId);
             }
@@ -840,6 +846,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mWaveformController.clearTrack();
             return;
         }
+
+        Log.i(TAG,"Got Playing Track " + mPlayingTrack + " " + mPlayingTrack.waveform_url);
 
         mWaveformController.updateTrack(mPlayingTrack);
         updateArtwork();

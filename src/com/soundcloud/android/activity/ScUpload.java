@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
@@ -94,13 +95,13 @@ public class ScUpload extends ScActivity {
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
-            Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
-            getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
+            Uri uri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
+            getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
             cursor = getContentResolver().query(uri, null, null, null, null);
 
         } else if (intent != null && intent.hasExtra("recordingId")
                 && intent.getLongExtra("recordingId", 0) != 0) {
-            cursor = getContentResolver().query(Recordings.CONTENT_URI, null,
+            cursor = getContentResolver().query(Content.RECORDINGS, null,
                     Recordings.ID + "='" + intent.getLongExtra("recordingId", 0) + "'", null,
                     null);
         } else if (intent != null && intent.hasExtra("recordingUri")) {
@@ -136,7 +137,7 @@ public class ScUpload extends ScActivity {
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
             mapToRecording();
-            getContentResolver().update(Recordings.CONTENT_URI, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
+            getContentResolver().update(Content.RECORDINGS, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
         }
     }
 

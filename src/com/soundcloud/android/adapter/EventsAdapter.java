@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.task.QueryTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
@@ -64,16 +65,17 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         this.notifyDataSetChanged();
     }
 
+
     private void refreshCursor() {
         mData = new ArrayList<Parcelable>();
 
         if (CloudUtils.isTaskFinished(mQueryTask)){
             mQueryTask = new QueryTask(mActivity.getSoundCloudApplication());
             mQueryTask.setAdapter(this);
-            mQueryTask.setQuery((mExclusive ? Events.CONTENT_EXCLUSIVE_TRACKS_URI
-                    : Events.CONTENT_INCOMING_TRACKS_URI), null,
-                    Events.BELONGS_TO_USER + "='" + mActivity.getUserId() + "' AND " + Events.EXCLUSIVE
-                            + " = " + (mExclusive ? "1" : "0"), null, Events.ID + " DESC");
+            mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS
+                    : Content.INCOMING_TRACKS), null,
+                    Events.ALIAS_USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.ALIAS_EXCLUSIVE
+                            + " = " + (mExclusive ? "1" : "0"), null, Events.ALIAS_ID + " DESC");
             mQueryTask.execute();
         } else
             mQueryTask.setAdapter(this);
@@ -87,6 +89,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;
+        nextCursor = "";
         refreshCursor();
     }
 

@@ -4,6 +4,7 @@ import com.soundcloud.android.objects.Activities;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
@@ -28,13 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SoundCloudDB {
-    private static final String TAG = "ScSyncAdapterService";
+    private static final String TAG = "SoundCloudDB";
 
     private SoundCloudDB () {
     }
 
     public enum WriteState {
-        none, insert_only, update_only, all
+        insert_only, update_only, all
     }
 
     private static final SoundCloudDB instance = new SoundCloudDB();
@@ -52,7 +53,7 @@ public class SoundCloudDB {
         // get the timestamp of the newest record in the database
         Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
                 Events.ID, Events.ORIGIN_ID,
-        }, Events.BELONGS_TO_USER + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
+        }, Events.USER_ID + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
 
         if (firstCursor.getCount() > 0)
             firstCursor.moveToFirst();
@@ -86,8 +87,6 @@ public class SoundCloudDB {
                 activities = app.getMapper().readValue(response.getEntity().getContent(),
                         Activities.class);
 
-                Log.i(TAG,"GOT ACTIVITIES " + activities.size() + " " + firstTrackId);
-
                 if (activities.size() == 0) {
                     caughtUp = true;
                     break;
@@ -96,7 +95,6 @@ public class SoundCloudDB {
                 activities.setCursorToLastEvent();
 
                 for (Event evt : activities) {
-                    Log.i(TAG,"GOT ACTIVITIES " + evt.getTrack().id + " " + firstTrackId);
                     if (evt.getTrack().id != firstTrackId) {
                         added++;
 
@@ -114,18 +112,18 @@ public class SoundCloudDB {
                     }
                 }
 
-                if (firstTrackId <= 0 && added > 100)
+                if (firstTrackId <= 0 && added >= 100)
                     caughtUp = true;
 
-                Log.i(TAG, "keeping " + added + " of " + activities.size() + " activities");
+                Log.i(TAG, "Fetched " + added + " activities so far");
             } else {
                 return false;
             }
         } while (!caughtUp);
 
-        contentResolver.bulkInsert(Tracks.CONTENT_URI,
+        contentResolver.bulkInsert(Content.TRACKS,
                 tracksCV.toArray(new ContentValues[tracksCV.size()]));
-        contentResolver.bulkInsert(Users.CONTENT_URI,
+        contentResolver.bulkInsert(Content.USERS,
                 usersCV.toArray(new ContentValues[usersCV.size()]));
         contentResolver.bulkInsert(Events.CONTENT_URI,
                 eventsCV.toArray(new ContentValues[eventsCV.size()]));
@@ -157,8 +155,8 @@ public class SoundCloudDB {
                 }
             }
 
-            contentResolver.bulkInsert(Tracks.CONTENT_URI, tracksCV.toArray(new ContentValues[tracksCV.size()]));
-            contentResolver.bulkInsert(Users.CONTENT_URI, usersCV.toArray(new ContentValues[usersCV.size()]));
+            contentResolver.bulkInsert(Content.TRACKS, tracksCV.toArray(new ContentValues[tracksCV.size()]));
+            contentResolver.bulkInsert(Content.USERS, usersCV.toArray(new ContentValues[usersCV.size()]));
             contentResolver.bulkInsert(Events.CONTENT_URI, eventsCV.toArray(new ContentValues[eventsCV.size()]));
             return inserted;
         }
@@ -166,7 +164,7 @@ public class SoundCloudDB {
     public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
-        }, Events.BELONGS_TO_USER + " = " + userId, null, null);
+        }, Events.USER_ID + " = " + userId, null, null);
 
         countCursor.moveToFirst();
         int eventsCount = countCursor.getInt(0);
@@ -178,7 +176,7 @@ public class SoundCloudDB {
         if (eventsCount > maxEvents) {
             Cursor lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
                 Events.ID,
-            }, Events.BELONGS_TO_USER + " = " + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT "
+            }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT "
                     + maxEvents);
 
             lastCursor.moveToLast();
@@ -186,7 +184,7 @@ public class SoundCloudDB {
 
             Log.i(TAG,
                     "Deleting rows " + lastId + " "
-                            + contentResolver.delete(Events.CONTENT_URI, Events.BELONGS_TO_USER + " = "
+                            + contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
                                     + userId + " AND " + Events.ID + " < " + lastId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
                                     null));
         }
@@ -195,160 +193,148 @@ public class SoundCloudDB {
 
     public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId, boolean exclusive) {
         Log.i(TAG, "Deleting rows  before " + lastId + " "
-                        + +contentResolver.delete(Events.CONTENT_URI, Events.BELONGS_TO_USER + " = "
+                        + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
                                 + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0") + " AND " + Events.ID + " <= " + lastId, null));
 
     }
 
+ // ---Make sure the database is up to date with this track info---
+    public void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
 
+        synchronized (this) {
+            Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = " + track.id,
+                    null, null);
 
-        // ---Make sure the database is up to date with this track info---
-        public void resolveTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
-
-            synchronized(this){
-                Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + track.id + "'", null, null);
-                if (cursor != null) {
-                    if (cursor.getCount() > 0) {
-
-                        cursor.moveToFirst();
-
-                        // add non-remote variables and update database if necessary
-                        track.user_played = track.user_played || cursor.getInt(cursor.getColumnIndex("user_played")) == 1;
-                        track.filelength = track.filelength == 0 ? cursor.getInt(cursor.getColumnIndex("filelength")) : track.filelength;
-
-                        if (writeState == WriteState.update_only || writeState == WriteState.all)
-                            contentResolver.update(Tracks.CONTENT_URI, track.buildContentValues(), Tracks.ID + "='" + track.id + "'", null);
-
-                    } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                        contentResolver.insert(Tracks.CONTENT_URI, track.buildContentValues());
-                    }
-
-                    cursor.close();
-
-                    // write with insert only because a track will never come in with
-                    resolveUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    if (writeState == WriteState.update_only || writeState == WriteState.all)
+                        contentResolver.update(Content.TRACKS, track.buildContentValues(), Tracks.ID
+                                + "='" + track.id + "'", null);
+                } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                    contentResolver.insert(Content.TRACKS, track.buildContentValues());
                 }
-            }
-        }
 
-        // ---Make sure the database is up to date with this track info---
-        public Track resolveTrackById(ContentResolver contentResolver, long TrackId,
-                long currentUserId) {
-
-            Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + TrackId + "'", null, null);
-            if (cursor.getCount() != 0) {
-                cursor.moveToFirst();
-                Track track = new Track(cursor, false);
                 cursor.close();
 
-                User user = resolveUserById(contentResolver, track.user_id);
-                if (user != null){
-                    track.user = user;
-                    track.user_id = user.id;
-                }
-
-
-                return track;
+                // write with insert only because a track will never come in
+                // with
+                writeUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
             }
+        }
+    }
 
+    // ---Make sure the database is up to date with this track info---
+    public Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
+
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + trackId,
+                null, null);
+
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            Track track = new Track(cursor, false);
             cursor.close();
-            return null;
+            track.updateUserPlayedFromDb(contentResolver, currentUserId);
 
-        }
-
-
-        public boolean isTrackInDb(ContentResolver contentResolver, long id) {
-            boolean ret = false;
-            Cursor cursor = contentResolver.query(Tracks.CONTENT_URI, null, Tracks.ID + "='" + id + "'", null, null);
-            if (null != cursor && cursor.moveToNext()) {
-                ret = true;
+            User user = getUserById(contentResolver, track.user_id);
+            if (user != null) {
+                track.user = user;
+                track.user_id = user.id;
             }
-
-            if (cursor != null) cursor.close();
-            return ret;
+            return track;
         }
+
+        cursor.close();
+        return null;
+    }
+
+    public boolean isTrackInDb(ContentResolver contentResolver, long id) {
+        boolean ret = false;
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + "='" + id + "'",
+                null, null);
+        if (null != cursor && cursor.moveToNext()) {
+            ret = true;
+        }
+
+        if (cursor != null)
+            cursor.close();
+        return ret;
+    }
 
     public int trimTracks(ContentResolver contentResolver, long[] currentPlaylist) {
         String[] whereArgs = new String[2];
         whereArgs[0] = whereArgs[1] = Boolean.toString(false);
         return contentResolver.delete(
-                Tracks.CONTENT_URI,
+                Content.TRACKS,
                 "(user_favorite = 0 AND user_played = 0) AND id NOT IN ("
                         + joinArray(currentPlaylist, ",")
                         + ") AND id NOT IN (SELECT DISTINCT(origin_id) FROM Events)", null);
     }
 
-        public void resolveUser(ContentResolver contentResolver,User user, WriteState writeState,
-                Long currentUserId) {
+    public void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
 
-            Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + user.id + "'", null, null);
+        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + "='" + user.id + "'", null, null);
 
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    user.update(cursor); // update the parcelable with values from the db
-
-                    if (writeState == WriteState.update_only || writeState == WriteState.all)
-                        contentResolver.update(Users.CONTENT_URI, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
-
-                } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                    contentResolver.insert(Users.CONTENT_URI, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
-                }
-                cursor.close();
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                if (writeState == WriteState.update_only || writeState == WriteState.all)
+                    contentResolver.update(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
+            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                contentResolver.insert(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
             }
+            cursor.close();
         }
-
-        public User resolveUserById(ContentResolver contentResolver, long userId) {
-            Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + userId + "'", null, null);
-            User user = null;
-            if (cursor != null && cursor.getCount() != 0) {
-                cursor.moveToFirst();
-                user = new User(cursor, false);
-            }
-            if (cursor != null) cursor.close();
-            return user;
-        }
-
-        public boolean isUserInDb(ContentResolver contentResolver, long id) {
-            boolean ret = false;
-            Cursor cursor = contentResolver.query(Users.CONTENT_URI, null, Users.ID + "='" + id + "'", null, null);
-            if (null != cursor && cursor.moveToNext()) {
-                ret = true;
-            }
-            if (cursor != null) cursor.close();
-            return ret;
-        }
-
-        public static String join(List<String> list, String delim) {
-            StringBuilder buf = new StringBuilder();
-            int num = list.size();
-            for (int i = 0; i < num; i++) {
-                if (i != 0)
-                    buf.append(delim);
-                buf.append(list.get(i));
-            }
-            return buf.toString();
-        }
-
-        public static String joinArray(String[] list, String delim) {
-            StringBuilder buf = new StringBuilder();
-            int num = list.length;
-            for (int i = 0; i < num; i++) {
-                if (i != 0)
-                    buf.append(delim);
-                buf.append(list[i]);
-            }
-            return buf.toString();
-        }
-
-        private String joinArray(long[] list, String delim) {
-            StringBuilder buf = new StringBuilder();
-            int num = list.length;
-            for (int i = 0; i < num; i++) {
-                if (i != 0)
-                    buf.append(delim);
-                buf.append(Long.toString(list[i]));
-            }
-            return buf.toString();
-        }
-
     }
+
+    public User getUserById(ContentResolver contentResolver, long userId) {
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + userId + "'", null, null);
+        User user = null;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            user = new User(cursor, false);
+        }
+        if (cursor != null) cursor.close();
+        return user;
+    }
+
+    public boolean isUserInDb(ContentResolver contentResolver, long id) {
+        boolean ret = false;
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + id + "'", null, null);
+        if (null != cursor && cursor.moveToNext()) {
+            ret = true;
+        }
+        if (cursor != null) cursor.close();
+        return ret;
+    }
+
+
+    public static String join(List<String> list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.size();
+        for (int i = 0; i < num; i++) {
+            if (i != 0) buf.append(delim);
+            buf.append(list.get(i));
+        }
+        return buf.toString();
+    }
+
+    public static String joinArray(String[] list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.length;
+        for (int i = 0; i < num; i++) {
+            if (i != 0) buf.append(delim);
+            buf.append(list[i]);
+        }
+        return buf.toString();
+    }
+
+    private String joinArray(long[] list, String delim) {
+        StringBuilder buf = new StringBuilder();
+        int num = list.length;
+        for (int i = 0; i < num; i++) {
+            if (i != 0) buf.append(delim);
+            buf.append(Long.toString(list[i]));
+        }
+        return buf.toString();
+    }
+
+}

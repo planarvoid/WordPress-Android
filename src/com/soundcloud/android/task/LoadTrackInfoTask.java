@@ -2,6 +2,8 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
 
@@ -24,6 +26,10 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             if (mApp.getTrackFromCache(result.id) != null) {
                 result.setAppFields(mApp.getTrackFromCache(result.id));
             }
+
+            SoundCloudDB.getInstance().writeTrack(mApp.getContentResolver(), result,
+                    WriteState.all, mApp.getCurrentUserId());
+
             result.info_loaded = true;
             mApp.cacheTrack(result);
         }

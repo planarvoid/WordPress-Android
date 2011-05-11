@@ -11,6 +11,7 @@ import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.service.CloudCreateService;
@@ -295,7 +296,7 @@ public abstract class ScActivity extends Activity {
         if (!uploading) {
             r.prepareForUpload();
             // save after preparing data in case file was renamed
-            getContentResolver().update(Recordings.CONTENT_URI, r.buildContentValues(), Recordings.ID + "='" + r.id + "'", null);
+            getContentResolver().update(Content.RECORDINGS, r.buildContentValues(), Recordings.ID + "='" + r.id + "'", null);
             try {
                 mCreateService.uploadTrack(r.upload_data);
                 return true;

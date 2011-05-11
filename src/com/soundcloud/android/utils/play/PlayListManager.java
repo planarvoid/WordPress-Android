@@ -61,7 +61,7 @@ public class PlayListManager {
             if (mPlayListCache != null) {
                 return mPlayListCache[pos];
             } else {
-                return SoundCloudDB.getInstance().resolveTrackById(
+                return SoundCloudDB.getInstance().getTrackById(
                         mPlaybackService.getContentResolver(),
                         mPlayList[pos],
                         ((SoundCloudApplication) mPlaybackService.getApplication())

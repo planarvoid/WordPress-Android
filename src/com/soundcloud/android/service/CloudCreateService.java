@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
@@ -154,7 +155,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
             cv.put(Recordings.UPLOAD_ERROR, true);
-            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+mUploadLocalId, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+mUploadLocalId, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -288,7 +289,7 @@ public class CloudCreateService extends Service {
         mPlaybackFile = new File(playbackPath);
 
         String[] columns = { Recordings.ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
-        Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
+        Cursor cursor = getContentResolver().query(Content.RECORDINGS,
                 columns, Recordings.AUDIO_PATH + "='" + playbackPath + "'", null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -468,7 +469,7 @@ public class CloudCreateService extends Service {
                     ContentValues cv = new ContentValues();
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
                     cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
-                    int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+param.local_recording_id, null);
+                    int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+param.local_recording_id, null);
                     Log.d(TAG, x+" row(s) audio path updated.");
                 }
 
@@ -597,7 +598,7 @@ public class CloudCreateService extends Service {
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.UPLOADED);
-            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+params.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+params.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked as uploaded.");
 
         } else {
@@ -611,7 +612,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_ERROR, true);
             cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+params.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+params.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -645,7 +646,7 @@ public class CloudCreateService extends Service {
         if (mUploadLocalId != 0){
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Recordings.CONTENT_URI,cv,Recordings.ID+"="+mUploadLocalId, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+mUploadLocalId, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 

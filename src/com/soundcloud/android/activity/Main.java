@@ -4,6 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.AsyncApiTask;
@@ -287,6 +289,7 @@ public class Main extends TabActivity {
                          @Override
                          protected void onPostExecute(User user) {
                              if (app.addUserAccount(user, token)) {
+                                 SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all, user.id);
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
                                          .edit()

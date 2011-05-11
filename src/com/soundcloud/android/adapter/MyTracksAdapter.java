@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
@@ -44,7 +45,7 @@ public class MyTracksAdapter extends TracklistAdapter {
             mCursor.close();
         }
 
-        mCursor = mActivity.getContentResolver().query(Recordings.CONTENT_URI, null,
+        mCursor = mActivity.getContentResolver().query(Content.RECORDINGS, null,
                 Recordings.USER_ID + "='" + mActivity.getUserId() + "' AND " + Recordings.UPLOAD_STATUS + " < 2", null,
                 null);
 

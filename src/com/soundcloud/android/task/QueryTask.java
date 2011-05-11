@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -102,23 +101,15 @@ public class QueryTask extends AsyncTask<String, Parcelable, Boolean> {
     @Override
     protected Boolean doInBackground(String... param) {
 
-        Log.i("EventsAdapter","DO QUERY ");
         Cursor cursor = mApp.getContentResolver().query(
                 mQueryUri,
                 mQueryProjection,
                 mQuerySelection, mQuerySelectionArgs, mQuerySortOrder);
 
-        Log.i("EventsAdapter","DO QUERY 2 " + cursor);
-
         if (cursor != null && !cursor.isClosed()) {
-            Log.i("EventsAdapter","DO QUERY 3 " + cursor.getCount());
             if (Event.class.equals(loadModel)) {
             Event e = null;
             while (cursor.moveToNext()) {
-
-                //TODO Horribly inefficient way of building an event from the DB. Figure out something
-                //besides pulling the tracks one by one
-
                     e = new Event(cursor, true);
                     e.track = new Track(cursor, true);
                     e.track.user = new User(cursor,true);

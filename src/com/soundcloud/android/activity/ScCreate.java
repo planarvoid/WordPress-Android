@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
@@ -179,7 +180,7 @@ public class ScCreate extends ScActivity {
                             .setPositiveButton(getString(R.string.btn_yes),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
-                                            getContentResolver().delete(Recordings.CONTENT_URI,
+                                            getContentResolver().delete(Content.RECORDINGS,
                                                     Recordings.ID + " = " + mRecordingId, null);
                                             finish();
                                         }
@@ -210,7 +211,7 @@ public class ScCreate extends ScActivity {
                     } catch (RemoteException ignored) {
                     }
 
-                    Uri newRecordingUri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
+                    Uri newRecordingUri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
                     startActivity(i);
@@ -239,7 +240,7 @@ public class ScCreate extends ScActivity {
         try {
             if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
                 String[] columns = { Recordings.ID, Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
-                Cursor cursor = getContentResolver().query(Recordings.CONTENT_URI,
+                Cursor cursor = getContentResolver().query(Content.RECORDINGS,
                         columns, Recordings.ID + "='" + getIntent().getLongExtra("recordingId",0) + "'", null, null);
 
                 if (cursor != null) {
@@ -672,7 +673,7 @@ public class ScCreate extends ScActivity {
                 return isRawFilename(name) || isCompressedFilename(name);
             }
         })) {
-            cursor = getContentResolver().query(Recordings.CONTENT_URI, columns,
+            cursor = getContentResolver().query(Content.RECORDINGS, columns,
                     Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
             if ((cursor == null || cursor.getCount() == 0)
                     && (file == null || f.lastModified() < file.lastModified())) {

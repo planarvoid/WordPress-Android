@@ -22,6 +22,7 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -547,14 +548,18 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        Cursor cursor = getContentResolver().query(TrackPlays.CONTENT_URI, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
+        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
         if (cursor == null || cursor.getCount() == 0) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, track.id);
             contentValues.put(TrackPlays.USER_ID, ((SoundCloudApplication)this.getApplication()).getCurrentUserId());
-            getContentResolver().insert(TrackPlays.CONTENT_URI, contentValues);
+            getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
         }
         if (cursor != null) cursor.close();
+
+        track.updateFromDb(getContentResolver(),
+                ((SoundCloudApplication)getApplication()).getCurrentUserId());
+
         if (((SoundCloudApplication) getApplication()).getTrackFromCache(track.id) == null) {
             ((SoundCloudApplication) getApplication()).cacheTrack(track);
         }
@@ -615,7 +620,7 @@ public class CloudPlaybackService extends Service {
         new Thread() {
             @Override
             public void run() {
-                SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t, WriteState.all,
+                SoundCloudDB.getInstance().writeTrack(getContentResolver(), t, WriteState.all,
                         ((SoundCloudApplication) getApplication()).getCurrentUserId());
             }
         }.start();
