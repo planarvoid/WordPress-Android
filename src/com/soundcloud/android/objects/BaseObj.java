@@ -62,6 +62,7 @@ public class BaseObj implements Parcelable {
     }
 
     public void buildParcel(Parcel out, int flags) {
+        // XXX revise+test
         // data = in.readBundle();
         Bundle data = new Bundle();
         try {

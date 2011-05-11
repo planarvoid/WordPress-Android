@@ -49,6 +49,8 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -64,6 +66,8 @@ public class CloudUtils {
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
     public static final String DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
+
+    public static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE");
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
@@ -158,7 +162,7 @@ public class CloudUtils {
             // deleteDir(getCacheDir(c));
         }
 
-        getCacheDir(c).mkdirs();
+        mkdirs(getCacheDir(c));
 
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -171,7 +175,7 @@ public class CloudUtils {
                                         EXTERNAL_STORAGE_DIRECTORY));
             }
 
-            EXTERNAL_STORAGE_DIRECTORY.mkdirs();
+            mkdirs(EXTERNAL_STORAGE_DIRECTORY);
         }
         // do a check??
     }
@@ -212,7 +216,7 @@ public class CloudUtils {
     public static File ensureUpdatedDirectory(String validPath, String deprecatedPath){
         File depDir = new File(deprecatedPath);
         File newDir = new File(validPath);
-        if (!newDir.exists()) newDir.mkdirs();
+        mkdirs(newDir);
 
         if (depDir.exists()){
             for (File f : depDir.listFiles()){
@@ -580,8 +584,8 @@ public class CloudUtils {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
 
-        String day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
-        String dayTime;
+        final String day = DAY_FORMAT.format(cal.getTime());
+        final String dayTime;
 
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
             dayTime = "morning";
@@ -648,4 +652,14 @@ public class CloudUtils {
         }
         return stream.toString();
         }
+
+    public static boolean mkdirs(File d) {
+        if (!d.exists()) {
+            final boolean success = d.mkdirs();
+            if (!success) Log.w(TAG, "mkdir "+d.getAbsolutePath()+" returned false");
+            return success;
+        } else {
+            return false;
+        }
+    }
 }

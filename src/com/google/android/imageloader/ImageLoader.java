@@ -523,6 +523,7 @@ public class ImageLoader {
             view.setImageDrawable(null);
 
             if (error != null) {
+                Log.e(TAG, "error", error);
                 return BindResult.ERROR;
             } else {
                 ImageTask task = new ImageTask(adapter, url, options);

@@ -667,8 +667,7 @@ public class UserBrowser extends ScActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(true);
-        builder.setTitle(CloudUtils.generateRecordingSharingNote(recording.where_text,
-                recording.what_text, recording.timestamp));
+        builder.setTitle(recording.sharingNote());
         builder.setNegativeButton(getString(android.R.string.cancel), null);
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -676,11 +675,11 @@ public class UserBrowser extends ScActivity {
                     Intent i = new Intent(UserBrowser.this, ScUpload.class);
                     i.putExtra("recordingId", recording.id);
                     startActivity(i);
-                }else if (curr_items[item].equals(RECORDING_ITEMS[1])){
+                }else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
                     Intent i = new Intent(UserBrowser.this, ScCreate.class);
                     i.putExtra("recordingId", recording.id);
                     startActivity(i);
-                } else if (curr_items[item].equals(RECORDING_ITEMS[2])){
+                } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])){
                     new AlertDialog.Builder(UserBrowser.this)

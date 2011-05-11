@@ -282,6 +282,7 @@ public abstract class ScActivity extends Activity {
     }
 
     // WTF? why is this in ScActivity?
+    // called from UserBrowser XXX replace with intent
     public boolean startUpload(Recording r) {
         if (mCreateService == null) return false;
 

@@ -4,19 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.objects.FoursquareVenue;
+import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -28,8 +18,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -43,7 +31,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,15 +42,11 @@ public class LocationPicker extends ListActivity {
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
-    private static final int VENUE_LIMIT     = 25; // fetch this number of 4sq venues
 
     private static final int LOADING = 0;
 
     private String mProvider;
-
-    private LocationManager getManager() {
-        return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    }
+    private Location mPreloadedLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +75,23 @@ public class LocationPicker extends ListActivity {
 
         where.addTextChangedListener(new Capitalizer(where));
 
-        if (getIntent().hasExtra("name")) where.setText(getIntent().getStringExtra("name"));
+        final Intent intent = getIntent();
+
+        if (intent.hasExtra("name")) where.setText(intent.getStringExtra("name"));
+        if (intent.hasExtra("location")) mPreloadedLocation = intent.getParcelableExtra("location");
 
         Criteria c = new Criteria();
+        c.setAccuracy(Criteria.ACCURACY_FINE);
         mProvider = getManager().getBestProvider(c, true);
 
         FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
 
-        if (mProvider != null) {
+        if (intent.hasExtra("venues")) {
+            ArrayList<FoursquareVenue> venues =
+                    intent.getParcelableArrayListExtra("venues");
+
+            if (!venues.isEmpty()) adapter.setVenues(venues);
+        } else if  (mProvider != null) {
             Log.v(TAG, "best provider: " + mProvider);
             Location loc = getManager().getLastKnownLocation(mProvider);
             adapter.onLocationChanged(loc);
@@ -138,7 +130,7 @@ public class LocationPicker extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         FoursquareVenueAdapter adapter = (FoursquareVenueAdapter) getListAdapter();
-        Venue venue = adapter.getItem(position);
+        FoursquareVenue venue = adapter.getItem(position);
 
         Intent data = new Intent();
         data.setData(Uri.parse("foursquare://venue/" + venue.id));
@@ -151,79 +143,12 @@ public class LocationPicker extends ListActivity {
         finish();
     }
 
-    static class FoursquareApiTask extends AsyncTask<Location, Integer, List<Venue>> {
-        // registered w/ hannes@soundcloud.com
-        public static final String client_id     = "KO0RS1BR5VCXT4CR2GRCYA1Z2KSMM3QJVWJ35V2CVBUWFYWP";
-        public static final String client_secret = "MDAXDKVZRURKHDBRSW0KKTL4NNLQW1WEKUM2IDHELZKPJRWI";
-        private static final ObjectMapper mapper = new ObjectMapper();
-
-        @Override
-        protected List<Venue> doInBackground(Location... locations) {
-            Location loc = locations[0];
-            HttpClient client = new DefaultHttpClient(Http.defaultParams());
-                    // XXX should be AndroidHttpClient - robolectric testing issues
-                    //AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
-
-            final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
-            //http://developer.foursquare.com/docs/venues/search.html
-            Request r = new Request("https://api.foursquare.com/v2/venues/search").with(
-                    "ll",            ll,
-                    "limit",         VENUE_LIMIT,
-                    "client_id",     client_id,
-                    "client_secret", client_secret);
-
-            if (loc.hasAccuracy()) r.add("llAcc", loc.getAccuracy());
-
-            try {
-                HttpResponse resp = client.execute(r.buildRequest(HttpGet.class));
-                switch (resp.getStatusLine().getStatusCode()) {
-                    case HttpStatus.SC_OK:
-                        JsonNode root = mapper.readTree(resp.getEntity().getContent());
-                        JsonNode groups = root.get("response").get("groups");
-                        if (groups == null || groups.size() == 0) {
-                            return new ArrayList<Venue>();
-                        } else {
-                            JsonNode items = groups.get(0).get("items");
-                            return mapper.readValue(items, TypeFactory.collectionType(ArrayList.class, Venue.class));
-                        }
-                    default:
-                        Log.e(TAG, "unexpected status code: " + resp.getStatusLine());
-                        return null;
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "error", e);
-                return null;
-            }
-        }
-    }
-
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Venue {
-        public String id, name;
-        public List<Category> categories;
-
-        public Category getCategory() {
-            if (categories == null || categories.size() == 0) return null;
-            for (Category c : categories) if (c.primary) return c;
-            return null;
-        }
-
-        public URI getIcon() {
-            Category c = getCategory();
-            return c == null ? null : c.icon;
-        }
-
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        static class Category {
-            public String id, name;
-            public boolean primary;
-            public URI icon;
-        }
+    private LocationManager getManager() {
+        return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
-        private List<Venue> venues;
+        private List<FoursquareVenue> venues;
         private Location location;
 
         @Override
@@ -232,7 +157,7 @@ public class LocationPicker extends ListActivity {
         }
 
         @Override
-        public Venue getItem(int position) {
+        public FoursquareVenue getItem(int position) {
             return venues.get(position);
         }
 
@@ -260,15 +185,20 @@ public class LocationPicker extends ListActivity {
             TextView name = (TextView) view.findViewById(R.id.venue_name);
             ImageView image = (ImageView) view.findViewById(R.id.venue_category_icon);
 
-            Venue venue = getItem(position);
-
+            FoursquareVenue venue = getItem(position);
             URI categoryIcon = venue.getIcon();
             if (categoryIcon != null) {
+
                 try {
-                    ImageLoader.get(parent.getContext()).bind(
+                    ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(
                             this,
                             image,
-                            categoryIcon.toString());
+                            // XXX urgh - https image fetching is broken for some reason - this is faster
+                            // but resources might go away
+                            categoryIcon.toString().replace("https://", "http://"));
+                    if (result == ImageLoader.BindResult.ERROR) {
+                        Log.e(TAG, "error loading");
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "error", e);
                 }
@@ -277,7 +207,7 @@ public class LocationPicker extends ListActivity {
             return view;
         }
 
-        public void setVenues(List<Venue> venues) {
+        public void setVenues(List<FoursquareVenue> venues) {
             this.venues = venues;
             notifyDataSetChanged();
         }
@@ -288,17 +218,23 @@ public class LocationPicker extends ListActivity {
 
         @Override
         public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged(" + location + ")");
             if (location != null) {
+                if (mPreloadedLocation != null &&
+                    mPreloadedLocation.distanceTo(location) < MIN_DISTANCE) {
+                    // the preloaded location was good enough, stop here
+                    getManager().removeUpdates(this);
+                    return;
+                }
+
                 this.location = location;
-                new FoursquareApiTask() {
+                new FoursquareVenueTask() {
                     @Override
                     protected void onPreExecute() {
                         showDialog(LOADING);
                     }
 
                     @Override
-                    protected void onPostExecute(List<Venue> venues) {
+                    protected void onPostExecute(List<FoursquareVenue> venues) {
                         try {
                             dismissDialog(LOADING);
                         } catch (IllegalArgumentException ignored) {
