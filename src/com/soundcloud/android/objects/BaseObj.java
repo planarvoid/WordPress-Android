@@ -119,10 +119,10 @@ public class BaseObj implements Parcelable {
                 }
             }
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
+            Log.e(p.getClass().getSimpleName(), "error", e);
             e.printStackTrace();
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
+            Log.e(p.getClass().getSimpleName(), "error", e);
             e.printStackTrace();
         }
     }

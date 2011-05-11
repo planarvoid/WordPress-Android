@@ -17,6 +17,7 @@ import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -145,8 +146,10 @@ public class Track extends BaseObj implements Parcelable {
                     try {
                         setFieldFromCursor(this,this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
                     } catch (SecurityException e) {
+                        Log.e(getClass().getSimpleName(), "error", e);
                         e.printStackTrace();
                     } catch (NoSuchFieldException e) {
+                        Log.e(getClass().getSimpleName(), "error", e);
                         e.printStackTrace();
                     }
             }
@@ -170,10 +173,10 @@ public class Track extends BaseObj implements Parcelable {
                             setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
-                            // TODO Auto-generated catch block
+                            Log.e(getClass().getSimpleName(), "error", e);
                             e.printStackTrace();
                         } catch (NoSuchFieldException e) {
-                            // TODO Auto-generated catch block
+                            Log.e(getClass().getSimpleName(), "error", e);
                             e.printStackTrace();
                         }
                     }

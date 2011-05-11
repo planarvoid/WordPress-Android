@@ -13,6 +13,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -69,8 +70,10 @@ public class User extends BaseObj implements Parcelable {
                             this.getClass().getDeclaredField(aliasesOnly ? key.substring(6) : key),
                             cursor, key);
                 } catch (SecurityException e) {
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 } catch (NoSuchFieldException e) {
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 }
             }
@@ -92,8 +95,10 @@ public class User extends BaseObj implements Parcelable {
                             setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
                             e.printStackTrace();
                         } catch (NoSuchFieldException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
                             e.printStackTrace();
                         }
                     }
