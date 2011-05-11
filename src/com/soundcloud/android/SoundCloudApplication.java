@@ -6,6 +6,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudCache;
@@ -29,6 +30,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -243,6 +245,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
+        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
         return created;
     }
 
