@@ -89,11 +89,8 @@ public class Dashboard extends ScActivity {
 
         nm.cancel(SyncAdapterService.DASHBOARD_NOTIFICATION_ID);
 
-        if (mExclusive){
-            getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN,"0");
-        } else {
-            getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN,"0");
-        }
+        getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN,"0");
+        getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN,"0");
 
         registerReceiver(mIntentReceiver, mSyncCheckFilter);
 
