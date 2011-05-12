@@ -208,7 +208,7 @@ public class SyncAdapterService extends Service {
                         if (incomingUnseen == 1) {
                             message = String.format(
                                     app.getApplicationContext().getString(
-                                            R.string.dashboard_notifications_message_incoming),
+                                            R.string.dashboard_notifications_message_single_incoming),
                                     incomingUnseen >= 99 ? app.getApplicationContext().getString(
                                             R.string.dashboard_99_or_more) : incomingUnseen);
                         } else {
