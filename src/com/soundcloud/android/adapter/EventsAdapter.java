@@ -20,6 +20,7 @@ import android.database.ContentObserver;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -61,12 +62,22 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     public void onPostQueryExecute() {
         mQueryTask = null;
         super.onPostQueryExecute();
-        if (mData.size() > 0
-                && ((mExclusive && mActivity.getSoundCloudApplication()
-                        .requestRecentExclusive(this)) || (!mExclusive && mActivity
-                        .getSoundCloudApplication().requestRecentIncoming(this)))) {
+        if (mData.size() > 0) {
+            if (mExclusive){
+                mActivity.getSoundCloudApplication()
+                .requestRecentExclusive(this);
+            } else {
+                mActivity
+                .getSoundCloudApplication().requestRecentIncoming(this);
+            }
+
+            if (TextUtils.isEmpty(nextCursor)){
+                // we must be at the end of the dashboard list, dont allow appending
+                this.mWrapper.keepOnAppending.set(false);
+            }
         }
         mActivity.getContentResolver().registerContentObserver(Events.CONTENT_URI, true, mChangeObserver);
+
 
 
         this.notifyDataSetChanged();
