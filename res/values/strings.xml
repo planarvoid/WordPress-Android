@@ -15,10 +15,19 @@
   <string name="error_updating_incoming">Error updating your incoming tracks.</string>
   <string name="error_updating_exclusive">Error updating your exclusive tracks.</string>
 
-  <string name="dashboard_notifications_ticker">New SoundCloud tracks</string>
-  <string name="dashboard_notifications_title">You have new SoundCloud tracks.</string>
-  <string name="dashboard_notifications_message_incoming">Incoming: %s</string>
-  <string name="dashboard_notifications_message_exclusive">Exclusive: %s</string>
+  <string name="dashboard_notifications_ticker_single">New incoming track</string>
+  <string name="dashboard_notifications_title_single">New incoming track</string>
+
+  <string name="dashboard_notifications_ticker">New incoming tracks</string>
+  <string name="dashboard_notifications_title">New incoming tracks</string>
+
+  <string name="dashboard_notifications_message_single_exclusive">%s shared an exclusive track with you.</string>
+  <string name="dashboard_notifications_message_exclusive">You have %s new tracks in your exclusive feed.</string>
+  <string name="dashboard_notifications_message_incoming">You have %s new tracks in your incoming feed.</string>
+  <string name="dashboard_notifications_message_single_incoming">You have a new track in your incoming feed.</string>
+  <string name="dashboard_notifications_message_incoming_single_exclusive">You have %1$s new incoming tracks including an exclusive track from %2$s.</string>
+  <string name="dashboard_notifications_message_incoming_exclusive">You have %1$s new incoming tracks including %2$s exclusive tracks.</string>
+
   <string name="dashboard_99_or_more">99+</string>
 
   <string name="authentication_contacting_title"></string>

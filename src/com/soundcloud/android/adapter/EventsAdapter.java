@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
@@ -18,6 +17,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
 import android.database.ContentObserver;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
 
@@ -77,6 +77,9 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
 
 
     private void addLocalEvents() {
+
+        if (Build.VERSION.SDK_INT < 8) return;
+
         mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
 
         mData = new ArrayList<Parcelable>();
@@ -120,10 +123,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     public void onUpdate(int added) {
         if (added > 0){
             addLocalEvents();
-        } else {
-            mActivity.showToast(mExclusive ? R.string.error_updating_exclusive : R.string.error_updating_incoming);
         }
-
     }
 
     public void onNextEventsCursor(String mNextCursor) {

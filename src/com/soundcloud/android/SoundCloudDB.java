@@ -126,7 +126,7 @@ public class SoundCloudDB {
             } else {
                 return 0;
             }
-        } while (!caughtUp);
+        } while (!caughtUp && activities != null && !TextUtils.isEmpty(activities.next_href));
 
         if (tracksCV.size() > 0) {
             contentResolver.bulkInsert(Content.TRACKS,
@@ -333,6 +333,17 @@ public class SoundCloudDB {
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
             user = new User(cursor, false);
+        }
+        if (cursor != null) cursor.close();
+        return user;
+    }
+
+    public String getUsernameById(ContentResolver contentResolver, long userId) {
+        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.USERNAME}, Users.ID + "='" + userId + "'", null, null);
+        String user = "";
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            user = cursor.getString(0);
         }
         if (cursor != null) cursor.close();
         return user;

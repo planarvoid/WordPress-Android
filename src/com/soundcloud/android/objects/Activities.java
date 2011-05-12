@@ -3,6 +3,8 @@ package com.soundcloud.android.objects;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -17,7 +19,7 @@ public class Activities implements Iterable<Event> {
     }
 
     public void setCursorToLastEvent(){
-        int cursorStart = next_href.indexOf("cursor=") + 7;
+        int cursorStart = TextUtils.isEmpty(next_href) ? -1 : next_href.indexOf("cursor=") + 7;
         if (cursorStart > -1){
             collection.get(collection.size()-1).next_cursor = next_href.substring(cursorStart,next_href.substring(cursorStart).indexOf("&")+cursorStart);
         }

@@ -245,8 +245,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
-        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
-        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
+        if (Build.VERSION.SDK_INT >= 8) {
+            ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
+            ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
+        }
         return created;
     }
 
