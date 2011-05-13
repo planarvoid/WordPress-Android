@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
@@ -22,6 +23,8 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 
 public class Start extends AccountAuthenticatorActivity {
+    private static final int RECOVER_CODE = 1;
+
     private Handler mHandler = new Handler();
 
     @Override
@@ -53,7 +56,7 @@ public class Start extends AccountAuthenticatorActivity {
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(Start.this, Recover.class), 0);
+                startActivityForResult(new Intent(Start.this, Recover.class), RECOVER_CODE);
             }
         });
 
@@ -80,23 +83,38 @@ public class Start extends AccountAuthenticatorActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data + ")");
-        if (resultCode == RESULT_OK) {
-            SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        if (resultCode == RESULT_OK ) {
+            handleActivityResult(requestCode, data);
+        }
+    }
 
-            User user = data.getParcelableExtra("user");
-            Token token = (Token) data.getSerializableExtra("token");
-            boolean viaSignup = data.getBooleanExtra("signup", false);
-            // signup will already have created the account
-            if (viaSignup || app.addUserAccount(user, token)) {
-                final Bundle result = new Bundle();
-                result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                setAccountAuthenticatorResult(result);
+    private void handleActivityResult(int requestCode, Intent data) {
+        switch (requestCode) {
+            case 0:
+                SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-                finish();
-            } else {
-                //showError
-            }
+                User user = data.getParcelableExtra("user");
+                Token token = (Token) data.getSerializableExtra("token");
+                boolean viaSignup = data.getBooleanExtra("signup", false);
+                // signup will already have created the account
+                if (viaSignup || app.addUserAccount(user, token)) {
+                    final Bundle result = new Bundle();
+                    result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                    result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+                    setAccountAuthenticatorResult(result);
+
+                    finish();
+                } else {
+                    //showError
+                }
+                break;
+            case RECOVER_CODE:
+                final boolean success = data != null && data.getBooleanExtra("success", false);
+                if (!success) {
+                    CloudUtils.showToast(this, "Recover failed"); // XXX wording
+                    //show recover error
+                }
+                break;
         }
     }
 }
