@@ -368,7 +368,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public String signUrl(String path) {
-        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
+        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken().access;
     }
 
     public URI authorizationCodeUrl(String... options) {
