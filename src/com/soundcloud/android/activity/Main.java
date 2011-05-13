@@ -50,14 +50,16 @@ public class Main extends TabActivity {
         super.onCreate(state);
         setContentView(R.layout.main);
         final SoundCloudApplication app = getApp();
+        final boolean showSplash = showSplash(state);
         mSplash = (ViewGroup) findViewById(R.id.splash);
+        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
 
         if (isConnected() &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
                 !app.isEmailConfirmed()) {
             checkEmailConfirmed(app);
-        } else {
+        } else if (showSplash) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -68,6 +70,11 @@ public class Main extends TabActivity {
         handleIntent(getIntent());
     }
 
+    private boolean showSplash(Bundle state) {
+        // don't show splash on configChanges (screen rotate)
+        return state == null;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -76,6 +83,7 @@ public class Main extends TabActivity {
             tabsInitialized = true;
         }
     }
+
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();

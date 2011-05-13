@@ -245,6 +245,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
+
         if (Build.VERSION.SDK_INT >= 8) {
             ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
             ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
@@ -365,10 +366,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
-    }
-
-    public String signUrl(String path) {
-        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken().access;
     }
 
     public URI authorizationCodeUrl(String... options) {

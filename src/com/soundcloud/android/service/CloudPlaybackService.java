@@ -623,8 +623,7 @@ public class CloudPlaybackService extends Service {
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(((SoundCloudApplication) getApplication())
-                            .signUrl(mPlayingData.stream_url));
+                    mPlayer.setDataSourceAsync(resolveStreamUrl(mPlayingData.stream_url));
                 }
                 return;
             }
@@ -1379,8 +1378,7 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright) {
                     mMediaPlayer.setDataSource(mPlayingData.mCacheFile.getAbsolutePath());
                 } else {
-                    mMediaPlayer.setDataSource(((SoundCloudApplication) CloudPlaybackService.this
-                                .getApplication()).signUrl(mPlayingData.stream_url));
+                    mMediaPlayer.setDataSource(resolveStreamUrl(mPlayingData.stream_url));
                 }
 
                 mMediaPlayer.prepareAsync();
@@ -1808,6 +1806,28 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
+    }
+
+    private String resolveStreamUrl(String url)  {
+        String resolved = url;
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        try {
+            HttpResponse resp = app.get(Request.to(url));
+
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                Header location = resp.getFirstHeader("Location");
+                if (location != null) {
+                    resolved = location.getValue();
+                } else {
+                    Log.w(TAG, "no location header found");
+                }
+            } else {
+                Log.w(TAG, "unexpected response " + resp);
+            }
+        } catch (IOException e) {
+            Log.w(TAG, e);
+        }
+        return resolved;
     }
 
     /**
