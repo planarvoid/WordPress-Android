@@ -292,9 +292,11 @@ public class UserBrowser extends ScActivity {
 
         @Override
         protected void onPostExecute(User user) {
-            SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all,
-                    getSoundCloudApplication().getCurrentUserId());
-            mapUser(user);
+            if (user != null){
+                SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all,
+                        getSoundCloudApplication().getCurrentUserId());
+                mapUser(user);
+            }
         }
     }
 

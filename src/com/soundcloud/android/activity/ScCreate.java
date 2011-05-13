@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -44,6 +45,12 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ScCreate extends ScActivity {
@@ -66,6 +73,7 @@ public class ScCreate extends ScActivity {
     private boolean mSampleInterrupted;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
+    private List<Recording> mUnsavedRecordings;
 
     public enum CreateState {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
@@ -116,6 +124,8 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+
+        checkUnsavedFiles();
     }
 
     @Override
@@ -212,6 +222,8 @@ public class ScCreate extends ScActivity {
                     } catch (RemoteException ignored) {
                     }
 
+
+
                     Uri newRecordingUri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
                     Intent i = new Intent(ScCreate.this,ScUpload.class);
                     i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
@@ -272,20 +284,8 @@ public class ScCreate extends ScActivity {
                 // can happen when there's no mounted sd card
                 btnAction.setEnabled(false);
             } else {
-                // in this case, state should be based on what is in the recording directory
-                if (mRecordFile == null) setValidOldestFile();
-
-                if (mRecordFile != null) {
-                    Log.i(TAG,"Loading file " + mRecordFile.getAbsolutePath() + "  with profile of " + mAudioProfile);
-                }
-
-                if (mRecordFile != null) {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                    loadPlaybackTrack();
-                } else {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                    takeAction = true;
-                }
+                mCurrentState = CreateState.IDLE_RECORD;
+                takeAction = true;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -662,12 +662,14 @@ public class ScCreate extends ScActivity {
         public void onStopTrackingTouch(SeekBar bar) { }
     };
 
-    private File setValidOldestFile() {
+    private void checkUnsavedFiles() {
         File file = null;
 
         String[] columns = { Recordings.ID };
         Cursor cursor;
 
+        MediaPlayer mp = null;
+        mUnsavedRecordings = new ArrayList<Recording>();
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -678,18 +680,39 @@ public class ScCreate extends ScActivity {
                     Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
             if ((cursor == null || cursor.getCount() == 0)
                     && (file == null || f.lastModified() < file.lastModified())) {
-                file = f;
+                Recording r = new Recording();
+                r.audio_path = f.getAbsolutePath();
+                r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
+                r.timestamp = f.lastModified();
+                r.user_id = getUserId();
+
+                try {
+                    mp = mp == null ? new MediaPlayer() : mp;
+                    mp.reset();
+                    mp.setDataSource(f.getAbsolutePath());
+                    mp.prepare();
+                    r.duration = mp.getDuration();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                mUnsavedRecordings.add(r);
             }
-            if (cursor != null) cursor.close();
+            if (cursor != null)
+                cursor.close();
         }
 
-
-        if (file != null){
-            setRecordFile(file);
+        if (mUnsavedRecordings.size() > 0){
+            Collections.sort(mUnsavedRecordings, new Comparator<Recording>(){
+                public int compare(Recording r1, Recording r2)
+                {
+                    return Long.valueOf(r1.timestamp).compareTo(r2.timestamp);
+                } });
+            showDialog(CloudUtils.Dialogs.DIALOG_UNSAVED_RECORDING);
         }
-
-        return file;
     }
+
+
 
     /* package */ void setRecordFile(File f) {
         mRecordFile = f;
@@ -730,6 +753,34 @@ public class ScCreate extends ScActivity {
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
+            case CloudUtils.Dialogs.DIALOG_UNSAVED_RECORDING:
+                final CharSequence[] fileIds = new CharSequence[mUnsavedRecordings.size()];
+                final boolean[] checked = new boolean[mUnsavedRecordings.size()];
+                for (int i=0; i < mUnsavedRecordings.size(); i++) {
+                    fileIds[i] = new Date(mUnsavedRecordings.get(i).timestamp).toLocaleString() + ", " + mUnsavedRecordings.get(i).formattedDuration();;
+                    checked[i] = true;
+                }
+
+                return new AlertDialog.Builder(this).setTitle(
+                                R.string.dialog_unsaved_recordings_message).setMultiChoiceItems(
+                                fileIds, checked,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton, boolean isChecked) {
+                                checked[whichButton] = isChecked;
+                            }
+                        }).setPositiveButton(R.string.btn_save,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                for (int i = 0; i < mUnsavedRecordings.size(); i++){
+                                    if (checked[i]){
+                                        getContentResolver().insert(Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
+                                    } else {
+                                        new File(mUnsavedRecordings.get(i).audio_path).delete();
+                                    }
+                                }
+                                mUnsavedRecordings = null;
+                            }
+                        }).create();
             case CloudUtils.Dialogs.DIALOG_RESET_RECORDING:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_reset_recording_title)
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(

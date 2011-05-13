@@ -151,6 +151,9 @@
   <string name="dialog_confirm_delete_recording_title"></string>
   <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
   
+  <string name="dialog_unsaved_recordings_title">Unsaved recordings found</string>
+  <string name="dialog_unsaved_recordings_message">Unsaved recordings found. Checked items will be saved.</string>
+  
   <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_message">%s has been uploaded</string>
