@@ -137,82 +137,47 @@ public class CloudPlaybackService extends Service {
     private static final int RELEASE_WAKELOCKS = 7;
 
     private MultiPlayer mPlayer;
-
     private int mLoadPercent = 0;
-
     private boolean mAutoPause = false;
-
     protected NetworkConnectivityListener connectivityListener;
-
     protected static final int CONNECTIVITY_MSG = 9;
-
     private PlayListManager mPlayListManager = new PlayListManager(this);
-
     private Track mPlayingData;
-
     private StoppableDownloadThread mDownloadThread;
-
     private boolean mMediaplayerError;
-
     private RemoteViews mNotificationView;
-
     private long mResumeTime = -1;
-
     private long mResumeId = -1;
-
     private WifiLock mWifiLock;
-
     private WakeLock mWakeLock;
-
     private int mServiceStartId = -1;
-
     private boolean mServiceInUse = false;
-
     private boolean mResumeAfterCall = false;
-
     private boolean mIsSupposedToBePlaying = false;
-
     private boolean mWaitingForArtwork = false;
-
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
-
     private static final int HIGH_WATER_MARK = 8000000;
-
     private static final int PLAYBACK_MARK = 200000;
-
     private static final int INITIAL_PLAYBACK_MARK = 60000;
-
     private static final int LOW_WATER_MARK = 40000;
-
     private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
     private int mCurrentDownloadAttempts;
-
     private boolean ignoreBuffer;
-
     private boolean pausedForBuffering;
-
     private boolean initialBuffering = true;
-
     private long mCurrentBuffer;
-
     private NetworkInfo mCurrentNetworkInfo;
-
     private boolean isStagefright;
-
     private int mBufferReportCounter = 0;
-
     protected int batteryLevel;
-
     protected int plugState;
-
     protected boolean mHeadphonePluggedState;
 
     public CloudPlaybackService() {
-
     }
 
     @Override
