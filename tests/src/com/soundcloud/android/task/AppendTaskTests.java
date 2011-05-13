@@ -42,7 +42,7 @@ public class AppendTaskTests {
         AppendTask task = new AppendTask(app);
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
-                new LazyBaseAdapter(null, null), "", Track.class);
+                new LazyBaseAdapter(null, null,  Track.class), "");
 
         task.setAdapter(adapter);
 
@@ -65,7 +65,7 @@ public class AppendTaskTests {
         };
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(activity,
-                new LazyBaseAdapter(null, null), "", User.class);
+                new LazyBaseAdapter(null, null, User.class), "");
 
         task.setAdapter(adapter);
 

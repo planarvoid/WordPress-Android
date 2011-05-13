@@ -29,8 +29,7 @@ public class LazyBaseAdapter extends BaseAdapter {
     private Class<?> mLoadModel;
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data,
-            Class<?> model) {
+    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
         mData = (List<Parcelable>) data;
         mActivity = activity;
         mLoadModel = model;
