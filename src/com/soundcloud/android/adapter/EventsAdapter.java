@@ -67,20 +67,16 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
                 mActivity.getSoundCloudApplication()
                 .requestRecentExclusive(this);
             } else {
-                mActivity
-                .getSoundCloudApplication().requestRecentIncoming(this);
+                mActivity.getSoundCloudApplication().requestRecentIncoming(this);
             }
 
             if (TextUtils.isEmpty(nextCursor)){
                 // we must be at the end of the dashboard list, dont allow appending
-                this.mWrapper.keepOnAppending.set(false);
+                mWrapper.keepOnAppending.set(false);
             }
         }
         mActivity.getContentResolver().registerContentObserver(Events.CONTENT_URI, true, mChangeObserver);
-
-
-
-        this.notifyDataSetChanged();
+        notifyDataSetChanged();
         submenuIndex = -1;
         animateSubmenuIndex = -1;
 
@@ -89,6 +85,8 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
 
     private void addLocalEvents() {
 
+        // pre SDK 8 doesn't allow auto syncing, so with our current list loading UI
+        // it is easier to just enablling remote pulling only for now
         if (Build.VERSION.SDK_INT < 8) return;
 
         mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);

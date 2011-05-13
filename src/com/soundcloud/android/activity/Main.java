@@ -196,6 +196,10 @@ public class Main extends TabActivity {
                 getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
                 intent.removeExtra("tabIndex");
             } else if (intent.hasExtra("tabTag")) {
+                if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
+                    getApp().scrollTop = true;
+                }
+                if (intent.hasExtra(""))
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
             } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {

@@ -79,6 +79,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
     private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
 
+    public boolean scrollTop;
+
     @Override
     public void onCreate() {
         super.onCreate();

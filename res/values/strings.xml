@@ -15,18 +15,19 @@
   <string name="error_updating_incoming">Error updating your incoming tracks.</string>
   <string name="error_updating_exclusive">Error updating your exclusive tracks.</string>
 
-  <string name="dashboard_notifications_ticker_single">New incoming track</string>
-  <string name="dashboard_notifications_title_single">New incoming track</string>
+  <string name="dashboard_notifications_ticker_single">1 new sound</string>
+  <string name="dashboard_notifications_title_single">1 new sound</string>
 
-  <string name="dashboard_notifications_ticker">New incoming tracks</string>
-  <string name="dashboard_notifications_title">New incoming tracks</string>
+  <string name="dashboard_notifications_ticker">%s new sounds</string>
+  <string name="dashboard_notifications_title">%s new sounds</string>
 
-  <string name="dashboard_notifications_message_single_exclusive">%s shared an exclusive track with you.</string>
-  <string name="dashboard_notifications_message_exclusive">You have %s new tracks in your exclusive feed.</string>
-  <string name="dashboard_notifications_message_incoming">You have %s new tracks in your incoming feed.</string>
-  <string name="dashboard_notifications_message_single_incoming">You have a new track in your incoming feed.</string>
-  <string name="dashboard_notifications_message_incoming_single_exclusive">You have %1$s new incoming tracks including an exclusive track from %2$s.</string>
-  <string name="dashboard_notifications_message_incoming_exclusive">You have %1$s new incoming tracks including %2$s exclusive tracks.</string>
+  <string name="dashboard_notifications_message_single_exclusive">1 exclusive from %s</string>
+  <string name="dashboard_notifications_message_exclusive">exclusives from %s</string>
+  <string name="dashboard_notifications_message_exclusive_2">exclusives from %1$s and %2$s</string>
+  <string name="dashboard_notifications_message_exclusive_others">exclusives from %1$s, %2$s and others</string>
+  <string name="dashboard_notifications_message_incoming">from %s</string>
+  <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
+  <string name="dashboard_notifications_message_incoming_others">from  %1$s, %2$s and others</string>
 
   <string name="dashboard_99_or_more">99+</string>
 

@@ -233,6 +233,32 @@ public class SoundCloudDB {
 
     }
 
+    public User[] getUsersFromRecentActivities(ContentResolver contentResolver, Long userId, boolean exclusive, int limit) {
+        Cursor cursor = contentResolver.query(exclusive ? Content.EXCLUSIVE_TRACKS
+                : Content.INCOMING_TRACKS, null,
+                Events.ALIAS_USER_ID + "='" + userId + "' AND " + Events.ALIAS_EXCLUSIVE
+                        + " = " + (exclusive ? "1" : "0"), null, Events.ALIAS_ID + " DESC LIMIT " + limit);
+
+        ArrayList<User> users = new ArrayList<User>();
+        if (cursor.getCount() > 0){
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()){
+                boolean found = false;
+                for (User u : users){
+                    if (u.id == cursor.getLong(cursor.getColumnIndex(Users.ALIAS_ID))){
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) users.add(new User(cursor,true));
+                cursor.moveToNext();
+            }
+        }
+        return users.toArray(new User[users.size()]);
+
+
+    }
+
     public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId, boolean exclusive) {
         Log.i(TAG, "Deleting rows  before " + lastId + " "
                         + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "

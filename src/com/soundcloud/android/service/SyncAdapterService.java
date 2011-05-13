@@ -57,6 +57,10 @@ public class SyncAdapterService extends Service {
         @Override
         public void onPerformSync(Account account, Bundle extras, String authority,
                 ContentProviderClient provider, SyncResult syncResult) {
+
+            // pre SDK 8 doesn't allow auto syncing, so with our current list loading UI
+            // it is easier to just enablling remote pulling only for now
+
             if (Build.VERSION.SDK_INT >= 8) {
                 try {
                     SyncAdapterService.performSync(mApp, mContext, account, extras, authority,
@@ -123,7 +127,6 @@ public class SyncAdapterService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (getResultCode() == Activity.RESULT_CANCELED) { // Activity caught it
-                    Log.d(TAG, "No Dashboard Activity found in the foreground");
 
                     int maxStored = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(
                             app).getString("dashboardMaxStored", "100"));
@@ -146,87 +149,97 @@ public class SyncAdapterService extends Service {
 
                     if (exclusiveUnseen + incomingUnseen == 0){
                         return;
-                    } else if (exclusiveUnseen + incomingUnseen == 1){
+                    } else if (incomingUnseen == 1){
                         ticker = app.getApplicationContext().getString(
                                 R.string.dashboard_notifications_ticker_single);
                         title = app.getApplicationContext().getString(
                                 R.string.dashboard_notifications_title_single);
                     } else {
-                        ticker = app.getApplicationContext().getString(
-                                R.string.dashboard_notifications_ticker);
-                        title = app.getApplicationContext().getString(
-                                R.string.dashboard_notifications_title);
+                        ticker = String.format(app.getApplicationContext().getString(
+                                R.string.dashboard_notifications_ticker), incomingUnseen);
+
+                        title = String.format(app.getApplicationContext().getString(
+                                R.string.dashboard_notifications_title), incomingUnseen);
                     }
 
+                    User[] fromUsers;
+
+                    // ensure valid exclusive users
                     if (exclusiveUnseen > 0) {
-                        if (incomingUnseen > exclusiveUnseen) {
-                            if (exclusiveUnseen == 1) {
-                                message = String
-                                        .format(app
-                                                .getApplicationContext()
-                                                .getString(
-                                                        R.string.dashboard_notifications_message_incoming_single_exclusive),
-                                                incomingUnseen >= 99 ? app.getApplicationContext()
-                                                        .getString(R.string.dashboard_99_or_more)
-                                                        : incomingUnseen,
-                                                SoundCloudDB.getInstance().getUsernameById(
-                                                        mContentResolver, user_id));
+                        fromUsers = SoundCloudDB.getInstance().getUsersFromRecentActivities(
+                                mContentResolver, user_id, true, exclusiveUnseen);
 
-                            } else {
-                                message = String
-                                        .format(app.getApplicationContext().getString(
-                                                R.string.dashboard_notifications_message_incoming_exclusive),
-                                                incomingUnseen >= 99 ? app.getApplicationContext()
-                                                        .getString(R.string.dashboard_99_or_more)
-                                                        : incomingUnseen, exclusiveUnseen >= 99 ? app.getApplicationContext()
-                                                                .getString(R.string.dashboard_99_or_more)
-                                                                : exclusiveUnseen );
-                            }
-
+                        if (fromUsers.length == 0) {
+                            // database was cleared but the unseen counter wasn't
+                            exclusiveUnseen = 0;
+                            app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN, 0);
                         } else {
-                            gotoExclusive = true;
-                            if (exclusiveUnseen == 1) {
-                                message = String
-                                        .format(app
-                                                .getApplicationContext()
-                                                .getString(
-                                                        R.string.dashboard_notifications_message_single_exclusive),
-                                                SoundCloudDB.getInstance().getUsernameById(
-                                                        mContentResolver, user_id));
-
-                            } else {
-                                message = String
-                                        .format(app.getApplicationContext().getString(
-                                                R.string.dashboard_notifications_message_exclusive),
-                                                exclusiveUnseen >= 99 ? app.getApplicationContext()
-                                                        .getString(R.string.dashboard_99_or_more)
-                                                        : exclusiveUnseen);
-                            }
+                            message = getExclusiveMessaging(app, fromUsers, exclusiveUnseen);
                         }
+                    }
 
-                    } else if (incomingUnseen > 0) {
-                        if (incomingUnseen == 1) {
-                            message = String.format(
-                                    app.getApplicationContext().getString(
-                                            R.string.dashboard_notifications_message_single_incoming),
-                                    incomingUnseen >= 99 ? app.getApplicationContext().getString(
-                                            R.string.dashboard_99_or_more) : incomingUnseen);
+                    if (exclusiveUnseen == 0) {
+                        fromUsers = SoundCloudDB.getInstance().getUsersFromRecentActivities(
+                                mContentResolver, user_id, false, incomingUnseen);
+
+                        if (fromUsers.length == 0) {
+                            // database was cleared but the unseen counter wasn't
+                            incomingUnseen = 0;
+                            app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN, 0);
                         } else {
-                            message = String.format(
-                                    app.getApplicationContext().getString(
-                                            R.string.dashboard_notifications_message_incoming),
-                                    incomingUnseen >= 99 ? app.getApplicationContext().getString(
-                                            R.string.dashboard_99_or_more) : incomingUnseen);
+                            message = getIncomingMessaging(app, fromUsers);
                         }
 
                     }
 
-                    createDashboardNotification(app,ticker,title,message,gotoExclusive);
+                    if (message != "")  createDashboardNotification(app,ticker,title,message,gotoExclusive);
 
                 }
             }
         }, null, Activity.RESULT_CANCELED, null, null);
 
+    }
+
+    private static String getIncomingMessaging(SoundCloudApplication app, User[] fromUsers) {
+        switch (fromUsers.length) {
+            case 1:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming),
+                        fromUsers[0].username);
+            case 2:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming_2),
+                        fromUsers[0].username, fromUsers[1].username);
+            default:
+                return String.format(
+                        app.getString(R.string.dashboard_notifications_message_incoming_others),
+                        fromUsers[0].username, fromUsers[1].username);
+
+        }
+    }
+
+    private static String getExclusiveMessaging(SoundCloudApplication app, User[] fromUsers,
+            int exclusiveUnseen) {
+        if (exclusiveUnseen == 1) {
+            return String.format(
+                    app.getString(R.string.dashboard_notifications_message_single_exclusive),
+                    fromUsers[0].username);
+
+        } else
+            switch (fromUsers.length) {
+                case 1:
+                    return String.format(
+                            app.getString(R.string.dashboard_notifications_message_exclusive),
+                            fromUsers[0].username);
+                case 2:
+                    return String.format(
+                            app.getString(R.string.dashboard_notifications_message_exclusive_2),
+                            fromUsers[0].username, fromUsers[1].username);
+                default:
+                    return String.format(app
+                            .getString(R.string.dashboard_notifications_message_exclusive_others),
+                            fromUsers[0].username, fromUsers[1].username);
+            }
     }
 
     private static void createDashboardNotification(SoundCloudApplication app, CharSequence ticker, CharSequence title, CharSequence message, boolean exclusive ){

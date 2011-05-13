@@ -94,6 +94,11 @@ public class Dashboard extends ScActivity {
 
         registerReceiver(mIntentReceiver, mSyncCheckFilter);
 
+        if (getSoundCloudApplication().scrollTop){
+            getSoundCloudApplication().scrollTop = false;
+            mListView.scrollTo(0, 0);
+        }
+
     }
 
     @Override
