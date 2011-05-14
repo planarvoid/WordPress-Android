@@ -101,8 +101,15 @@ public class SyncAdapterService extends Service {
 
         final long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
         try {
-            newIncoming = SoundCloudDB.updateActivities(app, mContentResolver, user_id, false);
-            newExclusive = SoundCloudDB.updateActivities(app, mContentResolver, user_id, true);
+            if (app.lockUpdateRecentIncoming(false)){
+                newIncoming = SoundCloudDB.updateActivities(app, mContentResolver, user_id, false);
+                app.unlockUpdateRecentIncoming(false);
+            }
+            if (app.lockUpdateRecentIncoming(true)){
+                newExclusive = SoundCloudDB.updateActivities(app, mContentResolver, user_id, true);
+                app.unlockUpdateRecentIncoming(true);
+            }
+
 
         } catch (JsonParseException e) {
             syncResult.stats.numParseExceptions++;

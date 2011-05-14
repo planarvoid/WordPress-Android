@@ -81,6 +81,8 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Int
         for (WeakReference<UpdateRecentActivitiesListener> listener : mListeners){
             if (listener.get() != null) listener.get().onUpdate(result);
         }
+
+        mApp.unlockUpdateRecentIncoming(mExclusive);
     }
 
  // Define our custom Listener interface

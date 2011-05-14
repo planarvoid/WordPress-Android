@@ -78,6 +78,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
     private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
+    private boolean mRecentIncomingLocked;
+    private boolean mRecentExclusiveLocked;
 
     public boolean scrollTop;
 
@@ -426,13 +428,33 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
-    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
+    public boolean lockUpdateRecentIncoming(boolean exclusive){
+        if (exclusive ? mRecentExclusiveLocked : mRecentIncomingLocked) return false;
 
+        if (exclusive){
+            mRecentExclusiveLocked = true;
+        } else {
+            mRecentIncomingLocked = true;
+        }
+        return true;
+    }
+
+    public void unlockUpdateRecentIncoming(boolean exclusive){
+        if (exclusive){
+            mRecentExclusiveLocked = false;
+        } else {
+            mRecentIncomingLocked = false;
+        }
+    }
+
+    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
         if (CloudUtils.isTaskFinished(mUpdateRecentIncomingTask)){
 
             // only auto request if 5 minutes have gone by since sync
-            if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
+            if (mRecentIncomingLocked || System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
                 return false;
+
+            mRecentIncomingLocked = true;
 
             mUpdateRecentIncomingTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), false);
             mUpdateRecentIncomingTask.execute();
@@ -445,6 +467,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (CloudUtils.isTaskFinished(mUpdateRecentExclusiveTask)){
             if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_EXCLUSIVE_SYNC) < 5*60*1000)
                 return false;
+
+            mRecentExclusiveLocked = true;
 
             mUpdateRecentExclusiveTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), true);
             mUpdateRecentExclusiveTask.execute();
