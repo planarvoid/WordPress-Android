@@ -27,7 +27,7 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
                 result.setAppFields(mApp.getTrackFromCache(result.id));
             }
 
-            SoundCloudDB.getInstance().writeTrack(mApp.getContentResolver(), result,
+            SoundCloudDB.writeTrack(mApp.getContentResolver(), result,
                     WriteState.all, mApp.getCurrentUserId());
 
             result.info_loaded = true;

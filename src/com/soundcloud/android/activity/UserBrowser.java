@@ -245,7 +245,7 @@ public class UserBrowser extends ScActivity {
 
     private void loadYou() {
         if (getUserId() != -1) {
-            User u = SoundCloudDB.getInstance().getUserById(getContentResolver(), getUserId());
+            User u = SoundCloudDB.getUserById(getContentResolver(), getUserId());
             if (u == null) u = new User(getSoundCloudApplication());
             mapUser(u);
             mUserLoadId = u.id;
@@ -255,7 +255,7 @@ public class UserBrowser extends ScActivity {
 
 
     private void loadUserById(long userId) {
-        mapUser(SoundCloudDB.getInstance().getUserById(getContentResolver(), userId));
+        mapUser(SoundCloudDB.getUserById(getContentResolver(), userId));
         if (mUserData == null) {
             mUserData = new User();
             mUserLoadId = mUserData.id = userId;
@@ -293,7 +293,7 @@ public class UserBrowser extends ScActivity {
         @Override
         protected void onPostExecute(User user) {
             if (user != null){
-                SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all,
+                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
                         getSoundCloudApplication().getCurrentUserId());
                 mapUser(user);
             }

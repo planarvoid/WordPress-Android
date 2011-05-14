@@ -832,7 +832,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 Log.i(TAG,"Get Playing Track " + trackId);
                 if (getSoundCloudApplication().getTrackFromCache(trackId) == null){
 
-                    Track t = SoundCloudDB.getInstance().getTrackById(getContentResolver(), trackId, getUserId());
+                    Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getUserId());
                     Log.i(TAG,"Get Playing Track from db " + t);
                     getSoundCloudApplication().cacheTrack(t != null ? t : mPlaybackService.getTrack());
                 }

@@ -555,7 +555,7 @@ public class CloudUtils {
         comment.track_id = trackId;
         comment.created_at = new Date(System.currentTimeMillis());
         comment.user_id = userId;
-        comment.user = SoundCloudDB.getInstance().getUserById(context.getContentResolver(), comment.user_id);
+        comment.user = SoundCloudDB.getUserById(context.getContentResolver(), comment.user_id);
         comment.timestamp = timestamp;
         comment.body = commentBody;
         comment.reply_to_id = replyToId;

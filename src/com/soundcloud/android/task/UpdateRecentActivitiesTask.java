@@ -58,7 +58,7 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Int
     @Override
     protected Integer doInBackground(Track... params) {
         try {
-            return SoundCloudDB.getInstance().updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
+            return SoundCloudDB.updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {

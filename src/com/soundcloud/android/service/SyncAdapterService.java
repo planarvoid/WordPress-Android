@@ -101,8 +101,8 @@ public class SyncAdapterService extends Service {
 
         final long user_id = app.getAccountDataLong( User.DataKeys.USER_ID);
         try {
-            newIncoming = SoundCloudDB.getInstance().updateActivities(app, mContentResolver, user_id, false);
-            newExclusive = SoundCloudDB.getInstance().updateActivities(app, mContentResolver, user_id, true);
+            newIncoming = SoundCloudDB.updateActivities(app, mContentResolver, user_id, false);
+            newExclusive = SoundCloudDB.updateActivities(app, mContentResolver, user_id, true);
 
         } catch (JsonParseException e) {
             syncResult.stats.numParseExceptions++;
@@ -131,9 +131,9 @@ public class SyncAdapterService extends Service {
                     int maxStored = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(
                             app).getString("dashboardMaxStored", "100"));
 
-                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id,
+                    SoundCloudDB.cleanStaleActivities(mContentResolver, user_id,
                             maxStored, true);
-                    SoundCloudDB.getInstance().cleanStaleActivities(mContentResolver, user_id,
+                    SoundCloudDB.cleanStaleActivities(mContentResolver, user_id,
                             maxStored, false);
 
                     CharSequence title = "";
@@ -166,7 +166,7 @@ public class SyncAdapterService extends Service {
 
                     // ensure valid exclusive users
                     if (exclusiveUnseen > 0) {
-                        fromUsers = SoundCloudDB.getInstance().getUsersFromRecentActivities(
+                        fromUsers = SoundCloudDB.getUsersFromRecentActivities(
                                 mContentResolver, user_id, true, exclusiveUnseen);
 
                         if (fromUsers.length == 0) {
@@ -179,7 +179,7 @@ public class SyncAdapterService extends Service {
                     }
 
                     if (exclusiveUnseen == 0) {
-                        fromUsers = SoundCloudDB.getInstance().getUsersFromRecentActivities(
+                        fromUsers = SoundCloudDB.getUsersFromRecentActivities(
                                 mContentResolver, user_id, false, incomingUnseen);
 
                         if (fromUsers.length == 0) {

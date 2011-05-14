@@ -33,20 +33,11 @@ import java.util.List;
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
 
-    private SoundCloudDB () {
-    }
-
     public enum WriteState {
         insert_only, update_only, all
     }
 
-    private static final SoundCloudDB instance = new SoundCloudDB();
-
-    public static SoundCloudDB getInstance() {
-        return instance;
-    }
-
-    public Integer updateActivities(SoundCloudApplication app, ContentResolver contentResolver,
+    public static Integer updateActivities(SoundCloudApplication app, ContentResolver contentResolver,
             Long currentUserId, boolean exclusive) throws JsonParseException, JsonMappingException,
             IllegalStateException, IOException {
 
@@ -146,11 +137,11 @@ public class SoundCloudDB {
     }
 
      // ---Make sure the database is up to date with this track info---
-        public void insertActivities(ContentResolver contentResolver, Activities activities, Long currentUserId) {
+    public static void insertActivities(ContentResolver contentResolver, Activities activities, Long currentUserId) {
             insertActivities(contentResolver, activities, currentUserId, 0);
         }
 
-        public int insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long stopAtTrackId) {
+    public static int insertActivities(ContentResolver contentResolver, Activities activities,  Long currentUserId, long stopAtTrackId) {
 
             List<ContentValues> tracksCV = new ArrayList<ContentValues>();
             List<ContentValues> eventsCV = new ArrayList<ContentValues>();
@@ -174,7 +165,7 @@ public class SoundCloudDB {
             return inserted;
         }
 
-    public void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
+    public static void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
         }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = "
@@ -233,7 +224,7 @@ public class SoundCloudDB {
 
     }
 
-    public User[] getUsersFromRecentActivities(ContentResolver contentResolver, Long userId, boolean exclusive, int limit) {
+    public static User[] getUsersFromRecentActivities(ContentResolver contentResolver, Long userId, boolean exclusive, int limit) {
         Cursor cursor = contentResolver.query(exclusive ? Content.EXCLUSIVE_TRACKS
                 : Content.INCOMING_TRACKS, null,
                 Events.ALIAS_USER_ID + "='" + userId + "' AND " + Events.ALIAS_EXCLUSIVE
@@ -259,17 +250,14 @@ public class SoundCloudDB {
 
     }
 
-    public void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId, boolean exclusive) {
+    public static void deleteActivitiesBefore(ContentResolver contentResolver, Long userId, long lastId, boolean exclusive) {
         Log.i(TAG, "Deleting rows  before " + lastId + " "
                         + +contentResolver.delete(Events.CONTENT_URI, Events.USER_ID + " = "
                                 + userId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0") + " AND " + Events.ID + " <= " + lastId, null));
 
     }
 
- // ---Make sure the database is up to date with this track info---
-    public void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
-
-        synchronized (this) {
+    public static void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
             Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = " + track.id,
                     null, null);
 
@@ -288,11 +276,10 @@ public class SoundCloudDB {
                 // with
                 writeUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
             }
-        }
     }
 
     // ---Make sure the database is up to date with this track info---
-    public Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
+    public static Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
 
         Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + trackId,
                 null, null);
@@ -315,7 +302,7 @@ public class SoundCloudDB {
         return null;
     }
 
-    public boolean isTrackInDb(ContentResolver contentResolver, long id) {
+    public static boolean isTrackInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
         Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + "='" + id + "'",
                 null, null);
@@ -328,7 +315,7 @@ public class SoundCloudDB {
         return ret;
     }
 
-    public int trimTracks(ContentResolver contentResolver, long[] currentPlaylist) {
+    public static int trimTracks(ContentResolver contentResolver, long[] currentPlaylist) {
         String[] whereArgs = new String[2];
         whereArgs[0] = whereArgs[1] = Boolean.toString(false);
         return contentResolver.delete(
@@ -338,7 +325,7 @@ public class SoundCloudDB {
                         + ") AND id NOT IN (SELECT DISTINCT(origin_id) FROM Events)", null);
     }
 
-    public void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
+    public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
 
         Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + "='" + user.id + "'", null, null);
 
@@ -353,7 +340,7 @@ public class SoundCloudDB {
         }
     }
 
-    public User getUserById(ContentResolver contentResolver, long userId) {
+    public static User getUserById(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + userId + "'", null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
@@ -364,7 +351,7 @@ public class SoundCloudDB {
         return user;
     }
 
-    public String getUsernameById(ContentResolver contentResolver, long userId) {
+    public static String getUsernameById(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.USERNAME}, Users.ID + "='" + userId + "'", null, null);
         String user = "";
         if (cursor != null && cursor.getCount() != 0) {
@@ -375,7 +362,7 @@ public class SoundCloudDB {
         return user;
     }
 
-    public boolean isUserInDb(ContentResolver contentResolver, long id) {
+    public static boolean isUserInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
         Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + id + "'", null, null);
         if (null != cursor && cursor.moveToNext()) {
@@ -406,7 +393,7 @@ public class SoundCloudDB {
         return buf.toString();
     }
 
-    private String joinArray(long[] list, String delim) {
+    private static String joinArray(long[] list, String delim) {
         StringBuilder buf = new StringBuilder();
         int num = list.length;
         for (int i = 0; i < num; i++) {

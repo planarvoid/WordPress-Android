@@ -42,7 +42,7 @@ public abstract class LoginActivity extends Activity {
                         protected void onPostExecute(User user) {
                             progress.dismiss();
                             if (user != null) {
-                                SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all, user.id);
+                                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
                                     new Intent().putExtra("user", user)
                                                 .putExtra("token", token));

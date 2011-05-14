@@ -301,7 +301,7 @@ public class Main extends TabActivity {
                          @Override
                          protected void onPostExecute(User user) {
                              if (app.addUserAccount(user, token)) {
-                                 SoundCloudDB.getInstance().writeUser(getContentResolver(), user, WriteState.all, user.id);
+                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
                                          .edit()

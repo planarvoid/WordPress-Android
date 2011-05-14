@@ -587,7 +587,7 @@ public class CloudPlaybackService extends Service {
         new Thread() {
             @Override
             public void run() {
-                SoundCloudDB.getInstance().writeTrack(getContentResolver(), t, WriteState.all,
+                SoundCloudDB.writeTrack(getContentResolver(), t, WriteState.all,
                         ((SoundCloudApplication) getApplication()).getCurrentUserId());
             }
         }.start();
