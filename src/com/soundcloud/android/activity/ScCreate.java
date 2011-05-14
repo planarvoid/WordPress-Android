@@ -284,8 +284,13 @@ public class ScCreate extends ScActivity {
                 // can happen when there's no mounted sd card
                 btnAction.setEnabled(false);
             } else {
-                mCurrentState = CreateState.IDLE_RECORD;
-                takeAction = true;
+                if (mRecordFile != null) {
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                    loadPlaybackTrack();
+                } else {
+                    mCurrentState = CreateState.IDLE_RECORD;
+                    takeAction = true;
+                }
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
