@@ -24,7 +24,6 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Inte
 
     private Set<WeakReference<UpdateRecentActivitiesListener>> mListeners = new HashSet<WeakReference<UpdateRecentActivitiesListener>>();
 
-
     protected Track[] tracks;
 
     public UpdateRecentActivitiesTask(SoundCloudApplication app,
