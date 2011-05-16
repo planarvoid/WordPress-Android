@@ -46,7 +46,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         }
 
         mCursor = mActivity.getContentResolver().query(Content.RECORDINGS, null,
-                Recordings.USER_ID + "='" + mActivity.getUserId() + "' AND " + Recordings.UPLOAD_STATUS + " < 2", null,
+                Recordings.USER_ID + "= ? AND " + Recordings.UPLOAD_STATUS + " < 2", new String[] {Long.toString(mActivity.getUserId())},
                 null);
 
         mChangeObserver = new ChangeObserver();
