@@ -106,25 +106,32 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
-        mCloudApi.addTokenStateListener(new TokenStateListener() {
+        mCloudApi.setTokenListener(new TokenListener() {
             @Override
-            public void onTokenInvalid(Token token) {
+            public Token onTokenInvalid(Token expired) {
                 getAccountManager().invalidateAuthToken(
                         getString(R.string.account_type),
-                        token.access);
+                        expired.access);
+
+                Token newToken = getToken(account);
+                if (!newToken.equals(expired)) {
+                    return newToken;
+                } else {
+                    return null;
+                }
             }
 
             @Override
             public void onTokenRefreshed(Token token) {
-                Log.d(TAG, "onTokenRefreshed("+token+")");
+                Log.d(TAG, "onTokenRefreshed(" + token + ")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
                 if (account != null && token.valid() && token.starScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-                    am.setUserData(account,  Token.EXPIRES_IN, "" + token.expiresIn);
-                    am.setUserData(account,  Token.SCOPE, token.scope);
+                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
+                    am.setUserData(account, Token.SCOPE, token.scope);
                 }
             }
         });
@@ -404,16 +411,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.setToken(token);
     }
 
-    public void addTokenStateListener(TokenStateListener listener) {
-        mCloudApi.addTokenStateListener(listener);
+    public void setTokenListener(TokenListener listener) {
+        mCloudApi.setTokenListener(listener);
     }
 
     public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
         return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
     }
 
-    public void invalidateToken() {
-        mCloudApi.invalidateToken();
+    public Token invalidateToken() {
+        return mCloudApi.invalidateToken();
     }
 
     public ObjectMapper getMapper() {
