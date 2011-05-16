@@ -18,8 +18,7 @@ public class FavoriteAddTask extends FavoriteTask {
     
     @Override
     protected int executeResponse(Track t) throws IOException{
-        return mScApp.put(Request.to(Endpoints.MY_FAVORITES, t.id))
-                .getStatusLine().getStatusCode();
+        return mScApp.put(Request.to(Endpoints.MY_FAVORITE, t.id)).getStatusLine().getStatusCode();
     }
 
     @Override

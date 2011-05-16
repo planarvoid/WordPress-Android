@@ -25,13 +25,6 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
         mFavoriteListener = favoriteListener;
     }
 
-    @Override
-    protected void onPreExecute() {
-    }
-
-    @Override
-    protected void onProgressUpdate(String... updates) {
-    }
 
     @Override
     protected Boolean doInBackground(Track... params) {
@@ -70,10 +63,8 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
 
     }
 
-    // Define our custom Listener interface
     public interface FavoriteListener {
-        public abstract void onNewFavoriteStatus(long trackId, boolean isFavorite);
-        public abstract void onException(long trackId, Exception e);
+        void onNewFavoriteStatus(long trackId, boolean isFavorite);
+        void onException(long trackId, Exception e);
     }
-
 }

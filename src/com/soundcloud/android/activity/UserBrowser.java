@@ -500,12 +500,10 @@ public class UserBrowser extends ScActivity {
                 try {
                     if (mUserData.current_user_following) {
                         mFollowResult =
-                                getSoundCloudApplication().put(request)
-                                        .getStatusLine().getStatusCode();
+                                getSoundCloudApplication().put(request).getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
-                                getSoundCloudApplication().delete(request)
-                                        .getStatusLine().getStatusCode();
+                                getSoundCloudApplication().delete(request).getStatusLine().getStatusCode();
                     }
 
                 } catch (IOException e) {
