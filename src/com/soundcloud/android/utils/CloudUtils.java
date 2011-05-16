@@ -49,6 +49,8 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -64,6 +66,8 @@ public class CloudUtils {
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
     public static final String DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
+
+    public static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE");
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
@@ -83,6 +87,7 @@ public class CloudUtils {
         int DIALOG_UNAUTHORIZED  = 2;
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_RESET_RECORDING = 5;
+        int DIALOG_UNSAVED_RECORDING = 6;
     }
 
     public interface OptionsMenu {
@@ -158,7 +163,7 @@ public class CloudUtils {
             // deleteDir(getCacheDir(c));
         }
 
-        getCacheDir(c).mkdirs();
+        mkdirs(getCacheDir(c));
 
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -531,18 +536,13 @@ public class CloudUtils {
         return emptyView;
     }
 
-
-    public static void resolveParcelable(Context c, Parcelable p, long user_id) {
+    public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
         if (p instanceof Track) {
-            SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(), (Track) p,
-                    SoundCloudDB.WriteState.none, user_id);
-        } else if (p instanceof Event) {
-            if (((Event) p).getTrack() != null)
-                SoundCloudDB.getInstance().resolveTrack(c.getContentResolver(),
-                        ((Event) p).getTrack(), SoundCloudDB.WriteState.none, user_id);
+            ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
+        } else if (p instanceof Event && ((Event)p).getTrack() != null) {
+            ((Event)p).getTrack().updateUserPlayedFromDb(c.getContentResolver(), user_id);
         } else if (p instanceof User) {
-            SoundCloudDB.getInstance().resolveUser(c.getContentResolver(), (User) p,
-                    SoundCloudDB.WriteState.none, user_id);
+            // check if they are a follower
         }
     }
 
@@ -555,7 +555,7 @@ public class CloudUtils {
         comment.track_id = trackId;
         comment.created_at = new Date(System.currentTimeMillis());
         comment.user_id = userId;
-        comment.user = SoundCloudDB.getInstance().resolveUserById(context.getContentResolver(), comment.user_id);
+        comment.user = SoundCloudDB.getUserById(context.getContentResolver(), comment.user_id);
         comment.timestamp = timestamp;
         comment.body = commentBody;
         comment.reply_to_id = replyToId;
@@ -585,8 +585,8 @@ public class CloudUtils {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
 
-        String day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.ENGLISH);
-        String dayTime;
+        final String day = DAY_FORMAT.format(cal.getTime());
+        final String dayTime;
 
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
             dayTime = "morning";

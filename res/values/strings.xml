@@ -15,6 +15,22 @@
   <string name="error_updating_incoming">Error updating your incoming tracks.</string>
   <string name="error_updating_exclusive">Error updating your exclusive tracks.</string>
 
+  <string name="dashboard_notifications_ticker_single">1 new sound</string>
+  <string name="dashboard_notifications_title_single">1 new sound</string>
+
+  <string name="dashboard_notifications_ticker">%s new sounds</string>
+  <string name="dashboard_notifications_title">%s new sounds</string>
+
+  <string name="dashboard_notifications_message_single_exclusive">1 exclusive from %s</string>
+  <string name="dashboard_notifications_message_exclusive">exclusives from %s</string>
+  <string name="dashboard_notifications_message_exclusive_2">exclusives from %1$s and %2$s</string>
+  <string name="dashboard_notifications_message_exclusive_others">exclusives from %1$s, %2$s and others</string>
+  <string name="dashboard_notifications_message_incoming">from %s</string>
+  <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
+  <string name="dashboard_notifications_message_incoming_others">from  %1$s, %2$s and others</string>
+
+  <string name="dashboard_99_or_more">99+</string>
+
   <string name="authentication_contacting_title"></string>
   <string name="authentication_contacting_message">Contacting SoundCloud...</string>
   <string name="authentication_retrying_title">Communication error</string>
@@ -137,6 +153,9 @@
   
   <string name="dialog_confirm_delete_recording_title"></string>
   <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
+  
+  <string name="dialog_unsaved_recordings_title">Unsaved recordings found</string>
+  <string name="dialog_unsaved_recordings_message">Unsaved recordings found. Checked items will be saved.</string>
   
   <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
@@ -612,6 +631,9 @@
 
   <string name="pref_record_high_quality_type">High quality type</string>
   <string name="pref_record_high_quality_type_desc">Choose your preferred high quality recording type</string>
+
+  <string name="pref_dashboard_store_max">Dashboard maximum storage</string>
+  <string name="pref_dashboard_store_max_desc">How many dashboard tracks do you want to store</string>
 
   <string name="low">Low</string>
   <string name="high">High</string>

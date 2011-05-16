@@ -1,12 +1,11 @@
 package com.soundcloud.android.activity;
 
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB.Recordings;
 import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
+import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
@@ -70,7 +69,7 @@ public class ScUpload extends ScActivity {
         initResourceRefs();
 
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
-        mkdirs(mImageDir);
+        CloudUtils.mkdirs(mImageDir);
 
         File uploadFile = null;
         Intent intent = getIntent();
@@ -89,13 +88,11 @@ public class ScUpload extends ScActivity {
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
-            Uri uri = getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
-            getContentResolver().insert(Recordings.CONTENT_URI, r.buildContentValues());
-            cursor = getContentResolver().query(uri, null, null, null, null);
-
+            r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
+            getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
         } else if (intent != null && intent.hasExtra("recordingId")
                 && intent.getLongExtra("recordingId", 0) != 0) {
-            cursor = getContentResolver().query(Recordings.CONTENT_URI, null,
+            cursor = getContentResolver().query(Content.RECORDINGS, null,
                     Recordings.ID + "='" + intent.getLongExtra("recordingId", 0) + "'", null,
                     null);
         } else if (intent != null && intent.hasExtra("recordingUri")) {
@@ -133,7 +130,7 @@ public class ScUpload extends ScActivity {
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
             mapToRecording();
-            getContentResolver().update(Recordings.CONTENT_URI, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
+            getContentResolver().update(Content.RECORDINGS, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
         }
     }
 
@@ -182,8 +179,6 @@ public class ScUpload extends ScActivity {
         });
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        TextView mArtworkBg = (TextView) findViewById(R.id.txt_artwork_bg);
-
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
 
@@ -233,7 +228,7 @@ public class ScUpload extends ScActivity {
             }
         });
 
-        mArtworkBg.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.txt_artwork_bg).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new AlertDialog.Builder(ScUpload.this)

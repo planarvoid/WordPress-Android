@@ -37,15 +37,14 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
 
     @Override
     protected Boolean doInBackground(Track... params) {
-
         for (int i = 0; i < params.length; i++) {
-            if (params[i] != null && params[i] instanceof Track)
-                SoundCloudDB.getInstance().resolveTrack(contentResolver, params[i],
-                        WriteState.all, currentUserId);
+            if (params[i] != null && params[i] instanceof Track){
+                SoundCloudDB.writeTrack(contentResolver, params[i],
+                        WriteState.insert_only, currentUserId);
+            }
         }
 
         afterCommitInBg();
-
         return true;
 
     }

@@ -1,12 +1,14 @@
 
 package com.soundcloud.android.objects;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 
 public class BaseObj implements Parcelable {
 
@@ -60,6 +62,7 @@ public class BaseObj implements Parcelable {
     }
 
     public void buildParcel(Parcel out, int flags) {
+        // XXX revise+test
         // data = in.readBundle();
         Bundle data = new Bundle();
         try {
@@ -97,6 +100,33 @@ public class BaseObj implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         buildParcel(dest,flags);
     }
+
+    protected static void setFieldFromCursor(Parcelable p, Field field, Cursor cursor, String key) {
+        try {
+            if (field != null) {
+                if (field.getType() == String.class) {
+
+                    field.set(p, cursor.getString(cursor.getColumnIndex(key)));
+
+                } else if (field.getType() == Long.TYPE || field.getType() == Long.class) {
+                    field.set(p, cursor.getLong(cursor.getColumnIndex(key)));
+                } else if (field.getType() == Integer.TYPE || field.getType() == Integer.class) {
+                    field.set(p, cursor.getInt(cursor.getColumnIndex(key)));
+                } else if (field.getType() == Boolean.TYPE) {
+                    field.set(p, cursor.getInt(cursor.getColumnIndex(key)) != 0);
+                } else if (field.getType() == Date.class) {
+                    field.set(p, new Date(cursor.getLong(cursor.getColumnIndex(key))));
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            Log.e(p.getClass().getSimpleName(), "error", e);
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            Log.e(p.getClass().getSimpleName(), "error", e);
+            e.printStackTrace();
+        }
+    }
+
 
 
 }

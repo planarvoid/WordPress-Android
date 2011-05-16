@@ -84,6 +84,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
     private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
+    private boolean mRecentIncomingLocked;
+    private boolean mRecentExclusiveLocked;
+
+    public boolean scrollTop;
 
     @Override
     public void onCreate() {
@@ -108,25 +112,32 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
-        mCloudApi.addTokenStateListener(new TokenStateListener() {
+        mCloudApi.setTokenListener(new TokenListener() {
             @Override
-            public void onTokenInvalid(Token token) {
+            public Token onTokenInvalid(Token expired) {
                 getAccountManager().invalidateAuthToken(
                         getString(R.string.account_type),
-                        token.access);
+                        expired.access);
+
+                Token newToken = getToken(account);
+                if (!newToken.equals(expired)) {
+                    return newToken;
+                } else {
+                    return null;
+                }
             }
 
             @Override
             public void onTokenRefreshed(Token token) {
-                Log.d(TAG, "onTokenRefreshed("+token+")");
+                Log.d(TAG, "onTokenRefreshed(" + token + ")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
                 if (account != null && token.valid() && token.starScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-                    am.setUserData(account,  Token.EXPIRES_IN, "" + token.expiresIn);
-                    am.setUserData(account,  Token.SCOPE, token.scope);
+                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
+                    am.setUserData(account, Token.SCOPE, token.scope);
                 }
             }
         });
@@ -247,10 +258,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
             am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account,  Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
+
+        /*
+        if (Build.VERSION.SDK_INT >= 8) {
+            ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
+            ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
+        }
+        */
         return created;
     }
 
@@ -326,7 +346,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private Token getToken(Account account) {
-        return new Token(getAccessToken(account), getRefreshToken(account));
+        Token token = new Token(getAccessToken(account), getRefreshToken(account));
+        token.scope = getAccountData(Token.SCOPE);
+        return token;
     }
 
     private String getAccessToken(Account account) {
@@ -368,10 +390,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.login(username, password);
     }
 
-    public String signUrl(String path) {
-        return path + (path.contains("?") ? "&" : "?") + "oauth_token=" + getToken();
-    }
-
     public URI authorizationCodeUrl(String... options) {
         return mCloudApi.authorizationCodeUrl(options);
     }
@@ -404,16 +422,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.setToken(token);
     }
 
-    public void addTokenStateListener(TokenStateListener listener) {
-        mCloudApi.addTokenStateListener(listener);
+    public void setTokenListener(TokenListener listener) {
+        mCloudApi.setTokenListener(listener);
     }
 
     public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
         return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
     }
 
-    public void invalidateToken() {
-        mCloudApi.invalidateToken();
+    public Token invalidateToken() {
+        return mCloudApi.invalidateToken();
     }
 
     public ObjectMapper getMapper() {
@@ -436,13 +454,33 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mFollowingsTask.addListener(listener);
     }
 
-    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
+    public boolean lockUpdateRecentIncoming(boolean exclusive){
+        if (exclusive ? mRecentExclusiveLocked : mRecentIncomingLocked) return false;
+        if (exclusive){
+            mRecentExclusiveLocked = true;
+        } else {
+            mRecentIncomingLocked = true;
+        }
+        return true;
+    }
 
+    public void unlockUpdateRecentIncoming(boolean exclusive){
+        if (exclusive){
+            mRecentExclusiveLocked = false;
+        } else {
+            mRecentIncomingLocked = false;
+        }
+    }
+
+    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
         if (CloudUtils.isTaskFinished(mUpdateRecentIncomingTask)){
 
             // only auto request if 5 minutes have gone by since sync
-            if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
+            if (mRecentIncomingLocked ||
+                    System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
                 return false;
+
+            mRecentIncomingLocked = true;
 
             mUpdateRecentIncomingTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), false);
             mUpdateRecentIncomingTask.execute();
@@ -455,6 +493,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (CloudUtils.isTaskFinished(mUpdateRecentExclusiveTask)){
             if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_EXCLUSIVE_SYNC) < 5*60*1000)
                 return false;
+
+            mRecentExclusiveLocked = true;
 
             mUpdateRecentExclusiveTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), true);
             mUpdateRecentExclusiveTask.execute();

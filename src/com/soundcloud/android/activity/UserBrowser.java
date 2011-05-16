@@ -8,7 +8,7 @@ import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.Recordings;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.adapter.FollowerAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -19,6 +19,8 @@ import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
+import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadFriendsTask;
@@ -249,7 +251,7 @@ public class UserBrowser extends ScActivity {
 
     private void loadYou() {
         if (getUserId() != -1) {
-            User u = SoundCloudDB.getInstance().resolveUserById(getContentResolver(), getUserId());
+            User u = SoundCloudDB.getUserById(getContentResolver(), getUserId());
             if (u == null) u = new User(getSoundCloudApplication());
             mapUser(u);
             mUserLoadId = u.id;
@@ -272,7 +274,7 @@ public class UserBrowser extends ScActivity {
 
 
     private void loadUserById(long userId) {
-        mapUser(SoundCloudDB.getInstance().resolveUserById(getContentResolver(), userId));
+        mapUser(SoundCloudDB.getUserById(getContentResolver(), userId));
         if (mUserData == null) {
             mUserData = new User();
             mUserLoadId = mUserData.id = userId;
@@ -309,7 +311,11 @@ public class UserBrowser extends ScActivity {
 
         @Override
         protected void onPostExecute(User user) {
-            mapUser(user);
+            if (user != null){
+                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
+                        getSoundCloudApplication().getCurrentUserId());
+                mapUser(user);
+            }
         }
     }
 
@@ -513,12 +519,10 @@ public class UserBrowser extends ScActivity {
                 try {
                     if (mUserData.current_user_following) {
                         mFollowResult =
-                                getSoundCloudApplication().put(request)
-                                        .getStatusLine().getStatusCode();
+                                getSoundCloudApplication().put(request).getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
-                                getSoundCloudApplication().delete(request)
-                                        .getStatusLine().getStatusCode();
+                                getSoundCloudApplication().delete(request).getStatusLine().getStatusCode();
                     }
 
                 } catch (IOException e) {
@@ -721,7 +725,7 @@ public class UserBrowser extends ScActivity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                         int whichButton) {
-                                    getContentResolver().delete(Recordings.CONTENT_URI,
+                                    getContentResolver().delete(Content.RECORDINGS,
                                             Recordings.ID + " = " + recording.id, null);
                                     if (!recording.external_upload){
                                         File f = new File(recording.audio_path);

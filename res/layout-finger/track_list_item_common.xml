@@ -21,7 +21,8 @@
 		        android:layout_height="wrap_content" 
 		        android:id="@+id/track_layout"
 		        android:paddingTop="3dip"
-		        android:layout_toRightOf="@id/play_indicator"
+		        android:layout_marginLeft="20dip"
+		        android:layout_toRightOf="@id/icon"
 		        android:orientation="horizontal">
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" 

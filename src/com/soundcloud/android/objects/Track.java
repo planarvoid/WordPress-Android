@@ -1,13 +1,17 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.SoundCloudDB.Tracks;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
+import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
+import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
@@ -16,7 +20,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -133,37 +136,77 @@ public class Track extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Track(Cursor cursor) {
+    public Track(Cursor cursor, boolean aliasesOnly ) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
-            else
-                try {
-                    Field f = this.getClass().getDeclaredField(key);
-                    if (f != null) {
-                        if (f.getType() == String.class) {
-                            f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
-                            f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.TYPE) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
-                        } else if (f.getType() == Date.class) {
-                            f.set(this, new Date(cursor.getLong(cursor.getColumnIndex(key))));
-                        }
+            if (aliasesOnly && !key.contains(Tables.TRACKS+"_")) continue;
+            if (key.contentEquals(aliasesOnly ? Tracks.ALIAS_ID : Tracks.ID)){
+                id = cursor.getLong(cursor.getColumnIndex(key));
+            } else {
+                    try {
+                        setFieldFromCursor(this,this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
+                    } catch (SecurityException e) {
+                        Log.e(getClass().getSimpleName(), "error", e);
+                        e.printStackTrace();
+                    } catch (NoSuchFieldException e) {
+                        Log.e(getClass().getSimpleName(), "error", e);
+                        e.printStackTrace();
                     }
-                } catch (IllegalArgumentException e) {
-                    Log.e(TAG, "error", e);
-                } catch (IllegalAccessException e) {
-                    Log.e(TAG, "error", e);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "error", e);
-                } catch (NoSuchFieldException e) {
-                    Log.e(TAG, "error", e);
-                }
+            }
         }
     }
+
+    public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + id, null,
+                null);
+
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                String[] keys = cursor.getColumnNames();
+                for (String key : keys) {
+                    if (key.contentEquals("_id")) {
+                        id = cursor.getLong(cursor.getColumnIndex(key));
+                    } else {
+                        try {
+                            setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
+                                    key);
+                        } catch (SecurityException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if (!user_played)
+                    this.updateUserPlayedFromDb(contentResolver, currentUserId);
+            }
+            cursor.close();
+        }
+        if (user != null)
+            user.updateFromDb(contentResolver, currentUserId);
+    }
+
+    public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='"
+                + id + "' AND " + TrackPlays.USER_ID + " = " + currentUserId, null, null);
+
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                user_played = true;
+            }
+            cursor.close();
+        }
+    }
+
+    public void update(Cursor cursor) {
+        if (cursor.getCount() != 0) {
+
+        }
+    }
+
 
     public void setAppFields(Track t){
         comments = t.comments;

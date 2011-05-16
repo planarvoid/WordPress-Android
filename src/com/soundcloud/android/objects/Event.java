@@ -1,7 +1,8 @@
 
 package com.soundcloud.android.objects;
 
-import com.soundcloud.android.SoundCloudDB.Events;
+import com.soundcloud.android.provider.DatabaseHelper.Events;
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -9,9 +10,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
-import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -36,7 +37,6 @@ public class Event extends BaseObj implements Parcelable {
         public Track track;
     }
 
-
     public Event() {
     }
 
@@ -44,36 +44,25 @@ public class Event extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Event(Cursor cursor) {
+    public Event(Cursor cursor, boolean aliasesOnly) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (key.contentEquals("_id"))
+            if (aliasesOnly && !key.contains(Tables.EVENTS + "_")) continue;
+            if (key.contentEquals(aliasesOnly ? Events.ALIAS_ID : Events.ID)) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
-            else
+            } else {
                 try {
-                    Field f = this.getClass().getDeclaredField(key);
-                    if (f != null) {
-                        if (f.getType() == String.class) {
-                            f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
-                            f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.TYPE) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
-                        } else if (f.getType() == Double.TYPE) {
-                            f.set(this, cursor.getDouble(cursor.getColumnIndex(key)));
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                } catch (IllegalAccessException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
+                    setFieldFromCursor(this,
+                            this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),
+                            cursor, key);
                 } catch (SecurityException e) {
                     Log.e(getClass().getSimpleName(), "error", e);
+                    e.printStackTrace();
                 } catch (NoSuchFieldException e) {
                     Log.e(getClass().getSimpleName(), "error", e);
+                    e.printStackTrace();
                 }
+            }
         }
     }
 
@@ -126,7 +115,7 @@ public class Event extends BaseObj implements Parcelable {
         cv.put(Events.LABEL, label);
         cv.put(Events.ORIGIN_ID, getOriginId());
         cv.put(Events.USER_ID, user_id);
-        cv.put(Events.NEXT_CURSOR, next_cursor);
+        if (!TextUtils.isEmpty(next_cursor)) cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
     }
 

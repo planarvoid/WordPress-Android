@@ -2,16 +2,18 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB.Users;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
+import com.soundcloud.android.provider.DatabaseHelper.Tables;
+import com.soundcloud.android.provider.DatabaseHelper.Users;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.lang.reflect.Field;
+import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,80 +51,60 @@ public class User extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-
-    public User(Cursor cursor) {
-        String[] keys = cursor.getColumnNames();
-        for (String key : keys) {
-            if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
-            else
-                try {
-                    Field f = this.getClass().getDeclaredField(key);
-                    if (f != null) {
-                        if (f.getType() == String.class) {
-                            f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
-                            f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == boolean.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (SecurityException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (NoSuchFieldException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-        }
-    }
-
     public User (SoundCloudApplication scApp){
         id = scApp.getAccountDataLong(DataKeys.USER_ID);
         username = scApp.getAccountData(DataKeys.USERNAME);
         primary_email_confirmed = scApp.getAccountDataBoolean(DataKeys.EMAIL_CONFIRMED);
     }
 
-    public void update(Cursor cursor) {
-        if (cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            String[] keys = cursor.getColumnNames();
-            for (String key : keys) {
-                if (key.contentEquals("_id")) id = cursor.getLong(cursor.getColumnIndex(key));
-                else
+    public User(Cursor cursor, boolean aliasesOnly) {
+        String[] keys = cursor.getColumnNames();
+        for (String key : keys) {
+
+            if (aliasesOnly && !key.contains(Tables.USERS + "_")) continue;
+            if (key.contentEquals(aliasesOnly ? Users.ALIAS_ID : Users.ID)) {
+                id = cursor.getLong(cursor.getColumnIndex(key));
+            } else {
                 try {
-                    Field f = this.getClass().getDeclaredField(key);
-                    if (f != null) {
-                        if (f.getType() == String.class) {
-                            if (f.get(this) == null)
-                                f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
-                            if (f.get(this) == null)
-                                f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
-                            f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == boolean.class) {
-                            if (f.get(this) == null)
-                                f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    setFieldFromCursor(this,
+                            this.getClass().getDeclaredField(aliasesOnly ? key.substring(6) : key),
+                            cursor, key);
                 } catch (SecurityException e) {
-                    // TODO Auto-generated catch block
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 } catch (NoSuchFieldException e) {
-                    // TODO Auto-generated catch block
+                    Log.e(getClass().getSimpleName(), "error", e);
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + id + "'", null,
+                null);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                String[] keys = cursor.getColumnNames();
+                for (String key : keys) {
+                    if (key.contentEquals("_id")) {
+                        id = cursor.getLong(cursor.getColumnIndex(key));
+                    } else {
+                        try {
+                            setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
+                                    key);
+                        } catch (SecurityException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            Log.e(getClass().getSimpleName(), "error", e);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            cursor.close();
         }
     }
 
@@ -149,6 +131,7 @@ public class User extends BaseObj implements Parcelable {
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = new ContentValues();
         cv.put(Users.ID, id);
+        cv.put(Users.USERNAME, username);
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);
         cv.put(Users.CITY, city);
@@ -207,5 +190,8 @@ public class User extends BaseObj implements Parcelable {
 
         String LAST_INCOMING_SYNC = "last_incoming_sync";
         String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
+
+        String CURRENT_INCOMING_UNSEEN = "current_incoming_unseen";
+        String CURRENT_EXCLUSIVE_UNSEEN = "current_exclusive_unseen";
     }
 }

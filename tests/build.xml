@@ -17,6 +17,10 @@
     </fileset>
   </path>
 
+  <target name="clean">
+    <delete dir="classes"/>
+  </target>
+
   <target name="prepare">
     <mkdir dir="classes"/>
     <mkdir dir="reports"/>

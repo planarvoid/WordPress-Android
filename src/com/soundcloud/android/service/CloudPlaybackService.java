@@ -21,10 +21,11 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.TrackPlays;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.provider.DatabaseHelper.Content;
+import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
@@ -33,8 +34,8 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
-
 import com.soundcloud.api.Request;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -136,82 +137,47 @@ public class CloudPlaybackService extends Service {
     private static final int RELEASE_WAKELOCKS = 7;
 
     private MultiPlayer mPlayer;
-
     private int mLoadPercent = 0;
-
     private boolean mAutoPause = false;
-
     protected NetworkConnectivityListener connectivityListener;
-
     protected static final int CONNECTIVITY_MSG = 9;
-
     private PlayListManager mPlayListManager = new PlayListManager(this);
-
     private Track mPlayingData;
-
     private StoppableDownloadThread mDownloadThread;
-
     private boolean mMediaplayerError;
-
     private RemoteViews mNotificationView;
-
     private long mResumeTime = -1;
-
     private long mResumeId = -1;
-
     private WifiLock mWifiLock;
-
     private WakeLock mWakeLock;
-
     private int mServiceStartId = -1;
-
     private boolean mServiceInUse = false;
-
     private boolean mResumeAfterCall = false;
-
     private boolean mIsSupposedToBePlaying = false;
-
     private boolean mWaitingForArtwork = false;
-
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
-
     private static final int HIGH_WATER_MARK = 8000000;
-
     private static final int PLAYBACK_MARK = 200000;
-
     private static final int INITIAL_PLAYBACK_MARK = 60000;
-
     private static final int LOW_WATER_MARK = 40000;
-
     private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
     private int mCurrentDownloadAttempts;
-
     private boolean ignoreBuffer;
-
     private boolean pausedForBuffering;
-
     private boolean initialBuffering = true;
-
     private long mCurrentBuffer;
-
     private NetworkInfo mCurrentNetworkInfo;
-
     private boolean isStagefright;
-
     private int mBufferReportCounter = 0;
-
     protected int batteryLevel;
-
     protected int plugState;
-
     protected boolean mHeadphonePluggedState;
 
     public CloudPlaybackService() {
-
     }
 
     @Override
@@ -549,14 +515,18 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        Cursor cursor = getContentResolver().query(TrackPlays.CONTENT_URI, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
+        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
         if (cursor == null || cursor.getCount() == 0) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, track.id);
             contentValues.put(TrackPlays.USER_ID, ((SoundCloudApplication)this.getApplication()).getCurrentUserId());
-            getContentResolver().insert(TrackPlays.CONTENT_URI, contentValues);
+            getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
         }
         if (cursor != null) cursor.close();
+
+        track.updateFromDb(getContentResolver(),
+                ((SoundCloudApplication)getApplication()).getCurrentUserId());
+
         if (((SoundCloudApplication) getApplication()).getTrackFromCache(track.id) == null) {
             ((SoundCloudApplication) getApplication()).cacheTrack(track);
         }
@@ -617,7 +587,7 @@ public class CloudPlaybackService extends Service {
         new Thread() {
             @Override
             public void run() {
-                SoundCloudDB.getInstance().resolveTrack(getContentResolver(), t, WriteState.all,
+                SoundCloudDB.writeTrack(getContentResolver(), t, WriteState.all,
                         ((SoundCloudApplication) getApplication()).getCurrentUserId());
             }
         }.start();
@@ -653,8 +623,7 @@ public class CloudPlaybackService extends Service {
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(((SoundCloudApplication) getApplication())
-                            .signUrl(mPlayingData.stream_url));
+                    mPlayer.setDataSourceAsync(resolveStreamUrl(mPlayingData.stream_url));
                 }
                 return;
             }
@@ -1409,8 +1378,7 @@ public class CloudPlaybackService extends Service {
                 if (isStagefright) {
                     mMediaPlayer.setDataSource(mPlayingData.mCacheFile.getAbsolutePath());
                 } else {
-                    mMediaPlayer.setDataSource(((SoundCloudApplication) CloudPlaybackService.this
-                                .getApplication()).signUrl(mPlayingData.stream_url));
+                    mMediaPlayer.setDataSource(resolveStreamUrl(mPlayingData.stream_url));
                 }
 
                 mMediaPlayer.prepareAsync();
@@ -1838,6 +1806,28 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
+    }
+
+    private String resolveStreamUrl(String url)  {
+        String resolved = url;
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        try {
+            HttpResponse resp = app.get(Request.to(url));
+
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                Header location = resp.getFirstHeader("Location");
+                if (location != null) {
+                    resolved = location.getValue();
+                } else {
+                    Log.w(TAG, "no location header found");
+                }
+            } else {
+                Log.w(TAG, "unexpected response " + resp);
+            }
+        } catch (IOException e) {
+            Log.w(TAG, e);
+        }
+        return resolved;
     }
 
     /**

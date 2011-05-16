@@ -2,6 +2,8 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.LoadTask;
@@ -40,6 +42,7 @@ public abstract class LoginActivity extends Activity {
                         protected void onPostExecute(User user) {
                             progress.dismiss();
                             if (user != null) {
+                                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
                                     new Intent().putExtra("user", user)
                                                 .putExtra("token", token));

@@ -15,6 +15,7 @@ import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
 
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -288,7 +289,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     private int getPageSize() {
-        return 20; //XXX
+        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
+                "defaultPageSize", "20"));
     }
 
     /**
@@ -296,7 +298,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @param keepgoing
      */
-    @SuppressWarnings("unchecked")
     public void onPostTaskExecute(Boolean keepgoing) {
         if (keepgoing != null) {
             keepOnAppending.set(keepgoing);
@@ -408,7 +409,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * Clear and reset this adapter of any data. Primarily used for refreshing
      */
     @SuppressWarnings("unchecked")
-    public void clear() {
+    public void refresh() {
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
         if (mListView != null)
@@ -417,7 +418,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mCurrentPage = 0;
         keepOnAppending.set(true);
 
-        getWrappedAdapter().clear();
+        getWrappedAdapter().refresh();
 
         if (appendTask != null) {
             if (!CloudUtils.isTaskFinished(appendTask)) {

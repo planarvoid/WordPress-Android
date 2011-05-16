@@ -18,8 +18,7 @@ public class FavoriteRemoveTask extends FavoriteTask {
     
     @Override
     protected int executeResponse(Track t) throws IOException{
-        return mScApp.delete(Request.to(Endpoints.MY_FAVORITES, t.id))
-                .getStatusLine().getStatusCode();
+        return mScApp.delete(Request.to(Endpoints.MY_FAVORITE, t.id)).getStatusLine().getStatusCode();
     }
     
     @Override

@@ -4,6 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.AsyncApiTask;
@@ -48,14 +50,16 @@ public class Main extends TabActivity {
         super.onCreate(state);
         setContentView(R.layout.main);
         final SoundCloudApplication app = getApp();
+        final boolean showSplash = showSplash(state);
         mSplash = (ViewGroup) findViewById(R.id.splash);
+        mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
 
         if (isConnected() &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
                 !app.isEmailConfirmed()) {
             checkEmailConfirmed(app);
-        } else {
+        } else if (showSplash) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -66,6 +70,11 @@ public class Main extends TabActivity {
         handleIntent(getIntent());
     }
 
+    private boolean showSplash(Bundle state) {
+        // don't show splash on configChanges (screen rotate)
+        return state == null;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -74,6 +83,7 @@ public class Main extends TabActivity {
             tabsInitialized = true;
         }
     }
+
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
@@ -186,6 +196,10 @@ public class Main extends TabActivity {
                 getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
                 intent.removeExtra("tabIndex");
             } else if (intent.hasExtra("tabTag")) {
+                if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
+                    getApp().scrollTop = true;
+                }
+                if (intent.hasExtra(""))
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
             } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {
@@ -287,6 +301,7 @@ public class Main extends TabActivity {
                          @Override
                          protected void onPostExecute(User user) {
                              if (app.addUserAccount(user, token)) {
+                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
                                          .edit()

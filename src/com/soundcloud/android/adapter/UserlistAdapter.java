@@ -27,8 +27,8 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowingsListen
     }
 
     @Override
-    public void clear() {
-        super.clear();
+    public void refresh() {
+        super.refresh();
         gotFollowings = false;
         mActivity.getSoundCloudApplication().followingsMap = null;
         mActivity.getSoundCloudApplication().requestUserFollowings(this);
