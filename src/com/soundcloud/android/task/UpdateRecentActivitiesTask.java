@@ -12,8 +12,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Integer> {
 
@@ -22,7 +22,7 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Inte
     private long mCurrentUserId;
     private boolean mExclusive;
 
-    private List<WeakReference<UpdateRecentActivitiesListener>> mListeners = new ArrayList<WeakReference<UpdateRecentActivitiesListener>>();
+    private Set<WeakReference<UpdateRecentActivitiesListener>> mListeners = new HashSet<WeakReference<UpdateRecentActivitiesListener>>();
 
 
     protected Track[] tracks;
@@ -38,11 +38,6 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Inte
     }
 
     public void addListener(UpdateRecentActivitiesListener updateListener){
-
-        for (WeakReference<UpdateRecentActivitiesListener> listener : mListeners){
-            if (listener.get() != null && listener.get() == updateListener) return;
-        }
-
         mListeners.add(new WeakReference<UpdateRecentActivitiesListener>(updateListener));
     }
 
@@ -58,7 +53,8 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Inte
     @Override
     protected Integer doInBackground(Void... params) {
         try {
-            return SoundCloudDB.updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
+            return SoundCloudDB
+                    .updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
         } catch (IOException e) {
             Log.w(SoundCloudApplication.TAG, "error", e);
             return 0;
@@ -78,7 +74,7 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Inte
 
  // Define our custom Listener interface
     public interface UpdateRecentActivitiesListener {
-        public abstract void onUpdate(int added);
+        void onUpdate(int added);
     }
 
 }
