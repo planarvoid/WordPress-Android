@@ -252,6 +252,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
             am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account,  Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
@@ -337,7 +338,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private Token getToken(Account account) {
-        return new Token(getAccessToken(account), getRefreshToken(account));
+        Token token = new Token(getAccessToken(account), getRefreshToken(account));
+        token.scope = getAccountData(Token.SCOPE);
+        return token;
     }
 
     private String getAccessToken(Account account) {
