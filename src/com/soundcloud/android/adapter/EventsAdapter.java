@@ -39,8 +39,8 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isExclusive, Class<?> model) {
         super(context, data, model);
         mExclusive = isExclusive;
-        mChangeObserver = new ChangeObserver();
-        addLocalEvents();
+        //mChangeObserver = new ChangeObserver();
+        //addLocalEvents();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         reset();
     }
 
-
+/*
     @Override
     public void reset() {
         mPage = 1;
@@ -120,7 +120,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         nextCursor = "";
         addLocalEvents();
     }
-
+*/
     public void onNextEventsParam(String nextEventsHref) {
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextEventsHref),"UTF-8");
         for (NameValuePair param : params){
