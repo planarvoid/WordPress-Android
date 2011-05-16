@@ -86,7 +86,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     private void addLocalEvents() {
 
         // pre SDK 8 doesn't allow auto syncing, so with our current list loading UI
-        // it is easier to just enablling remote pulling only for now
+        // it is easier to just enabling remote pulling only for now
         if (Build.VERSION.SDK_INT < 8) return;
 
         mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);

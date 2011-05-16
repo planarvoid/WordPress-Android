@@ -59,13 +59,12 @@ public class SyncAdapterService extends Service {
                 ContentProviderClient provider, SyncResult syncResult) {
 
             // pre SDK 8 doesn't allow auto syncing, so with our current list loading UI
-            // it is easier to just enablling remote pulling only for now
-
+            // it is easier to just enabling remote pulling only for now
             if (Build.VERSION.SDK_INT >= 8) {
                 try {
                     SyncAdapterService.performSync(mApp, mContext, account, extras, authority,
                             provider, syncResult);
-                } catch (OperationCanceledException e) {
+                } catch (OperationCanceledException ignored) {
                 }
             }
         }
