@@ -37,9 +37,9 @@ public class SoundCloudDB {
         insert_only, update_only, all
     }
 
-    public static Integer updateActivities(SoundCloudApplication app, ContentResolver contentResolver,
-            Long currentUserId, boolean exclusive) throws JsonParseException, JsonMappingException,
-            IllegalStateException, IOException {
+    public static Integer updateActivities(SoundCloudApplication app,
+                                           ContentResolver contentResolver,
+                                           Long currentUserId, boolean exclusive) throws IOException {
 
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC, System.currentTimeMillis());
 
@@ -47,10 +47,10 @@ public class SoundCloudDB {
                 .getString("dashboardMaxStored", "100"));
 
         // get the timestamp of the newest record in the database
-        Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
-                Events.ID, Events.ORIGIN_ID,
-        }, Events.USER_ID + " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = "
-                + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT 1");
+        Cursor firstCursor = contentResolver.query(Events.CONTENT_URI,
+                new String[] {Events.ID, Events.ORIGIN_ID,}, Events.USER_ID +
+                " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
+                null, Events.ID + " DESC LIMIT 1");
 
         if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
 
@@ -66,18 +66,12 @@ public class SoundCloudDB {
         List<ContentValues> usersCV = new ArrayList<ContentValues>();
 
         do {
-            Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS
-                    : Endpoints.MY_ACTIVITIES);
-            request.add("limit", Integer.toString(20));
+            Request request = Request.to(exclusive ?
+                    Endpoints.MY_EXCLUSIVE_TRACKS
+                    : Endpoints.MY_ACTIVITIES).add("limit", 20);
 
             if (activities != null) { // add next cursor if applicable
-                List<NameValuePair> params = URLEncodedUtils.parse(
-                        URI.create(activities.next_href), "UTF-8");
-                for (NameValuePair param : params) {
-                    if (param.getName().equalsIgnoreCase("cursor")) {
-                        request.add("cursor", param.getValue());
-                    }
-                }
+                request.add("cursor", activities.getCursor());
             }
 
             HttpResponse response = app.get(request);
@@ -117,7 +111,7 @@ public class SoundCloudDB {
             } else {
                 return 0;
             }
-        } while (!caughtUp && activities != null && !TextUtils.isEmpty(activities.next_href));
+        } while (!caughtUp && !TextUtils.isEmpty(activities.next_href));
 
         if (tracksCV.size() > 0) {
             contentResolver.bulkInsert(Content.TRACKS,

@@ -5,9 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.objects.Track;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-
 import android.content.ContentResolver;
 import android.os.AsyncTask;
 import android.os.Parcelable;
@@ -18,7 +15,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Integer> {
+public class UpdateRecentActivitiesTask extends AsyncTask<Void, Parcelable, Integer> {
 
     private SoundCloudApplication mApp;
     private ContentResolver mContentResolver;
@@ -30,7 +27,10 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Int
 
     protected Track[] tracks;
 
-    public UpdateRecentActivitiesTask(SoundCloudApplication app, ContentResolver contentResolver, long userId, boolean exclusive) {
+    public UpdateRecentActivitiesTask(SoundCloudApplication app,
+                                      ContentResolver contentResolver,
+                                      long userId,
+                                      boolean exclusive) {
        mApp = app;
        mContentResolver = contentResolver;
        mCurrentUserId = userId;
@@ -56,22 +56,13 @@ public class UpdateRecentActivitiesTask extends AsyncTask<Track, Parcelable, Int
     }
 
     @Override
-    protected Integer doInBackground(Track... params) {
+    protected Integer doInBackground(Void... params) {
         try {
             return SoundCloudDB.updateActivities(mApp, mContentResolver, mCurrentUserId, mExclusive);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(SoundCloudApplication.TAG, "error", e);
+            return 0;
         }
-        return 0;
-    }
-
-    protected void afterCommitInBg() {
     }
 
     @Override

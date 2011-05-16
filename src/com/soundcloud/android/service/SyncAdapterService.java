@@ -148,11 +148,8 @@ public class SyncAdapterService extends Service {
                     CharSequence ticker = "";
                     boolean gotoExclusive = false;
 
-                    int exclusiveUnseen = app
-                    .getAccountDataInt(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN);
-
-                    int incomingUnseen = app
-                    .getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN);
+                    int exclusiveUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN);
+                    int incomingUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN);
 
                     if (exclusiveUnseen + incomingUnseen == 0){
                         return;

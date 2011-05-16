@@ -1,12 +1,15 @@
-
 package com.soundcloud.android.objects;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.text.TextUtils;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activities implements Iterable<Event> {
@@ -18,10 +21,10 @@ public class Activities implements Iterable<Event> {
         return collection.iterator();
     }
 
-    public void setCursorToLastEvent(){
+    public void setCursorToLastEvent() {
         int cursorStart = TextUtils.isEmpty(next_href) ? -1 : next_href.indexOf("cursor=") + 7;
-        if (cursorStart > -1){
-            collection.get(collection.size()-1).next_cursor = next_href.substring(cursorStart,next_href.substring(cursorStart).indexOf("&")+cursorStart);
+        if (cursorStart > -1) {
+            collection.get(collection.size() - 1).next_cursor = next_href.substring(cursorStart, next_href.substring(cursorStart).indexOf("&") + cursorStart);
         }
     }
 
@@ -35,5 +38,15 @@ public class Activities implements Iterable<Event> {
 
     public int size() {
         return collection.size();
+    }
+
+    public String getCursor() {
+        List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
+        for (NameValuePair param : params) {
+            if (param.getName().equalsIgnoreCase("cursor")) {
+                return param.getValue();
+            }
+        }
+        return null;
     }
 }
