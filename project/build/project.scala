@@ -38,6 +38,7 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
     val robolectric = "com.pivotallabs" % "robolectric" % "1.0-RC2-SNAPSHOT-all" % "test"
     val junit       = "junit" % "junit-dep" % "4.9b2" % "test"
     val mockitoCore = "org.mockito" % "mockito-core" % "1.8.5" % "test"
+    val hamcrest    = "org.hamcrest" % "hamcrest-core" % "1.1" % "test"
 
     override def makePomConfiguration = new MakePomConfiguration(deliverProjectDependencies,
                                             Some(List(Configurations.Compile,
@@ -86,6 +87,18 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
                     <includeScope>runtime</includeScope>
                  </configuration>
                 </execution>
+                <execution>
+                  <id>test-libs</id>
+                  <phase>install</phase>
+                  <goals>
+                      <goal>copy-dependencies</goal>
+                   </goals>
+                   <configuration>
+                      <outputDirectory>tests/lib</outputDirectory>
+                      <excludeTransitive>false</excludeTransitive>
+                      <includeScope>test</includeScope>
+                   </configuration>
+                  </execution>
               </executions>
           </plugin>
         </plugins>

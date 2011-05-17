@@ -46,45 +46,39 @@
                             <includeScope>runtime</includeScope>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>test-libs</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>tests/lib</outputDirectory>
+                            <excludeTransitive>true</excludeTransitive>
+                            <includeScope>test</includeScope>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
     <dependencies>
         <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>2.3.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>3.1.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.soundcloud</groupId>
-            <artifactId>java-api-wrapper</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>1.7.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit-dep</artifactId>
-            <version>4.9b2</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.7.1</version>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>filecache</artifactId>
+            <version>0.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -94,9 +88,33 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>filecache</artifactId>
-            <version>0.1</version>
+            <groupId>com.soundcloud</groupId>
+            <artifactId>java-api-wrapper</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.commonsware</groupId>
+            <artifactId>CWAC-AdapterWrapper</artifactId>
+            <version>0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.acra</groupId>
+            <artifactId>acra</artifactId>
+            <version>3.1.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit-dep</artifactId>
+            <version>4.9b2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xiph</groupId>
+            <artifactId>libvorbis</artifactId>
+            <version>1.0.0-beta</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -106,28 +124,28 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.commonsware</groupId>
-            <artifactId>CWAC-AdapterWrapper</artifactId>
-            <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
             <version>1.0-RC2-SNAPSHOT-all</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.7.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.7.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <repositories>
