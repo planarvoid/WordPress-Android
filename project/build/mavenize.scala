@@ -1,13 +1,8 @@
 import sbt._
 import scala.xml.{Node,Elem}
 
-trait Mavenize extends ParentProject {
-    override def makePomConfiguration = new MakePomConfiguration(deliverProjectDependencies,
-                                            Some(List(Configurations.Compile,
-                                                      Configurations.Provided,
-                                                      Configurations.Test)),
-                                                      pomExtra, pomPostProcess, pomIncludeRepository)
-    override def pomExtra =
+trait Mavenize extends DefaultProject {
+   override def pomExtra =
       <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests/src</testSourceDirectory>
@@ -65,6 +60,12 @@ trait Mavenize extends ParentProject {
           </plugin>
         </plugins>
       </build>
+
+    override def makePomConfiguration = new MakePomConfiguration(deliverProjectDependencies,
+                                            Some(List(Configurations.Compile,
+                                                      Configurations.Provided,
+                                                      Configurations.Test)),
+                                                      pomExtra, pomPostProcess, pomIncludeRepository)
 
     override def pomPostProcess(pom: Node): Node = pom match {
       case <artifactId>{_}</artifactId> => <artifactId>{name}</artifactId>

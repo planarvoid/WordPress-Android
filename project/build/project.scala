@@ -4,7 +4,7 @@ trait Defaults {
   def androidPlatformName = "android-10"
 }
 
-class Parent(info: ProjectInfo) extends ParentProject(info) with Mavenize {
+class Parent(info: ProjectInfo) extends ParentProject(info) {
   override def shouldCheckOutputDirectories = false
   override def updateAction = task { None }
 
@@ -13,7 +13,8 @@ class Parent(info: ProjectInfo) extends ParentProject(info) with Mavenize {
   class MainProject(info: ProjectInfo) extends AndroidProject(info)
     with Defaults
     with MarketPublish
-    with PlainJavaProject {
+    with PlainJavaProject
+    with Mavenize {
 
     val keyalias  = "change-me"
 
