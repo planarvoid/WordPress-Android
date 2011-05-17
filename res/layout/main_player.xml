@@ -31,10 +31,11 @@
 				</TableRow>
 			</TableLayout>
 		</LinearLayout>
-		<ImageView android:layout_width="fill_parent"
-            android:layout_below="@id/track_menu"
-            android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true"
-            android:id="@+id/artwork" />
+		<FrameLayout android:layout_width="fill_parent"
+            android:layout_below="@id/track_menu" android:background="@drawable/artwork_player"
+            android:layout_height="fill_parent" android:gravity="top"  android:layout_centerHorizontal="true">
+		  <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/artwork" />
+		</FrameLayout>
 		<RelativeLayout android:layout_width="fill_parent" android:id="@+id/playable_layout"
 			android:layout_marginBottom="-40dip" android:layout_height="100dip"
 			android:layout_alignParentBottom="true">
