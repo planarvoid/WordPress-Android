@@ -95,10 +95,11 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         if (CloudUtils.isTaskFinished(mQueryTask)){
             mQueryTask = new DashboardQueryTask(mActivity.getSoundCloudApplication());
             mQueryTask.setAdapter(this);
-            mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS
-                    : Content.INCOMING_TRACKS), null,
-                    Events.ALIAS_USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.ALIAS_EXCLUSIVE
-                            + " = " + (mExclusive ? "1" : "0"), null, Events.ALIAS_ID + " DESC");
+            mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS : Content.INCOMING_TRACKS),
+                    null, Events.ALIAS_USER_ID + "= ? AND " + Events.ALIAS_EXCLUSIVE + " = ?",
+                    new String[] {
+                            Long.toString(mActivity.getUserId()), (mExclusive ? "1" : "0")
+                    }, Events.ALIAS_ID + " DESC");
             mQueryTask.execute();
         } else
             mQueryTask.setAdapter(this);

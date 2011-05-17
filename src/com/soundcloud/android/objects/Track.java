@@ -157,7 +157,7 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + id, null,
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?", new String[]{Long.toString(currentUserId)},
                 null);
 
         if (cursor != null) {
@@ -190,8 +190,9 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='"
-                + id + "' AND " + TrackPlays.USER_ID + " = " + currentUserId, null, null);
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
+                + "= ? AND " + TrackPlays.USER_ID + " = ?", new String[] {
+                Long.toString(id), Long.toString(currentUserId) }, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {

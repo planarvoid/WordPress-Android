@@ -13,10 +13,6 @@ import com.soundcloud.api.Request;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -26,7 +22,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,10 +42,11 @@ public class SoundCloudDB {
                 .getString("dashboardMaxStored", "100"));
 
         // get the timestamp of the newest record in the database
-        Cursor firstCursor = contentResolver.query(Events.CONTENT_URI,
-                new String[] {Events.ID, Events.ORIGIN_ID,}, Events.USER_ID +
-                " = " + currentUserId + " AND " + Events.EXCLUSIVE + " = " + (exclusive ? "1" : "0"),
-                null, Events.ID + " DESC LIMIT 1");
+        Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
+                Events.ID, Events.ORIGIN_ID,
+        }, Events.USER_ID + " = ? AND " + Events.EXCLUSIVE + " = ?", new String[] {
+                Long.toString(currentUserId), (exclusive ? "1" : "0")
+        }, Events.ID + " DESC LIMIT 1");
 
         if (firstCursor.getCount() > 0) firstCursor.moveToFirst();
 
@@ -162,8 +158,9 @@ public class SoundCloudDB {
     public static void cleanStaleActivities(ContentResolver contentResolver, Long userId, int maxEvents, boolean exclusive) {
         Cursor countCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
             "count(" + Events.ID + ")",
-        }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = "
-                + (exclusive ? "1" : "0"), null, null);
+        }, Events.USER_ID + " = ? AND " + Events.EXCLUSIVE + " = ?", new String[] {
+                Long.toString(userId), (exclusive ? "1" : "0")
+        }, null);
 
         countCursor.moveToFirst();
         int eventsCount = countCursor.getInt(0);
@@ -185,9 +182,10 @@ public class SoundCloudDB {
                 }
 
                 lastCursor = contentResolver.query(Events.CONTENT_URI, new String[] {
-                    Events.ID,  Events.NEXT_CURSOR
-                }, Events.USER_ID + " = " + userId + " AND " + Events.EXCLUSIVE + " = "
-                        + (exclusive ? "1" : "0"), null, Events.ID + " DESC LIMIT " + limit);
+                        Events.ID, Events.NEXT_CURSOR
+                }, Events.USER_ID + " = ? AND " + Events.EXCLUSIVE + " = ?", new String[] {
+                        Long.toString(userId), (exclusive ? "1" : "0")
+                }, Events.ID + " DESC LIMIT " + limit);
 
                 if (lastCursor != null){
                     lastCursor.moveToLast();
@@ -220,9 +218,10 @@ public class SoundCloudDB {
 
     public static User[] getUsersFromRecentActivities(ContentResolver contentResolver, Long userId, boolean exclusive, int limit) {
         Cursor cursor = contentResolver.query(exclusive ? Content.EXCLUSIVE_TRACKS
-                : Content.INCOMING_TRACKS, null,
-                Events.ALIAS_USER_ID + "='" + userId + "' AND " + Events.ALIAS_EXCLUSIVE
-                        + " = " + (exclusive ? "1" : "0"), null, Events.ALIAS_ID + " DESC LIMIT " + limit);
+                : Content.INCOMING_TRACKS, null, Events.ALIAS_USER_ID + "= ? AND "
+                + Events.ALIAS_EXCLUSIVE + " = ?", new String[] {
+                Long.toString(userId), (exclusive ? "1" : "0")
+        }, Events.ALIAS_ID + " DESC LIMIT " + limit);
 
         ArrayList<User> users = new ArrayList<User>();
         if (cursor.getCount() > 0){
@@ -252,8 +251,8 @@ public class SoundCloudDB {
     }
 
     public static void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
-            Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = " + track.id,
-                    null, null);
+            Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = ?",
+                    new String[]{Long.toString(track.id)}, null);
 
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
@@ -275,8 +274,8 @@ public class SoundCloudDB {
     // ---Make sure the database is up to date with this track info---
     public static Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
 
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = " + trackId,
-                null, null);
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
+                new String[]{Long.toString(trackId)}, null);
 
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -298,8 +297,7 @@ public class SoundCloudDB {
 
     public static boolean isTrackInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + "='" + id + "'",
-                null, null);
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?",new String[]{Long.toString(id)}, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }
@@ -321,7 +319,7 @@ public class SoundCloudDB {
 
     public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
 
-        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + "='" + user.id + "'", null, null);
+        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + " = ?",new String[]{Long.toString(user.id)}, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -335,7 +333,7 @@ public class SoundCloudDB {
     }
 
     public static User getUserById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + userId + "'", null, null);
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -346,7 +344,7 @@ public class SoundCloudDB {
     }
 
     public static String getUsernameById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.USERNAME}, Users.ID + "='" + userId + "'", null, null);
+        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
         String user = "";
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -358,7 +356,7 @@ public class SoundCloudDB {
 
     public static boolean isUserInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + id + "'", null, null);
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + " = ?",new String[]{Long.toString(id)}, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }

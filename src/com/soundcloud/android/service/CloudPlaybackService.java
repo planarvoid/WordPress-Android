@@ -515,7 +515,11 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID + "='" + track.id + "'", null, null);
+        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null,
+                TrackPlays.TRACK_ID + " = ?", new String[] {
+                    Long.toString(track.id)
+                }, null);
+
         if (cursor == null || cursor.getCount() == 0) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, track.id);

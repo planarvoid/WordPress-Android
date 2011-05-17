@@ -254,7 +254,7 @@ public class ScCreate extends ScActivity {
             if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
                 String[] columns = { Recordings.ID, Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
                 Cursor cursor = getContentResolver().query(Content.RECORDINGS,
-                        columns, Recordings.ID + "='" + getIntent().getLongExtra("recordingId",0) + "'", null, null);
+                        columns, Recordings.ID + "= ?",new String[] {Long.toString(getIntent().getLongExtra("recordingId",0))}, null);
 
                 if (cursor != null) {
                     cursor.moveToFirst();
