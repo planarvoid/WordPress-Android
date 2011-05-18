@@ -12,31 +12,27 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:src="@drawable/artwork_badge" android:id="@+id/user_icon"
                 android:gravity="top" />
-        <LinearLayout android:id="@+id/LinearLayout02"
-                      android:orientation="vertical" android:layout_width="wrap_content"
-                      android:layout_weight="1" android:layout_height="wrap_content">
-
-            <TextView android:id="@+id/username"
+        <RelativeLayout android:layout_width="wrap_content"
+                      android:layout_weight="1" android:layout_height="wrap_content" >
+            <TextView android:id="@+id/username" android:layout_alignParentTop="true"
                       android:layout_width="wrap_content" style="@style/txt_list_main"
                       android:layout_height="wrap_content" android:textSize="15sp"
                       android:paddingLeft="5dip" android:paddingRight="5dip"
                       android:paddingTop="5dip"/>
 
-            <TextView android:id="@+id/fullname"
+            <TextView android:id="@+id/fullname" android:layout_below="@id/username"
                       android:layout_width="wrap_content" style="@style/txt_list_sub"
                       android:layout_height="wrap_content" android:paddingLeft="5dip"
                       android:paddingRight="5dip" />
-        </LinearLayout>
-
-        <LinearLayout android:id="@+id/LinearLayout02"
-                      android:gravity="center" android:orientation="vertical"
-                      android:layout_width="wrap_content" android:layout_height="fill_parent"
-                      android:paddingRight="5dip">
-            <ImageButton android:id="@+id/btn_favorite"
-                         android:background="@android:color/transparent" android:visibility="gone"
-                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                         android:src="@drawable/ic_follow_states"/>
-        </LinearLayout>
+        </RelativeLayout>
+	<RelativeLayout android:id="@+id/LinearLayout02"
+		android:gravity="center" android:layout_width="wrap_content"
+		android:layout_height="fill_parent" android:paddingRight="5dip">
+		<ImageButton android:id="@+id/btn_favorite"
+			android:layout_centerVertical="true" android:background="@android:color/transparent"
+			android:visibility="gone" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/ic_follow_states" />
+	</RelativeLayout>
 
     </LinearLayout>
 

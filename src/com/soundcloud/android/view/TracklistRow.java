@@ -60,7 +60,6 @@ public class TracklistRow extends LazyRow {
         mUser = (TextView) findViewById(R.id.user);
         mDuration = (TextView) findViewById(R.id.duration);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
-        mIcon = (ImageView) findViewById(R.id.icon);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
         mPrivateIndicator = (ImageView) findViewById(R.id.private_indicator);
@@ -198,6 +197,7 @@ public class TracklistRow extends LazyRow {
     @Override
     public void display(int position) {
 
+
         mTrack = getTrackFromParcelable((Parcelable) mAdapter.getItem(position));
 
         super.display(position);
@@ -217,11 +217,12 @@ public class TracklistRow extends LazyRow {
 
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mTrack.created_at.getTime()));
 
+        /*
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);
         } else {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main);
-        }
+        }*/
 
         if (mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
@@ -255,10 +256,6 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public ImageView getRowIcon() {
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
-            mIcon.getLayoutParams().height = 67;
-        }
         return mIcon;
     }
 

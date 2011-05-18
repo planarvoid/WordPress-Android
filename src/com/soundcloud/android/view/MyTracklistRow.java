@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.FastBitmapDrawable;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -83,15 +84,13 @@ public class MyTracklistRow extends TracklistRow {
         try {
             options.decodeInSampleSize = ImageUtils.determineResizeOptions(
                             new File(recording.artwork_path),
-                            (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth()),
-                            (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight())).inSampleSize;
+                            (int) (getContext().getResources().getDisplayMetrics().density * CloudUtils.GRAPHIC_DIMENSIONS_BADGE),
+                            (int) (getContext().getResources().getDisplayMetrics().density * CloudUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
         } catch (IOException e) {
             Log.w(TAG, "error", e);
         }
         result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,options);
-
         setTemporaryRecordingDrawable(result);
-
     }
 
     private void setTemporaryRecordingDrawable(BindResult result) {
@@ -103,8 +102,6 @@ public class MyTracklistRow extends TracklistRow {
             mIcon.setImageDrawable(mPendingDefaultIcon);
         }
 
-        mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
-        mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());
     }
 
     /**
