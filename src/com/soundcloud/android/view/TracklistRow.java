@@ -217,12 +217,11 @@ public class TracklistRow extends LazyRow {
 
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mTrack.created_at.getTime()));
 
-        /*
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);
         } else {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main);
-        }*/
+        }
 
         if (mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
