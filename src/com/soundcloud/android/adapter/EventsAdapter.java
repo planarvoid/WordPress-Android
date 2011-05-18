@@ -112,16 +112,15 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         reset();
     }
 
-/*
     @Override
     public void reset() {
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;
         nextCursor = "";
-        addLocalEvents();
+        //addLocalEvents();
     }
-*/
+
     public void onNextEventsParam(String nextEventsHref) {
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextEventsHref),"UTF-8");
         for (NameValuePair param : params){
