@@ -6,6 +6,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudCache;
@@ -29,6 +30,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -148,6 +150,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
+        mCloudApi.invalidateToken();
+
         Account account = getAccount();
         if (account != null) {
             getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
@@ -167,8 +171,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             }, /*handler*/ null);
         }
-
-        mCloudApi.invalidateToken();
     }
 
     public boolean isEmailConfirmed() {
@@ -246,6 +248,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final String type = getString(R.string.account_type);
         final Account account = new Account(user.username, type);
         final AccountManager am = getAccountManager();
+
         final boolean created = am.addAccountExplicitly(account, token.access, null);
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
@@ -256,10 +259,13 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
 
+
+        // disable syncing
+        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
+        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, false);
+
         /*
         if (Build.VERSION.SDK_INT >= 8) {
-            ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
             ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
         }
         */

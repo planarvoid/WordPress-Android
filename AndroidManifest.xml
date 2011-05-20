@@ -77,6 +77,14 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
+        <activity android:name="org.acra.CrashReportDialog"
+            android:theme="@android:style/Theme.Dialog"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"/>
+
+
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
           <intent-filter>
@@ -98,15 +106,22 @@
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
+
             <meta-data android:name="android.accounts.AccountAuthenticator"
                        android:resource="@xml/authenticator"/>
         </service>
         
-         <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@android:style/Theme.Dialog"
-            android:launchMode="singleInstance"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"/>
+        <service android:name=".service.SyncAdapterService"
+                 android:exported="true">
+           <intentfilter>
+               <action android:name="android.content.SyncAdapter" />
+           </intentfilter>
+
+           <metadata android:name="android.content.SyncAdapter"
+                          android:resource="@xml/sync" />
+        </service>
+
+
 
         <receiver android:label="SoundCloud Player"
                   android:name=".service.PlayerAppWidgetProvider">
