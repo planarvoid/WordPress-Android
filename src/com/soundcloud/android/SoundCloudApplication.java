@@ -112,13 +112,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 getAccountManager().invalidateAuthToken(
                         getString(R.string.account_type),
                         expired.access);
-
-                Token newToken = getToken(account);
-                if (!newToken.equals(expired)) {
-                    return newToken;
-                } else {
-                    return null;
+                final Account acc = getAccount();
+                if (acc != null) {
+                   Token newToken = getToken(acc);
+                    if (!newToken.equals(expired)) {
+                        return newToken;
+                    }
                 }
+                return null;
             }
 
             @Override
@@ -126,7 +127,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Log.d(TAG, "onTokenRefreshed(" + token + ")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
-                if (account != null && token.valid() && token.starScoped()) {
+                if (account != null && token.valid() && token.defaultScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
@@ -259,11 +260,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
 
-
         // disable syncing
         ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
         ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, false);
-
         /*
         if (Build.VERSION.SDK_INT >= 8) {
             ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
@@ -333,14 +332,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private String getClientId(boolean production) {
         return getResources().getString(production ?
-                R.string.consumer_key :
-                R.string.sandbox_consumer_key);
+                R.string.client_id :
+                R.string.sandbox_client_id);
     }
 
     private String getClientSecret(boolean production) {
         return getResources().getString(production ?
-                R.string.consumer_secret :
-                R.string.sandbox_consumer_secret);
+                R.string.client_secret :
+                R.string.sandbox_client_secret);
     }
 
     private Token getToken(Account account) {
@@ -383,6 +382,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Token clientCredentials() throws IOException {
         return mCloudApi.clientCredentials();
     }
+
+    public Token clientCredentials(String scope) throws IOException {
+        return mCloudApi.clientCredentials(scope);
+    }
+
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);

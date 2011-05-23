@@ -118,7 +118,7 @@
            </intentfilter>
 
            <metadata android:name="android.content.SyncAdapter"
-                          android:resource="@xml/sync" />
+                     android:resource="@xml/sync" />
         </service>
 
 

@@ -83,11 +83,11 @@
   <string name="authentication_error_no_connection_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
 
   <string name="app_name">SoundCloud</string>
-  <string name="consumer_key">xce4DwrNEmNzTIcuaAjkA</string>
-  <string name="consumer_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
+  <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>
+  <string name="client_secret">GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
 
-  <string name="sandbox_consumer_key">0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
-  <string name="sandbox_consumer_secret">0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
+  <string name="sandbox_client_id">0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
+  <string name="sandbox_client_secret">0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
 
   <string name="image_load_error">Error loading image</string>
 

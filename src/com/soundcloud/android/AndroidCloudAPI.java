@@ -24,7 +24,6 @@ public interface AndroidCloudAPI extends CloudAPI {
         public Wrapper(String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
             super(clientId, clientSecret, redirectUri, token, env);
         }
-
         // XXX reenable when sandbox certificate is working again
         /*
         @Override protected SSLSocketFactory getSSLSocketFactory() {

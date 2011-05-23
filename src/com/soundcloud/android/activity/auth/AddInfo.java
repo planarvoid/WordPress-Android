@@ -276,6 +276,8 @@ public class AddInfo extends Activity {
                     ImageUtils.resizeImageFile(file, file, 800, 800);
                     updateMe.withFile(Params.User.AVATAR, file);
                 }
+                Log.d(TAG, "addInfo: "+updateMe);
+
                 HttpResponse resp = api().put(updateMe);
                 if (resp.getStatusLine().getStatusCode() == SC_OK) {
                     return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
