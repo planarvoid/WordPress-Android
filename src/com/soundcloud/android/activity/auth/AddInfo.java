@@ -130,19 +130,17 @@ public class AddInfo extends Activity {
         });
     }
 
+    @SuppressWarnings({"unchecked"})
     void addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
         }
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
-
             @Override
             protected void onPreExecute() {
-                dialog = ProgressDialog.show(AddInfo.this, "",
-                        getString(R.string.authentication_add_info_progress_message));
+                dialog = ProgressDialog.show(AddInfo.this, null, getString(R.string.authentication_add_info_progress_message));
             }
-
             @Override
             protected void onPostExecute(User user) {
                 dialog.dismiss();
@@ -271,9 +269,11 @@ public class AddInfo extends Activity {
                         Params.User.PERMALINK, u.permalink);
 
                 // resize and attach file if present
+
                 if (file != null && file.canWrite()) {
                     // XXX really overwrite file?
-                    ImageUtils.resizeImageFile(file, file, 800, 800);
+                    // ImageUtils.resizeImageFile(file, file, 800, 800);
+
                     updateMe.withFile(Params.User.AVATAR, file);
                 }
                 Log.d(TAG, "addInfo: "+updateMe);
