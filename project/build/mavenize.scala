@@ -41,7 +41,6 @@ trait Mavenize extends DefaultProject {
                  <configuration>
                     <outputDirectory>lib</outputDirectory>
                     <excludeTransitive>false</excludeTransitive>
-                    <excludeArtifactIds>httpcore,httpclient,json,commons-logging,commons-codec</excludeArtifactIds>
                     <includeScope>runtime</includeScope>
                  </configuration>
                 </execution>
