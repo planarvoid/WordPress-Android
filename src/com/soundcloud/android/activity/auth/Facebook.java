@@ -71,7 +71,7 @@ public class Facebook extends LoginActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                progress.dismiss();
+                try { progress.dismiss(); } catch (IllegalArgumentException ignored) { }
             }
 
             @Override
