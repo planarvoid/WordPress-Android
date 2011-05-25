@@ -673,7 +673,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         intent.putExtra("userId", comment.user.id);
                         startActivity(intent);
                     }
-                });
+                }, false);
             }
         }
         //restore default sort

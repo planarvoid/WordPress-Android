@@ -64,7 +64,7 @@ public class Login extends LoginActivity {
                         }
                         startActivityForResult(i, 0);
                     }
-                });
+                }, true);
     }
 
     @Override

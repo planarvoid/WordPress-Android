@@ -5,12 +5,11 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 
 public class ClickSpan extends ClickableSpan {
-
     private OnClickListener mListener;
     private boolean mUnderline;
 
         public ClickSpan(OnClickListener listener) {
-            this(listener,false);
+            this(listener, false);
         }
 
         public ClickSpan(OnClickListener listener, boolean underline) {

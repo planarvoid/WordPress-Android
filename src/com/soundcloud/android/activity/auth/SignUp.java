@@ -100,7 +100,7 @@ public class SignUp extends Activity {
                     @Override public void onClick() {
                         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
                     }
-                });
+                }, true);
     }
 
     private void signup(final String email, final String password) {
