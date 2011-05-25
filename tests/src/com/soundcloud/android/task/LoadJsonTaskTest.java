@@ -18,7 +18,7 @@ public class LoadJsonTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldReturnAList() throws Exception {
         expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
+        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
             @Override
             protected List<Foo> doInBackground(Request... r) {
                 return null;
@@ -34,7 +34,7 @@ public class LoadJsonTaskTest extends RoboApiBaseTests {
     public void shouldReturnNullWhenExceptionEncountered() throws Exception {
         expectGetRequestAndThrow("/foo", new IOException());
 
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
+        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
             @Override
             protected List<Foo> doInBackground(Request... strings) {
                 return null;
@@ -48,7 +48,7 @@ public class LoadJsonTaskTest extends RoboApiBaseTests {
     public void shouldReraiseExceptionWhenTold() throws Exception {
         expectGetRequestAndThrow("/foo", new IOException());
 
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(api) {
+        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
             @Override
             protected List<Foo> doInBackground(Request... r) {
                 return null;

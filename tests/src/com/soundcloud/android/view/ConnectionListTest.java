@@ -22,7 +22,7 @@ public class ConnectionListTest extends RoboApiBaseTests {
         ConnectionList list = new ConnectionList(new Activity());
         assertEquals(0, list.postToServiceIds().size());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(mockedApi);
         list.setAdapter(adapter);
         adapter.load();
 
@@ -37,7 +37,7 @@ public class ConnectionListTest extends RoboApiBaseTests {
 
         ConnectionList list = new ConnectionList(new Activity());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(mockedApi);
         list.setAdapter(adapter);
         adapter.load();
 

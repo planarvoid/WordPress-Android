@@ -20,7 +20,7 @@ public class AddInfoTest extends RoboApiBaseTests {
     @Test
     public void shouldWorkWithNullFile() throws Exception {
         Robolectric.addPendingHttpResponse(200, slurp("me.json"));
-        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(realApi);
+        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, (File)null));
         assertThat(result.username, equalTo("testing"));
@@ -29,7 +29,7 @@ public class AddInfoTest extends RoboApiBaseTests {
     @Test
     public void shouldWorkWithNonexistentFile() throws Exception {
         Robolectric.addPendingHttpResponse(200, slurp("me.json"));
-        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(realApi);
+        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, new File("/tmp/bla")));
         assertThat(result.username, equalTo("testing"));
@@ -38,7 +38,7 @@ public class AddInfoTest extends RoboApiBaseTests {
     @Test
     public void shouldWorkWithFile() throws Exception {
         Robolectric.addPendingHttpResponse(200, slurp("me.json"));
-        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(realApi);
+        AddInfo.AddUserInfoTask task = new AddInfo.AddUserInfoTask(api);
         User user = new User();
 
         File tmp = File.createTempFile("test", "tmp");

@@ -2,19 +2,14 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.GetTokensTask;
+import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-
-import org.apache.http.HttpResponse;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,7 +24,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class SignUp extends Activity {
@@ -130,19 +124,21 @@ public class SignUp extends Activity {
                                         .putExtra("user", user)
                                         .putExtra("token", token), 0);
                             } else {
-                                signupFail();
+                                signupFail(null);
                             }
                         }
                     }.execute(email, password);
                 } else {
-                    signupFail();
+                    signupFail(errors.isEmpty() ? null : errors.get(0));
                 }
             }
         }.execute(email, password);
     }
 
-    private void signupFail() {
-        CloudUtils.showToast(SignUp.this, R.string.authentication_signup_failure);
+    private void signupFail(String error) {
+        CloudUtils.showToast(SignUp.this,
+                error == null ? getString(R.string.authentication_signup_failure) :
+                        getString(R.string.authentication_signup_failure_reason, error));
     }
 
     @Override
@@ -151,39 +147,6 @@ public class SignUp extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         setResult(resultCode, data);
         finish();
-    }
-
-    static class SignupTask extends AsyncApiTask<String, Void, User>  {
-        public SignupTask(AndroidCloudAPI api) {
-            super(api);
-        }
-
-        @Override
-        protected User doInBackground(String... params) {
-            final String email = params[0];
-            final String password = params[1];
-
-            try {
-                final Token signup = api().clientCredentials();
-                HttpResponse resp = api().post(Request.to(USERS).with(
-                        Params.User.EMAIL, email,
-                        Params.User.PASSWORD, password,
-                        Params.User.PASSWORD_CONFIRMATION, password,
-                        Params.User.TERMS_OF_USE, "1"
-                ).usingToken(signup));
-
-                final int code = resp.getStatusLine().getStatusCode();
-                if (code == SC_CREATED) {
-                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
-                } else {
-                    warn("invalid response", resp);
-                    return null;
-                }
-            } catch (IOException e) {
-                warn("error creating user", e);
-                return null;
-            }
-        }
     }
 
     static boolean checkEmail(CharSequence email) {
