@@ -129,7 +129,7 @@ public class SignUp extends Activity {
                         }
                     }.execute(email, password);
                 } else {
-                    signupFail(errors.isEmpty() ? null : errors.get(0));
+                    signupFail(getFirstError());
                 }
             }
         }.execute(email, password);

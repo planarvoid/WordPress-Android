@@ -59,7 +59,10 @@
   <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
   <string name="authentication_add_image">Add Image</string>
 
-<string name="authentication_error_invalid_email">Please enter a valid email.</string>
+  <string name="authentication_add_info_error">Error adding info</string>
+  <string name="authentication_add_info_error_reason">Error adding info: %s</string>
+
+  <string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
   <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
   <string name="authentication_error_password_too_short">Password is too short.</string>

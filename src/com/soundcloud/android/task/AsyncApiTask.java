@@ -7,15 +7,19 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Endpoints;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.codehaus.jackson.JsonNode;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
-
+    protected List<String> mErrors = new ArrayList<String>();
     protected WeakReference<AndroidCloudAPI> mApi;
 
     public AsyncApiTask(AndroidCloudAPI api) {
@@ -36,5 +40,20 @@ public abstract class AsyncApiTask<Params, Progress, Result>
 
     protected void warn(String s) {
         Log.w(TAG, s);
+    }
+
+    protected void extractErrors(HttpResponse resp) throws IOException {
+        JsonNode node = api().getMapper().reader().readTree(resp.getEntity().getContent());
+       //{"errors":{"error":["Email has already been taken","Email is already taken."]}}
+       //{"errors":{"error":"Username has already been taken"}}
+        JsonNode errors = node.path("errors").path("error");
+        if (errors.isTextual()) mErrors.add(errors.getTextValue());
+        for (JsonNode s : errors) {
+            mErrors.add(s.getTextValue());
+        }
+    }
+
+    protected String getFirstError() {
+        return mErrors.isEmpty() ? null : mErrors.get(0);
     }
 }

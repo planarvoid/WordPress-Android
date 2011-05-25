@@ -5,11 +5,9 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -20,7 +18,6 @@ import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
 public class SignupTaskTest extends RoboApiBaseTests {
-
     @Test
     public void shouldReturnUser() throws Exception {
         Robolectric.addPendingHttpResponse(200, slurp("signup_token.json"));
@@ -28,7 +25,7 @@ public class SignupTaskTest extends RoboApiBaseTests {
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");
         assertThat(u, CoreMatchers.<Object>notNullValue());
-        assertThat(u.username, equalTo("jberkel_testing"));
+        assertThat(u.username, equalTo("testing"));
     }
 
     @Test
@@ -38,7 +35,7 @@ public class SignupTaskTest extends RoboApiBaseTests {
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");
         assertThat(u, CoreMatchers.<Object>nullValue());
-        assertThat(task.errors, equalTo(Arrays.asList("Email has already been taken", "Email is already taken.")));
+        assertThat(task.mErrors, equalTo(Arrays.asList("Email has already been taken", "Email is already taken.")));
     }
 
     @Test
@@ -48,6 +45,6 @@ public class SignupTaskTest extends RoboApiBaseTests {
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");
         assertThat(u, CoreMatchers.<Object>nullValue());
-        assertThat(task.errors.isEmpty(), is(true));
+        assertThat(task.mErrors.isEmpty(), is(true));
     }
 }

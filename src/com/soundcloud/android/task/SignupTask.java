@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SignupTask extends AsyncApiTask<String, Void, User>  {
-    protected List<String> errors = new ArrayList<String>();
 
     public SignupTask(AndroidCloudAPI api) {
         super(api);
@@ -37,11 +36,7 @@ public class SignupTask extends AsyncApiTask<String, Void, User>  {
                 case SC_CREATED:
                     return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
                 case SC_UNPROCESSABLE_ENTITY:
-                    JsonNode node = api().getMapper().reader().readTree(resp.getEntity().getContent());
-                   //{"errors":{"error":["Email has already been taken","Email is already taken."]}}
-                    for (JsonNode s : node.path("errors").path("error")) {
-                        errors.add(s.getTextValue());
-                    }
+                    extractErrors(resp);
                 default:
                     warn("invalid response", resp);
                     return null;
