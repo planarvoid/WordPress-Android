@@ -40,7 +40,8 @@ trait Mavenize extends DefaultProject {
                  </goals>
                  <configuration>
                     <outputDirectory>lib</outputDirectory>
-                    <excludeTransitive>true</excludeTransitive>
+                    <excludeTransitive>false</excludeTransitive>
+                    <excludeArtifactIds>httpcore,httpclient,json,commons-logging,commons-codec</excludeArtifactIds>
                     <includeScope>runtime</includeScope>
                  </configuration>
                 </execution>
