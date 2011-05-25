@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.*;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,6 +20,7 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
@@ -76,6 +79,8 @@ public class Facebook extends LoginActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+                Log.d(TAG, "shouldOverride:"+url);
+
                 if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
@@ -91,8 +96,9 @@ public class Facebook extends LoginActivity {
                     }
                     return true;
                 } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
-                           url.startsWith("http://m.facebook.com") ||    /* signup */
-                           url.startsWith("http://touch.facebook.com/reset.php")) { /* password reset */
+                           url.contains("/r.php") ||    /* signup */
+                           url.contains("/reset.php")) /* password reset */
+                {
 
                     // launch external browser
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
