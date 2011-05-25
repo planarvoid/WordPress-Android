@@ -48,7 +48,6 @@ public class SignupTask extends AsyncApiTask<String, Void, User>  {
             }
         } catch (IOException e) {
             warn("error creating user", e);
-            errors.add(e.getMessage());
             return null;
         }
     }

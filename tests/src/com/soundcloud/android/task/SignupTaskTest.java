@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -38,5 +39,15 @@ public class SignupTaskTest extends RoboApiBaseTests {
         User u = task.doInBackground("email", "password");
         assertThat(u, CoreMatchers.<Object>nullValue());
         assertThat(task.errors, equalTo(Arrays.asList("Email has already been taken", "Email is already taken.")));
+    }
+
+    @Test
+    public void shouldProcessBadErrorResponse() throws Exception {
+        Robolectric.addPendingHttpResponse(200, slurp("signup_token.json"));
+        Robolectric.addPendingHttpResponse(422, "ada");
+        SignupTask task = new SignupTask(api);
+        User u = task.doInBackground("email", "password");
+        assertThat(u, CoreMatchers.<Object>nullValue());
+        assertThat(task.errors.isEmpty(), is(true));
     }
 }
