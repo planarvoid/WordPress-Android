@@ -22,7 +22,7 @@ import java.io.InputStream;
 
 
 @RunWith(DefaultTestRunner.class)
-public class AppendTaskTests {
+public class AppendTaskTest {
     ScActivity activity;
     SoundCloudApplication app;
 

@@ -13,11 +13,11 @@ import org.junit.runner.RunWith;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class NewConnectionTaskTests extends RoboApiBaseTests {
+public class NewConnectionTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldReturnUri() throws Exception {
         Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
-        NewConnectionTask task = new NewConnectionTask(realApi);
+        NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNotNull(uri);
         assertEquals("http://example.com", uri.toString());
@@ -26,7 +26,7 @@ public class NewConnectionTaskTests extends RoboApiBaseTests {
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
         Robolectric.addPendingHttpResponse(400, "Failz");
-        NewConnectionTask task = new NewConnectionTask(realApi);
+        NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNull(uri);
     }

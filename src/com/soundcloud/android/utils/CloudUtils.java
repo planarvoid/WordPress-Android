@@ -622,10 +622,10 @@ public class CloudUtils {
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
      */
-    public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener) {
+    public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener, boolean underline) {
         CharSequence text = view.getText();
         String string = text.toString();
-        ClickSpan span = new ClickSpan(listener);
+        ClickSpan span = new ClickSpan(listener, underline);
 
         int start = string.indexOf(clickableText);
         int end = start + clickableText.length();
@@ -644,15 +644,6 @@ public class CloudUtils {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
-
-    public static String readInputStream(InputStream in) throws IOException {
-        StringBuffer stream = new StringBuffer();
-        byte[] b = new byte[4096];
-        for (int n; (n = in.read(b)) != -1;) {
-        stream.append(new String(b, 0, n));
-        }
-        return stream.toString();
-        }
 
     public static boolean mkdirs(File d) {
         if (!d.exists()) {

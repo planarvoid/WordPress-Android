@@ -13,12 +13,12 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LoadConnectionTaskTests extends RoboApiBaseTests {
+public class LoadConnectionTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
         expectGetRequestAndReturn(MY_CONNECTIONS, 200,"connections.json");
 
-        LoadConnectionsTask task = new LoadConnectionsTask(api);
+        LoadConnectionsTask task = new LoadConnectionsTask(mockedApi);
         List<Connection> connections = task.list(Request.to(MY_CONNECTIONS), Connection.class);
 
         assertEquals(6, connections.size());

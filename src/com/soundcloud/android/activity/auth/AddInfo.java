@@ -5,13 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
-
-import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -130,27 +126,26 @@ public class AddInfo extends Activity {
         });
     }
 
+    @SuppressWarnings({"unchecked"})
     void addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
         }
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
-
             @Override
             protected void onPreExecute() {
-                dialog = ProgressDialog.show(AddInfo.this, "",
-                        getString(R.string.authentication_add_info_progress_message));
+                dialog = ProgressDialog.show(AddInfo.this, null, getString(R.string.authentication_add_info_progress_message));
             }
-
             @Override
             protected void onPostExecute(User user) {
                 dialog.dismiss();
                 if (user != null) {
                     finishSignup();
                 } else {
-                    // XXX wording
-                    CloudUtils.showToast(AddInfo.this, "There was a problem...");
+                    CloudUtils.showToast(AddInfo.this, getFirstError() == null ?
+                            getString(R.string.authentication_add_info_error) :
+                            getString(R.string.authentication_add_info_error_reason, getFirstError()));
                 }
             }
         }.execute(Pair.create(user, avatarFile));
@@ -169,6 +164,7 @@ public class AddInfo extends Activity {
         mAvatarFile = imageFile;
 
         try {
+            // XXX move to ImageUtils
             final int density = (int) (getResources().getDisplayMetrics().density * 100);
             Options opt = ImageUtils.determineResizeOptions(mAvatarFile, density, density);
 
@@ -256,37 +252,4 @@ public class AddInfo extends Activity {
         }
     }
 
-    static class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
-        public AddUserInfoTask(AndroidCloudAPI api) {
-            super(api);
-        }
-
-        @Override
-        protected User doInBackground(final Pair<User, File>... params) {
-            final User u = params[0].first;
-            final File file = params[0].second;
-            try {
-                Request updateMe = Request.to(MY_DETAILS).with(
-                        Params.User.NAME, u.username,
-                        Params.User.PERMALINK, u.permalink);
-
-                // resize and attach file if present
-                if (file != null && file.canWrite()) {
-                    // XXX really overwrite file?
-                    ImageUtils.resizeImageFile(file, file, 800, 800);
-                    updateMe.withFile(Params.User.AVATAR, file);
-                }
-                HttpResponse resp = api().put(updateMe);
-                if (resp.getStatusLine().getStatusCode() == SC_OK) {
-                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
-                } else {
-                    warn("unexpected response", resp);
-                    return null;
-                }
-            } catch (IOException e) {
-                warn("error updating details", e);
-                return null;
-            }
-        }
-    }
 }

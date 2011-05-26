@@ -6,10 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
-import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.apache.http.HttpEntity;
@@ -17,27 +15,25 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Before;
-import org.mockito.Matchers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class RoboApiBaseTests implements Endpoints {
+    protected AndroidCloudAPI mockedApi;
     protected AndroidCloudAPI api;
-    protected AndroidCloudAPI realApi;
 
     @Before
     public void setup() {
-        api = mock(AndroidCloudAPI.class);
-        realApi = new AndroidCloudAPI.Wrapper(null, null, null, new Token("1", "2"), Env.SANDBOX);
-        when(api.getMapper()).thenReturn(AndroidCloudAPI.Wrapper.createMapper());
+        mockedApi = mock(AndroidCloudAPI.class);
+        api = new AndroidCloudAPI.Wrapper(null, null, null, new Token("1", "2"), Env.SANDBOX);
+        when(mockedApi.getMapper()).thenReturn(AndroidCloudAPI.Wrapper.createMapper());
     }
 
     protected void expectGetRequestAndThrow(String request, Throwable e) throws IOException {
-        when(api.get(requestMatcher(request))).thenThrow(e);
+        when(mockedApi.get(requestMatcher(request))).thenThrow(e);
     }
 
     protected void expectGetRequestAndReturn(String request, int code, String resource) throws IOException {
@@ -56,7 +52,7 @@ public class RoboApiBaseTests implements Endpoints {
         when(resp.getEntity()).thenReturn(ent);
         when(line.getStatusCode()).thenReturn(code);
         when(resp.getStatusLine()).thenReturn(line);
-        when(api.get(requestMatcher(request))).thenReturn(resp);
+        when(mockedApi.get(requestMatcher(request))).thenReturn(resp);
     }
 
 

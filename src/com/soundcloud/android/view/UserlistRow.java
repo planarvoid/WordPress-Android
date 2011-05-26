@@ -60,10 +60,6 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public ImageView getRowIcon() {
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
-            mIcon.getLayoutParams().height = 67;
-        }
         return mIcon;
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
     <ViewStub
@@ -13,4 +13,4 @@
 	<FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/row_holder" >
     	<include layout="@layout/user_list_item_common" />
     </FrameLayout>
-</FrameLayout>
+</merge>

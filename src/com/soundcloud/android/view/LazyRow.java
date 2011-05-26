@@ -2,22 +2,21 @@
 package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
-public class LazyRow extends RelativeLayout {
+public class LazyRow extends FrameLayout {
     protected ScActivity mActivity;
 
     protected LazyBaseAdapter mAdapter;
@@ -40,6 +39,12 @@ public class LazyRow extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) mActivity
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
+        mIcon = (ImageView) findViewById(R.id.icon);
+
+        if (getContext().getResources().getDisplayMetrics().density > 1) {
+            mIcon.getLayoutParams().width = 67;
+            mIcon.getLayoutParams().height = 67;
+        }
     }
 
     protected int getRowResourceId() {
@@ -77,17 +82,14 @@ public class LazyRow extends RelativeLayout {
 
         if (TextUtils.isEmpty(getIconRemoteUri())){
             mImageLoader.unbind(getRowIcon());
-            setTemporaryDrawable(BindResult.ERROR);
+            mIcon.setImageDrawable(null);
             return;
         }
 
-        BindResult result = BindResult.ERROR;
-
-        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri()))
-            result = mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
-        else
+        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri())){
+            mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
+        } else
             mImageLoader.unbind(getRowIcon());
-        setTemporaryDrawable(result);
     }
 
     protected void initSubmenu() {
@@ -99,8 +101,6 @@ public class LazyRow extends RelativeLayout {
     protected void onNoSubmenu() {
     }
 
-
-
     public ImageView getRowIcon() {
         return null;
     }
@@ -108,25 +108,4 @@ public class LazyRow extends RelativeLayout {
     public String getIconRemoteUri() {
         return "";
     }
-
-    public void setTemporaryDrawable(BindResult result) {
-        if (mIcon == null)
-            return;
-
-        if (result != BindResult.OK)
-            mIcon.setImageDrawable(mAdapter.getDefaultIcon());
-
-
-        mIcon.getLayoutParams().width = (int) (getContext().getResources().getDisplayMetrics().density * getIconWidth());
-        mIcon.getLayoutParams().height = (int) (getContext().getResources().getDisplayMetrics().density * getIconHeight());
-    }
-
-    protected int getIconWidth() {
-        return CloudUtils.GRAPHIC_DIMENSIONS_BADGE;
-    }
-
-    protected int getIconHeight() {
-        return CloudUtils.GRAPHIC_DIMENSIONS_BADGE;
-    }
-
 }

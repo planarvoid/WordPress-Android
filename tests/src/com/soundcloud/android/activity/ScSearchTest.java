@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import com.xtremelabs.robolectric.Robolectric;
 
 @RunWith(DefaultTestRunner.class)
-public class ScSearchTests {
+public class ScSearchTest {
     @Test
     public void shouldSearch() throws Exception {
         Robolectric.pauseMainLooper();

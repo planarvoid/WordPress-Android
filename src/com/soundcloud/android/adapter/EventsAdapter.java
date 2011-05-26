@@ -96,10 +96,11 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         if (CloudUtils.isTaskFinished(mQueryTask)){
             mQueryTask = new DashboardQueryTask(mActivity.getSoundCloudApplication());
             mQueryTask.setAdapter(this);
-            mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS
-                    : Content.INCOMING_TRACKS), null,
-                    Events.ALIAS_USER_ID + "='" + mActivity.getUserId() + "' AND " + Events.ALIAS_EXCLUSIVE
-                            + " = " + (mExclusive ? "1" : "0"), null, Events.ALIAS_ID + " DESC");
+            mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS : Content.INCOMING_TRACKS),
+                    null, Events.ALIAS_USER_ID + "= ? AND " + Events.ALIAS_EXCLUSIVE + " = ?",
+                    new String[] {
+                            Long.toString(mActivity.getUserId()), (mExclusive ? "1" : "0")
+                    }, Events.ALIAS_ID + " DESC");
             mQueryTask.execute();
         } else
             mQueryTask.setAdapter(this);
@@ -112,16 +113,15 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         reset();
     }
 
-/*
     @Override
     public void reset() {
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;
         nextCursor = "";
-        addLocalEvents();
+        //addLocalEvents();
     }
-*/
+
     public void onNextEventsParam(String nextEventsHref) {
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextEventsHref),"UTF-8");
         for (NameValuePair param : params){

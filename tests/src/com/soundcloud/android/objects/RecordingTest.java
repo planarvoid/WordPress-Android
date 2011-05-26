@@ -1,7 +1,6 @@
 package com.soundcloud.android.objects;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -17,7 +16,7 @@ import java.util.List;
 
 
 @RunWith(DefaultTestRunner.class)
-public class RecordingTests {
+public class RecordingTest {
     Recording r;
 
     @Before
@@ -62,7 +61,7 @@ public class RecordingTests {
         r.prepareForUpload();
         String tags = String.valueOf(r.upload_data.get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
-        assertThat(tagList, hasItem("soundcloud:source=android-3rdparty-upload"));
+        assertThat(tagList.contains("soundcloud:source=android-3rdparty-upload"), is(true));
     }
 
     @Test

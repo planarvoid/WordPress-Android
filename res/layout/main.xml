@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
+<merge
          android:id="@+id/main"
          android:layout_width="fill_parent"
          android:layout_height="fill_parent"
@@ -41,4 +41,4 @@
                    android:layout_height="wrap_content"
                    android:layout_gravity="center"/>
     </FrameLayout>
-</FrameLayout>
+</merge>

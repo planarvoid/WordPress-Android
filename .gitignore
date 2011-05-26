@@ -6,6 +6,7 @@
 # output folders
 bin/
 gen/
+lib/
 
 # keystore
 ks/
@@ -21,10 +22,6 @@ tmp
 
 # ant
 local.properties
-
-test
-tests/classes
-tests/reports
 
 lib-proguard/out
 soundcloud_sign

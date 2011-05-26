@@ -232,7 +232,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             mArtwork = (ImageView) findViewById(R.id.artwork);
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
-            mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
+            mArtwork.setVisibility(View.INVISIBLE);
 
             ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
@@ -673,7 +673,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         intent.putExtra("userId", comment.user.id);
                         startActivity(intent);
                     }
-                });
+                }, false);
             }
         }
         //restore default sort
@@ -909,7 +909,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
                 mArtwork.setScaleType(ScaleType.CENTER_CROP);
-                mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
+                mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 // load artwork as necessary
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
@@ -927,8 +927,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                                     onArtworkSet();
                                 }
                             })) != BindResult.OK) {
-                        mArtwork.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player));
-                        mArtwork.setScaleType(ScaleType.CENTER_CROP);
+                        mArtwork.setVisibility(View.INVISIBLE);
                     }else
                         onArtworkSet();
                 }
@@ -938,6 +937,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private void onArtworkSet(){
         if (mArtwork.getWidth() == 0)
             return;
+
+        AnimUtils.runFadeInAnimationOn(this, mArtwork);
+        mArtwork.setVisibility(View.VISIBLE);
 
         Matrix m = new Matrix();
         float scale;

@@ -290,7 +290,7 @@ public class CloudCreateService extends Service {
 
         String[] columns = { Recordings.ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
         Cursor cursor = getContentResolver().query(Content.RECORDINGS,
-                columns, Recordings.AUDIO_PATH + "='" + playbackPath + "'", null, null);
+                columns, Recordings.AUDIO_PATH + "= ?",new String[]{playbackPath}, null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();

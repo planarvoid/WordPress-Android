@@ -30,7 +30,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.TabHost;
@@ -39,7 +38,7 @@ import android.widget.TabWidget;
 import java.io.IOException;
 
 public class Main extends TabActivity {
-    private ViewGroup mSplash;
+    private View mSplash;
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
@@ -51,7 +50,7 @@ public class Main extends TabActivity {
         setContentView(R.layout.main);
         final SoundCloudApplication app = getApp();
         final boolean showSplash = showSplash(state);
-        mSplash = (ViewGroup) findViewById(R.id.splash);
+        mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
 
         if (isConnected() &&
@@ -78,7 +77,7 @@ public class Main extends TabActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (checkAccountExists(getApp()) && !tabsInitialized) {
+        if (!tabsInitialized /* && /checkAccountExists(getApp() */) {
             buildTabHost(getApp());
             tabsInitialized = true;
         }

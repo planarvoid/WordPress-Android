@@ -6,15 +6,13 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.LoadFollowingsTask;
-import com.soundcloud.android.task.LoadFollowingsTask.FollowingsListener;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask;
 import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -32,6 +30,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -48,7 +47,6 @@ import java.net.ContentHandler;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 @ReportsCrashes(formKey = "dFNJa3pCWHFOYW1Nd2hTb29KVlFybFE6MQ")
@@ -61,7 +59,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static boolean DEV_MODE;
 
-    static final boolean API_PRODUCTION = false;
+    static final boolean API_PRODUCTION = true;
 
     private RecordListener mRecListener;
 
@@ -77,10 +75,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             new LruCache<String, SoftReference<Bitmap>>(256);
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
-
-    public HashMap<Long,Boolean> followingsMap;
-    public List<User> followings;
-    private LoadFollowingsTask mFollowingsTask;
 
     private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
     private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
@@ -118,13 +112,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 getAccountManager().invalidateAuthToken(
                         getString(R.string.account_type),
                         expired.access);
-
-                Token newToken = getToken(account);
-                if (!newToken.equals(expired)) {
-                    return newToken;
-                } else {
-                    return null;
+                final Account acc = getAccount();
+                if (acc != null) {
+                   Token newToken = getToken(acc);
+                    if (!newToken.equals(expired)) {
+                        return newToken;
+                    }
                 }
+                return null;
             }
 
             @Override
@@ -132,7 +127,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Log.d(TAG, "onTokenRefreshed(" + token + ")");
                 Account account = getAccount();
                 AccountManager am = getAccountManager();
-                if (account != null && token.valid() && token.starScoped()) {
+                if (account != null && token.valid() && token.defaultScoped()) {
                     am.setPassword(account, token.access);
                     am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
                     am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
@@ -156,6 +151,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
+        mCloudApi.invalidateToken();
+
         Account account = getAccount();
         if (account != null) {
             getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
@@ -175,8 +172,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             }, /*handler*/ null);
         }
-
-        mCloudApi.invalidateToken();
     }
 
     public boolean isEmailConfirmed() {
@@ -254,6 +249,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final String type = getString(R.string.account_type);
         final Account account = new Account(user.username, type);
         final AccountManager am = getAccountManager();
+
         final boolean created = am.addAccountExplicitly(account, token.access, null);
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
@@ -264,10 +260,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
         }
 
+        // disable syncing
+        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
+        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, false);
         /*
         if (Build.VERSION.SDK_INT >= 8) {
-            ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
             ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
         }
         */
@@ -335,14 +332,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private String getClientId(boolean production) {
         return getResources().getString(production ?
-                R.string.consumer_key :
-                R.string.sandbox_consumer_key);
+                R.string.client_id :
+                R.string.sandbox_client_id);
     }
 
     private String getClientSecret(boolean production) {
         return getResources().getString(production ?
-                R.string.consumer_secret :
-                R.string.sandbox_consumer_secret);
+                R.string.client_secret :
+                R.string.sandbox_client_secret);
     }
 
     private Token getToken(Account account) {
@@ -385,6 +382,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Token clientCredentials() throws IOException {
         return mCloudApi.clientCredentials();
     }
+
+    public Token clientCredentials(String scope) throws IOException {
+        return mCloudApi.clientCredentials(scope);
+    }
+
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
@@ -446,16 +448,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
-    public void requestUserFollowings(FollowingsListener listener){
-        if (CloudUtils.isTaskFinished(mFollowingsTask)){
-            mFollowingsTask = new LoadFollowingsTask(this);
-            mFollowingsTask.execute(Request.to(Endpoints.MY_FOLLOWINGS));
-        }
-        mFollowingsTask.addListener(listener);
-    }
-
     public boolean lockUpdateRecentIncoming(boolean exclusive){
         if (exclusive ? mRecentExclusiveLocked : mRecentIncomingLocked) return false;
+
         if (exclusive){
             mRecentExclusiveLocked = true;
         } else {

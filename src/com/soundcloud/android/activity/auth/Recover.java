@@ -25,7 +25,6 @@ import android.widget.TextView;
 import java.io.IOException;
 
 public class Recover extends Activity {
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -72,7 +71,7 @@ public class Recover extends Activity {
                 emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.authentication_support_email_message));
                 startActivity(Intent.createChooser(emailIntent, getString(R.string.authentication_support_email_chooser_text)));
             }
-        });
+        }, true);
 
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));

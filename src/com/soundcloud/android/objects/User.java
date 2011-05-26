@@ -81,7 +81,7 @@ public class User extends BaseObj implements Parcelable {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "='" + id + "'", null,
+        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(id)},
                 null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {

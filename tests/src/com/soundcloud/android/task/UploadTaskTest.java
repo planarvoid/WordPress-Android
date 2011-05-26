@@ -3,40 +3,30 @@ package com.soundcloud.android.task;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.RoboApiBaseTests;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Http;
-import junit.framework.Assert;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"unchecked"})
 @RunWith(DefaultTestRunner.class)
-public class UploadTaskTests extends RoboApiBaseTests {
+public class UploadTaskTest extends RoboApiBaseTests {
     UploadTask task;
 
     @Before
     public void setup() {
         super.setup();
 
-        task = new UploadTask(api);
+        task = new UploadTask(mockedApi);
     }
 
     @Test(expected = IllegalArgumentException.class)

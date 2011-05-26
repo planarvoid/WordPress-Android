@@ -13,7 +13,7 @@ import android.app.Activity;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-public class ConnectionListTests extends RoboApiBaseTests {
+public class ConnectionListTest extends RoboApiBaseTests {
 
     @Test
     public void shouldLoadConnectionsFromApi() throws Exception {
@@ -22,7 +22,7 @@ public class ConnectionListTests extends RoboApiBaseTests {
         ConnectionList list = new ConnectionList(new Activity());
         assertEquals(0, list.postToServiceIds().size());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(mockedApi);
         list.setAdapter(adapter);
         adapter.load();
 
@@ -37,7 +37,7 @@ public class ConnectionListTests extends RoboApiBaseTests {
 
         ConnectionList list = new ConnectionList(new Activity());
 
-        ConnectionList.Adapter adapter = new ConnectionList.Adapter(api);
+        ConnectionList.Adapter adapter = new ConnectionList.Adapter(mockedApi);
         list.setAdapter(adapter);
         adapter.load();
 

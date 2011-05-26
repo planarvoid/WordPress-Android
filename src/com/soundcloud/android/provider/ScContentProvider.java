@@ -1,6 +1,5 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Content_Codes;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -19,7 +18,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
 
 public class ScContentProvider extends ContentProvider {
 
@@ -122,55 +120,48 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        String table = "";
 
         switch (sUriMatcher.match(uri)) {
             case Content_Codes.TRACKS_ID:
-                qb.appendWhere(
-                        Tracks.CONCRETE_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                selection = selection + " AND " + Tracks.CONCRETE_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
             case Content_Codes.TRACKS:
-                qb.setTables(Tables.TRACKS);
+                table = Tables.TRACKS;
                 break;
             case Content_Codes.USERS_ID:
-                qb.appendWhere(
-                        Users.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                selection = selection + " AND " + Users.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
             case Content_Codes.USERS:
-                qb.setTables(Tables.USERS);
+                table = Tables.USERS;
                 break;
             case Content_Codes.RECORDINGS_ID:
-                qb.appendWhere(
-                        Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
             case Content_Codes.RECORDINGS:
-                qb.setTables(Tables.RECORDINGS);
+                table = Tables.RECORDINGS;
                 break;
             case Content_Codes.TRACK_PLAYS_ID:
-                qb.appendWhere(
-                        Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
             case Content_Codes.TRACK_PLAYS:
-                qb.setTables(Tables.TRACK_PLAYS);
+                table = Tables.TRACK_PLAYS;
                 break;
             case Content_Codes.EVENTS_ID:
-                qb.appendWhere(
-                        Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1));
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
             case Content_Codes.EVENTS:
-                qb.setTables(Tables.EVENTS);
+                table = Tables.EVENTS;
                 break;
             case Content_Codes.EXCLUSIVE_TRACKS:
             case Content_Codes.INCOMING_TRACKS:
-                qb.setTables(Views.EVENTLIST_TRACK_ROW);
+                table = Views.EVENTLIST_TRACK_ROW;
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        if (SoundCloudApplication.DEV_MODE){
-            Log.i(TAG,"++++Query: " + qb.buildQuery(projection, selection, selectionArgs, null, null, sortOrder,null));
-        }
-
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        Cursor c = db.query(table, columns, selection, selectionArgs, null, null, sortOrder);
+        //Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
