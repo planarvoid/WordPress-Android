@@ -36,8 +36,10 @@
   <string name="authentication_retrying_title">Communication error</string>
   <string name="authentication_retrying_message">There was a problem contacting Soundcloud for account access. Retrying.</string>
   <string name="authentication_failed_title">Communication error</string>
-  <string name="authentication_failed_message">Authentication failed.\nUnable to contact server. If possible, please ensure you are connected via wifi.</string>
-  <string name="authentication_failed_access_denied">You have denied access</string>
+
+
+  <string name="facebook_authentication_failed_title">Hmm, we aren\'t able to connect to Facebook right now.</string>
+  <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
 
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
@@ -78,16 +80,21 @@
 
   <string name="authentication_signup_progress_message">Making you an account</string>
 
-  <string name="authentication_signup_failure">Error signing up</string>
-  <string name="authentication_signup_failure_reason">Error signing up: %s</string>
+
+  <string name="authentication_signup_failure_title">Could not create user</string>
+  <string name="authentication_signup_error_title">Oops!</string>
+  <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
+
 
   <string name="authentication_login_progress_message">Logging you in</string>
-  <string name="authentication_login_error_password_message">We couldn\'t log you in, sure you had the right username (or email) and password?</string>
+  <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
   
   <string name="authentication_add_info_progress_message">Adding your info</string>
 
-  <string name="authentication_error_title">Authentication error</string>
-  <string name="authentication_error_no_connection_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
+  <string name="authentication_error_title">Oops!</string>
+  <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
+  <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
+  <string name="authentication_error_no_connection_message">Please check your network settings.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>

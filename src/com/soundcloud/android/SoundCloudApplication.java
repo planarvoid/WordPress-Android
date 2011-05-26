@@ -262,12 +262,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         // disable syncing
         ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
-        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, false);
-        /*
-        if (Build.VERSION.SDK_INT >= 8) {
-            ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf( 1000 * 60 * 5).longValue());
-        }
-        */
         return created;
     }
 

@@ -84,8 +84,6 @@ public class Start extends AccountAuthenticatorActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult(" + requestCode + "," + resultCode + "," + data + ")");
-
-
         if (resultCode == RESULT_OK) {
             handleActivityResult(requestCode, data);
         }

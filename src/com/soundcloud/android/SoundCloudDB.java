@@ -319,9 +319,7 @@ public class SoundCloudDB {
     }
 
     public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
-
         Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + " = ?",new String[]{Long.toString(user.id)}, null);
-
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 if (writeState == WriteState.update_only || writeState == WriteState.all)

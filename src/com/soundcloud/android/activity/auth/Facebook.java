@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,6 +22,7 @@ import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
@@ -87,11 +89,17 @@ public class Facebook extends LoginActivity {
                     if (!TextUtils.isEmpty(code) && error == null) {
                         login(code);
                     } else {
-                        final String message = "access_denied".equals(error) ?
-                                getString(R.string.authentication_failed_access_denied) :
-                                getString(R.string.authentication_failed_message);
-                        CloudUtils.showToast(Facebook.this, message);
-                        finish();
+                        new AlertDialog.Builder(Facebook.this)
+                                .setTitle(R.string.facebook_authentication_failed_title)
+                                .setMessage(R.string.facebook_authentication_failed_message)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(android.R.string.ok, new Dialog.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                })
+                                .show();
                     }
                     return true;
                 } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
@@ -117,14 +125,15 @@ public class Facebook extends LoginActivity {
     }
 
     private void showConnectionError(final String message) {
-        String error = getString(R.string.authentication_error_no_connection_message);
+        String error = getString(R.string.facebook_authentication_error_no_connection_message);
         if (!TextUtils.isEmpty(message)) {
             error += " ("+message+")";
         }
         new AlertDialog.Builder(this).
                 setMessage(error).
-                setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                setTitle(R.string.authentication_error_no_connection_title).
+                setIcon(android.R.drawable.ic_dialog_alert).
+                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();

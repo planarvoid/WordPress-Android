@@ -33,6 +33,7 @@
                   android:layout_below="@id/txt_email_address"
                   android:imeOptions="actionDone"
                   android:lines="1"
+                  android:singleLine="true"
                   android:layout_alignLeft="@id/txt_email_address"
                   android:layout_alignRight="@id/txt_email_address"
                   style="@style/txt_auth_input"/>
