@@ -9,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.FollowerAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -396,7 +395,7 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
-        adp = new FollowerAdapter(this, new ArrayList<Parcelable>(), User.class);
+        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
 
         final ScTabView followersView = new ScTabView(this, adpWrap);

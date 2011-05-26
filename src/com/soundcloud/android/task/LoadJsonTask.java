@@ -1,22 +1,18 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Request;
-
-import org.apache.http.HttpResponse;
-import org.codehaus.jackson.map.type.TypeFactory;
-
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.codehaus.jackson.map.type.TypeFactory;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, List<T>> {
     public LoadJsonTask(AndroidCloudAPI api) {
@@ -31,11 +27,9 @@ public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, 
         try {
 
             HttpResponse response = api().get(path);
-            InputStream is = response.getEntity().getContent();
-            Log.i("UserBrowser","Json returned from " + path + " : " + CloudUtils.readInputStream(is));
 
             if (response.getStatusLine().getStatusCode() == SC_OK) {
-                return api().getMapper().readValue(is,
+                return api().getMapper().readValue(response.getEntity().getContent(),
                         TypeFactory.collectionType(ArrayList.class, type));
             } else {
                 Log.w(TAG, "invalid response code " + response.getStatusLine());
