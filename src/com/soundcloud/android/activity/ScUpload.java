@@ -1,8 +1,6 @@
 package com.soundcloud.android.activity;
 
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.objects.Recording;
@@ -22,14 +20,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -409,23 +405,19 @@ public class ScUpload extends ScActivity {
 
     private void preloadLocations() {
         LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria c = new Criteria();
-        String provider = mgr.getBestProvider(c, true);
-        if (provider != null) {
-            final Location location = mgr.getLastKnownLocation(provider);
-            if (location != null) {
-                new FoursquareVenueTask() {
-                    @Override
-                    protected void onPostExecute(List<FoursquareVenue> venues) {
-                        if (venues != null && !venues.isEmpty()) {
-                            synchronized (ScUpload.this) {
-                              mLocation = location;
-                              mVenues.addAll(venues);
-                            }
+        final Location location = mgr.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (location != null) {
+            new FoursquareVenueTask() {
+                @Override
+                protected void onPostExecute(List<FoursquareVenue> venues) {
+                    if (venues != null && !venues.isEmpty()) {
+                        synchronized (ScUpload.this) {
+                          mLocation = location;
+                          mVenues.addAll(venues);
                         }
                     }
-                }.execute(location);
-            }
+                }
+            }.execute(location);
         }
     }
 
