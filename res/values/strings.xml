@@ -52,7 +52,7 @@
   <string name="authentication_terms_of_use">Terms of Use</string>
   <string name="authentication_recover_password">Recover password</string>
   <string name="authentication_recover_password_msg">Enter your e-mail address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
-  <string name="authentication_recover_password_success">Password recovery email sent.</string>
+  <string name="authentication_recover_password_success">Go check your mail! You'll receive an email with instructions on how to reset your password shortly</string>
   <string name="authentication_recover_password_failure">Password Recovery failed</string>
   <string name="authentication_recover_password_failure_reason">Password Recovery failed: %s</string>
   <string name="authentication_support">support</string>
