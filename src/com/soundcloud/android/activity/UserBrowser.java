@@ -672,13 +672,9 @@ public class UserBrowser extends ScActivity {
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 if (curr_items[item].equals(RECORDING_ITEMS[0])){
-                    Intent i = new Intent(UserBrowser.this, ScUpload.class);
-                    i.putExtra("recordingId", recording.id);
-                    startActivity(i);
+                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.getUri()));
                 }else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                    Intent i = new Intent(UserBrowser.this, ScCreate.class);
-                    i.putExtra("recordingId", recording.id);
-                    startActivity(i);
+                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.getUri()));
                 } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])){

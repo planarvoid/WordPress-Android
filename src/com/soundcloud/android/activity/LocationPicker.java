@@ -85,12 +85,12 @@ public class LocationPicker extends ListActivity {
         mProvider = getManager().getBestProvider(c, true);
 
         FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
-
         if (intent.hasExtra("venues")) {
             ArrayList<FoursquareVenue> venues =
                     intent.getParcelableArrayListExtra("venues");
 
             if (!venues.isEmpty()) adapter.setVenues(venues);
+            adapter.setLocation(mPreloadedLocation);
         } else if  (mProvider != null) {
             Log.v(TAG, "best provider: " + mProvider);
             Location loc = getManager().getLastKnownLocation(mProvider);
@@ -148,22 +148,22 @@ public class LocationPicker extends ListActivity {
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
-        private List<FoursquareVenue> venues;
-        private Location location;
+        private List<FoursquareVenue> mVenues;
+        private Location mLocation;
 
         @Override
         public int getCount() {
-            return venues == null ? 0 : venues.size();
+            return mVenues == null ? 0 : mVenues.size();
         }
 
         @Override
         public FoursquareVenue getItem(int position) {
-            return venues.get(position);
+            return mVenues.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return venues.get(position).id.hashCode();
+            return mVenues.get(position).id.hashCode();
         }
 
         @Override
@@ -208,12 +208,8 @@ public class LocationPicker extends ListActivity {
         }
 
         public void setVenues(List<FoursquareVenue> venues) {
-            this.venues = venues;
+            this.mVenues = venues;
             notifyDataSetChanged();
-        }
-
-        public Location getLocation() {
-            return location;
         }
 
         @Override
@@ -226,7 +222,7 @@ public class LocationPicker extends ListActivity {
                     return;
                 }
 
-                this.location = location;
+                this.mLocation = location;
                 new FoursquareVenueTask() {
                     @Override
                     protected void onPreExecute() {
@@ -263,6 +259,14 @@ public class LocationPicker extends ListActivity {
 
         @Override
         public void onProviderDisabled(String s) {
+        }
+
+        public Location getLocation() {
+            return mLocation;
+        }
+
+        public void setLocation(Location location) {
+            mLocation = location;
         }
     }
 }

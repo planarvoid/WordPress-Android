@@ -1,6 +1,8 @@
 package com.soundcloud.android.activity;
 
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.objects.Recording;
@@ -27,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -71,37 +74,26 @@ public class ScUpload extends ScActivity {
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
-        File uploadFile = null;
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
-            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if ("file".equals(stream.getScheme())) {
-                uploadFile = new File(stream.getPath());
-            }
-        }
-
         Cursor cursor = null;
+        Uri uri = null;
+        File uploadFile = fileFromIntent(getIntent());
         if (uploadFile != null && uploadFile.exists()) {
             // 3rd party upload, disable "record another sound button"
             findViewById(R.id.btn_cancel).setVisibility(View.GONE);
-
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
             r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
-            getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
-        } else if (intent != null && intent.hasExtra("recordingId")
-                && intent.getLongExtra("recordingId", 0) != 0) {
-            cursor = getContentResolver().query(Content.RECORDINGS, null,
-                    Recordings.ID + "='" + intent.getLongExtra("recordingId", 0) + "'", null,
-                    null);
-        } else if (intent != null && intent.hasExtra("recordingUri")) {
-            cursor = getContentResolver().query(
-                    ((Uri) intent.getParcelableExtra("recordingUri")), null, null, null, null);
+            uri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
+        } else if (getIntent() != null) {
+            uri = getIntent().getData();
         }
 
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (uri != null) {
+            cursor = getContentResolver().query(uri, null, null, null, null);
+        }
+
+        if (cursor != null && cursor.moveToFirst()) {
             mRecording = new Recording(cursor);
             uploadFile = new File(mRecording.audio_path);
             if (uploadFile.exists()) {
@@ -114,7 +106,7 @@ public class ScUpload extends ScActivity {
             errorOut("Recording not found");
         }
 
-        preloadLocations();
+        if (mLocation == null) preloadLocations();
     }
 
     @Override
@@ -362,6 +354,7 @@ public class ScUpload extends ScActivity {
         }
     }
 
+    // XXX pass Recording in
     private void mapFromRecording() {
         if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
         if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
@@ -491,5 +484,15 @@ public class ScUpload extends ScActivity {
                     }
                 }
         }
+    }
+
+    private File fileFromIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if ("file".equals(stream.getScheme())) {
+                return new File(stream.getPath());
+            }
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@
 package com.soundcloud.android.objects;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -12,6 +13,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -238,6 +240,13 @@ public class Recording extends BaseObj implements Parcelable {
                 timestamp);
     }
 
+
+    public Uri getUri() {
+        return DatabaseHelper.Content.RECORDINGS
+                .buildUpon()
+                .appendEncodedPath(String.valueOf(id))
+                .build();
+    }
 
     public String getStatus(android.content.res.Resources resources) {
         if (upload_status == 1) {
