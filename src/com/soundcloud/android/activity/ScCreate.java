@@ -660,8 +660,6 @@ public class ScCreate extends ScActivity {
     };
 
     private void checkUnsavedFiles() {
-        File file = null;
-
         String[] columns = { Recordings.ID };
         Cursor cursor;
 
@@ -673,10 +671,13 @@ public class ScCreate extends ScActivity {
                 return isRawFilename(name) || isCompressedFilename(name);
             }
         })) {
-            cursor = getContentResolver().query(Content.RECORDINGS, columns,
-                    Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
-            if ((cursor == null || cursor.getCount() == 0)
-                    && (file == null || f.lastModified() < file.lastModified())) {
+            cursor = getContentResolver().query(Content.RECORDINGS,
+                    columns,
+                    Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'",
+                    null, null);
+
+            // XXX TODO exclude currently uploading file!
+            if ((cursor == null || cursor.getCount() == 0)) {
                 Recording r = new Recording();
                 r.audio_path = f.getAbsolutePath();
                 r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
@@ -690,13 +691,11 @@ public class ScCreate extends ScActivity {
                     mp.prepare();
                     r.duration = mp.getDuration();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
-
                 mUnsavedRecordings.add(r);
             }
-            if (cursor != null)
-                cursor.close();
+            if (cursor != null) cursor.close();
         }
 
         if (mUnsavedRecordings.size() > 0){

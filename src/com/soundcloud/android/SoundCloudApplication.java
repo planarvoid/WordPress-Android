@@ -139,7 +139,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         try {
              PackageInfo info = getPackageManager().getPackageInfo(
-                     "com.soundcloud.android",
+                     getClass().getPackage().getName(),
                      PackageManager.GET_SIGNATURES);
             if (info != null && info.signatures != null) {
                 String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);

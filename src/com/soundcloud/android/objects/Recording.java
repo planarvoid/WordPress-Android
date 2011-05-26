@@ -206,7 +206,9 @@ public class Recording extends BaseObj implements Parcelable {
 
         File audio_file = new File(audio_path);
         if (audio_profile == Profile.RAW && !external_upload) {
-            upload_data.put(UploadTask.Params.OGG_FILENAME,new File(audio_file.getParentFile(), generateFilename(title,"ogg")).getAbsolutePath());
+            upload_data.put(UploadTask.Params.OGG_FILENAME,
+                    new File(audio_file.getParentFile(), generateFilename(title, "ogg")).getAbsolutePath());
+
             upload_data.put(UploadTask.Params.ENCODE, true);
         } else {
             if (!external_upload){
