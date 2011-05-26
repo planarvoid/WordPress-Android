@@ -64,7 +64,7 @@ public class Facebook extends LoginActivity {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
-                showConnectionError(error.toString());
+                showConnectionError(getString(R.string.authentication_log_in_with_facebook_ssl_error));
             }
 
             @Override
@@ -80,7 +80,6 @@ public class Facebook extends LoginActivity {
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
                 Log.d(TAG, "shouldOverride:"+url);
-
                 if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
@@ -97,10 +96,9 @@ public class Facebook extends LoginActivity {
                     return true;
                 } else if (url.startsWith("http://www.facebook.com/apps") || /* link to app */
                            url.contains("/r.php") ||    /* signup */
-                           url.contains("/reset.php")) /* password reset */
+                           url.contains("/reset.php"))  /* password reset */
                 {
-
-                    // launch external browser
+                    // launch in external browser
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
                 } else {

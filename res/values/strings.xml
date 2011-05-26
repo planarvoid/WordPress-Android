@@ -42,6 +42,7 @@
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
   <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
+  <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
