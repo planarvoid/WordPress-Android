@@ -81,7 +81,7 @@ public class RoboApiBaseTests implements Endpoints {
         }
     }
 
-    protected String slurp(String res) throws IOException {
+    protected String resource(String res) throws IOException {
         StringBuilder sb = new StringBuilder(65536);
         int n;
         byte[] buffer = new byte[8192];

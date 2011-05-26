@@ -20,7 +20,7 @@ import java.util.Arrays;
 public class AddUserInfoTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldWorkWithNullFile() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("me.json"));
+        Robolectric.addPendingHttpResponse(200, resource("me.json"));
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, (File)null));
@@ -29,7 +29,7 @@ public class AddUserInfoTaskTest extends RoboApiBaseTests {
 
     @Test
     public void shouldWorkWithNonexistentFile() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("me.json"));
+        Robolectric.addPendingHttpResponse(200, resource("me.json"));
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, new File("/tmp/bla")));
@@ -38,7 +38,7 @@ public class AddUserInfoTaskTest extends RoboApiBaseTests {
 
     @Test
     public void shouldWorkWithFile() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("me.json"));
+        Robolectric.addPendingHttpResponse(200, resource("me.json"));
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         File tmp = File.createTempFile("test", "tmp");

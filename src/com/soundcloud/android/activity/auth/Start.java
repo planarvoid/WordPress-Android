@@ -10,6 +10,7 @@ import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -111,12 +112,21 @@ public class Start extends AccountAuthenticatorActivity {
                 }
                 break;
             case RECOVER_CODE:
-                final boolean success = data != null && data.getBooleanExtra("success", false);
-                if (!success) {
-                    CloudUtils.showToast(this, "Recover failed"); // XXX wording
-                    //show recover error
-                }
+                handleRecoverResult(this, data);
                 break;
+        }
+    }
+
+    static void handleRecoverResult(Context context, Intent data) {
+        final boolean success = data.getBooleanExtra("success", false);
+        if (success) {
+            CloudUtils.showToast(context, R.string.authentication_recover_password_success);
+        } else {
+            String error = data.getStringExtra("error");
+            CloudUtils.showToast(context,
+                        error == null ?
+                        context.getString(R.string.authentication_recover_password_failure) :
+                        context.getString(R.string.authentication_recover_password_failure_reason, error));
         }
     }
 }
