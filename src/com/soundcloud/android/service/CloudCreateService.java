@@ -516,11 +516,13 @@ public class CloudCreateService extends Service {
         @Override
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             final UploadTask.Params param = params[0];
-
             try {
                 File outFile = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
-                ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE);
-                param.resizedFile = outFile;
+                if (ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
+                    param.resizedFile = outFile;
+                } else {
+                    Log.w(TAG, "did not resize image "+param.artworkFile);
+                }
                 return param;
             } catch (IOException e) {
                 Log.e(TAG, "error resizing", e);

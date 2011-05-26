@@ -165,10 +165,10 @@ public class ImageUtils {
         }
     }
 
-    public static void resizeImageFile(File inputFile, File outputFile, int width, int height)
+    public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height)
             throws IOException {
+        Log.d(TAG, "resizing "+inputFile+"=>"+outputFile);
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height);
-
         int sampleSize = options.inSampleSize;
         int degree = 0;
         ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
@@ -211,11 +211,12 @@ public class ImageUtils {
             if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
             FileOutputStream out = new FileOutputStream(outputFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-
+            final boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
             ImageUtils.clearBitmap(bitmap);
+            return success;
+        } else {
+            return false;
         }
     }
-
 }
