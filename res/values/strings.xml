@@ -68,8 +68,8 @@
 
   <string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
-  <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
-  <string name="authentication_error_password_too_short">Password is too short.</string>
+  <string name="authentication_error_password_mismatch">The password and confirmation have to match.</string>
+  <string name="authentication_error_password_too_short">Your Password must have 4 or more characters.</string>
 
   <string name="authentication_support_email_chooser_text">Send email using...</string>
   <string name="authentication_support_email_address">support@soundcloud.com</string>
@@ -78,7 +78,7 @@
 
   <string name="authentication_recover_progress_message">Requesting password reset</string>
 
-  <string name="authentication_signup_progress_message">Making you an account</string>
+  <string name="authentication_signup_progress_message">Signing you up</string>
 
 
   <string name="authentication_signup_failure_title">Could not create user</string>
