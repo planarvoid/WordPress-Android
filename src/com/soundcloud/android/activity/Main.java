@@ -227,17 +227,18 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, ScCreate.class));
         host.addTab(spec);
 
+        spec = host.newTabSpec("profile").setIndicator(
+                getString(R.string.tab_you),
+                getResources().getDrawable(R.drawable.ic_tab_you));
+        spec.setContent(new Intent(this, UserBrowser.class));
+        host.addTab(spec);
+
         spec = host.newTabSpec("search").setIndicator(
                 getString(R.string.tab_search),
                 getResources().getDrawable(R.drawable.ic_tab_search));
         spec.setContent(new Intent(this, ScSearch.class));
         host.addTab(spec);
 
-        spec = host.newTabSpec("profile").setIndicator(
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you));
-        spec.setContent(new Intent(this, UserBrowser.class));
-        host.addTab(spec);
 
         host.setCurrentTab(app.getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
