@@ -56,7 +56,8 @@ public class Main extends TabActivity {
         if (isConnected() &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
-                !app.isEmailConfirmed()) {
+                !app.isEmailConfirmed() &&
+                !justAuthenticated(getIntent())) {
             checkEmailConfirmed(app);
         } else if (showSplash) {
             new Handler().postDelayed(new Runnable() {
@@ -198,7 +199,7 @@ public class Main extends TabActivity {
                 if (intent.hasExtra(""))
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
-            } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {
+            } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after successful authentication");
             }
         }
@@ -273,6 +274,10 @@ public class Main extends TabActivity {
                 }
             });
         }
+    }
+
+    private boolean justAuthenticated(Intent intent) {
+        return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
     private boolean isConnected() {
