@@ -196,7 +196,6 @@ public class Main extends TabActivity {
                 if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
                     getApp().scrollTop = true;
                 }
-                if (intent.hasExtra(""))
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
             } else if (justAuthenticated(intent)) {
