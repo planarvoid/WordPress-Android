@@ -76,6 +76,9 @@
   <string name="authentication_support_email_subject">Login problems</string>
   <string name="authentication_support_email_message"></string>
 
+
+  <string name="email_confirmation_thanks_later"><u>Thanks, I will confirm it later</u></string>
+
   <string name="authentication_recover_progress_message">Requesting password reset</string>
 
   <string name="authentication_signup_progress_message">Signing you up</string>
