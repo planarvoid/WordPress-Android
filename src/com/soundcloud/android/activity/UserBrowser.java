@@ -102,7 +102,7 @@ public class UserBrowser extends ScActivity {
         super.onCreate(bundle);
         setContentView(R.layout.user_view);
 
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_details, null);
+        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUser = (TextView) findViewById(R.id.username);
@@ -497,6 +497,10 @@ public class UserBrowser extends ScActivity {
         setFollowingButtonText();
     }
 
+    public void setTab(int screen) {
+        mWorkspaceView.scrollToScreen(screen);
+    }
+
     private void toggleFollowing() {
         mFollow.setEnabled(false);
         mUserData.current_user_following = !mUserData.current_user_following;
@@ -652,9 +656,10 @@ public class UserBrowser extends ScActivity {
         if (_showTable) {
             mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.GONE);
         } else {
-            mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.VISIBLE);
+            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.txt_empty);
+            txtEmpty.setText(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you);
+            txtEmpty.setVisibility(View.VISIBLE);
         }
-
     }
 
     private void reloadAvatar() {

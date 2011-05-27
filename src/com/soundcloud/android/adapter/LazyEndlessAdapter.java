@@ -4,20 +4,26 @@ package com.soundcloud.android.adapter;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
 
+import android.content.Intent;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,6 +117,16 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public void setEmptyviewText() {
         if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
+
+            // does not work properly
+            /*
+            CloudUtils.clickify(((TextView)mEmptyView), "Suggested Users", new ClickSpan.OnClickListener() {
+                @Override
+                public void onClick() {
+                    mActivity.startActivity(new Intent(mActivity, Main.class).putExtra("userBrowserIndex", 5));
+                }
+            }, true);
+            */
             return;
         }
 

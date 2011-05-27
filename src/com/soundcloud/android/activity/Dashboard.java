@@ -27,7 +27,6 @@ public class Dashboard extends ScActivity {
     private ScTabView mTracklistView;
     private String mTrackingPath;
     private IntentFilter mSyncCheckFilter;
-    private boolean mExclusive;
 
     public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
 
@@ -50,7 +49,6 @@ public class Dashboard extends ScActivity {
                         CloudUtils.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
-                mExclusive = true;
                 mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
                         Event.class,
                         R.string.empty_exclusive_text,

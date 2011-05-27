@@ -192,6 +192,10 @@ public class Main extends TabActivity {
             } else if (intent.hasExtra("tabIndex")) {
                 getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
                 intent.removeExtra("tabIndex");
+            } else if (intent.hasExtra("userBrowserIndex")) {
+                // XXX kill me now
+                getTabHost().setCurrentTab(3);
+                ((UserBrowser)getCurrentActivity()).setTab(intent.getIntExtra("userBrowserIndex", 0));
             } else if (intent.hasExtra("tabTag")) {
                 if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
                     getApp().scrollTop = true;

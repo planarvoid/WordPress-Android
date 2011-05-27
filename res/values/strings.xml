@@ -58,9 +58,9 @@
   <string name="authentication_recover_password_failure">Password Recovery failed</string>
   <string name="authentication_recover_password_failure_reason">Password Recovery failed: %s</string>
   <string name="authentication_support">support</string>
-  <string name="authentication_add_info_msg">Your account got created, but maybe you want to give yourself a proper username and a nice image?</string>
+  <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to make your profile really yours.</string>
   <string name="authentication_add_info_username_hint">Your username</string>
-  <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
+  <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
   <string name="authentication_add_image">Add Image</string>
 
   <string name="authentication_add_info_error">Error adding info</string>
@@ -188,8 +188,14 @@
   <string name="commentslist_error">Unable to get comments</string>
   <string name="activitieslist_error">Unable to get activities</string>
 
-  <string name="empty_incoming_text">Your list of incoming tracks is empty.&lt;br/>&lt;br/>Find people whose tracks you like and start following them</string>
-  <string name="empty_exclusive_text">No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not record a personal shout-out and send it to someone and see if they reply?</string>
+  <string name="empty_incoming_text">
+      Your list of incoming tracks is empty, find interesting people in our Suggested Users to get all the latest sounds!
+  </string>
+
+  <string name="empty_exclusive_text">
+      No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not send an audio shout-out to your friends and see if they respond?
+  </string>
+
   <string name="empty_my_tracks_text">You don\'t have any tracks yet.&lt;br/>&lt;br/>Record and share your favorite sound or leave a voice memo for yourself.</string>
   <string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/>&lt;br/>Try searching for people or sounds that you might love.</string>
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public tracks yet.</string>
@@ -202,6 +208,9 @@
 
   <string name="info_error">Unable to get info</string>
   <string name="info_empty">No info available</string>
+
+  <string name="info_empty_you">You haven\'t added any profile info yet. Go to <a href="http://soundcloud.com/settings">SoundCloud.com/settings</a> to add more profile information.</string>
+  <string name="info_empty_other">This user hasn\'t added a profile description yet.</string>
 
   <string name="row_download_error">Error Downloading Track</string>
   <string name="row_download_status">Downloading: %d\%%%</string>
