@@ -29,8 +29,8 @@ public class Start extends AccountAuthenticatorActivity {
     private Handler mHandler = new Handler();
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.start);
 
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
@@ -61,14 +61,14 @@ public class Start extends AccountAuthenticatorActivity {
             }
         });
 
-        if (savedInstanceState == null){
+        if (bundle == null) {
             findViewById(R.id.animation_holder).setVisibility(View.INVISIBLE);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
             animation.setDuration(700);
 
             ((ViewGroup) findViewById(R.id.animation_holder)).setLayoutAnimation(
                     new LayoutAnimationController(animation, 0.25f));
-            mHandler.postDelayed(mShowAuthControls, 500);
+            mHandler.postDelayed(mShowAuthControls, 350);
         }
     }
 
