@@ -52,7 +52,7 @@ public class AddInfo extends Activity {
         final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
-        usernameField.setHint(user.username);
+        usernameField.setHint(R.string.authentication_add_info_username_hint);
 
         mArtworkImg = (ImageView) findViewById(R.id.artwork);
         final TextView artworkField = (TextView) findViewById(R.id.txt_artwork_bg);

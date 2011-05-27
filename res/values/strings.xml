@@ -59,7 +59,7 @@
   <string name="authentication_recover_password_failure_reason">Password Recovery failed: %s</string>
   <string name="authentication_support">support</string>
   <string name="authentication_add_info_msg">Your account got created, but maybe you want to give yourself a proper username and a nice image?</string>
-  <string name="authentication_add_info_username_hint">User1234</string>
+  <string name="authentication_add_info_username_hint">Your username</string>
   <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
   <string name="authentication_add_image">Add Image</string>
 
