@@ -22,6 +22,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     private long transferred;
     private CloudAPI api;
 
+    private Thread uploadThread;
+
     public static class Params {
         public static final String LOCAL_RECORDING_ID  = "local_recording_id";
         public static final String SOURCE_PATH  = "source_path";
@@ -125,8 +127,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         long totalTransfer = track.getContentLength() +
                              (artwork == null ? 0 : artwork.getContentLength());
 
-
-        final Thread uploadThread = new Thread(new Runnable() {
+        uploadThread = new Thread(new Runnable() {
             public void run() {
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
@@ -148,7 +149,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 }
             }
         });
-        uploadThread.start();
+        if (!isCancelled()) uploadThread.start();
+
 
         while (uploadThread.isAlive()) {
             publishProgress(transferred, totalTransfer);
@@ -157,8 +159,14 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {
             }
+
         }
         return isCancelled() ? param.fail() : param;
+    }
+
+    @Override
+    protected void onCancelled() {
+        if (uploadThread.isAlive()) uploadThread.interrupt();
     }
 
     @Override
