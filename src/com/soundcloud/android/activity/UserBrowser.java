@@ -384,6 +384,17 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
+
+        ScTabView suggestedView = null;
+
+        if (!isOtherUser()) {
+            adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
+            suggestedView = new ScTabView(this, adpWrap);
+            CloudUtils.createTabList(this, suggestedView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
+            CloudUtils.createTab(mTabHost, "suggested", getString(R.string.tab_suggested), null, emptyView);
+        }
+
         CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
@@ -400,6 +411,7 @@ public class UserBrowser extends ScActivity {
         mWorkspaceView.addView(detailsView);
         mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
+        if (suggestedView != null) mWorkspaceView.addView(suggestedView);
 
         mTabWidget.invalidate();
         setTabTextInfo();

@@ -404,6 +404,7 @@
   <string name="tab_users">Users</string>
   <string name="tab_followings">Following</string>
   <string name="tab_followers">Followers</string>
+  <string name="tab_suggested">Suggested</string>
   <string name="tab_downloaded">Downloaded</string>
   <string name="tab_pending_downloads">Pending Downloads</string>
 

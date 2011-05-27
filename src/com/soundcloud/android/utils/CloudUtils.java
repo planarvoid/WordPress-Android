@@ -113,6 +113,7 @@ public class CloudUtils {
         int LIST_USER_FAVORITES = 1004;
         int LIST_USER_FOLLOWINGS = 1006;
         int LIST_USER_FOLLOWERS = 1007;
+        int LIST_USER_SUGGESTED = 1008;
     }
 
     public static File getCacheDir(Context c) {
