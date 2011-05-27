@@ -56,7 +56,8 @@ public class Main extends TabActivity {
         if (isConnected() &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
-                !app.isEmailConfirmed()) {
+                !app.isEmailConfirmed() &&
+                !justAuthenticated(getIntent())) {
             checkEmailConfirmed(app);
         } else if (showSplash) {
             new Handler().postDelayed(new Runnable() {
@@ -77,12 +78,11 @@ public class Main extends TabActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!tabsInitialized /* && /checkAccountExists(getApp() */) {
+        if (!tabsInitialized && checkAccountExists(getApp())) {
             buildTabHost(getApp());
             tabsInitialized = true;
         }
     }
-
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
@@ -90,12 +90,12 @@ public class Main extends TabActivity {
 
     private boolean checkAccountExists(SoundCloudApplication app) {
         if (app.getAccount() == null) {
-            String legacyAccessToken = PreferenceManager
+            String oauth1Token = PreferenceManager
                     .getDefaultSharedPreferences(this)
                     .getString(User.DataKeys.OAUTH1_ACCESS_TOKEN, null);
 
-            if (legacyAccessToken != null) {
-                attemptTokenExchange(app, legacyAccessToken, addAccount);
+            if (oauth1Token != null) {
+                attemptTokenExchange(app, oauth1Token, addAccount);
             } else {
                 addAccount.run();
             }
@@ -110,10 +110,8 @@ public class Main extends TabActivity {
             @Override
             protected void onPostExecute(User user) {
                 if (user == null) {
-                    Log.w(TAG, "could not get user information");
                     dismissSplash();
                 } else if (user.primary_email_confirmed) {
-                    Log.v(TAG, "email confirmed");
                     app.confirmEmail();
                     dismissSplash();
                 } else {
@@ -127,6 +125,7 @@ public class Main extends TabActivity {
     private Runnable addAccount = new Runnable() {
         @Override
         public void run() {
+            dismissSplash();
             getApp().addAccount(Main.this, managerCallback);
         }
     };
@@ -135,13 +134,13 @@ public class Main extends TabActivity {
         @Override
         public void run(AccountManagerFuture<Bundle> future) {
             try {
-                // restart main activity
                 // NB: important to call future.getResult() for side effects
+                Bundle result = future.getResult();
+                // restart main activity
                 startActivity(new Intent(Main.this, Main.class)
-                        .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
+                        .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, result)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             } catch (OperationCanceledException ignored) {
-                Log.d(TAG, "operation canceled");
                 finish();
             } catch (IOException e) {
                 Log.w(TAG, e);
@@ -175,7 +174,6 @@ public class Main extends TabActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         dismissSplash();
-
         if (resultCode == RESULT_OK) {
             if (data != null && EmailConfirm.RESEND.equals(data.getAction())) {
                 // user pressed resend button
@@ -201,7 +199,7 @@ public class Main extends TabActivity {
                 if (intent.hasExtra(""))
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");
-            } else if (intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT)) {
+            } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after successful authentication");
             }
         }
@@ -230,17 +228,18 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, ScCreate.class));
         host.addTab(spec);
 
+        spec = host.newTabSpec("profile").setIndicator(
+                getString(R.string.tab_you),
+                getResources().getDrawable(R.drawable.ic_tab_you));
+        spec.setContent(new Intent(this, UserBrowser.class));
+        host.addTab(spec);
+
         spec = host.newTabSpec("search").setIndicator(
                 getString(R.string.tab_search),
                 getResources().getDrawable(R.drawable.ic_tab_search));
         spec.setContent(new Intent(this, ScSearch.class));
         host.addTab(spec);
 
-        spec = host.newTabSpec("profile").setIndicator(
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you));
-        spec.setContent(new Intent(this, UserBrowser.class));
-        host.addTab(spec);
 
         host.setCurrentTab(app.getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
@@ -277,6 +276,10 @@ public class Main extends TabActivity {
         }
     }
 
+    private boolean justAuthenticated(Intent intent) {
+        return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+    }
+
     private boolean isConnected() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =  manager.getActiveNetworkInfo();
@@ -284,12 +287,13 @@ public class Main extends TabActivity {
     }
 
     private void attemptTokenExchange(final SoundCloudApplication app,
-                                      String legacyAccessToken, final Runnable fallback) {
+                                      String oldAccessToken, final Runnable fallback) {
         new AsyncApiTask<String, Void, Token>(app) {
             @Override protected Token doInBackground(String... params) {
                 try {
                     return api().exchangeOAuth1Token(params[0]);
                 } catch (IOException e) {
+                    Log.w(TAG, "error exchanging tokens", e);
                     return null;
                 }
             }
@@ -300,6 +304,7 @@ public class Main extends TabActivity {
                          @Override
                          protected void onPostExecute(User user) {
                              if (app.addUserAccount(user, token)) {
+                                 Log.v(TAG, "successful token exchange");
                                  SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                  // remove old tokens after successful exchange
                                  PreferenceManager.getDefaultSharedPreferences(Main.this)
@@ -307,10 +312,15 @@ public class Main extends TabActivity {
                                          .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN)
                                          .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN_SECRET)
                                          .commit();
-                                 // and reload main
-                                 startActivity(new Intent(Main.this, Main.class)
-                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+
+                                 // restart main activity
+                                 Intent intent = getIntent();
+                                 overridePendingTransition(0, 0);
+                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                  finish();
+
+                                 overridePendingTransition(0, 0);
+                                 startActivity(intent);
                              } else {
                                  fallback.run();
                              }
@@ -320,6 +330,6 @@ public class Main extends TabActivity {
                     fallback.run();
                 }
             }
-        }.execute(legacyAccessToken);
+        }.execute(oldAccessToken);
     }
 }

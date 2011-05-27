@@ -20,7 +20,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -71,37 +70,26 @@ public class ScUpload extends ScActivity {
         mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
-        File uploadFile = null;
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
-            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if ("file".equals(stream.getScheme())) {
-                uploadFile = new File(stream.getPath());
-            }
-        }
-
         Cursor cursor = null;
+        Uri uri = null;
+        File uploadFile = fileFromIntent(getIntent());
         if (uploadFile != null && uploadFile.exists()) {
             // 3rd party upload, disable "record another sound button"
             findViewById(R.id.btn_cancel).setVisibility(View.GONE);
-
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
             r.user_id = getUserId();
             r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
-            getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
-        } else if (intent != null && intent.hasExtra("recordingId")
-                && intent.getLongExtra("recordingId", 0) != 0) {
-            cursor = getContentResolver().query(Content.RECORDINGS, null,
-                    Recordings.ID + "='" + intent.getLongExtra("recordingId", 0) + "'", null,
-                    null);
-        } else if (intent != null && intent.hasExtra("recordingUri")) {
-            cursor = getContentResolver().query(
-                    ((Uri) intent.getParcelableExtra("recordingUri")), null, null, null, null);
+            uri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
+        } else if (getIntent() != null) {
+            uri = getIntent().getData();
         }
 
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (uri != null) {
+            cursor = getContentResolver().query(uri, null, null, null, null);
+        }
+
+        if (cursor != null && cursor.moveToFirst()) {
             mRecording = new Recording(cursor);
             uploadFile = new File(mRecording.audio_path);
             if (uploadFile.exists()) {
@@ -114,7 +102,7 @@ public class ScUpload extends ScActivity {
             errorOut("Recording not found");
         }
 
-        preloadLocations();
+        if (mLocation == null) preloadLocations();
     }
 
     @Override
@@ -362,6 +350,7 @@ public class ScUpload extends ScActivity {
         }
     }
 
+    // XXX pass Recording in
     private void mapFromRecording() {
         if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
         if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
@@ -416,23 +405,19 @@ public class ScUpload extends ScActivity {
 
     private void preloadLocations() {
         LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria c = new Criteria();
-        String provider = mgr.getBestProvider(c, true);
-        if (provider != null) {
-            final Location location = mgr.getLastKnownLocation(provider);
-            if (location != null) {
-                new FoursquareVenueTask() {
-                    @Override
-                    protected void onPostExecute(List<FoursquareVenue> venues) {
-                        if (venues != null && !venues.isEmpty()) {
-                            synchronized (ScUpload.this) {
-                              mLocation = location;
-                              mVenues.addAll(venues);
-                            }
+        final Location location = mgr.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (location != null) {
+            new FoursquareVenueTask() {
+                @Override
+                protected void onPostExecute(List<FoursquareVenue> venues) {
+                    if (venues != null && !venues.isEmpty()) {
+                        synchronized (ScUpload.this) {
+                          mLocation = location;
+                          mVenues.addAll(venues);
                         }
                     }
-                }.execute(location);
-            }
+                }
+            }.execute(location);
         }
     }
 
@@ -491,5 +476,15 @@ public class ScUpload extends ScActivity {
                     }
                 }
         }
+    }
+
+    private File fileFromIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if ("file".equals(stream.getScheme())) {
+                return new File(stream.getPath());
+            }
+        }
+        return null;
     }
 }

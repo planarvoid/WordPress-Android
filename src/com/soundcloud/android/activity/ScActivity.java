@@ -342,7 +342,6 @@ public abstract class ScActivity extends Activity {
     }
 
     public AddCommentListener mAddCommentListener = new AddCommentListener(){
-
         @Override
         public void onCommentAdd(boolean success, Comment c) {
         }
@@ -381,8 +380,6 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-
-
     public Exception getException() {
         return mException;
     }
@@ -410,7 +407,7 @@ public abstract class ScActivity extends Activity {
 
     public void handleError() {
         if (mError != null) {
-            if (mError.toLowerCase().indexOf("unauthorized") != -1)
+            if (mError.toLowerCase().contains("unauthorized"))
                 safeShowDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
 
             mError = null;

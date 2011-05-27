@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -27,9 +28,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.LinearGradient;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -95,7 +98,9 @@ public class CloudCreateService extends Service {
 
     private MediaPlayer mPlayer;
     private File mPlaybackFile;
-    private long mPlaybackLocalId;
+
+    private Uri mPlaybackLocal;
+
     private String mPlaybackTitle;
 
     private long mUploadLocalId;
@@ -170,7 +175,7 @@ public class CloudCreateService extends Service {
     private void gotoIdleState() {
         if (!isUploading() && !isRecording() && !isPlaying()) {
             mUploadLocalId = 0;
-            mPlaybackLocalId = 0;
+            mPlaybackLocal = null;
             stopForeground(true);
         }
     }
@@ -245,7 +250,7 @@ public class CloudCreateService extends Service {
     private void onRecordError(){
         sendBroadcast(new Intent(RECORD_ERROR));
 
-        //alread in an error state, so just call these in case
+        //already in an error state, so just call these in case
         mRecorder.stop();
         mRecorder.release();
         mRecording = false;
@@ -292,9 +297,10 @@ public class CloudCreateService extends Service {
         Cursor cursor = getContentResolver().query(Content.RECORDINGS,
                 columns, Recordings.AUDIO_PATH + "= ?",new String[]{playbackPath}, null);
 
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            mPlaybackLocalId = cursor.getLong(cursor.getColumnIndex(Recordings.ID));
+        if (cursor != null && cursor.moveToFirst()) {
+            mPlaybackLocal = Content.RECORDINGS.buildUpon().appendPath(
+                    String.valueOf(cursor.getLong(cursor.getColumnIndex(Recordings.ID)))).build();
+
             mPlaybackTitle = CloudUtils.generateRecordingSharingNote(
                     cursor.getString(cursor.getColumnIndex(Recordings.WHAT_TEXT)),
                     cursor.getString(cursor.getColumnIndex(Recordings.WHERE_TEXT)),
@@ -334,7 +340,7 @@ public class CloudCreateService extends Service {
 
     private void onPlaybackComplete(){
         mPlaybackFile = null;
-        mPlaybackLocalId = 0;
+        mPlaybackLocal = null;
         nm.cancel(PLAYBACK_NOTIFY_ID);
         gotoIdleState();
     }
@@ -343,13 +349,13 @@ public class CloudCreateService extends Service {
         mPlayer.start();
 
         Intent i;
-        if (mPlaybackLocalId == 0){
+        if (mPlaybackLocal == null){
             i = (new Intent(this, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .putExtra("tabTag", "record");
         } else {
             i = (new Intent(this, ScCreate.class))
-            .putExtra("recordingId", mPlaybackLocalId)
+            .setData(mPlaybackLocal)
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .setAction(Intent.ACTION_MAIN);
@@ -510,11 +516,13 @@ public class CloudCreateService extends Service {
         @Override
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             final UploadTask.Params param = params[0];
-
             try {
                 File outFile = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
-                ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE);
-                param.resizedFile = outFile;
+                if (ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
+                    param.resizedFile = outFile;
+                } else {
+                    Log.w(TAG, "did not resize image "+param.artworkFile);
+                }
                 return param;
             } catch (IOException e) {
                 Log.e(TAG, "error resizing", e);
@@ -663,7 +671,7 @@ public class CloudCreateService extends Service {
     }
 
     public long getPlaybackLocalId() {
-        return mPlaybackLocalId;
+        return mPlaybackLocal == null ? 0 : Long.valueOf(mPlaybackLocal.getLastPathSegment());
     }
 
     public long getUploadLocalId() {

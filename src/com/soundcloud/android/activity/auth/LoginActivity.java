@@ -11,6 +11,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.acra.ErrorReporter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -65,7 +66,7 @@ public abstract class LoginActivity extends Activity {
         final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
         new AlertDialog.Builder(LoginActivity.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.authentication_error_title)
+                .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
                 .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
