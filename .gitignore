@@ -17,6 +17,9 @@ ks/
 out
 tmp
 
+#eclipse
+.classpath
+
 #vim
 *.swp
 
