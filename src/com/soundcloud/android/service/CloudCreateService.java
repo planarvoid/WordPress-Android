@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -28,7 +27,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.LinearGradient;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -466,21 +464,26 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
             if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
-
-
                 if (param.encode && param.trackFile.exists()) {
+
                     //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
                     param.encodedFile.setLastModified(param.trackFile.lastModified());
-                    // XXX always delete here?
-                    param.trackFile.delete();
+
+                    File newEncodedFile = new File(param.trackFile.getParentFile(), param.encodedFile.getName());
+                    if (param.encodedFile.renameTo(newEncodedFile)) {
+                        param.encodedFile = newEncodedFile;
+                    }
 
                     ContentValues cv = new ContentValues();
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
                     cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
+
+                 // XXX always delete here?
+                    param.trackFile.delete();
+
                     int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+param.local_recording_id, null);
                     Log.d(TAG, x+" row(s) audio path updated.");
                 }
-
 
                 mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
 
