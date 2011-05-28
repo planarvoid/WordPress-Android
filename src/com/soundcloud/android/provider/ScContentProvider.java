@@ -221,6 +221,7 @@ public class ScContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, Tables.TRACKS, Content_Codes.TRACKS);
         sUriMatcher.addURI(AUTHORITY, Tables.USERS, Content_Codes.USERS);
         sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS, Content_Codes.RECORDINGS);
+        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS);
         sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS, Content_Codes.TRACK_PLAYS);
         sUriMatcher.addURI(AUTHORITY, Tables.EVENTS, Content_Codes.EVENTS);
 
