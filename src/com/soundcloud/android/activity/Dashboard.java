@@ -120,7 +120,10 @@ public class Dashboard extends ScActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return ((EventsAdapterWrapper) mTracklistView.adapter).saveState();
+        if (mTracklistView.adapter instanceof EventsAdapterWrapper){
+            return ((EventsAdapterWrapper) mTracklistView.adapter).saveState();
+        }
+        return null;
     }
 
     @Override
