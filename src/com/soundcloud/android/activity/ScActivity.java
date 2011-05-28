@@ -448,15 +448,13 @@ public abstract class ScActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (this.getParent() == null || this.getParent().getClass() != Main.class)
+        if (getParent() == null) {
             menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
-                menu.size(), R.string.menu_incoming).setIcon(
-                R.drawable.ic_menu_incoming);
-
+                menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
+        }
 
         menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(
-                R.drawable.ic_menu_player);
+                menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
 
         menuCurrentUploadingItem = menu.add(menu.size(),
                 CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
