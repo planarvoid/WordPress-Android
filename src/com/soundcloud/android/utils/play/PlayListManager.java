@@ -3,6 +3,7 @@ package com.soundcloud.android.utils.play;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
@@ -21,15 +22,10 @@ public class PlayListManager {
     private static final String TAG = "PlayListManager";
 
     private CloudPlaybackService mPlaybackService;
-
-
     private long[] mPlayList = new long[0];
+    private int mPlayPos, mPlayListLen;
 
-    private int mPlayPos = 0;
-
-    private int mPlayListLen = 0;
-
-    // used when tracks get committed to db
+    // used before tracks get committed to db
     private Track[] mPlayListCache;
 
     public PlayListManager(CloudPlaybackService service) {
@@ -120,12 +116,33 @@ public class PlayListManager {
                 mPlayList).execute(mPlayListCache);
     }
 
+    public void commitTrackToDb(final Track t) {
+        new Thread() {
+            @Override
+            public void run() {
+                synchronized(PlayListManager.this){
+                    SoundCloudDB.writeTrack(mPlaybackService.getContentResolver(), t, WriteState.all,
+                        ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId());
+                }
+            }
+        }.start();
+    }
+
     public class CommitPlaylistTask extends CommitTracksTask {
         private long[] currentPlaylist;
 
         public CommitPlaylistTask(ContentResolver contentResolver, Long long1, long[] currentPlaylist) {
-            super(contentResolver, long1);
+            super(contentResolver);
             this.currentPlaylist = currentPlaylist;
+        }
+
+        @Override
+        protected Boolean doInBackground(Track... params) {
+            Boolean ret;
+            synchronized (PlayListManager.this){
+                ret = super.doInBackground(params);
+            }
+            return ret;
         }
 
         @Override
@@ -164,6 +181,13 @@ public class PlayListManager {
 
     public void saveQueue(boolean full) {
         Editor ed = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).edit();
+        if (mPlayListCache != null){
+            // never finishing committing playlist to db, so don't remember the playlist, it might not all be stored
+            ed.remove("queue");
+            ed.commit();
+            return;
+        }
+
         long start = System.currentTimeMillis();
         if (full) {
             StringBuilder q = new StringBuilder();

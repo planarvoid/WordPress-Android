@@ -272,6 +272,19 @@ public class SoundCloudDB {
             }
     }
 
+    public static boolean isTrackInDB(ContentResolver contentResolver, long trackId) {
+        Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = ?",
+                new String[]{Long.toString(trackId)}, null);
+
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
+    }
+
     // ---Make sure the database is up to date with this track info---
     public static Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
 
