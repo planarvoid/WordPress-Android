@@ -226,12 +226,14 @@ public class ImageUtils {
         String[] filePathColumn = { MediaStore.MediaColumns.DATA };
         Cursor cursor = resolver.query(uri, filePathColumn, null, null, null);
         if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String filePath = cursor.getString(columnIndex);
-                return new File(filePath);
+            try {
+                if (cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    return new File(filePath);
+                }
             }
-            cursor.close();
+            finally { cursor.close(); }
         }
         return null;
     }
