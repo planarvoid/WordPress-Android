@@ -237,11 +237,13 @@ public class AddInfo extends Activity {
                     String[] filePathColumn = { MediaStore.MediaColumns.DATA };
                     Cursor cursor = getContentResolver().query(selectedImage,
                             filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    setImage(filePath);
+
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        cursor.close();
+                        setImage(filePath);
+                    }
                 }
                 break;
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
