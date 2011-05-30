@@ -129,10 +129,11 @@ public class ScCreate extends ScActivity {
 
     @Override
     protected void onStop() {
-        super.onStop();
-        this.unregisterReceiver(mUploadStatusListener);
         stopProgressThread();
+        this.unregisterReceiver(mUploadStatusListener);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+        super.onStop();
     }
 
     @Override

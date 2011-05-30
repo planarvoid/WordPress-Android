@@ -152,7 +152,7 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
         playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+        registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         mLists = new ArrayList<LazyListView>();
     }
@@ -162,7 +162,7 @@ public abstract class ScActivity extends Activity {
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
-        this.unregisterReceiver(mPlaybackStatusListener);
+        unregisterReceiver(mPlaybackStatusListener);
     }
 
     @Override
