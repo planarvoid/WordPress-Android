@@ -1163,10 +1163,9 @@ public class CloudPlaybackService extends Service {
 
     public String getUserName() {
         synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData.user.username;
+            if (mPlayingData != null && mPlayingData.user != null) {
+                return mPlayingData.user.username;
+            } else return null;
         }
     }
 
