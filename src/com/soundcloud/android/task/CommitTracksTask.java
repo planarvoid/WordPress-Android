@@ -39,15 +39,15 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
         List<ContentValues> usersCV = new ArrayList<ContentValues>();
         HashSet<Long> usersSet = new HashSet<Long>();
 
-        for (int i = 0; i < params.length; i++) {
-            if (params[i] != null && params[i] instanceof Track){
-                if (!SoundCloudDB.isTrackInDb(contentResolver, params[i].id)){
-                    tracksCV.add(params[i].buildContentValues());
+        for (Track param : params) {
+            if (param != null) {
+                if (!SoundCloudDB.isTrackInDb(contentResolver, param.id)) {
+                    tracksCV.add(param.buildContentValues());
                 }
-                if (!usersSet.contains(params[i].user.id)){
-                    usersSet.add(params[i].user.id);
-                    if (!SoundCloudDB.isUserInDb(contentResolver, params[i].user.id)){
-                        usersCV.add(params[i].user.buildContentValues(false));
+                if (!usersSet.contains(param.user.id)) {
+                    usersSet.add(param.user.id);
+                    if (!SoundCloudDB.isUserInDb(contentResolver, param.user.id)) {
+                        usersCV.add(param.user.buildContentValues(false));
                     }
                 }
             }
