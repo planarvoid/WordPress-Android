@@ -128,7 +128,7 @@ public class ImageUtils {
     public static boolean setImage(File imageFile, ImageView imageView, DisplayMetrics metrics) {
         Bitmap bitmap;
         try {
-            final int viewDimension = (int) metrics.density * 100;
+            final int viewDimension = (int) (metrics.density * 100f);
             BitmapFactory.Options opt = determineResizeOptions(imageFile, viewDimension, viewDimension);
 
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
