@@ -42,7 +42,7 @@ public class Main extends TabActivity {
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
-    private boolean tabsInitialized;
+    private boolean mTabsInitialized;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -52,7 +52,6 @@ public class Main extends TabActivity {
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-
         if (isConnected() &&
                 app.getAccount() != null &&
                 app.getToken().valid() &&
@@ -67,6 +66,7 @@ public class Main extends TabActivity {
                 }
             }, SPLASH_DELAY);
         }
+        buildTabHost(getApp(), getTabHost());
         handleIntent(getIntent());
     }
 
@@ -78,10 +78,7 @@ public class Main extends TabActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!tabsInitialized && checkAccountExists(getApp())) {
-            buildTabHost(getApp());
-            tabsInitialized = true;
-        }
+        checkAccountExists(getApp());
     }
 
     private SoundCloudApplication getApp() {
@@ -208,9 +205,7 @@ public class Main extends TabActivity {
         }
     }
 
-    private void buildTabHost(final SoundCloudApplication app) {
-        final TabHost host = getTabHost();
-
+    private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
         TabHost.TabSpec spec;
 
         spec = host.newTabSpec("incoming").setIndicator(
@@ -243,14 +238,13 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, ScSearch.class));
         host.addTab(spec);
 
-
-        host.setCurrentTab(app.getAccountDataInt(User.DataKeys.DASHBOARD_IDX));
+        host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
-                app.setAccountData(User.DataKeys.DASHBOARD_IDX, Integer.toString(host.getCurrentTab()));
+                app.setAccountData(User.DataKeys.DASHBOARD_IDX, tabId);
             }
         });
     }
