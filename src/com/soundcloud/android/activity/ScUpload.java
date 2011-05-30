@@ -426,15 +426,7 @@ public class ScUpload extends ScActivity {
         switch (requestCode) {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImage = result.getData();
-                    String[] filePathColumn = {MediaStore.MediaColumns.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    setImage(new File(filePath));
+                    setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
