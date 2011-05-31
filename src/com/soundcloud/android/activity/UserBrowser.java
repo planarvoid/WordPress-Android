@@ -43,7 +43,6 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -117,8 +116,8 @@ public class UserBrowser extends ScActivity {
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
-            mIcon.getLayoutParams().height = 67;
+            mIcon.getLayoutParams().width = 100;
+            mIcon.getLayoutParams().height = 100;
         }
 
         mIcon.setOnClickListener(new View.OnClickListener() {
@@ -666,7 +665,7 @@ public class UserBrowser extends ScActivity {
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(_iconURL)) {
             if ((avatarResult = ImageLoader.get(this).bind(mIcon, _iconURL, null)) != BindResult.OK) {
-                mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
+                mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
             }
         }
     }
