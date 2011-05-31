@@ -126,12 +126,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
-        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-
-
         mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
         mTrackTouchBar.setOnTouchListener(this);
 
+        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         if (mPlayerAvatarBar != null){
 
             //landscape
