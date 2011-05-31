@@ -1373,7 +1373,9 @@ public class CloudPlaybackService extends Service {
                 }
 
                 mMediaPlayer.prepareAsync();
-
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "error", e);
+                mIsInitialized = false;
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
                 mIsInitialized = false;
