@@ -159,7 +159,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
-        mWaveformController.setLandscape(mLandscape);
 
         ProgressBar mProgress = (ProgressBar) findViewById(R.id.progress_bar);
         mProgress.setMax(1000);
