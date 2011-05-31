@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
@@ -100,6 +101,10 @@ public class LazyListView extends ListView {
                 return; // bad list item clicked (possibly loading item)
 
             if (list.getAdapter().getItem(position) instanceof Track) {
+
+                if (list.getAdapter() instanceof MyTracksAdapter) {
+                    position -= ((MyTracksAdapter) list.getAdapter()).getPendingRecordingsCount();
+                }
 
                 if (mListener != null){
                     mListener.onTrackClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
