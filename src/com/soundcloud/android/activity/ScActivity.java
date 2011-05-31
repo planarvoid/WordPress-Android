@@ -152,7 +152,7 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
         playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        this.registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+        registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         mLists = new ArrayList<LazyListView>();
     }
@@ -162,7 +162,7 @@ public abstract class ScActivity extends Activity {
         super.onDestroy();
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
-        this.unregisterReceiver(mPlaybackStatusListener);
+        unregisterReceiver(mPlaybackStatusListener);
     }
 
     @Override
@@ -342,7 +342,6 @@ public abstract class ScActivity extends Activity {
     }
 
     public AddCommentListener mAddCommentListener = new AddCommentListener(){
-
         @Override
         public void onCommentAdd(boolean success, Comment c) {
         }
@@ -381,8 +380,6 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-
-
     public Exception getException() {
         return mException;
     }
@@ -410,7 +407,7 @@ public abstract class ScActivity extends Activity {
 
     public void handleError() {
         if (mError != null) {
-            if (mError.toLowerCase().indexOf("unauthorized") != -1)
+            if (mError.toLowerCase().contains("unauthorized"))
                 safeShowDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
 
             mError = null;
@@ -451,15 +448,13 @@ public abstract class ScActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (this.getParent() == null || this.getParent().getClass() != Main.class)
+        if (getParent() == null) {
             menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
-                menu.size(), R.string.menu_incoming).setIcon(
-                R.drawable.ic_menu_incoming);
-
+                menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
+        }
 
         menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(
-                R.drawable.ic_menu_player);
+                menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
 
         menuCurrentUploadingItem = menu.add(menu.size(),
                 CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),

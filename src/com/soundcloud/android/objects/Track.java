@@ -256,8 +256,10 @@ public class Track extends BaseObj implements Parcelable {
         cv.put(Tracks.STREAMABLE, streamable);
         cv.put(Tracks.SHARING, sharing);
         cv.put(Tracks.USER_ID, user_id);
-        cv.put(Tracks.USER_FAVORITE, user_favorite);
-        cv.put(Tracks.FILELENGTH, filelength);
+        // app level, only add these 2 if they have been set, otherwise they
+        // might overwrite valid db values
+        if (user_favorite) cv.put(Tracks.USER_FAVORITE, user_favorite);
+        if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);
         return cv;
     }
 

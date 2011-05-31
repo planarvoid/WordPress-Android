@@ -2,17 +2,13 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.android.task.RecoverPasswordTask;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -21,8 +17,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import java.io.IOException;
 
 public class Recover extends Activity {
     @Override
@@ -89,35 +83,11 @@ public class Recover extends Activity {
             @Override
             protected void onPostExecute(Boolean success) {
                 progressDialog.dismiss();
-                setResult(RESULT_OK, new Intent().putExtra("success", success));
+                setResult(RESULT_OK, new Intent()
+                        .putExtra("success", success)
+                        .putExtra("error", getFirstError()));
                 finish();
             }
         }.execute(email);
-    }
-
-    static class RecoverPasswordTask extends AsyncApiTask<String, Void, Boolean> {
-        public RecoverPasswordTask(AndroidCloudAPI api) {
-            super(api);
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            final String email = params[0];
-            try {
-                final Token signup = api().clientCredentials();
-                HttpResponse resp = api().post(
-                        Request.to(SEND_PASSWORD).with("email", email).usingToken(signup));
-                final int code = resp.getStatusLine().getStatusCode();
-                if (code == HttpStatus.SC_ACCEPTED  ) {
-                    return true;
-                } else {
-                    warn("unexpected status code "+code+" received");
-                    return false;
-                }
-            } catch (IOException e) {
-                warn("error requesting password reset", e);
-                return false;
-            }
-        }
     }
 }

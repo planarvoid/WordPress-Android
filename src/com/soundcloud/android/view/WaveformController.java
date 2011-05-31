@@ -16,8 +16,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
-import android.graphics.Matrix;
-import android.graphics.PointF;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -50,111 +48,54 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class WaveformController extends RelativeLayout implements OnTouchListener {
     private static final String TAG = "WaveformController";
 
-    private static final int MAX_WAVEFORM_RETRIES = 2;
-
-    private Track mPlayingTrack;
-
     private PlayerAvatarBar mPlayerAvatarBar;
-
     private RelativeLayout mPlayerCommentBar;
 
-    private List<Comment> mCurrentComments;
-
-    private List<Comment> mCurrentTopComments;
-
-    private Comment mCurrentShowingComment;
-
-    private boolean mShowingComments;
-
     private ImageView mOverlay;
-
     private ProgressBar mProgressBar;
-
     private RelativeLayout mTrackTouchBar;
-
     private WaveformHolder mWaveformHolder;
-
     private RelativeLayout mWaveformFrame;
-
     private WaveformCommentLines mCommentLines;
-
     private ImageButton mToggleComments;
 
     private ScPlayer mPlayer;
-
-    private int mDuration;
-
-    private Boolean mLandscape = false;
-
+    private Track mPlayingTrack;
+    private boolean mShowingComments, mLandscape;
+    private List<Comment> mCurrentComments, mCurrentTopComments;
+    private Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
 
-    final Handler mHandler = new Handler();
-
-    private Comment mLastAutoComment;
-
+    private Comment mAddComment, mLastAutoComment;
     private CommentBubble mCommentBubble;
-
-    private ArrayBlockingQueue<InputObject> mInputObjectPool;
-
-    private TouchThread mTouchThread;
-
-    private int INPUT_QUEUE_SIZE = 20;
-
     private Animation mBubbleAnimation;
 
-    private int mWaveformErrorCount;
+    private ArrayBlockingQueue<InputObject> mInputObjectPool;
+    private TouchThread mTouchThread;
 
-    // These matrices will be used to move and zoom image
-    Matrix matrix = new Matrix();
-
-    Matrix savedMatrix = new Matrix();
-
-    float oldDist;
-
-    PointF start = new PointF();
-
-    PointF fake = new PointF();
-
-    PointF mid = new PointF();
-
-    private int mAvatarOffsetY;
-
-    private int mCommentBarOffsetY;
-
-    private boolean mShowBubble;
-
-    private boolean mShowBubbleForceAnimation;
-
-    private Comment mAddComment;
+    private int mWaveformErrorCount, mAvatarOffsetY, mCommentBarOffsetY, mDuration;
+    private boolean mShowBubble, mShowBubbleForceAnimation;
 
     private float mSeekPercent;
 
+    private SharedPreferences mPreferences;
+    private final Handler mHandler = new Handler();
+
+    private static final int MAX_WAVEFORM_RETRIES = 2;
+    private static final int INPUT_QUEUE_SIZE = 20;
+
     private static final int UI_UPDATE_SEEK = 1;
-
     private static final int UI_SEND_SEEK = 2;
-
     private static final int UI_UPDATE_BUBBLE = 3;
-
     private static final int UI_UPDATE_BUBBLE_NEW_COMMENT = 4;
-
     private static final int UI_SHOW_CURRENT_COMMENT = 5;
-
     private static final int UI_ADD_COMMENT = 6;
-
     private static final int UI_TOGGLE_COMMENTS = 7;
-
     static final int TOUCH_MODE_NONE = 0;
-
     static final int TOUCH_MODE_SEEK_DRAG = 1;
-
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
-
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
-
     int mode = TOUCH_MODE_NONE;
-
-
-    SharedPreferences mPreferences;
 
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -185,33 +126,48 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
-        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-        mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
-        mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
-
         mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
         mTrackTouchBar.setOnTouchListener(this);
 
+        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         if (mPlayerAvatarBar != null){
+
+            //landscape
+            mLandscape = true;
+
             mPlayerAvatarBar.setOnTouchListener(this);
             mPlayerAvatarBar.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
-        }
-        if (mPlayerCommentBar != null){
+
+            mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
             mPlayerCommentBar.setOnTouchListener(this);
-            if (!mShowingComments) ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
-            mToggleComments.setImageDrawable((mShowingComments) ? mPlayer.getResources().getDrawable(R.drawable.ic_hide_comments_states) : mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
-        }
+            if (!mShowingComments){
+                ((TextView)mPlayerCommentBar.findViewById(R.id.txt_instructions))
+                        .setText(getResources().getString(R.string.player_touch_bar_disabled));
+            }
 
-        mOverlay.setVisibility(View.INVISIBLE);
-        mProgressBar.setVisibility(View.INVISIBLE);
-
-        if (mToggleComments != null)
+            mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
+            mToggleComments.setImageDrawable((mShowingComments) ? mPlayer.getResources()
+                    .getDrawable(R.drawable.ic_hide_comments_states) : mPlayer.getResources()
+                    .getDrawable(R.drawable.ic_show_comments_states));
             mToggleComments.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     toggleComments();
                 }
             });
+
+            mCommentLines = new WaveformCommentLines(mPlayer, null);
+            mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
+            mWaveformHolder.addView(mCommentLines);
+
+        } else {
+            // not landscape
+            // this will allow transparency for the progress bar
+            this.setStaticTransformationsEnabled(true);
+        }
+
+        mOverlay.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
                 R.color.white));
@@ -236,20 +192,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformHolder.hideConnectingLayout();
 
 
-    }
-
-    public void setLandscape(boolean isLandscape) {
-        mLandscape = isLandscape;
-
-        if (!mLandscape){
-            this.setStaticTransformationsEnabled(true);
-        } else {
-            if (mCommentLines == null){
-                mCommentLines = new WaveformCommentLines(mPlayer, null);
-                mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
-                mWaveformHolder.addView(mCommentLines);
-            }
-        }
     }
 
     public void setProgress(long pos) {

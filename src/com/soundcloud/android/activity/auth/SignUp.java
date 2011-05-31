@@ -11,8 +11,12 @@ import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +28,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SignUp extends Activity {
@@ -53,6 +59,8 @@ public class SignUp extends Activity {
         final EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
         final Button signupBtn = (Button) findViewById(R.id.btn_signup);
+
+        emailField.setText(suggestEmail());
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -136,9 +144,15 @@ public class SignUp extends Activity {
     }
 
     private void signupFail(String error) {
-        CloudUtils.showToast(SignUp.this,
-                error == null ? getString(R.string.authentication_signup_failure) :
-                        getString(R.string.authentication_signup_failure_reason, error));
+        new AlertDialog.Builder(this)
+                .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
+                .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
     }
 
     @Override
@@ -147,6 +161,34 @@ public class SignUp extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         setResult(resultCode, data);
         finish();
+    }
+
+
+    private String suggestEmail() {
+        Map<String,Integer> counts = new HashMap<String,Integer>();
+        Account[] accounts = AccountManager.get(this).getAccounts();
+        for (Account account : accounts) {
+            if (checkEmail(account.name)) {
+                if (counts.get(account.name) == null) {
+                    counts.put(account.name, 1);
+                } else {
+                    counts.put(account.name, counts.get(account.name) + 1);
+                }
+            }
+        }
+        if (counts.isEmpty()) {
+            return null;
+        } else {
+            int max = 0;
+            String candidate = null;
+            for (Map.Entry<String,Integer> e : counts.entrySet()) {
+                if (e.getValue() > max) {
+                    max = e.getValue();
+                    candidate = e.getKey();
+                }
+            }
+            return candidate;
+        }
     }
 
     static boolean checkEmail(CharSequence email) {

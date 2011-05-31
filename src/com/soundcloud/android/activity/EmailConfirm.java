@@ -40,6 +40,7 @@ public class EmailConfirm extends Activity  {
         } else {
             setContentView(R.layout.email_confirmation);
             findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
+                @SuppressWarnings({"unchecked"})
                 @Override
                 public void onClick(View v) {
                     setResult(RESULT_OK, new Intent(RESEND));
@@ -49,7 +50,7 @@ public class EmailConfirm extends Activity  {
             });
 
             ((TextView) findViewById(R.id.txt_email_confirm_no_thanks)).setText(
-                Html.fromHtml("<u>Thanks, I will confirm it later</u>")
+                Html.fromHtml(getString(R.string.email_confirmation_thanks_later))
             );
 
             findViewById(R.id.txt_email_confirm_no_thanks).setOnClickListener(new View.OnClickListener() {
@@ -74,6 +75,7 @@ public class EmailConfirm extends Activity  {
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
+
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {
         public ResendConfirmationTask(AndroidCloudAPI api) {
             super(api);

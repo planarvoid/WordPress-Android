@@ -71,11 +71,7 @@ public class Login extends LoginActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            boolean success = data.getBooleanExtra("success", false);
-            CloudUtils.showToast(this,
-                    success ?
-                        R.string.authentication_recover_password_success :
-                        R.string.authentication_recover_password_failure);
+            Start.handleRecoverResult(this, data);
         }
     }
 }

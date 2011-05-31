@@ -20,8 +20,6 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
@@ -573,28 +571,18 @@ public class CloudPlaybackService extends Service {
                         Log.w(TAG, "error deleting " + t.mCacheFile);
                 }
 
-                commitTrackToDb(t); // save info
+                mPlayListManager.commitTrackToDb(t);
 
                 // reopen current track with new data
                 openCurrent();
             } else {
                 // start checking the buffer
                 assertBufferCheck();
-                commitTrackToDb(t); // save info
+                mPlayListManager.commitTrackToDb(t);
             }
         } else if (changed && t.mCacheFile != null && t.mCacheFile.exists()) {
             if (!t.mCacheFile.delete()) Log.w(TAG, "error deleting " + t.mCacheFile);
         }
-    }
-
-    public void commitTrackToDb(final Track t) {
-        new Thread() {
-            @Override
-            public void run() {
-                SoundCloudDB.writeTrack(getContentResolver(), t, WriteState.all,
-                        ((SoundCloudApplication) getApplication()).getCurrentUserId());
-            }
-        }.start();
     }
 
     private void startNextTrack() {
@@ -618,7 +606,7 @@ public class CloudPlaybackService extends Service {
                     if (checkNetworkStatus()) {
                         prepareDownload(mPlayingData);
                     } else {
-                        commitTrackToDb(mPlayingData);
+                        mPlayListManager.commitTrackToDb(mPlayingData);
                     }
 
                     // start the buffer check, but not instantly (false)
@@ -626,7 +614,7 @@ public class CloudPlaybackService extends Service {
 
                 } else { // !stageFright
                     // commit updated track (user played update only)
-                    commitTrackToDb(mPlayingData);
+                    mPlayListManager.commitTrackToDb(mPlayingData);
                     mPlayer.setDataSourceAsync(resolveStreamUrl(mPlayingData.stream_url));
                 }
                 return;
@@ -1175,10 +1163,9 @@ public class CloudPlaybackService extends Service {
 
     public String getUserName() {
         synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData.user.username;
+            if (mPlayingData != null && mPlayingData.user != null) {
+                return mPlayingData.user.username;
+            } else return null;
         }
     }
 
@@ -1386,7 +1373,9 @@ public class CloudPlaybackService extends Service {
                 }
 
                 mMediaPlayer.prepareAsync();
-
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "error", e);
+                mIsInitialized = false;
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
                 mIsInitialized = false;

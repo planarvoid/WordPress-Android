@@ -36,12 +36,15 @@
   <string name="authentication_retrying_title">Communication error</string>
   <string name="authentication_retrying_message">There was a problem contacting Soundcloud for account access. Retrying.</string>
   <string name="authentication_failed_title">Communication error</string>
-  <string name="authentication_failed_message">Authentication failed.\nUnable to contact server. If possible, please ensure you are connected via wifi.</string>
-  <string name="authentication_failed_access_denied">You have denied access</string>
+
+
+  <string name="facebook_authentication_failed_title">Hmm, we aren\'t able to connect to Facebook right now.</string>
+  <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
 
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
   <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
+  <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
@@ -51,12 +54,13 @@
   <string name="authentication_terms_of_use">Terms of Use</string>
   <string name="authentication_recover_password">Recover password</string>
   <string name="authentication_recover_password_msg">Enter your e-mail address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
-  <string name="authentication_recover_password_success">Password recovery email sent.</string>
-  <string name="authentication_recover_password_failure">Error recovering password. Make sure you\'ve entered the correct email address.</string>
+  <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
+  <string name="authentication_recover_password_failure">Password Recovery failed</string>
+  <string name="authentication_recover_password_failure_reason">Password Recovery failed: %s</string>
   <string name="authentication_support">support</string>
-  <string name="authentication_add_info_msg">Your account got created, but maybe you want to give yourself a proper username and a nice image?</string>
-  <string name="authentication_add_info_username_hint">User1234</string>
-  <string name="authentication_add_info_add_image_msg">This image appears on your profile. Make it nice.</string>
+  <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to make your profile really yours.</string>
+  <string name="authentication_add_info_username_hint">Your username</string>
+  <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
   <string name="authentication_add_image">Add Image</string>
 
   <string name="authentication_add_info_error">Error adding info</string>
@@ -64,31 +68,36 @@
 
   <string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
-  <string name="authentication_error_password_mismatch">Passwords don\'t match.</string>
-  <string name="authentication_error_password_too_short">Password is too short.</string>
+  <string name="authentication_error_password_mismatch">The password and confirmation have to match.</string>
+  <string name="authentication_error_password_too_short">Your Password must have 4 or more characters.</string>
 
   <string name="authentication_support_email_chooser_text">Send email using...</string>
   <string name="authentication_support_email_address">support@soundcloud.com</string>
   <string name="authentication_support_email_subject">Login problems</string>
   <string name="authentication_support_email_message"></string>
 
+
+  <string name="email_confirmation_thanks_later"><u>Thanks, I will confirm it later</u></string>
+
   <string name="authentication_recover_progress_message">Requesting password reset</string>
 
-  <string name="authentication_signup_progress_message">Making you an account</string>
+  <string name="authentication_signup_progress_message">Signing you up</string>
 
-  <string name="authentication_signup_failure">Error signing up</string>
-  <string name="authentication_signup_failure_reason">Error signing up: %s</string>
+
+  <string name="authentication_signup_failure_title">Could not create user</string>
+  <string name="authentication_signup_error_title">Oops!</string>
+  <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
+
 
   <string name="authentication_login_progress_message">Logging you in</string>
-  <string name="authentication_login_error_password_message">We couldn\'t log you in, sure you had the right username (or email) and password?</string>
+  <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
   
   <string name="authentication_add_info_progress_message">Adding your info</string>
 
-  <string name="authentication_error_title">Authentication error</string>
-  <string name="authentication_error_no_connection_message">Unable to connect to SoundCloud. Please make sure you have a working data connection.</string>
-  
-  <string name="suggested_users">Suggested Users</string>
-  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
+  <string name="authentication_error_title">Oops!</string>
+  <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
+  <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
+  <string name="authentication_error_no_connection_message">Please check your network settings.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>
@@ -179,8 +188,14 @@
   <string name="commentslist_error">Unable to get comments</string>
   <string name="activitieslist_error">Unable to get activities</string>
 
-  <string name="empty_incoming_text">Your list of incoming tracks is empty.&lt;br/>&lt;br/>Find people whose tracks you like and start following them</string>
-  <string name="empty_exclusive_text">No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not record a personal shout-out and send it to someone and see if they reply?</string>
+  <string name="empty_incoming_text">
+      Your list of incoming tracks is empty, find interesting people in our Suggested Users to get all the latest sounds!
+  </string>
+
+  <string name="empty_exclusive_text">
+      No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not send an audio shout-out to your friends and see if they respond?
+  </string>
+
   <string name="empty_my_tracks_text">You don\'t have any tracks yet.&lt;br/>&lt;br/>Record and share your favorite sound or leave a voice memo for yourself.</string>
   <string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/>&lt;br/>Try searching for people or sounds that you might love.</string>
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public tracks yet.</string>
@@ -193,6 +208,9 @@
 
   <string name="info_error">Unable to get info</string>
   <string name="info_empty">No info available</string>
+
+  <string name="info_empty_you">You haven\'t added any profile info yet. Go to <a href="http://soundcloud.com/settings">SoundCloud.com/settings</a> to add more profile information.</string>
+  <string name="info_empty_other">This user hasn\'t added a profile description yet.</string>
 
   <string name="row_download_error">Error Downloading Track</string>
   <string name="row_download_status">Downloading: %d\%%%</string>
@@ -397,6 +415,7 @@
   <string name="tab_users">Users</string>
   <string name="tab_followings">Following</string>
   <string name="tab_followers">Followers</string>
+  <string name="tab_suggested">Suggested</string>
   <string name="tab_downloaded">Downloaded</string>
   <string name="tab_pending_downloads">Pending Downloads</string>
 

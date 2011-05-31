@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -21,6 +22,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     private long transferred;
     private CloudAPI api;
 
+    private Thread uploadThread;
+
     public static class Params {
         public static final String LOCAL_RECORDING_ID  = "local_recording_id";
         public static final String SOURCE_PATH  = "source_path";
@@ -33,7 +36,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         public long local_recording_id;
 
-        public final File trackFile, encodedFile;
+        public final File trackFile;
+        public File encodedFile;
         public final File artworkFile;
 
         public File resizedFile;
@@ -83,7 +87,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             return !failed;
         }
 
-        public Request getRequest(Request.TransferProgressListener listener) {
+        public Request getRequest(File file, Request.TransferProgressListener listener) {
             final Request request = new Request(Endpoints.TRACKS);
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                  if (entry.getValue() instanceof Iterable) {
@@ -94,7 +98,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     request.add(entry.getKey(), entry.getValue().toString());
                  }
             }
-            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, trackFile)
+            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file)
                           .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile())
                           .setProgressListener(listener);
         }
@@ -123,13 +127,12 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         long totalTransfer = track.getContentLength() +
                              (artwork == null ? 0 : artwork.getContentLength());
 
-
-        final Thread uploadThread = new Thread(new Runnable() {
+        uploadThread = new Thread(new Runnable() {
             public void run() {
                 try {
                     Log.v(TAG, "starting upload of " + toUpload);
                     // TODO hold wifi lock during upload
-                    HttpResponse response = api.post(param.getRequest(UploadTask.this));
+                    HttpResponse response = api.post(param.getRequest(toUpload, UploadTask.this));
                     StatusLine status = response.getStatusLine();
                     if (status.getStatusCode() == HttpStatus.SC_CREATED) {
                         Log.d(TAG, "Upload successful");
@@ -146,7 +149,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 }
             }
         });
-        uploadThread.start();
+        if (!isCancelled()) uploadThread.start();
+
 
         while (uploadThread.isAlive()) {
             publishProgress(transferred, totalTransfer);
@@ -155,8 +159,14 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {
             }
+
         }
         return isCancelled() ? param.fail() : param;
+    }
+
+    @Override
+    protected void onCancelled() {
+        if (uploadThread.isAlive()) uploadThread.interrupt();
     }
 
     @Override

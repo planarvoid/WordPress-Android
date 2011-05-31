@@ -18,6 +18,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.Arrays;
 
 public class ScContentProvider extends ContentProvider {
 
@@ -121,32 +124,33 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         String table = "";
 
+        if (selection == null) selection = "1";
+        // XXX WTF
         switch (sUriMatcher.match(uri)) {
             case Content_Codes.TRACKS_ID:
-                selection = selection + " AND " + Tracks.CONCRETE_ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
+                selection = selection + " AND " + Tracks.CONCRETE_ID + " = " + uri.getLastPathSegment();
             case Content_Codes.TRACKS:
                 table = Tables.TRACKS;
                 break;
             case Content_Codes.USERS_ID:
-                selection = selection + " AND " + Users.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
+                selection = selection + " AND " + Users.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.USERS:
                 table = Tables.USERS;
                 break;
             case Content_Codes.RECORDINGS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.RECORDINGS:
                 table = Tables.RECORDINGS;
                 break;
             case Content_Codes.TRACK_PLAYS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.TRACK_PLAYS:
                 table = Tables.TRACK_PLAYS;
                 break;
             case Content_Codes.EVENTS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getPathSegments().get(uri.getPathSegments().size() - 1);
+                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.EVENTS:
                 table = Tables.EVENTS;
                 break;
@@ -154,14 +158,15 @@ public class ScContentProvider extends ContentProvider {
             case Content_Codes.INCOMING_TRACKS:
                 table = Views.EVENTLIST_TRACK_ROW;
                 break;
-
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        //Log.d(TAG, "query=("+table+","+(columns!=null? Arrays.asList(columns):null)+","+selection+","+
+        //        (selectionArgs!=null? Arrays.asList(selectionArgs) : null)+")");
+
         Cursor c = db.query(table, columns, selection, selectionArgs, null, null, sortOrder);
-        //Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -216,6 +221,7 @@ public class ScContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, Tables.TRACKS, Content_Codes.TRACKS);
         sUriMatcher.addURI(AUTHORITY, Tables.USERS, Content_Codes.USERS);
         sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS, Content_Codes.RECORDINGS);
+        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS);
         sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS, Content_Codes.TRACK_PLAYS);
         sUriMatcher.addURI(AUTHORITY, Tables.EVENTS, Content_Codes.EVENTS);
 

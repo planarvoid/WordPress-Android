@@ -20,8 +20,8 @@ import java.util.Arrays;
 public class SignupTaskTest extends RoboApiBaseTests {
     @Test
     public void shouldReturnUser() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("signup_token.json"));
-        Robolectric.addPendingHttpResponse(201, slurp("me.json"));
+        Robolectric.addPendingHttpResponse(200, resource("signup_token.json"));
+        Robolectric.addPendingHttpResponse(201, resource("me.json"));
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");
         assertThat(u, CoreMatchers.<Object>notNullValue());
@@ -30,7 +30,7 @@ public class SignupTaskTest extends RoboApiBaseTests {
 
     @Test
     public void shouldProcessErrorsDuringSignup() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("signup_token.json"));
+        Robolectric.addPendingHttpResponse(200, resource("signup_token.json"));
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}");
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");
@@ -40,7 +40,7 @@ public class SignupTaskTest extends RoboApiBaseTests {
 
     @Test
     public void shouldProcessBadErrorResponse() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("signup_token.json"));
+        Robolectric.addPendingHttpResponse(200, resource("signup_token.json"));
         Robolectric.addPendingHttpResponse(422, "ada");
         SignupTask task = new SignupTask(api);
         User u = task.doInBackground("email", "password");

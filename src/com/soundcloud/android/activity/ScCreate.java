@@ -6,6 +6,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
@@ -69,7 +70,7 @@ public class ScCreate extends ScActivity {
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
-    private long mRecordingId;
+    private Uri mRecording;
     private boolean mSampleInterrupted;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
@@ -94,9 +95,7 @@ public class ScCreate extends ScActivity {
         mCurrentState = CreateState.IDLE_RECORD;
 
         setContentView(R.layout.sc_record);
-        if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0) {
-            mRecordingId = getIntent().getLongExtra("recordingId",0);
-        }
+        mRecording = getIntent().getData();
 
         initResourceRefs();
         updateUi(false);
@@ -130,10 +129,11 @@ public class ScCreate extends ScActivity {
 
     @Override
     protected void onStop() {
-        super.onStop();
-        this.unregisterReceiver(mUploadStatusListener);
         stopProgressThread();
+        this.unregisterReceiver(mUploadStatusListener);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+        super.onStop();
     }
 
     @Override
@@ -179,10 +179,10 @@ public class ScCreate extends ScActivity {
         });
 
         ((Button) findViewById(R.id.btn_reset))
-                .setText(getString(mRecordingId == 0 ? R.string.reset : R.string.delete));
+                .setText(getString(mRecording == null ? R.string.reset : R.string.delete));
         findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecordingId == 0)
+                if (mRecording == null)
                     showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
                 else {
                     new AlertDialog.Builder(ScCreate.this)
@@ -191,8 +191,7 @@ public class ScCreate extends ScActivity {
                             .setPositiveButton(getString(R.string.btn_yes),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
-                                            getContentResolver().delete(Content.RECORDINGS,
-                                                    Recordings.ID + " = " + mRecordingId, null);
+                                            getContentResolver().delete(mRecording, null, null);
                                             finish();
                                         }
                                     })
@@ -207,7 +206,7 @@ public class ScCreate extends ScActivity {
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecordingId == 0){
+                if (mRecording == null){
 
                     Recording r = new Recording();
                     r.audio_path = mRecordFile.getAbsolutePath();
@@ -222,21 +221,15 @@ public class ScCreate extends ScActivity {
                     } catch (RemoteException ignored) {
                     }
 
-
-
                     Uri newRecordingUri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
-                    Intent i = new Intent(ScCreate.this,ScUpload.class);
-                    i.putExtra("recordingId", Long.valueOf(newRecordingUri.getPathSegments().get(newRecordingUri.getPathSegments().size()-1)));
-                    startActivity(i);
+                    startActivity(new Intent(ScCreate.this, ScUpload.class).setData(newRecordingUri));
 
-                    mRecordingId = 0;
+                    mRecording = null;
                     mRecordFile = null;
                     mCurrentState = CreateState.IDLE_RECORD;
                 } else {
-                    Intent i = new Intent(ScCreate.this, ScUpload.class);
-                    i.putExtra("recordingId", mRecordingId);
                     //start for result, because if an upload starts, finish, playback should not longer be possible
-                    startActivityForResult(i, 0);
+                    startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording), 0);
                 }
             }
         });
@@ -251,14 +244,15 @@ public class ScCreate extends ScActivity {
         super.onCreateServiceBound();
         boolean takeAction = false;
         try {
-            if (getIntent().hasExtra("recordingId") && getIntent().getLongExtra("recordingId",0) != 0){
-                String[] columns = { Recordings.ID, Recordings.AUDIO_PATH,Recordings.AUDIO_PROFILE, Recordings.DURATION };
-                Cursor cursor = getContentResolver().query(Content.RECORDINGS,
-                        columns, Recordings.ID + "= ?",new String[] {Long.toString(getIntent().getLongExtra("recordingId",0))}, null);
+            Uri uri = getIntent().getData();
+            long recordingId = 0;
+            if (uri != null) {
+                recordingId = Long.valueOf(uri.getLastPathSegment());
+                Cursor cursor = getContentResolver().query(uri,
+                        new String[]{Recordings.ID, Recordings.AUDIO_PATH, Recordings.AUDIO_PROFILE, Recordings.DURATION},
+                        null, null, null);
 
-                if (cursor != null) {
-                    cursor.moveToFirst();
-                    mRecordingId = cursor.getLong(cursor.getColumnIndex(Recordings.ID));
+                if (cursor != null && cursor.moveToFirst()) {
                     setRecordFile(new File(cursor.getString(cursor.getColumnIndex(Recordings.AUDIO_PATH))));
                     mAudioProfile = cursor.getInt(cursor.getColumnIndex(Recordings.AUDIO_PROFILE));
                     mDuration = cursor.getLong(cursor.getColumnIndex(Recordings.DURATION));
@@ -268,13 +262,12 @@ public class ScCreate extends ScActivity {
                 }
             }
 
-            Log.d(TAG, "service bound Current state " + mCurrentState + " " + mRecordingId + " " + mCreateService.getPlaybackLocalId());
-            if (mCreateService.isRecording() && mRecordingId == 0) {
+            if (mCreateService.isRecording() && mRecording == null) {
                 mCurrentState = CreateState.RECORD;
                 setRecordFile(new File(mCreateService.getRecordingPath()));
                 getSoundCloudApplication().setRecordListener(recListener);
                 setRequestedOrientation(getResources().getConfiguration().orientation);
-            } else if (mCreateService.isPlayingBack() && mRecordingId == mCreateService.getPlaybackLocalId()) {
+            } else if (mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
                 mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(new File(mCreateService.getPlaybackPath()));
                 configurePlaybackInfo();
@@ -668,8 +661,6 @@ public class ScCreate extends ScActivity {
     };
 
     private void checkUnsavedFiles() {
-        File file = null;
-
         String[] columns = { Recordings.ID };
         Cursor cursor;
 
@@ -681,10 +672,13 @@ public class ScCreate extends ScActivity {
                 return isRawFilename(name) || isCompressedFilename(name);
             }
         })) {
-            cursor = getContentResolver().query(Content.RECORDINGS, columns,
-                    Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'", null, null);
-            if ((cursor == null || cursor.getCount() == 0)
-                    && (file == null || f.lastModified() < file.lastModified())) {
+            cursor = getContentResolver().query(Content.RECORDINGS,
+                    columns,
+                    Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'",
+                    null, null);
+
+            // XXX TODO exclude currently uploading file!
+            if ((cursor == null || cursor.getCount() == 0)) {
                 Recording r = new Recording();
                 r.audio_path = f.getAbsolutePath();
                 r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
@@ -698,13 +692,11 @@ public class ScCreate extends ScActivity {
                     mp.prepare();
                     r.duration = mp.getDuration();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
-
                 mUnsavedRecordings.add(r);
             }
-            if (cursor != null)
-                cursor.close();
+            if (cursor != null) cursor.close();
         }
 
         if (mUnsavedRecordings.size() > 0){

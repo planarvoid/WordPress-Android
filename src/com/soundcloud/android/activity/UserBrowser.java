@@ -47,6 +47,7 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -107,7 +108,7 @@ public class UserBrowser extends ScActivity {
         super.onCreate(bundle);
         setContentView(R.layout.user_view);
 
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_details, null);
+        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUser = (TextView) findViewById(R.id.username);
@@ -402,6 +403,17 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
+
+        ScTabView suggestedView = null;
+
+        if (!isOtherUser()) {
+            adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
+            suggestedView = new ScTabView(this, adpWrap);
+            CloudUtils.createTabList(this, suggestedView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
+            CloudUtils.createTab(mTabHost, "suggested", getString(R.string.tab_suggested), null, emptyView);
+        }
+
         CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
@@ -418,6 +430,7 @@ public class UserBrowser extends ScActivity {
         mWorkspaceView.addView(detailsView);
         mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
+        if (suggestedView != null) mWorkspaceView.addView(suggestedView);
 
         mTabWidget.invalidate();
         setTabTextInfo();
@@ -501,6 +514,10 @@ public class UserBrowser extends ScActivity {
     public void onCheckFollowingStatus(boolean isFollowing){
         mUserData.current_user_following = isFollowing;
         setFollowingButtonText();
+    }
+
+    public void setTab(int screen) {
+        mWorkspaceView.scrollToScreen(screen);
     }
 
     private void toggleFollowing() {
@@ -675,9 +692,10 @@ public class UserBrowser extends ScActivity {
         if (_showTable) {
             mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.GONE);
         } else {
-            mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.VISIBLE);
+            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.txt_empty);
+            txtEmpty.setText(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you);
+            txtEmpty.setVisibility(View.VISIBLE);
         }
-
     }
 
     private void reloadAvatar() {
@@ -707,13 +725,9 @@ public class UserBrowser extends ScActivity {
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 if (curr_items[item].equals(RECORDING_ITEMS[0])){
-                    Intent i = new Intent(UserBrowser.this, ScUpload.class);
-                    i.putExtra("recordingId", recording.id);
-                    startActivity(i);
+                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.getUri()));
                 }else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                    Intent i = new Intent(UserBrowser.this, ScCreate.class);
-                    i.putExtra("recordingId", recording.id);
-                    startActivity(i);
+                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.getUri()));
                 } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])){

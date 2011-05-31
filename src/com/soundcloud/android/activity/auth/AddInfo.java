@@ -52,7 +52,7 @@ public class AddInfo extends Activity {
         final User user = getIntent().getParcelableExtra("user");
 
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
-        usernameField.setHint(user.username);
+        usernameField.setHint(R.string.authentication_add_info_username_hint);
 
         mArtworkImg = (ImageView) findViewById(R.id.artwork);
         final TextView artworkField = (TextView) findViewById(R.id.txt_artwork_bg);
@@ -233,15 +233,7 @@ public class AddInfo extends Activity {
         switch (requestCode) {
             case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImage = result.getData();
-                    String[] filePathColumn = { MediaStore.MediaColumns.DATA };
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    setImage(filePath);
+                    setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:

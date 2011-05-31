@@ -20,7 +20,7 @@ public class FoursquareVenueTaskTest extends RoboApiBaseTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {
-        Robolectric.addPendingHttpResponse(200, slurp("foursquare_venues.json"));
+        Robolectric.addPendingHttpResponse(200, resource("foursquare_venues.json"));
 
         FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
