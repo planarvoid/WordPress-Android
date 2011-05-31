@@ -278,6 +278,7 @@ public class SoundCloudDB {
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
+                cursor.close();
                 return true;
             }
             cursor.close();
