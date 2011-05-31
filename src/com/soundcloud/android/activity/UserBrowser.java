@@ -39,7 +39,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -729,34 +728,19 @@ public class UserBrowser extends ScActivity {
     }
 
     private String getUserTracksUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_TRACKS, mUserLoadId),getTrackOrder());
+        return String.format(Endpoints.USER_TRACKS, mUserLoadId);
     }
 
     private String getFavoritesUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FAVORITES, mUserLoadId), "favorited_at");
+        return String.format(Endpoints.USER_FAVORITES, mUserLoadId);
     }
 
     private String getFollowersUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FOLLOWERS, mUserLoadId), getUserOrder());
+        return String.format(Endpoints.USER_FOLLOWERS, mUserLoadId);
     }
 
     private String getFollowingsUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId), getUserOrder());
-    }
-
-    private String getUserOrder() {
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultUserSorting", "");
-
-    }
-
-    private String getTrackOrder() {
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultTrackSorting", "");
+        return String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId);
     }
 
     @Override
