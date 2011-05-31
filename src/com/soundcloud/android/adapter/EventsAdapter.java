@@ -8,7 +8,6 @@ import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.task.DashboardQueryTask;
 import com.soundcloud.android.task.QueryTask;
-import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EventsRow;
 import com.soundcloud.android.view.LazyRow;
@@ -26,7 +25,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventsAdapter extends TracklistAdapter implements UpdateRecentActivitiesListener {
+public class EventsAdapter extends TracklistAdapter {
 
     public static final String TAG = "EventsAdapter";
     public String nextCursor;
@@ -34,7 +33,7 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
     private boolean mExclusive;
     private QueryTask mQueryTask;
 
-    private ChangeObserver mChangeObserver;
+    private ChangeObserver  mChangeObserver;
 
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isExclusive, Class<?> model) {
         super(context, data, model);
@@ -64,10 +63,9 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         super.onPostQueryExecute();
         if (mData.size() > 0) {
             if (mExclusive){
-                mActivity.getSoundCloudApplication()
-                .requestRecentExclusive(this);
+                //mActivity.getSoundCloudApplication().requestRecentExclusive(this);
             } else {
-                mActivity.getSoundCloudApplication().requestRecentIncoming(this);
+                //mActivity.getSoundCloudApplication().requestRecentIncoming(this);
             }
 
             if (TextUtils.isEmpty(nextCursor)){
@@ -125,13 +123,6 @@ public class EventsAdapter extends TracklistAdapter implements UpdateRecentActiv
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextEventsHref),"UTF-8");
         for (NameValuePair param : params){
             if (param.getName().equalsIgnoreCase("cursor")) nextCursor = param.getValue();
-        }
-    }
-
-    @Override
-    public void onUpdate(int added) {
-        if (added > 0){
-            addLocalEvents();
         }
     }
 
