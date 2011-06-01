@@ -338,14 +338,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         try {
-            db.execSQL(DATABASE_CREATE_EVENTS);
             db.execSQL(DATABASE_CREATE_TRACKS);
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
 
             createTrackViews(db);
-            createEventViews(db);
 
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -447,15 +445,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          */
         private boolean upgradeTo6(SQLiteDatabase db) {
             try {
-                db.execSQL(DATABASE_CREATE_EVENTS);
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, DbTable.Tracks, null, null);
                 alterTableColumns(db, DbTable.Users, null, null);
-
                 createTrackViews(db);
-                createEventViews(db);
-
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
