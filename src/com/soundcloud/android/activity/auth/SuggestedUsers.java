@@ -33,7 +33,7 @@ public class SuggestedUsers extends ScActivity {
 
         mFacebookBtn = (Button)findViewById(R.id.facebook_btn);
 
-        if (!getIntent().getBooleanExtra("facebook_connected", false)) {
+        if (getIntent().getBooleanExtra("facebook_connected", false)) {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
             createList(Endpoints.SUGGESTED_USERS, R.string.empty_list);
         } else {

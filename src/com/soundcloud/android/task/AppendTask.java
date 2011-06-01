@@ -108,6 +108,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
             if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
+
             InputStream is = resp.getEntity().getContent();
 
             if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {

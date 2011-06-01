@@ -22,11 +22,13 @@ import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadFriendsTask;
 import com.soundcloud.android.task.LoadSuggestedUsersTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
@@ -63,10 +65,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserBrowser extends ScActivity {
+public class UserBrowser extends ScActivity implements ConnectionsListener {
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
+    private FriendFinderView mFriendFinderView;
 
     private TextView mUser;
     private TextView mLocation;
@@ -98,9 +101,13 @@ public class UserBrowser extends ScActivity {
 
     private ImageLoader.BindResult avatarResult;
 
+    private LoadConnectionsTask mConnectionsTask;
+    private List<Connection> mConnections;
+
     private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -152,11 +159,30 @@ public class UserBrowser extends ScActivity {
 
             mapUser((User) mPreviousState[2]);
 
+
             mCheckFollowingTask = (CheckFollowingStatusTask) mPreviousState[3];
             if (CloudUtils.isTaskFinished(mCheckFollowingTask)){
                 setFollowingButtonText();
             } else {
                 mCheckFollowingTask.setUserBrowser(this);
+            }
+
+            if (!isOtherUser()){
+                mConnectionsTask = (LoadConnectionsTask)mPreviousState[4];
+                if (mConnectionsTask == null){
+                    mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+                }
+
+                if (!CloudUtils.isTaskFinished(mConnectionsTask)){
+                    mConnectionsTask.setListener(this);
+                    if (CloudUtils.isTaskPending(mConnectionsTask)) mConnectionsTask.execute();
+                }
+
+                mConnections = (List<Connection>) mPreviousState[5];
+                if (mConnections != null){
+                    onConnections(mConnections);
+                }
+
             }
 
             build();
@@ -184,16 +210,7 @@ public class UserBrowser extends ScActivity {
         super.onResume();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
 
-        if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
-        } else if (mTabHost != null) {
-            ((ScTabView) mTabHost.getCurrentView()).onStart();
-        }
-    }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
@@ -202,6 +219,8 @@ public class UserBrowser extends ScActivity {
                 mLoadDetailsTask,
                 mUserData,
                 mCheckFollowingTask,
+                mConnectionsTask,
+                mConnections,
                 getAdapterStates()
         };
     }
@@ -244,6 +263,23 @@ public class UserBrowser extends ScActivity {
             ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
         } else {
             ((ScTabView) mTabHost.getCurrentView()).onRefresh();
+        }
+    }
+
+    @Override
+    public void onConnections(List<Connection> connections) {
+        boolean facebookConnected = false;
+        if (connections != null) {
+            for (Connection c : connections){
+                if (c.service() == Connection.Service.Facebook){
+                    facebookConnected = true;
+                    break;
+                }
+            }
+        }
+
+        if (facebookConnected){
+
         }
     }
 
@@ -424,13 +460,14 @@ public class UserBrowser extends ScActivity {
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
 
-        ScTabView suggestedView = null;
+        ScTabView mFriendFinderView = null;
 
         if (!isOtherUser()) {
             adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
             adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
-            suggestedView = new ScTabView(this, adpWrap);
-            CloudUtils.createTabList(this, suggestedView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
+
+            mFriendFinderView = new FriendFinderView(this, adpWrap);
+            CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
             CloudUtils.createTab(mTabHost, "suggested", getString(R.string.tab_suggested), null, emptyView);
         }
 
@@ -450,7 +487,7 @@ public class UserBrowser extends ScActivity {
         mWorkspaceView.addView(detailsView);
         mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
-        if (suggestedView != null) mWorkspaceView.addView(suggestedView);
+        if (mFriendFinderView != null) mWorkspaceView.addView(mFriendFinderView);
 
         mTabWidget.invalidate();
         setTabTextInfo();
@@ -593,23 +630,6 @@ public class UserBrowser extends ScActivity {
 
             mFollow.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void checkFacebookConnection(){
-        new LoadConnectionsTask(getSoundCloudApplication()) {
-            @Override
-            protected void onPreExecute() {
-            }
-
-            @Override
-            protected void onPostExecute(List<Connection> connections) {
-
-                if (connections != null) {
-                } else {
-                    // failed
-                }
-            }
-        }.execute();
     }
 
     private void mapUser(User user) {
@@ -826,4 +846,6 @@ public class UserBrowser extends ScActivity {
                 return super.onCreateDialog(which);
         }
     }
+
+
 }

@@ -1,18 +1,20 @@
 package com.soundcloud.android.task;
 
-import android.os.Parcelable;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
+
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.type.TypeFactory;
+
+import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, List<T>> {
     public LoadJsonTask(AndroidCloudAPI api) {
@@ -27,6 +29,9 @@ public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, 
         try {
 
             HttpResponse response = api().get(path);
+
+            Log.i("aaa","return:"+CloudUtils.readInputStream(response.getEntity().getContent()));
+            response = api().get(path);
 
             if (response.getStatusLine().getStatusCode() == SC_OK) {
                 return api().getMapper().readValue(response.getEntity().getContent(),

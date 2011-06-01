@@ -43,6 +43,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
@@ -269,7 +271,6 @@ public class CloudUtils {
         lv.setAdapter(adpWrap);
         listHolder.addView(lv);
         adpWrap.createListEmptyView(lv);
-
         return lv;
     }
 
@@ -293,8 +294,6 @@ public class CloudUtils {
 
         tabHost.addTab(spec);
     }
-
-
 
     public static void setTabText(TabWidget tabWidget, int index, String newText) {
         // a hacky way of setting the font of the indicator texts
@@ -632,4 +631,13 @@ public class CloudUtils {
             return false;
         }
     }
+
+    public static String readInputStream(InputStream in) throws IOException {
+        StringBuffer stream = new StringBuffer();
+        byte[] b = new byte[4096];
+        for (int n; (n = in.read(b)) != -1;) {
+        stream.append(new String(b, 0, n));
+        }
+        return stream.toString();
+        }
 }

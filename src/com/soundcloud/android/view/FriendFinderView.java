@@ -5,8 +5,15 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 
 public class FriendFinderView extends ScTabView {
 
-    public FriendFinderView(ScActivity l, LazyEndlessAdapter adpWrap) {
-        super(l, adpWrap);
+    public FriendFinderView(ScActivity activity, LazyEndlessAdapter adpWrap) {
+        super(activity, adpWrap);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (adapter instanceof LazyEndlessAdapter) {
+            ((LazyEndlessAdapter) adapter).refresh();
+        }
     }
 
 }
