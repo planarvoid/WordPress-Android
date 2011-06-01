@@ -36,7 +36,6 @@
         <activity android:name=".activity.auth.AddInfo" android:label="@string/app_name" android:configChanges="orientation" />
         <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" />
         <activity android:name=".activity.auth.Facebook" android:label="@string/app_name" android:configChanges="orientation"/>
-        <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" />
 
         <activity android:name=".activity.Connect"
             android:label="Connect"
