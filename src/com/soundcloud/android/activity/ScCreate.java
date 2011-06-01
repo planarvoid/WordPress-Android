@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
@@ -124,7 +123,7 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
 
-        checkUnsavedFiles();
+        if (mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
     }
 
     @Override
@@ -666,6 +665,7 @@ public class ScCreate extends ScActivity {
 
         MediaPlayer mp = null;
         mUnsavedRecordings = new ArrayList<Recording>();
+
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
