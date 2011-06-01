@@ -39,13 +39,13 @@ public class Start extends AccountAuthenticatorActivity {
             }
         });
 
-        this.findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
 
-        this.findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }

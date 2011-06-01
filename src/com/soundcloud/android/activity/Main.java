@@ -42,7 +42,6 @@ public class Main extends TabActivity {
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
-    private boolean mTabsInitialized;
 
     @Override
     protected void onCreate(Bundle state) {
