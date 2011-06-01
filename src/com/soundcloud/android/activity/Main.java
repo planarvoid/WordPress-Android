@@ -42,7 +42,7 @@ public class Main extends TabActivity {
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
-    private boolean mTabsInitialized;
+    private boolean mTabsInitialized = false;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -66,7 +66,7 @@ public class Main extends TabActivity {
                 }
             }, SPLASH_DELAY);
         }
-        buildTabHost(getApp(), getTabHost());
+
         handleIntent(getIntent());
     }
 
@@ -78,7 +78,10 @@ public class Main extends TabActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkAccountExists(getApp());
+        if (checkAccountExists(getApp()) && !mTabsInitialized) {
+            buildTabHost(getApp(), getTabHost());
+            mTabsInitialized = true;
+        }
     }
 
     private SoundCloudApplication getApp() {

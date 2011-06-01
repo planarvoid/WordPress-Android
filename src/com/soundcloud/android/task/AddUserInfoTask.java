@@ -35,8 +35,6 @@ public class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
 
                 updateMe.withFile(Params.User.AVATAR, file);
             }
-            Log.d(TAG, "addInfo: " + updateMe);
-
             HttpResponse resp = api().put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_OK:

@@ -10,7 +10,7 @@
                   android:layout_width="fill_parent">
         <ImageView
                 android:layout_width="67dip" android:layout_height="67dip"
-                android:src="@drawable/artwork_badge" android:id="@+id/user_icon"
+                android:src="@drawable/avatar_badge_large" android:id="@+id/user_icon"
                 android:gravity="top" />
         <RelativeLayout android:layout_width="wrap_content"
                       android:layout_weight="1" android:layout_height="wrap_content" >

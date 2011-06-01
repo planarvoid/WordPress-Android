@@ -169,7 +169,6 @@ public class ImageUtils {
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height)
             throws IOException {
-        Log.d(TAG, "resizing "+inputFile+"=>"+outputFile);
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height);
         int sampleSize = options.inSampleSize;
         int degree = 0;

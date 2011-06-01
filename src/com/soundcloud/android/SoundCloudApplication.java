@@ -7,10 +7,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.task.UpdateRecentActivitiesTask;
-import com.soundcloud.android.task.UpdateRecentActivitiesTask.UpdateRecentActivitiesListener;
 import com.soundcloud.android.utils.CloudCache;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -50,7 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ReportsCrashes(formKey = "dHhlMHo3MFR1VnVVcUdkRW5TX01IZFE6MQ")
-public class SoundCloudApplication extends Application implements AndroidCloudAPI {
+public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final String GA_TRACKING = "UA-2519404-11";
 
@@ -63,7 +60,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private RecordListener mRecListener;
 
-    private AndroidCloudAPI mCloudApi;
+    private Wrapper mCloudApi;
     private List<Parcelable> mPlaylistCache;
     private ImageLoader mImageLoader;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
@@ -75,11 +72,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             new LruCache<String, SoftReference<Bitmap>>(256);
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
-
-    private UpdateRecentActivitiesTask mUpdateRecentIncomingTask;
-    private UpdateRecentActivitiesTask mUpdateRecentExclusiveTask;
-    private boolean mRecentIncomingLocked;
-    private boolean mRecentExclusiveLocked;
 
     public boolean scrollTop;
 
@@ -106,48 +98,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 API_PRODUCTION ? Env.LIVE : Env.SANDBOX
         );
 
-        mCloudApi.setTokenListener(new TokenListener() {
-            @Override
-            public Token onTokenInvalid(Token expired) {
-                getAccountManager().invalidateAuthToken(
-                        getString(R.string.account_type),
-                        expired.access);
-                final Account acc = getAccount();
-                if (acc != null) {
-                   Token newToken = getToken(acc);
-                    if (!newToken.equals(expired)) {
-                        return newToken;
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public void onTokenRefreshed(Token token) {
-                Log.d(TAG, "onTokenRefreshed(" + token + ")");
-                Account account = getAccount();
-                AccountManager am = getAccountManager();
-                if (account != null && token.valid() && token.defaultScoped()) {
-                    am.setPassword(account, token.access);
-                    am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
-                    am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-                    am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
-                    am.setUserData(account, Token.SCOPE, token.scope);
-                }
-            }
-        });
-
-        try {
-             PackageInfo info = getPackageManager().getPackageInfo(
-                     getClass().getPackage().getName(),
-                     PackageManager.GET_SIGNATURES);
-            if (info != null && info.signatures != null) {
-                String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);
-                String currentSignature =  info.signatures[0].toCharsString();
-                Arrays.sort(debugKeys);
-                if (Arrays.binarySearch(debugKeys, currentSignature) > -1) DEV_MODE = true;
-            }
-        } catch (NameNotFoundException ignored) {}
+        mCloudApi.setTokenListener(this);
+        DEV_MODE = false; // isDevMode();
+        mCloudApi.debugRequests = DEV_MODE;
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
@@ -323,7 +276,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-
     private String getClientId(boolean production) {
         return getResources().getString(production ?
                 R.string.client_id :
@@ -380,7 +332,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Token clientCredentials(String scope) throws IOException {
         return mCloudApi.clientCredentials(scope);
     }
-
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
@@ -442,54 +393,46 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
-    public boolean lockUpdateRecentIncoming(boolean exclusive){
-        if (exclusive ? mRecentExclusiveLocked : mRecentIncomingLocked) return false;
-
-        if (exclusive){
-            mRecentExclusiveLocked = true;
-        } else {
-            mRecentIncomingLocked = true;
+    @Override
+    public Token onTokenInvalid(Token expired) {
+        getAccountManager().invalidateAuthToken(
+                getString(R.string.account_type),
+                expired.access);
+        final Account acc = getAccount();
+        if (acc != null) {
+           Token newToken = getToken(acc);
+            if (!newToken.equals(expired)) {
+                return newToken;
+            }
         }
-        return true;
+        return null;
     }
 
-    public void unlockUpdateRecentIncoming(boolean exclusive){
-        if (exclusive){
-            mRecentExclusiveLocked = false;
-        } else {
-            mRecentIncomingLocked = false;
+    @Override
+    public void onTokenRefreshed(Token token) {
+        Account account = getAccount();
+        AccountManager am = getAccountManager();
+        if (account != null && token.valid() && token.defaultScoped()) {
+            am.setPassword(account, token.access);
+            am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
+            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
+            am.setUserData(account, Token.SCOPE, token.scope);
         }
     }
 
-    public boolean requestRecentIncoming(UpdateRecentActivitiesListener listener){
-        if (CloudUtils.isTaskFinished(mUpdateRecentIncomingTask)){
-
-            // only auto request if 5 minutes have gone by since sync
-            if (mRecentIncomingLocked ||
-                    System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC) < 5*60*1000)
-                return false;
-
-            mRecentIncomingLocked = true;
-
-            mUpdateRecentIncomingTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), false);
-            mUpdateRecentIncomingTask.execute();
-        }
-        mUpdateRecentIncomingTask.addListener(listener);
-        return true;
+    private boolean isDevMode() {
+        try {
+             PackageInfo info = getPackageManager().getPackageInfo(
+                     getClass().getPackage().getName(),
+                     PackageManager.GET_SIGNATURES);
+            if (info != null && info.signatures != null) {
+                String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);
+                String currentSignature =  info.signatures[0].toCharsString();
+                Arrays.sort(debugKeys);
+                if (Arrays.binarySearch(debugKeys, currentSignature) > -1) return true;
+            }
+        } catch (NameNotFoundException ignored) {}
+        return false;
     }
-
-    public boolean requestRecentExclusive(UpdateRecentActivitiesListener listener){
-        if (CloudUtils.isTaskFinished(mUpdateRecentExclusiveTask)){
-            if (System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_EXCLUSIVE_SYNC) < 5*60*1000)
-                return false;
-
-            mRecentExclusiveLocked = true;
-
-            mUpdateRecentExclusiveTask = new UpdateRecentActivitiesTask(this, this.getContentResolver(),this.getCurrentUserId(), true);
-            mUpdateRecentExclusiveTask.execute();
-        }
-        mUpdateRecentExclusiveTask.addListener(listener);
-        return true;
-    }
-
 }

@@ -4,24 +4,20 @@ package com.soundcloud.android.adapter;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
 
-import android.content.Intent;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -463,6 +459,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         request.add("limit", getPageSize());
         request.add("offset", getPageSize() * getCurrentPage());
         if (!TextUtils.isEmpty(mQuery)) request.add("q", mQuery);
+        if (SoundCloudApplication.DEV_MODE) Log.i(getClass().getSimpleName(), request.toString());
         return request;
     }
 

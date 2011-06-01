@@ -43,9 +43,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
@@ -421,26 +418,6 @@ public class CloudUtils {
         }
 
         return "";
-
-    }
-
-    public static String buildRequestPath(String mUrl, String order) {
-        return buildRequestPath(mUrl, order, false);
-    }
-
-    public static String buildRequestPath(String mUrl, String order, boolean refresh) {
-        String refreshAppend = "";
-        if (refresh)
-            refreshAppend = "&rand=" + Math.round(10000 * Math.random());
-
-        if (order == null) {
-            if (refresh) {
-                return mUrl + "?rand=" + (10000 * Math.random());
-            } else {
-                return mUrl;
-            }
-        }
-        return String.format(mUrl + "?order=%s", URLEncoder.encode(order) + refreshAppend);
 
     }
 

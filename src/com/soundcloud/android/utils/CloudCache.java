@@ -66,16 +66,13 @@ public class CloudCache extends FileResponseCache {
             return 0;
 
         for (File aFileList : fileList) {
-            // Recursive call if it's a directory
             if (aFileList.isDirectory()) {
                 result += dirSize(aFileList);
             } else {
-                // Sum the file size in bytes
                 result += aFileList.length();
             }
         }
-        Log.i(TAG, "RETURNING " + result);
-        return result; // return the file size
+        return result;
     }
 
     private static File getCacheDir(Context context) {

@@ -102,6 +102,10 @@
   <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="authentication_error_no_connection_message">Please check your network settings.</string>
+ 
+  <string name="suggested_users">Suggested Users</string>
+  <string name="friends_from_facebook">Friends from Facebook</string>
+  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>
@@ -193,18 +197,38 @@
   <string name="activitieslist_error">Unable to get activities</string>
 
   <string name="empty_incoming_text">
-      Your list of incoming tracks is empty, find interesting people in our Suggested Users to get all the latest sounds!
+      Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
   </string>
 
   <string name="empty_exclusive_text">
-      No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>Why not send an audio shout-out to your friends and see if they respond?
+      No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>
+      Why not send an audio shout-out to your friends to get them to share their sounds?
   </string>
 
-  <string name="empty_my_tracks_text">You don\'t have any tracks yet.&lt;br/>&lt;br/>Record and share your favorite sound or leave a voice memo for yourself.</string>
-  <string name="empty_my_favorites_text">You don\'t have any favorites yet.&lt;br/>&lt;br/>Try searching for people or sounds that you might love.</string>
+  <string name="empty_my_tracks_text">
+      You don\'t have any tracks yet.&lt;br/>&lt;br/>
+      Why not record and share your favorite sounds?
+  </string>
+
+  <string name="empty_my_favorites_text">
+      You don\'t have any favorites yet.&lt;br/>&lt;br/>
+      Find new sounds using the Suggested Users and Search tabs.
+  </string>
+
+
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public tracks yet.</string>
   <string name="empty_user_favorites_text">%1$s hasn\'t chosen any favorites yet.</string>
-    
+  <string name="empty_my_followers_text">
+    You aren\'t being followed by anyone yet.&lt;br/>&lt;br/>
+    Why not send an audio shout-out to your friends to get them to follow you?
+  </string>
+  <string name="empty_my_followings_text">
+    You haven\'t started following anyone yet.&lt;br/>&lt;br/>
+    Find interesting sounds from our Suggested Users tab.
+  </string>
+  <string name="empty_user_followers_text">%1$s isn\'t being followed by anyone yet.</string>
+  <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
+      
   <string name="tracklist_empty">No tracks available</string>
   <string name="userlist_empty">No users available</string>
   <string name="commentslist_emopty">No comments available</string>
@@ -213,7 +237,11 @@
   <string name="info_error">Unable to get info</string>
   <string name="info_empty">No info available</string>
 
-  <string name="info_empty_you">You haven\'t added any profile info yet. Go to <a href="http://soundcloud.com/settings">SoundCloud.com/settings</a> to add more profile information.</string>
+  <string name="info_empty_you">
+      Your profile is empty. Let people know about you!
+      Go to <a href="http://soundcloud.com/settings">SoundCloud.com/settings</a> to add your profile info.
+  </string>
+
   <string name="info_empty_other">This user hasn\'t added a profile description yet.</string>
 
   <string name="row_download_error">Error Downloading Track</string>

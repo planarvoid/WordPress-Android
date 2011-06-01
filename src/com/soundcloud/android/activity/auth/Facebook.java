@@ -81,7 +81,6 @@ public class Facebook extends LoginActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                Log.d(TAG, "shouldOverride:"+url);
                 if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");

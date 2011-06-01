@@ -49,7 +49,7 @@ public class Connection implements Comparable<Connection> {
         Facebook(R.drawable.service_facebook_profile, true, false, "facebook_profile", "facebook_page"),
         Twitter(R.drawable.service_twitter, true, false, "twitter"),
         Foursquare(R.drawable.service_foursquare, true, false, "foursquare"),
-        Tumblr(R.drawable.service_tumblr, false, false, "tumblr"),
+        Tumblr(R.drawable.service_tumblr, true, false, "tumblr"),
         Myspace(R.drawable.service_myspace, true, true, "myspace"),
         Unknown(R.drawable.service_myspace, false, false, "unknown");
 

@@ -4,19 +4,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.User;
-import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -26,7 +22,6 @@ public class Dashboard extends ScActivity {
     protected LazyListView mListView;
     private ScTabView mTracklistView;
     private String mTrackingPath;
-    private IntentFilter mSyncCheckFilter;
 
     public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
 
@@ -66,43 +61,12 @@ public class Dashboard extends ScActivity {
         if (mPreviousState != null) {
             ((EventsAdapterWrapper) mTracklistView.adapter).restoreState(mPreviousState);
         }
-
-        mSyncCheckFilter = new IntentFilter();
-        mSyncCheckFilter.addAction(SYNC_CHECK_ACTION);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
         pageTrack(mTrackingPath);
-
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nm = (NotificationManager) getSoundCloudApplication().getSystemService(ns);
-
-        nm.cancel(SyncAdapterService.DASHBOARD_NOTIFICATION_ID);
-
-        getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN,"0");
-        getSoundCloudApplication().setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN,"0");
-
-        registerReceiver(mIntentReceiver, mSyncCheckFilter);
-
-        if (getSoundCloudApplication().scrollTop){
-            getSoundCloudApplication().scrollTop = false;
-            mListView.scrollTo(0, 0);
-        }
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(mIntentReceiver);
     }
 
     protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {

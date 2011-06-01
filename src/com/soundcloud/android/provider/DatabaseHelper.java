@@ -57,11 +57,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public interface Views {
-        String TRACKLIST_ROW = "view_tracklist_row";
-        String EVENTLIST_TRACK_ROW = "view_eventlist_track_row";
-    }
-
     public interface Content {
         Uri TRACKS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Tracks");
         Uri USERS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Users");
@@ -79,9 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int EVENTS = 3;
         int RECORDINGS = 4;
         int TRACK_PLAYS = 5;
-
-        int INCOMING_TRACKS = 101;
-        int EXCLUSIVE_TRACKS = 102;
 
         // id codes
         int TRACKS_ID = 1001;
@@ -338,15 +330,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         try {
-            db.execSQL(DATABASE_CREATE_EVENTS);
             db.execSQL(DATABASE_CREATE_TRACKS);
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
-
-            createTrackViews(db);
-            createEventViews(db);
-
         } catch (SQLiteException e) {
             e.printStackTrace();
         }
@@ -447,15 +434,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          */
         private boolean upgradeTo6(SQLiteDatabase db) {
             try {
-                db.execSQL(DATABASE_CREATE_EVENTS);
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, DbTable.Tracks, null, null);
                 alterTableColumns(db, DbTable.Users, null, null);
-
-                createTrackViews(db);
-                createEventViews(db);
-
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -486,58 +468,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
 
-        private static void createTrackViews(SQLiteDatabase db) {
-
-            String tracklistSelect = "SELECT "
-                + Tracks.CONCRETE_ID + " as " + Tracks.ALIAS_ID + ","
-                + Tracks.CONCRETE_TITLE +  " as " + Tracks.ALIAS_TITLE + ","
-                + Users.CONCRETE_USERNAME +  " as " + Users.ALIAS_USERNAME + ","
-                + Users.CONCRETE_ID +  " as " + Users.ALIAS_ID + ","
-                + Tracks.CONCRETE_STREAMABLE +  " as " + Tracks.ALIAS_STREAMABLE + ","
-                + Tracks.CONCRETE_STREAM_URL +  " as " + Tracks.ALIAS_STREAM_URL + ","
-                + Tracks.CONCRETE_ARTWORK_URL +  " as " + Tracks.ALIAS_ARTWORK_URL + ","
-                + Tracks.CONCRETE_SHARING +  " as " + Tracks.ALIAS_SHARING + ","
-                + Tracks.CONCRETE_CREATED_AT +  " as " + Tracks.ALIAS_CREATED_AT + ","
-                + Tracks.CONCRETE_USER_FAVORITE +  " as " + Tracks.ALIAS_USER_FAVORITE + ","
-                + Tracks.CONCRETE_DURATION +  " as " + Tracks.ALIAS_DURATION
-                + " FROM " + Tables.TRACKS
-                + " JOIN " + Tables.USERS + " ON("
-                +   Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
-                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
-                +   Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
-
-            db.execSQL("CREATE VIEW " + Views.TRACKLIST_ROW + " AS " + tracklistSelect);
-        }
-
-        private static void createEventViews(SQLiteDatabase db) {
-            String eventlistTrackSelect = "SELECT "
-                + Events.CONCRETE_ID +  " as " + Events.ALIAS_ID + ","
-                + Events.CONCRETE_USER_ID +  " as " + Events.ALIAS_USER_ID + ","
-                + Events.CONCRETE_EXCLUSIVE +  " as " + Events.ALIAS_EXCLUSIVE + ","
-                + Events.CONCRETE_NEXT_CURSOR +  " as " + Events.ALIAS_NEXT_CURSOR + ","
-                + Tracks.CONCRETE_ID + " as " + Tracks.ALIAS_ID + ","
-                + Tracks.CONCRETE_TITLE +  " as " + Tracks.ALIAS_TITLE + ","
-                + Users.CONCRETE_USERNAME +  " as " + Users.ALIAS_USERNAME + ","
-                + Users.CONCRETE_ID +  " as " + Users.ALIAS_ID + ","
-                + Tracks.CONCRETE_STREAMABLE +  " as " + Tracks.ALIAS_STREAMABLE + ","
-                + Tracks.CONCRETE_STREAM_URL +  " as " + Tracks.ALIAS_STREAM_URL + ","
-                + Tracks.CONCRETE_ARTWORK_URL +  " as " + Tracks.ALIAS_ARTWORK_URL + ","
-                + Tracks.CONCRETE_SHARING +  " as " + Tracks.ALIAS_SHARING + ","
-                + Tracks.CONCRETE_CREATED_AT +  " as " + Tracks.ALIAS_CREATED_AT + ","
-                + Tracks.CONCRETE_USER_FAVORITE +  " as " + Tracks.ALIAS_USER_FAVORITE + ","
-                + Tracks.CONCRETE_DURATION +  " as " + Tracks.ALIAS_DURATION
-                + " FROM " + Tables.EVENTS
-                + " JOIN " + Tables.TRACKS + " ON("
-                +   Events.CONCRETE_ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ")"
-                + " JOIN " + Tables.USERS + " ON("
-                +   Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
-                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
-                +   Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
-
-            Log.i(TAG,"~D~~~~~!!CCC!! " + eventlistTrackSelect);
-
-            db.execSQL("CREATE VIEW " + Views.EVENTLIST_TRACK_ROW + " AS " + eventlistTrackSelect);
-        }
 
     public static boolean isValidTable(String name) {
         return mValidTables.contains(name);

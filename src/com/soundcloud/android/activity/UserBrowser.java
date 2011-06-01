@@ -43,11 +43,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -392,12 +390,34 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
 
+        if (isOtherUser()){
+            if (mUserData != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followings_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
+            }
+        } else {
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
+        }
+
         final ScTabView followingsView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
+
+        if (isOtherUser()){
+            if (mUserData != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followers_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
+            }
+        } else {
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
+        }
 
         final ScTabView followersView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
@@ -765,34 +785,19 @@ public class UserBrowser extends ScActivity {
     }
 
     private String getUserTracksUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_TRACKS, mUserLoadId),getTrackOrder());
+        return String.format(Endpoints.USER_TRACKS, mUserLoadId);
     }
 
     private String getFavoritesUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FAVORITES, mUserLoadId), "favorited_at");
+        return String.format(Endpoints.USER_FAVORITES, mUserLoadId);
     }
 
     private String getFollowersUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FOLLOWERS, mUserLoadId), getUserOrder());
+        return String.format(Endpoints.USER_FOLLOWERS, mUserLoadId);
     }
 
     private String getFollowingsUrl() {
-        return CloudUtils.buildRequestPath(
-                String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId), getUserOrder());
-    }
-
-    private String getUserOrder() {
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultUserSorting", "");
-
-    }
-
-    private String getTrackOrder() {
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("defaultTrackSorting", "");
+        return String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId);
     }
 
     @Override

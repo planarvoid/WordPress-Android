@@ -74,7 +74,6 @@ import java.util.Random;
         Random generator = new Random(); // need to randomize seed
         os = new ogg_stream_state(generator.nextInt(256));
 
-        Log.d(TAG, "Writing header.");
         ogg_packet header = new ogg_packet();
         ogg_packet header_comm = new ogg_packet();
         ogg_packet header_code = new ogg_packet();
@@ -96,7 +95,6 @@ import java.util.Random;
                 fos.write(og.header, 0, og.header_len);
                 fos.write(og.body, 0, og.body_len);
             }
-            Log.d(TAG, "Done.\n");
 
             FileInputStream fin = new FileInputStream(inputFile);
 
@@ -106,8 +104,6 @@ import java.util.Random;
             int blocks = 0;
 
             int lastPercentReported = 0;
-
-            Log.d(TAG, "Encoding.");
 
              // skip WAV header
             if (fin.skip(44) != 44) Log.w(TAG, "invalid header");
