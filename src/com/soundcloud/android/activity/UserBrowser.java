@@ -372,7 +372,14 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
 
-        if (!isOtherUser()){
+        if (isOtherUser()){
+            if (mUserData != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followings_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
+            }
+        } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
         }
 
@@ -383,7 +390,14 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
 
-        if (!isOtherUser()){
+        if (isOtherUser()){
+            if (mUserData != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followers_text,
+                        mUserData.username == null ? getResources().getString(R.string.this_user)
+                                : mUserData.username));
+            }
+        } else {
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
         }
 

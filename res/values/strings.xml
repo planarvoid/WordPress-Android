@@ -222,6 +222,8 @@
     You haven\'t started following anyone yet.&lt;br/>&lt;br/>
     Find interesting sounds from our Suggested Users tab.
   </string>
+  <string name="empty_user_followers_text">%1$s isn\'t being followed by anyone yet.</string>
+  <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
       
   <string name="tracklist_empty">No tracks available</string>
   <string name="userlist_empty">No users available</string>
