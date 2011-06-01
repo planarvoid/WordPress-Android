@@ -214,7 +214,15 @@
 
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public tracks yet.</string>
   <string name="empty_user_favorites_text">%1$s hasn\'t chosen any favorites yet.</string>
-    
+  <string name="empty_my_followers_text">
+    You aren\'t being followed by anyone yet.&lt;br/>&lt;br/>
+    Why not send an audio shout-out to your friends to get them to follow you?
+  </string>
+  <string name="empty_my_followings_text">
+    You haven\'t started following anyone yet.&lt;br/>&lt;br/>
+    Find interesting sounds from our Suggested Users tab.
+  </string>
+      
   <string name="tracklist_empty">No tracks available</string>
   <string name="userlist_empty">No users available</string>
   <string name="commentslist_emopty">No comments available</string>
