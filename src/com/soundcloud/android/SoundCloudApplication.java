@@ -99,7 +99,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         );
 
         mCloudApi.setTokenListener(this);
-        DEV_MODE = isDevMode();
+        DEV_MODE = false; // isDevMode();
         mCloudApi.debugRequests = DEV_MODE;
     }
 
@@ -276,7 +276,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-
     private String getClientId(boolean production) {
         return getResources().getString(production ?
                 R.string.client_id :
@@ -333,7 +332,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Token clientCredentials(String scope) throws IOException {
         return mCloudApi.clientCredentials(scope);
     }
-
 
     public Token login(String username, String password) throws IOException {
         return mCloudApi.login(username, password);
@@ -395,7 +393,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
-
     @Override
     public Token onTokenInvalid(Token expired) {
         getAccountManager().invalidateAuthToken(
@@ -413,7 +410,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     @Override
     public void onTokenRefreshed(Token token) {
-        Log.d(TAG, "onTokenRefreshed(" + token + ")");
         Account account = getAccount();
         AccountManager am = getAccountManager();
         if (account != null && token.valid() && token.defaultScoped()) {
