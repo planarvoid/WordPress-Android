@@ -7,7 +7,6 @@ import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
-import com.soundcloud.android.provider.DatabaseHelper.Views;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -16,11 +15,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
-
-import java.util.Arrays;
 
 public class ScContentProvider extends ContentProvider {
 
@@ -154,10 +149,6 @@ public class ScContentProvider extends ContentProvider {
             case Content_Codes.EVENTS:
                 table = Tables.EVENTS;
                 break;
-            case Content_Codes.EXCLUSIVE_TRACKS:
-            case Content_Codes.INCOMING_TRACKS:
-                table = Views.EVENTLIST_TRACK_ROW;
-                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -224,9 +215,6 @@ public class ScContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS);
         sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS, Content_Codes.TRACK_PLAYS);
         sUriMatcher.addURI(AUTHORITY, Tables.EVENTS, Content_Codes.EVENTS);
-
-        sUriMatcher.addURI(AUTHORITY, Tables.EVENTS+"/Incoming/Tracks", Content_Codes.INCOMING_TRACKS);
-        sUriMatcher.addURI(AUTHORITY, Tables.EVENTS+"/Exclusive/Tracks", Content_Codes.EXCLUSIVE_TRACKS);
 
         sUriMatcher.addURI(AUTHORITY, Tables.TRACKS+"/#", Content_Codes.TRACKS_ID);
         sUriMatcher.addURI(AUTHORITY, Tables.USERS+"/#", Content_Codes.USERS_ID);
