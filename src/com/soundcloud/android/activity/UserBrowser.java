@@ -372,12 +372,20 @@ public class UserBrowser extends ScActivity {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
 
+        if (!isOtherUser()){
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
+        }
+
         final ScTabView followingsView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
+
+        if (!isOtherUser()){
+            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
+        }
 
         final ScTabView followersView = new ScTabView(this, adpWrap);
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
