@@ -14,6 +14,7 @@ import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.os.Build;
@@ -61,7 +62,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private ScPlayer mPlayer;
     private Track mPlayingTrack;
-    private boolean mShowingComments, mLandscape;
+    private boolean mShowingComments;
     private List<Comment> mCurrentComments, mCurrentTopComments;
     private Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
@@ -129,11 +130,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
         mTrackTouchBar.setOnTouchListener(this);
 
-        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-        if (mPlayerAvatarBar != null){
+        if (isLandscape()){
 
-            //landscape
-            mLandscape = true;
+            mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
 
             mPlayerAvatarBar.setOnTouchListener(this);
             mPlayerAvatarBar.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
@@ -180,6 +179,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mkdirs(dirFile);
     }
 
+    private boolean isLandscape(){
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
     public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
@@ -200,7 +203,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
-        if (mLandscape && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
+        if (isLandscape() && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null){
                 if (mLastAutoComment != last && pos - last.timestamp < 2000){
@@ -332,7 +335,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l,t,r,b);
 
-        if (changed && mLandscape){
+        if (changed && isLandscape()){
 
             int[] calc = new int[2];
 
