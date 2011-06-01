@@ -93,6 +93,10 @@
   <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
   
   <string name="authentication_add_info_progress_message">Adding your info</string>
+  
+  <string name="suggested_users">Suggested Users</string>
+  <string name="friends_from_facebook">Friends from Facebook</string>
+  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
 
   <string name="authentication_error_title">Oops!</string>
   <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
