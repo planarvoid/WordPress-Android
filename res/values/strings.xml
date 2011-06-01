@@ -98,6 +98,10 @@
   <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
   <string name="facebook_authentication_error_no_connection_message">Please try again shortly or log in using your SoundCloud username and password.</string>
   <string name="authentication_error_no_connection_message">Please check your network settings.</string>
+ 
+  <string name="suggested_users">Suggested Users</string>
+  <string name="friends_from_facebook">Friends from Facebook</string>
+  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>
