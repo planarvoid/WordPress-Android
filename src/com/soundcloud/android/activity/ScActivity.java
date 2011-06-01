@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.SuggestedUsers;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.Comment;
@@ -482,7 +483,7 @@ public abstract class ScActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.SETTINGS:
-                Intent intent = new Intent(this, Settings.class);
+                Intent intent = new Intent(this, SuggestedUsers.class);
                 startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.REFRESH:

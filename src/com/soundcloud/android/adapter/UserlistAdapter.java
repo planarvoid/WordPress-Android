@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
 
@@ -24,6 +25,10 @@ public class UserlistAdapter extends LazyBaseAdapter {
     @Override
     protected LazyRow createRow() {
         return new UserlistRow(mActivity, this);
+    }
+
+    public User getUserAt(int index) {
+        return (User) mData.get(index);
     }
 
 }
