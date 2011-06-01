@@ -13,7 +13,6 @@ import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
-import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -27,10 +26,6 @@ import com.soundcloud.android.view.LazyListView;
 import org.json.JSONException;
 
 import android.accounts.Account;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,7 +52,6 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -204,23 +198,6 @@ public abstract class ScActivity extends Activity {
         super.onResume();
         Account account = getSoundCloudApplication().getAccount();
         if (account == null) {
-            getSoundCloudApplication().addAccount(this, new AccountManagerCallback<Bundle>() {
-                @Override
-                public void run(AccountManagerFuture<Bundle> future) {
-                    try {
-                        // NB: important to call future.getResult() for side effects
-                        startActivity(new Intent(ScActivity.this, Main.class)
-                                .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, future.getResult())
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                    } catch (OperationCanceledException e) {
-                        Log.d(TAG, "authorisation canceled");
-                    } catch (IOException e) {
-                        Log.w(TAG, e);
-                    } catch (AuthenticatorException e) {
-                        Log.w(TAG, e);
-                    }
-                }
-            });
             finish();
         } else {
             getSoundCloudApplication().useAccount(account);
@@ -413,7 +390,6 @@ public abstract class ScActivity extends Activity {
             mError = null;
         }
     }
-
 
     protected void onDataConnectionChanged(boolean isConnected) {
         if (isConnected) {
