@@ -2,7 +2,6 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -151,8 +150,9 @@ public class ImageUtils {
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            if (getExifRotation(imageFile.getAbsolutePath()) != 0) {
-                m.postRotate(90, viewDimension / 2, viewDimension / 2);
+            int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+            if (exifRotation != 0) {
+                m.postRotate(exifRotation, viewDimension / 2, viewDimension / 2);
             }
 
             imageView.setScaleType(ImageView.ScaleType.MATRIX);
