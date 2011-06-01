@@ -34,10 +34,10 @@ public class SuggestedUsers extends ScActivity {
         mFacebookBtn = (Button)findViewById(R.id.facebook_btn);
 
         if (!getIntent().getBooleanExtra("facebook_connected", false)) {
-            ((TextView) findViewById(R.id.listTitle)).setText(R.string.friends_from_facebook);
+            ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
             createList(Endpoints.SUGGESTED_USERS, R.string.empty_list);
         } else {
-            ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
+            ((TextView) findViewById(R.id.listTitle)).setText(R.string.friends_from_facebook);
             mFacebookBtn.setVisibility(View.GONE);
             createList(Endpoints.MY_FRIENDS, R.string.empty_list);
         }
@@ -46,7 +46,6 @@ public class SuggestedUsers extends ScActivity {
         if (mPreviousState != null) {
             ((LazyEndlessAdapter) mListView.getAdapter()).restoreState(mPreviousState);
         }
-
     }
 
     @Override
