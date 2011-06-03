@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Content_Codes;
+import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -140,12 +141,12 @@ public class ScContentProvider extends ContentProvider {
                 table = Tables.RECORDINGS;
                 break;
             case Content_Codes.TRACK_PLAYS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
+                selection = selection + " AND " + TrackPlays.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.TRACK_PLAYS:
                 table = Tables.TRACK_PLAYS;
                 break;
             case Content_Codes.EVENTS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
+                selection = selection + " AND " + Events.ID + " = " + uri.getLastPathSegment();
             case Content_Codes.EVENTS:
                 table = Tables.EVENTS;
                 break;
@@ -212,7 +213,6 @@ public class ScContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, Tables.TRACKS, Content_Codes.TRACKS);
         sUriMatcher.addURI(AUTHORITY, Tables.USERS, Content_Codes.USERS);
         sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS, Content_Codes.RECORDINGS);
-        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS);
         sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS, Content_Codes.TRACK_PLAYS);
         sUriMatcher.addURI(AUTHORITY, Tables.EVENTS, Content_Codes.EVENTS);
 

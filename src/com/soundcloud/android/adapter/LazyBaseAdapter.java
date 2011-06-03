@@ -43,6 +43,10 @@ public class LazyBaseAdapter extends BaseAdapter {
         mWrapper = wrapper;
     }
 
+    public void setModel( Class<?> model ) {
+        mLoadModel = model;
+    }
+
     public FastBitmapDrawable getDefaultIcon() {
         return mDefaultIcon;
     }

@@ -23,8 +23,6 @@ import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
-import com.soundcloud.android.task.LoadFriendsTask;
-import com.soundcloud.android.task.LoadSuggestedUsersTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -268,19 +266,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
     @Override
     public void onConnections(List<Connection> connections) {
-        boolean facebookConnected = false;
-        if (connections != null) {
-            for (Connection c : connections){
-                if (c.service() == Connection.Service.Facebook){
-                    facebookConnected = true;
-                    break;
-                }
-            }
-        }
-
-        if (facebookConnected){
-
-        }
+        if (mFriendFinderView != null) mFriendFinderView.showList(connections);
     }
 
     private void loadYou() {
@@ -292,18 +278,6 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         }
 
         build();
-
-        new LoadFriendsTask(this.getSoundCloudApplication()) {
-            @Override
-            protected void onPreExecute() {
-            }
-        }.execute();
-
-        new LoadSuggestedUsersTask(this.getSoundCloudApplication()) {
-            @Override
-            protected void onPreExecute() {
-            }
-        }.execute();
     }
 
 
@@ -460,15 +434,22 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
 
-        ScTabView mFriendFinderView = null;
+        FriendFinderView mFriendFinderView = null;
 
         if (!isOtherUser()) {
             adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
             adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
 
             mFriendFinderView = new FriendFinderView(this, adpWrap);
-            CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
-            CloudUtils.createTab(mTabHost, "suggested", getString(R.string.tab_suggested), null, emptyView);
+            mFriendFinderView.friendList = CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
+            mFriendFinderView.friendList.disableLongClickListener();
+            CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
+
+            if (!CloudUtils.isTaskFinished(mConnectionsTask)){
+                mFriendFinderView.showLoading();
+            } else {
+                mFriendFinderView.showList(mConnections);
+            }
         }
 
         CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);

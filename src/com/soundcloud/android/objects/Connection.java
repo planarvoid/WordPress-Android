@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
@@ -92,5 +91,16 @@ public class Connection implements Comparable<Connection> {
         for (Service t : networks) connections.add(new Connection(t));
         Collections.sort(connections);
         return connections;
+    }
+
+    public static boolean checkConnectionListForService(List<Connection> haystack, Connection.Service needle) {
+        if (haystack != null) {
+            for (Connection c : haystack){
+                if (c.service() == needle){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
