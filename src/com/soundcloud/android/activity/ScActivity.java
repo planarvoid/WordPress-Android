@@ -247,10 +247,11 @@ public abstract class ScActivity extends Activity {
         try {
             if (mPlaybackService != null) {
                 if (mPlaybackService.isPlaying()) {
-                    if (force)
+                    if (force) {
                         mPlaybackService.forcePause();
-                    else
+                    } else {
                         mPlaybackService.pause();
+                    }
                 }
             }
         } catch (RemoteException e) {

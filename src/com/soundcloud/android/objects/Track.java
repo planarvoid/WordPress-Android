@@ -234,6 +234,11 @@ public class Track extends BaseObj implements Parcelable {
         }
     };
 
+
+    public boolean isStreamable() {
+        return streamable && stream_url != null;
+    }
+
     @Override
     public void writeToParcel(Parcel out, int flags) {
         buildParcel(out,flags);
