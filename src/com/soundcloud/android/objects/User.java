@@ -11,6 +11,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -60,7 +61,6 @@ public class User extends BaseObj implements Parcelable {
     public User(Cursor cursor, boolean aliasesOnly) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-
             if (aliasesOnly && !key.contains(Tables.USERS + "_")) continue;
             if (key.contentEquals(aliasesOnly ? Users.ALIAS_ID : Users.ID)) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
@@ -176,6 +176,10 @@ public class User extends BaseObj implements Parcelable {
                 ", primary_email_confirmed=" + primary_email_confirmed +
                 ", current_user_following=" + current_user_following +
                 ']';
+    }
+
+    public Uri toUri() {
+        return Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
     public static interface DataKeys {

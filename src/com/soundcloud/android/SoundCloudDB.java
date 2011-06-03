@@ -251,8 +251,7 @@ public class SoundCloudDB {
     }
 
     public static void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, Long currentUserId) {
-            Cursor cursor = contentResolver.query(Content.TRACKS, new String[] {Tracks.ID}, Tracks.ID + " = ?",
-                    new String[]{Long.toString(track.id)}, null);
+            Cursor cursor = contentResolver.query(track.toUri(), null, null, null, null);
 
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
@@ -333,7 +332,7 @@ public class SoundCloudDB {
     }
 
     public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.USERS, new String[] {Users.ID}, Users.ID + " = ?",new String[]{Long.toString(user.id)}, null);
+        Cursor cursor = contentResolver.query(user.toUri(), null, null, null, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
@@ -378,25 +377,7 @@ public class SoundCloudDB {
     }
 
 
-    public static String join(List<String> list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.size();
-        for (int i = 0; i < num; i++) {
-            if (i != 0) buf.append(delim);
-            buf.append(list.get(i));
-        }
-        return buf.toString();
-    }
 
-    public static String joinArray(String[] list, String delim) {
-        StringBuilder buf = new StringBuilder();
-        int num = list.length;
-        for (int i = 0; i < num; i++) {
-            if (i != 0) buf.append(delim);
-            buf.append(list[i]);
-        }
-        return buf.toString();
-    }
 
     private static String joinArray(long[] list, String delim) {
         StringBuilder buf = new StringBuilder();

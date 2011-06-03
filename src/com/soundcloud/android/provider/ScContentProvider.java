@@ -1,114 +1,24 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.Content_Codes;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
-import com.soundcloud.android.provider.DatabaseHelper.Tables;
-import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
-import com.soundcloud.android.provider.DatabaseHelper.Tracks;
-import com.soundcloud.android.provider.DatabaseHelper.Users;
-
 import android.content.ContentProvider;
-import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-public class ScContentProvider extends ContentProvider {
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    private static final String TAG = "ScContentProvider";
+public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
-    private static final UriMatcher sUriMatcher;
+    public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(\\d+))?$");
+
     private DatabaseHelper dbHelper;
 
-    @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count;
-        switch (sUriMatcher.match(uri)) {
-            case Content_Codes.TRACKS:
-                count = db.delete(Tables.TRACKS, where, whereArgs);
-                break;
-            case Content_Codes.USERS:
-                count = db.delete(Tables.USERS, where, whereArgs);
-                break;
-            case Content_Codes.RECORDINGS:
-                count = db.delete(Tables.RECORDINGS, where, whereArgs);
-                break;
-            case Content_Codes.EVENTS:
-                count = db.delete(Tables.EVENTS, where, whereArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
-    }
-
-    @Override
-    public String getType(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
-            case Content_Codes.TRACKS:
-                return Tracks.CONTENT_TYPE;
-            case Content_Codes.USERS:
-                return Users.CONTENT_TYPE;
-            case Content_Codes.RECORDINGS:
-                return Recordings.CONTENT_TYPE;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long rowId;
-        switch (sUriMatcher.match(uri)) {
-            case Content_Codes.TRACKS:
-                rowId = db.insert(Tables.TRACKS, Tracks.PERMALINK, values);
-                if (rowId > 0) {
-                    Uri trackUri = ContentUris.withAppendedId(Content.TRACKS, rowId);
-                    getContext().getContentResolver().notifyChange(trackUri, null);
-                    return trackUri;
-                }
-                break;
-            case Content_Codes.USERS:
-                rowId = db.insert(Tables.USERS, Users.PERMALINK, values);
-                if (rowId > 0) {
-                    Uri usersUri = ContentUris.withAppendedId(Content.USERS, rowId);
-                    getContext().getContentResolver().notifyChange(usersUri, null);
-                    return usersUri;
-                }
-                break;
-            case Content_Codes.RECORDINGS:
-                if (values.containsKey("_id")) values.remove("_id");
-                rowId = db.insert(Tables.RECORDINGS, Recordings.AUDIO_PATH, values);
-                if (rowId > 0) {
-                    Uri recordingUri = ContentUris.withAppendedId(Content.RECORDINGS, rowId);
-                    getContext().getContentResolver().notifyChange(recordingUri, null);
-                    return recordingUri;
-                }
-                break;
-            case Content_Codes.TRACK_PLAYS:
-                if (values.containsKey("_id")) values.remove("_id");
-                rowId = db.insert(Tables.TRACK_PLAYS, TrackPlays.TRACK_ID, values);
-                if (rowId > 0) {
-                    Uri trackPlaysUri = ContentUris.withAppendedId(Content.TRACK_PLAYS, rowId);
-                    getContext().getContentResolver().notifyChange(trackPlaysUri, null);
-                    // TODO notify track of change too
-                    return trackPlaysUri;
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-        throw new SQLException("Failed to insert row into " + uri);
+    static class TableInfo {
+        DatabaseHelper.Tables table;
+        long id = -1;
     }
 
     @Override
@@ -119,80 +29,57 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
-        String table = "";
-
-        if (selection == null) selection = "1";
-        // XXX WTF
-        switch (sUriMatcher.match(uri)) {
-            case Content_Codes.TRACKS_ID:
-                selection = selection + " AND " + Tracks.CONCRETE_ID + " = " + uri.getLastPathSegment();
-            case Content_Codes.TRACKS:
-                table = Tables.TRACKS;
-                break;
-            case Content_Codes.USERS_ID:
-                selection = selection + " AND " + Users.ID + " = " + uri.getLastPathSegment();
-            case Content_Codes.USERS:
-                table = Tables.USERS;
-                break;
-            case Content_Codes.RECORDINGS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
-            case Content_Codes.RECORDINGS:
-                table = Tables.RECORDINGS;
-                break;
-            case Content_Codes.TRACK_PLAYS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
-            case Content_Codes.TRACK_PLAYS:
-                table = Tables.TRACK_PLAYS;
-                break;
-            case Content_Codes.EVENTS_ID:
-                selection = selection + " AND " + Recordings.ID + " = " + uri.getLastPathSegment();
-            case Content_Codes.EVENTS:
-                table = Tables.EVENTS;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        TableInfo info = getTableInfo(uri);
+        if (info.id != -1) {
+            selection = selection == null ? "_id=" + info.id : selection + " AND _id=" + info.id;
         }
-
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        //Log.d(TAG, "query=("+table+","+(columns!=null? Arrays.asList(columns):null)+","+selection+","+
-        //        (selectionArgs!=null? Arrays.asList(selectionArgs) : null)+")");
-
-        Cursor c = db.query(table, columns, selection, selectionArgs, null, null, sortOrder);
+        Cursor c = db.query(info.table.tableName, columns, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
 
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final DatabaseHelper.Tables table = getTable(uri);
+        long id = db.insert(table.tableName, null, values);
+        if (id >= 0) {
+            final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+            getContext().getContentResolver().notifyChange(result, null);
+            return result;
+        } else {
+            throw new SQLException("Failed to insert row into " + uri);
+        }
+    }
 
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int delete(Uri uri, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count;
-        switch (sUriMatcher.match(uri)) {
-            case Content_Codes.TRACKS:
-                count = db.update(Tables.TRACKS, values, where, whereArgs);
-                break;
-            case Content_Codes.USERS:
-                count = db.update(Tables.USERS, values, where, whereArgs);
-                break;
-            case Content_Codes.RECORDINGS:
-                count = db.update(Tables.RECORDINGS, values, where, whereArgs);
-                break;
-            case Content_Codes.TRACK_PLAYS:
-                count = db.update(Tables.TRACK_PLAYS, values, where, whereArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        TableInfo table = getTableInfo(uri);
+        if (table.id != -1) {
+            where = "_id = ?";
+            whereArgs = new String[]{String.valueOf(table.id)};
         }
-
+        int count = db.delete(table.table.tableName, where, whereArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
     @Override
+    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int count = db.update(getTable(uri).name(), values, where, whereArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
+    }
+
+    @Override
+    // to replace rows
     public int bulkInsert(Uri uri, ContentValues[] values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
-        String tblName = getTableNameFromUri(uri);
+        String tblName = getTableInfo(uri).table.tableName;
         try {
             int numValues = values.length;
             for (int i = 0; i < numValues; i++) {
@@ -202,45 +89,39 @@ public class ScContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-
         getContext().getContentResolver().notifyChange(uri, null);
         return values.length;
     }
 
-    static {
-        sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(AUTHORITY, Tables.TRACKS, Content_Codes.TRACKS);
-        sUriMatcher.addURI(AUTHORITY, Tables.USERS, Content_Codes.USERS);
-        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS, Content_Codes.RECORDINGS);
-        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS);
-        sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS, Content_Codes.TRACK_PLAYS);
-        sUriMatcher.addURI(AUTHORITY, Tables.EVENTS, Content_Codes.EVENTS);
+    static DatabaseHelper.Tables getTable(Uri u) {
+        return getTable(u.toString());
+    }
 
-        sUriMatcher.addURI(AUTHORITY, Tables.TRACKS+"/#", Content_Codes.TRACKS_ID);
-        sUriMatcher.addURI(AUTHORITY, Tables.USERS+"/#", Content_Codes.USERS_ID);
-        sUriMatcher.addURI(AUTHORITY, Tables.RECORDINGS+"/#", Content_Codes.RECORDINGS_ID);
-        sUriMatcher.addURI(AUTHORITY, Tables.TRACK_PLAYS+"/#", Content_Codes.TRACK_PLAYS_ID);
-        sUriMatcher.addURI(AUTHORITY, Tables.EVENTS+"/#", Content_Codes.EVENTS);
+    static DatabaseHelper.Tables getTable(String s) {
+        Matcher m = URL_PATTERN.matcher(s);
+        if (m.matches()) {
+            return DatabaseHelper.Tables.get(m.group(1));
+        }
+        throw new IllegalArgumentException("unknown uri " + s);
+    }
+
+    static TableInfo getTableInfo(Uri uri) {
+        return getTableInfo(uri.toString());
+    }
+
+    static TableInfo getTableInfo(String s) {
+        TableInfo result = new TableInfo();
+        result.table = getTable(s);
+        Matcher m = URL_PATTERN.matcher(s);
+        if (m.matches() && m.group(2) != null) {
+            result.id = Long.parseLong(m.group(2));
+        }
+        return result;
     }
 
 
-
-    private String getTableNameFromUri(Uri uri){
-    switch (sUriMatcher.match(uri)) {
-        case Content_Codes.TRACKS:
-            return Tables.TRACKS;
-        case Content_Codes.USERS:
-            return Tables.USERS;
-        case Content_Codes.RECORDINGS:
-            return Tables.RECORDINGS;
-        case Content_Codes.TRACK_PLAYS:
-            return Tables.TRACK_PLAYS;
-        case Content_Codes.EVENTS:
-            return Tables.EVENTS;
-        default:
-            throw new IllegalArgumentException("Unknown URI " + uri);
+    @Override
+    public String getType(Uri uri) {
+        return null;
     }
-}
-
-
 }

@@ -710,9 +710,9 @@ public class UserBrowser extends ScActivity {
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 if (curr_items[item].equals(RECORDING_ITEMS[0])){
-                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.getUri()));
+                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
                 }else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.getUri()));
+                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
                 } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])){
@@ -723,8 +723,7 @@ public class UserBrowser extends ScActivity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                         int whichButton) {
-                                    getContentResolver().delete(Content.RECORDINGS,
-                                            Recordings.ID + " = " + recording.id, null);
+                                    getContentResolver().delete(recording.toUri(), null, null);
                                     if (!recording.external_upload){
                                         File f = new File(recording.audio_path);
                                         if (f.exists()) f.delete();

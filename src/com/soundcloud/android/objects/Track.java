@@ -5,6 +5,7 @@ import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 
@@ -14,6 +15,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -120,6 +122,10 @@ public class Track extends BaseObj implements Parcelable {
             }
         }
         return tags;
+    }
+
+    public Uri toUri() {
+        return Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
     public static class CreatedWith {
