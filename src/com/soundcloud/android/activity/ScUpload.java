@@ -24,7 +24,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -431,7 +430,7 @@ public class ScUpload extends ScActivity {
                 break;
             case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    ImageUtils.setImage(getCurrentImageFile(), mArtwork, getResources().getDisplayMetrics());
+                    setImage(getCurrentImageFile());
                 }
                 break;
 

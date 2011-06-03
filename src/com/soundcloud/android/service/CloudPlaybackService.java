@@ -1916,7 +1916,10 @@ public class CloudPlaybackService extends Service {
 
         @Override
         public void run() {
-            SoundCloudApplication app = (SoundCloudApplication) serviceRef.get().getApplication();
+            CloudPlaybackService svc = serviceRef.get();
+            if (svc == null) return;
+            SoundCloudApplication app = (SoundCloudApplication) svc.getApplication();
+
             AndroidHttpClient cli = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
 
             HttpGet method;

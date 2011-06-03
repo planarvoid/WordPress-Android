@@ -376,22 +376,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Log.i(TAG,"SUCCESSFUL UPGRADE");
                 db.setTransactionSuccessful();
             } else {
-                Log.i(TAG,"UPGRADE NOT SUCCESSFULL");
-                /*db.execSQL("DROP TABLE IF EXISTS Tracks");
-                db.execSQL("DROP TABLE IF EXISTS Users");
-                db.execSQL("DROP TABLE IF EXISTS Recordings");
-                db.execSQL("DROP TABLE IF EXISTS TrackPlays");
-                onCreate(db);*/
+                recreateDatabase(db);
             }
             db.endTransaction();
         } else {
-            db.execSQL("DROP TABLE IF EXISTS Tracks");
-            db.execSQL("DROP TABLE IF EXISTS Users");
-            db.execSQL("DROP TABLE IF EXISTS Recordings");
-            db.execSQL("DROP TABLE IF EXISTS TrackPlays");
-            onCreate(db);
+            recreateDatabase(db);
         }
 
+    }
+
+    private void recreateDatabase(SQLiteDatabase db){
+        db.execSQL("DROP TABLE IF EXISTS Tracks");
+        db.execSQL("DROP TABLE IF EXISTS Users");
+        db.execSQL("DROP TABLE IF EXISTS Recordings");
+        db.execSQL("DROP TABLE IF EXISTS TrackPlays");
+        onCreate(db);
     }
 
         /*

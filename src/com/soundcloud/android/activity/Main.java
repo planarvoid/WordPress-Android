@@ -42,7 +42,6 @@ public class Main extends TabActivity {
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
-    private boolean mTabsInitialized = false;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -67,6 +66,7 @@ public class Main extends TabActivity {
             }, SPLASH_DELAY);
         }
 
+        buildTabHost(getApp(), getTabHost());
         handleIntent(getIntent());
     }
 
@@ -77,11 +77,10 @@ public class Main extends TabActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
-        if (checkAccountExists(getApp()) && !mTabsInitialized) {
-            buildTabHost(getApp(), getTabHost());
-            mTabsInitialized = true;
+        if (!checkAccountExists(getApp())) {
+            finish();
         }
+        super.onResume();
     }
 
     private SoundCloudApplication getApp() {
@@ -137,6 +136,7 @@ public class Main extends TabActivity {
                 // NB: important to call future.getResult() for side effects
                 Bundle result = future.getResult();
                 // restart main activity
+
                 startActivity(new Intent(Main.this, Main.class)
                         .putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, result)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -312,14 +312,13 @@ public class Main extends TabActivity {
                                          .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN)
                                          .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN_SECRET)
                                          .commit();
-
                                  // restart main activity
                                  Intent intent = getIntent();
                                  overridePendingTransition(0, 0);
                                  intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                  finish();
-
                                  overridePendingTransition(0, 0);
+
                                  startActivity(intent);
                              } else {
                                  fallback.run();
