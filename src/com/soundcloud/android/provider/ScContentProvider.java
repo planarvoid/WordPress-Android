@@ -1,5 +1,7 @@
 package com.soundcloud.android.provider;
 
+import org.w3c.dom.Element;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -98,11 +100,16 @@ public class ScContentProvider extends ContentProvider {
     }
 
     static DatabaseHelper.Tables getTable(String s) {
+        DatabaseHelper.Tables table = null;
         Matcher m = URL_PATTERN.matcher(s);
         if (m.matches()) {
-            return DatabaseHelper.Tables.get(m.group(1));
+            table = DatabaseHelper.Tables.get(m.group(1));
         }
-        throw new IllegalArgumentException("unknown uri " + s);
+        if (table != null) {
+            return table;
+        } else {
+            throw new IllegalArgumentException("unknown uri " + s);
+        }
     }
 
     static TableInfo getTableInfo(Uri uri) {
