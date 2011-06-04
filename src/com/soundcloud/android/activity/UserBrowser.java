@@ -58,7 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class UserBrowser extends ScActivity {
+public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenChangeListener {
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
@@ -70,6 +70,7 @@ public class UserBrowser extends ScActivity {
     private TextView mDiscogsName;
     private TextView mMyspaceName;
     private TextView mDescription;
+    private HorizontalScrollView hsv;
 
     private ImageButton mFollow;
 
@@ -184,7 +185,7 @@ public class UserBrowser extends ScActivity {
         super.onStart();
 
         if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onStart();
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onStart();
         } else if (mTabHost != null) {
             ((ScTabView) mTabHost.getCurrentView()).onStart();
         }
@@ -236,11 +237,24 @@ public class UserBrowser extends ScActivity {
         loadDetails();
 
         if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh();
         } else {
             ((ScTabView) mTabHost.getCurrentView()).onRefresh();
         }
     }
+
+     public void onScreenChanged(View newScreen, int newScreenIndex){
+        mTabHost.setCurrentTab(newScreenIndex);
+        if (hsv != null){
+            hsv.scrollTo(mTabWidget.getChildTabViewAt(newScreenIndex).getLeft()
+                        + mTabWidget.getChildTabViewAt(newScreenIndex).getWidth() / 2 - getWidth() / 2, 0);
+        }
+     }
+
+    public void onScreenChanging(View newScreen, int newScreenIndex){
+        // do nothing
+     }
+
 
     private void loadYou() {
         if (getUserId() != -1) {
@@ -309,20 +323,10 @@ public class UserBrowser extends ScActivity {
 
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabWidget = (TabWidget) findViewById(android.R.id.tabs);
-
-        final HorizontalScrollView hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
-        hsv.setBackgroundColor(0xFF555555);
-
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-        mWorkspaceView.setOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrollToView(int index) {
-                mTabHost.setCurrentTab(index);
-                hsv.scrollTo(mTabWidget.getChildTabViewAt(index).getLeft()
-                        + mTabWidget.getChildTabViewAt(index).getWidth() / 2 - getWidth() / 2, 0);
-            }
 
-        });
+        hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
+        hsv.setBackgroundColor(0xFF555555);
 
         final ScTabView emptyView = new ScTabView(this);
 
@@ -434,6 +438,8 @@ public class UserBrowser extends ScActivity {
         mWorkspaceView.addView(followersView);
         if (suggestedView != null) mWorkspaceView.addView(suggestedView);
 
+        mWorkspaceView.setOnScreenChangeListener(this);
+
         mTabWidget.invalidate();
         setTabTextInfo();
 
@@ -491,8 +497,13 @@ public class UserBrowser extends ScActivity {
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String arg0) {
-            if (mWorkspaceView != null)
-                mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(), (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
+            if (mWorkspaceView != null){
+                if (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1){
+                    mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
+                } else {
+                    mWorkspaceView.setCurrentScreen(mTabHost.getCurrentTab());
+                }
+            }
 
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
@@ -519,7 +530,7 @@ public class UserBrowser extends ScActivity {
     }
 
     public void setTab(int screen) {
-        mWorkspaceView.scrollToScreen(screen);
+        mWorkspaceView.setCurrentScreen(screen);
     }
 
     private void toggleFollowing() {

@@ -1,229 +1,267 @@
-package com.soundcloud.android.view;
-
-/**
- * Copyright 2010 Eric Taix (eric.taix@gmail.com) Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language governing permissions and limitations under the
- * License.
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import com.soundcloud.android.R;
+package com.soundcloud.android.view;
+
+import com.soundcloud.android.utils.MotionEventUtils;
+import com.soundcloud.android.utils.ReflectionUtils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
+import android.view.ViewParent;
 import android.widget.Scroller;
 
+import java.util.ArrayList;
+
 /**
- * The workspace is a wide area with a infinite number of screens. Each screen
- * contains a view. A workspace is meant to be used with a fixed width only.<br/>
- * <br/>
- * This code has been done by using com.android.launcher.Workspace.java
+ * A {@link android.view.ViewGroup} that shows one child at a time, allowing the user to swipe
+ * horizontally to page between other child views. Based on <code>Workspace.java</code> in the
+ * <code>Launcher.git</code> AOSP project.
  */
 public class WorkspaceView extends ViewGroup {
+    private static final String TAG = "Workspace";
+
+    private static final int INVALID_SCREEN = -1;
+
+    /**
+     * The velocity at which a fling gesture will cause us to snap to the next screen
+     */
+    private static final int SNAP_VELOCITY = 500;
+
+    /**
+     * The user needs to drag at least this much for it to be considered a fling gesture. This
+     * reduces the chance of a random twitch sending the user to the next screen.
+     */
+    // TODO: refactor
+    private static final int MIN_LENGTH_FOR_FLING = 100;
+
+    private boolean mFirstLayout = true;
+    private boolean mHasLaidOut = false;
+
+    private int mCurrentScreen;
+    private int mNextScreen = INVALID_SCREEN;
+    private Scroller mScroller;
+    private VelocityTracker mVelocityTracker;
+
+    /**
+     * X position of the active pointer when it was first pressed down.
+     */
+    private float mDownMotionX;
+
+    /**
+     * Y position of the active pointer when it was first pressed down.
+     */
+    private float mDownMotionY;
+
+    /**
+     * This view's X scroll offset when the active pointer was first pressed down.
+     */
+    private int mDownScrollX;
+
+    private final static int TOUCH_STATE_REST = 0;
+    private final static int TOUCH_STATE_SCROLLING = 1;
+
+    private int mTouchState = TOUCH_STATE_REST;
+
+    private OnLongClickListener mLongClickListener;
+
+    private boolean mAllowLongPress = true;
+
+    private int mTouchSlop;
+    private int mPagingTouchSlop;
+    private int mMaximumVelocity;
 
     private static final int INVALID_POINTER = -1;
 
     private int mActivePointerId = INVALID_POINTER;
 
-    private static final int INVALID_SCREEN = -1;
+    private Drawable mSeparatorDrawable;
 
-    // The velocity at which a fling gesture will cause us to snap to the next
-    // screen
-    private static final int SNAP_VELOCITY = 1000;
+    private OnScreenChangeListener mOnScreenChangeListener;
+    private OnScrollListener mOnScrollListener;
 
-    // The current screen index
-    private int currentScreen;
+    private boolean mLocked;
 
-    // The next screen index
-    private int nextScreen = INVALID_SCREEN;
+    private int mDeferredScreenChange = -1;
+    private boolean mDeferredScreenChangeFast = false;
+    private boolean mDeferredNotify = false;
 
-    // Wallpaper properties
-    private Bitmap wallpaper;
+    private boolean mIgnoreChildFocusRequests;
 
-    private Paint paint;
+    private boolean mIsVerbose = false;
 
-    private int wallpaperWidth;
-
-    private int wallpaperHeight;
-
-    private float wallpaperOffset;
-
-    private boolean wallpaperLoaded;
-
-    private boolean firstWallpaperLayout = true;
-
-    private static final int TAB_INDICATOR_HEIGHT_PCT = 2;
-
-    // The scroller which scroll each view
-    private Scroller scroller;
-
-    // A tracker which to calculate the velocity of a movement
-    private VelocityTracker mVelocityTracker;
-
-    // Tha last known values of X and Y
-    private float lastMotionX;
-
-    private float lastMotionY;
-
-    private final static int TOUCH_STATE_REST = 0;
-
-    private final static int TOUCH_STATE_SCROLLING = 1;
-
-    // The current touch state
-    private int touchState = TOUCH_STATE_REST;
-
-    // The minimal distance of a touch slop
-    private int touchSlop;
-
-    // An internal flag to reset long press when user is scrolling
-    private boolean allowLongPress;
-
-    // A flag to know if touch event have to be ignored. Used also in internal
-    private boolean locked;
-
-    private int mMaximumVelocity;
-
-    private Paint selectedTabPaint;
-
-    private Paint tabIndicatorBackgroundPaint;
-
-
-    public WorkspaceView(Context context) {
-        super(context);
+    public interface OnScreenChangeListener {
+        void onScreenChanged(View newScreen, int newScreenIndex);
+        void onScreenChanging(View newScreen, int newScreenIndex);
     }
 
+    public interface OnScrollListener {
+        void onScroll(float screenFraction);
+    }
+
+    /**
+     * Used to inflate the com.google.android.ext.workspace.Workspace from XML.
+     *
+     * @param context The application's context.
+     * @param attrs   The attributes set containing the com.google.android.ext.workspace.Workspace's
+     *                customization values.
+     */
     public WorkspaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setHapticFeedbackEnabled(false);
+        mIsVerbose = Log.isLoggable(TAG, Log.VERBOSE);
     }
-
-    public WorkspaceView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    private static class WorkspaceOvershootInterpolator implements Interpolator {
-        private static final float DEFAULT_TENSION = 1.0f;
-
-        private float mTension;
-
-        public WorkspaceOvershootInterpolator() {
-            mTension = DEFAULT_TENSION;
-        }
-
-        public float getInterpolation(float t) {
-            t -= 1.0f;
-            return t * t * ((mTension + 1) * t + mTension) + 1.0f;
-        }
-    }
-
 
     /**
      * Initializes various states for this workspace.
      */
     public void initWorkspace(int initialScreen) {
-        WorkspaceOvershootInterpolator mScrollInterpolator = new WorkspaceOvershootInterpolator();
-        scroller = new Scroller(getContext(), mScrollInterpolator);
+        mScroller = new Scroller(getContext());
+        mCurrentScreen = initialScreen;
 
-        this.currentScreen = initialScreen;
-
-        paint = new Paint();
-        paint.setDither(false);
-
-        // Does this do anything for me?
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
-        touchSlop = configuration.getScaledTouchSlop();
+        mTouchSlop = configuration.getScaledTouchSlop();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
-        selectedTabPaint = new Paint();
-        selectedTabPaint.setColor(getResources().getColor(R.color.background_light));
-        selectedTabPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        tabIndicatorBackgroundPaint = new Paint();
-        tabIndicatorBackgroundPaint.setColor(getResources().getColor(R.color.background_dark));
-        tabIndicatorBackgroundPaint.setStyle(Paint.Style.FILL);
-
-
+        mPagingTouchSlop = ReflectionUtils.callWithDefault(configuration,
+                "getScaledPagingTouchSlop", mTouchSlop * 2);
     }
 
     /**
      * Returns the index of the currently displayed screen.
-     *
-     * @return The index of the currently displayed screen.
      */
-    int getCurrentScreen() {
-        return currentScreen;
+    public int getCurrentScreen() {
+        return mCurrentScreen;
     }
 
     /**
-     * Registers the specified listener on each screen contained in this
-     * workspace.
+     * Returns the number of screens currently contained in this Workspace.
+     */
+    int getScreenCount() {
+        int childCount = getChildCount();
+        if (mSeparatorDrawable != null) {
+            return (childCount + 1) / 2;
+        }
+        return childCount;
+    }
+
+    View getScreenAt(int index) {
+        if (mSeparatorDrawable == null) {
+            return getChildAt(index);
+        }
+        return getChildAt(index * 2);
+    }
+
+    int getScrollWidth() {
+        int w = getWidth();
+        if (mSeparatorDrawable != null) {
+            w += mSeparatorDrawable.getIntrinsicWidth();
+        }
+        return w;
+    }
+
+    void handleScreenChangeCompletion(int currentScreen) {
+        mCurrentScreen = currentScreen;
+        View screen = getScreenAt(mCurrentScreen);
+        //screen.requestFocus();
+        try {
+            ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
+                    new Class[]{int.class}, View.VISIBLE);
+            invalidate();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Caught NullPointerException", e);
+        }
+        notifyScreenChangeListener(mCurrentScreen, true);
+    }
+
+    void notifyScreenChangeListener(int whichScreen, boolean changeComplete) {
+        if (mOnScreenChangeListener != null) {
+            if (changeComplete)
+                mOnScreenChangeListener.onScreenChanged(getScreenAt(whichScreen), whichScreen);
+            else
+                mOnScreenChangeListener.onScreenChanging(getScreenAt(whichScreen), whichScreen);
+        }
+        if (mOnScrollListener != null) {
+            mOnScrollListener.onScroll(getCurrentScreenFraction());
+        }
+    }
+
+    /**
+     * Registers the specified listener on each screen contained in this workspace.
      *
-     * @param l The listener used to respond to long clicks.
+     * @param listener The listener used to respond to long clicks.
      */
     @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        final int count = getChildCount();
+    public void setOnLongClickListener(OnLongClickListener listener) {
+        mLongClickListener = listener;
+        final int count = getScreenCount();
         for (int i = 0; i < count; i++) {
-            getChildAt(i).setOnLongClickListener(l);
+            getScreenAt(i).setOnLongClickListener(listener);
         }
     }
 
     @Override
     public void computeScroll() {
-        if (scroller.computeScrollOffset()) {
-            scrollTo(scroller.getCurrX(), scroller.getCurrY());
+        if (mScroller.computeScrollOffset()) {
+            scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+            if (mOnScrollListener != null) {
+                mOnScrollListener.onScroll(getCurrentScreenFraction());
+            }
             postInvalidate();
-        } else if (nextScreen != INVALID_SCREEN) {
-            currentScreen = Math.max(0, Math.min(nextScreen, getChildCount() - 1));
-            nextScreen = INVALID_SCREEN;
+        } else if (mNextScreen != INVALID_SCREEN) {
+            // The scroller has finished.
+            handleScreenChangeCompletion(Math.max(0, Math.min(mNextScreen, getScreenCount() - 1)));
+            mNextScreen = INVALID_SCREEN;
         }
     }
 
-    /**
-     * ViewGroup.dispatchDraw() supports many features we don't need: clip to
-     * padding, layout animation, animation listener, disappearing children,
-     * etc. The following implementation attempts to fast-track the drawing
-     * dispatch by drawing only what we know needs to be drawn.
-     */
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        // First draw the wallpaper if needed
+        boolean restore = false;
+        int restoreCount = 0;
 
-        if (wallpaper != null) {
-            float x = getScrollX() * wallpaperOffset;
-            if (x + wallpaperWidth < getRight() - getLeft()) {
-                x = getRight() - getLeft() - wallpaperWidth;
-            }
-            canvas.drawBitmap(wallpaper, x, (getBottom() - getTop() - wallpaperHeight) / 2, paint);
-        }
+        // ViewGroup.dispatchDraw() supports many features we don't need:
+        // clip to padding, layout animation, animation listener, disappearing
+        // children, etc. The following implementation attempts to fast-track
+        // the drawing dispatch by drawing only what we know needs to be drawn.
 
-        // Determine if we need to draw every child or only the current screen
-        boolean fastDraw = touchState != TOUCH_STATE_SCROLLING && nextScreen == INVALID_SCREEN;
+        boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING && mNextScreen == INVALID_SCREEN;
         // If we are not scrolling or flinging, draw only the current screen
         if (fastDraw) {
-            View v = getChildAt(currentScreen);
-            drawChild(canvas, v, getDrawingTime());
+            if (getScreenAt(mCurrentScreen) != null) {
+                drawChild(canvas, getScreenAt(mCurrentScreen), getDrawingTime());
+            }
         } else {
             final long drawingTime = getDrawingTime();
-            // If we are flinging, draw only the current screen and the target
-            // screen
-            if (nextScreen >= 0 && nextScreen < getChildCount()
-                    && Math.abs(currentScreen - nextScreen) == 1) {
-                drawChild(canvas, getChildAt(currentScreen), drawingTime);
-                drawChild(canvas, getChildAt(nextScreen), drawingTime);
+            // If we are flinging, draw only the current screen and the target screen
+            if (mNextScreen >= 0 && mNextScreen < getScreenCount() &&
+                    Math.abs(mCurrentScreen - mNextScreen) == 1) {
+                drawChild(canvas, getScreenAt(mCurrentScreen), drawingTime);
+                drawChild(canvas, getScreenAt(mNextScreen), drawingTime);
             } else {
                 // If we are scrolling, draw all of our children
                 final int count = getChildCount();
@@ -232,91 +270,43 @@ public class WorkspaceView extends ViewGroup {
                 }
             }
         }
-        updateTabIndicator();
-        canvas.drawBitmap(bitmap, getScrollX(), getMeasuredHeight()
-                * (100 - TAB_INDICATOR_HEIGHT_PCT) / 100, paint);
 
+        if (restore) {
+            canvas.restoreToCount(restoreCount);
+        }
     }
 
-    /**
-     * Measure the workspace AND also children
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        final int width = MeasureSpec.getSize(widthMeasureSpec);
-        final int height = MeasureSpec.getSize(heightMeasureSpec);
-        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        if (widthMode != MeasureSpec.EXACTLY) {
-            throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
-        }
-
-        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (heightMode != MeasureSpec.EXACTLY) {
-            throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
-        }
-
         // The children are given the same width and height as the workspace
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
-            int adjustedHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height
-                    * (100 - TAB_INDICATOR_HEIGHT_PCT) / 100, heightMode);
-            getChildAt(i).measure(widthMeasureSpec, adjustedHeightMeasureSpec);
-
+            if (mSeparatorDrawable != null && (i & 1) == 1) {
+                // separator
+                getChildAt(i).measure(mSeparatorDrawable.getIntrinsicWidth(), heightMeasureSpec);
+            } else {
+                getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
+            }
         }
 
-        // Compute wallpaper
-        if (wallpaperLoaded) {
-            wallpaperLoaded = false;
-            wallpaper = centerToFit(wallpaper, width, height);
-            wallpaperWidth = wallpaper.getWidth();
-            wallpaperHeight = wallpaper.getHeight();
+        if (mFirstLayout) {
+            setHorizontalScrollBarEnabled(false);
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            if (mSeparatorDrawable != null) {
+                width += mSeparatorDrawable.getIntrinsicWidth();
+            }
+            scrollTo(mCurrentScreen * width, 0);
+            setHorizontalScrollBarEnabled(true);
+            mFirstLayout = false;
         }
-        wallpaperOffset = wallpaperWidth > width ? (count * width - wallpaperWidth)
-                / ((count - 1) * (float) width) : 1.0f;
-        if (firstWallpaperLayout) {
-            scrollTo(currentScreen * width, 0);
-            firstWallpaperLayout = false;
-        }
-
-        updateTabIndicator();
-        invalidate();
     }
-
-    Bitmap bitmap;
-
-
-    private void updateTabIndicator() {
-        int width = getMeasuredWidth();
-        int height = getMeasuredHeight();
-
-        if (width == 0 || height == 0)
-            return;
-
-        // For drawing in its own bitmap:
-        RectF bar = new RectF(0, 0, width, (TAB_INDICATOR_HEIGHT_PCT * height / 100));
-
-        int startPos = getScrollX() / (getChildCount() == 0 ? 1 : getChildCount());
-        RectF selectedTab = new RectF(startPos, 0, startPos + width / getChildCount(),
-                (TAB_INDICATOR_HEIGHT_PCT * height / 100));
-
-        // XXX ye gods, no, don't create bitmaps in loops
-        if (bitmap == null){
-            bitmap = Bitmap.createBitmap(width, (TAB_INDICATOR_HEIGHT_PCT * height / 100),
-                Bitmap.Config.ARGB_8888);
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        canvas.drawColor(0xFFFFFFFF);
-        canvas.drawRoundRect(bar, 0, 0, tabIndicatorBackgroundPaint);
-        canvas.drawRoundRect(selectedTab, 5, 5, selectedTabPaint);
-    }
-
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int childLeft = 0;
+
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -326,89 +316,214 @@ public class WorkspaceView extends ViewGroup {
                 childLeft += childWidth;
             }
         }
-        // load.onLoad();
+
+        mHasLaidOut = true;
+        if (mDeferredScreenChange >= 0) {
+            snapToScreen(mDeferredScreenChange, mDeferredScreenChangeFast, mDeferredNotify);
+            mDeferredScreenChange = -1;
+            mDeferredScreenChangeFast = false;
+        }
+    }
+
+    @Override
+    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
+        int screen = indexOfChild(child);
+        if (mIgnoreChildFocusRequests && !mScroller.isFinished()) {
+            Log.w(TAG, "Ignoring child focus request: request " + mCurrentScreen + " -> " + screen);
+            return false;
+        }
+        if (screen != mCurrentScreen || !mScroller.isFinished()) {
+            snapToScreen(screen);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        int focusableScreen;
+        if (mNextScreen != INVALID_SCREEN) {
+            focusableScreen = mNextScreen;
+        } else {
+            focusableScreen = mCurrentScreen;
+        }
+        View v = getScreenAt(focusableScreen);
+        if (v != null) {
+            return v.requestFocus(direction, previouslyFocusedRect);
+        }
+        return false;
     }
 
     @Override
     public boolean dispatchUnhandledMove(View focused, int direction) {
         if (direction == View.FOCUS_LEFT) {
             if (getCurrentScreen() > 0) {
-                scrollToScreen(getCurrentScreen() - 1);
+                snapToScreen(getCurrentScreen() - 1);
                 return true;
             }
         } else if (direction == View.FOCUS_RIGHT) {
-            if (getCurrentScreen() < getChildCount() - 1) {
-                scrollToScreen(getCurrentScreen() + 1);
+            if (getCurrentScreen() < getScreenCount() - 1) {
+                snapToScreen(getCurrentScreen() + 1);
                 return true;
             }
         }
         return super.dispatchUnhandledMove(focused, direction);
     }
 
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        View focusableSourceScreen = null;
+        if (mCurrentScreen >= 0 && mCurrentScreen < getScreenCount()) {
+            focusableSourceScreen = getScreenAt(mCurrentScreen);
+        }
+        if (direction == View.FOCUS_LEFT) {
+            if (mCurrentScreen > 0) {
+                focusableSourceScreen = getScreenAt(mCurrentScreen - 1);
+            }
+        } else if (direction == View.FOCUS_RIGHT) {
+            if (mCurrentScreen < getScreenCount() - 1) {
+                focusableSourceScreen = getScreenAt(mCurrentScreen + 1);
+            }
+        }
+
+        if (focusableSourceScreen != null) {
+            focusableSourceScreen.addFocusables(views, direction, focusableMode);
+        }
+    }
+
     /**
-     * This method JUST determines whether we want to intercept the motion. If
-     * we return true, onTouchEvent will be called and we do the actual
-     * scrolling there.
+     * If one of our descendant views decides that it could be focused now, only pass that along if
+     * it's on the current screen.
+     *
+     * This happens when live folders requery, and if they're off screen, they end up calling
+     * requestFocus, which pulls it on screen.
      */
     @Override
+    public void focusableViewAvailable(View focused) {
+        View current = getScreenAt(mCurrentScreen);
+        View v = focused;
+        ViewParent parent;
+        while (true) {
+            if (v == current) {
+                super.focusableViewAvailable(focused);
+                return;
+            }
+            if (v == this) {
+                return;
+            }
+            parent = v.getParent();
+            if (parent instanceof View) {
+                v = (View) v.getParent();
+            } else {
+                return;
+            }
+        }
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (locked) {
-            return true;
-        }
-
         /*
-         * Shortcut the most recurring case: the user is in the dragging state
-         * and he is moving his finger. We want to intercept this motion.
+         * This method JUST determines whether we want to intercept the motion.
+         * If we return true, onTouchEvent will be called and we do the actual
+         * scrolling there.
          */
-        final int action = ev.getAction();
-        if ((action == MotionEvent.ACTION_MOVE) && (touchState != TOUCH_STATE_REST)) {
-            return true;
-        }
 
+        // Begin tracking velocity even before we have intercepted touch events.
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
         mVelocityTracker.addMovement(ev);
 
-        switch (action) {
-            case MotionEvent.ACTION_MOVE:
+        /*
+         * Shortcut the most recurring case: the user is in the dragging
+         * state and he is moving his finger.  We want to intercept this
+         * motion.
+         */
+        final int action = ev.getAction();
+        if (mIsVerbose) {
+            Log.v(TAG, "onInterceptTouchEvent: " + (ev.getAction() & MotionEventUtils.ACTION_MASK));
+        }
+        if (((action & MotionEventUtils.ACTION_MASK) == MotionEvent.ACTION_MOVE)
+                && (mTouchState == TOUCH_STATE_SCROLLING)) {
+            if (mIsVerbose) {
+                Log.v(TAG, "Intercepting touch events");
+            }
+            return true;
+        }
+
+        switch (action & MotionEventUtils.ACTION_MASK) {
+            case MotionEvent.ACTION_MOVE: {
+                if (mLocked) {
+                    // we're locked on the current screen, don't allow moving
+                    break;
+                }
+
                 /*
-                 * Locally do absolute value. mLastMotionX is set to the y value
+                 * Locally do absolute value. mDownMotionX is set to the y value
                  * of the down event.
                  */
-                handleInterceptMove(ev);
-                break;
+                final int pointerIndex = MotionEventUtils.findPointerIndex(ev, mActivePointerId);
+                final float x = MotionEventUtils.getX(ev, pointerIndex);
+                final float y = MotionEventUtils.getY(ev, pointerIndex);
+                final int xDiff = (int) Math.abs(x - mDownMotionX);
+                final int yDiff = (int) Math.abs(y - mDownMotionY);
 
-            case MotionEvent.ACTION_DOWN:
+                boolean xPaged = xDiff > mPagingTouchSlop;
+                boolean xMoved = xDiff > mTouchSlop;
+                boolean yMoved = yDiff > mTouchSlop;
+
+                if (xMoved || yMoved) {
+                    if (xPaged) {
+                        // Scroll if the user moved far enough along the X axis
+                        mTouchState = TOUCH_STATE_SCROLLING;
+                    }
+                    // Either way, cancel any pending longpress
+                    if (mAllowLongPress) {
+                        mAllowLongPress = false;
+                        // Try canceling the long press. It could also have been scheduled
+                        // by a distant descendant, so use the mAllowLongPress flag to block
+                        // everything
+                        final View currentScreen = getScreenAt(mCurrentScreen);
+                        if (currentScreen != null) {
+                            currentScreen.cancelLongPress();
+                        }
+                    }
+                }
+                break;
+            }
+
+            case MotionEvent.ACTION_DOWN: {
+                final float x = ev.getX();
+                final float y = ev.getY();
                 // Remember location of down touch
-                final float x1 = ev.getX();
-                final float y1 = ev.getY();
-                lastMotionX = x1;
-                lastMotionY = y1;
-                allowLongPress = true;
-                mActivePointerId = ev.getPointerId(0);
+                mDownMotionX = x;
+                mDownMotionY = y;
+                mDownScrollX = getScrollX();
+                mActivePointerId = MotionEventUtils.getPointerId(ev, 0);
+                mAllowLongPress = true;
 
                 /*
                  * If being flinged and user touches the screen, initiate drag;
-                 * otherwise don't. mScroller.isFinished should be false when
+                 * otherwise don't.  mScroller.isFinished should be false when
                  * being flinged.
                  */
-                touchState = scroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
+                mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
                 break;
+            }
 
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
+                // Release the drag
+                mTouchState = TOUCH_STATE_REST;
+                mAllowLongPress = false;
                 mActivePointerId = INVALID_POINTER;
-                allowLongPress = false;
-
-                if (mVelocityTracker != null) {
+                if (mVelocityTracker == null) {
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
                 }
-                touchState = TOUCH_STATE_REST;
                 break;
 
-            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEventUtils.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
         }
@@ -417,142 +532,183 @@ public class WorkspaceView extends ViewGroup {
          * The only time we want to intercept motion events is if we are in the
          * drag mode.
          */
-        return touchState != TOUCH_STATE_REST;
-    }
-
-    private void handleInterceptMove(MotionEvent ev) {
-        final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-        final float x = ev.getX(pointerIndex);
-        final float y = ev.getY(pointerIndex);
-        final int xDiff = (int) Math.abs(x - lastMotionX);
-        final int yDiff = (int) Math.abs(y - lastMotionY);
-        boolean xMoved = xDiff > touchSlop;
-        boolean yMoved = yDiff > touchSlop;
-
-        if (xMoved || yMoved) {
-            if (xMoved && !yMoved) {
-                // Scroll if the user moved far enough along the X axis
-                touchState = TOUCH_STATE_SCROLLING;
-                lastMotionX = x;
-            }
-            // Either way, cancel any pending longpress
-            if (allowLongPress) {
-                allowLongPress = false;
-                // Try canceling the long press. It could also have been
-                // scheduled
-                // by a distant descendant, so use the mAllowLongPress flag to
-                // block
-                // everything
-                final View currentView = getChildAt(currentScreen);
-                currentView.cancelLongPress();
-            }
+        boolean intercept = mTouchState != TOUCH_STATE_REST;
+        if (mIsVerbose) {
+            Log.v(TAG, "Intercepting touch events: " + Boolean.toString(intercept));
         }
+        return intercept;
     }
 
-    private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
-        final int pointerId = ev.getPointerId(pointerIndex);
+    void onSecondaryPointerUp(MotionEvent ev) {
+        final int pointerIndex = (ev.getAction() & MotionEventUtils.ACTION_POINTER_INDEX_MASK) >>
+                MotionEventUtils.ACTION_POINTER_INDEX_SHIFT;
+        final int pointerId = MotionEventUtils.getPointerId(ev, pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             // TODO: Make this decision more intelligent.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            lastMotionX = ev.getX(newPointerIndex);
-            lastMotionY = ev.getY(newPointerIndex);
-            mActivePointerId = ev.getPointerId(newPointerIndex);
+            mDownMotionX = MotionEventUtils.getX(ev, newPointerIndex);
+            mDownMotionX = MotionEventUtils.getY(ev, newPointerIndex);
+            mDownScrollX = getScrollX();
+            mActivePointerId = MotionEventUtils.getPointerId(ev, newPointerIndex);
             if (mVelocityTracker != null) {
                 mVelocityTracker.clear();
             }
         }
     }
 
-    /**
-     * Track the touch event
-     */
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        super.requestChildFocus(child, focused);
+        int screen = indexOfChild(child);
+        if (mSeparatorDrawable != null) {
+            screen /= 2;
+        }
+        if (screen >= 0 && !isInTouchMode()) {
+            snapToScreen(screen);
+        }
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (locked) {
-            return true;
+        if (mIsVerbose) {
+            Log.v(TAG, "onTouchEvent: " + (ev.getAction() & MotionEventUtils.ACTION_MASK));
         }
+
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
         mVelocityTracker.addMovement(ev);
 
         final int action = ev.getAction();
-        final float x = ev.getX();
 
-        switch (action) {
+        switch (action & MotionEventUtils.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-
-                // We can still get here even if we returned false from the
-                // intercept function.
-                // That's the only way we can get a TOUCH_STATE_REST (0) here.
-                // That means that our child hasn't handled the event, so we
-                // need to
-                // + touchState);
-
-                if (touchState != TOUCH_STATE_REST) {
-                    /*
-                     * If being flinged and user touches, stop the fling.
-                     * isFinished will be false if being flinged.
-                     */
-                    if (!scroller.isFinished()) {
-                        scroller.abortAnimation();
-                    }
-
-                    // Remember where the motion event started
-                    lastMotionX = x;
-                    mActivePointerId = ev.getPointerId(0);
+                // If being flinged and user touches, stop the fling. isFinished
+                // will be false if being flinged.
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
                 }
+
+                // Remember where the motion event started
+                mDownMotionX = ev.getX();
+                mDownMotionY = ev.getY();
+                mDownScrollX = getScrollX();
+                mActivePointerId = MotionEventUtils.getPointerId(ev, 0);
                 break;
+
             case MotionEvent.ACTION_MOVE:
-
-                if (touchState == TOUCH_STATE_SCROLLING) {
-                    handleScrollMove(ev);
-                } else {
-                    // NOTE: We will never hit this case in Android 2.2. This is
-                    // to fix a 2.1 bug.
-                    // We need to do the work of interceptTouchEvent here
-                    // because we don't intercept the move
-                    // on children who don't scroll.
-
-                    if (onInterceptTouchEvent(ev) && touchState == TOUCH_STATE_SCROLLING) {
-                        handleScrollMove(ev);
-                    }
-
+                if (mIsVerbose) {
+                    Log.v(TAG, "mTouchState=" + mTouchState);
                 }
 
+                if (mTouchState == TOUCH_STATE_SCROLLING) {
+                    // Scroll to follow the motion event
+                    final int pointerIndex = MotionEventUtils
+                            .findPointerIndex(ev, mActivePointerId);
+                    final float x = MotionEventUtils.getX(ev, pointerIndex);
+
+                    final View lastChild = getChildAt(getChildCount() - 1);
+                    final int maxScrollX = lastChild.getRight() - getWidth();
+                    scrollTo(Math.max(0, Math.min(maxScrollX,
+                            (int)(mDownScrollX + mDownMotionX - x
+                            ))), 0);
+                    if (mOnScrollListener != null) {
+                        mOnScrollListener.onScroll(getCurrentScreenFraction());
+                    }
+
+                } else if (mTouchState == TOUCH_STATE_REST) {
+                    if (mLocked) {
+                        // we're locked on the current screen, don't allow moving
+                        break;
+                    }
+
+                    /*
+                     * Locally do absolute value. mLastMotionX is set to the y value
+                     * of the down event.
+                     */
+                    final int pointerIndex = MotionEventUtils.findPointerIndex(ev, mActivePointerId);
+                    final float x = MotionEventUtils.getX(ev, pointerIndex);
+                    final float y = MotionEventUtils.getY(ev, pointerIndex);
+                    final int xDiff = (int) Math.abs(x - mDownMotionX);
+                    final int yDiff = (int) Math.abs(y - mDownMotionY);
+
+                    boolean xPaged = xDiff > mPagingTouchSlop;
+                    boolean xMoved = xDiff > mTouchSlop;
+                    boolean yMoved = yDiff > mTouchSlop;
+
+                    if (xMoved || yMoved) {
+                        if (xPaged) {
+                            // Scroll if the user moved far enough along the X axis
+                            mTouchState = TOUCH_STATE_SCROLLING;
+                        }
+                        // Either way, cancel any pending longpress
+                        if (mAllowLongPress) {
+                            mAllowLongPress = false;
+                            // Try canceling the long press. It could also have been scheduled
+                            // by a distant descendant, so use the mAllowLongPress flag to block
+                            // everything
+                            final View currentScreen = getScreenAt(mCurrentScreen);
+                            if (currentScreen != null) {
+                                currentScreen.cancelLongPress();
+                            }
+                        }
+                    }
+                }
                 break;
+
             case MotionEvent.ACTION_UP:
-                if (touchState == TOUCH_STATE_SCROLLING) {
+                if (mTouchState == TOUCH_STATE_SCROLLING) {
+                    final int activePointerId = mActivePointerId;
+                    final int pointerIndex = MotionEventUtils.findPointerIndex(ev, activePointerId);
+                    final float x = MotionEventUtils.getX(ev, pointerIndex);
                     final VelocityTracker velocityTracker = mVelocityTracker;
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+                    //TODO(minsdk8): int velocityX = (int) MotionEventUtils.getXVelocity(velocityTracker, activePointerId);
                     int velocityX = (int) velocityTracker.getXVelocity();
+                    boolean isFling = Math.abs(mDownMotionX - x) > MIN_LENGTH_FOR_FLING;
 
-                    if (velocityX > SNAP_VELOCITY && currentScreen > 0) {
+                    final float scrolledPos = getCurrentScreenFraction();
+                    final int whichScreen = Math.round(scrolledPos);
+
+                    if (isFling && mIsVerbose) {
+                        Log.v(TAG, "isFling, whichScreen=" + whichScreen
+                                + " scrolledPos=" + scrolledPos
+                                + " mCurrentScreen=" + mCurrentScreen
+                                + " velocityX=" + velocityX);
+                    }
+                    if (isFling && velocityX > SNAP_VELOCITY && mCurrentScreen > 0) {
                         // Fling hard enough to move left
-                        scrollToScreen(currentScreen - 1);
-                    } else if (velocityX < -SNAP_VELOCITY && currentScreen < getChildCount() - 1) {
+                        // Don't fling across more than one screen at a time.
+                        final int bound = scrolledPos <= whichScreen ?
+                                mCurrentScreen - 1 : mCurrentScreen;
+                        snapToScreen(Math.min(whichScreen, bound));
+                    } else if (isFling && velocityX < -SNAP_VELOCITY &&
+                            mCurrentScreen < getChildCount() - 1) {
                         // Fling hard enough to move right
-                        scrollToScreen(currentScreen + 1);
+                        // Don't fling across more than one screen at a time.
+                        final int bound = scrolledPos >= whichScreen ?
+                                mCurrentScreen + 1 : mCurrentScreen;
+                        snapToScreen(Math.max(whichScreen, bound));
                     } else {
                         snapToDestination();
                     }
-
-                    if (mVelocityTracker != null) {
-                        mVelocityTracker.recycle();
-                        mVelocityTracker = null;
-                    }
                 }
-                touchState = TOUCH_STATE_REST;
+                mTouchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;
-                break;
+                // Intentially fall through to cancel
+
             case MotionEvent.ACTION_CANCEL:
-                touchState = TOUCH_STATE_REST;
+                mTouchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;
+                if (mVelocityTracker != null) {
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                }
                 break;
-            case MotionEvent.ACTION_POINTER_UP:
+
+            case MotionEventUtils.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
                 break;
         }
@@ -560,88 +716,298 @@ public class WorkspaceView extends ViewGroup {
         return true;
     }
 
-    private void handleScrollMove(MotionEvent ev) {
-        final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-        if (pointerIndex != -1) {
-            // Scroll to follow the motion event
-            final float x1 = ev.getX(pointerIndex);
-            final int deltaX = (int) (lastMotionX - x1);
-            lastMotionX = x1;
-
-            if (deltaX < 0) {
-                if (getScrollX() > 0) {
-                    // Scrollby invalidates automatically
-                    scrollBy(Math.max(-getScrollX(), deltaX), 0);
-                }
-            } else if (deltaX > 0) {
-                final int availableToScroll = getChildAt(getChildCount() - 1).getRight() - getScrollX()
-                        - getWidth();
-                if (availableToScroll > 0) {
-                    // Scrollby invalidates automatically
-                    scrollBy(Math.min(availableToScroll, deltaX), 0);
-                }
-            } else {
-                awakenScrollBars();
-            }
-        }
-    }
-
     /**
-     * Scroll to the appropriated screen depending of the current position
+     * Returns the current scroll position as a float value from 0 to the number of screens.
+     * Fractional values indicate that the user is mid-scroll or mid-fling, and whole values
+     * indicate that the Workspace is currently snapped to a screen.
      */
-    private void snapToDestination() {
+    float getCurrentScreenFraction() {
+        if (!mHasLaidOut) {
+            return mCurrentScreen;
+        }
+        final int scrollX = getScrollX();
         final int screenWidth = getWidth();
+        return (float) scrollX / screenWidth;
+    }
+
+    void snapToDestination() {
+        final int screenWidth = getScrollWidth();
         final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
-        scrollToScreen(whichScreen);
+
+        snapToScreen(whichScreen);
     }
 
-
-    public void scrollToScreen(int whichScreen) {
-        scrollToScreen(whichScreen, false);
+    void snapToScreen(int whichScreen) {
+        snapToScreen(whichScreen, false, true);
     }
 
-    private void scrollToScreen(int whichScreen, boolean immediate) {
-        boolean changingScreens = whichScreen != currentScreen;
+    void snapToScreen(int whichScreen, boolean fast, boolean notify) {
+        if (!mHasLaidOut) { // Can't handle scrolling until we are laid out.
+            mDeferredScreenChange = whichScreen;
+            mDeferredScreenChangeFast = fast;
+            mDeferredNotify = notify;
+            return;
+        }
 
-        nextScreen = whichScreen;
+        if (mIsVerbose) {
+            Log.v(TAG, "Snapping to screen: " + whichScreen);
+        }
+
+        whichScreen = Math.max(0, Math.min(whichScreen, getScreenCount() - 1));
+
+        final int screenDelta = Math.abs(whichScreen - mCurrentScreen);
+
+        final boolean screenChanging =
+                (mNextScreen != INVALID_SCREEN && mNextScreen != whichScreen) ||
+                        (mCurrentScreen != whichScreen);
+
+        mNextScreen = whichScreen;
 
         View focusedChild = getFocusedChild();
-        if (focusedChild != null && changingScreens && focusedChild == getChildAt(currentScreen)) {
-            focusedChild.clearFocus();
+        boolean setTabFocus = false;
+        if (focusedChild != null && screenDelta != 0 && focusedChild == getScreenAt(
+                mCurrentScreen)) {
+            // clearing the focus of the child will cause focus to jump to the tabs,
+            // which will in turn cause snapToScreen to be called again with a different
+            // value. To prevent this, we temporarily disable the OnTabClickListener
+            //if (mTabRow != null) {
+            //    mTabRow.setOnTabClickListener(null);
+            //}
+            //focusedChild.clearFocus();
+            //setTabRow(mTabRow); // restore the listener
+            //setTabFocus = true;
         }
 
-        final int newX = whichScreen * getWidth();
-        final int delta = newX - getScrollX();
-        scroller.startScroll(getScrollX(), 0, delta, 0, immediate ? 0 : Math.abs(delta));
+        final int newX = whichScreen * getScrollWidth();
+        final int sX = getScrollX();
+        final int delta = newX - sX;
+        int duration = screenDelta * 300;
+        awakenScrollBars(duration);
+        if (duration == 0) {
+            duration = Math.abs(delta);
+        }
+        if (fast) {
+            duration = 0;
+        }
+
+        if (mNextScreen != mCurrentScreen) {
+            // make the current listview hide its filter popup
+            final View screenAt = getScreenAt(mCurrentScreen);
+            if (screenAt != null) {
+                ReflectionUtils.tryInvoke(screenAt, "dispatchDisplayHint",
+                        new Class[]{int.class}, View.INVISIBLE);
+            } else {
+                Log.e(TAG, "Screen at index was null. mCurrentScreen = " + mCurrentScreen);
+                return;
+            }
+
+            // showing the filter popup for the next listview needs to be delayed
+            // until we've fully moved to that listview, since otherwise the
+            // popup will appear at the wrong place on the screen
+            //removeCallbacks(mFilterWindowEnabler);
+            //postDelayed(mFilterWindowEnabler, duration + 10);
+
+            // NOTE: moved to computeScroll and handleScreenChangeCompletion()
+        }
+
+        if (!mScroller.isFinished()) {
+            mScroller.abortAnimation();
+        }
+        mScroller.startScroll(sX, 0, delta, 0, duration);
+        if (screenChanging && notify) {
+            notifyScreenChangeListener(mNextScreen, false);
+        }
         invalidate();
-
-        if (this.scrollListener != null) {
-            scrollListener.onScrollToView(whichScreen);
-        }
     }
-
 
     @Override
     protected Parcelable onSaveInstanceState() {
         final SavedState state = new SavedState(super.onSaveInstanceState());
-        state.currentScreen = currentScreen;
+        state.currentScreen = mCurrentScreen;
         return state;
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         SavedState savedState = (SavedState) state;
-
         super.onRestoreInstanceState(savedState.getSuperState());
         if (savedState.currentScreen != -1) {
-            currentScreen = savedState.currentScreen;
+            snapToScreen(savedState.currentScreen, true, true);
         }
     }
 
+    /**
+     * @return True is long presses are still allowed for the current touch
+     */
+    boolean allowLongPress() {
+        return mAllowLongPress;
+    }
 
-    public static class SavedState extends BaseSavedState {
+    /**
+     * Register a callback to be invoked when the screen is changed, either programmatically or via
+     * user interaction.  Will automatically trigger a callback.
+     *
+     * @param screenChangeListener The callback.
+     */
+    public void setOnScreenChangeListener(OnScreenChangeListener screenChangeListener) {
+        setOnScreenChangeListener(screenChangeListener, true);
+    }
+
+    /**
+     * Register a callback to be invoked when the screen is changed, either programmatically or via
+     * user interaction.
+     *
+     * @param screenChangeListener The callback.
+     * @param notifyImmediately Whether to trigger a notification immediately
+     */
+    public void setOnScreenChangeListener(OnScreenChangeListener screenChangeListener,
+            boolean notifyImmediately) {
+        mOnScreenChangeListener = screenChangeListener;
+        if (mOnScreenChangeListener != null && notifyImmediately) {
+            mOnScreenChangeListener.onScreenChanged(getScreenAt(mCurrentScreen), mCurrentScreen);
+        }
+    }
+
+    /**
+     * Register a callback to be invoked when this Workspace is mid-scroll or mid-fling, either
+     * due to user interaction or programmatic changes in the current screen index.
+     *
+     * @param scrollListener The callback.
+     * @param notifyImmediately Whether to trigger a notification immediately
+     */
+    public void setOnScrollListener(OnScrollListener scrollListener, boolean notifyImmediately) {
+        mOnScrollListener = scrollListener;
+        if (mOnScrollListener != null && notifyImmediately) {
+            mOnScrollListener.onScroll(getCurrentScreenFraction());
+        }
+    }
+
+    /**
+     * Scrolls to the given screen.
+     */
+    public void setCurrentScreen(int screenIndex) {
+        snapToScreen(Math.max(0, Math.min(getScreenCount() - 1, screenIndex)));
+    }
+
+    /**
+     * Scrolls to the given screen fast (no matter how large the scroll distance is)
+     *
+     * @param screenIndex
+     */
+    public void setCurrentScreenNow(int screenIndex) {
+        setCurrentScreenNow(screenIndex, true);
+    }
+
+    public void setCurrentScreenNow(int screenIndex, boolean notify) {
+        snapToScreen(Math.max(0, Math.min(getScreenCount() - 1, screenIndex)), true, notify);
+    }
+
+    /**
+     * Scrolls to the screen adjacent to the current screen on the left, if it exists. This method
+     * is a no-op if the Workspace is currently locked.
+     */
+    public void scrollLeft() {
+        if (mLocked) {
+            return;
+        }
+        if (mScroller.isFinished()) {
+            if (mCurrentScreen > 0) {
+                snapToScreen(mCurrentScreen - 1);
+            }
+        } else {
+            if (mNextScreen > 0) {
+                snapToScreen(mNextScreen - 1);
+            }
+        }
+    }
+
+    /**
+     * Scrolls to the screen adjacent to the current screen on the right, if it exists. This method
+     * is a no-op if the Workspace is currently locked.
+     */
+    public void scrollRight() {
+        if (mLocked) {
+            return;
+        }
+        if (mScroller.isFinished()) {
+            if (mCurrentScreen < getChildCount() - 1) {
+                snapToScreen(mCurrentScreen + 1);
+            }
+        } else {
+            if (mNextScreen < getChildCount() - 1) {
+                snapToScreen(mNextScreen + 1);
+            }
+        }
+    }
+
+    /**
+     * If set, invocations of requestChildRectangleOnScreen() will be ignored.
+     */
+    public void setIgnoreChildFocusRequests(boolean mIgnoreChildFocusRequests) {
+        this.mIgnoreChildFocusRequests = mIgnoreChildFocusRequests;
+    }
+
+    public void markViewSelected(View v) {
+        mCurrentScreen = indexOfChild(v);
+    }
+
+    /**
+     * Locks the current screen, preventing users from changing screens by swiping.
+     */
+    public void lockCurrentScreen() {
+        mLocked = true;
+    }
+
+    /**
+     * Unlocks the current screen, if it was previously locked. See also {@link
+     */
+    public void unlockCurrentScreen() {
+        mLocked = false;
+    }
+
+    /**
+     * Sets the resource ID of the separator drawable to use between adjacent screens.
+     */
+    public void setSeparator(int resId) {
+        if (mSeparatorDrawable != null && resId == 0) {
+            // remove existing separators
+            mSeparatorDrawable = null;
+            int num = getChildCount();
+            for (int i = num - 2; i > 0; i -= 2) {
+                removeViewAt(i);
+            }
+            requestLayout();
+        } else if (resId != 0) {
+            // add or update separators
+            if (mSeparatorDrawable == null) {
+                // add
+                int numsep = getChildCount();
+                int insertIndex = 1;
+                mSeparatorDrawable = getResources().getDrawable(resId);
+                for (int i = 1; i < numsep; i++) {
+                    View v = new View(getContext());
+                    v.setBackgroundDrawable(mSeparatorDrawable);
+                    LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                            LayoutParams.FILL_PARENT);
+                    v.setLayoutParams(lp);
+                    addView(v, insertIndex);
+                    insertIndex += 2;
+                }
+                requestLayout();
+            } else {
+                // update
+                mSeparatorDrawable = getResources().getDrawable(resId);
+                int num = getChildCount();
+                for (int i = num - 2; i > 0; i -= 2) {
+                    getChildAt(i).setBackgroundDrawable(mSeparatorDrawable);
+                }
+                requestLayout();
+            }
+        }
+    }
+
+    private static class SavedState extends BaseSavedState {
         int currentScreen = -1;
-
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -652,64 +1018,39 @@ public class WorkspaceView extends ViewGroup {
             currentScreen = in.readInt();
         }
 
-        /**
-         * Save the current screen
-         */
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(currentScreen);
         }
 
-        /**
-         * Return a Parcelable creator
-         */
-        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
 
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 
-    public int getDisplayedChild() {
-        return getCurrentScreen();
+    public void addViewToFront(View v) {
+        mCurrentScreen++;
+        addView(v, 0);
     }
 
-    public void setDisplayedChild(int i, boolean immediate) {
-        scrollToScreen(i, immediate);
-        getChildAt(i).requestFocus();
+    public void removeViewFromFront() {
+        mCurrentScreen--;
+        removeViewAt(0);
     }
 
-    public void setOnScrollListener(OnScrollListener listener) {
-        this.scrollListener = listener;
+    public void addViewToBack(View v) {
+        addView(v);
     }
 
-    static Bitmap centerToFit(Bitmap bitmap, int width, int height) {
-        final int bitmapWidth = bitmap.getWidth();
-        final int bitmapHeight = bitmap.getHeight();
-
-        if (bitmapWidth < width || bitmapHeight < height) {
-            // Normally should get the window_background color of the context
-            int color = Integer.valueOf("FF191919", 16);
-            Bitmap centered = Bitmap.createBitmap(bitmapWidth < width ? width : bitmapWidth,
-                    bitmapHeight < height ? height : bitmapHeight, Bitmap.Config.RGB_565);
-            Canvas canvas = new Canvas(centered);
-            canvas.drawColor(color);
-            canvas.drawBitmap(bitmap, (width - bitmapWidth) / 2.0f, (height - bitmapHeight) / 2.0f,
-                    null);
-            bitmap = centered;
-        }
-        return bitmap;
+    public void removeViewFromBack() {
+        removeViewAt(getChildCount() - 1);
     }
-
-    private OnScrollListener scrollListener;
-
-    public interface OnScrollListener {
-        public abstract void onScrollToView(int index);
-    }
-
 }
