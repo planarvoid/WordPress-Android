@@ -6,10 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.Activities;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.*;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 
@@ -111,13 +108,13 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
 
             InputStream is = resp.getEntity().getContent();
 
-            if (Track.class.equals(loadModel) || User.class.equals(loadModel)) {
-                newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
-            } else if (Event.class.equals(loadModel)) {
+            if (Event.class.equals(loadModel)) {
                 Activities activities = mApp.getMapper().readValue(is, Activities.class);
                 newItems = new ArrayList<Parcelable>();
                 for (Event evt : activities) newItems.add(evt);
                 mNextEventsHref = activities.next_href;
+            } else {
+                newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
             }
 
             // resolve data

@@ -13,10 +13,8 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.objects.Connection;
-import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.adapter.FriendFinderAdapter;
+import com.soundcloud.android.objects.*;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
@@ -167,25 +165,12 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             if (!isOtherUser()) {
                 mConnectionsTask = (LoadConnectionsTask) mPreviousState[4];
-                if (mConnectionsTask == null) {
-                    mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
-                }
-
-                if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
-                    mConnectionsTask.setListener(this);
-                    if (CloudUtils.isTaskPending(mConnectionsTask)) mConnectionsTask.execute();
-                }
-
                 mConnections = (List<Connection>) mPreviousState[5];
-                if (mConnections != null) {
-                    onConnections(mConnections);
-                }
-
             }
 
             build();
 
-            restoreAdapterStates((Object[]) mPreviousState[4]);
+            restoreAdapterStates((Object[]) mPreviousState[6]);
 
         } else {
             Intent intent = getIntent();
@@ -199,6 +184,19 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 loadYou();
             }
         }
+
+         if (!isOtherUser()) {
+            if (mConnectionsTask == null) {
+                mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+            }
+
+            if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
+                mConnectionsTask.setListener(this);
+                if (CloudUtils.isTaskPending(mConnectionsTask)) mConnectionsTask.execute();
+            }
+        }
+
+
         loadDetails();
     }
 
@@ -265,7 +263,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     @Override
     public void onConnections(List<Connection> connections) {
-        if (mFriendFinderView != null) mFriendFinderView.showList(connections);
+        mConnections = connections;
+        mFriendFinderView.showList(connections, true);
     }
 
     public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -434,12 +433,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTabList(this, followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
-
-        FriendFinderView mFriendFinderView = null;
-
         if (!isOtherUser()) {
-            adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
+            adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), Friend.class);
+            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.MY_FRIENDS);
 
             mFriendFinderView = new FriendFinderView(this, adpWrap);
             mFriendFinderView.friendList = CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
@@ -449,7 +445,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
                 mFriendFinderView.showLoading();
             } else {
-                mFriendFinderView.showList(mConnections);
+                mFriendFinderView.showList(mConnections, false);
             }
         }
 

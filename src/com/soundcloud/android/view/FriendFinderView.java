@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.nfc.Tag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -56,7 +57,7 @@ public class FriendFinderView extends ScTabView {
         mSuggestedLayout.setVisibility(View.GONE);
     }
 
-    public void showList(List<Connection> connections) {
+    public void showList(List<Connection> connections, boolean refresh) {
 
         if (Connection.checkConnectionListForService(connections, Service.Facebook)){
             friendList.getWrapper().setPath(Endpoints.MY_FRIENDS, null);
@@ -75,9 +76,9 @@ public class FriendFinderView extends ScTabView {
             mSuggestedLayout.setVisibility(View.VISIBLE);
         }
 
-        friendList.getWrapper().refresh();
         mLoadingLayout.setVisibility(View.GONE);
         friendList.setVisibility(View.VISIBLE);
+        if (refresh) friendList.getWrapper().refresh();
     }
 
 }

@@ -283,10 +283,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setAdapter(this);
-
                     appendTask.execute(buildRequest());
                 }
-
             }
 
             return pendingView;
