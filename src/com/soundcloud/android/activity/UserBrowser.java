@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
@@ -63,7 +62,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserBrowser extends ScActivity implements ConnectionsListener {
+public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenChangeListener, ConnectionsListener {
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
@@ -76,6 +75,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
     private TextView mDiscogsName;
     private TextView mMyspaceName;
     private TextView mDescription;
+    private HorizontalScrollView hsv;
 
     private ImageButton mFollow;
 
@@ -151,7 +151,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         mLastTabIndex = 0;
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null){
+        if (mPreviousState != null) {
             mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
             mLoadDetailsTask.setActivity(this);
 
@@ -159,25 +159,25 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
 
             mCheckFollowingTask = (CheckFollowingStatusTask) mPreviousState[3];
-            if (CloudUtils.isTaskFinished(mCheckFollowingTask)){
+            if (CloudUtils.isTaskFinished(mCheckFollowingTask)) {
                 setFollowingButtonText();
             } else {
                 mCheckFollowingTask.setUserBrowser(this);
             }
 
-            if (!isOtherUser()){
-                mConnectionsTask = (LoadConnectionsTask)mPreviousState[4];
-                if (mConnectionsTask == null){
+            if (!isOtherUser()) {
+                mConnectionsTask = (LoadConnectionsTask) mPreviousState[4];
+                if (mConnectionsTask == null) {
                     mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
                 }
 
-                if (!CloudUtils.isTaskFinished(mConnectionsTask)){
+                if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
                     mConnectionsTask.setListener(this);
                     if (CloudUtils.isTaskPending(mConnectionsTask)) mConnectionsTask.execute();
                 }
 
                 mConnections = (List<Connection>) mPreviousState[5];
-                if (mConnections != null){
+                if (mConnections != null) {
                     onConnections(mConnections);
                 }
 
@@ -209,10 +209,9 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
     }
 
 
-
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[] {
+        return new Object[]{
                 super.onRetainNonConfigurationInstance(),
                 mLoadDetailsTask,
                 mUserData,
@@ -234,9 +233,9 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         return states;
     }
 
-    private void restoreAdapterStates(Object[] adapterStates){
+    private void restoreAdapterStates(Object[] adapterStates) {
         int i = 0;
-        for ( Object adapterState : adapterStates ){
+        for (Object adapterState : adapterStates) {
             if (adapterState != null) (mLists.get(i).getWrapper()).restoreState((Object[]) adapterState);
             i++;
         }
@@ -258,7 +257,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         loadDetails();
 
         if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getDisplayedChild())).onRefresh();
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh();
         } else {
             ((ScTabView) mTabHost.getCurrentView()).onRefresh();
         }
@@ -267,6 +266,18 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
     @Override
     public void onConnections(List<Connection> connections) {
         if (mFriendFinderView != null) mFriendFinderView.showList(connections);
+    }
+
+    public void onScreenChanged(View newScreen, int newScreenIndex) {
+        mTabHost.setCurrentTab(newScreenIndex);
+        if (hsv != null) {
+            hsv.scrollTo(mTabWidget.getChildTabViewAt(newScreenIndex).getLeft()
+                    + mTabWidget.getChildTabViewAt(newScreenIndex).getWidth() / 2 - getWidth() / 2, 0);
+        }
+    }
+
+    public void onScreenChanging(View newScreen, int newScreenIndex) {
+        // do nothing
     }
 
     private void loadYou() {
@@ -292,7 +303,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
     }
 
     private void loadUserByObject(User userInfo) {
-        if (userInfo  == null)  return;
+        if (userInfo == null) return;
 
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
@@ -302,7 +313,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
 
     private void loadDetails() {
-        if (mLoadDetailsTask == null){
+        if (mLoadDetailsTask == null) {
             mLoadDetailsTask = new LoadUserTask(getSoundCloudApplication());
             mLoadDetailsTask.setActivity(this);
         }
@@ -319,7 +330,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
         @Override
         protected void onPostExecute(User user) {
-            if (user != null){
+            if (user != null) {
                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
                         getSoundCloudApplication().getCurrentUserId());
                 mapUser(user);
@@ -337,20 +348,10 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabWidget = (TabWidget) findViewById(android.R.id.tabs);
-
-        final HorizontalScrollView hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
-        hsv.setBackgroundColor(0xFF555555);
-
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-        mWorkspaceView.setOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrollToView(int index) {
-                mTabHost.setCurrentTab(index);
-                hsv.scrollTo(mTabWidget.getChildTabViewAt(index).getLeft()
-                        + mTabWidget.getChildTabViewAt(index).getWidth() / 2 - getWidth() / 2, 0);
-            }
 
-        });
+        hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
+        hsv.setBackgroundColor(0xFF555555);
 
         final ScTabView emptyView = new ScTabView(this);
 
@@ -376,7 +377,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl());
-        if (isOtherUser()){
+        if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_favorites_text,
@@ -400,7 +401,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
 
-        if (isOtherUser()){
+        if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_followings_text,
@@ -418,7 +419,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
 
-        if (isOtherUser()){
+        if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_followers_text,
@@ -445,7 +446,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
             mFriendFinderView.friendList.disableLongClickListener();
             CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
 
-            if (!CloudUtils.isTaskFinished(mConnectionsTask)){
+            if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
                 mFriendFinderView.showLoading();
             } else {
                 mFriendFinderView.showList(mConnections);
@@ -469,6 +470,8 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         mWorkspaceView.addView(followingsView);
         mWorkspaceView.addView(followersView);
         if (mFriendFinderView != null) mWorkspaceView.addView(mFriendFinderView);
+
+        mWorkspaceView.setOnScreenChangeListener(this);
 
         mTabWidget.invalidate();
         setTabTextInfo();
@@ -527,8 +530,13 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String arg0) {
-            if (mWorkspaceView != null)
-                mWorkspaceView.setDisplayedChild(mTabHost.getCurrentTab(), (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1));
+            if (mWorkspaceView != null) {
+                if (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1) {
+                    mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
+                } else {
+                    mWorkspaceView.setCurrentScreen(mTabHost.getCurrentTab());
+                }
+            }
 
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
@@ -549,13 +557,13 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         }
     }
 
-    public void onCheckFollowingStatus(boolean isFollowing){
+    public void onCheckFollowingStatus(boolean isFollowing) {
         mUserData.current_user_following = isFollowing;
         setFollowingButtonText();
     }
 
     public void setTab(int screen) {
-        mWorkspaceView.scrollToScreen(screen);
+        mWorkspaceView.setCurrentScreen(screen);
     }
 
     private void toggleFollowing() {
@@ -635,7 +643,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
                 remoteUrl = CloudUtils.formatGraphicsUrl(mUserData.avatar_url, GraphicsSizes.BADGE);
             }
 
-            if (_iconURL == null || avatarResult == BindResult.ERROR || !remoteUrl.substring(0,remoteUrl.indexOf("?")).equals(_iconURL.substring(0,_iconURL.indexOf("?")))) {
+            if (_iconURL == null || avatarResult == BindResult.ERROR || !remoteUrl.substring(0, remoteUrl.indexOf("?")).equals(_iconURL.substring(0, _iconURL.indexOf("?")))) {
                 _iconURL = remoteUrl;
                 reloadAvatar();
             }
@@ -670,7 +678,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
             mDiscogsName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.discogs.com/artist/"+mUserData.discogs_name));
+                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.discogs.com/artist/" + mUserData.discogs_name));
                     startActivity(viewIntent);
                 }
             });
@@ -687,7 +695,7 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
             mMyspaceName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.myspace.com/"+mUserData.myspace_name));
+                    Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.myspace.com/" + mUserData.myspace_name));
                     startActivity(viewIntent);
                 }
             });
@@ -745,40 +753,38 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
         builder.setNegativeButton(getString(android.R.string.cancel), null);
         builder.setItems(curr_items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                if (curr_items[item].equals(RECORDING_ITEMS[0])){
-                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.getUri()));
-                }else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.getUri()));
+                if (curr_items[item].equals(RECORDING_ITEMS[0])) {
+                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
+                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
                 } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                     startUpload(recording);
-                } else if (curr_items[item].equals(RECORDING_ITEMS[3])){
+                } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
                     new AlertDialog.Builder(UserBrowser.this)
-                    .setTitle(R.string.dialog_confirm_delete_recording_title)
-                    .setMessage(R.string.dialog_confirm_delete_recording_message)
-                    .setPositiveButton(getString(R.string.btn_yes),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                        int whichButton) {
-                                    getContentResolver().delete(Content.RECORDINGS,
-                                            Recordings.ID + " = " + recording.id, null);
-                                    if (!recording.external_upload){
-                                        File f = new File(recording.audio_path);
-                                        if (f.exists()) f.delete();
-                                    }
-                                }
-                            })
-                    .setNegativeButton(getString(R.string.btn_no),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                        int whichButton) {
-                                }
-                            }).create().show();
+                            .setTitle(R.string.dialog_confirm_delete_recording_title)
+                            .setMessage(R.string.dialog_confirm_delete_recording_message)
+                            .setPositiveButton(getString(R.string.btn_yes),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int whichButton) {
+                                            getContentResolver().delete(recording.toUri(), null, null);
+                                            if (!recording.external_upload) {
+                                                File f = new File(recording.audio_path);
+                                                if (f.exists()) f.delete();
+                                            }
+                                        }
+                                    })
+                            .setNegativeButton(getString(R.string.btn_no),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int whichButton) {
+                                        }
+                                    }).create().show();
                 }
             }
         });
         builder.create().show();
     }
-
 
 
     private Request getDetailsRequest() {
@@ -808,16 +814,16 @@ public class UserBrowser extends ScActivity implements ConnectionsListener {
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        try {
-                                            // XXX this should be handled by ScCreate
-                                            mCreateService.cancelUpload();
-                                        } catch (RemoteException ignored) {
-                                            Log.w(TAG, ignored);
-                                        }
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
-                                    }
-                                }).setNegativeButton(getString(R.string.btn_no),
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                try {
+                                    // XXX this should be handled by ScCreate
+                                    mCreateService.cancelUpload();
+                                } catch (RemoteException ignored) {
+                                    Log.w(TAG, ignored);
+                                }
+                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                            }
+                        }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);

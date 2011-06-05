@@ -189,7 +189,12 @@ public class PlayerAvatarBar extends View {
             final List<Comment> comments = mCurrentComments;
             if (comments == null || getWidth() <= 0) return;
 
-            mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+            try {
+                mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+            } catch (OutOfMemoryError e){
+                Log.e(TAG,"Out of memory during avatar refresher bitmap creation");
+                return; // just don't show the updated bar, acceptable failure
+            }
 
             Canvas canvas = new Canvas(mNextCanvasBmp);
 

@@ -61,7 +61,7 @@
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
 
-        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:launchMode="singleTop">
+        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:launchMode="singleInstance">
             <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
 

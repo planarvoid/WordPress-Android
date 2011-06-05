@@ -590,7 +590,7 @@ public class CloudPlaybackService extends Service {
             mStopThread = null;
             mCurrentDownloadAttempts = 0;
 
-            if (mPlayingData.streamable) {
+            if (mPlayingData.isStreamable()) {
                 configureTrackData(mPlayingData);
                 notifyChange(INITIAL_BUFFERING);
 
@@ -1916,10 +1916,13 @@ public class CloudPlaybackService extends Service {
 
         @Override
         public void run() {
+            if (!track.isStreamable()) return;
+
             CloudPlaybackService svc = serviceRef.get();
             if (svc == null) return;
             SoundCloudApplication app = (SoundCloudApplication) svc.getApplication();
 
+            // 2.1 only
             AndroidHttpClient cli = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
 
             HttpGet method;

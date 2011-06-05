@@ -117,7 +117,7 @@ public class ScUpload extends ScActivity {
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
             mapToRecording();
-            getContentResolver().update(Content.RECORDINGS, mRecording.buildContentValues(), Recordings.ID + "='" + mRecording.id + "'", null);
+            getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
         }
     }
 

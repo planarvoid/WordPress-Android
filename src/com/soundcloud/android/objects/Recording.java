@@ -128,7 +128,6 @@ public class Recording extends BaseObj implements Parcelable {
 
     public ContentValues buildContentValues(){
         ContentValues cv = new ContentValues();
-        cv.put(Recordings.ID, id);
         cv.put(Recordings.USER_ID, user_id);
         cv.put(Recordings.TIMESTAMP, timestamp);
         cv.put(Recordings.LONGITUDE, longitude);
@@ -246,7 +245,7 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
 
-    public Uri getUri() {
+    public Uri toUri() {
         return DatabaseHelper.Content.RECORDINGS
                 .buildUpon()
                 .appendEncodedPath(String.valueOf(id))
