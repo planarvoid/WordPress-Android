@@ -11,6 +11,8 @@ public class ScSearchTest {
     @Test
     public void shouldSearch() throws Exception {
         Robolectric.pauseMainLooper();
+        Robolectric.application.onCreate();
+
         ScSearch search = new ScSearch();
         search.onCreate(null);
         search.doSearch("Testing");

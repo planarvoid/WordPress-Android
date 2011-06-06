@@ -70,6 +70,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
 
+
     public HashSet<Long> followingsSet;
     public HashSet<Long> lastFollowingsSet;
     public List<User> followings;
