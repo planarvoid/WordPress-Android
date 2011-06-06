@@ -107,6 +107,13 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    @Override
+    public boolean onSearchRequested() {
+        // just focus on the search tab, don't show default android search dialog
+        startActivity(new Intent(this, Main.class).putExtra("tabTag", "search").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        return false;
+    }
+
     private ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {

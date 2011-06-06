@@ -27,7 +27,6 @@
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
 
-             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
         </activity>
 
         <activity android:name=".activity.auth.Start" android:label="@string/app_name" />
@@ -54,25 +53,17 @@
                 <!-- not used anymore, but there are still some shortcuts around -->
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
         </activity>
 
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings"/>
 
-        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:launchMode="singleInstance">
-            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
-        </activity>
-
-        <activity android:name=".activity.UserBrowser" android:label="Profile">
-            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
-        </activity>
+        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:launchMode="singleInstance"/>
+        <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
-        <activity android:name=".activity.ScCreate">
-            <meta-data android:name="android.app.default_searchable" android:value=".activity.Main"/>
-        </activity>
+        <activity android:name=".activity.ScCreate"/>
         <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
@@ -86,7 +77,6 @@
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
             android:finishOnTaskLaunch="true"/>
-
 
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
