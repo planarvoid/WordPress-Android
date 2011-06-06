@@ -290,7 +290,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(getDetailsRequest());
+            mLoadDetailsTask.execute(Request.to(Endpoints.USER_DETAILS, mUserLoadId));
         }
     }
 
@@ -744,27 +744,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         builder.create().show();
     }
 
-
-
-    private Request getDetailsRequest() {
-        return Request.to(Endpoints.USER_DETAILS, mUserLoadId);
-    }
-
-    private String getUserTracksUrl() {
-        return String.format(Endpoints.USER_TRACKS, mUserLoadId);
-    }
-
-    private String getFavoritesUrl() {
-        return String.format(Endpoints.USER_FAVORITES, mUserLoadId);
-    }
-
-    private String getFollowersUrl() {
-        return String.format(Endpoints.USER_FOLLOWERS, mUserLoadId);
-    }
-
-    private String getFollowingsUrl() {
-        return String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId);
-    }
 
     @Override
     protected Dialog onCreateDialog(int which) {
