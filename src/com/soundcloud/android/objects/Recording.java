@@ -102,7 +102,9 @@ public class Recording extends BaseObj implements Parcelable {
                         } else if (f.getType() == Double.TYPE) {
                             f.set(this, cursor.getDouble(cursor.getColumnIndex(key)));
                         }  else if (f.getType() == File.class) {
-                            f.set(this, new File(cursor.getString(cursor.getColumnIndex(key))));
+                            if (!TextUtils.isEmpty(cursor.getString(cursor.getColumnIndex(key)))){
+                                f.set(this, new File(cursor.getString(cursor.getColumnIndex(key))));
+                            }
                         }
                     }
                 } catch (IllegalArgumentException e) {
