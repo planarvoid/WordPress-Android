@@ -36,4 +36,11 @@ public class ScContentProviderTest {
     public void shouldRaiseIfTableDoesNotExist() throws Exception {
         ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Foos");
     }
+
+    @Test
+    public void shouldAppendIdToSelection() throws Exception {
+        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Users/20");
+        assertThat(info.where(""), equalTo("_id=20"));
+        assertThat(info.where("foo=bar"), equalTo("foo=bar AND _id=20"));
+    }
 }

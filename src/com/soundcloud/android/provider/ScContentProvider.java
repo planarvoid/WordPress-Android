@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import android.text.TextUtils;
 import android.util.Log;
 import org.w3c.dom.Element;
 
@@ -25,7 +26,7 @@ public class ScContentProvider extends ContentProvider {
 
         public String where(String where) {
             if (id != -1){
-                return where == null ? "_id=" + id : where + " AND _id=" + id;
+                return TextUtils.isEmpty(where) ? "_id=" + id : where + " AND _id=" + id;
             } else {
                 return where;
             }
@@ -48,8 +49,6 @@ public class ScContentProvider extends ContentProvider {
         if (info.id != -1) {
             selection = selection == null ? "_id=" + info.id : selection + " AND _id=" + info.id;
         }
-
-        Log.i("QUERY", selection);
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.query(info.table.tableName, columns, selection, selectionArgs, null, null, sortOrder);
