@@ -672,6 +672,8 @@ public class ScCreate extends ScActivity {
                 return isRawFilename(name) || isCompressedFilename(name);
             }
         })) {
+            if (f.equals(mRecordFile)) continue; // ignore current file
+
             cursor = getContentResolver().query(Content.RECORDINGS,
                     columns,
                     Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'",
