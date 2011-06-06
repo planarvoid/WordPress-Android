@@ -173,16 +173,12 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     public void prepareForUpload(){
-        // XXX enforce proper construction
-        if (audio_path == null) throw new IllegalStateException("need audio_path set");
-
         upload_data = new HashMap<String, Object>();
         upload_data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
         upload_data.put(Params.Track.DOWNLOADABLE, false);
         upload_data.put(Params.Track.STREAMABLE, true);
 
         if (!is_private) {
-
             List<Integer> serviceIds = new ArrayList<Integer>();
             if (!TextUtils.isEmpty(service_ids))
             for (String serviceId : service_ids.split(",")){
@@ -197,8 +193,7 @@ public class Recording extends BaseObj implements Parcelable {
              } else {
                 upload_data.put(Params.Track.POST_TO_EMPTY, "");
              }
-        } else {
-
+        } else { // not private
              if (!TextUtils.isEmpty(shared_emails)) {
                  upload_data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
              }
@@ -226,7 +221,6 @@ public class Recording extends BaseObj implements Parcelable {
         if (latitude  != 0) tags.add("geo:lat="+latitude);
         if (longitude != 0) tags.add("geo:lon="+longitude);
         upload_data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
-
 
         if (!external_upload) {
             if (audio_profile == Profile.RAW) {
