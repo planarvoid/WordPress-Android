@@ -1,9 +1,13 @@
 package com.soundcloud.android.activity.auth;
 
+import android.nfc.Tag;
+import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
@@ -34,12 +38,12 @@ public class SuggestedUsers extends ScActivity {
         mFacebookBtn = (Button)findViewById(R.id.facebook_btn);
 
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
-            ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
-            createList(Endpoints.SUGGESTED_USERS, R.string.empty_list);
-        } else {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.friends_from_facebook);
             mFacebookBtn.setVisibility(View.GONE);
-            createList(Endpoints.MY_FRIENDS, R.string.empty_list);
+            createList(Endpoints.MY_FRIENDS, Friend.class, R.string.empty_list);
+        } else {
+            ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
+            createList(Endpoints.SUGGESTED_USERS, User.class, R.string.empty_list);
         }
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
@@ -54,8 +58,8 @@ public class SuggestedUsers extends ScActivity {
         pageTrack("/suggested_users");
     }
 
-    protected void createList(String endpoint, int emptyText) {
-        UserlistAdapter adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+    protected void createList(String endpoint, Class<?> model, int emptyText) {
+        FriendFinderAdapter adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), model);
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, endpoint, "collection");
 
         mListView = buildList();
