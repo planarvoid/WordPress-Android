@@ -22,6 +22,18 @@ public class ScContentProvider extends ContentProvider {
     static class TableInfo {
         DatabaseHelper.Tables table;
         long id = -1;
+
+        public String where(String where) {
+            if (id != -1){
+                return where == null ? "_id=" + id : where + " AND _id=" + id;
+            } else {
+                return where;
+            }
+        }
+
+        public String[] whereArgs(String[] whereArgs) {
+            return whereArgs;
+        }
     }
 
     @Override
@@ -62,12 +74,8 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        TableInfo table = getTableInfo(uri);
-        if (table.id != -1) {
-            where = "_id = ?";
-            whereArgs = new String[]{String.valueOf(table.id)};
-        }
-        int count = db.delete(table.table.tableName, where, whereArgs);
+        TableInfo tableInfo = getTableInfo(uri);
+        int count = db.delete(tableInfo.table.tableName, tableInfo.where(where), tableInfo.whereArgs(whereArgs));
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
@@ -75,7 +83,8 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count = db.update(getTable(uri).name(), values, where, whereArgs);
+        TableInfo tableInfo = getTableInfo(uri);
+        int count = db.update(tableInfo.table.tableName, values, tableInfo.where(where), tableInfo.whereArgs(whereArgs));
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
