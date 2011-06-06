@@ -20,10 +20,13 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class RecordingTest {
     Recording r;
+    File f;
+
 
     @Before
     public void setup() throws Exception {
-        r = new Recording(new File("/tmp/foo"));
+        f = new File("/tmp/foo");
+        r = new Recording(f);
         // 14:31:01, 15/02/2011
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
@@ -100,4 +103,23 @@ public class RecordingTest {
         r.audio_profile = CloudRecorder.Profile.RAW;
         assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_null.ogg"));
     }
+
+
+    @Test
+    public void shouldDeleteRecording() throws Exception {
+        assertThat(r.delete(null), is(false));
+        assertThat(f.createNewFile(), is(true));
+        assertThat(r.delete(null),( is(true)));
+        assertThat(f.exists(), is(false));
+    }
+
+    @Test
+    public void shouldNotDeleteRecordingIfExternal() throws Exception {
+        r.external_upload = true;
+        assertThat(f.createNewFile(), is(true));
+        assertThat(r.delete(null),( is(false)));
+        assertThat(f.exists(), is(true));
+    }
+
+
 }
