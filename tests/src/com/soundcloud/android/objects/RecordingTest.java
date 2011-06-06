@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -90,5 +91,13 @@ public class RecordingTest {
     @Test
     public void shouldHaveFormattedDuration() throws Exception {
         assertThat(r.formattedDuration(), equalTo("1.26"));
+    }
+
+    @Test
+    public void shouldGenerateAnUploadFilename() throws Exception {
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/A_Title_null.mp4"));
+
+        r.audio_profile = CloudRecorder.Profile.RAW;
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_null.ogg"));
     }
 }

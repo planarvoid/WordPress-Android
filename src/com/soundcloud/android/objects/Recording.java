@@ -238,7 +238,7 @@ public class Recording extends BaseObj implements Parcelable {
         upload_status = UploadStatus.UPLOADING;
     }
 
-    private File generateUploadFilename(String title) {
+    /* package */ File generateUploadFilename(String title) {
         switch (audio_profile) {
             case Profile.ENCODED_LOW:
             case Profile.ENCODED_HIGH:
