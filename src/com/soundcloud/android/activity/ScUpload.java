@@ -391,7 +391,7 @@ public class ScUpload extends ScActivity {
     }
 
     private File getCurrentImageFile() {
-        return (mRecording == null) ? null : mRecording.newImageFile(mImageDir);
+        return (mRecording == null) ? null : mRecording.generateImageFile(mImageDir);
     }
 
     private void preloadLocations() {

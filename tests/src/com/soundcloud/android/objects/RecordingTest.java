@@ -123,4 +123,13 @@ public class RecordingTest {
         assertThat(r.delete(null),( is(false)));
         assertThat(f.exists(), is(true));
     }
+
+    @Test
+    public void shouldGenerateImageFilename() throws Exception {
+        assertThat(new Recording(new File("/tmp/foo.mp4")).generateImageFile(new File("/images")).getAbsolutePath(),
+                equalTo("/images/foo.bmp"));
+
+        assertThat(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath(),
+                equalTo("/images/foo.bmp"));
+    }
 }

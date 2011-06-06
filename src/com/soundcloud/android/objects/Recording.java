@@ -55,10 +55,16 @@ public class Recording extends BaseObj implements Parcelable {
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
 
-
-    public File newImageFile(File imageDir) {
-        return (audio_path == null) ? null :
-             new File(imageDir, audio_path.getName().substring(0, artwork_path.getName().lastIndexOf(".")) + ".bmp");
+    public File generateImageFile(File imageDir) {
+        if (audio_path == null) {
+            return null;
+        } else {
+            if (audio_path.getName().contains(".")) {
+                return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
+            } else {
+                return new File(imageDir, audio_path.getName()+".bmp");
+            }
+        }
     }
 
     public boolean exists() {
