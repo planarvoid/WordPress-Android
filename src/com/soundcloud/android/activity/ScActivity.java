@@ -460,7 +460,7 @@ public abstract class ScActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CloudUtils.OptionsMenu.SETTINGS:
-                Intent intent = new Intent(this, SuggestedUsers.class);
+                Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.REFRESH:
