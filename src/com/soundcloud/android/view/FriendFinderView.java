@@ -49,7 +49,9 @@ public class FriendFinderView extends ScTabView {
     }
 
     public void showList(List<Connection> connections, boolean refresh) {
-        if (Connection.checkConnectionListForService(connections, Service.Facebook)){
+
+        if (connections == null /* cheap way of showing an error */
+                || Connection.checkConnectionListForService(connections, Service.Facebook)){
             friendList.getWrapper().setPath(Endpoints.MY_FRIENDS, null);
             ((LazyBaseAdapter) friendList.getAdapter()).setModel(Friend.class);
             if (friendList.getParent() == mSuggestedLayout.findViewById(R.id.listHolder)){
@@ -66,6 +68,7 @@ public class FriendFinderView extends ScTabView {
             mSuggestedLayout.setVisibility(View.VISIBLE);
         }
 
+        friendList.getWrapper().createListEmptyView(friendList);
         mLoadingLayout.setVisibility(View.GONE);
         friendList.setVisibility(View.VISIBLE);
         if (refresh) friendList.getWrapper().refresh(false);
