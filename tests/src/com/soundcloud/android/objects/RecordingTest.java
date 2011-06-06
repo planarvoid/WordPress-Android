@@ -98,10 +98,10 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateAnUploadFilename() throws Exception {
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/A_Title_null.mp4"));
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
 
         r.audio_profile = CloudRecorder.Profile.RAW;
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_null.ogg"));
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01w.ogg"));
     }
 
 
@@ -120,6 +120,4 @@ public class RecordingTest {
         assertThat(r.delete(null),( is(false)));
         assertThat(f.exists(), is(true));
     }
-
-
 }

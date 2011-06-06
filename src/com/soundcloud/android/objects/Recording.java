@@ -18,18 +18,15 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.channels.OverlappingFileLockException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -55,6 +52,9 @@ public class Recording extends BaseObj implements Parcelable {
     public boolean upload_error;
 
     public Map<String,Object> upload_data;
+
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+
 
     public File newImageFile(File imageDir) {
         return (audio_path == null) ? null :
@@ -262,8 +262,10 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     private String generateFilename(String title, String extension) {
-        return String.format("%s_%s.%s", URLEncoder.encode(title.replace(" ","_")),
-               DateFormat.format("yyyy-MM-dd-hh-mm-ss", timestamp), extension);
+        return String.format("%s_%s.%s",
+                URLEncoder.encode(title.replace(" ","_")),
+                dateFormat.format(new Date(timestamp)),
+                extension);
     }
 
     public String sharingNote() {

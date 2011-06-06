@@ -209,7 +209,6 @@ public class ScCreate extends ScActivity {
 
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
-                    r.timestamp = mRecordFile.lastModified();
                     r.user_id = getUserId();
 
                     try { // set duration because ogg files report incorrect
@@ -682,7 +681,6 @@ public class ScCreate extends ScActivity {
             if ((cursor == null || cursor.getCount() == 0)) {
                 Recording r = new Recording(f);
                 r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
-                r.timestamp = f.lastModified();
                 r.user_id = getUserId();
 
                 try {
