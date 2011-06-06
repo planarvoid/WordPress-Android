@@ -17,9 +17,13 @@
 
         <EditText android:id="@+id/query"
                 android:layout_height="wrap_content"
-                android:nextFocusUp="@+id/query" android:nextFocusLeft="@+id/query"
-                android:imeOptions="actionSearch" android:layout_width="wrap_content"
-                android:layout_alignParentLeft="true" android:layout_toLeftOf="@+id/search"/>
+                android:nextFocusUp="@+id/query"
+                android:nextFocusLeft="@+id/query"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:layout_width="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/search"/>
 
         <Button android:id="@+id/search"
                 android:text="@string/search"

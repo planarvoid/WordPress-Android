@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
@@ -9,6 +8,7 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -18,14 +18,13 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 // XXX decouple from ScActivity
@@ -70,29 +69,26 @@ public class ScSearch extends ScActivity {
         // to checking for data type (user/track) when restoring list data
         mList = buildList();
 
-        ((FrameLayout) findViewById(R.id.list_holder)).addView(mList);
+        ((ViewGroup) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
 
-        LazyBaseAdapter adpTrack = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        mTrackAdpWrapper = new LazyEndlessAdapter(this, adpTrack, "");
-
-        LazyBaseAdapter adpUser = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        mUserAdpWrapper = new LazyEndlessAdapter(this, adpUser, "");
+        mTrackAdpWrapper = new LazyEndlessAdapter(this, new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class), null);
+        mUserAdpWrapper = new LazyEndlessAdapter(this, new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class), null);
 
         mList.setAdapter(mTrackAdpWrapper);
         mList.setId(android.R.id.list);
 
         btnSearch.setNextFocusDownId(android.R.id.list);
 
-        findViewById(R.id.search_root).setOnFocusChangeListener(keyboardHideFocusListener);
-        findViewById(R.id.search_root).setOnClickListener(keyboardHideClickListener);
-        findViewById(R.id.search_root).setOnTouchListener(keyboardHideTouchListener);
+        final View root = findViewById(R.id.search_root);
+        root.setOnFocusChangeListener(keyboardHideFocusListener);
+        root.setOnClickListener(keyboardHideClickListener);
+        root.setOnTouchListener(keyboardHideTouchListener);
 
         txtQuery.setOnFocusChangeListener(queryFocusListener);
         txtQuery.setOnClickListener(queryClickListener);
 
         txtQuery.addTextChangedListener(new TextWatcher() {
-
             public void afterTextChanged(Editable s) {
             }
 
@@ -138,12 +134,12 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setPath(Endpoints.TRACKS, URLEncoder.encode(query));
+            mTrackAdpWrapper.setRequest(Request.to(Endpoints.TRACKS).with("q", query));
             mTrackAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mTrackAdpWrapper);
             mList.enableLongClickListener();
         } else {
-            mUserAdpWrapper.setPath(Endpoints.USERS, URLEncoder.encode(query));
+            mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
             mUserAdpWrapper.createListEmptyView(mList);
             mList.setAdapter(mUserAdpWrapper);
             mList.disableLongClickListener();
@@ -155,9 +151,6 @@ public class ScSearch extends ScActivity {
             if (hasFocus) {
                 rdoTrack.setVisibility(View.VISIBLE);
                 rdoUser.setVisibility(View.VISIBLE);
-            } else {
-                // rdoTrack.setVisibility(View.GONE);
-                // rdoUser.setVisibility(View.GONE);
             }
         }
     };
@@ -205,5 +198,4 @@ public class ScSearch extends ScActivity {
             return false;
         }
     };
-
 }

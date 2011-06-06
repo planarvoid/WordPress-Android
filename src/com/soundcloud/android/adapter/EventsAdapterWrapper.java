@@ -7,10 +7,8 @@ import com.soundcloud.api.Request;
 import android.text.TextUtils;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
-
-    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            String collectionKey) {
-        super(activity, wrapped, url, collectionKey);
+    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
+        super(activity, wrapped, request);
     }
 
     @Override

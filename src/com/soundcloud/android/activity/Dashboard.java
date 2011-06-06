@@ -8,6 +8,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -23,9 +24,6 @@ public class Dashboard extends ScActivity {
     private ScTabView mTracklistView;
     private String mTrackingPath;
 
-    public static final String SYNC_CHECK_ACTION = "com.soundcloud.android.eventforeground";
-
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -38,13 +36,13 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             if ("incoming".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(Endpoints.MY_ACTIVITIES,
+                mTracklistView = createList(Request.to(Endpoints.MY_ACTIVITIES),
                         Event.class,
                         R.string.empty_incoming_text,
                         CloudUtils.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(Endpoints.MY_EXCLUSIVE_TRACKS,
+                mTracklistView = createList(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS),
                         Event.class,
                         R.string.empty_exclusive_text,
                         CloudUtils.ListId.LIST_EXCLUSIVE, true);
@@ -69,9 +67,9 @@ public class Dashboard extends ScActivity {
         pageTrack(mTrackingPath);
     }
 
-    protected ScTabView createList(String endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
+    protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, "collection");
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);
 
         if (emptyText != -1) {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));
@@ -94,16 +92,6 @@ public class Dashboard extends ScActivity {
     public void onRefresh() {
         mTracklistView.onRefresh();
     }
-
-    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equals(SYNC_CHECK_ACTION)) {
-                this.setResultCode(Activity.RESULT_OK);
-            }
-        }
-    };
 
     // legacy action, redirect to Main
     private boolean redirectToMain() {

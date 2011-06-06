@@ -330,7 +330,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl());
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUserLoadId));
         if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -347,7 +347,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl());
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUserLoadId));
         if (isOtherUser()){
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -370,7 +370,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "details", getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUserLoadId));
 
         if (isOtherUser()){
             if (mUserData != null) {
@@ -388,7 +388,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUserLoadId));
 
         if (isOtherUser()){
             if (mUserData != null) {
@@ -410,7 +410,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         if (!isOtherUser()) {
             adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.SUGGESTED_USERS);
+            adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.SUGGESTED_USERS));
             suggestedView = new ScTabView(this, adpWrap);
             CloudUtils.createTabList(this, suggestedView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
             CloudUtils.createTab(mTabHost, "suggested", getString(R.string.tab_suggested), null, emptyView);
