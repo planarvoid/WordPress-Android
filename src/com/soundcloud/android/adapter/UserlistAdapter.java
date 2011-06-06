@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.LoadFollowingsTask;
@@ -8,16 +9,18 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
 
 import android.os.Parcelable;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Handler;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTask.FollowingsListener {
 
-    public static final String IMAGE = "UserlistAdapter_image";
-
     public static final String TAG = "UserlistAdapter";
-
-    public boolean gotFollowings;
 
     public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data,  Class<?> model) {
         super(activity, data, model);
@@ -43,5 +46,4 @@ public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTa
     public void onFollowings(boolean success){
         this.notifyDataSetChanged();
     }
-
 }

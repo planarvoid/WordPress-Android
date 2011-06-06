@@ -42,7 +42,7 @@ public class LoadFollowingsTask extends LoadJsonTask<Long> {
     public void onPostExecute(List<Long> result){
         super.onPostExecute(result);
         if (result != null){
-            mApp.followingsSet = new HashSet<Long>();
+            if (mApp.followingsSet == null) mApp.followingsSet = new HashSet<Long>();
             for (Long following : result){
                 mApp.followingsSet.add(following);
             }

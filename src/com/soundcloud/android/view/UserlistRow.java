@@ -14,6 +14,10 @@ import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
+import java.io.IOException;
 
 public class UserlistRow extends LazyRow {
 
@@ -32,8 +36,9 @@ public class UserlistRow extends LazyRow {
     protected Button mFollowBtn;
     protected Button mFollowingBtn;
 
-
     protected Boolean _isFollowing;
+
+    protected final android.os.Handler mHandler = new android.os.Handler();
 
     public UserlistRow(ScActivity _activity,LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
@@ -48,8 +53,28 @@ public class UserlistRow extends LazyRow {
         mFollowingBtn = (Button)findViewById(R.id.toggleFollowing);
         mFollowBtn = (Button)findViewById(R.id.toggleFollow);
 
-        if (mFollowingBtn != null) mFollowingBtn.setFocusable(false);
-        if (mFollowBtn != null) mFollowBtn.setFocusable(false);
+        if (mFollowingBtn != null) {
+            mFollowingBtn.setFocusable(false);
+            mFollowingBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFollowing(mUser.id, false);
+                    setFollowingStatus(false);
+                }
+            });
+
+
+        }
+        if (mFollowBtn != null) {
+            mFollowBtn.setFocusable(false);
+            mFollowBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changeFollowing(mUser.id, true);
+                    setFollowingStatus(false);
+                }
+            });
+        }
     }
 
     @Override
@@ -65,18 +90,17 @@ public class UserlistRow extends LazyRow {
         mUsername.setText(mUser.username);
         setTrackCount();
         setFollowerCount();
-        setFollowingStatus();
+        setFollowingStatus(true);
 
         _isFollowing = false;
     }
 
-    public void setFollowingStatus() {
+    public void setFollowingStatus(boolean enable) {
 
         if (mActivity.getSoundCloudApplication().followingsSet == null){
             mFollowingBtn.setVisibility(View.GONE);
             mFollowBtn.setVisibility(View.GONE);
         } else {
-            Log.i("AAAAA","Check following of " + mUser.username + " " + mUser.id + " " + mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id));
             mFollowingBtn.setVisibility(mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id) ?
                     View.VISIBLE : View.GONE);
             mFollowBtn.setVisibility(mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id) ?
@@ -85,6 +109,9 @@ public class UserlistRow extends LazyRow {
             if (mFollowingBtn.getVisibility() == View.VISIBLE){
                 mFollowingBtn.refreshDrawableState();
             }
+
+            mFollowingBtn.setEnabled(enable);
+            mFollowBtn.setEnabled(enable);
         }
     }
 
@@ -116,5 +143,43 @@ public class UserlistRow extends LazyRow {
     }
 
     // **********************End
+
+
+    public void changeFollowing(final long userId, final boolean follow){
+        mActivity.getSoundCloudApplication().updateFollowing(userId, follow);
+
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                final Request request = Request.to(Endpoints.MY_FOLLOWING, userId);
+                boolean success = false;
+                try {
+                    int mFollowResult;
+                    if (follow){
+                        mFollowResult =
+                                mActivity.getSoundCloudApplication().put(request).getStatusLine().getStatusCode();
+                    } else {
+                        mFollowResult =
+                                mActivity.getSoundCloudApplication().delete(request).getStatusLine().getStatusCode();
+                    }
+
+                    if (mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404) {
+                        success = true;
+                    }
+
+
+                } catch (IOException e) {
+                    Log.e(TAG, "error", e);
+
+                }
+
+                if (!success){
+                    mActivity.getSoundCloudApplication().updateFollowing(userId, !follow);
+                }
+                mHandler.post(new Runnable() {public void run() {mAdapter.notifyDataSetChanged();};});
+            }
+        };
+        t.start();
+    }
 
 }

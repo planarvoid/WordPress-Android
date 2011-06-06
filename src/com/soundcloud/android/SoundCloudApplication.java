@@ -411,6 +411,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mFollowingsTask.addListener(listener);
     }
 
+    public void updateFollowing(long userId, boolean follow){
+        HashSet<Long> changeSet = (followingsSet != null) ? followingsSet : lastFollowingsSet;
+        if (changeSet == null){
+            followingsSet = changeSet = new HashSet<Long>();
+        }
+
+         if (follow) {
+            changeSet.add(userId);
+        } else {
+            changeSet.remove(userId);
+        }
+    }
+
     @Override
     public Token onTokenInvalid(Token expired) {
         getAccountManager().invalidateAuthToken(
