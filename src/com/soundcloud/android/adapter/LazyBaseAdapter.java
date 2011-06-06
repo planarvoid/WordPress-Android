@@ -89,7 +89,7 @@ public class LazyBaseAdapter extends BaseAdapter {
         return new LazyRow(mActivity, this);
     }
 
-    public void refresh() {
+    public void refresh(boolean userRefresh) {
         mData.clear();
         reset();
     }

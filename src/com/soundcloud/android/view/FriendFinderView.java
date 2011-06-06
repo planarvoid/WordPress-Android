@@ -43,14 +43,6 @@ public class FriendFinderView extends ScTabView {
         });
     }
 
-    @Override
-    public void onRefresh() {
-        Log.i("FFF","ON REFRESHHH");
-        if (adapter instanceof LazyEndlessAdapter) {
-            ((LazyEndlessAdapter) adapter).refresh();
-        }
-    }
-
     public void showLoading() {
         mLoadingLayout.setVisibility(View.VISIBLE);
         friendList.setVisibility(View.GONE);
@@ -78,7 +70,7 @@ public class FriendFinderView extends ScTabView {
 
         mLoadingLayout.setVisibility(View.GONE);
         friendList.setVisibility(View.VISIBLE);
-        if (refresh) friendList.getWrapper().refresh();
+        if (refresh) friendList.getWrapper().refresh(false);
     }
 
 }

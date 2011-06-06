@@ -419,7 +419,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * Clear and reset this adapter of any data. Primarily used for refreshing
      */
     @SuppressWarnings("unchecked")
-    public void refresh() {
+    public void refresh(boolean userRefresh) {
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
         if (mListView != null)
@@ -428,7 +428,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mCurrentPage = 0;
         keepOnAppending.set(true);
 
-        getWrappedAdapter().refresh();
+        getWrappedAdapter().refresh(userRefresh);
 
         if (appendTask != null) {
             if (!CloudUtils.isTaskFinished(appendTask)) {

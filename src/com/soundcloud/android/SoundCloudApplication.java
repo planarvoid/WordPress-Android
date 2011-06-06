@@ -7,12 +7,11 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.utils.CloudCache;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.api.*;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -42,9 +41,7 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @ReportsCrashes(formKey = "dE9lUVFDd1kwRHVObWlzYTJKU0JqQ2c6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
@@ -72,6 +69,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             new LruCache<String, SoftReference<Bitmap>>(256);
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
+
+    public HashSet<Long> followingsSet;
+    public HashSet<Long> lastFollowingsSet;
+    public List<User> followings;
+    private LoadFollowingsTask mFollowingsTask;
 
     public boolean scrollTop;
 
@@ -391,6 +393,22 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
+    }
+
+    public void requestUserFollowings(LoadFollowingsTask.FollowingsListener listener, boolean force){
+        if (CloudUtils.isTaskFinished(mFollowingsTask)){
+            if (!force && System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_FOLLOWINGS_SYNC) < 5*60*1000 && followingsSet != null)
+                return;
+
+            // store last followings in case of failure
+            lastFollowingsSet = followingsSet;
+            followingsSet = null;
+
+            mFollowingsTask = new LoadFollowingsTask(this);
+            mFollowingsTask.execute(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"));
+            this.setAccountData(User.DataKeys.LAST_FOLLOWINGS_SYNC, Long.toString(System.currentTimeMillis()));
+        }
+        mFollowingsTask.addListener(listener);
     }
 
     @Override

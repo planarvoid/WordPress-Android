@@ -76,7 +76,7 @@ public class SuggestedUsers extends ScActivity {
     @Override
     public void onRefresh() {
         if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter){
-            ((LazyEndlessAdapter) mListView.getAdapter()).refresh();
+            ((LazyEndlessAdapter) mListView.getAdapter()).refresh(true);
         }
 
     }

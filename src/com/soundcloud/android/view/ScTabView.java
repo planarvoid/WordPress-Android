@@ -25,9 +25,9 @@ public class ScTabView extends FrameLayout {
         adapter = adpWrap;
     }
 
-    public void onRefresh() {
+    public void onRefresh(boolean userRefresh) {
         if (adapter instanceof LazyEndlessAdapter) {
-            ((LazyEndlessAdapter) adapter).refresh();
+            ((LazyEndlessAdapter) adapter).refresh(userRefresh);
         }
     }
 }

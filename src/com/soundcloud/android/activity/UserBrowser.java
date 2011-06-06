@@ -20,6 +20,7 @@ import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
+import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -195,8 +196,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (CloudUtils.isTaskPending(mConnectionsTask)) mConnectionsTask.execute();
             }
         }
-
-
         loadDetails();
     }
 
@@ -254,10 +253,18 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         loadDetails();
 
+        if (!isOtherUser() && CloudUtils.isTaskFinished(mConnectionsTask)) {
+            mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+            mConnectionsTask.setListener(this);
+            mConnectionsTask.execute();
+            if (mFriendFinderView != null) mFriendFinderView.showLoading();
+        }
+
+
         if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh();
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
         } else {
-            ((ScTabView) mTabHost.getCurrentView()).onRefresh();
+            ((ScTabView) mTabHost.getCurrentView()).onRefresh(true);
         }
     }
 

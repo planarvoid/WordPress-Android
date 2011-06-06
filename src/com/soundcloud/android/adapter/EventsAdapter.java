@@ -106,7 +106,7 @@ public class EventsAdapter extends TracklistAdapter {
     }
 
     @Override
-    public void refresh() {
+    public void refresh(boolean userRefresh) {
         mData.clear();
         reset();
     }

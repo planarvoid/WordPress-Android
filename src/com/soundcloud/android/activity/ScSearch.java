@@ -132,8 +132,8 @@ public class ScSearch extends ScActivity {
         rdoTrack.setVisibility(View.GONE);
         rdoUser.setVisibility(View.GONE);
 
-        mTrackAdpWrapper.refresh();
-        mUserAdpWrapper.refresh();
+        mTrackAdpWrapper.refresh(false);
+        mUserAdpWrapper.refresh(false);
 
         mList.setVisibility(View.VISIBLE);
 

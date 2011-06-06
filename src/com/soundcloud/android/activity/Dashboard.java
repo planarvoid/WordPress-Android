@@ -92,7 +92,7 @@ public class Dashboard extends ScActivity {
 
     @Override
     public void onRefresh() {
-        mTracklistView.onRefresh();
+        mTracklistView.onRefresh(true);
     }
 
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {

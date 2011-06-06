@@ -1,6 +1,9 @@
 
 package com.soundcloud.android.view;
 
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -26,6 +29,10 @@ public class UserlistRow extends LazyRow {
     protected ImageView mTracksIcon;
     protected ImageView mFollowersIcon;
 
+    protected Button mFollowBtn;
+    protected Button mFollowingBtn;
+
+
     protected Boolean _isFollowing;
 
     public UserlistRow(ScActivity _activity,LazyBaseAdapter _adapter) {
@@ -38,7 +45,11 @@ public class UserlistRow extends LazyRow {
         mIcon = (ImageView) findViewById(R.id.icon);
         mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
         mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
+        mFollowingBtn = (Button)findViewById(R.id.toggleFollowing);
+        mFollowBtn = (Button)findViewById(R.id.toggleFollow);
 
+        if (mFollowingBtn != null) mFollowingBtn.setFocusable(false);
+        if (mFollowBtn != null) mFollowBtn.setFocusable(false);
     }
 
     @Override
@@ -52,11 +63,29 @@ public class UserlistRow extends LazyRow {
         mUser = ((UserlistAdapter) mAdapter).getUserAt(position);
         super.display(position);
         mUsername.setText(mUser.username);
-        setFullname();
         setTrackCount();
         setFollowerCount();
+        setFollowingStatus();
 
         _isFollowing = false;
+    }
+
+    public void setFollowingStatus() {
+
+        if (mActivity.getSoundCloudApplication().followingsSet == null){
+            mFollowingBtn.setVisibility(View.GONE);
+            mFollowBtn.setVisibility(View.GONE);
+        } else {
+            Log.i("AAAAA","Check following of " + mUser.username + " " + mUser.id + " " + mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id));
+            mFollowingBtn.setVisibility(mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id) ?
+                    View.VISIBLE : View.GONE);
+            mFollowBtn.setVisibility(mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id) ?
+                    View.GONE : View.VISIBLE);
+
+            if (mFollowingBtn.getVisibility() == View.VISIBLE){
+                mFollowingBtn.refreshDrawableState();
+            }
+        }
     }
 
     @Override
@@ -75,24 +104,15 @@ public class UserlistRow extends LazyRow {
     }
 
     // **********************
-    // givent their own functions to be easily overwritten by subclasses who may
+    // given their own functions to be easily overwritten by subclasses who may
     // not use them or use them differently
 
-    protected void setFullname() {
-        mFullname.setText(mUser.full_name);
-    }
-
     protected void setTrackCount() {
-        String trackCount = mActivity.getResources().getQuantityString(R.plurals.user_track_count,
-                mUser.track_count, mUser.track_count);
-        mTracks.setText(trackCount);
+        mTracks.setText(Integer.toString(mUser.track_count));
     }
 
     protected void setFollowerCount() {
-        String followerCount = mActivity.getResources().getQuantityString(
-                R.plurals.user_follower_count, mUser.followers_count,
-                mUser.followers_count);
-        mFollowers.setText(followerCount);
+       mFollowers.setText(Integer.toString(mUser.followers_count));
     }
 
     // **********************End
