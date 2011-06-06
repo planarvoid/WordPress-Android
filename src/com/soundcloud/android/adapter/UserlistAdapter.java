@@ -22,7 +22,9 @@ public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTa
 
     public static final String TAG = "UserlistAdapter";
 
-    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data,  Class<?> model) {
+    public UserlistAdapter(ScActivity activity,
+                           ArrayList<Parcelable> data,
+                           Class<?> model) {
         super(activity, data, model);
 
         activity.getSoundCloudApplication().requestUserFollowings(this, false);
