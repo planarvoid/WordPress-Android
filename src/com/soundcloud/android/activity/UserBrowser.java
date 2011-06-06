@@ -17,8 +17,6 @@ import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -27,7 +25,6 @@ import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -54,7 +51,6 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -732,19 +728,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                     .setMessage(R.string.dialog_confirm_delete_recording_message)
                     .setPositiveButton(getString(R.string.btn_yes),
                             new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                        int whichButton) {
-                                    getContentResolver().delete(recording.toUri(), null, null);
-                                    if (!recording.external_upload){
-                                        File f = new File(recording.audio_path);
-                                        if (f.exists()) f.delete();
-                                    }
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    recording.delete(getContentResolver());
                                 }
                             })
                     .setNegativeButton(getString(R.string.btn_no),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
-                                        int whichButton) {
+                                                    int whichButton) {
                                 }
                             }).create().show();
                 }

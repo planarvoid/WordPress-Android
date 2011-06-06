@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import android.util.Log;
 import org.w3c.dom.Element;
 
 import android.content.ContentProvider;
@@ -35,6 +36,9 @@ public class ScContentProvider extends ContentProvider {
         if (info.id != -1) {
             selection = selection == null ? "_id=" + info.id : selection + " AND _id=" + info.id;
         }
+
+        Log.i("QUERY", selection);
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.query(info.table.tableName, columns, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);

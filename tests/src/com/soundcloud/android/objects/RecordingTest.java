@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -21,13 +22,12 @@ public class RecordingTest {
 
     @Before
     public void setup() throws Exception {
-        r = new Recording();
+        r = new Recording(new File("/tmp/foo"));
         // 14:31:01, 15/02/2011
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
-        r.audio_path  = "/tmp/foo";
         r.duration = 86 * 1000;
     }
 

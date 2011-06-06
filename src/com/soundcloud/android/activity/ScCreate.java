@@ -207,8 +207,7 @@ public class ScCreate extends ScActivity {
             public void onClick(View v) {
                 if (mRecording == null){
 
-                    Recording r = new Recording();
-                    r.audio_path = mRecordFile.getAbsolutePath();
+                    Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
                     r.timestamp = mRecordFile.lastModified();
                     r.user_id = getUserId();
@@ -681,8 +680,7 @@ public class ScCreate extends ScActivity {
 
             // XXX TODO exclude currently uploading file!
             if ((cursor == null || cursor.getCount() == 0)) {
-                Recording r = new Recording();
-                r.audio_path = f.getAbsolutePath();
+                Recording r = new Recording(f);
                 r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
                 r.timestamp = f.lastModified();
                 r.user_id = getUserId();
@@ -774,7 +772,7 @@ public class ScCreate extends ScActivity {
                                     if (checked[i]){
                                         getContentResolver().insert(Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
                                     } else {
-                                        new File(mUnsavedRecordings.get(i).audio_path).delete();
+                                        mUnsavedRecordings.get(i).delete(null);
                                     }
                                 }
                                 mUnsavedRecordings = null;
