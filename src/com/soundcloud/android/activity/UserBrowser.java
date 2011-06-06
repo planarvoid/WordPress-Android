@@ -449,7 +449,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             mFriendFinderView.friendList.disableLongClickListener();
             CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
 
-            if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
+            if (mConnectionsTask == null || !CloudUtils.isTaskFinished(mConnectionsTask)) {
                 mFriendFinderView.showLoading();
             } else {
                 mFriendFinderView.showList(mConnections, false);

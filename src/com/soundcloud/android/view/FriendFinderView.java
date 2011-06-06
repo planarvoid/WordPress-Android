@@ -31,7 +31,6 @@ public class FriendFinderView extends ScTabView {
 
         LayoutInflater inflater = activity.getLayoutInflater();
         mLoadingLayout = (RelativeLayout)inflater.inflate(R.layout.loading_fill, null);
-        mLoadingLayout.setVisibility(View.GONE);
         addView(mLoadingLayout);
 
         mSuggestedLayout = (RelativeLayout)inflater.inflate(R.layout.suggested_users, null);
@@ -50,7 +49,6 @@ public class FriendFinderView extends ScTabView {
     }
 
     public void showList(List<Connection> connections, boolean refresh) {
-
         if (Connection.checkConnectionListForService(connections, Service.Facebook)){
             friendList.getWrapper().setPath(Endpoints.MY_FRIENDS, null);
             ((LazyBaseAdapter) friendList.getAdapter()).setModel(Friend.class);
