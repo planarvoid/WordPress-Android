@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.objects;
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import android.content.ContentResolver;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
@@ -259,7 +261,9 @@ public class Recording extends BaseObj implements Parcelable {
 
     private File encodeDir() {
         File encodeDir = new File(audio_path.getParentFile(), ".encode");
-        if (!encodeDir.exists()) encodeDir.mkdir();
+        if (!encodeDir.exists()) {
+            mkdirs(encodeDir);
+        }
         return encodeDir;
     }
 
