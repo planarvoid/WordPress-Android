@@ -498,7 +498,6 @@ public class CloudPlaybackService extends Service {
             mStopThread.setPriority(Thread.MAX_PRIORITY);
             mStopThread.start();
             return;
-
         }
 
         //otherwise it will wait for the waveform

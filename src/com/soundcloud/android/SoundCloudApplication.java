@@ -91,6 +91,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final Account account = getAccount();
         //noinspection ConstantConditions
         mCloudApi = new Wrapper(
+                this,
                 getClientId(API_PRODUCTION),
                 getClientSecret(API_PRODUCTION),
                 REDIRECT_URI,
@@ -218,10 +219,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return created;
     }
 
-    public void useAccount(Account account) {
-        mCloudApi.setToken(getToken(account));
-    }
-
     public String getAccountData(String key) {
         Account account = getAccount();
         return account == null ? null : getAccountManager().getUserData(account, key);
@@ -295,26 +292,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private String getAccessToken(Account account) {
-        return getAccountManager().getPassword(account);
+        return getAccountManager().peekAuthToken(account, Token.ACCESS_TOKEN);
     }
 
     private String getRefreshToken(Account account) {
-        AccountManagerFuture<Bundle> bundle =
-                getAccountManager().getAuthToken(account, CloudAPI.REFRESH_TOKEN, false, null, null);
-
-        if (bundle.isDone()) {
-            try {
-                return bundle.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-            } catch (OperationCanceledException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (AuthenticatorException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            return null;
-        }
+        return getAccountManager().peekAuthToken(account, Token.REFRESH_TOKEN);
     }
 
     private AccountManager getAccountManager() {
@@ -394,18 +376,25 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     @Override
-    public Token onTokenInvalid(Token expired) {
-        getAccountManager().invalidateAuthToken(
+    public Token onTokenInvalid(final Token expired) {
+        try {
+            final Account acc = getAccount();
+            if (acc != null) {
+               Token newToken = getToken(acc);
+                if (!newToken.equals(expired)) {
+                    return newToken;
+                }
+            }
+            return null;
+        } finally {
+            getAccountManager().invalidateAuthToken(
                 getString(R.string.account_type),
                 expired.access);
-        final Account acc = getAccount();
-        if (acc != null) {
-           Token newToken = getToken(acc);
-            if (!newToken.equals(expired)) {
-                return newToken;
-            }
+
+            getAccountManager().invalidateAuthToken(
+                getString(R.string.account_type),
+                expired.refresh);
         }
-        return null;
     }
 
     @Override

@@ -78,7 +78,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
             if (!TextUtils.isEmpty(mNextEventsHref)){
-                ((EventsAdapter)((EventsAdapterWrapper)adapter).getWrappedAdapter())
+                ((EventsAdapter) adapter.getWrappedAdapter())
                         .onNextEventsParam(mNextEventsHref);
             }
 

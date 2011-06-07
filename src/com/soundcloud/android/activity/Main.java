@@ -291,7 +291,7 @@ public class Main extends TabActivity {
         new AsyncApiTask<String, Void, Token>(app) {
             @Override protected Token doInBackground(String... params) {
                 try {
-                    return api().exchangeOAuth1Token(params[0]);
+                    return mApi.exchangeOAuth1Token(params[0]);
                 } catch (IOException e) {
                     Log.w(TAG, "error exchanging tokens", e);
                     return null;

@@ -6,6 +6,7 @@ import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.api.Request;
 
 import android.app.Activity;
 import android.content.Context;
@@ -179,14 +180,7 @@ public class ConnectionList extends LinearLayout {
 
         public Adapter load() {
             new LoadConnectionsTask(api) {
-                @Override
-                protected void onPreExecute() {
-                }
-
-                @SuppressWarnings("unchecked")
-                @Override
-                protected void onPostExecute(List<Connection> connections) {
-
+                @Override protected void onPostExecute(List<Connection> connections) {
                     if (connections != null) {
                         mFailed = false;
                         setConnections(Connection.addUnused(connections));
@@ -195,7 +189,7 @@ public class ConnectionList extends LinearLayout {
                         setConnections(Connection.addUnused(new ArrayList<Connection>()));
                     }
                 }
-            }.execute();
+            }.execute(new Request());
             return this;
         }
     }

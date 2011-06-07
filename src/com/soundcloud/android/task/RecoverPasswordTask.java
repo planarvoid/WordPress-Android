@@ -18,8 +18,8 @@ public class RecoverPasswordTask extends AsyncApiTask<String, Void, Boolean> {
     protected Boolean doInBackground(String... params) {
         final String email = params[0];
         try {
-            final Token signup = api().clientCredentials();
-            HttpResponse resp = api().post(
+            final Token signup = mApi.clientCredentials();
+            HttpResponse resp = mApi.post(
                     Request.to(SEND_PASSWORD).with("email", email).usingToken(signup));
             final int code = resp.getStatusLine().getStatusCode();
 

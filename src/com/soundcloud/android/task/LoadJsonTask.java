@@ -26,10 +26,10 @@ public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, 
     protected List<T> list(Request path, Class<T> type, boolean failFast) {
         try {
 
-            HttpResponse response = api().get(path);
+            HttpResponse response = mApi.get(path);
 
             if (response.getStatusLine().getStatusCode() == SC_OK) {
-                return api().getMapper().readValue(response.getEntity().getContent(),
+                return mApi.getMapper().readValue(response.getEntity().getContent(),
                         TypeFactory.collectionType(ArrayList.class, type));
             } else {
                 Log.w(TAG, "invalid response code " + response.getStatusLine());
