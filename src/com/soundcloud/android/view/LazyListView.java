@@ -5,10 +5,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.*;
 
 import android.os.Handler;
 import android.os.Message;
@@ -116,7 +113,8 @@ public class LazyListView extends ListView {
                     mListener.onEventClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
                 }
 
-            } else if (list.getAdapter().getItem(position) instanceof User) {
+            } else if (list.getAdapter().getItem(position) instanceof User || list.getAdapter().getItem(position) instanceof Friend)
+            {
 
                 if (mListener != null){
                     mListener.onUserClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);

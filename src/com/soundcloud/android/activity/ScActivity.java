@@ -8,10 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SuggestedUsers;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Recording;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.*;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
@@ -526,7 +523,9 @@ public abstract class ScActivity extends Activity {
         @Override
         public void onUserClick(ArrayList<Parcelable> users, int position) {
             Intent i = new Intent(ScActivity.this, UserBrowser.class);
-            i.putExtra("user", users.get(position));
+
+            i.putExtra("user", users.get(position) instanceof
+                    Friend ? ((Friend) users.get(position)).user : users.get(position));
             startActivity(i);
         }
 
