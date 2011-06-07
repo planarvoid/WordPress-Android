@@ -29,7 +29,7 @@ public class CheckFollowingStatusTask extends AsyncApiTask<Number, Void, Boolean
         try {
             Log.v(TAG, "checking following status for id " + id);
 
-            HttpResponse resp = api().get(Request.to(MY_FOLLOWING, id));
+            HttpResponse resp = mApi.get(Request.to(MY_FOLLOWING, id));
 
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_SEE_OTHER: return true;

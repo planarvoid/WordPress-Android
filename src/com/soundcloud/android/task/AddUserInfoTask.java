@@ -1,14 +1,11 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
-import android.util.Log;
 import android.util.Pair;
 
 import java.io.File;
@@ -35,10 +32,10 @@ public class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
 
                 updateMe.withFile(Params.User.AVATAR, file);
             }
-            HttpResponse resp = api().put(updateMe);
+            HttpResponse resp = mApi.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case SC_OK:
-                    return api().getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    return mApi.getMapper().readValue(resp.getEntity().getContent(), User.class);
                 case SC_UNPROCESSABLE_ENTITY:
                     extractErrors(resp);
                 default:

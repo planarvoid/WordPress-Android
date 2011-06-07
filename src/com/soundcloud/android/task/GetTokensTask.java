@@ -22,8 +22,8 @@ public class GetTokensTask extends AsyncApiTask<String, Void, Token> {
         try {
             switch (params.length) {
                 case 0: throw new IllegalArgumentException("need at least one parameter");
-                case 1: return api().authorizationCode(params[0]);
-                case 2: return api().login(params[0], params[1]);
+                case 1: return mApi.authorizationCode(params[0]);
+                case 2: return mApi.login(params[0], params[1]);
                 default:throw new IllegalArgumentException("too many parameters");
             }
         } catch (IOException e) {

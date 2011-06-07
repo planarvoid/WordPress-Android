@@ -207,8 +207,6 @@ public abstract class ScActivity extends Activity {
         Account account = getSoundCloudApplication().getAccount();
         if (account == null) {
             finish();
-        } else {
-            getSoundCloudApplication().useAccount(account);
         }
     }
 

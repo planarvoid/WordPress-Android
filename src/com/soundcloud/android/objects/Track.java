@@ -152,18 +152,16 @@ public class Track extends BaseObj implements Parcelable {
                     try {
                         setFieldFromCursor(this,this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
                     } catch (SecurityException e) {
-                        Log.e(getClass().getSimpleName(), "error", e);
-                        e.printStackTrace();
+                        Log.e(TAG, "error", e);
                     } catch (NoSuchFieldException e) {
-                        Log.e(getClass().getSimpleName(), "error", e);
-                        e.printStackTrace();
+                        Log.e(TAG, "error", e);
                     }
             }
         }
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?", new String[]{Long.toString(currentUserId)},
+        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?", new String[] { Long.toString(id) },
                 null);
 
         if (cursor != null) {
@@ -178,21 +176,21 @@ public class Track extends BaseObj implements Parcelable {
                             setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         } catch (NoSuchFieldException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         }
                     }
                 }
-                if (!user_played)
+                if (!user_played) {
                     this.updateUserPlayedFromDb(contentResolver, currentUserId);
+                }
             }
             cursor.close();
         }
-        if (user != null)
+        if (user != null) {
             user.updateFromDb(contentResolver, currentUserId);
+        }
     }
 
     public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
@@ -208,14 +206,7 @@ public class Track extends BaseObj implements Parcelable {
         }
     }
 
-    public void update(Cursor cursor) {
-        if (cursor.getCount() != 0) {
-
-        }
-    }
-
-
-    public void setAppFields(Track t){
+    public void setAppFields(Track t) {
         comments = t.comments;
         mCacheFile = t.mCacheFile;
         filelength = t.filelength;
@@ -223,17 +214,6 @@ public class Track extends BaseObj implements Parcelable {
         info_loaded = t.info_loaded;
         comments_loaded = t.comments_loaded;
     }
-
-    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
-        public Track createFromParcel(Parcel in) {
-            return new Track(in);
-        }
-
-        public Track[] newArray(int size) {
-            return new Track[size];
-        }
-    };
-
 
     public boolean isStreamable() {
         return streamable && stream_url != null;
@@ -331,4 +311,14 @@ public class Track extends BaseObj implements Parcelable {
         return "http://creativecommons.org/licenses/"+license+"/3.0";
     }
 
+
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
+
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
 }

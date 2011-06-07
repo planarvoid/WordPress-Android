@@ -23,13 +23,13 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
         Connection.Service svc = params[0];
 
         try {
-            HttpResponse response = api().post(Request.to(MY_CONNECTIONS).with(
+            HttpResponse response = mApi.post(Request.to(MY_CONNECTIONS).with(
                     "service", svc.name,
                     "format", "json",
                     "redirect_uri", URL_SCHEME + svc));
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
-                JsonNode node = api().getMapper().readTree(response.getEntity().getContent());
+                JsonNode node = mApi.getMapper().readTree(response.getEntity().getContent());
                 return Uri.parse(node.get("authorize_url").getTextValue());
             } else {
                 warn("error creating connection", response);

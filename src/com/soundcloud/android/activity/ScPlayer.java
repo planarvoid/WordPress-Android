@@ -302,7 +302,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      * Handle text dragging for viewing of long track names
      */
     public boolean onTouch(View v, MotionEvent event) {
-        CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
         if (tv == null) {
@@ -331,8 +330,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         scrollx -= mViewWidth;
                     }
                     if (scrollx < -mViewWidth) {
-                        // scrolled the text completely off the view to the
-                        // right
+                        // scrolled the text completely off the view to the right
                         scrollx += mViewWidth;
                         scrollx += mTextWidth;
                     }
@@ -593,7 +591,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
     }
 
-    private void fillTrackInfoComments(){
+    private void fillTrackInfoComments() {
         if (mTrackInfo == null)
             return;
 
@@ -829,8 +827,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             } else if (mPlayingTrack == null || mPlayingTrack.id != trackId){
 
                 Log.i(TAG,"Get Playing Track " + trackId);
-                if (getSoundCloudApplication().getTrackFromCache(trackId) == null){
-
+                if (getSoundCloudApplication().getTrackFromCache(trackId) == null) {
                     Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getUserId());
                     Log.i(TAG,"Get Playing Track from db " + t);
                     getSoundCloudApplication().cacheTrack(t != null ? t : mPlaybackService.getTrack());
@@ -887,8 +884,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 showUnplayable();
                 mWaveformController.hideConnectingLayout();
             }
-
-
         }
     }
 
@@ -1128,18 +1123,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         setFavoriteStatus();
     }
 
-    public void refreshComments(){
+    public void refreshComments() {
         if (mPlayingTrack == null) return;
-
-        if (mPlayingTrack.load_comments_task == null
-                || CloudUtils.isTaskFinished(mPlayingTrack.load_comments_task))
-            mPlayingTrack.load_comments_task = new LoadCommentsTask(
-                    this.getSoundCloudApplication(), mPlayingTrack.id);
-
+        if (CloudUtils.isTaskFinished(mPlayingTrack.load_comments_task)) {
+            mPlayingTrack.load_comments_task =
+                    new LoadCommentsTask(getSoundCloudApplication(), mPlayingTrack.id);
+        }
         mPlayingTrack.load_comments_task.setPlayer(this);
 
-        if (CloudUtils.isTaskPending(mPlayingTrack.load_comments_task))
+        if (CloudUtils.isTaskPending(mPlayingTrack.load_comments_task)) {
             mPlayingTrack.load_comments_task.execute();
+        }
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){

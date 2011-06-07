@@ -1,36 +1,30 @@
 package com.soundcloud.android.task;
 
-import android.os.AsyncTask;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Endpoints;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
+
+import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
     protected List<String> mErrors = new ArrayList<String>();
-    protected WeakReference<AndroidCloudAPI> mApi;
+    protected AndroidCloudAPI mApi;
 
     public AsyncApiTask(AndroidCloudAPI api) {
-        this.mApi = new WeakReference<AndroidCloudAPI>(api);
-    }
-
-    protected AndroidCloudAPI api() {
-        return mApi.get();
+        this.mApi = api;
     }
 
     public void warn(String s, HttpResponse response) {
@@ -46,7 +40,7 @@ public abstract class AsyncApiTask<Params, Progress, Result>
     }
 
     protected void extractErrors(HttpResponse resp) throws IOException {
-        mErrors.addAll(parseError(api().getMapper().reader(), resp.getEntity().getContent()));
+        mErrors.addAll(parseError(mApi.getMapper().reader(), resp.getEntity().getContent()));
     }
 
     static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {

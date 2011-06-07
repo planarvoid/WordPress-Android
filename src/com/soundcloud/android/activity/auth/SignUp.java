@@ -20,7 +20,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -124,7 +123,7 @@ public class SignUp extends Activity {
                     // SoundCloudApplication works properly
                     final boolean signedUp = app.addUserAccount(user, app.getToken());
 
-                    new GetTokensTask(api()) {
+                    new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)

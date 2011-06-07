@@ -580,6 +580,8 @@ public class CloudUtils {
 
     public static String getTimeElapsed(android.content.res.Resources r, long eventTimestamp){
         long elapsed = (System.currentTimeMillis() - eventTimestamp)/1000;
+        if (elapsed < 0) elapsed = 0;
+
         if (elapsed < 60) {
             return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
         } else if (elapsed < 3600) {
