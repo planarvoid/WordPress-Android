@@ -166,7 +166,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
     @Override
     protected void onCancelled() {
-        if (uploadThread.isAlive()) uploadThread.interrupt();
+        if (uploadThread != null && uploadThread.isAlive()) uploadThread.interrupt();
     }
 
     @Override

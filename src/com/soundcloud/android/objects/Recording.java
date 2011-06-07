@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.objects;
 
+import android.content.ContentResolver;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -17,17 +18,15 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.channels.OverlappingFileLockException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -39,10 +38,10 @@ public class Recording extends BaseObj implements Parcelable {
     public double latitude;
     public String what_text;
     public String where_text;
-    public String audio_path;
+    private File audio_path;
     /** in msecs */
     public long duration;
-    public String artwork_path;
+    public File artwork_path;
     public String four_square_venue_id;
     public String shared_emails;
     public String service_ids;
@@ -54,17 +53,33 @@ public class Recording extends BaseObj implements Parcelable {
 
     public Map<String,Object> upload_data;
 
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+
+    public File generateImageFile(File imageDir) {
+        if (audio_path == null) {
+            return null;
+        } else {
+            if (audio_path.getName().contains(".")) {
+                return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
+            } else {
+                return new File(imageDir, audio_path.getName()+".bmp");
+            }
+        }
+    }
+
+    public boolean exists() {
+        return audio_path.exists();
+    }
+
     public static interface UploadStatus {
         public static final int NOT_YET_UPLOADED    = 0;
         public static final int UPLOADING           = 1;
         public static final int UPLOADED            = 2;
     }
 
-    public Recording() {
-    }
-
     public Recording(File f) {
-        audio_path = f.getAbsolutePath();
+        if (f == null) throw new IllegalArgumentException("file is null");
+        audio_path = f;
         audio_profile = Profile.ENCODED_LOW;
         timestamp = f.lastModified();
     }
@@ -76,9 +91,9 @@ public class Recording extends BaseObj implements Parcelable {
     public Recording(Cursor cursor) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (key.contentEquals("_id"))
+            if (key.contentEquals("_id")) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
-            else
+            } else {
                 try {
                     Field f = this.getClass().getDeclaredField(key);
                     if (f != null) {
@@ -92,6 +107,10 @@ public class Recording extends BaseObj implements Parcelable {
                             f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
                         } else if (f.getType() == Double.TYPE) {
                             f.set(this, cursor.getDouble(cursor.getColumnIndex(key)));
+                        }  else if (f.getType() == File.class) {
+                            if (!TextUtils.isEmpty(cursor.getString(cursor.getColumnIndex(key)))){
+                                f.set(this, new File(cursor.getString(cursor.getColumnIndex(key))));
+                            }
                         }
                     }
                 } catch (IllegalArgumentException e) {
@@ -103,6 +122,11 @@ public class Recording extends BaseObj implements Parcelable {
                 } catch (NoSuchFieldException e) {
                     Log.e(getClass().getSimpleName(), "error", e);
                 }
+            }
+        }
+        // enforce proper construction
+        if (audio_path == null) {
+            throw new IllegalArgumentException("audio_path is null");
         }
     }
 
@@ -134,9 +158,9 @@ public class Recording extends BaseObj implements Parcelable {
         cv.put(Recordings.LATITUDE, latitude);
         cv.put(Recordings.WHAT_TEXT, what_text);
         cv.put(Recordings.WHERE_TEXT, where_text);
-        cv.put(Recordings.AUDIO_PATH, audio_path);
+        cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
         cv.put(Recordings.DURATION, duration);
-        cv.put(Recordings.ARTWORK_PATH, artwork_path);
+        if (artwork_path != null) cv.put(Recordings.ARTWORK_PATH, artwork_path.getAbsolutePath());
         cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
         cv.put(Recordings.SHARED_EMAILS, shared_emails);
         cv.put(Recordings.SERVICE_IDS, service_ids);
@@ -149,16 +173,12 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     public void prepareForUpload(){
-        // XXX enforce proper construction
-        if (audio_path == null) throw new IllegalStateException("need audio_path set");
-
         upload_data = new HashMap<String, Object>();
         upload_data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
         upload_data.put(Params.Track.DOWNLOADABLE, false);
         upload_data.put(Params.Track.STREAMABLE, true);
 
         if (!is_private) {
-
             List<Integer> serviceIds = new ArrayList<Integer>();
             if (!TextUtils.isEmpty(service_ids))
             for (String serviceId : service_ids.split(",")){
@@ -173,8 +193,7 @@ public class Recording extends BaseObj implements Parcelable {
              } else {
                 upload_data.put(Params.Track.POST_TO_EMPTY, "");
              }
-        } else {
-
+        } else { // not private
              if (!TextUtils.isEmpty(shared_emails)) {
                  upload_data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
              }
@@ -197,44 +216,58 @@ public class Recording extends BaseObj implements Parcelable {
         }
 
 
-        if (!TextUtils.isEmpty(artwork_path)) upload_data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
+        if (artwork_path != null) upload_data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
         if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
         if (latitude  != 0) tags.add("geo:lat="+latitude);
         if (longitude != 0) tags.add("geo:lon="+longitude);
         upload_data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
 
-        File audio_file = new File(audio_path);
-        if (audio_profile == Profile.RAW && !external_upload) {
-            File encodeDir = new File(audio_file.getParentFile(),".encode");
-            if (!encodeDir.exists()) encodeDir.mkdir();
-
-            upload_data.put(UploadTask.Params.OGG_FILENAME,
-                    new File(encodeDir, generateFilename(title, "ogg")).getAbsolutePath());
-
-            upload_data.put(UploadTask.Params.ENCODE, true);
-        } else {
-            if (!external_upload){
-                File newRecFile = new File(audio_file.getParentFile(), generateFilename(
-                        title,
-                        audio_file.getName().contains(".") ? audio_file.getName().substring(
-                                audio_file.getName().lastIndexOf(".") + 1) : "mp4"));
-
-                if (!audio_file.equals(newRecFile) && audio_file.renameTo(newRecFile)) {
-                    audio_file = newRecFile;
-                    audio_path = audio_file.getAbsolutePath();
+        if (!external_upload) {
+            if (audio_profile == Profile.RAW) {
+                upload_data.put(UploadTask.Params.OGG_FILENAME, generateUploadFilename(title));
+                upload_data.put(UploadTask.Params.ENCODE, true);
+            } else {
+                File newRecFile = generateUploadFilename(title);
+                if (!audio_path.equals(newRecFile) && audio_path.renameTo(newRecFile)) {
+                    audio_path = newRecFile;
                 }
             }
         }
 
-        upload_data.put(UploadTask.Params.SOURCE_PATH, audio_file.getAbsolutePath());
+        upload_data.put(UploadTask.Params.SOURCE_PATH, audio_path.getAbsolutePath());
         upload_data.put(UploadTask.Params.LOCAL_RECORDING_ID, id);
 
         upload_status = UploadStatus.UPLOADING;
     }
 
+    /* package */ File generateUploadFilename(String title) {
+        switch (audio_profile) {
+            case Profile.ENCODED_LOW:
+            case Profile.ENCODED_HIGH:
+                return new File(audio_path.getParentFile(), generateFilename(
+                    title,
+                    audio_path.getName().contains(".") ? audio_path.getName().substring(
+                            audio_path.getName().lastIndexOf(".") + 1) : "mp4"));
+
+            case Profile.RAW:
+                return new File(encodeDir(), generateFilename(title, "ogg"));
+
+            default:
+                return null;
+        }
+    }
+
+    private File encodeDir() {
+        File encodeDir = new File(audio_path.getParentFile(), ".encode");
+        if (!encodeDir.exists()) encodeDir.mkdir();
+        return encodeDir;
+    }
+
     private String generateFilename(String title, String extension) {
-        return String.format("%s_%s.%s", URLEncoder.encode(title.replace(" ","_")),
-               DateFormat.format("yyyy-MM-dd-hh-mm-ss", timestamp), extension);
+        return String.format("%s_%s.%s",
+                URLEncoder.encode(title.replace(" ","_")),
+                dateFormat.format(new Date(timestamp)),
+                extension);
     }
 
     public String sharingNote() {
@@ -268,5 +301,14 @@ public class Recording extends BaseObj implements Parcelable {
 
     public String formattedDuration() {
         return  CloudUtils.formatTimestamp(duration);
+    }
+
+    public boolean delete(ContentResolver resolver) {
+        boolean deleted = false;
+        if (!external_upload && audio_path.exists()) {
+            deleted = audio_path.delete();
+        }
+        if (resolver != null) resolver.delete(toUri(), null, null);
+        return deleted;
     }
 }

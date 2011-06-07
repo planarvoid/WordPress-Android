@@ -89,6 +89,4 @@ public class RoboApiBaseTests implements Endpoints {
         while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
         return sb.toString();
     }
-
-
 }

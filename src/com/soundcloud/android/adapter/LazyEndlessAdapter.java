@@ -4,7 +4,6 @@ package com.soundcloud.android.adapter;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.objects.Event;
@@ -19,7 +18,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +33,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     private View pendingView = null;
     private int pendingPosition = -1;
     private AppendTask appendTask;
-    private String mUrl;
-    private String mQuery;
     private View mEmptyView;
     private LazyListView mListView;
     private int mCurrentPage;
@@ -44,38 +40,23 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected AtomicBoolean keepOnAppending = new AtomicBoolean(true);
     protected Boolean mException = false;
     private String mEmptyViewText = "";
+    private Request mRequest;
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url) {
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
 
         super(wrapped);
 
         mActivity = activity;
         mCurrentPage = 0;
-        mQuery = "";
-        mUrl = url;
+        mRequest = request;
 
         wrapped.setWrapper(this);
 
     }
 
     /**
-     * @param activity : context
-     * @param wrapped : the adapter list-backing adapter that this adapter is
-     *            being wrapped around
-     * @param url : the base url that this adapter will receive data from
-     * @param model
-     * @param collectionKey : if the return data is not an array, this key in
-     */
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, String url,
-            String collectionKey) {
-        this(activity, wrapped, url);
-    }
-
-    /**
      * Create an empty view for the list this adapter will control. This is done
      * here because this adapter will control the visibility of the list
-     *
-     * @param lv
      */
     public void createListEmptyView(LazyListView lv) {
 
@@ -334,9 +315,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     /**
      * Create a row for displaying a loading message by getting a row from the
      * wrapped adapter and displaying the loading views of that row
-     *
-     * @param parent
-     * @return
      */
     protected View getPendingView(ViewGroup parent) {
         ViewGroup row = (this.getWrappedAdapter()).createRow();
@@ -351,9 +329,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Turn the loading view into a real view
-     *
-     * @param position
-     * @param row
      */
     protected void rebindPendingView(int position, View row) {
         if (row == null)
@@ -376,9 +351,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @param query : if this adapter is performing a search, this is the user's
      *            search query
      */
-    public void setPath(String url, String query) {
-        mUrl = url;
-        mQuery = query;
+    public void setRequest(Request request) {
+        mRequest = request;
     }
 
     /**
@@ -387,16 +361,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @return the url
      */
     protected Request getRequest() {
-        return Request.to(mUrl);
-    }
-
-    /**
-     * Get the current search query for this adapter
-     *
-     * @return the query
-     */
-    protected String getQuery() {
-        return mQuery;
+        return mRequest;
     }
 
     /**
@@ -456,8 +421,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         Request request = getRequest();
         request.add("limit", getPageSize());
         request.add("offset", getPageSize() * getCurrentPage());
-        if (!TextUtils.isEmpty(mQuery)) request.add("q", mQuery);
-        if (SoundCloudApplication.DEV_MODE) Log.i(getClass().getSimpleName(), request.toString());
         return request;
     }
 

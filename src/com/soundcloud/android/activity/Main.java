@@ -198,7 +198,7 @@ public class Main extends TabActivity {
                 ((UserBrowser)getCurrentActivity()).setTab(intent.getIntExtra("userBrowserIndex", 0));
             } else if (intent.hasExtra("tabTag")) {
                 if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
-                    getApp().scrollTop = true;
+                    getApp().scrollTop = true; //XXX
                 }
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
                 intent.removeExtra("tabTag");

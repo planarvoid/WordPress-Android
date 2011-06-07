@@ -133,6 +133,7 @@ public class CloudPlaybackService extends Service {
     private static final int TRACK_EXCEPTION = 5;
     private static final int ACQUIRE_WAKELOCKS = 6;
     private static final int RELEASE_WAKELOCKS = 7;
+    private static final int CLEAR_LAST_SEEK = 8;
 
     private MultiPlayer mPlayer;
     private int mLoadPercent = 0;
@@ -157,15 +158,20 @@ public class CloudPlaybackService extends Service {
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
-    private static final int HIGH_WATER_MARK = 8000000;
-    private static final int PLAYBACK_MARK = 200000;
-    private static final int INITIAL_PLAYBACK_MARK = 60000;
-    private static final int LOW_WATER_MARK = 40000;
+
+    // buffer marks
+    private static final int HIGH_WATER_MARK = 5000000; // stop buffering when cache is this size
+    private static final int LOW_WATER_MARK = 1000000; // restart buffering when cache is this size
+    private static final int PLAYBACK_MARK = 200000; // start playing back after buffer pause here
+    private static final int INITIAL_PLAYBACK_MARK = 60000; // start initial playback here
+    private static final int PAUSE_FOR_BUFFER_MARK = 40000; // pause and wait for buffer
+
     private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
     private int mCurrentDownloadAttempts;
     private boolean ignoreBuffer;
     private boolean pausedForBuffering;
+    private boolean fillBuffer;
     private boolean initialBuffering = true;
     private long mCurrentBuffer;
     private NetworkInfo mCurrentNetworkInfo;
@@ -595,8 +601,7 @@ public class CloudPlaybackService extends Service {
                 notifyChange(INITIAL_BUFFERING);
 
                 if (isStagefright) {
-                    pausedForBuffering = true;
-                    initialBuffering = true;
+                    pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
 
                     if (mPlayingData.filelength == 0 && mPlayingData.mCacheFile.length() > 0){
@@ -710,7 +715,6 @@ public class CloudPlaybackService extends Service {
                     Log.i(TAG, "Download thread stale, killing it ");
                     mDownloadThread.stopDownload();
                     mDownloadThread = null;
-                    checkBufferStatus();
                 }
                 mBufferReportCounter = 0;
             } else
@@ -760,13 +764,14 @@ public class CloudPlaybackService extends Service {
             } else {
                 // if we are under the buffer, but the track is not fully cached
                 if (mPlayingData.mCacheFile.length() < mPlayingData.filelength
-                        && mCurrentBuffer < PLAYBACK_MARK) {
+                        && mCurrentBuffer < LOW_WATER_MARK) {
 
                     // make sure we are trying to download
+                    fillBuffer = true;
                     checkBufferStatus();
 
                     // normal time to buffer
-                    if (mCurrentBuffer < LOW_WATER_MARK) {
+                    if (mCurrentBuffer < PAUSE_FOR_BUFFER_MARK) {
 
                         if (mPlayer.isInitialized()) {
                             mPlayer.pause();
@@ -872,6 +877,7 @@ public class CloudPlaybackService extends Service {
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
+                // download thread is dead and doesn't have to be
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
                     if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS){
                         prepareDownload(mPlayingData);
@@ -888,14 +894,13 @@ public class CloudPlaybackService extends Service {
                 .length() >= track.filelength);
     }
 
-    @SuppressWarnings({"SimplifiableIfStatement"})
     public boolean keepCaching() {
         // we aren't playing and are not supposed to be caching during pause
         if (!mIsSupposedToBePlaying && !mCacheOnPause) {
             return false;
         } else {
-            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                || mCurrentBuffer < HIGH_WATER_MARK;
+            if (fillBuffer && mCurrentBuffer > HIGH_WATER_MARK) fillBuffer = false;
+            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI || fillBuffer;
         }
     }
 
@@ -1105,7 +1110,6 @@ public class CloudPlaybackService extends Service {
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
-            Log.i(TAG,"Set Favorite Status " + trackId + " " + mPlayingData.id);
             if (mPlayingData.id == trackId) {
                 if (favoriteStatus)
                     addFavorite();
@@ -1116,7 +1120,6 @@ public class CloudPlaybackService extends Service {
     }
 
     public void addFavorite() {
-        Log.i(TAG,"Adding favorite");
         FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1135,7 +1138,6 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
-        Log.i(TAG,"Removing favorite");
         FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1154,7 +1156,6 @@ public class CloudPlaybackService extends Service {
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        Log.i(TAG,"On Favorite Status Set " + trackId + " " + mPlayingData.id);
         if (mPlayingData.id == trackId) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
@@ -1438,7 +1439,7 @@ public class CloudPlaybackService extends Service {
         public long seek(long whereto, boolean resumeSeek) {
             mPlayer.setVolume(0);
             whereto = (int) getSeekResult(whereto, resumeSeek);
-            mMediaPlayer.seekTo((int) whereto);
+            if (whereto != mPlayer.position()) mMediaPlayer.seekTo((int) whereto);
             return whereto;
         }
 
@@ -1452,11 +1453,8 @@ public class CloudPlaybackService extends Service {
             if (!resumeSeek) {
                 if (mPlayingData.filelength <= 0)
                     return mPlayer.position();
-                else if (mPlayingData.filelength <= mPlayingData.mCacheFile.length())
-                    maxSeek = getDuration();
                 else
-                    maxSeek = getDuration() * mPlayingData.mCacheFile.length()
-                            / mPlayingData.filelength - PLAYBACK_MARK / (128 / 8) - 3000;
+                    maxSeek = currentMaxSeek();
 
                 // don't go before the playhead if they are trying to seek
                 // beyond, just maintain their current position
@@ -1468,6 +1466,16 @@ public class CloudPlaybackService extends Service {
                 }
             }
             return whereto;
+
+        }
+
+        private long currentMaxSeek(){
+            if (mPlayingData.filelength <= mPlayingData.mCacheFile.length())
+                return getDuration();
+            else
+                return Math.round(getDuration() * (loadPercent() - .1)/100) - PLAYBACK_MARK / (128 / 8);
+                //return getDuration() * (mPlayingData.mCacheFile.length()
+                  //      / mPlayingData.filelength) - PLAYBACK_MARK / (128 / 8) - 5000;
 
         }
 
@@ -1511,6 +1519,11 @@ public class CloudPlaybackService extends Service {
                     startAndFadeIn();
                     assertBufferCheck();
                 }
+
+                // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
+                Message msg = mMediaplayerHandler.obtainMessage(CLEAR_LAST_SEEK);
+                mMediaplayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                mMediaplayerHandler.sendMessageDelayed(msg,3000);
                 notifyChange(SEEK_COMPLETE);
 
             }
@@ -1522,6 +1535,8 @@ public class CloudPlaybackService extends Service {
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
+
+                    mResumeTime = mMediaPlayer.getCurrentPosition();
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;

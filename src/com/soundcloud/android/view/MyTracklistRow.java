@@ -73,7 +73,7 @@ public class MyTracklistRow extends TracklistRow {
 
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
-        if (TextUtils.isEmpty(recording.artwork_path)){
+        if (recording.artwork_path == null){
             mImageLoader.unbind(getRowIcon());
             setTemporaryRecordingDrawable(BindResult.ERROR);
             return;
@@ -83,13 +83,13 @@ public class MyTracklistRow extends TracklistRow {
         ImageLoader.Options options = new ImageLoader.Options();
         try {
             options.decodeInSampleSize = ImageUtils.determineResizeOptions(
-                            new File(recording.artwork_path),
+                            recording.artwork_path,
                             (int) (getContext().getResources().getDisplayMetrics().density * CloudUtils.GRAPHIC_DIMENSIONS_BADGE),
                             (int) (getContext().getResources().getDisplayMetrics().density * CloudUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
         } catch (IOException e) {
             Log.w(TAG, "error", e);
         }
-        result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path,options);
+        result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(),options);
         setTemporaryRecordingDrawable(result);
     }
 

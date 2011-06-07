@@ -704,7 +704,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 case UI_SEND_SEEK:
                     if (mPlayer != null)
-                        mPlayer.sendSeek();
+                        mPlayer.sendSeek(mSeekPercent);
                     break;
 
                 case UI_UPDATE_BUBBLE:

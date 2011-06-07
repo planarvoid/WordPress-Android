@@ -4,30 +4,37 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 
+@SuppressWarnings({"ResultOfMethodCallIgnored"})
 @RunWith(DefaultTestRunner.class)
 public class RecordingTest {
     Recording r;
+    File f;
+
 
     @Before
     public void setup() throws Exception {
-        r = new Recording();
+        f = new File("/tmp/foo");
+        r = new Recording(f);
+        f.delete();
+
         // 14:31:01, 15/02/2011
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
-        r.audio_path  = "/tmp/foo";
         r.duration = 86 * 1000;
     }
 
@@ -90,5 +97,39 @@ public class RecordingTest {
     @Test
     public void shouldHaveFormattedDuration() throws Exception {
         assertThat(r.formattedDuration(), equalTo("1.26"));
+    }
+
+    @Test
+    public void shouldGenerateAnUploadFilename() throws Exception {
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
+
+        r.audio_profile = CloudRecorder.Profile.RAW;
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01.ogg"));
+    }
+
+
+    @Test
+    public void shouldDeleteRecording() throws Exception {
+        assertThat(r.delete(null), is(false));
+        assertThat(f.createNewFile(), is(true));
+        assertThat(r.delete(null),( is(true)));
+        assertThat(f.exists(), is(false));
+    }
+
+    @Test
+    public void shouldNotDeleteRecordingIfExternal() throws Exception {
+        r.external_upload = true;
+        assertThat(f.createNewFile(), is(true));
+        assertThat(r.delete(null),( is(false)));
+        assertThat(f.exists(), is(true));
+    }
+
+    @Test
+    public void shouldGenerateImageFilename() throws Exception {
+        assertThat(new Recording(new File("/tmp/foo.mp4")).generateImageFile(new File("/images")).getAbsolutePath(),
+                equalTo("/images/foo.bmp"));
+
+        assertThat(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath(),
+                equalTo("/images/foo.bmp"));
     }
 }

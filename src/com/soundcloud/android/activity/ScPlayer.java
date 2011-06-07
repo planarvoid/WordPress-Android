@@ -995,13 +995,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         return 0;
     }
 
-    public void sendSeek() {
+    public void sendSeek(float seekPercent) {
         try {
             if (mPlaybackService == null || !mPlaybackService.isSeekable()) {
                 return;
             }
 
-            mPlaybackService.seek(mSeekPos);
+            mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
             mSeekPos = -1;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);

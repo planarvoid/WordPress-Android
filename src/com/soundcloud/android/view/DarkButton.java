@@ -28,6 +28,7 @@ public class DarkButton extends Button {
             setTextColor(0xFFFFFFFF);
         }
         super.drawableStateChanged();
+        invalidate();
     }
 
 

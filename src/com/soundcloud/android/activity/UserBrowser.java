@@ -15,12 +15,9 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.objects.*;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
-import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -29,7 +26,6 @@ import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.android.view.WorkspaceView.OnScrollListener;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -56,7 +52,6 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -325,7 +320,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(getDetailsRequest());
+            mLoadDetailsTask.execute(Request.to(Endpoints.USER_DETAILS, mUserLoadId));
         }
     }
 
@@ -365,7 +360,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, getUserTracksUrl());
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUserLoadId));
         if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -382,8 +377,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFavoritesUrl());
-        if (isOtherUser()) {
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUserLoadId));
+        if (isOtherUser()){
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_favorites_text,
@@ -405,7 +400,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "details", getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowingsUrl());
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUserLoadId));
 
         if (isOtherUser()) {
             if (mUserData != null) {
@@ -423,7 +418,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, getFollowersUrl());
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUserLoadId));
 
         if (isOtherUser()) {
             if (mUserData != null) {
@@ -442,7 +437,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         if (!isOtherUser()) {
             adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), Friend.class);
-            adpWrap = new LazyEndlessAdapter(this, adp, Endpoints.MY_FRIENDS);
+            adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.MY_FRIENDS));
 
             mFriendFinderView = new FriendFinderView(this, adpWrap);
             mFriendFinderView.friendList = CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
@@ -764,50 +759,24 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
                     new AlertDialog.Builder(UserBrowser.this)
-                            .setTitle(R.string.dialog_confirm_delete_recording_title)
-                            .setMessage(R.string.dialog_confirm_delete_recording_message)
-                            .setPositiveButton(getString(R.string.btn_yes),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog,
-                                                            int whichButton) {
-                                            getContentResolver().delete(recording.toUri(), null, null);
-                                            if (!recording.external_upload) {
-                                                File f = new File(recording.audio_path);
-                                                if (f.exists()) f.delete();
-                                            }
-                                        }
-                                    })
-                            .setNegativeButton(getString(R.string.btn_no),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog,
-                                                            int whichButton) {
-                                        }
-                                    }).create().show();
+                    .setTitle(R.string.dialog_confirm_delete_recording_title)
+                    .setMessage(R.string.dialog_confirm_delete_recording_message)
+                    .setPositiveButton(getString(R.string.btn_yes),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    recording.delete(getContentResolver());
+                                }
+                            })
+                    .setNegativeButton(getString(R.string.btn_no),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                }
+                            }).create().show();
                 }
             }
         });
         builder.create().show();
-    }
-
-
-    private Request getDetailsRequest() {
-        return Request.to(Endpoints.USER_DETAILS, mUserLoadId);
-    }
-
-    private String getUserTracksUrl() {
-        return String.format(Endpoints.USER_TRACKS, mUserLoadId);
-    }
-
-    private String getFavoritesUrl() {
-        return String.format(Endpoints.USER_FAVORITES, mUserLoadId);
-    }
-
-    private String getFollowersUrl() {
-        return String.format(Endpoints.USER_FOLLOWERS, mUserLoadId);
-    }
-
-    private String getFollowingsUrl() {
-        return String.format(Endpoints.USER_FOLLOWINGS, mUserLoadId);
     }
 
     @Override

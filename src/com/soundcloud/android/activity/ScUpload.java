@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.objects.Recording;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
@@ -90,8 +89,7 @@ public class ScUpload extends ScActivity {
 
         if (cursor != null && cursor.moveToFirst()) {
             mRecording = new Recording(cursor);
-            uploadFile = new File(mRecording.audio_path);
-            if (uploadFile.exists()) {
+            if (mRecording.exists()) {
                 mapFromRecording();
             } else {
                 errorOut("Record file is missing");
@@ -353,7 +351,7 @@ public class ScUpload extends ScActivity {
     private void mapFromRecording() {
         if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
         if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
-        if (!TextUtils.isEmpty(mRecording.artwork_path)) setImage(new File(mRecording.artwork_path));
+        if (mRecording.artwork_path != null) setImage(mRecording.artwork_path);
         if (!TextUtils.isEmpty(mRecording.shared_emails)) setPrivateShareEmails(mRecording.shared_emails.split(","));
 
         setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
@@ -372,9 +370,8 @@ public class ScUpload extends ScActivity {
         mRecording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
         mRecording.what_text = mWhatText.getText().toString();
         mRecording.where_text = mWhereText.getText().toString();
-        if (mArtworkFile != null) {
-            mRecording.artwork_path = mArtworkFile.getAbsolutePath();
-        }
+        mRecording.artwork_path = mArtworkFile;
+
         if (mFourSquareVenueId != null) {
             mRecording.four_square_venue_id = mFourSquareVenueId;
         }
@@ -394,12 +391,7 @@ public class ScUpload extends ScActivity {
     }
 
     private File getCurrentImageFile() {
-        if (mRecording == null) {
-            return null;
-        } else {
-            File f = new File(mRecording.audio_path);
-            return new File(mImageDir, f.getName().substring(0, f.getName().lastIndexOf(".")) + ".bmp");
-        }
+        return (mRecording == null) ? null : mRecording.generateImageFile(mImageDir);
     }
 
     private void preloadLocations() {
