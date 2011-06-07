@@ -667,22 +667,17 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 }
             }
         }
-
-        Comment c =isHitting(xPos, skipComment);
+        Comment c = isHitting(xPos, skipComment);
         if (c != null){
             mCurrentShowingComment = c;
             mCommentBubble.show_comment = mCurrentShowingComment;
             mShowBubble = true;
             queueUnique(UI_SHOW_CURRENT_COMMENT);
-            return;
-        }
-
-        if (skipComment == null){
+        } else if (skipComment == null){
             mCommentBubble.show_comment = null;
             mShowBubble = false;
             queueUnique(UI_UPDATE_BUBBLE);
         }
-
     }
 
 
