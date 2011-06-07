@@ -42,6 +42,7 @@ public class FriendFinderView extends ScTabView {
         addView(mLoadingLayout);
 
         mSuggestedLayout = (RelativeLayout)inflater.inflate(R.layout.suggested_users, null);
+        mSuggestedLayout.findViewById(R.id.suggested_users_msg).setVisibility(View.GONE);
         mSuggestedLayout.findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,6 +50,8 @@ public class FriendFinderView extends ScTabView {
                 configureFacebook();
             }
         });
+        mSuggestedLayout.setVisibility(View.GONE);
+        addView(mSuggestedLayout);
     }
 
     public void showLoading() {
@@ -59,7 +62,7 @@ public class FriendFinderView extends ScTabView {
     }
 
     public void showList(List<Connection> connections, boolean refresh) {
-
+         Log.i("ccccc","SHOW CONNECTIONS " + connections);
         if (connections == null /* cheap way of showing an error */
                 || Connection.checkConnectionListForService(connections, Service.Facebook)){
             friendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
