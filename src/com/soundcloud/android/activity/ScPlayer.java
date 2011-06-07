@@ -302,7 +302,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
      * Handle text dragging for viewing of long track names
      */
     public boolean onTouch(View v, MotionEvent event) {
-        CloudUtils.dumpMotionEvent(event);
         int action = event.getAction();
         TextView tv = textViewForContainer(v);
         if (tv == null) {
@@ -331,8 +330,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         scrollx -= mViewWidth;
                     }
                     if (scrollx < -mViewWidth) {
-                        // scrolled the text completely off the view to the
-                        // right
+                        // scrolled the text completely off the view to the right
                         scrollx += mViewWidth;
                         scrollx += mTextWidth;
                     }
