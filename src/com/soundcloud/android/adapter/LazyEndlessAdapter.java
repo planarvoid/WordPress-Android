@@ -5,10 +5,7 @@ package com.soundcloud.android.adapter;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.objects.*;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
@@ -115,7 +112,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
-        } else if (User.class.equals(getWrappedAdapter().getLoadModel())) {
+        } else if (User.class.equals(getWrappedAdapter().getLoadModel())
+                || Friend.class.equals(getWrappedAdapter().getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
