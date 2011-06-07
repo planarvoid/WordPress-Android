@@ -1,9 +1,10 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -14,10 +15,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-/**
- * Database helper class for {@link SettingsProvider}.
- * Mostly just has a bit {@link #onCreate} to initialize the database.
- */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
@@ -75,21 +72,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
-        } catch (SQLiteException e) {
-            e.printStackTrace();
+        } catch (Exception e) /* XXX SQLException */ {
+            SoundCloudApplication.handleSilentException("error during onCreate()", e);
         }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(TAG, "Upgrading database from version " + oldVersion +
-         " to " + newVersion);
-
+        Log.d(TAG, "Upgrading database from version "+oldVersion+" to "+newVersion);
         if (newVersion > oldVersion) {
             db.beginTransaction();
-
             boolean success = false;
-            if (oldVersion >= 3){
+            if (oldVersion >= 3) {
                 for (int i = oldVersion; i < newVersion; ++i) {
                     int nextVersion = i + 1;
                     switch (nextVersion) {
@@ -105,21 +99,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         default:
                             break;
                     }
-
                     if (!success) {
                         break;
                     }
                 }
-
             }
 
             if (success) {
-                Log.i(TAG,"SUCCESSFUL UPGRADE");
-                db.setTransactionSuccessful();
+                Log.d(TAG, "successful upgrade");
             } else {
-                Log.i(TAG,"UPGRADE NOT SUCCESSFULL");
+                Log.w(TAG,"upgrade not successful, recreating db");
                 recreateDb(db);
             }
+            db.setTransactionSuccessful();
             db.endTransaction();
         } else {
             recreateDb(db);
@@ -150,42 +142,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "_id"
             });
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) /* XXX SQLException */ {
+            SoundCloudApplication.handleSilentException("error during upgrade4", e);
         }
         return false;
     }
 
-        /*
-         * added sharing to database
-         */
-        private boolean upgradeTo5(SQLiteDatabase db) {
+    /*
+     * added sharing to database
+     */
+    private boolean upgradeTo5(SQLiteDatabase db) {
             try {
                 alterTableColumns(db, Tables.TRACKS, null, null);
                 return true;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception e) /* XXX SQLException */ {
+                SoundCloudApplication.handleSilentException("error during upgrade5", e);
             }
             return false;
         }
 
-        /*
-         * added sharing to database
-         */
-        private boolean upgradeTo6(SQLiteDatabase db) {
+    /*
+     * added sharing to database
+     */
+    private boolean upgradeTo6(SQLiteDatabase db) {
             try {
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, Tables.TRACKS, null, null);
                 alterTableColumns(db, Tables.USERS, null, null);
                 return true;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception e) /* XXX SQLException */ {
+                SoundCloudApplication.handleSilentException("error during upgrade6", e);
             }
             return false;
         }
 
-        private String alterTableColumns(SQLiteDatabase db, Tables tbl, String[] fromAppendCols,
+    private String alterTableColumns(SQLiteDatabase db, Tables tbl, String[] fromAppendCols,
                 String[] toAppendCols) {
             db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.tableName);
             db.execSQL(tbl.createString.replace("create table " + tbl.tableName, "create table bck_"
@@ -209,14 +201,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public static List<String> getColumnNames(SQLiteDatabase db, String tableName){
-        Cursor ti = db.rawQuery("pragma table_info ("+tableName+")",null);
-        if ( ti.moveToFirst() ) {
-            ArrayList<String> cols = new ArrayList<String>();
-            int i = 0;
+        Cursor ti = db.rawQuery("pragma table_info ("+tableName+")", null);
+        if (ti != null && ti.moveToFirst() ) {
+            List<String> cols = new ArrayList<String>();
             do {
                 cols.add(ti.getString(1));
-                i++;
             } while (ti.moveToNext());
+
+            ti.close();
             return cols;
         }
         return null;

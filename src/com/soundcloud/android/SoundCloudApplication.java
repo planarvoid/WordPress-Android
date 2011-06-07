@@ -6,6 +6,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.LruCache;
@@ -15,6 +16,7 @@ import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import org.acra.ACRA;
+import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -75,6 +77,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public boolean scrollTop;
 
+    public static void handleSilentException(String msg, Exception e) {
+        if (msg != null) {
+           Log.w(TAG, msg, e);
+           ErrorReporter.getInstance().putCustomData("message", msg);
+        }
+        ErrorReporter.getInstance().handleSilentException(e);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -110,11 +120,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         Account account = getAccount();
         if (account != null) {
             getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
-                @Override
-                public void run(AccountManagerFuture<Boolean> future) {
+                @Override public void run(AccountManagerFuture<Boolean> future) {
                     try {
                         if (future.getResult()) {
-                           if (success != null) success.run();
+                            if (success != null) success.run();
                         } else if (error != null) error.run();
                     } catch (OperationCanceledException e) {
                         if (error != null) error.run();
