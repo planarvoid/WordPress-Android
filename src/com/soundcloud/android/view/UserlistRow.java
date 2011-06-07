@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -33,8 +34,8 @@ public class UserlistRow extends LazyRow {
     protected ImageView mTracksIcon;
     protected ImageView mFollowersIcon;
 
-    protected Button mFollowBtn;
-    protected Button mFollowingBtn;
+    protected ImageButton mFollowBtn;
+    protected ImageButton mFollowingBtn;
 
     protected Boolean _isFollowing;
 
@@ -50,8 +51,8 @@ public class UserlistRow extends LazyRow {
         mIcon = (ImageView) findViewById(R.id.icon);
         mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
         mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
-        mFollowingBtn = (Button)findViewById(R.id.toggleFollowing);
-        mFollowBtn = (Button)findViewById(R.id.toggleFollow);
+        mFollowingBtn = (ImageButton)findViewById(R.id.toggleFollowing);
+        mFollowBtn = (ImageButton)findViewById(R.id.toggleFollow);
 
         if (mFollowingBtn != null) {
             mFollowingBtn.setFocusable(false);
@@ -91,7 +92,6 @@ public class UserlistRow extends LazyRow {
         setTrackCount();
         setFollowerCount();
         setFollowingStatus(true);
-
         _isFollowing = false;
     }
 
@@ -105,10 +105,6 @@ public class UserlistRow extends LazyRow {
                     View.VISIBLE : View.GONE);
             mFollowBtn.setVisibility(mActivity.getSoundCloudApplication().followingsSet.contains(mUser.id) ?
                     View.GONE : View.VISIBLE);
-
-            if (mFollowingBtn.getVisibility() == View.VISIBLE){
-                mFollowingBtn.refreshDrawableState();
-            }
 
             mFollowingBtn.setEnabled(enable);
             mFollowBtn.setEnabled(enable);

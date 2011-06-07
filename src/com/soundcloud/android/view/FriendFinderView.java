@@ -62,7 +62,6 @@ public class FriendFinderView extends ScTabView {
     }
 
     public void showList(List<Connection> connections, boolean refresh) {
-         Log.i("ccccc","SHOW CONNECTIONS " + connections);
         if (connections == null /* cheap way of showing an error */
                 || Connection.checkConnectionListForService(connections, Service.Facebook)){
             friendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
