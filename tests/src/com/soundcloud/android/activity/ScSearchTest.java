@@ -10,6 +10,7 @@ import com.xtremelabs.robolectric.Robolectric;
 public class ScSearchTest {
     @Test
     public void shouldSearch() throws Exception {
+        Robolectric.addPendingHttpResponse(404, "Not found");
         Robolectric.pauseMainLooper();
         Robolectric.application.onCreate();
 
