@@ -3,9 +3,18 @@ package com.soundcloud.android;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
+import com.soundcloud.api.Http;
 import com.soundcloud.api.Token;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.util.StdDateFormat;
+
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.os.Build;
 
 import java.net.URI;
 import java.text.DateFormat;
@@ -20,24 +29,35 @@ public interface AndroidCloudAPI extends CloudAPI {
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         private ObjectMapper mMapper;
+        private Context mContext;
+        private String userAgent;
 
-        public Wrapper(String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
+        public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
             super(clientId, clientSecret, redirectUri, token, env);
+            mContext = context;
+            try {
+                PackageInfo info = mContext.getPackageManager().getPackageInfo(AndroidCloudAPI.class.getPackage().getName(),
+                        PackageManager.GET_META_DATA);
+                userAgent = "SoundCloud Android ("+info.versionName+")";
+            } catch (PackageManager.NameNotFoundException ignored) {
+            }
         }
-        // XXX reenable when sandbox certificate is working again
-        /*
+
         @Override protected SSLSocketFactory getSSLSocketFactory() {
-            return isRunningOnDalvik() ?
-                    SSLCertificateSocketFactory.getHttpSocketFactory(Http.TIMEOUT, null) :
+            return SoundCloudApplication.DALVIK && Build.VERSION.SDK_INT >= 8 ?
+                    SSLCertificateSocketFactory.getHttpSocketFactory(Http.TIMEOUT, new SSLSessionCache(mContext)) :
                     super.getSSLSocketFactory();
         }
-        */
 
         @Override public ObjectMapper getMapper() {
             if (this.mMapper == null) {
                 mMapper = createMapper();
             }
             return mMapper;
+        }
+
+        @Override protected String getUserAgent() {
+            return userAgent == null ? super.getUserAgent() : userAgent;
         }
 
         public static ObjectMapper createMapper() {
