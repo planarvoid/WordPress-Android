@@ -884,8 +884,6 @@ public class CloudPlaybackService extends Service {
                     } else if (pausedForBuffering){
                         sendDownloadException();
                     }
-                } else {
-                    fillBuffer = false;
                 }
             }
         }
@@ -896,14 +894,13 @@ public class CloudPlaybackService extends Service {
                 .length() >= track.filelength);
     }
 
-    @SuppressWarnings({"SimplifiableIfStatement"})
     public boolean keepCaching() {
         // we aren't playing and are not supposed to be caching during pause
         if (!mIsSupposedToBePlaying && !mCacheOnPause) {
             return false;
         } else {
-            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                || (fillBuffer && mCurrentBuffer < HIGH_WATER_MARK);
+            if (fillBuffer && mCurrentBuffer > HIGH_WATER_MARK) fillBuffer = false;
+            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI || fillBuffer;
         }
     }
 
