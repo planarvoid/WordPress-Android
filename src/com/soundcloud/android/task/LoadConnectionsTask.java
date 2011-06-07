@@ -5,18 +5,24 @@ import com.soundcloud.android.objects.Connection;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class LoadConnectionsTask extends LoadJsonTask<Connection> {
 
-    private ConnectionsListener mListener;
+    private WeakReference<ConnectionsListener> mListenerRef;
 
     public LoadConnectionsTask(AndroidCloudAPI api) {
         super(api);
     }
 
-    public void setListener(ConnectionsListener listener){
-        mListener = listener;
+    public void setListener(ConnectionsListener listener) {
+        if (listener == null) {
+            mListenerRef = null;
+        } else {
+            mListenerRef = new WeakReference<ConnectionsListener>(listener);
+        }
+
     }
 
     @Override
@@ -26,8 +32,8 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
 
     @Override
     protected void onPostExecute(List<Connection> connections) {
-        if (mListener != null){
-            mListener.onConnections(connections);
+        if (mListenerRef != null && mListenerRef.get() != null) {
+            mListenerRef.get().onConnections(connections);
         }
     }
 

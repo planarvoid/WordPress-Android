@@ -2,6 +2,8 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.view.Gravity;
+import android.widget.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
@@ -21,6 +23,7 @@ import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
@@ -42,15 +45,8 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TabWidget;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -806,5 +802,29 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
     }
 
+     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        switch (requestCode) {
+            case Connect.MAKE_CONNECTION:
+                if (resultCode == RESULT_OK) {
+                    boolean success = result.getBooleanExtra("success", false);
+                    String msg = getString(
+                            success ? R.string.connect_success : R.string.connect_failure,
+                            result.getStringExtra("service"));
+                    Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.BOTTOM, 0, 0);
+                    toast.show();
+
+                    if (success && !isOtherUser()) {
+                        if (mConnectionsTask != null) mConnectionsTask.setListener(null);
+
+                        mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+                        mConnectionsTask.setListener(this);
+                        mConnectionsTask.execute();
+                        if (mFriendFinderView != null) mFriendFinderView.showLoading();
+                    }
+                }
+        }
+    }
 
 }
