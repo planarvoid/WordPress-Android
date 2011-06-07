@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 
@@ -40,10 +41,10 @@ public class SuggestedUsers extends ScActivity {
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.friends_from_facebook);
             mFacebookBtn.setVisibility(View.GONE);
-            createList(Endpoints.MY_FRIENDS, Friend.class, R.string.empty_list);
+            createList(Request.to(Endpoints.MY_FRIENDS), Friend.class, R.string.empty_list);
         } else {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
-            createList(Endpoints.SUGGESTED_USERS, User.class, R.string.empty_list);
+            createList(Request.to(Endpoints.SUGGESTED_USERS), User.class, R.string.empty_list);
         }
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
@@ -58,9 +59,9 @@ public class SuggestedUsers extends ScActivity {
         pageTrack("/suggested_users");
     }
 
-    protected void createList(String endpoint, Class<?> model, int emptyText) {
+    protected void createList(Request request, Class<?> model, int emptyText) {
         FriendFinderAdapter adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), model);
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, endpoint, "collection");
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, request);
 
         mListView = buildList();
         mListView.setAdapter(adpWrap);

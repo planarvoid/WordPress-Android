@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import com.soundcloud.api.Request;
 
 import java.util.List;
 
@@ -52,14 +53,14 @@ public class FriendFinderView extends ScTabView {
 
         if (connections == null /* cheap way of showing an error */
                 || Connection.checkConnectionListForService(connections, Service.Facebook)){
-            friendList.getWrapper().setPath(Endpoints.MY_FRIENDS, null);
+            friendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
             ((LazyBaseAdapter) friendList.getAdapter()).setModel(Friend.class);
             if (friendList.getParent() == mSuggestedLayout.findViewById(R.id.listHolder)){
                 ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).removeView(friendList);
                 addView(friendList);
             }
         } else {
-            friendList.getWrapper().setPath(Endpoints.SUGGESTED_USERS, null);
+            friendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
             ((LazyBaseAdapter) friendList.getAdapter()).setModel(User.class);
             if (friendList.getParent() == this){
                 removeView(friendList);
