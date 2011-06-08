@@ -20,7 +20,7 @@ public class FriendFinderEndlessAdapter extends LazyEndlessAdapter{
     @Override
     public void onPostTaskExecute(Boolean keepgoing) {
         super.onPostTaskExecute(keepgoing);
-        if (keepgoing != null && !keepgoing && mFriendFinderView != null) {
+        if (keepgoing != null && !keepgoing && mFriendFinderView != null && getWrappedAdapter().getCount() == 0) {
             mFriendFinderView.setState(FriendFinderView.States.FB_CONNECTION_NO_FRIENDS, true);
             mActivity.showToast(R.string.suggested_users_no_friends_msg);
         }
