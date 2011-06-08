@@ -27,18 +27,17 @@ public class SuggestedUsers extends ScActivity {
         setContentView(R.layout.suggested_users);
 
         final View facebookBtn = findViewById(R.id.facebook_btn);
+        final ViewGroup parent = ((ViewGroup) findViewById(R.id.listHolder));
         final TextView listTitle = ((TextView) findViewById(R.id.listTitle));
 
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
             facebookBtn.setVisibility(View.GONE);
             listTitle.setText(R.string.friends_from_facebook);
-            mListView = createList(Request.to(Endpoints.MY_FRIENDS), Friend.class, R.string.empty_list);
+            mListView = createList(Request.to(Endpoints.MY_FRIENDS), Friend.class, parent, R.string.empty_list);
         } else {
             listTitle.setText(R.string.suggested_users);
-            mListView = createList(Request.to(Endpoints.SUGGESTED_USERS), User.class, R.string.empty_list);
+            mListView = createList(Request.to(Endpoints.SUGGESTED_USERS), User.class, parent, R.string.empty_list);
         }
-
-        ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
@@ -52,11 +51,13 @@ public class SuggestedUsers extends ScActivity {
         pageTrack("/suggested_users");
     }
 
-    protected LazyListView createList(Request request, Class<?> model, int emptyText) {
+    protected LazyListView createList(Request request, Class<?> model, ViewGroup parent, int emptyText) {
         FriendFinderAdapter adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), model);
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, request);
         LazyListView list = buildList();
         list.setAdapter(adpWrap);
+        parent.addView(list);
+        // XXX make this sane - createListEmpty expects list with parent view
         adpWrap.createListEmptyView(list);
         if (emptyText != -1) adpWrap.setEmptyViewText(getResources().getString(emptyText));
         return list;

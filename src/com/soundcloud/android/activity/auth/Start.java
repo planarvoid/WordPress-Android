@@ -25,6 +25,7 @@ import android.widget.Button;
 
 public class Start extends AccountAuthenticatorActivity {
     private static final int RECOVER_CODE = 1;
+    private static final int SUGGESTED_USERS = 2;
 
     private Handler mHandler = new Handler();
 
@@ -83,8 +84,15 @@ public class Start extends AccountAuthenticatorActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            handleActivityResult(requestCode, data);
+        switch (resultCode) {
+            case RESULT_OK:
+                handleActivityResult(requestCode, data);
+                break;
+            case RESULT_CANCELED:
+                if (requestCode == SUGGESTED_USERS) {
+                    handleSuggestedUsersReturned(data);
+                }
+                break;
         }
     }
 
@@ -103,15 +111,29 @@ public class Start extends AccountAuthenticatorActivity {
                     result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                     setAccountAuthenticatorResult(result);
 
-                    finish();
+                    if (viaSignup) {
+                        // TODO this is currently not set for facebook signup
+                        startActivityForResult(new Intent(this, SuggestedUsers.class), SUGGESTED_USERS);
+                    } else {
+                        finish();
+                    }
                 } else {
                     //showError
                 }
                 break;
+            case SUGGESTED_USERS:
+                handleSuggestedUsersReturned(data);
+                break;
+
             case RECOVER_CODE:
                 handleRecoverResult(this, data);
                 break;
         }
+    }
+
+    private void handleSuggestedUsersReturned(Intent data) {
+        Log.d(TAG, "suggested users returned");
+        finish();
     }
 
     static void handleRecoverResult(Context context, Intent data) {
