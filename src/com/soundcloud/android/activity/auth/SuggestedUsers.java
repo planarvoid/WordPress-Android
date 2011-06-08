@@ -1,46 +1,38 @@
 package com.soundcloud.android.activity.auth;
 
-import android.nfc.Tag;
-import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 
 public class SuggestedUsers extends ScActivity {
-
-    private Button mFacebookBtn;
     private LazyListView mListView;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
         CloudUtils.checkState(this);
 
         setContentView(R.layout.suggested_users);
 
-        mFacebookBtn = (Button)findViewById(R.id.facebook_btn);
-
+        View facebookBtn = findViewById(R.id.facebook_btn);
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.friends_from_facebook);
-            mFacebookBtn.setVisibility(View.GONE);
+            facebookBtn.setVisibility(View.GONE);
             createList(Request.to(Endpoints.MY_FRIENDS), Friend.class, R.string.empty_list);
         } else {
             ((TextView) findViewById(R.id.listTitle)).setText(R.string.suggested_users);
@@ -83,6 +75,5 @@ public class SuggestedUsers extends ScActivity {
         if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter){
             ((LazyEndlessAdapter) mListView.getAdapter()).refresh(true);
         }
-
     }
 }
