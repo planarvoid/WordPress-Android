@@ -54,7 +54,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private ImageView mOverlay;
     private ProgressBar mProgressBar;
-    private RelativeLayout mTrackTouchBar;
     private WaveformHolder mWaveformHolder;
     private RelativeLayout mWaveformFrame;
     private WaveformCommentLines mCommentLines;
@@ -101,7 +100,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        this.setWillNotDraw(false);
+        setWillNotDraw(false);
 
         mPlayer = (ScPlayer) context;
 
@@ -127,8 +126,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
-        mTrackTouchBar = (RelativeLayout) findViewById(R.id.track_touch_bar);
-        mTrackTouchBar.setOnTouchListener(this);
+        findViewById(R.id.track_touch_bar).setOnTouchListener(this);
 
         if (isLandscape()){
 
@@ -162,7 +160,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             // not landscape
             // this will allow transparency for the progress bar
-            this.setStaticTransformationsEnabled(true);
+            setStaticTransformationsEnabled(true);
         }
 
         mOverlay.setVisibility(View.INVISIBLE);
@@ -234,7 +232,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
 
         mPlayingTrack = track;
-        mDuration = mPlayingTrack.duration;
+        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
 
         if (waveformResult == BindResult.ERROR) {
             // clear loader errors so we can try to reload
@@ -284,10 +282,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             InputObject input = mInputObjectPool.take();
             input.useEvent(v, event);
             mTouchThread.feedInput(input);
-            synchronized (mTouchThread.eventMutex) {
-                mTouchThread.eventMutex.notify();
-            }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         }
         return true; // indicate event was handled
     }
@@ -336,7 +331,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         super.onLayout(changed, l,t,r,b);
 
         if (changed && isLandscape()){
-
             int[] calc = new int[2];
 
             mPlayer.getCommentHolder().getLocationInWindow(calc);
@@ -673,22 +667,17 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 }
             }
         }
-
-        Comment c =isHitting(xPos, skipComment);
+        Comment c = isHitting(xPos, skipComment);
         if (c != null){
             mCurrentShowingComment = c;
             mCommentBubble.show_comment = mCurrentShowingComment;
             mShowBubble = true;
             queueUnique(UI_SHOW_CURRENT_COMMENT);
-            return;
-        }
-
-        if (skipComment == null){
+        } else if (skipComment == null){
             mCommentBubble.show_comment = null;
             mShowBubble = false;
             queueUnique(UI_UPDATE_BUBBLE);
         }
-
     }
 
 
@@ -735,52 +724,30 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     private class TouchThread extends Thread {
-        private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(
-                INPUT_QUEUE_SIZE);
-
-        private Object inputQueueMutex = new Object();
-
-        public Object eventMutex = new Object();
-
+        private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
         public boolean stopped = false;
 
-        public void feedInput(InputObject input) {
-            synchronized (inputQueueMutex) {
+        public synchronized void feedInput(InputObject input) {
                 try {
                     inputQueue.put(input);
                 } catch (InterruptedException e) {
                     Log.e(TAG, e.getMessage(), e);
                 }
-            }
-        }
-
-        private void processInput() {
-            synchronized (inputQueueMutex) {
-                ArrayBlockingQueue<InputObject> inputQueue = this.inputQueue;
-                while (!inputQueue.isEmpty()) {
-                    try {
-                        InputObject input = inputQueue.take();
-                        if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
-                            processInputObject(input);
-                        }
-                        input.returnToPool();
-                    } catch (InterruptedException e) {
-                        Log.e(TAG, e.getMessage(), e);
-                    }
-                }
-            }
         }
 
         @Override
         public void run() {
             while (!stopped) {
-                synchronized (eventMutex) {
-                    try {
-                        eventMutex.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                InputObject input = null;
+                try {
+                    input = inputQueue.take();
+                    if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
+                        processInputObject(input);
                     }
-                    processInput();
+                } catch (InterruptedException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                } finally {
+                    if (input != null) input.returnToPool();
                 }
             }
         }
