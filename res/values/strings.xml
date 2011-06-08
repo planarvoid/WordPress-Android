@@ -101,7 +101,7 @@
   <string name="suggested_users">Suggested Users</string>
   <string name="friends_from_facebook">Friends from Facebook</string>
   <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
-  <string name="suggested_users_no_friends_msg">Whoop! You\'re a trendsetter - you\'re the first of your Facebook friends to connect to SoundCloud. Check out some suggested users and dive into the SoundCloud community.</string>
+  <string name="suggested_users_no_friends_msg">Whoop! You\'re a trendsetter. You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested Users.</string>
 
   <string name="app_name">SoundCloud</string>
   <string name="client_id">xce4DwrNEmNzTIcuaAjkA</string>
