@@ -34,12 +34,14 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
             super(clientId, clientSecret, redirectUri, token, env);
-            mContext = context;
-            try {
-                PackageInfo info = mContext.getPackageManager().getPackageInfo(AndroidCloudAPI.class.getPackage().getName(),
-                        PackageManager.GET_META_DATA);
-                userAgent = "SoundCloud Android ("+info.versionName+")";
-            } catch (PackageManager.NameNotFoundException ignored) {
+            if (context != null) {
+                mContext = context;
+                try {
+                    PackageInfo info = mContext.getPackageManager().getPackageInfo(AndroidCloudAPI.class.getPackage().getName(),
+                            PackageManager.GET_META_DATA);
+                    userAgent = "SoundCloud Android ("+info.versionName+")";
+                } catch (PackageManager.NameNotFoundException ignored) {
+                }
             }
         }
 
