@@ -63,10 +63,6 @@ public class LazyListView extends ListView {
         mListener = listener;
     }
 
-    public int getScrollState(){
-        return mScrollState;
-    }
-
     @Override
     public ListAdapter getAdapter() {
         if (super.getAdapter() instanceof LazyEndlessAdapter) {
