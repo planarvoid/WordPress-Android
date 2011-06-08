@@ -251,13 +251,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             if (mFriendFinderView != null) mFriendFinderView.showLoading();
         }
 
-
-        if (mWorkspaceView != null) {
-            if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)){
-                ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
-            }
-        } else {
-            ((ScTabView) mTabHost.getCurrentView()).onRefresh(true);
+        if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
         }
     }
 
@@ -475,7 +470,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mTabHost.setOnTabChangedListener(tabListener);
         hsv.setFillViewport(true);
     }
-
 
     private int getWidth() {
         return findViewById(R.id.user_details_root).getWidth();
