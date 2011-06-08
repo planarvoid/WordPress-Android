@@ -46,9 +46,7 @@ public class FriendFinderView extends ScTabView {
         mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
         addView(mLoadingLayout);
 
-        mSuggestedLayout = (RelativeLayout) inflater.inflate(R.layout.suggested_users, null);
-        ((TextView) mSuggestedLayout.findViewById(R.id.suggested_users_msg))
-                    .setText(R.string.suggested_users_no_friends_msg);
+        mSuggestedLayout = (RelativeLayout) inflater.inflate(R.layout.friend_finder, null);
         mSuggestedLayout.findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +54,6 @@ public class FriendFinderView extends ScTabView {
                 configureFacebook();
             }
         });
-        mSuggestedLayout.findViewById(R.id.listTitle).setVisibility(View.GONE);
         mSuggestedLayout.setVisibility(View.GONE);
         addView(mSuggestedLayout);
     }
@@ -88,7 +85,6 @@ public class FriendFinderView extends ScTabView {
                 showSuggestedList();
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setEnabled(true);
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.VISIBLE);
-                mSuggestedLayout.findViewById(R.id.suggested_users_msg).setVisibility(View.GONE);
                 break;
 
             case States.FB_CONNECTION :
@@ -98,7 +94,6 @@ public class FriendFinderView extends ScTabView {
             case States.FB_CONNECTION_NO_FRIENDS :
                 showSuggestedList();
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.GONE);
-                mSuggestedLayout.findViewById(R.id.suggested_users_msg).setVisibility(View.VISIBLE);
                 break;
 
             default:

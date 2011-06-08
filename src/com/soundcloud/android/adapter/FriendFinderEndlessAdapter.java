@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.api.Request;
@@ -21,6 +22,7 @@ public class FriendFinderEndlessAdapter extends LazyEndlessAdapter{
         super.onPostTaskExecute(keepgoing);
         if (keepgoing != null && !keepgoing && mFriendFinderView != null) {
             mFriendFinderView.setState(FriendFinderView.States.FB_CONNECTION_NO_FRIENDS, true);
+            mActivity.showToast(R.string.suggested_users_no_friends_msg);
         }
     }
 

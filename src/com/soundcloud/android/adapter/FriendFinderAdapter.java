@@ -18,7 +18,6 @@ public class FriendFinderAdapter extends UserlistAdapter {
 
     @Override
     public User getUserAt(int index) {
-        Log.i(TAG, "GET USER AT " + index + " " + getItem(index));
         if (getItem(index) instanceof Friend) return ((Friend) getItem(index)).user;
         return super.getUserAt(index);
     }
