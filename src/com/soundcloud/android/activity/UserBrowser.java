@@ -253,7 +253,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
 
         if (mWorkspaceView != null) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
+            if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)){
+                ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
+            }
         } else {
             ((ScTabView) mTabHost.getCurrentView()).onRefresh(true);
         }
