@@ -10,12 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.adapter.FriendFinderAdapter;
+import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.objects.*;
 import com.soundcloud.android.task.CheckFollowingStatusTask;
 import com.soundcloud.android.task.LoadConnectionsTask;
@@ -23,7 +18,6 @@ import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
@@ -164,6 +158,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             restoreAdapterStates((Object[]) mPreviousState[6]);
 
+            if (mPreviousState[7] != null) mFriendFinderView.setState(Integer.parseInt(mPreviousState[7].toString()), false);
+
         } else {
             Intent intent = getIntent();
             if (intent.hasExtra("user")) {
@@ -206,7 +202,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 mCheckFollowingTask,
                 mConnectionsTask,
                 mConnections,
-                getAdapterStates()
+                getAdapterStates(),
+                mFriendFinderView != null ? mFriendFinderView.getCurrentState() : null
         };
     }
 
@@ -248,7 +245,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
             mConnectionsTask.setListener(this);
             mConnectionsTask.execute();
-            if (mFriendFinderView != null) mFriendFinderView.showLoading();
+            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
         }
 
         if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
@@ -259,7 +256,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     @Override
     public void onConnections(List<Connection> connections) {
         mConnections = connections;
-        mFriendFinderView.showList(connections, true);
+        mFriendFinderView.onConnections(connections, true);
     }
 
     public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -430,17 +427,17 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         if (!isOtherUser()) {
             adp = new FriendFinderAdapter(this, new ArrayList<Parcelable>(), Friend.class);
-            adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.MY_FRIENDS));
+            FriendFinderEndlessAdapter ffAdpWrap = new FriendFinderEndlessAdapter(this, adp, Request.to(Endpoints.MY_FRIENDS));
 
-            mFriendFinderView = new FriendFinderView(this, adpWrap);
-            mFriendFinderView.friendList = CloudUtils.createTabList(this, mFriendFinderView, adpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
+            mFriendFinderView = new FriendFinderView(this, ffAdpWrap);
+            mFriendFinderView.friendList = CloudUtils.createTabList(this, mFriendFinderView, ffAdpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
             mFriendFinderView.friendList.disableLongClickListener();
             CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
 
             if (mConnectionsTask == null || !CloudUtils.isTaskFinished(mConnectionsTask)) {
-                mFriendFinderView.showLoading();
+                mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
             } else {
-                mFriendFinderView.showList(mConnections, false);
+                mFriendFinderView.onConnections(mConnections, false);
             }
         }
 
@@ -817,7 +814,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                         mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
                         mConnectionsTask.setListener(this);
                         mConnectionsTask.execute();
-                        if (mFriendFinderView != null) mFriendFinderView.showLoading();
+                        if (mFriendFinderView != null) {
+                            mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
+                        }
                     }
                 }
         }
