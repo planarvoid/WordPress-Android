@@ -122,18 +122,21 @@ public class SignUp extends Activity {
                     // SoundCloudApplication works properly
                     final boolean signedUp = app.addUserAccount(user, app.getToken());
 
+                    final Bundle param = new Bundle();
+                    param.putString("username", email);
+                    param.putString("password", password);
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
-                                        .putExtra("signup", signedUp)
+                                        .putExtra("signed_up", signedUp)
                                         .putExtra("user", user)
                                         .putExtra("token", token), 0);
                             } else {
                                 signupFail(null);
                             }
                         }
-                    }.execute(email, password);
+                    }.execute(param);
                 } else {
                     signupFail(getFirstError());
                 }

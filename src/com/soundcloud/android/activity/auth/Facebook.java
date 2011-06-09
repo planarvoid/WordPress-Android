@@ -1,11 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.*;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
@@ -21,8 +18,6 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
@@ -85,8 +80,12 @@ public class Facebook extends LoginActivity {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
                     String code = result.getQueryParameter("code");
+
                     if (!TextUtils.isEmpty(code) && error == null) {
-                        login(code);
+                        Bundle params = new Bundle();
+                        params.putString("code", code);
+                        params.putBoolean("signed_up", "1".equals(result.getQueryParameter("signed_up")));
+                        login(params);
                     } else {
                         new AlertDialog.Builder(Facebook.this)
                                 .setTitle(R.string.facebook_authentication_failed_title)
