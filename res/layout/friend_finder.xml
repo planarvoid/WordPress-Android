@@ -14,6 +14,5 @@
 		android:id="@+id/listHolder" android:layout_height="wrap_content"
 		android:layout_below="@id/facebook_btn"
         android:layout_alignWithParentIfMissing="true"
-		android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip"></FrameLayout>
+		android:layout_alignParentBottom="true"></FrameLayout>
 </RelativeLayout>
