@@ -199,5 +199,6 @@ public class User extends BaseObj implements Parcelable {
 
         String CURRENT_INCOMING_UNSEEN = "current_incoming_unseen";
         String CURRENT_EXCLUSIVE_UNSEEN = "current_exclusive_unseen";
+        String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
     }
 }
