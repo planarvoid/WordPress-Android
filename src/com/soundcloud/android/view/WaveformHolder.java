@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
+import com.soundcloud.android.utils.CloudUtils;
 
 public class WaveformHolder extends RelativeLayout {
 
@@ -15,26 +16,20 @@ public class WaveformHolder extends RelativeLayout {
 
     private RelativeLayout mConnectingBar;
 
-    private boolean mLandscape;
-
     public WaveformHolder(Context context, AttributeSet attrs) {
         super(context, attrs);
 
     }
 
-    public void setLandscape(boolean isLandscape) {
-        mLandscape = isLandscape;
-    }
-
     public void showConnectingLayout() {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
-        if (!mLandscape)this.setStaticTransformationsEnabled(true);
+        if (!CloudUtils.isLandscape(getResources()))setStaticTransformationsEnabled(true);
         mConnectingBar.setVisibility(View.VISIBLE);
     }
 
     public void hideConnectingLayout() {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
-        this.setStaticTransformationsEnabled(false);
+        setStaticTransformationsEnabled(false);
         mConnectingBar.setVisibility(View.GONE);
     }
 
