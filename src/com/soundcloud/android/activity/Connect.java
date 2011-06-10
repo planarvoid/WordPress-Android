@@ -12,8 +12,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -90,7 +91,14 @@ public class Connect extends Activity {
                 return false;
             }
         });
+
+        removeAllCookies();
         mWebView.loadUrl(url);
+    }
+
+    private void removeAllCookies() {
+        CookieSyncManager.createInstance(this);
+        CookieManager.getInstance().removeAllCookie();
     }
 
      private void showConnectionError(final String message) {
