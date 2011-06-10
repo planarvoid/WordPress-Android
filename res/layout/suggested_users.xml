@@ -15,19 +15,9 @@
 		android:textColor="#FFFFFFFF" android:layout_width="fill_parent"
 		android:background="@drawable/btn_fb_bg_states" android:id="@+id/facebook_btn"
 		android:text="@string/authentication_log_in_with_facebook"></Button>
-	<TextView android:id="@+id/listTitle" android:layout_height="wrap_content"
-	   android:layout_alignWithParentIfMissing="true"
-		android:layout_width="match_parent" android:text="@string/suggested_users"
-		android:paddingTop="5dip" android:paddingBottom="5dip"
-		android:paddingLeft="10dip" android:paddingRight="10dip"
-		android:enabled="true" android:background="#FFEFEFEF"
-		android:layout_below="@id/facebook_btn"
-		android:textColor="@color/listTxtSecondary" android:textSize="16sp"
-		android:textStyle="bold" android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip" android:layout_marginTop="5dip"></TextView>
 	<FrameLayout android:layout_width="match_parent"
 		android:id="@+id/listHolder" android:layout_height="wrap_content"
-		android:layout_below="@id/listTitle"
+		android:layout_below="@id/facebook_btn"
 		android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
 		android:layout_marginRight="10dip"></FrameLayout>
 </RelativeLayout>

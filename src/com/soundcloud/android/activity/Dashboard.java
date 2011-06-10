@@ -10,9 +10,6 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -76,7 +73,7 @@ public class Dashboard extends ScActivity {
         }
 
         final ScTabView view = new ScTabView(this, adpWrap);
-        mListView = CloudUtils.createTabList(this, view, adpWrap, listId, null);
+        mListView = CloudUtils.configureTabList(this, buildList(), view, adpWrap, listId, null);
         return view;
     }
 

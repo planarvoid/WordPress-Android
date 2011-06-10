@@ -302,7 +302,10 @@ public abstract class ScActivity extends Activity {
     }
 
     public LazyListView buildList() {
-        LazyListView lv = new LazyListView(this);
+        return configureList(new LazyListView(this));
+    }
+
+    public LazyListView configureList(LazyListView lv) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);

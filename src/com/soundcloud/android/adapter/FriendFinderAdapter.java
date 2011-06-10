@@ -1,24 +1,36 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadFollowingsTask;
+import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.android.view.UserlistSectionedRow;
 
-import java.util.ArrayList;
-
-public class FriendFinderAdapter extends UserlistAdapter {
+public class FriendFinderAdapter extends SectionedAdapter implements IUserlistAdapter, LoadFollowingsTask.FollowingsListener {
 
     public static final String TAG = "FriendFinderAdapter";
 
-    public FriendFinderAdapter(ScActivity context, ArrayList<Parcelable> data, Class<?> model) {
-        super(context, data, model);
+    public FriendFinderAdapter(ScActivity activity) {
+        super(activity);
+        activity.getSoundCloudApplication().requestUserFollowings(this, false);
+    }
+
+    public User getUserAt(int index) {
+        if (getItem(index) instanceof Friend)
+            return ((Friend) getItem(index)).user;
+        else if (getItem(index) instanceof User)
+            return ((User) getItem(index));
+
+        throw new IllegalStateException("Unknown row type found: " + getItem(index) + " at " + index);
+    }
+
+    public void onFollowings(boolean success) {
+        this.notifyDataSetChanged();
     }
 
     @Override
-    public User getUserAt(int index) {
-        if (getItem(index) instanceof Friend) return ((Friend) getItem(index)).user;
-        return super.getUserAt(index);
+    protected LazyRow createRow() {
+        return new UserlistSectionedRow(mActivity, this);
     }
 }

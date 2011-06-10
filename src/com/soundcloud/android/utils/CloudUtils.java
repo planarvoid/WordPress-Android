@@ -259,13 +259,13 @@ public class CloudUtils {
         }
     }
 
-    public static LazyListView createTabList(ScActivity activity,
-                                   FrameLayout listHolder,
-                                   LazyEndlessAdapter adpWrap,
-                                   int listId, OnTouchListener touchListener) {
+    public static LazyListView configureTabList(ScActivity activity,
+                                                LazyListView lv,
+                                                FrameLayout listHolder,
+                                                LazyEndlessAdapter adpWrap,
+                                                int listId, OnTouchListener touchListener) {
 
         listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        LazyListView lv = activity.buildList();
         if (listId != -1) lv.setId(listId);
         if (touchListener != null) lv.setOnTouchListener(touchListener);
         lv.setAdapter(adpWrap);

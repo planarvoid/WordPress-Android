@@ -2,16 +2,19 @@ package com.soundcloud.android.view;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.FriendFinderEndlessAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.SectionedAdapter;
+import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.objects.Connection.Service;
 import com.soundcloud.android.objects.Friend;
@@ -20,6 +23,7 @@ import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FriendFinderView extends ScTabView {
@@ -27,20 +31,21 @@ public class FriendFinderView extends ScTabView {
     private RelativeLayout mLoadingLayout;
     private RelativeLayout mSuggestedLayout;
     private int mCurrentState;
+    private boolean mFacebookConnected;
+    private SectionedEndlessAdapter mAdapter;
 
     public LazyListView friendList;
 
     public interface States {
         int LOADING = 1;
         int NO_FB_CONNECTION = 2;
-        int FB_CONNECTION  = 3;
-        int FB_CONNECTION_NO_FRIENDS  = 4;
+        int FB_CONNECTION = 3;
     }
 
-    public FriendFinderView(ScActivity activity, FriendFinderEndlessAdapter adpWrap) {
+    public FriendFinderView(ScActivity activity, SectionedEndlessAdapter adpWrap) {
         super(activity, adpWrap);
 
-        adpWrap.setFriendFinderView(this);
+        mAdapter = adpWrap;
 
         LayoutInflater inflater = activity.getLayoutInflater();
         mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
@@ -59,21 +64,29 @@ public class FriendFinderView extends ScTabView {
     }
 
     public void onConnections(List<Connection> connections, boolean refresh) {
-        if (connections == null /* cheap way of showing an error */
-                || Connection.checkConnectionListForService(connections, Service.Facebook)) {
+        if (connections == null) {
+            /* cheap way of showing an error */
+            mFacebookConnected = false;
+            setState(States.FB_CONNECTION, refresh);
+        } else if (Connection.checkConnectionListForService(connections, Service.Facebook)) {
+            mFacebookConnected = true;
             setState(States.FB_CONNECTION, refresh);
         } else {
+            mFacebookConnected = false;
             setState(States.NO_FB_CONNECTION, refresh);
         }
     }
 
-    public int getCurrentState(){
+    public int getCurrentState() {
         return mCurrentState;
     }
 
 
     public void setState(int state, boolean refresh) {
-        switch (state){
+
+        if (refresh) mAdapter.clear();
+
+        switch (state) {
             case States.LOADING:
                 mLoadingLayout.setVisibility(View.VISIBLE);
                 friendList.setVisibility(View.GONE);
@@ -81,19 +94,19 @@ public class FriendFinderView extends ScTabView {
                 mCurrentState = state;
                 return;
 
-            case States.NO_FB_CONNECTION :
-                showSuggestedList();
+            case States.NO_FB_CONNECTION:
+                if (refresh) addSuggestedSection();
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setEnabled(true);
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.VISIBLE);
-                break;
-
-            case States.FB_CONNECTION :
-                showFriendsList();
-                break;
-
-            case States.FB_CONNECTION_NO_FRIENDS :
                 showSuggestedList();
-                mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.GONE);
+                break;
+
+            case States.FB_CONNECTION:
+                if (refresh) {
+                    addFriendsSection();
+                    addSuggestedSection();
+                }
+                showFriendsList();
                 break;
 
             default:
@@ -105,11 +118,22 @@ public class FriendFinderView extends ScTabView {
         friendList.getWrapper().createListEmptyView(friendList);
         mLoadingLayout.setVisibility(View.GONE);
         friendList.setVisibility(View.VISIBLE);
+
         if (refresh) {
             friendList.getWrapper().refresh(false);
             friendList.invalidate();
             friendList.requestLayout();
         }
+    }
+
+    private void addFriendsSection() {
+        ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(
+                new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS)));
+    }
+
+    private void addSuggestedSection() {
+        ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(
+                new SectionedAdapter.Section("Suggested Users", User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
     private void showFriendsList() {
@@ -153,6 +177,13 @@ public class FriendFinderView extends ScTabView {
                 }
             }
         }.execute(Service.Facebook);
+    }
+
+    private void onNoFriends() {
+        if (!mActivity.getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN)) {
+            mActivity.showToast(R.string.suggested_users_no_friends_msg);
+            mActivity.getSoundCloudApplication().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+        }
     }
 
 }

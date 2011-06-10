@@ -2,6 +2,17 @@
 package com.soundcloud.android.adapter;
 
 
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -11,28 +22,17 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
 
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.text.Html;
-import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LazyEndlessAdapter extends AdapterWrapper {
-    private View pendingView = null;
-    private int pendingPosition = -1;
+    protected View pendingView = null;
+    protected int pendingPosition = -1;
     private AppendTask appendTask;
-    private View mEmptyView;
-    private LazyListView mListView;
-    private int mCurrentPage;
+    protected View mEmptyView;
+    protected LazyListView mListView;
+    protected int mCurrentPage;
     protected ScActivity mActivity;
     protected AtomicBoolean keepOnAppending = new AtomicBoolean(true);
     protected Boolean mException = false;
@@ -107,21 +107,21 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         String textToSet = "";
 
 
-        if (Track.class.equals(getWrappedAdapter().getLoadModel())) {
+        if (Track.class.equals(getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
-        } else if (User.class.equals(getWrappedAdapter().getLoadModel())
-                || Friend.class.equals(getWrappedAdapter().getLoadModel())) {
+        } else if (User.class.equals(getLoadModel())
+                || Friend.class.equals(getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
-        } else if (Comment.class.equals(getWrappedAdapter().getLoadModel())) {
+        } else if (Comment.class.equals(getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
-        } else if (Event.class.equals(getWrappedAdapter().getLoadModel())) {
+        } else if (Event.class.equals(getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
@@ -251,17 +251,20 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         if (position == super.getCount() && keepOnAppending.get()) {
             if (pendingView == null) {
+
                 pendingView = getPendingView(parent);
                 pendingPosition = position;
+
                 if (!getWrappedAdapter().isQuerying()
                         && (appendTask == null || CloudUtils.isTaskFinished(appendTask))) {
+
                     appendTask = new AppendTask(mActivity.getSoundCloudApplication());
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setAdapter(this);
+
                     appendTask.execute(buildRequest());
                 }
             }
@@ -277,7 +280,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         return (super.getView(position, convertView, parent));
     }
 
-    private int getPageSize() {
+    protected int getPageSize() {
         return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
                 "defaultPageSize", "20"));
     }
@@ -415,7 +418,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    private Request buildRequest() {
+    protected Request buildRequest() {
         Request request = getRequest();
         request.add("limit", getPageSize());
         request.add("offset", getPageSize() * getCurrentPage());

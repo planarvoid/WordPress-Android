@@ -3,18 +3,16 @@ package com.soundcloud.android.view;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.IUserlistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
-
-import android.widget.ImageView;
-import android.widget.TextView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -86,7 +84,7 @@ public class UserlistRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
-        mUser = ((UserlistAdapter) mAdapter).getUserAt(position);
+        mUser = ((IUserlistAdapter) mAdapter).getUserAt(position);
         super.display(position);
         mUsername.setText(mUser.username);
         setTrackCount();
