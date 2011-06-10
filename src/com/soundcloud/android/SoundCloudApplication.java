@@ -79,13 +79,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public boolean scrollTop;
 
-    public static void handleSilentException(String msg, Exception e) {
-        if (msg != null) {
-           Log.w(TAG, msg, e);
-           ErrorReporter.getInstance().putCustomData("message", msg);
-        }
-        ErrorReporter.getInstance().handleSilentException(e);
-    }
+
 
     @Override
     public void onCreate() {
@@ -115,9 +109,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         DEV_MODE = false; // isDevMode();
         mCloudApi.debugRequests = DEV_MODE;
 
-
         if (account != null) {
-            final String statusCache = "follow-status-cache-" + account.name;
+            final String statusCache = FollowStatus.getFilename(account);
             try {
                 FollowStatus status = FollowStatus.fromInputStream(openFileInput(statusCache));
                 if (status != null) {
@@ -255,6 +248,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
         return created;
     }
+
 
     public String getAccountData(String key) {
         Account account = getAccount();
@@ -460,5 +454,13 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }
         } catch (NameNotFoundException ignored) {}
         return false;
+    }
+
+     public static void handleSilentException(String msg, Exception e) {
+        if (msg != null) {
+           Log.w(TAG, msg, e);
+           ErrorReporter.getInstance().putCustomData("message", msg);
+        }
+        ErrorReporter.getInstance().handleSilentException(e);
     }
 }

@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.accounts.Account;
 import android.os.Parcel;
 import android.os.ParcelFormatException;
 import android.os.Parcelable;
@@ -53,6 +54,10 @@ public class FollowStatus implements Parcelable {
             followingsSet = new HashSet<Long>(size);
             while (size-- != 0) followingsSet.add(parcel.readLong());
         }
+    }
+
+    public static String getFilename(Account account) {
+        return "follow-status-cache-"+account.name;
     }
 
     public boolean following(User user) {
