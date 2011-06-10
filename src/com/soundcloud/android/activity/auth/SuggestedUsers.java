@@ -20,8 +20,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class SuggestedUsers extends ScActivity {
+public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     private LazyListView mListView;
+    private SectionedAdapter.Section mFriendsSection;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -33,6 +34,8 @@ public class SuggestedUsers extends ScActivity {
         FriendFinderAdapter ffAdp = new FriendFinderAdapter(this);
         SectionedEndlessAdapter ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
 
+        ffAdpWrap.addListener(this);
+
         mListView = buildList();
         mListView.setAdapter(ffAdpWrap);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
@@ -43,7 +46,7 @@ public class SuggestedUsers extends ScActivity {
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
             facebookBtn.setVisibility(View.GONE);
             ffAdp.sections.add(
-                new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS)));
+                mFriendsSection = new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS)));
         }
 
         ffAdp.sections.add(
@@ -74,6 +77,14 @@ public class SuggestedUsers extends ScActivity {
     public void onRefresh() {
         if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter){
             ((LazyEndlessAdapter) mListView.getAdapter()).refresh(true);
+        }
+    }
+
+    public void onSectionLoaded(SectionedAdapter.Section section) {
+        if ((mFriendsSection != null && mFriendsSection == section && mFriendsSection.data.size() == 0 &&
+                !getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
+            showToast(R.string.suggested_users_no_friends_msg);
+            getSoundCloudApplication().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }
     }
 }

@@ -2,7 +2,6 @@ package com.soundcloud.android.view;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,25 +23,24 @@ import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendFinderView extends ScTabView {
+public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener {
 
     private final RelativeLayout mLoadingLayout;
     private final RelativeLayout mSuggestedLayout;
     private final SectionedEndlessAdapter mAdapter;
 
     private int mCurrentState;
+    private SectionedAdapter.Section mFriendsSection;
     private boolean mHidingListLandscape;
     private TextView mTxtGoToPortrait;
 
     public LazyListView friendList;
-
 
     public interface States {
         int LOADING = 1;
@@ -54,6 +52,7 @@ public class FriendFinderView extends ScTabView {
         super(activity, adpWrap);
 
         mAdapter = adpWrap;
+        mAdapter.addListener(this);
 
         LayoutInflater inflater = activity.getLayoutInflater();
         mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
@@ -74,13 +73,10 @@ public class FriendFinderView extends ScTabView {
     public void onConnections(List<Connection> connections, boolean refresh) {
         if (connections == null) {
             /* cheap way of showing an error */
-            mFacebookConnected = false;
             setState(States.FB_CONNECTION, refresh);
         } else if (Connection.checkConnectionListForService(connections, Service.Facebook)) {
-            mFacebookConnected = true;
             setState(States.FB_CONNECTION, refresh);
         } else {
-            mFacebookConnected = false;
             setState(States.NO_FB_CONNECTION, refresh);
         }
     }
@@ -136,8 +132,8 @@ public class FriendFinderView extends ScTabView {
     }
 
     private void addFriendsSection() {
-        ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(
-                new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS)));
+        mFriendsSection = new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS));
+        ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(mFriendsSection);
     }
 
     private void addSuggestedSection() {
@@ -227,8 +223,9 @@ public class FriendFinderView extends ScTabView {
         return tv;
     }
 
-    private void onNoFriends() {
-        if (!mActivity.getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN)) {
+    public void onSectionLoaded(SectionedAdapter.Section section) {
+        if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
+                !mActivity.getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
             mActivity.showToast(R.string.suggested_users_no_friends_msg);
             mActivity.getSoundCloudApplication().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }

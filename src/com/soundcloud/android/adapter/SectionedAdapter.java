@@ -185,7 +185,7 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
         txtHeader.setText(getSections()[getSectionForPosition(position)]);
         txtHeader.setBackgroundColor(bgColor);
-        Log.i("FFFF","SETTING TEXT COLOR TO " + txtColor);
+        //Log.i("FFFF","SETTING TEXT COLOR TO " + txtColor);
         txtHeader.setTextColor(txtColor);
     }
 }
