@@ -1,27 +1,25 @@
 
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
 
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
-public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTask.FollowingsListener, IUserlistAdapter {
+public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Listener, IUserlistAdapter {
 
     public static final String TAG = "UserlistAdapter";
-
-
-
     public UserlistAdapter(ScActivity activity,
                            ArrayList<Parcelable> data,
                            Class<?> model) {
         super(activity, data, model);
 
-        activity.getSoundCloudApplication().requestUserFollowings(this, false);
+        FollowStatus.get().requestUserFollowings(activity.getSoundCloudApplication(), this, false);
     }
 
     @Override
@@ -31,7 +29,9 @@ public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTa
 
 
     public void refresh(boolean userRefresh) {
-        if (userRefresh) mActivity.getSoundCloudApplication().requestUserFollowings(this, true);
+        if (userRefresh) {
+            FollowStatus.get().requestUserFollowings(mActivity.getSoundCloudApplication(), this, true);
+        }
         super.refresh(userRefresh);
     }
 
@@ -39,7 +39,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements LoadFollowingsTa
         return (User) mData.get(index);
     }
 
-    public void onFollowings(boolean success){
-        this.notifyDataSetChanged();
+    @Override public void onFollowings(boolean success, FollowStatus status){
+        notifyDataSetChanged();
     }
 }

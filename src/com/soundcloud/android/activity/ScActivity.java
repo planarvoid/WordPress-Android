@@ -76,6 +76,7 @@ public abstract class ScActivity extends Activity {
     protected final Handler mHandler = new Handler();
 
 
+    // TODO: rename to getApp()
     public SoundCloudApplication getSoundCloudApplication() {
         return (SoundCloudApplication) this.getApplication();
     }

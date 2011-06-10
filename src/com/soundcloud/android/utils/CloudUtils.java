@@ -637,13 +637,13 @@ public class CloudUtils {
     }
 
     public static String readInputStream(InputStream in) throws IOException {
-        StringBuffer stream = new StringBuffer();
+        StringBuilder stream = new StringBuilder();
         byte[] b = new byte[4096];
         for (int n; (n = in.read(b)) != -1;) {
-        stream.append(new String(b, 0, n));
+            stream.append(new String(b, 0, n));
         }
         return stream.toString();
-        }
+    }
 
     public static boolean isLandscape(Resources r){
         return r.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;

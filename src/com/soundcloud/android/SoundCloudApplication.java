@@ -4,16 +4,16 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
-import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.utils.CloudCache;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.LruCache;
-import com.soundcloud.api.*;
-
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
@@ -39,11 +39,15 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @ReportsCrashes(formKey = "dFVUNnFjazQ4RVFqOG1wcFl1MTU5QVE6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
@@ -72,11 +76,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final LruCache<String, Throwable> bitmapErrors =
             new LruCache<String, Throwable>(256);
 
-
-    public HashSet<Long> followingsSet;
-    public HashSet<Long> lastFollowingsSet;
-    public List<User> followings;
-    private LoadFollowingsTask mFollowingsTask;
 
     public boolean scrollTop;
 
@@ -115,6 +114,33 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.setTokenListener(this);
         DEV_MODE = false; // isDevMode();
         mCloudApi.debugRequests = DEV_MODE;
+
+
+        if (account != null) {
+            final String statusCache = "follow-status-cache-" + account.name;
+            try {
+                FollowStatus status = FollowStatus.fromInputStream(openFileInput(statusCache));
+                if (status != null) {
+                    FollowStatus.set(status);
+                } else {
+                    deleteFile(statusCache);
+                }
+            } catch (FileNotFoundException ignored) {}
+
+            FollowStatus.get().addListener(new FollowStatus.Listener() {
+                @Override public void onFollowings(boolean success, FollowStatus status) {
+                    if (success) {
+                        try {
+                            FileOutputStream fos = openFileOutput(statusCache, 0);
+                            status.toFilesStream(fos);
+                            fos.close();
+                        } catch (IOException ignored) {
+                            Log.w(TAG, "error", ignored);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
@@ -194,7 +220,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Track getTrackFromCache(long track_id) {
         return mTrackCache.get(track_id);
     }
-
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
@@ -385,35 +410,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
-    }
-
-    public void requestUserFollowings(LoadFollowingsTask.FollowingsListener listener, boolean force){
-        if (CloudUtils.isTaskFinished(mFollowingsTask)){
-            if (!force && System.currentTimeMillis() - this.getAccountDataLong(User.DataKeys.LAST_FOLLOWINGS_SYNC) < 5*60*1000 && followingsSet != null)
-                return;
-
-            // store last followings in case of failure
-            lastFollowingsSet = followingsSet;
-            followingsSet = null;
-
-            mFollowingsTask = new LoadFollowingsTask(this);
-            mFollowingsTask.execute(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"));
-            this.setAccountData(User.DataKeys.LAST_FOLLOWINGS_SYNC, Long.toString(System.currentTimeMillis()));
-        }
-        mFollowingsTask.addListener(listener);
-    }
-
-    public void updateFollowing(long userId, boolean follow){
-        HashSet<Long> changeSet = (followingsSet != null) ? followingsSet : lastFollowingsSet;
-        if (changeSet == null){
-            followingsSet = changeSet = new HashSet<Long>();
-        }
-
-         if (follow) {
-            changeSet.add(userId);
-        } else {
-            changeSet.remove(userId);
-        }
     }
 
     @Override
