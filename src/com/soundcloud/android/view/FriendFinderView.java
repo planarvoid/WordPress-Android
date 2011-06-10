@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -170,7 +169,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
 
     public void configureFacebook() {
-        new NewConnectionTask(mActivity.getSoundCloudApplication()) {
+        new NewConnectionTask(mActivity.getApp()) {
             @Override
             protected void onPostExecute(Uri uri) {
                 if (uri != null) {
@@ -227,9 +226,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
-                !mActivity.getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
+                !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
             mActivity.showToast(R.string.suggested_users_no_friends_msg);
-            mActivity.getSoundCloudApplication().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+            mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }
     }
 

@@ -130,7 +130,7 @@ public class UserlistRow extends LazyRow {
 
     public void changeFollowing(final long userId, final boolean follow){
         FollowStatus.get().updateFollowing(userId, follow);
-        final AndroidCloudAPI api = mActivity.getSoundCloudApplication();
+        final AndroidCloudAPI api = mActivity.getApp();
         new Thread() {
             @Override
             public void run() {

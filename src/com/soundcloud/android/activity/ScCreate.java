@@ -138,8 +138,8 @@ public class ScCreate extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (getSoundCloudApplication().getRecordListener() == recListener) {
-            getSoundCloudApplication().setRecordListener(null);
+        if (getApp().getRecordListener() == recListener) {
+            getApp().setRecordListener(null);
         }
     }
 
@@ -262,7 +262,7 @@ public class ScCreate extends ScActivity {
             if (mCreateService.isRecording() && mRecording == null) {
                 mCurrentState = CreateState.RECORD;
                 setRecordFile(new File(mCreateService.getRecordingPath()));
-                getSoundCloudApplication().setRecordListener(recListener);
+                getApp().setRecordListener(recListener);
                 setRequestedOrientation(getResources().getConfiguration().orientation);
             } else if (mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
                 mCurrentState = CreateState.PLAYBACK;
@@ -458,7 +458,7 @@ public class ScCreate extends ScActivity {
                 Log.e(TAG, "error", e);
             }
 
-            getSoundCloudApplication().setRecordListener(recListener);
+            getApp().setRecordListener(recListener);
         }
     }
 
@@ -517,7 +517,7 @@ public class ScCreate extends ScActivity {
     };
 
     private void stopRecording() {
-        if (getSoundCloudApplication().getRecordListener() == recListener) getSoundCloudApplication().setRecordListener(null);
+        if (getApp().getRecordListener() == recListener) getApp().setRecordListener(null);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         try {

@@ -245,7 +245,7 @@ public class ScUpload extends ScActivity {
         });
 
         mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-        mConnectionList.setAdapter(new ConnectionList.Adapter(this.getSoundCloudApplication()));
+        mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
 
         mAccessList = (AccessList) findViewById(R.id.accessList);
         mAccessList.setAdapter(new AccessList.Adapter());

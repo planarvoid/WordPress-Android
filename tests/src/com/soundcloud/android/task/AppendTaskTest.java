@@ -31,7 +31,7 @@ public class AppendTaskTest {
         app = (SoundCloudApplication) Robolectric.application;
         activity = new ScActivity() {
             @Override
-            public SoundCloudApplication getSoundCloudApplication() {
+            public SoundCloudApplication getApp() {
                 return app;
             }
         };
@@ -59,7 +59,7 @@ public class AppendTaskTest {
         AppendTask task = new AppendTask(app);
         ScActivity activity = new ScActivity() {
             @Override
-            public SoundCloudApplication getSoundCloudApplication() {
+            public SoundCloudApplication getApp() {
                 return app;
             }
         };

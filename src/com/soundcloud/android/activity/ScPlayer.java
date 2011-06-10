@@ -565,7 +565,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
 
             if (mPlayingTrack.load_info_task == null || CloudUtils.isTaskFinished(mPlayingTrack.load_info_task))
-                mPlayingTrack.load_info_task = new LoadTrackInfoTask(getSoundCloudApplication(), mPlayingTrack.id);
+                mPlayingTrack.load_info_task = new LoadTrackInfoTask(getApp(), mPlayingTrack.id);
 
             mPlayingTrack.load_info_task.setActivity(this);
             if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task)) {
@@ -827,13 +827,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             } else if (mPlayingTrack == null || mPlayingTrack.id != trackId){
 
                 Log.i(TAG,"Get Playing Track " + trackId);
-                if (getSoundCloudApplication().getTrackFromCache(trackId) == null) {
+                if (getApp().getTrackFromCache(trackId) == null) {
                     Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getUserId());
                     Log.i(TAG,"Get Playing Track from db " + t);
-                    getSoundCloudApplication().cacheTrack(t != null ? t : mPlaybackService.getTrack());
+                    getApp().cacheTrack(t != null ? t : mPlaybackService.getTrack());
                 }
 
-                mPlayingTrack = getSoundCloudApplication().getTrackFromCache(trackId);
+                mPlayingTrack = getApp().getTrackFromCache(trackId);
             }
 
         } catch (RemoteException ignored) {}
@@ -1009,7 +1009,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         super.onStart();
 
         mPaused = false;
-        getSoundCloudApplication().playerWaitForArtwork = true;
+        getApp().playerWaitForArtwork = true;
 
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -1050,7 +1050,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-        getSoundCloudApplication().playerWaitForArtwork = false;
+        getApp().playerWaitForArtwork = false;
 
         mWaveformController.onStop();
         mPaused = true;
@@ -1127,7 +1127,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         if (mPlayingTrack == null) return;
         if (CloudUtils.isTaskFinished(mPlayingTrack.load_comments_task)) {
             mPlayingTrack.load_comments_task =
-                    new LoadCommentsTask(getSoundCloudApplication(), mPlayingTrack.id);
+                    new LoadCommentsTask(getApp(), mPlayingTrack.id);
         }
         mPlayingTrack.load_comments_task.setPlayer(this);
 
@@ -1155,7 +1155,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mPlayingTrack.comments == null) mPlayingTrack.comments = new ArrayList<Comment>();
 
             mPlayingTrack.comments.add(c);
-            getSoundCloudApplication().cacheTrack(mPlayingTrack);
+            getApp().cacheTrack(mPlayingTrack);
             setCurrentComments(true);
 
         }

@@ -19,7 +19,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
                            Class<?> model) {
         super(activity, data, model);
 
-        FollowStatus.get().requestUserFollowings(activity.getSoundCloudApplication(), this, false);
+        FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
 
     public void refresh(boolean userRefresh) {
         if (userRefresh) {
-            FollowStatus.get().requestUserFollowings(mActivity.getSoundCloudApplication(), this, true);
+            FollowStatus.get().requestUserFollowings(mActivity.getApp(), this, true);
         }
         super.refresh(userRefresh);
     }

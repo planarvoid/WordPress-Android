@@ -171,7 +171,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
          if (!isOtherUser()) {
             if (mConnectionsTask == null) {
-                mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+                mConnectionsTask = new LoadConnectionsTask(getApp());
             }
 
             if (!CloudUtils.isTaskFinished(mConnectionsTask)) {
@@ -238,7 +238,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         loadDetails();
 
         if (!isOtherUser() && CloudUtils.isTaskFinished(mConnectionsTask)) {
-            mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+            mConnectionsTask = new LoadConnectionsTask(getApp());
             mConnectionsTask.setListener(this);
             mConnectionsTask.execute();
             if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
@@ -270,7 +270,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     private void loadYou() {
         if (getUserId() != -1) {
             User u = SoundCloudDB.getUserById(getContentResolver(), getUserId());
-            if (u == null) u = new User(getSoundCloudApplication());
+            if (u == null) u = new User(getApp());
             mapUser(u);
             mUserLoadId = u.id;
         }
@@ -301,7 +301,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private void loadDetails() {
         if (mLoadDetailsTask == null) {
-            mLoadDetailsTask = new LoadUserTask(getSoundCloudApplication());
+            mLoadDetailsTask = new LoadUserTask(getApp());
             mLoadDetailsTask.setActivity(this);
         }
 
@@ -319,7 +319,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         protected void onPostExecute(User user) {
             if (user != null) {
                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
-                        getSoundCloudApplication().getCurrentUserId());
+                        getApp().getCurrentUserId());
                 mapUser(user);
             }
         }
@@ -442,7 +442,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
         if (!isOtherUser()) {
-            mLastTabIndex = getSoundCloudApplication().getAccountDataInt(User.DataKeys.PROFILE_IDX);
+            mLastTabIndex = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
             mWorkspaceView.initWorkspace(mLastTabIndex);
             mTabHost.setCurrentTab(mLastTabIndex);
         } else {
@@ -524,7 +524,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             mLastTabIndex = mTabHost.getCurrentTab();
             if (!isOtherUser()) {
-                getSoundCloudApplication().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
+                getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
             }
         }
     };
@@ -535,7 +535,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private void checkFollowingStatus() {
         if (isOtherUser()) {
-            mCheckFollowingTask = new CheckFollowingStatusTask(getSoundCloudApplication());
+            mCheckFollowingTask = new CheckFollowingStatusTask(getApp());
             mCheckFollowingTask.setUserBrowser(this);
             mCheckFollowingTask.execute(mUserLoadId);
         }
@@ -565,10 +565,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 try {
                     if (mUserData.current_user_following) {
                         mFollowResult =
-                                getSoundCloudApplication().put(request).getStatusLine().getStatusCode();
+                                getApp().put(request).getStatusLine().getStatusCode();
                     } else {
                         mFollowResult =
-                                getSoundCloudApplication().delete(request).getStatusLine().getStatusCode();
+                                getApp().delete(request).getStatusLine().getStatusCode();
                     }
 
                 } catch (IOException e) {
@@ -808,7 +808,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                     if (success && !isOtherUser()) {
                         if (mConnectionsTask != null) mConnectionsTask.setListener(null);
 
-                        mConnectionsTask = new LoadConnectionsTask(getSoundCloudApplication());
+                        mConnectionsTask = new LoadConnectionsTask(getApp());
                         mConnectionsTask.setListener(this);
                         mConnectionsTask.execute();
                         if (mFriendFinderView != null) {

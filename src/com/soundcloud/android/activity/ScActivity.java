@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.SuggestedUsers;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.*;
@@ -76,13 +75,12 @@ public abstract class ScActivity extends Activity {
     protected final Handler mHandler = new Handler();
 
 
-    // TODO: rename to getApp()
-    public SoundCloudApplication getSoundCloudApplication() {
-        return (SoundCloudApplication) this.getApplication();
+    public SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
     }
 
     protected void onServiceBound() {
-        if (getSoundCloudApplication().getToken() == null) {
+        if (getApp().getToken() == null) {
             pause(true);
         } else {
             try {
@@ -202,7 +200,7 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Account account = getSoundCloudApplication().getAccount();
+        Account account = getApp().getAccount();
         if (account == null) {
             finish();
         }
@@ -231,8 +229,8 @@ public abstract class ScActivity extends Activity {
         // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
         // we are just passing pointers
         // XXX ^^ this is assuming service and activity run in the same process
-        getSoundCloudApplication().cachePlaylist(list);
-        if (goToPlayer) getSoundCloudApplication().playerWaitForArtwork = true;
+        getApp().cachePlaylist(list);
+        if (goToPlayer) getApp().playerWaitForArtwork = true;
 
         try {
             mPlaybackService.playFromAppCache(playPos);
@@ -509,14 +507,14 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getUserId() {
-        return getSoundCloudApplication().getCurrentUserId();
+        return getApp().getCurrentUserId();
     }
 
     public void onRefresh() {
     }
 
     public void pageTrack(String path) {
-        getSoundCloudApplication().pageTrack(path);
+        getApp().pageTrack(path);
     }
 
     protected void handleRecordingClick(Recording recording) {

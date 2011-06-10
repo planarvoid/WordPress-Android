@@ -98,9 +98,9 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection != null && mFriendsSection == section && mFriendsSection.data.size() == 0 &&
-                !getSoundCloudApplication().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
+                !getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
             ((TextView) findViewById(R.id.suggested_users_msg)).setText(R.string.suggested_users_no_friends_msg);
-            getSoundCloudApplication().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+            getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }
     }
 
@@ -117,7 +117,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     }
 
     private void configureFacebook() {
-        new NewConnectionTask(getSoundCloudApplication()) {
+        new NewConnectionTask(getApp()) {
             @Override
             protected void onPostExecute(Uri uri) {
                 if (uri != null) {

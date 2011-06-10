@@ -13,7 +13,7 @@ public class FriendFinderAdapter extends SectionedAdapter implements IUserlistAd
 
     public FriendFinderAdapter(ScActivity activity) {
         super(activity);
-        FollowStatus.get().requestUserFollowings(activity.getSoundCloudApplication(), this, false);
+        FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
     }
 
     public User getUserAt(int index) {

@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -265,7 +264,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                 if (!getWrappedAdapter().isQuerying()
                         && (appendTask == null || CloudUtils.isTaskFinished(appendTask))) {
 
-                    appendTask = new AppendTask(mActivity.getSoundCloudApplication());
+                    appendTask = new AppendTask(mActivity.getApp());
                     appendTask.loadModel = getLoadModel();
                     appendTask.pageSize =  getPageSize();
                     appendTask.setAdapter(this);

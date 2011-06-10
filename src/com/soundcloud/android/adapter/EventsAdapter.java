@@ -92,7 +92,7 @@ public class EventsAdapter extends TracklistAdapter {
 
         mData = new ArrayList<Parcelable>();
         if (CloudUtils.isTaskFinished(mQueryTask)){
-            mQueryTask = new DashboardQueryTask(mActivity.getSoundCloudApplication());
+            mQueryTask = new DashboardQueryTask(mActivity.getApp());
             mQueryTask.setAdapter(this);
             mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS : Content.INCOMING_TRACKS),
                     null, Events.ALIAS_USER_ID + "= ? AND " + Events.ALIAS_EXCLUSIVE + " = ?",

@@ -47,13 +47,13 @@ public class TracklistAdapter extends LazyBaseAdapter {
     }
 
     public void addFavorite(Track t) {
-        FavoriteAddTask f = new FavoriteAddTask(mActivity.getSoundCloudApplication());
+        FavoriteAddTask f = new FavoriteAddTask(mActivity.getApp());
         f.setOnFavoriteListener(mFavoriteListener);
         f.execute(t);
     }
 
     public void removeFavorite(Track t) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getSoundCloudApplication());
+        FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getApp());
         f.setOnFavoriteListener(mFavoriteListener);
         f.execute(t);
     }

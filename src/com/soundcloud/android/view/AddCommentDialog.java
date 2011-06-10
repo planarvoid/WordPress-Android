@@ -57,7 +57,7 @@ public class AddCommentDialog extends Dialog {
                         .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
                 comment.body = mInput.getText().toString();
 
-                new AddCommentTask(mActivity.getSoundCloudApplication(),
+                new AddCommentTask(mActivity.getApp(),
                         listener == null ? mActivity.mAddCommentListener : listener).execute(comment);
 
                 dismiss();
