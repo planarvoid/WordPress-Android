@@ -128,7 +128,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         findViewById(R.id.track_touch_bar).setOnTouchListener(this);
 
-        if (isLandscape()){
+        if (CloudUtils.isLandscape(getResources())){
 
             mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
 
@@ -177,9 +177,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mkdirs(dirFile);
     }
 
-    private boolean isLandscape(){
-        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    }
+
 
     public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
@@ -201,7 +199,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
-        if (isLandscape() && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
+        if (CloudUtils.isLandscape(getResources()) && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null){
                 if (mLastAutoComment != last && pos - last.timestamp < 2000){
@@ -330,7 +328,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l,t,r,b);
 
-        if (changed && isLandscape()){
+        if (changed && CloudUtils.isLandscape(getResources())){
             int[] calc = new int[2];
 
             mPlayer.getCommentHolder().getLocationInWindow(calc);

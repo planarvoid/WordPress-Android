@@ -2,6 +2,8 @@ package com.soundcloud.android.utils;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
@@ -642,4 +644,8 @@ public class CloudUtils {
         }
         return stream.toString();
         }
+
+    public static boolean isLandscape(Resources r){
+        return r.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
 }

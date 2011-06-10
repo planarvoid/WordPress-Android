@@ -44,6 +44,7 @@
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_sign_up">Sign Up</string>
   <string name="authentication_log_in_with_facebook">Log In with Facebook</string>
+  <string name="authentication_find_friends_on_facebook">\u0020\u0020\u0020\u0020Find Friends on Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
@@ -239,6 +240,10 @@
   </string>
 
   <string name="info_empty_other">This user hasn\'t added a profile description yet.</string>
+
+  <string name="view_suggested_users_in_portrait">
+      View suggested users in portrait mode
+  </string>
 
   <string name="row_download_error">Error Downloading Track</string>
   <string name="row_download_status">Downloading: %d\%%%</string>

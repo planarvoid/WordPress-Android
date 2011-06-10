@@ -14,7 +14,7 @@
 		android:textSize="18sp" android:layout_marginRight="10dip"
 		android:textColor="#FFFFFFFF" android:layout_width="fill_parent"
 		android:background="@drawable/btn_fb_bg_states" android:id="@+id/facebook_btn"
-		android:text="@string/authentication_log_in_with_facebook"></Button>
+		android:text="@string/authentication_find_friends_on_facebook"></Button>
 	<FrameLayout android:layout_width="match_parent"
 		android:id="@+id/listHolder" android:layout_height="wrap_content"
 		android:layout_below="@id/facebook_btn"

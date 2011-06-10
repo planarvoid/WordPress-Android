@@ -38,7 +38,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         return ((SectionedAdapter) this.getWrappedAdapter()).getLoadModel(mSectionIndex);
     }
 
-    public void clear(){
+    public void clearData(){
            ((SectionedAdapter) getWrappedAdapter()).sections.clear();
     }
 

@@ -59,12 +59,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         mListView = lv;
 
-        if (mEmptyView != null) {
-            if (mEmptyView.getParent() != null) {
-                ((ViewGroup) mEmptyView.getParent()).removeView(mEmptyView);
-            }
-            mEmptyView = null;
-        }
+        clearEmptyView();
 
         TextView emptyView = new TextView(mActivity);
         emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
@@ -77,6 +72,16 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mEmptyView = emptyView;
 
         ((ViewGroup) mListView.getParent()).addView(emptyView);
+
+    }
+
+    public void clearEmptyView() {
+        if (mEmptyView != null) {
+            if (mEmptyView.getParent() != null) {
+                ((ViewGroup) mEmptyView.getParent()).removeView(mEmptyView);
+            }
+            mEmptyView = null;
+        }
 
     }
 
@@ -430,4 +435,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         pendingView = null;
         pendingPosition = -1;
     }
+
+
 }
