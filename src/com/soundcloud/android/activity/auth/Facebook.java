@@ -84,7 +84,9 @@ public class Facebook extends LoginActivity {
                     if (!TextUtils.isEmpty(code) && error == null) {
                         Bundle params = new Bundle();
                         params.putString("code", code);
-                        params.putBoolean("signed_up", "1".equals(result.getQueryParameter("signed_up")));
+                        if ("1".equals(result.getQueryParameter("signed_up"))) {
+                            params.putString("signed_up", "facebook");
+                        }
                         login(params);
                     } else {
                         new AlertDialog.Builder(Facebook.this)
