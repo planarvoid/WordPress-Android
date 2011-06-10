@@ -5,10 +5,13 @@ import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -20,6 +23,8 @@ import com.soundcloud.android.objects.Connection.Service;
 import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -28,13 +33,16 @@ import java.util.List;
 
 public class FriendFinderView extends ScTabView {
 
-    private RelativeLayout mLoadingLayout;
-    private RelativeLayout mSuggestedLayout;
+    private final RelativeLayout mLoadingLayout;
+    private final RelativeLayout mSuggestedLayout;
+    private final SectionedEndlessAdapter mAdapter;
+
     private int mCurrentState;
-    private boolean mFacebookConnected;
-    private SectionedEndlessAdapter mAdapter;
+    private boolean mHidingListLandscape;
+    private TextView mTxtGoToPortrait;
 
     public LazyListView friendList;
+
 
     public interface States {
         int LOADING = 1;
@@ -84,10 +92,11 @@ public class FriendFinderView extends ScTabView {
 
     public void setState(int state, boolean refresh) {
 
-        if (refresh) mAdapter.clear();
+        if (refresh) mAdapter.clearData();
 
         switch (state) {
             case States.LOADING:
+                friendList.getWrapper().clearEmptyView();
                 mLoadingLayout.setVisibility(View.VISIBLE);
                 friendList.setVisibility(View.GONE);
                 mSuggestedLayout.setVisibility(View.GONE);
@@ -115,9 +124,9 @@ public class FriendFinderView extends ScTabView {
 
 
         mCurrentState = state;
-        friendList.getWrapper().createListEmptyView(friendList);
         mLoadingLayout.setVisibility(View.GONE);
-        friendList.setVisibility(View.VISIBLE);
+        friendList.getWrapper().createListEmptyView(friendList);
+        if (!mHidingListLandscape) friendList.setVisibility(View.VISIBLE);
 
         if (refresh) {
             friendList.getWrapper().refresh(false);
@@ -177,6 +186,45 @@ public class FriendFinderView extends ScTabView {
                 }
             }
         }.execute(Service.Facebook);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
+        if (changed){
+            if (CloudUtils.isLandscape(getResources())){
+                mHidingListLandscape = true;
+                friendList.setVisibility(View.GONE);
+                if (mTxtGoToPortrait == null) mTxtGoToPortrait = createGoToPortraitMessage();
+                if (mTxtGoToPortrait.getParent() != mSuggestedLayout.findViewById(R.id.listHolder)) {
+                    ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).addView(mTxtGoToPortrait);
+                }
+                requestLayout();
+            } else if (mHidingListLandscape){
+                // layout has changed
+                mHidingListLandscape = false;
+                if (mCurrentState != States.LOADING) friendList.setVisibility(View.VISIBLE);
+
+                if (mTxtGoToPortrait.getParent() == mSuggestedLayout.findViewById(R.id.listHolder)) {
+                    ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).removeView(mTxtGoToPortrait);
+                }
+                mTxtGoToPortrait = null;
+                requestLayout();
+            }
+        }
+
+    }
+
+    private TextView createGoToPortraitMessage() {
+        TextView tv = new TextView(mActivity);
+        tv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        tv.setPadding(5, 5, 5, 5);
+        tv.setTextAppearance(mActivity, R.style.txt_empty_view);
+        tv.setText(R.string.view_suggested_users_in_portrait);
+        return tv;
     }
 
     private void onNoFriends() {
