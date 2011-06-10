@@ -67,7 +67,7 @@ public class User extends BaseObj implements Parcelable {
             } else {
                 try {
                     setFieldFromCursor(this,
-                            this.getClass().getDeclaredField(aliasesOnly ? key.substring(6) : key),
+                            User.class.getDeclaredField(aliasesOnly ? key.substring(6) : key),
                             cursor, key);
                 } catch (SecurityException e) {
                     Log.e(getClass().getSimpleName(), "error", e);
@@ -92,7 +92,7 @@ public class User extends BaseObj implements Parcelable {
                         id = cursor.getLong(cursor.getColumnIndex(key));
                     } else {
                         try {
-                            setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
+                            setFieldFromCursor(this, User.class.getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
                             Log.e(getClass().getSimpleName(), "error", e);

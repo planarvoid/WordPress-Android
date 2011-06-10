@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(formKey = "dFVUNnFjazQ4RVFqOG1wcFl1MTU5QVE6MQ")
+@ReportsCrashes(formKey = "dEI2aGNycmZDMER0NFZtZ2JPWko1ZWc6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final String GA_TRACKING = "UA-2519404-11";

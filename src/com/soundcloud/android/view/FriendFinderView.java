@@ -132,13 +132,15 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     private void addFriendsSection() {
-        mFriendsSection = new SectionedAdapter.Section("Facebook Friends", Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS));
+        mFriendsSection = new SectionedAdapter.Section(mActivity.getString(R.string.list_header_fb_friends),
+                Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS));
         ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(mFriendsSection);
     }
 
     private void addSuggestedSection() {
         ((SectionedAdapter) mAdapter.getWrappedAdapter()).sections.add(
-                new SectionedAdapter.Section("Suggested Users", User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
+                new SectionedAdapter.Section(mActivity.getString(R.string.list_header_suggested_users),
+                        User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
     private void showFriendsList() {

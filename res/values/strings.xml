@@ -193,6 +193,9 @@
   <string name="commentslist_error">Unable to get comments</string>
   <string name="activitieslist_error">Unable to get activities</string>
 
+  <string name="list_header_fb_friends">Facebook Friends</string>
+  <string name="list_header_suggested_users">Suggested Users</string>
+
   <string name="empty_incoming_text">
       Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
   </string>

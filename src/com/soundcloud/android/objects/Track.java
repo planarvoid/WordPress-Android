@@ -150,7 +150,7 @@ public class Track extends BaseObj implements Parcelable {
                 id = cursor.getLong(cursor.getColumnIndex(key));
             } else {
                     try {
-                        setFieldFromCursor(this,this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
+                        setFieldFromCursor(this,Track.class.getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
                     } catch (SecurityException e) {
                         Log.e(TAG, "error", e);
                     } catch (NoSuchFieldException e) {
@@ -173,7 +173,7 @@ public class Track extends BaseObj implements Parcelable {
                         id = cursor.getLong(cursor.getColumnIndex(key));
                     } else {
                         try {
-                            setFieldFromCursor(this, this.getClass().getDeclaredField(key), cursor,
+                            setFieldFromCursor(this, Track.class.getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
                             Log.e(TAG, "error", e);
