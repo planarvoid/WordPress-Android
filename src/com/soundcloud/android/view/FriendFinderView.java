@@ -189,7 +189,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         super.onLayout(changed, l, t, r, b);
 
         if (changed){
-            if (CloudUtils.isLandscape(getResources())){
+            if (CloudUtils.isLandscape(getResources()) && mCurrentState == States.NO_FB_CONNECTION){
                 mHidingListLandscape = true;
                 friendList.setVisibility(View.GONE);
                 if (mTxtGoToPortrait == null) mTxtGoToPortrait = createGoToPortraitMessage();
