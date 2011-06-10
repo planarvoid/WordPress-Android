@@ -11,19 +11,25 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import org.acra.ErrorReporter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 
 import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
+    protected void login(String username, String password) {
+        final Bundle param = new Bundle();
+        param.putString("username", username);
+        param.putString("password", password);
+        login(param);
+    }
 
-    protected void login(String... parameters) {
+    protected void login(final Bundle data) {
         final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
         new GetTokensTask(api) {
@@ -45,8 +51,9 @@ public abstract class LoginActivity extends Activity {
                             if (user != null) {
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
-                                    new Intent().putExtra("user", user)
-                                                .putExtra("token", token));
+                                        new Intent().putExtras(data)
+                                                    .putExtra("user",  user)
+                                                    .putExtra("token", token));
 
                                 finish();
                             } else { // user request failed
@@ -59,7 +66,7 @@ public abstract class LoginActivity extends Activity {
                     showError(mException);
                 }
             }
-        }.execute(parameters);
+        }.execute(data);
     }
 
     protected void showError(IOException e) {

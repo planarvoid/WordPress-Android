@@ -103,7 +103,7 @@ public class Start extends AccountAuthenticatorActivity {
 
                 User user = data.getParcelableExtra("user");
                 Token token = (Token) data.getSerializableExtra("token");
-                boolean viaSignup = data.getBooleanExtra("signup", false);
+                boolean viaSignup = data.getBooleanExtra("signed_up", false);
                 // signup will already have created the account
                 if (viaSignup || app.addUserAccount(user, token)) {
                     final Bundle result = new Bundle();
@@ -112,7 +112,6 @@ public class Start extends AccountAuthenticatorActivity {
                     setAccountAuthenticatorResult(result);
 
                     if (viaSignup) {
-                        // TODO this is currently not set for facebook signup
                         startActivityForResult(new Intent(this, SuggestedUsers.class), SUGGESTED_USERS);
                     } else {
                         finish();

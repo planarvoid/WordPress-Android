@@ -5,12 +5,12 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Token;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-public class GetTokensTask extends AsyncApiTask<String, Void, Token> {
+public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
     protected IOException mException;
 
     public GetTokensTask(AndroidCloudAPI api) {
@@ -18,13 +18,15 @@ public class GetTokensTask extends AsyncApiTask<String, Void, Token> {
     }
 
     @Override
-    protected Token doInBackground(String... params) {
+    protected Token doInBackground(Bundle... params) {
+        Bundle param = params[0];
         try {
-            switch (params.length) {
-                case 0: throw new IllegalArgumentException("need at least one parameter");
-                case 1: return mApi.authorizationCode(params[0]);
-                case 2: return mApi.login(params[0], params[1]);
-                default:throw new IllegalArgumentException("too many parameters");
+            if (param.containsKey("code")) {
+                return mApi.authorizationCode(param.getString("code"));
+            } else if (param.containsKey("username") && param.containsKey("password")) {
+                return mApi.login(param.getString("username"), param.getString("password"));
+            } else {
+                throw new IllegalArgumentException("invalid param " + param);
             }
         } catch (IOException e) {
             mException = e;
