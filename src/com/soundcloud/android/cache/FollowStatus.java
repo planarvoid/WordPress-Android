@@ -43,10 +43,10 @@ public class FollowStatus implements Parcelable {
         sInstance = status;
     }
 
-    public FollowStatus() {
+    private FollowStatus() {
     }
 
-    public FollowStatus(Parcel parcel) {
+    private FollowStatus(Parcel parcel) {
         lastUpdate = parcel.readLong();
         int size = parcel.readInt();
         if (size != -1) {
