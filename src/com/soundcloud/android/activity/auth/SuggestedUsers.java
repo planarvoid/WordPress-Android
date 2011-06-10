@@ -40,7 +40,6 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         super.onCreate(bundle);
         setContentView(R.layout.suggested_users);
 
-
         facebookBtn = (Button) findViewById(R.id.facebook_btn);
         facebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
