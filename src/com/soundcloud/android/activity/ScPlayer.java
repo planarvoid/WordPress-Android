@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -132,6 +133,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private static Method mRegisterMediaButtonEventReceiver;
     private static Method mUnregisterMediaButtonEventReceiver;
+    private Drawable mPlayState, mPauseState;
 
     static {
         initializeRemoteControlRegistrationMethods();
@@ -150,6 +152,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
 
+        mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
+        mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
         restoreState();
     }
 
@@ -680,9 +684,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private void setPauseButtonImage() {
         try {
             if (mPlaybackService != null && mPlaybackService.isPlaying()) {
-                mPauseButton.setImageResource(R.drawable.ic_pause_states);
+                mPauseButton.setImageDrawable(mPauseState);
             } else {
-                mPauseButton.setImageResource(R.drawable.ic_play_states);
+                mPauseButton.setImageDrawable(mPlayState);
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
