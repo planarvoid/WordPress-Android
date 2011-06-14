@@ -285,8 +285,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     protected int getPageSize() {
-        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
-                "defaultPageSize", "20"));
+        return Math.max(20,Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
+                "defaultPageSize", "50")));
     }
 
     /**
