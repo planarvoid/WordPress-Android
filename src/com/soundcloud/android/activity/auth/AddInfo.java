@@ -14,14 +14,12 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -130,6 +128,7 @@ public class AddInfo extends Activity {
     void addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
+            user.permalink = newUsername;
         }
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
