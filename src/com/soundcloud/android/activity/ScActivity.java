@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.graphics.drawable.Drawable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -508,6 +509,11 @@ public abstract class ScActivity extends Activity {
 
     public long getUserId() {
         return getApp().getCurrentUserId();
+    }
+
+    protected Drawable createDrawableIfNecessary(Drawable d, int resId) {
+        if (d == null) d = getResources().getDrawable(resId);
+        return d;
     }
 
     public void onRefresh() {

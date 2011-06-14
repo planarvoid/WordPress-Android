@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -60,6 +61,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     private HorizontalScrollView hsv;
 
     private ImageButton mFollow;
+    private Drawable mFollowDrawable;
+    private Drawable mUnfollowDrawable;
 
     private String _iconURL;
 
@@ -582,11 +585,17 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private void setFollowingButtonText() {
         if (isOtherUser()) {
-            mFollow.setImageResource(FollowStatus.get().following(mUserData) ?
-                    R.drawable.ic_unfollow_states : R.drawable.ic_follow_states);
+            mFollow.setImageDrawable(FollowStatus.get().following(mUserData) ?
+                    createDrawableIfNecessary(mUnfollowDrawable,R.drawable.ic_unfollow_states) :
+                    createDrawableIfNecessary(mFollowDrawable,R.drawable.ic_follow_states));
 
             mFollow.setVisibility(View.VISIBLE);
         }
+    }
+
+    private Drawable ensureDrawable(Drawable d, int resId) {
+        if (d == null) d = getResources().getDrawable(resId);
+        return d;
     }
 
     private void mapUser(User user) {
