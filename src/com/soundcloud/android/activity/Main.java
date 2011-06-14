@@ -204,6 +204,7 @@ public class Main extends TabActivity {
                 intent.removeExtra("tabTag");
             } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after successful authentication");
+                getTabHost().setCurrentTabByTag("record");
             }
         }
     }
