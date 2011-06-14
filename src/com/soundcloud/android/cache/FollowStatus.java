@@ -107,7 +107,7 @@ public class FollowStatus implements Parcelable {
     }
 
     public interface Listener {
-        public abstract void onFollowings(boolean success, FollowStatus status);
+        void onFollowings(boolean success, FollowStatus status);
     }
 
     @Override
