@@ -42,8 +42,6 @@ public class TracklistAdapter extends LazyBaseAdapter {
                 getTrackAt(i).user_played = true;
             }
         }
-
-        notifyDataSetChanged();
     }
 
     public void addFavorite(Track t) {

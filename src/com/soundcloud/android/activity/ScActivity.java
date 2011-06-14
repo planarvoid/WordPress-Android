@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.objects.*;
@@ -201,6 +202,15 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // update data that may have changed in other activities (specifically followings for now)
+        // remove this when we implement content observers
+        for (LazyListView list : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(list.getAdapter().getClass())){
+                ((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
+            }
+        }
+
         Account account = getApp().getAccount();
         if (account == null) {
             finish();
@@ -359,8 +369,10 @@ public abstract class ScActivity extends Activity {
             return;
 
         for (LazyListView list : mLists) {
-            if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass()))
+            if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
                 ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
+                ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
+            }
         }
     }
 
