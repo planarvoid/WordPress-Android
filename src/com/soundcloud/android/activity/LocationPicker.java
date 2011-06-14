@@ -136,9 +136,12 @@ public class LocationPicker extends ListActivity {
         data.setData(Uri.parse("foursquare://venue/" + venue.id));
         data.putExtra("id", venue.id);
         data.putExtra("name", venue.name);
-        data.putExtra("longitude", adapter.getLocation().getLongitude());
-        data.putExtra("latitude", adapter.getLocation().getLatitude());
 
+        final Location loc = adapter.getLocation();
+        if (loc != null) {
+            data.putExtra("longitude", loc.getLongitude());
+            data.putExtra("latitude", loc.getLatitude());
+        }
         setResult(RESULT_OK, data);
         finish();
     }
