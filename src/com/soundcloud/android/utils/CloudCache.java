@@ -1,9 +1,17 @@
 
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.google.android.filecache.FileResponseCache;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.security.MessageDigest;
@@ -12,14 +20,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
-
-import com.google.android.filecache.FileResponseCache;
-
 /**
  * Local disk caching helper class. Uses FileResponseCache library found at
  * {@link} http://code.google.com/p/libs-for-android/
@@ -27,13 +27,48 @@ import com.google.android.filecache.FileResponseCache;
  * @author jschmidt
  */
 public class CloudCache extends FileResponseCache {
-    private static final String TAG = "CloudCache";
+    public static final File EXTERNAL_CACHE_DIRECTORY = new File(
+            Environment.getExternalStorageDirectory(),
+            "Android/data/com.soundcloud.android/files/.cache/");
 
-    public static final String EXTERNAL_CACHE_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Android/data/com.soundcloud.android/files/.cache/";
+    public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(
+            Environment.getExternalStorageDirectory(),
+            "Android/data/com.soundcloud.android/files/.s/");
 
-    public static final String EXTERNAL_TRACK_CACHE_DIRECTORY = Environment.getExternalStorageDirectory()
-            + "/Android/data/com.soundcloud.android/files/.s/";
+    private final Context mContext;
+
+    public CloudCache(Context context) {
+        mContext = context;
+    }
+
+    @Override protected boolean isStale(File file, URI uri, String requestMethod, Map<String,
+            List<String>> requestHeaders, Object cookie) {
+        final boolean stale = super.isStale(file, uri, requestMethod, requestHeaders, cookie);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "file "+file.getName()+ ", stale:"+stale);
+        }
+        return stale;
+    }
+
+    @Override protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
+        try {
+            File parent = getCacheDir(mContext);
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(String.valueOf(uri).getBytes("UTF-8"));
+            byte[] output = digest.digest();
+            StringBuilder builder = new StringBuilder();
+            for (byte anOutput : output) {
+                builder.append(Integer.toHexString(0xFF & anOutput));
+            }
+            String filename = builder.toString();
+
+            return new File(parent, filename);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void install(Context context) {
         ResponseCache responseCache = ResponseCache.getDefault();
@@ -48,12 +83,12 @@ public class CloudCache extends FileResponseCache {
         }
     }
 
-    public static double cacheSizeInMbDouble(Context c) {
-        return Double.parseDouble(Long.toString(dirSize(getCacheDir(c)))) / 1048576;
+    public static double cacheSizeInMb(Context c) {
+        return dirSize(getCacheDir(c)) / 1048576d;
     }
 
-    public static String cacheSizeInMbString(Context c) {
-        Double sizeRaw = cacheSizeInMbDouble(c);
+    public static String cacheSizeInMbFormatted(Context c) {
+        double sizeRaw = cacheSizeInMb(c);
         DecimalFormat maxDigitsFormatter = new DecimalFormat("#.##");
         return maxDigitsFormatter.format(sizeRaw);
     }
@@ -61,10 +96,7 @@ public class CloudCache extends FileResponseCache {
     private static long dirSize(File dir) {
         long result = 0;
         File[] fileList = dir.listFiles();
-
-        if (fileList == null)
-            return 0;
-
+        if (fileList == null) return 0;
         for (File aFileList : fileList) {
             if (aFileList.isDirectory()) {
                 result += dirSize(aFileList);
@@ -75,82 +107,23 @@ public class CloudCache extends FileResponseCache {
         return result;
     }
 
-    private static File getCacheDir(Context context) {
-
-        File cacheDir;
-
-        if (android.os.Environment.getExternalStorageState().equals(
-                android.os.Environment.MEDIA_MOUNTED))
-            cacheDir = new File(EXTERNAL_CACHE_DIRECTORY);
-        else
-            cacheDir = context.getCacheDir();
-
-        return cacheDir;
+    public static File getCacheDir(Context context) {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ?
+                EXTERNAL_CACHE_DIRECTORY :
+                context.getCacheDir();
     }
 
-    private final Context mContext;
-
-    public CloudCache(Context context) {
-        mContext = context;
-    }
-
-    @Override
-    protected boolean isStale(File file, URI uri, String requestMethod,
-            Map<String, List<String>> requestHeaders, Object cookie) {
-        if (cookie instanceof Long) {
-            Long maxAge = (Long) cookie;
-
-            long age = System.currentTimeMillis() - file.lastModified();
-            Log.i(TAG, "IS STALE MAX AGE " + age + " | " + maxAge);
-            if (age > maxAge) {
-                return true;
-            }
-        }
-        return super.isStale(file, uri, requestMethod, requestHeaders, cookie);
-    }
-
-    @Override
-    protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders,
-            Object cookie) {
-        try {
-            File parent = getCacheDir(mContext);
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(String.valueOf(uri).getBytes("UTF-8"));
-            byte[] output = digest.digest();
-            StringBuilder builder = new StringBuilder();
-            for (byte anOutput : output) {
-                builder.append(Integer.toHexString(0xFF & anOutput));
-            }
-            String filename = builder.toString();
-            return new File(parent, filename);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static class DeleteCacheTask extends AsyncTask<String, Integer, Boolean> {
-        public WeakReference<Activity> mActivityRef;
-        public boolean preserveDirs = false;
-
-        public void setActivity(Activity activity) {
-            mActivityRef = new WeakReference<Activity>(activity);
-        }
-
+    public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
         @Override
-        protected Boolean doInBackground(String... params) {
-            if (mActivityRef.get() == null) return false;
-            File folder = getCacheDir(mActivityRef.get());
-            File[] files = folder.listFiles();
+        protected Boolean doInBackground(File... params) {
+            File dir = params[0];
+            File[] files = dir.listFiles();
             File file;
-            int length = files.length;
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < files.length; i++) {
                 file = files[i];
-                if (!preserveDirs || file.isFile()) {
-                    if (!file.delete()) Log.w(TAG, "could not delete file "+file);
-                    publishProgress(i, length);
-                }
+                if (!file.delete()) Log.w(TAG, "could not delete file "+file);
+                publishProgress(i, files.length);
+
             }
             return true;
         }

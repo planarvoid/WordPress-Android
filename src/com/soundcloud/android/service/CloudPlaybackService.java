@@ -813,7 +813,7 @@ public class CloudPlaybackService extends Service {
         final long spaceLeft = ((long) fs.getBlockSize())
                 * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
 
-        File cacheDir = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY);
+        File cacheDir = CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY;
         if (cacheDir.exists()) {
             File[] fileList = cacheDir.listFiles();
             if (fileList != null) {

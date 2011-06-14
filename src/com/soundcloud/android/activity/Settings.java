@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -20,13 +19,10 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 
 public class Settings extends PreferenceActivity {
-    private static final int DIALOG_CACHE_DELETED = 0;
-    private static final int DIALOG_CACHE_DELETING = 1;
-    private static final int DIALOG_USER_DELETE_CONFIRM = 2;
+    private static final int DIALOG_CACHE_DELETING      = 0;
+    private static final int DIALOG_USER_DELETE_CONFIRM = 1;
 
     private ProgressDialog mDeleteDialog;
-
-    private DeleteCacheTask mDeleteTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,9 +40,22 @@ public class Settings extends PreferenceActivity {
         findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        mDeleteTask = new DeleteCacheTask();
-                        mDeleteTask.setActivity(Settings.this);
-                        mDeleteTask.execute();
+                        new CloudCache.DeleteCacheTask() {
+                            @Override protected void onPreExecute() {
+                                safeShowDialog(DIALOG_CACHE_DELETING);
+                            }
+
+                            @Override protected void onProgressUpdate(Integer... progress) {
+                                mDeleteDialog.setIndeterminate(false);
+                                mDeleteDialog.setProgress(progress[0]);
+                                mDeleteDialog.setMax(progress[1]);
+                            }
+
+                            @Override protected void onPostExecute(Boolean result) {
+                                removeDialog(DIALOG_CACHE_DELETING);
+                                setClearCacheTitle();
+                            }
+                        }.execute(CloudCache.getCacheDir(Settings.this));
                         return true;
                     }
                 });
@@ -70,42 +79,43 @@ public class Settings extends PreferenceActivity {
                 new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        preference.setTitle(getString(R.string.pref_record_quality)+" ("+o+")");
+                        preference.setTitle(getString(R.string.pref_record_quality) + " (" + o + ")");
                         return true;
                     }
                 }
         );
-        recordingQuality.setTitle(getString(R.string.pref_record_quality)+" ("+recordingQuality.getValue()+")");
+        recordingQuality.setTitle(getString(R.string.pref_record_quality) + " (" + recordingQuality.getValue() + ")");
 
-        if (!SoundCloudApplication.DEV_MODE){
+        if (!SoundCloudApplication.DEV_MODE) {
             this.getPreferenceScreen().removePreference(findPreference("defaultRecordingHighQualityType"));
             this.getPreferenceScreen().removePreference(findPreference("dashboardMaxStored"));
         }
 
     }
 
-    public void safeShowDialog(int dialogId){
-        if (!isFinishing()){
+    public void safeShowDialog(int dialogId) {
+        if (!isFinishing()) {
             showDialog(dialogId);
         }
     }
 
     @Override
     protected void onResume() {
-        ((SoundCloudApplication)getApplication()).pageTrack("/settings");
+        ((SoundCloudApplication) getApplication()).pageTrack("/settings");
         super.onResume();
     }
 
     private void setClearCacheTitle() {
         final Handler handler = new Handler();
         new Thread() {
-            @Override public void run() {
-                final String cacheSize = CloudCache.cacheSizeInMbString(Settings.this);
+            @Override
+            public void run() {
+                final String cacheSize = CloudCache.cacheSizeInMbFormatted(Settings.this);
                 handler.post(new Runnable() {
                     @Override public void run() {
-                        Settings.this.findPreference("clearCache").setTitle(
-                                getResources().getString(R.string.pref_clear_cache) +
-                                " [" + cacheSize + " MB]");
+                        findPreference("clearCache").setTitle(
+                            getResources().getString(R.string.pref_clear_cache) +
+                            " [" + cacheSize + " MB]");
                     }
                 });
             }
@@ -115,9 +125,6 @@ public class Settings extends PreferenceActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case DIALOG_CACHE_DELETED:
-                return new AlertDialog.Builder(this).setTitle(R.string.cache_cleared)
-                        .setPositiveButton(android.R.string.ok, null).create();
             case DIALOG_CACHE_DELETING:
                 if (mDeleteDialog == null) {
                     mDeleteDialog = new ProgressDialog(this);
@@ -165,36 +172,5 @@ public class Settings extends PreferenceActivity {
                                 }).create();
         }
         return super.onCreateDialog(id);
-    }
-
-    public static class DeleteCacheTask extends CloudCache.DeleteCacheTask {
-        @Override
-        protected void onPreExecute() {
-            Settings settings = (Settings) mActivityRef.get();
-            if (settings != null) {
-                settings.safeShowDialog(DIALOG_CACHE_DELETING);
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-        Settings settings = (Settings) mActivityRef.get();
-            if (settings != null) {
-                settings.mDeleteDialog.setIndeterminate(false);
-                settings.mDeleteDialog.setMax(progress[1]);
-                settings.mDeleteDialog.setProgress(progress[0]);
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            Settings settings = (Settings) mActivityRef.get();
-            if (settings != null) {
-                settings.removeDialog(DIALOG_CACHE_DELETING);
-                settings.safeShowDialog(DIALOG_CACHE_DELETED);
-                settings.setClearCacheTitle();
-            }
-        }
     }
 }

@@ -78,7 +78,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public boolean scrollTop;
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
