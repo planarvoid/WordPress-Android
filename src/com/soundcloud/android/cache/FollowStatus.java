@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 public class FollowStatus implements Parcelable {
     private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
@@ -33,7 +34,7 @@ public class FollowStatus implements Parcelable {
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
-    private Set<Listener> listeners = new HashSet<Listener>();
+    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener,Listener>();
 
     public synchronized static FollowStatus get() {
         if (sInstance == null) {
@@ -74,7 +75,9 @@ public class FollowStatus implements Parcelable {
                     if (ids != null) {
                         followingsSet = new HashSet<Long>(ids);
                     }
-                    for (Listener l : listeners) l.onFollowings(ids != null, FollowStatus.this);
+                    for (Listener l : listeners.keySet()) {
+                        l.onFollowings(ids != null, FollowStatus.this);
+                    }
                 }
             };
             mFollowingsTask.execute(ENDPOINT);
@@ -82,7 +85,7 @@ public class FollowStatus implements Parcelable {
     }
 
     public void addListener(Listener l) {
-        listeners.add(l);
+        listeners.put(l, l);
     }
 
     public void updateFollowing(long userId, boolean follow) {
