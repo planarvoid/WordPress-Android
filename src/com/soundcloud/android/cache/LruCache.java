@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.cache;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;

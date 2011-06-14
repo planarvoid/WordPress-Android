@@ -1,8 +1,8 @@
 package com.google.android.imageloader;
 
 
+import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.LruCache;
 
 import android.app.Activity;
 import android.app.Application;

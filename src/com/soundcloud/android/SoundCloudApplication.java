@@ -9,7 +9,7 @@ import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudCache;
-import com.soundcloud.android.utils.LruCache;
+import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
