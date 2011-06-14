@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -72,7 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
-        } catch (Exception e) /* XXX SQLException */ {
+        } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during onCreate()", e);
         }
     }
@@ -88,13 +89,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     int nextVersion = i + 1;
                     switch (nextVersion) {
                         case 4:
-                            success = upgradeTo4(db);
+                            success = upgradeTo4(db, oldVersion);
                             break;
                         case 5:
-                            success = upgradeTo5(db);
+                            success = upgradeTo5(db, oldVersion);
                             break;
                         case 6:
-                            success = upgradeTo6(db);
+                            success = upgradeTo6(db, oldVersion);
                             break;
                         default:
                             break;
@@ -129,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /*
      * altered id naming for content resolver
      */
-    private boolean upgradeTo4(SQLiteDatabase db) {
+    private boolean upgradeTo4(SQLiteDatabase db, int oldVersion) {
         try {
             alterTableColumns(db, Tables.TRACKS, new String[] {
                 "id"
@@ -142,8 +143,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "_id"
             });
             return true;
-        } catch (Exception e) /* XXX SQLException */ {
-            SoundCloudApplication.handleSilentException("error during upgrade4", e);
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade4 "+
+                       "(from "+oldVersion+")", e);
         }
         return false;
     }
@@ -151,12 +153,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /*
      * added sharing to database
      */
-    private boolean upgradeTo5(SQLiteDatabase db) {
+    private boolean upgradeTo5(SQLiteDatabase db, int oldVersion) {
             try {
                 alterTableColumns(db, Tables.TRACKS, null, null);
                 return true;
-            } catch (Exception e) /* XXX SQLException */ {
-                SoundCloudApplication.handleSilentException("error during upgrade5", e);
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade5 " +
+                        "(from "+oldVersion+")", e);
             }
             return false;
         }
@@ -164,40 +167,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /*
      * added sharing to database
      */
-    private boolean upgradeTo6(SQLiteDatabase db) {
+    private boolean upgradeTo6(SQLiteDatabase db, int oldVersion) {
             try {
                 db.execSQL(DATABASE_CREATE_RECORDINGS);
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, Tables.TRACKS, null, null);
                 alterTableColumns(db, Tables.USERS, null, null);
                 return true;
-            } catch (Exception e) /* XXX SQLException */ {
-                SoundCloudApplication.handleSilentException("error during upgrade6", e);
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade6 " +
+                        "(from "+oldVersion+")", e);
             }
             return false;
         }
 
     private String alterTableColumns(SQLiteDatabase db, Tables tbl, String[] fromAppendCols,
-                String[] toAppendCols) {
-            db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.tableName);
-            db.execSQL(tbl.createString.replace("create table " + tbl.tableName, "create table bck_"
-                    + tbl.tableName));
-            List<String> columns = getColumnNames(db, "bck_" + tbl.tableName);
-            columns.retainAll(getColumnNames(db, tbl.tableName));
-            String cols = TextUtils.join(",",columns);
-            String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
-                    + TextUtils.join(",",toAppendCols) : cols;
-            String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
-                    + TextUtils.join(",",fromAppendCols) : cols;
-            db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s", tbl.tableName,
-                    toCols, fromCols, tbl.tableName));
-            db.execSQL("DROP table  '" + tbl.tableName + "'");
-            db.execSQL(tbl.createString);
-            db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s", tbl.tableName,
-                    cols, cols, tbl.tableName));
-            db.execSQL("DROP table bck_" + tbl.tableName);
-            return cols;
-        }
+                                     String[] toAppendCols) {
+
+        db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.tableName);
+        db.execSQL(tbl.createString.replace("create table " + tbl.tableName, "create table bck_" + tbl.tableName));
+        List<String> columns = getColumnNames(db, "bck_" + tbl.tableName);
+        columns.retainAll(getColumnNames(db, tbl.tableName));
+        String cols = TextUtils.join(",", columns);
+
+        String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
+                + TextUtils.join(",", toAppendCols) : cols;
+
+        String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
+                + TextUtils.join(",", fromAppendCols) : cols;
+
+        db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s",
+                tbl.tableName, toCols, fromCols, tbl.tableName));
+
+        db.execSQL("DROP table  '" + tbl.tableName + "'");
+        db.execSQL(tbl.createString);
+        db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
+                tbl.tableName, cols, cols, tbl.tableName));
+
+        db.execSQL("DROP table bck_" + tbl.tableName);
+        return cols;
+    }
 
 
     public static List<String> getColumnNames(SQLiteDatabase db, String tableName){
