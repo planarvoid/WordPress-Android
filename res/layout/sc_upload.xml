@@ -22,8 +22,8 @@
                       android:layout_width="fill_parent" android:ellipsize="end" style="@style/txt_record_input"
                       android:gravity="center" android:clickable="true"
                       android:fadingEdge="horizontal" android:fadeScrollbars="true" android:hint="Where"
-                      android:layout_alignBottom="@+id/artwork_layout" android:layout_below="@+id/what"
-                      android:layout_marginTop="10dip"/>
+                      android:layout_alignBottom="@+id/artwork_layout" 
+                      android:text="Where"/>
             <EditText android:layout_height="wrap_content" android:id="@+id/what"
                       android:layout_toRightOf="@+id/artwork_layout" android:background="@drawable/rec_upload_text_bg"
                       android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
