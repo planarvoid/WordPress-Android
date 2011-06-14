@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -44,8 +45,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         facebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                facebookBtn.setEnabled(false);
                 configureFacebook();
+            }
+        });
+
+        findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -152,8 +159,6 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
                         addFriendsSection();
                         addSuggestedUsersSection();
                         ffAdpWrap.refresh(false);
-                    } else {
-                        facebookBtn.setEnabled(true);
                     }
                 }
         }

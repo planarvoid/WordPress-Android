@@ -61,7 +61,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mSuggestedLayout.findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSuggestedLayout.findViewById(R.id.facebook_btn).setEnabled(false);
                 configureFacebook();
             }
         });
@@ -100,7 +99,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
             case States.NO_FB_CONNECTION:
                 if (refresh) addSuggestedSection();
-                mSuggestedLayout.findViewById(R.id.facebook_btn).setEnabled(true);
                 mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.VISIBLE);
                 showSuggestedList();
                 break;

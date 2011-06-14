@@ -101,7 +101,7 @@
  
   <string name="suggested_users">Suggested Users</string>
   <string name="friends_from_facebook">Friends from Facebook</string>
-  <string name="suggested_users_msg">We\'re happy to welcome you! But you shouldn\'t be that lonely. Go ahead and find some interesting people.</string>
+  <string name="suggested_users_msg">Welcome! Thanks for joining SoundCloud. Feel free to add some new sounds from our Suggested Users to get started.</string>
   <string name="suggested_users_no_friends_msg">Whoop! You\'re a trendsetter. You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested Users.</string>
 
   <string name="app_name">SoundCloud</string>
@@ -487,6 +487,7 @@
   <string name="btn_yes">Yes</string>
   <string name="btn_no">No</string>
   <string name="btn_ok">Ok</string>
+  <string name="btn_done">Done</string>
   <string name="btn_retry">Retry</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_search">Search</string>
