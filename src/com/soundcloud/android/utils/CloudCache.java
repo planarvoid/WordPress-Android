@@ -114,16 +114,14 @@ public class CloudCache extends FileResponseCache {
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
-        @Override
-        protected Boolean doInBackground(File... params) {
-            File dir = params[0];
+        @Override protected Boolean doInBackground(File... params) {
+            final File dir = params[0];
             File[] files = dir.listFiles();
             File file;
             for (int i = 0; i < files.length; i++) {
                 file = files[i];
                 if (!file.delete()) Log.w(TAG, "could not delete file "+file);
                 publishProgress(i, files.length);
-
             }
             return true;
         }

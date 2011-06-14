@@ -36,6 +36,7 @@ import java.net.URLConnection;
 public class BitmapContentHandler extends ContentHandler {
     @Override
     public Bitmap getContent(URLConnection connection) throws IOException {
+
         InputStream input = connection.getInputStream();
         try {
             input = new BlockingFilterInputStream(input);

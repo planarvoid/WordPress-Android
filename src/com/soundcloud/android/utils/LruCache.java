@@ -1,7 +1,7 @@
 package com.soundcloud.android.utils;
 
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,64 +24,86 @@ import java.util.Map;
  * @see <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android-apps/2.3.3_r1/com/android/camera/gallery/LruCache.java#LruCache">com/android/camera/gallery/LruCache.java</a>
  */
 public class LruCache<K, V> {
-
     private final HashMap<K, V> mLruMap;
-
-    private final HashMap<K, Entry<K, V>> mWeakMap = new HashMap<K, Entry<K, V>>();
+    private final HashMap<K, Entry<K, V>> mSoftmap = new HashMap<K, Entry<K, V>>();
 
     private ReferenceQueue<V> mQueue = new ReferenceQueue<V>();
 
-    @SuppressWarnings("serial")
+    private long lruHits, softHits, requests, softRequests;
+
+
+    /**
+     * 2 level cache - LRU (bound to capacity) + softreference map (unbound)
+     * @param capacity max capacity for the LRU cache
+     */
     public LruCache(final int capacity) {
         mLruMap = new LinkedHashMap<K, V>(16, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+            @Override protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > capacity;
             }
         };
     }
 
-    private static class Entry<K, V> extends WeakReference<V> {
+    private static class Entry<K, V> extends SoftReference<V> {
         K mKey;
-
         public Entry(K key, V value, ReferenceQueue<V> queue) {
             super(value, queue);
             mKey = key;
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void cleanUpWeakMap() {
+    private void cleanUpSoftMap() {
         Entry<K, V> entry = (Entry<K, V>) mQueue.poll();
         while (entry != null) {
-            mWeakMap.remove(entry.mKey);
+            mSoftmap.remove(entry.mKey);
             entry = (Entry<K, V>) mQueue.poll();
         }
     }
 
     public synchronized V put(K key, V value) {
-        cleanUpWeakMap();
+        cleanUpSoftMap();
         mLruMap.put(key, value);
-        Entry<K, V> entry = mWeakMap.put(key, new Entry<K, V>(key, value, mQueue));
+        Entry<K, V> entry = mSoftmap.put(key, new Entry<K, V>(key, value, mQueue));
         return entry == null ? null : entry.get();
     }
 
     public synchronized V get(K key) {
-        cleanUpWeakMap();
+        requests++;
+
+        cleanUpSoftMap();
         V value = mLruMap.get(key);
-        if (value != null)
+        if (value != null) {
+            lruHits++;
             return value;
-        Entry<K, V> entry = mWeakMap.get(key);
-        return entry == null ? null : entry.get();
+        }
+
+        softRequests++;
+
+        Entry<K, V> entry = mSoftmap.get(key);
+        if (entry != null) {
+            V v = entry.get();
+            if (v != null) softHits++;
+            return v;
+        } else {
+            return null;
+        }
     }
 
     public synchronized void clear() {
         mLruMap.clear();
-        mWeakMap.clear();
+        mSoftmap.clear();
         mQueue = new ReferenceQueue<V>();
+        softHits = lruHits = requests = 0;
     }
 
     public boolean containsKey(K key) {
         return mLruMap.containsKey(key);
+    }
+
+    public String toString() {
+        return "LruCache{lru: " +mLruMap.size() + " soft: "+mSoftmap.size() +
+               " lru ratio: " +String.format("%.2f", lruHits / (double) (requests)) +
+               " soft ratio: "+String.format("%.2f", softHits / (double) (softRequests))+
+               "}";
     }
 }

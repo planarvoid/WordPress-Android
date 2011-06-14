@@ -32,7 +32,6 @@ import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -40,7 +39,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
 import java.net.URI;
 import java.util.ArrayList;
@@ -51,32 +49,18 @@ import java.util.List;
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final String GA_TRACKING = "UA-2519404-11";
-
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
-
+    public static final boolean API_PRODUCTION = true;
     public static boolean DEV_MODE;
 
-    static final boolean API_PRODUCTION = true;
-
     private RecordListener mRecListener;
-
     private Wrapper mCloudApi;
-    private List<Parcelable> mPlaylistCache;
     private ImageLoader mImageLoader;
+    private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker tracker;
-
     public boolean playerWaitForArtwork;
-
-    public static final LruCache<String, SoftReference<Bitmap>> bitmaps =
-            new LruCache<String, SoftReference<Bitmap>>(256);
-    public static final LruCache<String, Throwable> bitmapErrors =
-            new LruCache<String, Throwable>(256);
-
-
-    public boolean scrollTop;
-
 
     @Override
     public void onCreate() {

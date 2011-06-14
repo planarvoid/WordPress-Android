@@ -1,8 +1,8 @@
 package com.google.android.imageloader;
 
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.LruCache;
 
 import android.app.Activity;
 import android.app.Application;
@@ -28,7 +28,6 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.net.ContentHandler;
 import java.net.HttpURLConnection;
@@ -46,6 +45,10 @@ public class ImageLoader {
     private static final String TAG = "ImageLoader";
     private static final int GINGERBREAD = 9;
     public static final String IMAGE_LOADER_SERVICE = "com.soundcloud.android.utils.imageloader";
+    public static final int MEMORY_CACHE_SIZE = 256;
+
+    private static final LruCache<String, Bitmap> sBitmaps = new LruCache<String, Bitmap>(MEMORY_CACHE_SIZE);
+    private static final LruCache<String, Throwable> sBitmapErrors = new LruCache<String, Throwable>(MEMORY_CACHE_SIZE);
 
     private boolean mPaused;
 
@@ -176,15 +179,10 @@ public class ImageLoader {
     }
 
 
-    public Bitmap getBitmap(String uri, BitmapCallback callback){
-        return getBitmap(uri,callback,new Options());
-    }
-
-
     public Bitmap getBitmap(String uri, BitmapCallback callback, Options options) {
         Bitmap memoryBmp = getBitmap(uri);
         if (getBitmap(uri) != null){
-            if (callback != null){
+            if (callback != null) {
                 callback.onImageLoaded(memoryBmp, uri);
             }
             return memoryBmp;
@@ -613,7 +611,7 @@ public class ImageLoader {
      * invokes a manual refresh of the screen.
      */
     public void clearErrors() {
-        SoundCloudApplication.bitmapErrors.clear();
+        sBitmapErrors.clear();
     }
 
     /**
@@ -730,24 +728,23 @@ public class ImageLoader {
     }
 
     private void putBitmap(String url, Bitmap bitmap) {
-        SoundCloudApplication.bitmaps.put(url, new SoftReference<Bitmap>(bitmap));
+        sBitmaps.put(url, bitmap);
     }
 
     private void putError(String url, Throwable error) {
-        SoundCloudApplication.bitmapErrors.put(url, error);
+        sBitmapErrors.put(url, error);
     }
 
     private boolean hasError(String url) {
-        return SoundCloudApplication.bitmapErrors.containsKey(url);
+        return sBitmapErrors.containsKey(url);
     }
 
     private Bitmap getBitmap(String url) {
-        SoftReference<Bitmap> reference = SoundCloudApplication.bitmaps.get(url);
-        return reference != null ? reference.get() : null;
+        return sBitmaps.get(url);
     }
 
     private Throwable getError(String url) {
-        return SoundCloudApplication.bitmapErrors.get(url);
+        return sBitmapErrors.get(url);
     }
 
     /**
@@ -876,13 +873,10 @@ public class ImageLoader {
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
                     return true;
-                }
-
-                if (new File(mUri).exists()){
+                } else if (new File(mUri).exists()){
                     BitmapFactory.Options sampleOptions = new BitmapFactory.Options();
                     sampleOptions.inSampleSize = mOptions.decodeInSampleSize;
-                    mBitmap = BitmapFactory.decodeFile(mUri, sampleOptions);
-                    mBitmap = processBitmap(mBitmap,mOptions);
+                    mBitmap = processBitmap(BitmapFactory.decodeFile(mUri, sampleOptions), mOptions);
                     return true;
                 }
 
@@ -1009,16 +1003,12 @@ public class ImageLoader {
     }
 
     private static Bitmap processBitmap(Bitmap bitmap, Options options){
-
-        if (options.cornerRadius > 0){
+        if (options.cornerRadius > 0) {
             Bitmap old = bitmap;
             bitmap = ImageUtils.getRoundedCornerBitmap(old, options.cornerRadius);
             old.recycle();
         }
         return bitmap;
-
     }
-
-
 }
 

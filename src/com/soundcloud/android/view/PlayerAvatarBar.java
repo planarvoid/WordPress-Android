@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.objects.Comment;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
@@ -123,7 +122,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        SoundCloudApplication.bitmapErrors.clear();
+        ImageLoader.get(mContext).clearErrors();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
@@ -143,7 +142,7 @@ public class PlayerAvatarBar extends View {
             return;
 
         mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
-                CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
+                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
                     CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
@@ -160,7 +159,7 @@ public class PlayerAvatarBar extends View {
             public void onImageError(String uri, Throwable error) {
                 Log.i(TAG,"Avatar Loading Error " + uri + " " + error.toString());
             }
-        });
+        }, new ImageLoader.Options());
     }
 
     private void refreshDefaultAvatar(){
