@@ -41,11 +41,12 @@ public class FoursquareVenueTaskTest extends RoboApiBaseTests {
         assertNotNull(kotti.categories);
         assertThat(kotti.categories.size(), equalTo(2));
         assertThat(kotti.categories.get(0).name, equalTo("Monument / Landmark"));
-        assertThat(kotti.categories.get(0).icon.toString(), equalTo("http://foursquare.com/img/categories/building/default.png"));
+        assertThat(kotti.categories.get(0).icon.toString(), equalTo("https://foursquare.com/img/categories/building/default.png"));
         assertThat(kotti.categories.get(0).id, equalTo("4bf58dd8d48988d12d941735"));
         assertThat(kotti.categories.get(0).primary, is(true));
         assertThat(kotti.getCategory(), equalTo(kotti.categories.get(0)));
-        assertThat(kotti.getIcon().toString(), equalTo("http://foursquare.com/img/categories/building/default.png"));
+        assertThat(kotti.getIcon().toString(), equalTo("https://foursquare.com/img/categories/building/default.png"));
+        assertThat(kotti.getHttpIcon().toString(), equalTo("http://foursquare.com/img/categories/building/default.png"));
     }
 
     @Test

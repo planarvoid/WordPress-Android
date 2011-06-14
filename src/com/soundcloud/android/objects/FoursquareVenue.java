@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,17 @@ public class FoursquareVenue implements Parcelable {
     public URI getIcon() {
         Category c = getCategory();
         return c == null ? null : c.icon;
+    }
+
+    public URI getHttpIcon() {
+        final URI icon = getIcon();
+        if (icon != null) {
+            try {
+                return new URI("http", icon.getHost(), icon.getPath(), icon.getFragment());
+            } catch (URISyntaxException ignored) {
+            }
+        }
+        return null;
     }
 
     @Override

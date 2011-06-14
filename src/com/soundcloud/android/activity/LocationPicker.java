@@ -189,16 +189,13 @@ public class LocationPicker extends ListActivity {
             ImageView image = (ImageView) view.findViewById(R.id.venue_category_icon);
 
             FoursquareVenue venue = getItem(position);
-            URI categoryIcon = venue.getIcon();
+            URI categoryIcon = venue.getHttpIcon(); // Android has problems with HTTPS
             if (categoryIcon != null) {
-
                 try {
                     ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(
                             this,
                             image,
-                            // XXX urgh - https image fetching is broken for some reason - this is faster
-                            // but resources might go away
-                            categoryIcon.toString().replace("https://", "http://"));
+                            categoryIcon.toString());
                     if (result == ImageLoader.BindResult.ERROR) {
                         Log.e(TAG, "error loading");
                     }

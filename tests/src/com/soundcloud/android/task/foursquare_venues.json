@@ -35,7 +35,7 @@
               {
                 "id": "4bf58dd8d48988d12d941735",
                 "name": "Monument \/ Landmark",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other",
                   "Government"
@@ -45,7 +45,7 @@
               {
                 "id": "4bf58dd8d48988d1fd931735",
                 "name": "Subway",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
                 "parents": [
                   "Travel"
                 ]
@@ -81,7 +81,7 @@
               {
                 "id": "4bf58dd8d48988d1fd931735",
                 "name": "Subway",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/travel\/subway.png",
                 "parents": [
                   "Travel"
                 ],
@@ -120,7 +120,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -129,7 +129,7 @@
               {
                 "id": "4bf58dd8d48988d117941735",
                 "name": "Beer Garden",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ]
@@ -166,7 +166,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -175,7 +175,7 @@
               {
                 "id": "4bf58dd8d48988d1e6931735",
                 "name": "Concert Hall",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/musicvenue.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/arts_entertainment\/musicvenue.png",
                 "parents": [
                   "Arts & Entertainment",
                   "Music Venue"
@@ -212,7 +212,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -221,7 +221,7 @@
               {
                 "id": "4bf58dd8d48988d11f941735",
                 "name": "Nightclub \/ Discotheque",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
                 "parents": [
                   "Nightlife"
                 ]
@@ -254,7 +254,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -291,7 +291,7 @@
               {
                 "id": "4bf58dd8d48988d1f1931735",
                 "name": "Other - Entertainment",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/arts_entertainment\/default.png",
                 "parents": [
                   "Arts & Entertainment"
                 ],
@@ -329,7 +329,7 @@
               {
                 "id": "4bf58dd8d48988d1d9941735",
                 "name": "Music Venue",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/musicvenue.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/musicvenue.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -338,7 +338,7 @@
               {
                 "id": "4bf58dd8d48988d11f941735",
                 "name": "Nightclub \/ Discotheque",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
                 "parents": [
                   "Nightlife"
                 ]
@@ -373,7 +373,7 @@
               {
                 "id": "4bf58dd8d48988d1ee931735",
                 "name": "Hostel",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/travel\/hostel.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/travel\/hostel.png",
                 "parents": [
                   "Travel"
                 ],
@@ -411,7 +411,7 @@
               {
                 "id": "4bf58dd8d48988d174941735",
                 "name": "Coworking Space",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other",
                   "Corporate \/ Office"
@@ -421,7 +421,7 @@
               {
                 "id": "4bf58dd8d48988d124941735",
                 "name": "Corporate \/ Office",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other"
                 ]
@@ -458,7 +458,7 @@
               {
                 "id": "4bf58dd8d48988d125941735",
                 "name": "Tech Startup",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other",
                   "Corporate \/ Office"
@@ -497,7 +497,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -506,7 +506,7 @@
               {
                 "id": "4bf58dd8d48988d16a941735",
                 "name": "Bakery",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/bakery.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/bakery.png",
                 "parents": [
                   "Food"
                 ]
@@ -514,7 +514,7 @@
               {
                 "id": "4bf58dd8d48988d16d941735",
                 "name": "Caf\u221a\u00a9",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
                 "parents": [
                   "Food"
                 ]
@@ -551,7 +551,7 @@
               {
                 "id": "4bf58dd8d48988d115941735",
                 "name": "Middle Eastern",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
                 "parents": [
                   "Food"
                 ],
@@ -560,7 +560,7 @@
               {
                 "id": "4bf58dd8d48988d1c0941735",
                 "name": "Mediterranean",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ]
@@ -593,7 +593,7 @@
               {
                 "id": "4bf58dd8d48988d116941735",
                 "name": "Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -632,7 +632,7 @@
               {
                 "id": "4bf58dd8d48988d17e941735",
                 "name": "Indie Theater",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/movietheater.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/arts_entertainment\/movietheater.png",
                 "parents": [
                   "Arts & Entertainment",
                   "Movie Theater"
@@ -667,7 +667,7 @@
               {
                 "id": "4bf58dd8d48988d1d8941735",
                 "name": "Gay Bar",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/gaybar.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/gaybar.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -701,7 +701,7 @@
               {
                 "id": "4bf58dd8d48988d1c4941735",
                 "name": "Other - Food",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -735,7 +735,7 @@
               {
                 "id": "4bf58dd8d48988d1c0941735",
                 "name": "Mediterranean",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -774,7 +774,7 @@
               {
                 "id": "4bf58dd8d48988d149941735",
                 "name": "Thai",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -808,7 +808,7 @@
               {
                 "id": "4bf58dd8d48988d11a941735",
                 "name": "Other - Nightlife",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/default.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -846,7 +846,7 @@
               {
                 "id": "4bf58dd8d48988d16d941735",
                 "name": "Caf\u221a\u00a9",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
                 "parents": [
                   "Food"
                 ],
@@ -884,7 +884,7 @@
               {
                 "id": "4bf58dd8d48988d118951735",
                 "name": "Grocery \/ Supermarket",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/food_grocery.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/shops\/food_grocery.png",
                 "parents": [
                   "Shops",
                   "Food & Drink"
@@ -919,7 +919,7 @@
               {
                 "id": "4bf58dd8d48988d147941735",
                 "name": "Diner",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -956,7 +956,7 @@
               {
                 "id": "4bf58dd8d48988d121941735",
                 "name": "Lounge",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/lounge.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/lounge.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -993,7 +993,7 @@
               {
                 "id": "4bf58dd8d48988d1c0941735",
                 "name": "Mediterranean",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -1030,7 +1030,7 @@
               {
                 "id": "4bf58dd8d48988d10b941735",
                 "name": "Falafel",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -1039,7 +1039,7 @@
               {
                 "id": "4bf58dd8d48988d16e941735",
                 "name": "Fast Food",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
                 "parents": [
                   "Food"
                 ]
@@ -1047,7 +1047,7 @@
               {
                 "id": "4bf58dd8d48988d1e1931735",
                 "name": "Arcade",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/arts_entertainment\/arcade.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/arts_entertainment\/arcade.png",
                 "parents": [
                   "Arts & Entertainment"
                 ]
@@ -1085,7 +1085,7 @@
               {
                 "id": "4bf58dd8d48988d125941735",
                 "name": "Tech Startup",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other",
                   "Corporate \/ Office"
@@ -1124,7 +1124,7 @@
               {
                 "id": "4bf58dd8d48988d1c1941735",
                 "name": "Mexican",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -1133,7 +1133,7 @@
               {
                 "id": "4bf58dd8d48988d153941735",
                 "name": "Burritos",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ]
@@ -1199,7 +1199,7 @@
               {
                 "id": "4bf58dd8d48988d142941735",
                 "name": "Asian",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -1233,7 +1233,7 @@
               {
                 "id": "4bf58dd8d48988d1c4941735",
                 "name": "Other - Food",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ],
@@ -1296,7 +1296,7 @@
               {
                 "id": "4bf58dd8d48988d1fe941735",
                 "name": "Music \/ Instruments",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/music_instruments.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/shops\/music_instruments.png",
                 "parents": [
                   "Shops"
                 ],
@@ -1335,7 +1335,7 @@
               {
                 "id": "4bf58dd8d48988d1ca941735",
                 "name": "Pizza",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/pizza.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/pizza.png",
                 "parents": [
                   "Food"
                 ],
@@ -1373,7 +1373,7 @@
               {
                 "id": "4bf58dd8d48988d16e941735",
                 "name": "Fast Food",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
                 "parents": [
                   "Food"
                 ],
@@ -1382,7 +1382,7 @@
               {
                 "id": "4bf58dd8d48988d10b941735",
                 "name": "Falafel",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ]
@@ -1419,7 +1419,7 @@
               {
                 "id": "4bf58dd8d48988d1ce941735",
                 "name": "Seafood",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/seafood.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/seafood.png",
                 "parents": [
                   "Food"
                 ],
@@ -1457,7 +1457,7 @@
               {
                 "id": "4bf58dd8d48988d10a951735",
                 "name": "Bank \/ Financial",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/shops\/financial.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/shops\/financial.png",
                 "parents": [
                   "Shops"
                 ],
@@ -1496,7 +1496,7 @@
               {
                 "id": "4bf58dd8d48988d1d2941735",
                 "name": "Sushi",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/sushi.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/sushi.png",
                 "parents": [
                   "Food"
                 ],
@@ -1534,7 +1534,7 @@
               {
                 "id": "4bf58dd8d48988d124941735",
                 "name": "Corporate \/ Office",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other"
                 ],
@@ -1571,7 +1571,7 @@
               {
                 "id": "4bf58dd8d48988d115941735",
                 "name": "Middle Eastern",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
                 "parents": [
                   "Food"
                 ],
@@ -1605,7 +1605,7 @@
               {
                 "id": "4bf58dd8d48988d115941735",
                 "name": "Middle Eastern",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
                 "parents": [
                   "Food"
                 ],
@@ -1639,7 +1639,7 @@
               {
                 "id": "4bf58dd8d48988d16d941735",
                 "name": "Caf\u221a\u00a9",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
                 "parents": [
                   "Food"
                 ],
@@ -1676,7 +1676,7 @@
               {
                 "id": "4bf58dd8d48988d115941735",
                 "name": "Middle Eastern",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/middleeastern.png",
                 "parents": [
                   "Food"
                 ],
@@ -1714,7 +1714,7 @@
               {
                 "id": "4bf58dd8d48988d11f941735",
                 "name": "Nightclub \/ Discotheque",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/nightlife\/danceparty.png",
                 "parents": [
                   "Nightlife"
                 ],
@@ -1752,7 +1752,7 @@
               {
                 "id": "4bf58dd8d48988d16e941735",
                 "name": "Fast Food",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/fastfood.png",
                 "parents": [
                   "Food"
                 ],
@@ -1761,7 +1761,7 @@
               {
                 "id": "4bf58dd8d48988d10b941735",
                 "name": "Falafel",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/default.png",
                 "parents": [
                   "Food"
                 ]
@@ -1798,7 +1798,7 @@
               {
                 "id": "4bf58dd8d48988d16d941735",
                 "name": "Caf\u221a\u00a9",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/cafe.png",
                 "parents": [
                   "Food"
                 ],
@@ -1807,7 +1807,7 @@
               {
                 "id": "4bf58dd8d48988d1e0931735",
                 "name": "Coffee Shop",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/food\/coffeeshop.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/food\/coffeeshop.png",
                 "parents": [
                   "Food"
                 ]
@@ -1845,7 +1845,7 @@
               {
                 "id": "4bf58dd8d48988d124941735",
                 "name": "Corporate \/ Office",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/building\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/building\/default.png",
                 "parents": [
                   "Home \/ Work \/ Other"
                 ],
@@ -1913,7 +1913,7 @@
               {
                 "id": "4bf58dd8d48988d164941735",
                 "name": "Plaza \/ Square",
-                "icon": "http:\/\/foursquare.com\/img\/categories\/parks_outdoors\/default.png",
+                "icon": "https:\/\/foursquare.com\/img\/categories\/parks_outdoors\/default.png",
                 "parents": [
                   "Parks & Outdoors"
                 ],
