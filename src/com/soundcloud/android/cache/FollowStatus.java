@@ -10,6 +10,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import android.accounts.Account;
+import android.content.Context;
 import android.os.Parcel;
 import android.os.ParcelFormatException;
 import android.os.Parcelable;
@@ -17,6 +18,7 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
@@ -56,9 +58,6 @@ public class FollowStatus implements Parcelable {
         }
     }
 
-    public static String getFilename(Account account) {
-        return "follow-status-cache-"+account.name;
-    }
 
     public boolean following(User user) {
         return followingsSet != null && followingsSet.contains(user.id);
@@ -71,8 +70,6 @@ public class FollowStatus implements Parcelable {
             mFollowingsTask = new LoadFollowingsTask(api) {
                 @Override
                 protected void onPostExecute(List<Long> ids) {
-                    Log.d(TAG, "got " + (ids == null ? "error" : ids.size()) + " ids");
-
                     lastUpdate = System.currentTimeMillis();
                     if (ids != null) {
                         followingsSet = new HashSet<Long>(ids);
@@ -108,9 +105,14 @@ public class FollowStatus implements Parcelable {
                 '}';
     }
 
+    static String getFilename(Account account) {
+        return "follow-status-cache-" + account.name;
+    }
+
+
     // Google recommends not to use the filesystem to save parcelables
     // since  this is not important information we're going to do it anyway - it's fast.
-    public static FollowStatus fromInputStream(FileInputStream is) {
+    static FollowStatus fromInputStream(FileInputStream is) {
         try {
             byte[] b = new byte[2048];
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -136,15 +138,35 @@ public class FollowStatus implements Parcelable {
         }
     }
 
-    public void toFilesStream(OutputStream os) {
-        Parcel parcel = Parcel.obtain();
-        writeToParcel(parcel, 0);
+    public static synchronized void initialize(final Context context, Account account) {
+        final String statusCache = getFilename(account);
         try {
-            os.write(parcel.marshall());
+            FollowStatus status = fromInputStream(context.openFileInput(statusCache));
+            if (status != null) {
+                Log.d(TAG, "loaded from cache: " + status);
+                set(status);
+            } else {
+                context.deleteFile(statusCache);
+            }
         } catch (IOException ignored) {
-            Log.w(TAG, "error", ignored);
+            Log.w(TAG, "error initializing FollowStatus", ignored);
         }
-        parcel.recycle();
+
+        get().addListener(new FollowStatus.Listener() {
+            @Override
+            public void onFollowings(boolean success, FollowStatus status) {
+                if (success) {
+                    try {
+                        Log.d(TAG, "wrote " + status + " to " + statusCache);
+                        FileOutputStream fos = context.openFileOutput(statusCache, 0);
+                        status.toFilesStream(fos);
+                        fos.close();
+                    } catch (IOException ignored) {
+                        Log.w(TAG, "error initializing FollowStatus", ignored);
+                    }
+                }
+            }
+        });
     }
 
     public static final Parcelable.Creator<FollowStatus> CREATOR = new Parcelable.Creator<FollowStatus>() {
@@ -157,11 +179,24 @@ public class FollowStatus implements Parcelable {
         }
     };
 
-    @Override public int describeContents() {
+    public void toFilesStream(OutputStream os) {
+        Parcel parcel = Parcel.obtain();
+        writeToParcel(parcel, 0);
+        try {
+            os.write(parcel.marshall());
+        } catch (IOException ignored) {
+            Log.w(TAG, "error", ignored);
+        }
+        parcel.recycle();
+    }
+
+    @Override
+    public int describeContents() {
         return 0;
     }
 
-    @Override public void writeToParcel(Parcel dest, int flags) {
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(lastUpdate);
         dest.writeInt(followingsSet == null ? -1 : followingsSet.size());
         if (followingsSet != null) for (Long id : followingsSet) dest.writeLong(id);

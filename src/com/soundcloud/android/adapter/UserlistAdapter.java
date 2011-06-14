@@ -12,13 +12,10 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Listener, IUserlistAdapter {
-
-    public static final String TAG = "UserlistAdapter";
     public UserlistAdapter(ScActivity activity,
                            ArrayList<Parcelable> data,
                            Class<?> model) {
         super(activity, data, model);
-
         FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
     }
 

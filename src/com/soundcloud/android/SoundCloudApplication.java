@@ -39,8 +39,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.ContentHandler;
@@ -110,29 +108,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (account != null) {
-            final String statusCache = FollowStatus.getFilename(account);
-            try {
-                FollowStatus status = FollowStatus.fromInputStream(openFileInput(statusCache));
-                if (status != null) {
-                    FollowStatus.set(status);
-                } else {
-                    deleteFile(statusCache);
-                }
-            } catch (FileNotFoundException ignored) {}
-
-            FollowStatus.get().addListener(new FollowStatus.Listener() {
-                @Override public void onFollowings(boolean success, FollowStatus status) {
-                    if (success) {
-                        try {
-                            FileOutputStream fos = openFileOutput(statusCache, 0);
-                            status.toFilesStream(fos);
-                            fos.close();
-                        } catch (IOException ignored) {
-                            Log.w(TAG, "error", ignored);
-                        }
-                    }
-                }
-            });
+            FollowStatus.initialize(this, account);
         }
     }
 
