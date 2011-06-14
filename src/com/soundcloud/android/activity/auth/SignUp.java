@@ -129,7 +129,7 @@ public class SignUp extends Activity {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
-                                        .putExtra("signed_up", "native")
+                                        .putExtra("signed_up", signedUp ? "native" : null)
                                         .putExtra("user", user)
                                         .putExtra("token", token), 0);
                             } else {
