@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
@@ -30,31 +29,31 @@ public class FullImageDialog extends Dialog {
 
         mActivityRef = new WeakReference<ScActivity>(context);
 
-        final ImageView image = (ImageView)this.findViewById(R.id.image);
-        final ProgressBar progress = (ProgressBar)this.findViewById(R.id.progress);
+        final ImageView image = (ImageView) this.findViewById(R.id.image);
+        final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
         BindResult result;
         if ((result = ImageLoader.get(context).bind(image, imageUri, new ImageLoader.ImageViewCallback() {
-
             @Override
             public void onImageLoaded(ImageView view, String url) {
                 if (!isShowing()) return;
+                ScActivity activity = mActivityRef.get();
+                if (activity != null) {
+                    new FullImageDialog(activity, imageUri).show();
+                }
 
-                if (mActivityRef.get() != null)
-                    new FullImageDialog(mActivityRef.get(), imageUri).show();
-
-                dismiss();
+                try {
+                    dismiss();
+                } catch (IllegalArgumentException ignored) {}
             }
 
             @Override
             public void onImageError(ImageView view, String url, Throwable error) {
                 if (!isShowing()) return;
-
                 mHandler.post(mImageError);
 
             }
         })) != BindResult.OK) {
-
-            if (result == BindResult.ERROR){
+            if (result == BindResult.ERROR) {
                 mHandler.postDelayed(mImageError, 300);
             } else {
                 image.setVisibility(View.GONE);
@@ -68,12 +67,16 @@ public class FullImageDialog extends Dialog {
 
     private Runnable mImageError = new Runnable() {
         public void run() {
-            if (mActivityRef.get() != null)
-                mActivityRef.get().showToast(R.string.image_load_error);
+            ScActivity activity = mActivityRef.get();
+            if (activity != null) {
+                activity.showToast(R.string.image_load_error);
+            }
 
-            dismiss();
+            try {
+                dismiss();
+            } catch (IllegalArgumentException ignored) {}
         }
-     };
+    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
