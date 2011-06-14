@@ -43,7 +43,6 @@ public class User extends BaseObj implements Parcelable {
     public String plan;
 
     public boolean primary_email_confirmed;
-    public boolean current_user_following;
 
     public User() {
     }
@@ -174,7 +173,6 @@ public class User extends BaseObj implements Parcelable {
                 ", country='" + country + '\'' +
                 ", plan='" + plan + '\'' +
                 ", primary_email_confirmed=" + primary_email_confirmed +
-                ", current_user_following=" + current_user_following +
                 ']';
     }
 

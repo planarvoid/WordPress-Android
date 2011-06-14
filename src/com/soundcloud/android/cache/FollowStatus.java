@@ -93,6 +93,16 @@ public class FollowStatus implements Parcelable {
         }
     }
 
+    public boolean toggleFollowing(long userId){
+        if (followingsSet.contains(userId)) {
+            followingsSet.remove(userId);
+            return false;
+        } else {
+            followingsSet.add(userId);
+            return true;
+        }
+    }
+
     public interface Listener {
         public abstract void onFollowings(boolean success, FollowStatus status);
     }

@@ -1,27 +1,5 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import android.view.Gravity;
-import android.widget.*;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.*;
-import com.soundcloud.android.objects.*;
-import com.soundcloud.android.task.CheckFollowingStatusTask;
-import com.soundcloud.android.task.LoadConnectionsTask;
-import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
-import com.soundcloud.android.view.*;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -34,15 +12,39 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import android.widget.TabHost.OnTabChangeListener;
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
+import com.soundcloud.android.view.*;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenChangeListener, ConnectionsListener {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenChangeListener, ConnectionsListener, FollowStatus.Listener {
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
@@ -65,7 +67,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private long mUserLoadId;
 
-    private CheckFollowingStatusTask mCheckFollowingTask;
     private LoadUserTask mLoadDetailsTask;
 
     private int mFollowResult;
@@ -137,24 +138,16 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             mapUser((User) mPreviousState[2]);
 
-
-            mCheckFollowingTask = (CheckFollowingStatusTask) mPreviousState[3];
-            if (CloudUtils.isTaskFinished(mCheckFollowingTask)) {
-                setFollowingButtonText();
-            } else {
-                mCheckFollowingTask.setUserBrowser(this);
-            }
-
             if (!isOtherUser()) {
-                mConnectionsTask = (LoadConnectionsTask) mPreviousState[4];
-                mConnections = (List<Connection>) mPreviousState[5];
+                mConnectionsTask = (LoadConnectionsTask) mPreviousState[3];
+                mConnections = (List<Connection>) mPreviousState[4];
             }
 
             build();
 
-            restoreAdapterStates((Object[]) mPreviousState[6]);
+            restoreAdapterStates((Object[]) mPreviousState[5]);
 
-            if (mPreviousState[7] != null) mFriendFinderView.setState(Integer.parseInt(mPreviousState[7].toString()), false);
+            if (mPreviousState[6] != null) mFriendFinderView.setState(Integer.parseInt(mPreviousState[6].toString()), false);
 
         } else {
             Intent intent = getIntent();
@@ -195,7 +188,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 super.onRetainNonConfigurationInstance(),
                 mLoadDetailsTask,
                 mUserData,
-                mCheckFollowingTask,
                 mConnectionsTask,
                 mConnections,
                 getAdapterStates(),
@@ -286,7 +278,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             mUserLoadId = mUserData.id = userId;
         }
         build();
-        checkFollowingStatus();
+        FollowStatus.get().requestUserFollowings(getApp(),this, false);
     }
 
     private void loadUserByObject(User userInfo) {
@@ -295,7 +287,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mUserLoadId = userInfo.id;
         mapUser(userInfo);
         build();
-        checkFollowingStatus();
+        FollowStatus.get().requestUserFollowings(getApp(), this, false);
     }
 
 
@@ -308,6 +300,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
             mLoadDetailsTask.execute(Request.to(Endpoints.USER_DETAILS, mUserLoadId));
         }
+    }
+
+    public void onFollowings(boolean success, FollowStatus status) {
+        setFollowingButtonText();
     }
 
     private class LoadUserTask extends LoadTask<User> {
@@ -533,27 +529,15 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         return mUserLoadId != getUserId();
     }
 
-    private void checkFollowingStatus() {
-        if (isOtherUser()) {
-            mCheckFollowingTask = new CheckFollowingStatusTask(getApp());
-            mCheckFollowingTask.setUserBrowser(this);
-            mCheckFollowingTask.execute(mUserLoadId);
-        }
-    }
-
-    public void onCheckFollowingStatus(boolean isFollowing) {
-        mUserData.current_user_following = isFollowing;
-        setFollowingButtonText();
-    }
-
     public void setTab(int screen) {
         mWorkspaceView.setCurrentScreen(screen);
     }
 
     private void toggleFollowing() {
         mFollow.setEnabled(false);
-        mUserData.current_user_following = !mUserData.current_user_following;
+        final boolean following = FollowStatus.get().toggleFollowing(mUserData.id);
         setFollowingButtonText();
+
         mFollowResult = 0;
 
         // Fire off a thread to do some work that we shouldn't do directly in
@@ -563,7 +547,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             public void run() {
                 final Request request = Request.to(Endpoints.MY_FOLLOWING, mUserData.id);
                 try {
-                    if (mUserData.current_user_following) {
+                    if (following) {
                         mFollowResult =
                                 getApp().put(request).getStatusLine().getStatusCode();
                     } else {
@@ -589,7 +573,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             handleError();
 
             if (!(mFollowResult == 200 || mFollowResult == 201 || mFollowResult == 404)) {
-                mUserData.current_user_following = !mUserData.current_user_following;
+                FollowStatus.get().toggleFollowing(mUserData.id);
                 setFollowingButtonText();
             }
             mFollow.setEnabled(true);
@@ -598,7 +582,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private void setFollowingButtonText() {
         if (isOtherUser()) {
-            mFollow.setImageResource(mUserData.current_user_following ?
+            mFollow.setImageResource(FollowStatus.get().following(mUserData) ?
                     R.drawable.ic_unfollow_states : R.drawable.ic_follow_states);
 
             mFollow.setVisibility(View.VISIBLE);
@@ -609,15 +593,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         if (user == null || user.id <= 0)
             return;
 
-        // need to maintain this variable in case we already checked following status
-        if (mUserData != null) user.current_user_following = mUserData.current_user_following;
-
         mUserData = user;
         mUserLoadId = mUserData.id;
 
         mUser.setText(mUserData.username);
         mFullName.setText(mUserData.full_name);
         setTabTextInfo();
+
+        setFollowingButtonText();
 
         if (CloudUtils.checkIconShouldLoad(mUserData.avatar_url)) {
             String remoteUrl;
