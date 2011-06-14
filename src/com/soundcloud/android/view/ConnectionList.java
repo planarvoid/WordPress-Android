@@ -28,6 +28,7 @@ import java.util.List;
 public class ConnectionList extends LinearLayout {
     private Adapter listAdapter;
     private View footer;
+    private View errorPlaceholder;
 
     public ConnectionList(Context context) {
         super(context);
@@ -43,14 +44,18 @@ public class ConnectionList extends LinearLayout {
     protected void handleDataChanged() {
         removeAllViews();
 
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            if (listAdapter.getItem(i).service().enabled) {
-                View item = listAdapter.getView(i, null, this);
-                addView(item);
-                addView(getSeparator());
+        if (!listAdapter.mFailed) {
+            for (int i = 0; i < listAdapter.getCount(); i++) {
+                if (listAdapter.getItem(i).service().enabled) {
+                    View item = listAdapter.getView(i, null, this);
+                    addView(item);
+                    addView(getSeparator());
+                }
             }
+            addView(getFooter());
+        } else {
+            addView(getErrorPlaceholder());
         }
-        addView(getFooter());
     }
 
     public void setAdapter(Adapter listAdapter) {
@@ -83,7 +88,6 @@ public class ConnectionList extends LinearLayout {
         return ids;
     }
 
-
     private View getSeparator() {
         final View v = new View(this.getContext());
         v.setLayoutParams(new LayoutParams(
@@ -99,6 +103,13 @@ public class ConnectionList extends LinearLayout {
             footer = inflate(getContext(), R.layout.connection_list_footer, null);
         }
         return footer;
+    }
+
+    protected View getErrorPlaceholder() {
+        if (errorPlaceholder == null) {
+            errorPlaceholder = inflate(getContext(), R.layout.connection_list_error_placeholder, null);
+        }
+        return errorPlaceholder;
     }
 
     public static class Adapter extends BaseAdapter {
@@ -186,7 +197,7 @@ public class ConnectionList extends LinearLayout {
                         setConnections(Connection.addUnused(connections));
                     } else {
                         mFailed = true;
-                        setConnections(Connection.addUnused(new ArrayList<Connection>()));
+                        notifyDataSetChanged();
                     }
                 }
             }.execute(new Request());
