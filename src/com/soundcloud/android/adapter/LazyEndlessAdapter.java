@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -407,6 +408,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
             appendTask = null;
         }
 
+        pendingView = null;
+        pendingPosition = -1;
         this.notifyDataSetChanged();
     }
 
