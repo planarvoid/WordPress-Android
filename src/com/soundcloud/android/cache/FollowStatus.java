@@ -124,7 +124,7 @@ public class FollowStatus implements Parcelable {
     // since  this is not important information we're going to do it anyway - it's fast.
     static FollowStatus fromInputStream(FileInputStream is) {
         try {
-            byte[] b = new byte[2048];
+            byte[] b = new byte[8192];
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             int n;
             while ((n = is.read(b)) != -1) {
