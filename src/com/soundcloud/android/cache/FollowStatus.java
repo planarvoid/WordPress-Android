@@ -36,7 +36,7 @@ public class FollowStatus implements Parcelable {
     private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
     private static final int MAX_AGE = 5 * 60 * 1000;
 
-    private final Set<Long> followingsSet = Collections.synchronizedSet(new HashSet<Long>());
+    private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
@@ -59,11 +59,11 @@ public class FollowStatus implements Parcelable {
     private FollowStatus(Parcel parcel) {
         lastUpdate = parcel.readLong();
         int size = parcel.readInt();
-        while (size-- > 0) followingsSet.add(parcel.readLong());
+        while (size-- > 0) followings.add(parcel.readLong());
     }
 
     public boolean isFollowing(long id) {
-        return followingsSet.contains(id);
+        return followings.contains(id);
     }
 
     public boolean isFollowing(User user) {
@@ -79,9 +79,9 @@ public class FollowStatus implements Parcelable {
                 protected void onPostExecute(List<Long> ids) {
                     lastUpdate = System.currentTimeMillis();
                     if (ids != null) {
-                        synchronized (followingsSet) {
-                            followingsSet.clear();
-                            followingsSet.addAll(ids);
+                        synchronized (followings) {
+                            followings.clear();
+                            followings.addAll(ids);
                         }
                     }
                     for (Listener l : listeners.keySet()) {
@@ -141,19 +141,19 @@ public class FollowStatus implements Parcelable {
 
   /* package */ void updateFollowing(long userId, boolean follow) {
         if (follow) {
-            followingsSet.add(userId);
+            followings.add(userId);
         } else {
-            followingsSet.remove(userId);
+            followings.remove(userId);
         }
     }
 
     /* package */ boolean toggleFollowing(long userId) {
-        synchronized (followingsSet) {
-            if (followingsSet.contains(userId)) {
-                followingsSet.remove(userId);
+        synchronized (followings) {
+            if (followings.contains(userId)) {
+                followings.remove(userId);
                 return false;
             } else {
-                followingsSet.add(userId);
+                followings.add(userId);
                 return true;
             }
         }
@@ -167,7 +167,7 @@ public class FollowStatus implements Parcelable {
     @Override
     public String toString() {
         return "FollowStatus{" +
-                "followingsSet=" + followingsSet +
+                "followingsSet=" + followings +
                 ", lastUpdate=" + lastUpdate +
                 '}';
     }
@@ -176,9 +176,9 @@ public class FollowStatus implements Parcelable {
         return "follow-status-cache-" + account.name;
     }
 
-    // Google recommends not to use the filesystem to save parcelables
-    // since  this is not important information we're going to do it anyway
-    // - it's fast (around 10msec cache writes on a N1).
+    // Google recommends not to use the filesystem to save parcelables (portability issues)
+    // since this is not important information we're going to do it anyway
+    // - it's fast (~ 10ms cache writes on a N1).
     static FollowStatus fromInputStream(FileInputStream is) {
         try {
             byte[] b = new byte[8192];
@@ -265,7 +265,7 @@ public class FollowStatus implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(lastUpdate);
-        dest.writeInt(followingsSet.size());
-        for (Long id : followingsSet) dest.writeLong(id);
+        dest.writeInt(followings.size());
+        for (Long id : followings) dest.writeLong(id);
     }
 }
