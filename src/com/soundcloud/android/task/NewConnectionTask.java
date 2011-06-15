@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import android.net.Uri;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

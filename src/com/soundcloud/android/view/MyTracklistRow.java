@@ -8,18 +8,16 @@ import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.FastBitmapDrawable;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import java.io.File;
 import java.io.IOException;
 
 public class MyTracklistRow extends TracklistRow {

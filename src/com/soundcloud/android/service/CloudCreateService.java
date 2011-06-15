@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;

@@ -2,9 +2,9 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 import android.net.Uri;

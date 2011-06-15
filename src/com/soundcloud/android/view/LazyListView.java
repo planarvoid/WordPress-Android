@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.objects.*;
+import com.soundcloud.android.model.*;
 
 import java.util.ArrayList;
 

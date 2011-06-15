@@ -1,4 +1,4 @@
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;

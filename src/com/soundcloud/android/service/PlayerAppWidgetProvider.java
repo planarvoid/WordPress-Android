@@ -5,7 +5,7 @@ import com.soundcloud.android.activity.ScPlaybackActivityStarter;
 import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

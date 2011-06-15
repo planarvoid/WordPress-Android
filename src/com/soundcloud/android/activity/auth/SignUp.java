@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.utils.ClickSpan;

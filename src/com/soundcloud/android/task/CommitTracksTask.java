@@ -2,7 +2,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 
 import android.content.ContentResolver;

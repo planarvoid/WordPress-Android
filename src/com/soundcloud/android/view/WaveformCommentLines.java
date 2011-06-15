@@ -2,7 +2,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.model.Comment;
 
 import android.content.Context;
 import android.graphics.Canvas;

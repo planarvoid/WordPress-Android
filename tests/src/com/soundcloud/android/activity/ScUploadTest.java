@@ -6,8 +6,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.objects.Connection;
-import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;

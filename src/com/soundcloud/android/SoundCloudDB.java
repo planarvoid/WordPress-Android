@@ -1,9 +1,9 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.objects.Activities;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;

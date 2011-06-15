@@ -2,7 +2,7 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.objects.FoursquareVenue;
+import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;

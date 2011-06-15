@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.model.Event;
 
 import android.os.Parcelable;
 import android.text.TextUtils;

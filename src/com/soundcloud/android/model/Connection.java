@@ -1,4 +1,4 @@
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 
 import com.soundcloud.android.R;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.model.Connection;
 
 import android.content.Context;
 import android.view.LayoutInflater;

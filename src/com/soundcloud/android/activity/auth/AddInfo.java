@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;

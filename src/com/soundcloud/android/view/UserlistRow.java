@@ -6,7 +6,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IUserlistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 

@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import android.database.Cursor;
 import android.os.Bundle;

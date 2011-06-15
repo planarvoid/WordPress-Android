@@ -2,7 +2,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
 

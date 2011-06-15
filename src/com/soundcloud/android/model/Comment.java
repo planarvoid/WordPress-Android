@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

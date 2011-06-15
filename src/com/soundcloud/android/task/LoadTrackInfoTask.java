@@ -5,7 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 
 public class LoadTrackInfoTask extends LoadTask<Track> {
     private SoundCloudApplication mApp;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.service;
 
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 interface ICloudPlaybackService
 {
     void playFromAppCache(int playPos);

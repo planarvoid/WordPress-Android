@@ -4,7 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 

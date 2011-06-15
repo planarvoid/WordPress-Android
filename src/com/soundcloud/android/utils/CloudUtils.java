@@ -6,10 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
 

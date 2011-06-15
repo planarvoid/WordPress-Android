@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;

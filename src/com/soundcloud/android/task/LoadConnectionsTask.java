@@ -1,7 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 

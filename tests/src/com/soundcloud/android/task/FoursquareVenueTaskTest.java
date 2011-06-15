@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-import com.soundcloud.android.objects.FoursquareVenue;
+import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;

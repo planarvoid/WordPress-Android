@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.model.Comment;
 
 public class MakeCommentBubble extends RelativeLayout {
 

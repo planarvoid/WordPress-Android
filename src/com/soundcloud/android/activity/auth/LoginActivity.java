@@ -4,7 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.api.CloudAPI;

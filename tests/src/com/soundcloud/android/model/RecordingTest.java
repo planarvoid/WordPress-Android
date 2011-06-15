@@ -1,4 +1,4 @@
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;

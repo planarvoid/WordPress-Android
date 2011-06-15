@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 

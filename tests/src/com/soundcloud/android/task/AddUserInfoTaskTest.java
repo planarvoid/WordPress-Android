@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;

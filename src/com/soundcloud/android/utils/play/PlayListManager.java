@@ -4,8 +4,8 @@ package com.soundcloud.android.utils.play;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.CommitTracksTask;
 

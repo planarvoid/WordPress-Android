@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 
 import static org.junit.Assert.*;
 
-import com.soundcloud.android.objects.Connection;
+import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;

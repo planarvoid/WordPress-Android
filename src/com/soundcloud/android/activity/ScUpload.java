@@ -2,8 +2,8 @@ package com.soundcloud.android.activity;
 
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.objects.FoursquareVenue;
-import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.model.FoursquareVenue;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;

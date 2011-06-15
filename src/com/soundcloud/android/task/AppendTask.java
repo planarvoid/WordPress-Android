@@ -4,9 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.objects.*;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 

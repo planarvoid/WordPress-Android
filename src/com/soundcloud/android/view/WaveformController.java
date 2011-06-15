@@ -7,8 +7,8 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.InputObject;
 

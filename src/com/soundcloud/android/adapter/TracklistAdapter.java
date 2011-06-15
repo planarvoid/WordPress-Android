@@ -2,7 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;

@@ -3,7 +3,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;

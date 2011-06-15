@@ -2,7 +2,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;

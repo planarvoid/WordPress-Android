@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.objects;
+package com.soundcloud.android.model;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 

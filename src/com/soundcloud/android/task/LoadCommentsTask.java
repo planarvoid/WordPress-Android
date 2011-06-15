@@ -2,8 +2,8 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.objects.Comment;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 

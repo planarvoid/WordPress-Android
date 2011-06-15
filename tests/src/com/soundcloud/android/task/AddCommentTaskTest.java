@@ -1,10 +1,9 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowResources;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

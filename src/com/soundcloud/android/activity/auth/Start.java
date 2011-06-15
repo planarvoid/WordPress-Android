@@ -1,10 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.objects.User;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
@@ -15,7 +13,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;

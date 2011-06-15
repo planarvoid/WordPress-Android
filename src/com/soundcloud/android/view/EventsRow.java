@@ -3,8 +3,8 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.objects.Event;
-import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
 
 import android.os.Parcelable;
 
