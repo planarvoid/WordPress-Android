@@ -429,13 +429,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
 
         if (isMe()) {
-            FriendFinderAdapter ffAdp = new FriendFinderAdapter(this);
-            SectionedEndlessAdapter ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
-
-            mFriendFinderView = new FriendFinderView(this, ffAdpWrap);
-            mFriendFinderView.friendList = CloudUtils.configureTabList(this, configureList(new SectionedListView(this)),
-                    mFriendFinderView, ffAdpWrap, CloudUtils.ListId.LIST_USER_SUGGESTED, null);
-            mFriendFinderView.friendList.disableLongClickListener();
+            mFriendFinderView = new FriendFinderView(this);
             CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
 
             if (mConnectionsTask == null || !CloudUtils.isTaskFinished(mConnectionsTask)) {

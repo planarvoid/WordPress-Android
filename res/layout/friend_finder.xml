@@ -17,11 +17,4 @@
             android:layout_width="fill_parent"
             android:background="@drawable/btn_fb_bg_states"
             android:text="@string/authentication_find_friends_on_facebook"/>
-
-    <FrameLayout android:id="@+id/listHolder"
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:layout_below="@id/facebook_btn"
-                 android:layout_alignWithParentIfMissing="true"
-                 android:layout_alignParentBottom="true"/>
 </RelativeLayout>

@@ -3,13 +3,11 @@ package com.soundcloud.android.view;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.widget.*;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -63,15 +61,29 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
 
     @Override
     public ListAdapter getAdapter() {
-        if (super.getAdapter() instanceof LazyEndlessAdapter) {
+
+        if (super.getAdapter() == null) return null;
+
+
+        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
+                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
+             return ((LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter()).getWrappedAdapter();
+
+        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
             return ((LazyEndlessAdapter) super.getAdapter()).getWrappedAdapter();
+
         } else
             return super.getAdapter();
     }
 
     public LazyEndlessAdapter getWrapper() {
-        if (super.getAdapter() instanceof LazyEndlessAdapter) {
+        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
+                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
+             return (LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
+
+        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
             return (LazyEndlessAdapter) super.getAdapter();
+
         } else
             return null;
     }

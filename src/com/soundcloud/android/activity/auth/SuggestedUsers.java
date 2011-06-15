@@ -136,9 +136,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     }
 
     private void configureFacebook() {
+        facebookBtn.setEnabled(false);
+        facebookBtn.getBackground().setAlpha(150);
+
         new NewConnectionTask(getApp()) {
             @Override
             protected void onPostExecute(Uri uri) {
+                facebookBtn.setEnabled(true);
+                facebookBtn.getBackground().setAlpha(255);
                 if (uri != null) {
                     startActivityForResult(
                             (new Intent(SuggestedUsers.this, Connect.class))

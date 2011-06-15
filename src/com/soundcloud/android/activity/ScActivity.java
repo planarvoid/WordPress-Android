@@ -318,6 +318,10 @@ public abstract class ScActivity extends Activity {
     }
 
     public LazyListView configureList(LazyListView lv) {
+        return configureList(lv,mLists.size());
+    }
+
+    public LazyListView configureList(LazyListView lv, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -325,10 +329,21 @@ public abstract class ScActivity extends Activity {
         lv.setTextFilterEnabled(true);
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
-        // lv.setCacheColorHint(getResources().getColor(R.color.transparent));
         lv.setCacheColorHint(Color.TRANSPARENT);
-        mLists.add(lv);
+        mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
         return lv;
+    }
+
+    public int removeList(LazyListView lazyListView){
+        int i = 0;
+        while (i < mLists.size()){
+            if (mLists.get(i).equals(lazyListView)){
+                mLists.remove(i);
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 
     public void addNewComment(final Comment comment, final AddCommentListener listener) {

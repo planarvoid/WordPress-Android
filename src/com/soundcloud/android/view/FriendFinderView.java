@@ -3,16 +3,14 @@ package com.soundcloud.android.view;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -31,15 +29,14 @@ import java.util.List;
 public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener {
 
     private final RelativeLayout mLoadingLayout;
-    private final RelativeLayout mSuggestedLayout;
-    private final SectionedEndlessAdapter mAdapter;
+    private final RelativeLayout mHeaderLayout;
+
+    private SectionedEndlessAdapter mAdapter;
+    public LazyListView mFriendList;
 
     private int mCurrentState;
+    private boolean mFbConnected;
     private SectionedAdapter.Section mFriendsSection;
-    private boolean mHidingListLandscape;
-    private TextView mTxtGoToPortrait;
-
-    public LazyListView friendList;
 
     public interface States {
         int LOADING = 1;
@@ -47,25 +44,41 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         int FB_CONNECTION = 3;
     }
 
-    public FriendFinderView(ScActivity activity, SectionedEndlessAdapter adpWrap) {
-        super(activity, adpWrap);
-
-        mAdapter = adpWrap;
-        mAdapter.addListener(this);
+    public FriendFinderView(ScActivity activity) {
+        super(activity, null);
 
         LayoutInflater inflater = activity.getLayoutInflater();
-        mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
-        addView(mLoadingLayout);
 
-        mSuggestedLayout = (RelativeLayout) inflater.inflate(R.layout.friend_finder, null);
-        mSuggestedLayout.findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
+        mHeaderLayout = (RelativeLayout) inflater.inflate(R.layout.suggested_users_header, null);
+        mHeaderLayout.findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                configureFacebook();
+                mHeaderLayout.findViewById(R.id.facebook_btn).setEnabled(false);
+                mHeaderLayout.findViewById(R.id.facebook_btn).getBackground().setAlpha(150);
+                new NewConnectionTask(mActivity.getApp()) {
+                @Override
+                protected void onPostExecute(Uri uri) {
+                    mHeaderLayout.findViewById(R.id.facebook_btn).setEnabled(true);
+                    mHeaderLayout.findViewById(R.id.facebook_btn).getBackground().setAlpha(255);
+                    if (uri != null) {
+                        mActivity.startActivityForResult(
+                                (new Intent(mActivity, Connect.class))
+                                        .putExtra("service", Service.Facebook.name())
+                                        .setData(uri),
+                                Connect.MAKE_CONNECTION);
+                    } else {
+                        mActivity.showToast(R.string.new_connection_error);
+                    }
+                }
+            }.execute(Service.Facebook);
             }
         });
-        mSuggestedLayout.setVisibility(View.GONE);
-        addView(mSuggestedLayout);
+
+        mHeaderLayout.findViewById(R.id.suggested_users_msg).setVisibility(View.GONE);
+        ((TextView) mHeaderLayout.findViewById(R.id.suggested_users_msg)).setText(R.string.suggested_users_no_friends_msg);
+
+        mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
+        addView(mLoadingLayout);
     }
 
     public void onConnections(List<Connection> connections, boolean refresh) {
@@ -79,6 +92,14 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         }
     }
 
+    public void onSectionLoaded(SectionedAdapter.Section section) {
+        if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
+                !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
+            mActivity.showToast(R.id.suggested_users_msg);
+            mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+        }
+    }
+
     public int getCurrentState() {
         return mCurrentState;
     }
@@ -86,29 +107,41 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     public void setState(int state, boolean refresh) {
 
-        if (refresh) mAdapter.clearData();
+        if (refresh && mAdapter != null) mAdapter.clearData();
 
         switch (state) {
             case States.LOADING:
-                friendList.getWrapper().clearEmptyView();
+                if (mFriendList != null) {
+                    mFriendList.getWrapper().clearEmptyView();
+                    mFriendList.setVisibility(View.GONE);
+                }
                 mLoadingLayout.setVisibility(View.VISIBLE);
-                friendList.setVisibility(View.GONE);
-                mSuggestedLayout.setVisibility(View.GONE);
                 mCurrentState = state;
                 return;
 
             case States.NO_FB_CONNECTION:
+                if (mFriendList == null || mFbConnected){
+                    mFbConnected = false;
+                    refreshList();
+                }
+
                 if (refresh) addSuggestedSection();
-                mSuggestedLayout.findViewById(R.id.facebook_btn).setVisibility(View.VISIBLE);
-                showSuggestedList();
+                mFriendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
+                ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(User.class);
                 break;
 
             case States.FB_CONNECTION:
+                if (mFriendList == null || !mFbConnected){
+                    mFbConnected = true;
+                    refreshList();
+                }
+
                 if (refresh) {
                     addFriendsSection();
                     addSuggestedSection();
                 }
-                showFriendsList();
+                mFriendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
+                ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(Friend.class);
                 break;
 
             default:
@@ -118,14 +151,33 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         mCurrentState = state;
         mLoadingLayout.setVisibility(View.GONE);
-        friendList.getWrapper().createListEmptyView(friendList);
-        if (!mHidingListLandscape) friendList.setVisibility(View.VISIBLE);
+        mFriendList.getWrapper().createListEmptyView(mFriendList);
+        mFriendList.setVisibility(View.VISIBLE);
 
         if (refresh) {
-            friendList.getWrapper().refresh(false);
-            friendList.invalidate();
-            friendList.requestLayout();
+            mFriendList.getWrapper().refresh(false);
+            mFriendList.invalidate();
+            mFriendList.requestLayout();
         }
+    }
+
+    private void refreshList(){
+        int addListAtPos = -1;
+
+        if (mFriendList != null) {
+            mAdapter.clearEmptyView();
+            addListAtPos = mActivity.removeList(mFriendList);
+            if (mFriendList.getParent() == this) removeView(mFriendList);
+        }
+
+        mFriendList = mActivity.configureList(new SectionedListView(mActivity), addListAtPos);
+        mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity));
+        mAdapter.addListener(this);
+
+        if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
+
+        CloudUtils.configureTabList(mActivity, mFriendList, this, mAdapter,
+            CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
     }
 
     private void addFriendsSection() {
@@ -139,95 +191,4 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 new SectionedAdapter.Section(mActivity.getString(R.string.list_header_suggested_users),
                         User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
     }
-
-    private void showFriendsList() {
-        friendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
-        ((LazyBaseAdapter) friendList.getAdapter()).setModel(Friend.class);
-
-        if (friendList.getParent() == mSuggestedLayout.findViewById(R.id.listHolder)) {
-            ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).removeView(friendList);
-        }
-        if (friendList.getParent() != this) addView(friendList);
-
-    }
-
-    private void showSuggestedList() {
-        friendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
-        ((LazyBaseAdapter) friendList.getAdapter()).setModel(User.class);
-
-        if (friendList.getParent() == this) {
-            removeView(friendList);
-        }
-        if (friendList.getParent() != ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder))) {
-            ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).addView(friendList);
-        }
-
-        mSuggestedLayout.setVisibility(View.VISIBLE);
-    }
-
-
-    public void configureFacebook() {
-        new NewConnectionTask(mActivity.getApp()) {
-            @Override
-            protected void onPostExecute(Uri uri) {
-                if (uri != null) {
-                    mActivity.startActivityForResult(
-                            (new Intent(mActivity, Connect.class))
-                                    .putExtra("service", Service.Facebook.name())
-                                    .setData(uri),
-                            Connect.MAKE_CONNECTION);
-                } else {
-                    mActivity.showToast(R.string.new_connection_error);
-                }
-            }
-        }.execute(Service.Facebook);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-
-        if (changed){
-            if (CloudUtils.isLandscape(getResources()) && mCurrentState == States.NO_FB_CONNECTION){
-                mHidingListLandscape = true;
-                friendList.setVisibility(View.GONE);
-                if (mTxtGoToPortrait == null) mTxtGoToPortrait = createGoToPortraitMessage();
-                if (mTxtGoToPortrait.getParent() != mSuggestedLayout.findViewById(R.id.listHolder)) {
-                    ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).addView(mTxtGoToPortrait);
-                }
-                requestLayout();
-            } else if (mHidingListLandscape){
-                // layout has changed
-                mHidingListLandscape = false;
-                if (mCurrentState != States.LOADING) friendList.setVisibility(View.VISIBLE);
-
-                if (mTxtGoToPortrait.getParent() == mSuggestedLayout.findViewById(R.id.listHolder)) {
-                    ((FrameLayout) mSuggestedLayout.findViewById(R.id.listHolder)).removeView(mTxtGoToPortrait);
-                }
-                mTxtGoToPortrait = null;
-                requestLayout();
-            }
-        }
-
-    }
-
-    private TextView createGoToPortraitMessage() {
-        TextView tv = new TextView(mActivity);
-        tv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                ViewGroup.LayoutParams.FILL_PARENT));
-        tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        tv.setPadding(5, 5, 5, 5);
-        tv.setTextAppearance(mActivity, R.style.txt_empty_view);
-        tv.setText(R.string.view_suggested_users_in_portrait);
-        return tv;
-    }
-
-    public void onSectionLoaded(SectionedAdapter.Section section) {
-        if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
-                !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
-            mActivity.showToast(R.string.suggested_users_no_friends_msg);
-            mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
-        }
-    }
-
 }
