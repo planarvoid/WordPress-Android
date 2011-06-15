@@ -472,6 +472,9 @@ public abstract class ScActivity extends Activity {
                 CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
                 R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
 
+        menu.add(menu.size(), CloudUtils.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
+                .setIcon(R.drawable.ic_menu_friendfinder);
+
         menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
@@ -507,6 +510,12 @@ public abstract class ScActivity extends Activity {
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("tabTag", "incoming");
+                startActivity(intent);
+                return true;
+            case CloudUtils.OptionsMenu.FRIEND_FINDER:
+                intent = new Intent(this, Main.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
                 startActivity(intent);
                 return true;
             case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:

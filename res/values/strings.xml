@@ -627,6 +627,7 @@
   <string name="menu_cancel_current_upload">Cancel Upload</string>
   <string name="menu_refresh">Refresh</string>
   <string name="menu_incoming">Incoming</string>
+  <string name="menu_friend_finder">Find Friends</string>
 
   <string name="menu_view_playlist">Playlist</string>
   <string name="menu_sort_by_track_name">Sort by track name</string>

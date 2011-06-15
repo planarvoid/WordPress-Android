@@ -92,6 +92,7 @@ public class CloudUtils {
         int REFRESH = 202;
         int CANCEL_CURRENT_UPLOAD = 203;
         int INCOMING = 204;
+        int FRIEND_FINDER = 205;
     }
 
     public interface GraphicsSizes {

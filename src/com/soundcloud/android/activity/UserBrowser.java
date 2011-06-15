@@ -98,6 +98,15 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
+    public interface TabTags {
+        String tracks = "tracks";
+        String favorites = "favorites";
+        String details = "details";
+        String followings = "followings";
+        String followers = "followers";
+        String friend_finder = "friend_finder";
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle bundle) {
@@ -367,7 +376,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         ScTabView tracksView = new ScTabView(this, adpWrap);
         CloudUtils.configureTabList(this, buildList(), tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
-        CloudUtils.createTab(mTabHost, "tracks", getString(R.string.tab_tracks), null, emptyView);
+        CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id));
@@ -385,12 +394,12 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         ScTabView favoritesView = new ScTabView(this, adpWrap);
         CloudUtils.configureTabList(this, buildList(), favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
-        CloudUtils.createTab(mTabHost, "favorites", getString(R.string.tab_favorites), null, emptyView);
+        CloudUtils.createTab(mTabHost, TabTags.favorites, getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
         detailsView.addView(mDetailsView);
 
-        CloudUtils.createTab(mTabHost, "details", getString(R.string.tab_info), null, emptyView);
+        CloudUtils.createTab(mTabHost, TabTags.details, getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id));
@@ -408,7 +417,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         final ScTabView followingsView = new ScTabView(this, adpWrap);
         CloudUtils.configureTabList(this, buildList(), followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
-        CloudUtils.createTab(mTabHost, "followings", getString(R.string.tab_followings), null, emptyView);
+        CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id));
@@ -426,11 +435,11 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         final ScTabView followersView = new ScTabView(this, adpWrap);
         CloudUtils.configureTabList(this, buildList(), followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
-        CloudUtils.createTab(mTabHost, "followers", getString(R.string.tab_followers), null, emptyView);
+        CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 
         if (isMe()) {
             mFriendFinderView = new FriendFinderView(this);
-            CloudUtils.createTab(mTabHost, "friendFinder", getString(R.string.tab_suggested), null, emptyView);
+            CloudUtils.createTab(mTabHost, TabTags.friend_finder, getString(R.string.tab_suggested), null, emptyView);
 
             if (mConnectionsTask == null || !CloudUtils.isTaskFinished(mConnectionsTask)) {
                 mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
@@ -537,8 +546,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
        return mUser.id == getCurrentUserId();
     }
 
-    public void setTab(int screen) {
-        mWorkspaceView.setCurrentScreen(screen);
+    public void setTab(String tag) {
+        mTabHost.setCurrentTabByTag(tag);
+        mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
     }
 
     private void toggleFollowing() {

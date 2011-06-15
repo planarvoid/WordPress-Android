@@ -114,8 +114,7 @@ public class Main extends TabActivity {
                     app.confirmEmail();
                     dismissSplash();
                 } else {
-                    startActivityForResult(
-                        new Intent(Main.this, EmailConfirm.class)
+                    startActivityForResult(new Intent(Main.this, EmailConfirm.class)
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }
@@ -193,10 +192,9 @@ public class Main extends TabActivity {
             } else if (intent.hasExtra("tabIndex")) {
                 getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
                 intent.removeExtra("tabIndex");
-            } else if (intent.hasExtra("userBrowserIndex")) {
-                // XXX kill me now
+            } else if (intent.hasExtra("userBrowserTag")) {
                 getTabHost().setCurrentTab(3);
-                ((UserBrowser)getCurrentActivity()).setTab(intent.getIntExtra("userBrowserIndex", 0));
+                ((UserBrowser)getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             } else if (intent.hasExtra("tabTag")) {
                 if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
                     // TODO
