@@ -313,7 +313,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
     }
 
-    public void onFollowings(boolean success, FollowStatus status) {
+    public void onChange(boolean success, FollowStatus status) {
         setFollowingButtonText();
     }
 

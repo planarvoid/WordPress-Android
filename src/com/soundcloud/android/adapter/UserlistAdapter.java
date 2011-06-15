@@ -36,7 +36,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
         return (User) mData.get(index);
     }
 
-    @Override public void onFollowings(boolean success, FollowStatus status){
+    @Override public void onChange(boolean success, FollowStatus status){
         notifyDataSetChanged();
     }
 }

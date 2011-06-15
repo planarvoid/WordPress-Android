@@ -24,7 +24,7 @@ public class FriendFinderAdapter extends SectionedAdapter implements IUserlistAd
         }
     }
 
-    @Override public void onFollowings(boolean success, FollowStatus status) {
+    @Override public void onChange(boolean success, FollowStatus status) {
         notifyDataSetChanged();
     }
 

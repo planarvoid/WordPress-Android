@@ -25,7 +25,7 @@ public class FollowStatusTest extends ApiTests {
         final boolean[] called = new boolean[1];
         status.requestUserFollowings(api, new FollowStatus.Listener() {
                     @Override
-                    public void onFollowings(boolean success, FollowStatus status) {
+                    public void onChange(boolean success, FollowStatus status) {
                         called[0] = true;
                         assertThat(success, is(true));
                         assertThat(status.isFollowing(1), is(true));

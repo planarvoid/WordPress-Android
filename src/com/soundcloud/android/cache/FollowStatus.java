@@ -85,7 +85,7 @@ public class FollowStatus implements Parcelable {
                         }
                     }
                     for (Listener l : listeners.keySet()) {
-                        l.onFollowings(ids != null, FollowStatus.this);
+                        l.onChange(ids != null, FollowStatus.this);
                     }
                 }
             };
@@ -95,26 +95,6 @@ public class FollowStatus implements Parcelable {
 
     public void addListener(Listener l) {
         listeners.put(l, l);
-    }
-
-    /* package */ void updateFollowing(long userId, boolean follow) {
-        if (follow) {
-            followingsSet.add(userId);
-        } else {
-            followingsSet.remove(userId);
-        }
-    }
-
-    /* package */ boolean toggleFollowing(long userId) {
-        synchronized (followingsSet) {
-            if (followingsSet.contains(userId)) {
-                followingsSet.remove(userId);
-                return false;
-            } else {
-                followingsSet.add(userId);
-                return true;
-            }
-        }
     }
 
     public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
@@ -141,7 +121,14 @@ public class FollowStatus implements Parcelable {
 
             @Override
             protected void onPostExecute(Boolean success) {
-                if (!success) updateFollowing(userid, !addFollowing);
+                if (success) {
+                    for (Listener l : listeners.keySet()) {
+                        l.onChange(true, FollowStatus.this);
+                    }
+                } else {
+                    updateFollowing(userid, !addFollowing); // revert state change
+                }
+
                 if (handler != null) {
                     Message m = Message.obtain();
                     if (m == null) m = new Message(); /* needed for robolectric */
@@ -152,8 +139,29 @@ public class FollowStatus implements Parcelable {
         }.execute(userid);
     }
 
+  /* package */ void updateFollowing(long userId, boolean follow) {
+        if (follow) {
+            followingsSet.add(userId);
+        } else {
+            followingsSet.remove(userId);
+        }
+    }
+
+    /* package */ boolean toggleFollowing(long userId) {
+        synchronized (followingsSet) {
+            if (followingsSet.contains(userId)) {
+                followingsSet.remove(userId);
+                return false;
+            } else {
+                followingsSet.add(userId);
+                return true;
+            }
+        }
+    }
+
+
     public interface Listener {
-        void onFollowings(boolean success, FollowStatus status);
+        void onChange(boolean success, FollowStatus status);
     }
 
     @Override
@@ -201,7 +209,6 @@ public class FollowStatus implements Parcelable {
         try {
             FollowStatus status = fromInputStream(context.openFileInput(statusCache));
             if (status != null) {
-                Log.d(TAG, "loaded from cache: " + status);
                 set(status);
             } else {
                 context.deleteFile(statusCache);
@@ -212,15 +219,16 @@ public class FollowStatus implements Parcelable {
 
         get().addListener(new FollowStatus.Listener() {
             @Override
-            public void onFollowings(boolean success, FollowStatus status) {
+            public void onChange(boolean success, FollowStatus status) {
                 if (success) {
-                    try {
-                        Log.d(TAG, "wrote " + status + " to " + statusCache);
-                        FileOutputStream fos = context.openFileOutput(statusCache, 0);
-                        status.toFilesStream(fos);
-                        fos.close();
-                    } catch (IOException ignored) {
-                        Log.w(TAG, "error initializing FollowStatus", ignored);
+                    synchronized (FollowStatus.class) {
+                        try {
+                            FileOutputStream fos = context.openFileOutput(statusCache, 0);
+                            status.toFilesStream(fos);
+                            fos.close();
+                        } catch (IOException ignored) {
+                            Log.w(TAG, "error initializing FollowStatus", ignored);
+                        }
                     }
                 }
             }
