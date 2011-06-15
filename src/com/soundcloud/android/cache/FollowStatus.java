@@ -177,7 +177,8 @@ public class FollowStatus implements Parcelable {
     }
 
     // Google recommends not to use the filesystem to save parcelables
-    // since  this is not important information we're going to do it anyway - it's fast.
+    // since  this is not important information we're going to do it anyway
+    // - it's fast (around 10msec cache writes on a N1).
     static FollowStatus fromInputStream(FileInputStream is) {
         try {
             byte[] b = new byte[8192];

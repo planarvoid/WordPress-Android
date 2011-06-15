@@ -2,25 +2,29 @@
 package com.soundcloud.android.adapter;
 
 
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Friend;
+import com.soundcloud.android.objects.Track;
+import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.api.Request;
+
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.objects.*;
-import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.api.Request;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,15 +44,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     private Request mRequest;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
-
         super(wrapped);
 
         mActivity = activity;
         mCurrentPage = 0;
         mRequest = request;
-
         wrapped.setWrapper(this);
-
     }
 
     /**
@@ -56,7 +57,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * here because this adapter will control the visibility of the list
      */
     public void createListEmptyView(LazyListView lv) {
-
         mListView = lv;
 
         clearEmptyView();
@@ -96,16 +96,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public void setEmptyviewText() {
         if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
-
-            // does not work properly
-            /*
-            CloudUtils.clickify(((TextView)mEmptyView), "Suggested Users", new ClickSpan.OnClickListener() {
-                @Override
-                public void onClick() {
-                    mActivity.startActivity(new Intent(mActivity, Main.class).putExtra("userBrowserIndex", 5));
-                }
-            }, true);
-            */
             return;
         }
 
@@ -155,10 +145,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     @SuppressWarnings("unchecked")
     public void restoreState(Object[] state){
-        if (state[0] != null) this.getData().addAll((Collection<? extends Parcelable>) state[0]);
-        if (state[1] != null) this.restoreTask((AppendTask) state[1]);
-        if (state[2] != null) this.restorePagingData((int[]) state[2]);
-        if (state[3] != null) this.restoreExtraData((String) state[3]);
+        if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
+        if (state[1] != null) restoreTask((AppendTask) state[1]);
+        if (state[2] != null) restorePagingData((int[]) state[2]);
+        if (state[3] != null) restoreExtraData((String) state[3]);
     }
 
 
@@ -232,7 +222,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     public List<Parcelable> getData() {
-        return (this.getWrappedAdapter()).getData();
+        return getWrappedAdapter().getData();
     }
 
     @Override
@@ -323,7 +313,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * wrapped adapter and displaying the loading views of that row
      */
     protected View getPendingView(ViewGroup parent) {
-        ViewGroup row = (this.getWrappedAdapter()).createRow();
+        ViewGroup row = getWrappedAdapter().createRow();
         row.findViewById(R.id.row_holder).setVisibility(View.GONE);
         row.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
 
@@ -410,7 +400,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         pendingView = null;
         pendingPosition = -1;
-        this.notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     /**
