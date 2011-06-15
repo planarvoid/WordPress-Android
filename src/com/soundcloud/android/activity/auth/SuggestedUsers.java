@@ -23,6 +23,7 @@ import com.soundcloud.android.objects.Friend;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -61,7 +62,9 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
         ffAdpWrap.addListener(this);
 
-        mListView = buildList();
+        mListView = new SectionedListView(this);
+        configureList(mListView);
+
         mListView.setAdapter(ffAdpWrap);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
         // XXX make this sane - createListEmpty expects list with parent view
