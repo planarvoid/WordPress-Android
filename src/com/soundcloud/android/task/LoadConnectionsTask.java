@@ -9,6 +9,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class LoadConnectionsTask extends LoadJsonTask<Connection> {
+    public static final Request REQUEST = Request.to(Endpoints.MY_CONNECTIONS);
     private WeakReference<ConnectionsListener> mListenerRef;
 
     public LoadConnectionsTask(AndroidCloudAPI api) {
@@ -25,10 +26,7 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
 
     @Override
     protected List<Connection> doInBackground(Request... path) {
-        final Request request = path == null || path.length == 0 ?
-                Request.to(Endpoints.MY_CONNECTIONS) :
-                path[0];
-        return list(request, Connection.class);
+        return list(REQUEST, Connection.class);
     }
 
     @Override

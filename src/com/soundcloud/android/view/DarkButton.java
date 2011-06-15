@@ -15,6 +15,7 @@ public class DarkButton extends Button {
     public DarkButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
+        refreshDrawableState();
     }
 
 
@@ -28,7 +29,6 @@ public class DarkButton extends Button {
             setTextColor(0xFFFFFFFF);
         }
         super.drawableStateChanged();
-        invalidate();
     }
 
 
