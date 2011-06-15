@@ -26,7 +26,6 @@ tmp
 # ant
 local.properties
 
-lib-proguard/out
 soundcloud_sign
 
 #prefs
