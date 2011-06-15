@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -75,6 +76,11 @@ public class ScCreate extends ScActivity {
     private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
 
+    private Drawable
+            btn_rec_states_drawable,
+            btn_rec_stop_states_drawable,
+            btn_rec_play_states_drawable;
+
     public enum CreateState {
         IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
     }
@@ -90,12 +96,10 @@ public class ScCreate extends ScActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mCurrentState = CreateState.IDLE_RECORD;
-
         setContentView(R.layout.sc_record);
-        mRecording = getIntent().getData();
 
+        mRecording = getIntent().getData();
         initResourceRefs();
         updateUi(false);
 
@@ -148,6 +152,10 @@ public class ScCreate extends ScActivity {
     * to reinitialize references to the views.
     */
     private void initResourceRefs() {
+        btn_rec_states_drawable = getResources().getDrawable(R.drawable.btn_rec_states);
+        btn_rec_stop_states_drawable = getResources().getDrawable(R.drawable.btn_rec_stop_states);
+        btn_rec_play_states_drawable = getResources().getDrawable(R.drawable.btn_rec_play_states);
+
         mDurationFormatLong = getString(R.string.durationformatlong);
         mDurationFormatShort = getString(R.string.durationformatshort);
 
@@ -326,8 +334,6 @@ public class ScCreate extends ScActivity {
     }
 
     private void updateUi(boolean takeAction) {
-        Log.i(TAG, "Update Soundcloud Create state: " + mCurrentState + " | take action: "
-                + takeAction);
         switch (mCurrentState) {
             case IDLE_RECORD:
                 if (takeAction) {
@@ -335,8 +341,7 @@ public class ScCreate extends ScActivity {
                 }
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) txtRecordStatus.setText(mRecordErrorMessage);
 
-                btnAction.setBackgroundDrawable(getResources().getDrawable(
-                        R.drawable.btn_rec_states));
+                btnAction.setBackgroundDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
                 mChrono.setVisibility(View.GONE);
@@ -346,8 +351,7 @@ public class ScCreate extends ScActivity {
                 break;
 
             case RECORD:
-                btnAction.setBackgroundDrawable(getResources().getDrawable(
-                        R.drawable.btn_rec_stop_states));
+                btnAction.setBackgroundDrawable(btn_rec_stop_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
                 txtRecordStatus.setText("");
                 txtRecordStatus.setVisibility(View.VISIBLE);
@@ -376,9 +380,7 @@ public class ScCreate extends ScActivity {
                 }
 
                 mChrono.setText(mCurrentDurationString);
-
-                btnAction.setBackgroundDrawable(getResources().getDrawable(
-                        R.drawable.btn_rec_play_states));
+                btnAction.setBackgroundDrawable(btn_rec_play_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
                 mPowerGauge.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
@@ -395,8 +397,7 @@ public class ScCreate extends ScActivity {
                 mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
-                btnAction.setBackgroundDrawable(getResources()
-                        .getDrawable(R.drawable.btn_rec_stop_states));
+                btnAction.setBackgroundDrawable(btn_rec_stop_states_drawable);
 
                 if (takeAction) startPlayback();
                 break;
