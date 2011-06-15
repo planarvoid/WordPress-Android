@@ -2,23 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:background="#FFFFFFFF">
-	<TextView android:id="@+id/suggested_users_msg"
-		android:layout_height="wrap_content" android:layout_width="match_parent"
-		android:text="@string/suggested_users_msg" android:textSize="16sp"
-		android:layout_marginTop="5dip" android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip" android:layout_marginBottom="5dip"></TextView>
-	<Button android:layout_height="wrap_content"
-		android:layout_below="@id/suggested_users_msg"
-		android:layout_marginBottom="5dip" android:layout_marginLeft="10dip"
-		android:layout_marginTop="5dip" android:textSize="18sp"
-		android:layout_marginRight="10dip" android:textColor="#FFFFFFFF"
-		android:layout_width="fill_parent" android:background="@drawable/btn_fb_bg_states"
-		android:id="@+id/facebook_btn" android:text="@string/authentication_find_friends_on_facebook"></Button>
-	<View android:layout_width="fill_parent" android:layout_height="1dip"
-		android:id="@+id/listTopBorder" android:layout_below="@id/facebook_btn"
-		android:background="#FFCCCCCC" />
 	<FrameLayout android:layout_width="match_parent"
-		android:layout_below="@id/listTopBorder" android:layout_above="@+id/control_layout"
+		android:layout_above="@+id/control_layout"
+        android:layout_alignParentTop="true"
 		android:id="@+id/listHolder" android:layout_height="wrap_content"></FrameLayout>
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_alignParentBottom="true" android:id="@+id/control_layout"

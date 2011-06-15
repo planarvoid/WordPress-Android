@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -42,7 +43,27 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         super.onCreate(bundle);
         setContentView(R.layout.suggested_users);
 
-        facebookBtn = (Button) findViewById(R.id.facebook_btn);
+        ffAdp = new FriendFinderAdapter(this);
+        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
+        ffAdpWrap.addListener(this);
+
+        mListView = new SectionedListView(this);
+        configureList(mListView);
+
+        LayoutInflater inflater = getLayoutInflater();
+        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.suggested_users_header, mListView, false);
+        mListView.addHeaderView(header, null, false);
+
+
+        mListView.setAdapter(ffAdpWrap);
+        ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
+
+        // XXX make this sane - createListEmpty expects list with parent view
+        ffAdpWrap.createListEmptyView(mListView);
+        ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
+
+
+        facebookBtn = (Button) mListView.findViewById(R.id.facebook_btn);
         facebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,18 +79,6 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         });
 
 
-        ffAdp = new FriendFinderAdapter(this);
-        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
-        ffAdpWrap.addListener(this);
-
-        mListView = new SectionedListView(this);
-        configureList(mListView);
-
-        mListView.setAdapter(ffAdpWrap);
-        ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
-        // XXX make this sane - createListEmpty expects list with parent view
-        ffAdpWrap.createListEmptyView(mListView);
-        ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
 
         if (getIntent().getBooleanExtra("facebook_connected", false)) {
             facebookBtn.setVisibility(View.GONE);

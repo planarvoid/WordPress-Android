@@ -1,45 +1,41 @@
 package com.soundcloud.android.view;
 
-import android.content.*;
-import android.graphics.*;
-import android.util.Log;
-import android.view.*;
-import android.widget.*;
-
+import android.content.Context;
+import android.graphics.Canvas;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.FrameLayout;
+import android.widget.ListAdapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 
 /**
- * A ListView that maintains a header pinned at the top of the list. The
- * pinned header can be pushed up and dissolved as needed.
- * Header logic taken from http://code.google.com/p/android-amazing-listview/source/browse/trunk/
+ * A ListView that maintains a header pinned at the top of the list. The pinned header can be pushed up and dissolved as
+ * needed. Header logic taken from http://code.google.com/p/android-amazing-listview/source/browse/trunk/
  */
 public class SectionedListView extends LazyListView {
-	public static final String TAG = SectionedListView.class.getSimpleName();
+    public static final String TAG = SectionedListView.class.getSimpleName();
 
-    private final View mHeaderView;
-    private boolean mHeaderViewVisible;
+    private final View mSectionHeaderView;
+    private boolean mSectionHeaderViewVisible;
 
-    private int mHeaderViewWidth;
-    private int mHeaderViewHeight;
-
-    private int mHeaderBgColor;
-    private int mHeaderTextColor;
-
+    private int mSectionHeaderViewWidth;
+    private int mSectionHeaderViewHeight;
 
     private SectionedEndlessAdapter adapter;
 
     public SectionedListView(ScActivity activity) {
         super(activity);
 
-        mHeaderView = new FrameLayout(activity);
-        mHeaderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mSectionHeaderView = new FrameLayout(activity);
+        mSectionHeaderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         ((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_header, (FrameLayout) mHeaderView);
+                .inflate(R.layout.list_header, (FrameLayout) mSectionHeaderView);
 
         setFadingEdgeLength(0);
     }
@@ -47,10 +43,10 @@ public class SectionedListView extends LazyListView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (mHeaderView != null){
-            measureChild(mHeaderView, widthMeasureSpec, heightMeasureSpec);
-            mHeaderViewWidth = mHeaderView.getMeasuredWidth();
-            mHeaderViewHeight = mHeaderView.getMeasuredHeight();
+        if (mSectionHeaderView != null) {
+            measureChild(mSectionHeaderView, widthMeasureSpec, heightMeasureSpec);
+            mSectionHeaderViewWidth = mSectionHeaderView.getMeasuredWidth();
+            mSectionHeaderViewHeight = mSectionHeaderView.getMeasuredHeight();
         }
 
     }
@@ -58,28 +54,36 @@ public class SectionedListView extends LazyListView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        mHeaderView.layout(0, 0, mHeaderViewWidth, mHeaderViewHeight);
+        mSectionHeaderView.layout(0, 0, mSectionHeaderViewWidth, mSectionHeaderViewHeight);
         configureHeaderView(getFirstVisiblePosition());
     }
 
+
     public void configureHeaderView(int position) {
-        int state = ((SectionedAdapter) adapter.getWrappedAdapter()).getPinnedHeaderState(position);
+        int state = 0;
+        if (this.getHeaderViewsCount() > position){
+            state = SectionedAdapter.PINNED_HEADER_GONE;
+        } else {
+            state = ((SectionedAdapter) adapter.getWrappedAdapter()).getPinnedHeaderState(position - getHeaderViewsCount());
+        }
+
+
         switch (state) {
             case SectionedAdapter.PINNED_HEADER_GONE: {
-                mHeaderViewVisible = false;
+                mSectionHeaderViewVisible = false;
                 break;
             }
 
             case SectionedAdapter.PINNED_HEADER_VISIBLE: {
                 ((SectionedAdapter) adapter.getWrappedAdapter())
-                            .configurePinnedHeader(mHeaderView, position,
-                                    getResources().getColor(R.color.listBgHeader),
-                                    getResources().getColor(R.color.listTxtHeader));
+                        .configurePinnedHeader(mSectionHeaderView, position,
+                                getResources().getColor(R.color.listBgHeader),
+                                getResources().getColor(R.color.listTxtHeader));
 
-                if (mHeaderView.getTop() != 0) {
-                    mHeaderView.layout(0, 0, mHeaderViewWidth, mHeaderViewHeight);
+                if (mSectionHeaderView.getTop() != 0) {
+                    mSectionHeaderView.layout(0, 0, mSectionHeaderViewWidth, mSectionHeaderViewHeight);
                 }
-                mHeaderViewVisible = true;
+                mSectionHeaderViewVisible = true;
                 break;
             }
 
@@ -87,7 +91,7 @@ public class SectionedListView extends LazyListView {
                 View firstView = getChildAt(0);
                 if (firstView != null) {
                     int bottom = firstView.getBottom();
-                    int headerHeight = mHeaderView.getHeight();
+                    int headerHeight = mSectionHeaderView.getHeight();
                     int y;
                     int alpha;
                     if (bottom < headerHeight) {
@@ -98,14 +102,14 @@ public class SectionedListView extends LazyListView {
                         alpha = 255;
                     }
                     ((SectionedAdapter) adapter.getWrappedAdapter())
-                            .configurePinnedHeader(mHeaderView, position,
+                            .configurePinnedHeader(mSectionHeaderView, position,
                                     alpha << 24 | getResources().getColor(R.color.listBgHeader),
                                     alpha << 24 | getResources().getColor(R.color.listTxtHeader));
 
-                    if (mHeaderView.getTop() != y) {
-                        mHeaderView.layout(0, y, mHeaderViewWidth, mHeaderViewHeight + y);
+                    if (mSectionHeaderView.getTop() != y) {
+                        mSectionHeaderView.layout(0, y, mSectionHeaderViewWidth, mSectionHeaderViewHeight + y);
                     }
-                    mHeaderViewVisible = true;
+                    mSectionHeaderViewVisible = true;
                 }
                 break;
             }
@@ -115,8 +119,8 @@ public class SectionedListView extends LazyListView {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (mHeaderViewVisible) {
-            drawChild(canvas, mHeaderView, getDrawingTime());
+        if (mSectionHeaderViewVisible) {
+            drawChild(canvas, mSectionHeaderView, getDrawingTime());
         }
     }
 
@@ -133,8 +137,8 @@ public class SectionedListView extends LazyListView {
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (view instanceof SectionedListView && adapter != null){
-             ((SectionedAdapter) adapter.getWrappedAdapter()).onScroll(this,firstVisibleItem);
-         }
+        if (view instanceof SectionedListView && adapter != null) {
+            ((SectionedAdapter) adapter.getWrappedAdapter()).onScroll(this, firstVisibleItem);
+        }
     }
 }
