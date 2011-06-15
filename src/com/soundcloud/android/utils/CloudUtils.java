@@ -2,8 +2,6 @@ package com.soundcloud.android.utils;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
@@ -20,6 +18,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -77,11 +77,6 @@ public class CloudUtils {
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
             "SoundCloud");
-
-    public interface RequestCodes {
-        int GALLERY_IMAGE_PICK = 9000;
-        int GALLERY_IMAGE_TAKE = 9001;
-    }
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;

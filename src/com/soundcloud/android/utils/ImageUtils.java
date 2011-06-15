@@ -247,6 +247,9 @@ public class ImageUtils {
      * Shows a dialog with the choice to take a new picture or select one from the gallery.
      */
     public static abstract  class ImagePickListener implements View.OnClickListener {
+        public static final int GALLERY_IMAGE_PICK = 9000;
+        public static final int GALLERY_IMAGE_TAKE = 9001;
+
         private Activity mActivity;
 
         public ImagePickListener(Activity activity) {
@@ -265,7 +268,7 @@ public class ImageUtils {
                             if (file != null) {
                                 Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                                mActivity.startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
+                                mActivity.startActivityForResult(i, GALLERY_IMAGE_TAKE);
                             }
                         }
                     }).setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
@@ -273,7 +276,7 @@ public class ImageUtils {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                             intent.setType("image/*");
-                            mActivity.startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                            mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
                         }
                     })
                     .create()

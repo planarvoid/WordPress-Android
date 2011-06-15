@@ -158,10 +158,10 @@ public class AddInfo extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
+                case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                     setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
                     break;
-                case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
+                case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
                     setImage(mAvatarFile);
                     break;
             }

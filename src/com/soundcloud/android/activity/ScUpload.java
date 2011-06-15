@@ -398,12 +398,12 @@ public class ScUpload extends ScActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case CloudUtils.RequestCodes.GALLERY_IMAGE_PICK:
+            case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
                     setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
-            case CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE:
+            case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
                     setImage(getCurrentImageFile());
                 }
