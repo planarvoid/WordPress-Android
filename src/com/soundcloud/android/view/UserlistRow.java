@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IUserlistAdapter;
@@ -10,21 +9,15 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-
 public class UserlistRow extends LazyRow {
-
-    private static final String TAG = "UserlistRow";
-
     protected User mUser;
 
     protected TextView mUsername;
@@ -40,8 +33,6 @@ public class UserlistRow extends LazyRow {
 
     protected Boolean _isFollowing;
 
-    protected final android.os.Handler mHandler = new android.os.Handler();
-
     public UserlistRow(ScActivity _activity,LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
 
@@ -52,16 +43,15 @@ public class UserlistRow extends LazyRow {
         mIcon = (ImageView) findViewById(R.id.icon);
         mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
         mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
-        mFollowingBtn = (ImageButton)findViewById(R.id.toggleFollowing);
-        mFollowBtn = (ImageButton)findViewById(R.id.toggleFollow);
+        mFollowingBtn = (ImageButton) findViewById(R.id.toggleFollowing);
+        mFollowBtn = (ImageButton) findViewById(R.id.toggleFollow);
 
         if (mFollowingBtn != null) {
             mFollowingBtn.setFocusable(false);
             mFollowingBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    changeFollowing(mUser.id, false);
-                    setFollowingStatus(false);
+                    toggleFollowing(mUser.id);
                 }
             });
         }
@@ -70,8 +60,7 @@ public class UserlistRow extends LazyRow {
             mFollowBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    changeFollowing(mUser.id, true);
-                    setFollowingStatus(false);
+                    toggleFollowing(mUser.id);
                 }
             });
         }
@@ -94,13 +83,13 @@ public class UserlistRow extends LazyRow {
         _isFollowing = false;
     }
 
-    public void setFollowingStatus(boolean enable) {
-        FollowStatus followStatus = FollowStatus.get();
-        mFollowingBtn.setVisibility(followStatus.following(mUser) ? View.VISIBLE : View.GONE);
-        mFollowBtn.setVisibility(followStatus.following(mUser) ? View.GONE : View.VISIBLE);
+    public void setFollowingStatus(boolean enabled) {
+        boolean following = FollowStatus.get().isFollowing(mUser);
 
-        mFollowingBtn.setEnabled(enable);
-        mFollowBtn.setEnabled(enable);
+        mFollowingBtn.setVisibility(following ? View.VISIBLE : View.GONE);
+        mFollowBtn.setVisibility(following ? View.GONE : View.VISIBLE);
+        mFollowingBtn.setEnabled(enabled);
+        mFollowBtn.setEnabled(enabled);
     }
 
     @Override
@@ -119,7 +108,6 @@ public class UserlistRow extends LazyRow {
         }
     }
 
-
     protected void setTrackCount() {
         mTracks.setText(Integer.toString(mUser.track_count));
     }
@@ -128,34 +116,13 @@ public class UserlistRow extends LazyRow {
        mFollowers.setText(Integer.toString(mUser.followers_count));
     }
 
-    public void changeFollowing(final long userId, final boolean follow){
-        FollowStatus.get().updateFollowing(userId, follow);
-        final AndroidCloudAPI api = mActivity.getApp();
-        new Thread() {
-            @Override
-            public void run() {
-                final Request request = Request.to(Endpoints.MY_FOLLOWING, userId);
-                boolean success = false;
-                try {
-                    int status;
-                    if (follow) {
-                        status = api.put(request).getStatusLine().getStatusCode();
-                    } else {
-                        status = api.delete(request).getStatusLine().getStatusCode();
-                    }
-                    success = (status == 200 || status == 201 || status == 404);
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                }
-                if (!success) {
-                    FollowStatus.get().updateFollowing(userId, !follow);
-                }
-                mHandler.post(new Runnable() {
-                    public void run() {
-                        mAdapter.notifyDataSetChanged();
-                    }
-               });
+    public void toggleFollowing(final long userId) {
+        FollowStatus.get().toggleFollowing(userId, mActivity.getApp(), new Handler() {
+            @Override public void handleMessage(Message msg) {
+                setFollowingStatus(true);
+                if (msg.arg1 == 1) mAdapter.notifyDataSetChanged();
             }
-        }.start();
+        });
+        setFollowingStatus(false);
     }
 }

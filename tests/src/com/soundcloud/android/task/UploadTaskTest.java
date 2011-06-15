@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 @SuppressWarnings({"unchecked"})
 @RunWith(DefaultTestRunner.class)
-public class UploadTaskTest extends RoboApiBaseTests {
+public class UploadTaskTest extends ApiTests {
     UploadTask task;
 
     @Before

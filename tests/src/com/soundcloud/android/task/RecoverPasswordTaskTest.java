@@ -5,7 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 
 @RunWith(DefaultTestRunner.class)
-public class RecoverPasswordTaskTest extends RoboApiBaseTests {
+public class RecoverPasswordTaskTest extends ApiTests {
     @Test
     public void shouldRequestPasswordReset() throws Exception {
         Robolectric.addPendingHttpResponse(200, resource("signup_token.json"));

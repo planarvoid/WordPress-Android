@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RoboApiBaseTests implements Endpoints {
+public class ApiTests implements Endpoints {
     protected AndroidCloudAPI mockedApi;
     protected AndroidCloudAPI api;
 

@@ -89,9 +89,7 @@ public class Start extends AccountAuthenticatorActivity {
                 handleActivityResult(requestCode, data);
                 break;
             case RESULT_CANCELED:
-                if (requestCode == SUGGESTED_USERS) {
-                    handleSuggestedUsersReturned(data);
-                }
+                finish();
                 break;
         }
     }
@@ -132,7 +130,6 @@ public class Start extends AccountAuthenticatorActivity {
     }
 
     private void handleSuggestedUsersReturned(Intent data) {
-        Log.d(TAG, "suggested users returned");
         finish();
     }
 

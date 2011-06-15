@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
-public class AddUserInfoTaskTest extends RoboApiBaseTests {
+public class AddUserInfoTaskTest extends ApiTests {
     @Test
     public void shouldWorkWithNullFile() throws Exception {
         Robolectric.addPendingHttpResponse(200, resource("me.json"));

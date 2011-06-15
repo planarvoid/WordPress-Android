@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 import com.soundcloud.android.objects.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import android.location.Location;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class FoursquareVenueTaskTest extends RoboApiBaseTests {
+public class FoursquareVenueTaskTest extends ApiTests {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {

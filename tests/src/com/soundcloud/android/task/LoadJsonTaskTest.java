@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LoadJsonTaskTest extends RoboApiBaseTests {
+public class LoadJsonTaskTest extends ApiTests {
     @Test
     public void shouldReturnAList() throws Exception {
         expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");

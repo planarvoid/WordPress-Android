@@ -1,13 +1,9 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.utils.FastBitmapDrawable;
 import com.soundcloud.android.view.LazyRow;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +19,6 @@ public class LazyBaseAdapter extends BaseAdapter {
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
-    protected boolean mDone = false;
-    private final Bitmap mDefaultIconBitmap;
-    private final FastBitmapDrawable mDefaultIcon;
     private Class<?> mLoadModel;
 
     @SuppressWarnings("unchecked")
@@ -33,10 +26,6 @@ public class LazyBaseAdapter extends BaseAdapter {
         mData = (List<Parcelable>) data;
         mActivity = activity;
         mLoadModel = model;
-
-        mDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(), getDefaultIconResource());
-        mDefaultIcon = new FastBitmapDrawable(mDefaultIconBitmap);
-
     }
 
     public void setWrapper(LazyEndlessAdapter wrapper) {
@@ -45,14 +34,6 @@ public class LazyBaseAdapter extends BaseAdapter {
 
     public void setModel( Class<?> model ) {
         mLoadModel = model;
-    }
-
-    public FastBitmapDrawable getDefaultIcon() {
-        return mDefaultIcon;
-    }
-
-    protected int getDefaultIconResource() {
-        return R.drawable.artwork_badge;
     }
 
     public List<Parcelable> getData() {
@@ -72,14 +53,7 @@ public class LazyBaseAdapter extends BaseAdapter {
     }
 
     public View getView(int index, View row, ViewGroup parent) {
-        LazyRow rowView = null;
-
-        if (row == null) {
-            rowView = createRow();
-        } else {
-            rowView = (LazyRow) row;
-        }
-
+        LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow();
         // update the cell renderer, and handle selection state
         rowView.display(index);
         return rowView;

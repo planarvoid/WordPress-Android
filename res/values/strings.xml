@@ -878,4 +878,5 @@
     <string name="image_where">Where would you like to get the image?</string>
     <string name="take_new_picture">Take a new picture</string>
     <string name="use_existing_image">Use existing image</string>
+    <string name="error_change_following_status">Error changing following status</string>
 </resources>

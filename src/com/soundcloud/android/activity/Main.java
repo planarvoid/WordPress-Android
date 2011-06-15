@@ -114,7 +114,8 @@ public class Main extends TabActivity {
                     app.confirmEmail();
                     dismissSplash();
                 } else {
-                    startActivityForResult(new Intent(Main.this, EmailConfirm.class)
+                    startActivityForResult(
+                        new Intent(Main.this, EmailConfirm.class)
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }

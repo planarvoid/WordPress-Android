@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import org.codehaus.jackson.map.ObjectReader;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class AsyncApiTaskTest extends RoboApiBaseTests {
+public class AsyncApiTaskTest extends ApiTests {
     private List<String> parse(String input) throws IOException {
         ObjectReader reader = api.getMapper().reader();
         return AsyncApiTask.parseError(reader, new ByteArrayInputStream(input.getBytes()));

@@ -2,14 +2,17 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.graphics.drawable.Drawable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.objects.*;
+import com.soundcloud.android.objects.Comment;
+import com.soundcloud.android.objects.Event;
+import com.soundcloud.android.objects.Friend;
+import com.soundcloud.android.objects.Recording;
+import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
@@ -21,7 +24,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.LazyListView;
-
 import org.json.JSONException;
 
 import android.accounts.Account;
@@ -519,7 +521,7 @@ public abstract class ScActivity extends Activity {
         }
     };
 
-    public long getUserId() {
+    public long getCurrentUserId() {
         return getApp().getCurrentUserId();
     }
 

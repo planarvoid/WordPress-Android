@@ -4,7 +4,7 @@ package com.soundcloud.android.view;
 import static org.junit.Assert.assertEquals;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,7 +13,7 @@ import android.app.Activity;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-public class ConnectionListTest extends RoboApiBaseTests {
+public class ConnectionListTest extends ApiTests {
 
     @Test
     public void shouldLoadConnectionsFromApi() throws Exception {

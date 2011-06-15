@@ -7,9 +7,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.AsyncApiTask;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-
 import org.apache.http.HttpResponse;
 
 import android.app.Activity;
@@ -68,6 +66,7 @@ public class EmailConfirm extends Activity  {
         getApp().setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
     }
 
+    // XXX this check should happen earlier
     private long getLastReminded() {
         return getApp().getAccountDataLong(PREF_LAST_REMINDED);
     }

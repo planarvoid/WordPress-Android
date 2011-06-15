@@ -97,7 +97,7 @@ public class EventsAdapter extends TracklistAdapter {
             mQueryTask.setQuery((mExclusive ? Content.EXCLUSIVE_TRACKS : Content.INCOMING_TRACKS),
                     null, Events.ALIAS_USER_ID + "= ? AND " + Events.ALIAS_EXCLUSIVE + " = ?",
                     new String[] {
-                            Long.toString(mActivity.getUserId()), (mExclusive ? "1" : "0")
+                            Long.toString(mActivity.getCurrentUserId()), (mExclusive ? "1" : "0")
                     }, Events.ALIAS_ID + " DESC");
             mQueryTask.execute();
         } else

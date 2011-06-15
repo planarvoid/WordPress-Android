@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class NewConnectionTaskTest extends RoboApiBaseTests {
+public class NewConnectionTaskTest extends ApiTests {
     @Test
     public void shouldReturnUri() throws Exception {
         Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");

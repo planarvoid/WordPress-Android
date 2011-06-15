@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import com.soundcloud.android.objects.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LoadConnectionTaskTest extends RoboApiBaseTests {
+public class LoadConnectionTaskTest extends ApiTests {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
         expectGetRequestAndReturn(MY_CONNECTIONS, 200,"connections.json");

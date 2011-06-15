@@ -74,7 +74,7 @@ public class ScUpload extends ScActivity {
             findViewById(R.id.btn_cancel).setVisibility(View.GONE);
             Recording r = new Recording(uploadFile);
             r.external_upload = true;
-            r.user_id = getUserId();
+            r.user_id = getCurrentUserId();
             r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
             uri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
         } else if (getIntent() != null) {

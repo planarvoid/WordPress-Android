@@ -241,7 +241,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mCommentsButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     addNewComment(
-                            CloudUtils.buildComment(ScPlayer.this, getUserId(), mPlayingTrack.id, -1, "", 0),
+                            CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id, -1, "", 0),
                             addCommentListener);
                 }
             });
@@ -607,7 +607,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            addNewComment(CloudUtils.buildComment(ScPlayer.this, getUserId(), mPlayingTrack.id,
+                            addNewComment(CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id,
                                     -1, "", 0), addCommentListener);
                         }
                     });
@@ -832,7 +832,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
                 Log.i(TAG,"Get Playing Track " + trackId);
                 if (getApp().getTrackFromCache(trackId) == null) {
-                    Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getUserId());
+                    Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
                     Log.i(TAG,"Get Playing Track from db " + t);
                     getApp().cacheTrack(t != null ? t : mPlaybackService.getTrack());
                 }

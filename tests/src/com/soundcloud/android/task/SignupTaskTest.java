@@ -2,7 +2,7 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.RoboApiBaseTests;
+import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.Robolectric;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SignupTaskTest extends RoboApiBaseTests {
+public class SignupTaskTest extends ApiTests {
     @Test
     public void shouldReturnUser() throws Exception {
         Robolectric.addPendingHttpResponse(200, resource("signup_token.json"));

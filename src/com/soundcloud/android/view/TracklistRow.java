@@ -106,7 +106,7 @@ public class TracklistRow extends LazyRow {
             public void onClick(View v) {
                 mActivity.addNewComment(CloudUtils.buildComment(
                         mActivity,
-                        mActivity.getUserId(),
+                        mActivity.getCurrentUserId(),
                         mTrack.id, -1, "",
                         0), null);
             }

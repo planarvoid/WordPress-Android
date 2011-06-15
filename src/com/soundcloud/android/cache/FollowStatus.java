@@ -4,13 +4,18 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.objects.User;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadFollowingsTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Parcel;
 import android.os.ParcelFormatException;
 import android.os.Parcelable;
@@ -21,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,11 +36,11 @@ public class FollowStatus implements Parcelable {
     private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
     private static final int MAX_AGE = 5 * 60 * 1000;
 
-    private Set<Long> followingsSet;
+    private final Set<Long> followingsSet = Collections.synchronizedSet(new HashSet<Long>());
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
-    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener,Listener>();
+    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
 
     public synchronized static FollowStatus get() {
         if (sInstance == null) {
@@ -47,21 +53,21 @@ public class FollowStatus implements Parcelable {
         sInstance = status;
     }
 
-    private FollowStatus() {
+    /* package */ FollowStatus() {
     }
 
     private FollowStatus(Parcel parcel) {
         lastUpdate = parcel.readLong();
         int size = parcel.readInt();
-        if (size != -1) {
-            followingsSet = new HashSet<Long>(size);
-            while (size-- != 0) followingsSet.add(parcel.readLong());
-        }
+        while (size-- > 0) followingsSet.add(parcel.readLong());
     }
 
+    public boolean isFollowing(long id) {
+        return followingsSet.contains(id);
+    }
 
-    public boolean following(User user) {
-        return followingsSet != null && followingsSet.contains(user.id);
+    public boolean isFollowing(User user) {
+        return isFollowing(user.id);
     }
 
     public synchronized void requestUserFollowings(AndroidCloudAPI api, final Listener listener, boolean force) {
@@ -73,7 +79,10 @@ public class FollowStatus implements Parcelable {
                 protected void onPostExecute(List<Long> ids) {
                     lastUpdate = System.currentTimeMillis();
                     if (ids != null) {
-                        followingsSet = new HashSet<Long>(ids);
+                        synchronized (followingsSet) {
+                            followingsSet.clear();
+                            followingsSet.addAll(ids);
+                        }
                     }
                     for (Listener l : listeners.keySet()) {
                         l.onFollowings(ids != null, FollowStatus.this);
@@ -88,7 +97,7 @@ public class FollowStatus implements Parcelable {
         listeners.put(l, l);
     }
 
-    public void updateFollowing(long userId, boolean follow) {
+    /* package */ void updateFollowing(long userId, boolean follow) {
         if (follow) {
             followingsSet.add(userId);
         } else {
@@ -96,14 +105,51 @@ public class FollowStatus implements Parcelable {
         }
     }
 
-    public boolean toggleFollowing(long userId){
-        if (followingsSet.contains(userId)) {
-            followingsSet.remove(userId);
-            return false;
-        } else {
-            followingsSet.add(userId);
-            return true;
+    /* package */ boolean toggleFollowing(long userId) {
+        synchronized (followingsSet) {
+            if (followingsSet.contains(userId)) {
+                followingsSet.remove(userId);
+                return false;
+            } else {
+                followingsSet.add(userId);
+                return true;
+            }
         }
+    }
+
+    public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
+                                final AndroidCloudAPI api,
+                                final Handler handler) {
+        final boolean addFollowing = toggleFollowing(userid);
+        return new AsyncApiTask<Long,Void,Boolean>(api) {
+            @Override
+            protected Boolean doInBackground(Long... params) {
+                Long id = params[0];
+                final Request request = Request.to(Endpoints.MY_FOLLOWING, id);
+                try {
+                    final int status = (addFollowing ? api.put(request) : api.delete(request))
+                                      .getStatusLine().getStatusCode();
+                    return (status == HttpStatus.SC_OK ||
+                           status == HttpStatus.SC_CREATED ||
+                           status == HttpStatus.SC_NOT_FOUND);
+
+                } catch (IOException e) {
+                    Log.e(TAG, "error", e);
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                if (!success) updateFollowing(userid, !addFollowing);
+                if (handler != null) {
+                    Message m = Message.obtain();
+                    if (m == null) m = new Message(); /* needed for robolectric */
+                    m.arg1 = success ? 1 : 0;
+                    handler.sendMessage(m);
+                }
+            }
+        }.execute(userid);
     }
 
     public interface Listener {
@@ -121,7 +167,6 @@ public class FollowStatus implements Parcelable {
     static String getFilename(Account account) {
         return "follow-status-cache-" + account.name;
     }
-
 
     // Google recommends not to use the filesystem to save parcelables
     // since  this is not important information we're going to do it anyway - it's fast.
@@ -211,7 +256,7 @@ public class FollowStatus implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(lastUpdate);
-        dest.writeInt(followingsSet == null ? -1 : followingsSet.size());
-        if (followingsSet != null) for (Long id : followingsSet) dest.writeLong(id);
+        dest.writeInt(followingsSet.size());
+        for (Long id : followingsSet) dest.writeLong(id);
     }
 }

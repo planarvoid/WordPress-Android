@@ -1,16 +1,16 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SectionIndexer;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
+
+import android.os.Parcelable;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.SectionIndexer;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +37,6 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
 
     public SectionedAdapter(ScActivity context) {
         super(context, new ArrayList<Parcelable>(), Track.class);
-    }
-
-    @Override
-    protected int getDefaultIconResource() {
-        return R.drawable.avatar_badge;
     }
 
     @Override

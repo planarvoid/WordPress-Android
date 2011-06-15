@@ -118,7 +118,7 @@ public class CommentBubble extends RelativeLayout {
         mBtnReply.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getUserId(), mComment.track_id,
+                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
                         mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
             }
 

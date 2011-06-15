@@ -74,8 +74,7 @@ public class LazyRow extends FrameLayout {
 
         } else {
             onNoSubmenu();
-
-            if (findViewById(R.id.row_submenu) != null){
+            if (findViewById(R.id.row_submenu) != null) {
                 findViewById(R.id.row_submenu).setVisibility(View.GONE);
             }
         }
@@ -86,10 +85,11 @@ public class LazyRow extends FrameLayout {
             return;
         }
 
-        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri())){
+        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri())) {
             mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
-        } else
+        } else {
             mImageLoader.unbind(getRowIcon());
+        }
     }
 
     protected void initSubmenu() {
