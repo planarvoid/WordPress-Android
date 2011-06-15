@@ -18,6 +18,7 @@ Clone and build it:
 
   * Make sure build is green (cf [Builder][])
   * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
+  * Create a new crash form & change the form key in `SoundCloudApplication`
   * Tag the current version (`git tag -a 1.3.2`)
   * Do a quick sanity check diff from the previous released version (`git diff 1.x.x..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
