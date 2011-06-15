@@ -18,7 +18,8 @@ How to release:
 
   * Increase `versionCode` and `versionName` in `AndroidManifest.xml`
   * Tag the current version (`git tag -a 1.3.2`)
-  * Perform a clean build + sign (`ant clean release`), make sure all libs in
-  `lib/` are uptodate (`rm -rf lib && mvn clean && mvn install`)
+  * Make sure you've got the keystore in PROJECT_ROOT/soundcloud_sign
+  * Build and sign: ` mvn install -Psign -Djarsigner.storepass=....`
+  * Upload `target/soundcloud_-android-1.X-aligned.apk to the market`
 
 [Android SDK]: http://developer.android.com/sdk/index.html
