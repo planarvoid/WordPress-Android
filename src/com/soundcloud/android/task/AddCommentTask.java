@@ -2,7 +2,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
@@ -12,7 +12,7 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 
-public class AddCommentTask extends AsyncTask<com.soundcloud.android.model.Comment, String, Boolean> {
+public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     SoundCloudApplication mApplication;
     AddCommentListener mAddCommentListener;
@@ -27,7 +27,7 @@ public class AddCommentTask extends AsyncTask<com.soundcloud.android.model.Comme
     }
 
     @Override
-    protected Boolean doInBackground(com.soundcloud.android.model.Comment... params) {
+    protected Boolean doInBackground(Comment... params) {
         mAddComment = params[0];
         mRequest = Request.to(Endpoints.TRACK_COMMENTS, mAddComment.track_id)
                           .add(Params.Comment.BODY, mAddComment.body);
@@ -53,7 +53,7 @@ public class AddCommentTask extends AsyncTask<com.soundcloud.android.model.Comme
 
     // Define our custom Listener interface
     public interface AddCommentListener {
-        void onCommentAdd(boolean success, com.soundcloud.android.model.Comment c);
+        void onCommentAdd(boolean success, Comment c);
         void onException(com.soundcloud.android.model.Comment c, Exception e);
     }
 }
