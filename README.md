@@ -14,12 +14,12 @@ Clone and build it:
     $ mvn install
     $ adb install target/soundcloud-android-1.X-SNAPSHOT.apk
 
-How to release:
+## Releasing
 
   * Make sure build is green (cf [Builder][])
   * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
   * Tag the current version (`git tag -a 1.3.2`)
-  * Do a quick sanity check diff from the previous released version (`git diff 1.x.x..1.3.2'`)
+  * Do a quick sanity check diff from the previous released version (`git diff 1.x.x..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
   * Build and sign: `mvn install -Psign -Djarsigner.storepass=....` (prefix
   command with space to skip history)
