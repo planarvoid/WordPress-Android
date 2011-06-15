@@ -590,12 +590,12 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (mUnfollowDrawable == null){
                     mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
                 }
-                mFollow.setImageDrawable((mUnfollowDrawable);
+                mFollow.setImageDrawable(mUnfollowDrawable);
             } else {
                 if (mFollowDrawable == null){
                     mFollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
                 }
-                mFollow.setImageDrawable((mFollowDrawable);
+                mFollow.setImageDrawable(mFollowDrawable);
             }
             mFollow.setVisibility(View.VISIBLE);
         }
