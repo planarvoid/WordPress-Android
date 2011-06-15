@@ -4,11 +4,11 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.objects.User;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -128,7 +128,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private void createImageLoaders() {
-        CloudCache.install(this);
+        FileCache.install(this);
         ContentHandler mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
         ContentHandler prefetchHandler = FileResponseCache.capture(FileResponseCache.sink(), null);
         mImageLoader = new ImageLoader(null, mBitmapHandler, prefetchHandler, null);

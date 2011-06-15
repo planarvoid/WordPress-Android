@@ -1,5 +1,4 @@
-
-package com.soundcloud.android.utils;
+package com.soundcloud.android.cache;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -26,7 +25,7 @@ import java.util.Map;
  * 
  * @author jschmidt
  */
-public class CloudCache extends FileResponseCache {
+public class FileCache extends FileResponseCache {
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files/.cache/");
@@ -37,7 +36,7 @@ public class CloudCache extends FileResponseCache {
 
     private final Context mContext;
 
-    public CloudCache(Context context) {
+    public FileCache(Context context) {
         mContext = context;
     }
 
@@ -72,10 +71,10 @@ public class CloudCache extends FileResponseCache {
 
     public static void install(Context context) {
         ResponseCache responseCache = ResponseCache.getDefault();
-        if (responseCache instanceof CloudCache) {
+        if (responseCache instanceof FileCache) {
             Log.d(TAG, "Cache has already been installed.");
         } else if (responseCache == null) {
-            CloudCache dropCache = new CloudCache(context);
+            FileCache dropCache = new FileCache(context);
             ResponseCache.setDefault(dropCache);
         } else {
             Class<? extends ResponseCache> type = responseCache.getClass();

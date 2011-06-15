@@ -21,13 +21,13 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.objects.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
-import com.soundcloud.android.utils.CloudCache;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
@@ -630,7 +630,7 @@ public class CloudPlaybackService extends Service {
 
     private void configureTrackData(Track t) {
         if (t.mCacheFile == null) {
-            t.mCacheFile = new File(CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY
+            t.mCacheFile = new File(FileCache.EXTERNAL_TRACK_CACHE_DIRECTORY
                     + CloudUtils.md5(Long.toString(t.id)));
         }
     }
@@ -813,7 +813,7 @@ public class CloudPlaybackService extends Service {
         final long spaceLeft = ((long) fs.getBlockSize())
                 * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
 
-        File cacheDir = CloudCache.EXTERNAL_TRACK_CACHE_DIRECTORY;
+        File cacheDir = FileCache.EXTERNAL_TRACK_CACHE_DIRECTORY;
         if (cacheDir.exists()) {
             File[] fileList = cacheDir.listFiles();
             if (fileList != null) {

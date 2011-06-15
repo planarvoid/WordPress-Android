@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.CloudCache;
+import com.soundcloud.android.cache.FileCache;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -40,7 +40,7 @@ public class Settings extends PreferenceActivity {
         findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        new CloudCache.DeleteCacheTask() {
+                        new FileCache.DeleteCacheTask() {
                             @Override protected void onPreExecute() {
                                 safeShowDialog(DIALOG_CACHE_DELETING);
                             }
@@ -55,7 +55,7 @@ public class Settings extends PreferenceActivity {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 setClearCacheTitle();
                             }
-                        }.execute(CloudCache.getCacheDir(Settings.this));
+                        }.execute(FileCache.getCacheDir(Settings.this));
                         return true;
                     }
                 });
@@ -110,7 +110,7 @@ public class Settings extends PreferenceActivity {
         new Thread() {
             @Override
             public void run() {
-                final String cacheSize = CloudCache.cacheSizeInMbFormatted(Settings.this);
+                final String cacheSize = FileCache.cacheSizeInMbFormatted(Settings.this);
                 handler.post(new Runnable() {
                     @Override public void run() {
                         findPreference("clearCache").setTitle(
