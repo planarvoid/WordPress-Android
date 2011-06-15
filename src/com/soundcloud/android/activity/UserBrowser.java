@@ -150,7 +150,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             restoreAdapterStates((Object[]) mPreviousState[5]);
 
-            if (mPreviousState[6] != null) mFriendFinderView.setState(Integer.parseInt(mPreviousState[6].toString()), false);
+            if (mPreviousState[6] != null)
+                mFriendFinderView.setState(Integer.parseInt(mPreviousState[6].toString()), false);
 
         } else {
             Intent intent = getIntent();
@@ -165,7 +166,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             }
         }
 
-         if (!isOtherUser()) {
+        if (!isOtherUser()) {
             if (mConnectionsTask == null) {
                 mConnectionsTask = new LoadConnectionsTask(getApp());
             }
@@ -236,7 +237,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             mConnectionsTask = new LoadConnectionsTask(getApp());
             mConnectionsTask.setListener(this);
             mConnectionsTask.execute();
-            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
+            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
         }
 
         if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
@@ -281,7 +282,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             mUserLoadId = mUserData.id = userId;
         }
         build();
-        FollowStatus.get().requestUserFollowings(getApp(),this, false);
+        FollowStatus.get().requestUserFollowings(getApp(), this, false);
     }
 
     private void loadUserByObject(User userInfo) {
@@ -363,7 +364,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUserLoadId));
-        if (isOtherUser()){
+        if (isOtherUser()) {
             if (mUserData != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_favorites_text,
@@ -585,17 +586,19 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     private void setFollowingButtonText() {
         if (isOtherUser()) {
-            mFollow.setImageDrawable(FollowStatus.get().following(mUserData) ?
-                    createDrawableIfNecessary(mUnfollowDrawable,R.drawable.ic_unfollow_states) :
-                    createDrawableIfNecessary(mFollowDrawable,R.drawable.ic_follow_states));
-
+            if (FollowStatus.get().following(mUserData)) {
+                if (mUnfollowDrawable == null){
+                    mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
+                }
+                mFollow.setImageDrawable((mUnfollowDrawable);
+            } else {
+                if (mFollowDrawable == null){
+                    mFollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
+                }
+                mFollow.setImageDrawable((mFollowDrawable);
+            }
             mFollow.setVisibility(View.VISIBLE);
         }
-    }
-
-    private Drawable ensureDrawable(Drawable d, int resId) {
-        if (d == null) d = getResources().getDrawable(resId);
-        return d;
     }
 
     private void mapUser(User user) {
@@ -737,20 +740,20 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                     startUpload(recording);
                 } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
                     new AlertDialog.Builder(UserBrowser.this)
-                    .setTitle(R.string.dialog_confirm_delete_recording_title)
-                    .setMessage(R.string.dialog_confirm_delete_recording_message)
-                    .setPositiveButton(getString(R.string.btn_yes),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    recording.delete(getContentResolver());
-                                }
-                            })
-                    .setNegativeButton(getString(R.string.btn_no),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                }
-                            }).create().show();
+                            .setTitle(R.string.dialog_confirm_delete_recording_title)
+                            .setMessage(R.string.dialog_confirm_delete_recording_message)
+                            .setPositiveButton(getString(R.string.btn_yes),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            recording.delete(getContentResolver());
+                                        }
+                                    })
+                            .setNegativeButton(getString(R.string.btn_no),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int whichButton) {
+                                        }
+                                    }).create().show();
                 }
             }
         });
@@ -784,7 +787,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
     }
 
-     @Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
             case Connect.MAKE_CONNECTION:
@@ -804,7 +807,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                         mConnectionsTask.setListener(this);
                         mConnectionsTask.execute();
                         if (mFriendFinderView != null) {
-                            mFriendFinderView.setState(FriendFinderView.States.LOADING,false);
+                            mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
                         }
                     }
                 }

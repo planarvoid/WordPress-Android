@@ -523,11 +523,6 @@ public abstract class ScActivity extends Activity {
         return getApp().getCurrentUserId();
     }
 
-    protected Drawable createDrawableIfNecessary(Drawable d, int resId) {
-        if (d == null) d = getResources().getDrawable(resId);
-        return d;
-    }
-
     public void onRefresh() {
     }
 
