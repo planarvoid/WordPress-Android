@@ -875,4 +875,7 @@
 
     <string name="settings_error_revoking_account_title">Error revoking access</string>
     <string name="settings_error_revoking_account_message">There was an error deleting the account.</string>
+    <string name="image_where">Where would you like to get the image?</string>
+    <string name="take_new_picture">Take a new picture</string>
+    <string name="use_existing_image">Use existing image</string>
 </resources>

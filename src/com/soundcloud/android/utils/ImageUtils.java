@@ -2,8 +2,14 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.R;
+
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -235,5 +241,43 @@ public class ImageUtils {
             finally { cursor.close(); }
         }
         return null;
+    }
+
+    /**
+     * Shows a dialog with the choice to take a new picture or select one from the gallery.
+     */
+    public static abstract  class ImagePickListener implements View.OnClickListener {
+        private Activity mActivity;
+
+        public ImagePickListener(Activity activity) {
+            mActivity = activity;
+        }
+
+        protected abstract File getFile();
+
+        @Override public void onClick(View view) {
+            new AlertDialog.Builder(mActivity)
+                    .setMessage(R.string.image_where)
+                    .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            final File file = getFile();
+                            if (file != null) {
+                                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                                mActivity.startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
+                            }
+                        }
+                    }).setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            mActivity.startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
+                        }
+                    })
+                    .create()
+                    .show();
+        }
     }
 }

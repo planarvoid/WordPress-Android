@@ -12,9 +12,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -213,28 +211,13 @@ public class ScUpload extends ScActivity {
             }
         });
 
-        findViewById(R.id.txt_artwork_bg).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(ScUpload.this)
-                        .setMessage("Where would you like to get the image?").setPositiveButton(
-                        "Take a new picture", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(getCurrentImageFile()));
-                                startActivityForResult(i, CloudUtils.RequestCodes.GALLERY_IMAGE_TAKE);
-                            }
-                        }).setNegativeButton("Use existing image", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("image/*");
-                        startActivityForResult(intent, CloudUtils.RequestCodes.GALLERY_IMAGE_PICK);
-                    }
-                }).create().show();
+        findViewById(R.id.txt_artwork_bg).setOnClickListener(
+            new ImageUtils.ImagePickListener(this) {
+                @Override protected File getFile() {
+                    return getCurrentImageFile();
+                }
             }
-        });
+        );
 
         mArtwork.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -425,7 +408,6 @@ public class ScUpload extends ScActivity {
                     setImage(getCurrentImageFile());
                 }
                 break;
-
 
             case EmailPicker.PICK_EMAILS:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
