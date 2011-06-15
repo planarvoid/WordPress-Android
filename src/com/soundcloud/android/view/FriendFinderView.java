@@ -1,12 +1,5 @@
 package com.soundcloud.android.view;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Parcelable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -22,6 +15,14 @@ import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Parcelable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +75,8 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             }
         });
 
-        mHeaderLayout.findViewById(R.id.suggested_users_msg).setVisibility(View.GONE);
-        ((TextView) mHeaderLayout.findViewById(R.id.suggested_users_msg)).setText(R.string.suggested_users_no_friends_msg);
+        mHeaderLayout.findViewById(R.id.suggested_users_msg_txt).setVisibility(View.GONE);
+        ((TextView) mHeaderLayout.findViewById(R.id.suggested_users_msg_txt)).setText(R.string.suggested_users_no_friends_msg);
 
         mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
         addView(mLoadingLayout);
@@ -94,8 +95,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
-                !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
-            mActivity.showToast(R.id.suggested_users_msg);
+            !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))) {
+
+            mActivity.showToast(R.string.suggested_users_no_friends_msg);
             mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }
     }

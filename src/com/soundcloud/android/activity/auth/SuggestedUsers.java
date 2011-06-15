@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -118,7 +117,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection != null && mFriendsSection == section && mFriendsSection.data.size() == 0 &&
                 !getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
-            ((TextView) findViewById(R.id.suggested_users_msg)).setText(R.string.suggested_users_no_friends_msg);
+            ((TextView) findViewById(R.id.suggested_users_msg_txt)).setText(R.string.suggested_users_no_friends_msg);
             getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
         }
     }

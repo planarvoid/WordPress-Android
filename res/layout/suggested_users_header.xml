@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent" android:layout_height="fill_parent"
                 android:padding="7dip">
-    <TextView android:id="@+id/suggested_users_msg"
+    <TextView android:id="@+id/suggested_users_msg_txt"
               android:layout_height="wrap_content" android:layout_width="match_parent"
               android:text="@string/suggested_users_msg" android:textSize="16sp"
               android:layout_marginTop="5dip"
               android:layout_alignWithParentIfMissing="true"
               android:layout_marginBottom="5dip"/>
     <Button android:layout_height="wrap_content"
-            android:layout_below="@id/suggested_users_msg"
+            android:layout_below="@id/suggested_users_msg_txt"
             android:layout_alignWithParentIfMissing="true"
             android:layout_marginBottom="5dip"
             android:layout_marginTop="5dip"
