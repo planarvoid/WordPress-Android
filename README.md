@@ -20,11 +20,11 @@ Clone and build it:
   * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
   * Create a new crash form & change the form key in `SoundCloudApplication`
   * Tag the current version (`git tag -a 1.3.2`)
-  * Do a quick sanity check diff from the previous released version (`git diff 1.x.x..1.3.2`)
+  * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
   * Build and sign: `mvn install -Psign -Djarsigner.storepass=....` (prefix
   command with space to skip history)
-  * Upload `target/soundcloud-android-1.X-aligned.apk` to the market
+  * Upload `target/soundcloud-android-1.x.y-aligned.apk` to the market
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
