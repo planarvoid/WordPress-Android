@@ -573,12 +573,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl;
-            if (getResources().getDisplayMetrics().density > 1) {
-                remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, GraphicsSizes.LARGE);
-            } else {
-                remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, GraphicsSizes.BADGE);
-            }
+            String remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, GraphicsSizes.LARGE);;
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
