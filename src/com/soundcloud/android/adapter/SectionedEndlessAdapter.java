@@ -1,25 +1,19 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.task.LoadFollowingsTask;
-import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.api.Request;
+
+import android.os.Parcelable;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SectionedEndlessAdapter extends LazyEndlessAdapter{
-
-    private FriendFinderView mFriendFinderView;
-
-    private boolean mSuggestedMode;
     private List<WeakReference<SectionListener>> mListeners;
 
     private int mSectionIndex = 0;
@@ -39,27 +33,27 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     public List<Parcelable> getData() {
-        return ((SectionedAdapter) this.getWrappedAdapter()).getData(mSectionIndex);
+        return getWrappedAdapter().getData(mSectionIndex);
     }
 
     @Override
     protected Request getRequest() {
-        return ((SectionedAdapter) this.getWrappedAdapter()).getRequest(mSectionIndex);
+        return getWrappedAdapter().getRequest(mSectionIndex);
     }
 
     @Override
     public Class<?> getLoadModel() {
-        return ((SectionedAdapter) this.getWrappedAdapter()).getLoadModel(mSectionIndex);
+        return getWrappedAdapter().getLoadModel(mSectionIndex);
     }
 
     public void clearData(){
         mSectionIndex = 0;
-        ((SectionedAdapter) getWrappedAdapter()).sections.clear();
+        getWrappedAdapter().sections.clear();
     }
 
     public Object saveState(){
         return new Object[] {
-                ((SectionedAdapter) getWrappedAdapter()).sections,
+                getWrappedAdapter().sections,
                 getTask(),
                 savePagingData(),
                 saveExtraData()
@@ -68,10 +62,15 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @SuppressWarnings("unchecked")
     public void restoreState(Object[] state){
-        if (state[0] != null) ((SectionedAdapter) getWrappedAdapter()).sections = (List<SectionedAdapter.Section>) state[0];
-        if (state[1] != null) this.restoreTask((AppendTask) state[1]);
-        if (state[2] != null) this.restorePagingData((int[]) state[2]);
-        if (state[3] != null) this.restoreExtraData((String) state[3]);
+        if (state[0] != null) getWrappedAdapter().sections = (List<SectionedAdapter.Section>) state[0];
+        if (state[1] != null) restoreTask((AppendTask) state[1]);
+        if (state[2] != null) restorePagingData((int[]) state[2]);
+        if (state[3] != null) restoreExtraData((String) state[3]);
+    }
+
+    @Override
+    public SectionedAdapter getWrappedAdapter() {
+        return (SectionedAdapter) super.getWrappedAdapter();
     }
 
     @Override
@@ -83,15 +82,16 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         notifyDataSetChanged();
 
         if (keepgoing != null) {
-            if (!keepgoing){
+            if (!keepgoing) {
                   for (WeakReference<SectionListener> listenerRef : mListeners) {
-                        if (listenerRef.get() != null) {
-                            listenerRef.get().onSectionLoaded(((SectionedAdapter) this.getWrappedAdapter()).sections.get(mSectionIndex));
+                        SectionListener listener = listenerRef.get();
+                        if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
+                            listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
                         }
                     }
 
                     // load next section as necessary
-                    if (((SectionedAdapter) this.getWrappedAdapter()).sections.size() - 1 > mSectionIndex) {
+                    if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
                         mCurrentPage = 0;
                         mSectionIndex++;
                         keepOnAppending.set(true);

@@ -60,11 +60,11 @@ public class SectionedListView extends LazyListView {
 
 
     public void configureHeaderView(int position) {
-        int state = 0;
+        int state;
         if (this.getHeaderViewsCount() > position){
             state = SectionedAdapter.PINNED_HEADER_GONE;
         } else {
-            state = ((SectionedAdapter) adapter.getWrappedAdapter()).getPinnedHeaderState(position - getHeaderViewsCount());
+            state = adapter.getWrappedAdapter().getPinnedHeaderState(position - getHeaderViewsCount());
         }
 
 
@@ -75,7 +75,7 @@ public class SectionedListView extends LazyListView {
             }
 
             case SectionedAdapter.PINNED_HEADER_VISIBLE: {
-                ((SectionedAdapter) adapter.getWrappedAdapter())
+                adapter.getWrappedAdapter()
                         .configurePinnedHeader(mSectionHeaderView, position,
                                 getResources().getColor(R.color.listBgHeader),
                                 getResources().getColor(R.color.listTxtHeader));
@@ -101,7 +101,7 @@ public class SectionedListView extends LazyListView {
                         y = 0;
                         alpha = 255;
                     }
-                    ((SectionedAdapter) adapter.getWrappedAdapter())
+                    adapter.getWrappedAdapter()
                             .configurePinnedHeader(mSectionHeaderView, position,
                                     alpha << 24 | getResources().getColor(R.color.listBgHeader),
                                     alpha << 24 | getResources().getColor(R.color.listTxtHeader));
@@ -138,7 +138,7 @@ public class SectionedListView extends LazyListView {
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (view instanceof SectionedListView && adapter != null) {
-            ((SectionedAdapter) adapter.getWrappedAdapter()).onScroll(this, firstVisibleItem);
+            adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
         }
     }
 }

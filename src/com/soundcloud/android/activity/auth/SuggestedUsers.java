@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -38,7 +39,6 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     @Override
     public void onCreate(Bundle bundle) {
-
         super.onCreate(bundle);
         setContentView(R.layout.suggested_users);
 
@@ -53,33 +53,27 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         ViewGroup header = (ViewGroup) inflater.inflate(R.layout.suggested_users_header, mListView, false);
         mListView.addHeaderView(header, null, false);
 
-
-        mListView.setAdapter(ffAdpWrap);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         // XXX make this sane - createListEmpty expects list with parent view
         ffAdpWrap.createListEmptyView(mListView);
         ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
+        mListView.setAdapter(ffAdpWrap);
 
-
-        facebookBtn = (Button) mListView.findViewById(R.id.facebook_btn);
+        facebookBtn = (Button) header.findViewById(R.id.facebook_btn);
         facebookBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 configureFacebook();
             }
         });
 
         findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 finish();
             }
         });
 
-
-
-        if (getIntent().getBooleanExtra("facebook_connected", false)) {
+        if (getIntent() != null && getIntent().getBooleanExtra("facebook_connected", false)) {
             facebookBtn.setVisibility(View.GONE);
             addFriendsSection();
         }
@@ -101,7 +95,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter){
+        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter) {
             return ((LazyEndlessAdapter) mListView.getAdapter()).saveState();
         }
         return null;
@@ -109,16 +103,19 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     @Override
     public void onRefresh() {
-        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter){
+        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter) {
             ((LazyEndlessAdapter) mListView.getAdapter()).refresh(true);
         }
     }
 
     public void onSectionLoaded(SectionedAdapter.Section section) {
-        if ((mFriendsSection != null && mFriendsSection == section && mFriendsSection.data.size() == 0 &&
-                !getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))){
+        if ((mFriendsSection != null &&
+             mFriendsSection == section && mFriendsSection.data.size() == 0 &&
+            !getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))) {
+
             ((TextView) findViewById(R.id.suggested_users_msg_txt)).setText(R.string.suggested_users_no_friends_msg);
             getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+
         }
     }
 
@@ -134,15 +131,16 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
                         User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
-    private void configureFacebook() {
+    /* package */ void configureFacebook() {
         facebookBtn.setEnabled(false);
-        facebookBtn.getBackground().setAlpha(150);
+        final Drawable background = facebookBtn.getBackground();
+        if (background != null) background.setAlpha(150);
 
         new NewConnectionTask(getApp()) {
             @Override
             protected void onPostExecute(Uri uri) {
                 facebookBtn.setEnabled(true);
-                facebookBtn.getBackground().setAlpha(255);
+                if (background != null) background.setAlpha(255);
                 if (uri != null) {
                     startActivityForResult(
                             (new Intent(SuggestedUsers.this, Connect.class))

@@ -50,11 +50,8 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
 
     @Override
     public int getCount() {
-
         int count = 0;
-
         for (Section section : sections){
-
             count += section.data.size();
         }
         return count;
@@ -74,15 +71,15 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
         return null;
     }
 
-    public Class<?> getLoadModel(int index){
+    public Class<?> getLoadModel(int index) {
         return sections.size() == 0 ? null :  sections.get(index).model;
     }
 
-    public Request getRequest(int index){
+    public Request getRequest(int index) {
         return sections.size() == 0 ? null :  sections.get(index).request;
     }
 
-    public List<Parcelable> getData(int index){
+    public List<Parcelable> getData(int index) {
         return sections.size() == 0 ? null : sections.get(index).data;
     }
 
@@ -180,7 +177,6 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
         txtHeader.setText(getSections()[getSectionForPosition(position)]);
         txtHeader.setBackgroundColor(bgColor);
-        //Log.i("FFFF","SETTING TEXT COLOR TO " + txtColor);
         txtHeader.setTextColor(txtColor);
     }
 }

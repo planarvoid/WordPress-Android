@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.junit.Assert.*;
 
 import com.soundcloud.android.model.Connection;
@@ -16,7 +17,7 @@ import android.net.Uri;
 public class NewConnectionTaskTest extends ApiTests {
     @Test
     public void shouldReturnUri() throws Exception {
-        Robolectric.addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
+        addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
         NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNotNull(uri);
@@ -25,7 +26,7 @@ public class NewConnectionTaskTest extends ApiTests {
 
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
-        Robolectric.addPendingHttpResponse(400, "Failz");
+        addPendingHttpResponse(400, "Failz");
         NewConnectionTask task = new NewConnectionTask(api);
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNull(uri);

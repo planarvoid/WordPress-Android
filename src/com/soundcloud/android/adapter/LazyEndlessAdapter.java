@@ -318,9 +318,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         row.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
 
         ProgressBar list_loader = (ProgressBar) row.findViewById(R.id.list_loading);
-        list_loader.setVisibility(View.VISIBLE);
+        if (list_loader != null) list_loader.setVisibility(View.VISIBLE);
 
-        return (row);
+        return row;
     }
 
     /**
@@ -417,8 +417,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     protected Request buildRequest() {
         Request request = getRequest();
-        request.add("limit", getPageSize());
-        request.add("offset", getPageSize() * getCurrentPage());
+        if (request != null) {
+            request.add("limit", getPageSize());
+            request.add("offset", getPageSize() * getCurrentPage());
+        }
         return request;
     }
 
