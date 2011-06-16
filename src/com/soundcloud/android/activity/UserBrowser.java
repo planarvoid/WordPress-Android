@@ -436,7 +436,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         if (isMe()) {
             mFriendFinderView = new FriendFinderView(this);
-            CloudUtils.createTab(mTabHost, TabTags.friend_finder, getString(R.string.tab_suggested), null, emptyView);
+            CloudUtils.createTab(mTabHost, TabTags.friend_finder, getString(R.string.tab_friend_finder), null, emptyView);
 
             if (mConnectionsTask == null || !CloudUtils.isTaskFinished(mConnectionsTask)) {
                 mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
