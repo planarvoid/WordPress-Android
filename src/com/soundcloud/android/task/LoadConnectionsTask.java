@@ -31,7 +31,9 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
 
     @Override
     protected void onPostExecute(List<Connection> connections) {
+
         ConnectionsListener listener = mListenerRef == null ? null : mListenerRef.get();
+
         if (listener != null) {
             listener.onConnections(connections);
         }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import android.view.Gravity;
+import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -32,8 +34,10 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private final RelativeLayout mLoadingLayout;
     private final RelativeLayout mHeaderLayout;
 
+    private TextView mConnectionErrorTxt;
     private SectionedEndlessAdapter mAdapter;
     public LazyListView mFriendList;
+    private int mListAddPosition = -1;
 
     private int mCurrentState;
     private boolean mFbConnected;
@@ -43,6 +47,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         int LOADING = 1;
         int NO_FB_CONNECTION = 2;
         int FB_CONNECTION = 3;
+        int CONNECTION_ERROR = 4;
     }
 
     public FriendFinderView(ScActivity activity) {
@@ -84,12 +89,13 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     public void onConnections(List<Connection> connections, boolean refresh) {
         if (connections == null) {
-            /* cheap way of showing an error */
-            setState(States.FB_CONNECTION, refresh);
-        } else if (Connection.checkConnectionListForService(connections, Service.Facebook)) {
-            setState(States.FB_CONNECTION, refresh);
+            setState(States.CONNECTION_ERROR, refresh);
         } else {
-            setState(States.NO_FB_CONNECTION, refresh);
+            if (Connection.checkConnectionListForService(connections, Service.Facebook)) {
+                setState(States.FB_CONNECTION, refresh);
+            } else {
+                setState(States.NO_FB_CONNECTION, refresh);
+            }
         }
     }
 
@@ -108,34 +114,46 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
 
     public void setState(int state, boolean refresh) {
-
         if (refresh && mAdapter != null) mAdapter.clearData();
 
         switch (state) {
             case States.LOADING:
+                if (mFriendList != null) removeList();
+                if (mConnectionErrorTxt != null) mConnectionErrorTxt.setVisibility(View.GONE);
+                mLoadingLayout.setVisibility(View.VISIBLE);
+                break;
+
+            case States.CONNECTION_ERROR:
                 if (mFriendList != null) {
                     mFriendList.getWrapper().clearEmptyView();
                     mFriendList.setVisibility(View.GONE);
                 }
-                mLoadingLayout.setVisibility(View.VISIBLE);
-                mCurrentState = state;
-                return;
+
+                if (mConnectionErrorTxt == null){
+                    mConnectionErrorTxt = createConnectionErrorText();
+                    addView(mConnectionErrorTxt);
+                }
+                mConnectionErrorTxt.setVisibility(View.VISIBLE);
+                mLoadingLayout.setVisibility(View.GONE);
+                break;
 
             case States.NO_FB_CONNECTION:
                 if (mFriendList == null || mFbConnected){
                     mFbConnected = false;
-                    refreshList();
+                    createList();
                 }
 
                 if (refresh) addSuggestedSection();
                 mFriendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
                 ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(User.class);
+                showList(refresh);
                 break;
+
 
             case States.FB_CONNECTION:
                 if (mFriendList == null || !mFbConnected){
                     mFbConnected = true;
-                    refreshList();
+                    createList();
                 }
 
                 if (refresh) {
@@ -144,15 +162,18 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
                 mFriendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
                 ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(Friend.class);
+                showList(refresh);
                 break;
 
             default:
                 throw new IllegalArgumentException(("Improper setState parameter"));
         }
-
-
         mCurrentState = state;
+    }
+
+    private void showList(boolean refresh) {
         mLoadingLayout.setVisibility(View.GONE);
+        if (mConnectionErrorTxt != null) mConnectionErrorTxt.setVisibility(View.GONE);
         mFriendList.getWrapper().createListEmptyView(mFriendList);
         mFriendList.setVisibility(View.VISIBLE);
 
@@ -163,16 +184,28 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         }
     }
 
-    private void refreshList(){
-        int addListAtPos = -1;
+    private TextView createConnectionErrorText() {
+        TextView errorView = new TextView(mActivity);
+        errorView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
+        errorView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        errorView.setVisibility(View.GONE);
+        errorView.setPadding(5, 5, 5, 5);
+        errorView.setTextAppearance(mActivity, R.style.txt_empty_view);
+        errorView.setText(R.string.error_loading_connections);
+        return errorView;
+    }
 
-        if (mFriendList != null) {
-            mAdapter.clearEmptyView();
-            addListAtPos = mActivity.removeList(mFriendList);
-            if (mFriendList.getParent() == this) removeView(mFriendList);
-        }
+    private void removeList() {
+        mAdapter.clearEmptyView();
+        mListAddPosition = mActivity.removeList(mFriendList);
+        if (mFriendList.getParent() == this) removeView(mFriendList);
+        mFriendList = null;
+    }
 
-        mFriendList = mActivity.configureList(new SectionedListView(mActivity), addListAtPos);
+    private void createList(){
+        if (mFriendList != null) removeList();
+        mFriendList = mActivity.configureList(new SectionedListView(mActivity), mListAddPosition);
         mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity));
         mAdapter.addListener(this);
 

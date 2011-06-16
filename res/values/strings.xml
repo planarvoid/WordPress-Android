@@ -215,7 +215,7 @@
       Find new sounds using the Suggested Users and Search tabs.
   </string>
 
-
+  <string name="error_loading_connections">There was an error getting your connections.</string>
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public tracks yet.</string>
   <string name="empty_user_favorites_text">%1$s hasn\'t chosen any favorites yet.</string>
   <string name="empty_my_followers_text">
