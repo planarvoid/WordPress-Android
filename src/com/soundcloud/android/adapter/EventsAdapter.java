@@ -71,7 +71,7 @@ public class EventsAdapter extends TracklistAdapter {
 
             if (TextUtils.isEmpty(nextCursor)){
                 // we must be at the end of the dashboard list, dont allow appending
-                mWrapper.keepOnAppending.set(false);
+                mWrapper.mKeepOnAppending.set(false);
             }
         }
         mActivity.getContentResolver().registerContentObserver(Events.CONTENT_URI, true, mChangeObserver);

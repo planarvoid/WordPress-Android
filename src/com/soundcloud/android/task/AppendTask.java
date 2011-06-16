@@ -72,13 +72,14 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     @Override
     protected void onPostExecute(Boolean keepGoing) {
         LazyEndlessAdapter adapter = mAdapterReference.get();
+
         if (adapter != null) {
             if (!TextUtils.isEmpty(mNextEventsHref)){
                 ((EventsAdapter) adapter.getWrappedAdapter())
                         .onNextEventsParam(mNextEventsHref);
             }
 
-            if (mException == null){
+            if (mException == null) {
                 adapter.incrementPage();
             } else {
                 adapter.setException(mException);

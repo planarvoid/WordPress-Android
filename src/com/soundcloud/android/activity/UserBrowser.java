@@ -173,10 +173,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         } else {
             Intent intent = getIntent();
-            if (intent.hasExtra("user")) {
+            if (intent != null && intent.hasExtra("user")) {
                 loadUserByObject((User) intent.getParcelableExtra("user"));
                 intent.removeExtra("user");
-            } else if (intent.hasExtra("userId")) {
+            } else if (intent != null && intent.hasExtra("userId")) {
                 loadUserById(intent.getLongExtra("userId", -1));
                 intent.removeExtra("userId");
             } else {
@@ -372,7 +372,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         ScTabView tracksView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(this, buildList(), tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
+        CloudUtils.configureTabList(buildList(), tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
         CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
@@ -390,7 +390,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
 
         ScTabView favoritesView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(this, buildList(), favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
+        CloudUtils.configureTabList(buildList(), favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
         CloudUtils.createTab(mTabHost, TabTags.favorites, getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
@@ -413,7 +413,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followingsView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(this, buildList(), followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
+        CloudUtils.configureTabList(buildList(), followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -431,7 +431,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followersView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(this, buildList(), followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
+        CloudUtils.configureTabList(buildList(), followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 
         if (isMe()) {
@@ -572,7 +572,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     private void setUser(final User user) {
-        if (user == null || user.id <= 0) return;
+        if (user == null || user.id < 0) return;
         mUser = user;
         mUsername.setText(user.username);
         mFullName.setText(user.full_name);

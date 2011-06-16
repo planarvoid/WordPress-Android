@@ -73,7 +73,7 @@ public class Dashboard extends ScActivity {
         }
 
         final ScTabView view = new ScTabView(this, adpWrap);
-        mListView = CloudUtils.configureTabList(this, buildList(), view, adpWrap, listId, null);
+        mListView = CloudUtils.configureTabList(buildList(), view, adpWrap, listId, null);
         return view;
     }
 

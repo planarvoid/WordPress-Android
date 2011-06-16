@@ -76,9 +76,9 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @Override
     public void onPostTaskExecute(Boolean keepgoing) {
 
-        rebindPendingView(pendingPosition, pendingView);
-        pendingView = null;
-        pendingPosition = -1;
+        rebindPendingView(mPendingPosition, mPendingView);
+        mPendingView = null;
+        mPendingPosition = -1;
         notifyDataSetChanged();
 
         if (keepgoing != null) {
@@ -94,11 +94,11 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
                     if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
                         mCurrentPage = 0;
                         mSectionIndex++;
-                        keepOnAppending.set(true);
+                        mKeepOnAppending.set(true);
                         return;
                     }
             }
-            keepOnAppending.set(keepgoing);
+            mKeepOnAppending.set(keepgoing);
         } else {
             mException = true;
         }

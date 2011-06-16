@@ -51,7 +51,7 @@ public class User extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public User (SoundCloudApplication scApp){
+    public User(SoundCloudApplication scApp){
         id = scApp.getAccountDataLong(DataKeys.USER_ID);
         username = scApp.getAccountData(DataKeys.USERNAME);
         primary_email_confirmed = scApp.getAccountDataBoolean(DataKeys.EMAIL_CONFIRMED);

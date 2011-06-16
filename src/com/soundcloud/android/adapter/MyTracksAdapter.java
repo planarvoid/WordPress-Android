@@ -106,8 +106,9 @@ public class MyTracksAdapter extends TracklistAdapter {
         if (mDataValid && mRecordingData != null) {
             if (position < mRecordingData.size()){
                 return mRecordingData.get(position);
-            } else
+            } else {
                 return super.getItem(position - mRecordingData.size());
+            }
         } else {
             return super.getItem(position);
         }

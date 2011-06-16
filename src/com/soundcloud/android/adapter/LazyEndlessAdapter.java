@@ -31,14 +31,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LazyEndlessAdapter extends AdapterWrapper {
-    protected View pendingView = null;
-    protected int pendingPosition = -1;
-    private AppendTask appendTask;
+    protected View mPendingView = null;
+    protected int mPendingPosition = -1;
+    private AppendTask mAppendTask;
     protected View mEmptyView;
     protected LazyListView mListView;
     protected int mCurrentPage;
     protected ScActivity mActivity;
-    protected AtomicBoolean keepOnAppending = new AtomicBoolean(true);
+    protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
     protected Boolean mException = false;
     private String mEmptyViewText = "";
     private Request mRequest;
@@ -158,13 +158,13 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     public void restoreTask(AppendTask ap) {
         if (ap != null) {
-            appendTask = ap;
+            mAppendTask = ap;
             ap.setAdapter(this);
         }
     }
 
     public AppendTask getTask() {
-        return appendTask;
+        return mAppendTask;
     }
 
     /**
@@ -176,7 +176,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public int[] savePagingData() {
 
         int[] ret = new int[3];
-        ret[0] = (keepOnAppending.get()) ? 1 : 0;
+        ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
         ret[1] = mCurrentPage;
         ret[2] = mException ? 1 : 0;
 
@@ -185,11 +185,11 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     public void restorePagingData(int[] restore) {
-        keepOnAppending.set(restore[0] == 1);
+        mKeepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
         mException = restore[2] == 1;
 
-        if (!keepOnAppending.get()) {
+        if (!mKeepOnAppending.get()) {
             setEmptyviewText();
             mListView.setEmptyView(mEmptyView);
         }
@@ -227,7 +227,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     @Override
     public int getCount() {
-        if (keepOnAppending.get()) {
+        if (mKeepOnAppending.get()) {
             return (super.getCount() + 1); // one more for "pending"
         } else {
             return (super.getCount());
@@ -246,26 +246,26 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position == super.getCount() && keepOnAppending.get()) {
-            if (pendingView == null) {
+        if (position == super.getCount() && mKeepOnAppending.get()) {
+            if (mPendingView == null) {
 
-                pendingView = getPendingView(parent);
-                pendingPosition = position;
+                mPendingView = getPendingView(parent);
+                mPendingPosition = position;
 
                 if (!getWrappedAdapter().isQuerying()
-                        && (appendTask == null || CloudUtils.isTaskFinished(appendTask))) {
+                        && (mAppendTask == null || CloudUtils.isTaskFinished(mAppendTask))) {
 
-                    appendTask = new AppendTask(mActivity.getApp());
-                    appendTask.loadModel = getLoadModel();
-                    appendTask.pageSize =  getPageSize();
-                    appendTask.setAdapter(this);
+                    mAppendTask = new AppendTask(mActivity.getApp());
+                    mAppendTask.loadModel = getLoadModel();
+                    mAppendTask.pageSize =  getPageSize();
+                    mAppendTask.setAdapter(this);
 
-                    appendTask.execute(buildRequest());
+                    mAppendTask.execute(buildRequest());
                 }
             }
 
-            return pendingView;
-        } else if (convertView == pendingView) {
+            return mPendingView;
+        } else if (convertView == mPendingView) {
             // if we're not at the bottom, and we're getting the
             // pendingView back for recycling, skip the recycle
             // process
@@ -287,14 +287,14 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     public void onPostTaskExecute(Boolean keepgoing) {
         if (keepgoing != null) {
-            keepOnAppending.set(keepgoing);
+            mKeepOnAppending.set(keepgoing);
         } else {
             mException = true;
         }
 
-        rebindPendingView(pendingPosition, pendingView);
-        pendingView = null;
-        pendingPosition = -1;
+        rebindPendingView(mPendingPosition, mPendingView);
+        mPendingView = null;
+        mPendingPosition = -1;
 
         // configure the empty view depending on possible exceptions
         setEmptyviewText();
@@ -387,19 +387,19 @@ public class LazyEndlessAdapter extends AdapterWrapper {
             mListView.setEmptyView(null);
 
         mCurrentPage = 0;
-        keepOnAppending.set(true);
+        mKeepOnAppending.set(true);
 
         getWrappedAdapter().refresh(userRefresh);
 
-        if (appendTask != null) {
-            if (!CloudUtils.isTaskFinished(appendTask)) {
-                appendTask.cancel(true);
+        if (mAppendTask != null) {
+            if (!CloudUtils.isTaskFinished(mAppendTask)) {
+                mAppendTask.cancel(true);
             }
-            appendTask = null;
+            mAppendTask = null;
         }
 
-        pendingView = null;
-        pendingPosition = -1;
+        mPendingView = null;
+        mPendingPosition = -1;
         notifyDataSetChanged();
     }
 
@@ -425,9 +425,9 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
     public void onPostQueryExecute() {
-        rebindPendingView(pendingPosition, pendingView);
-        pendingView = null;
-        pendingPosition = -1;
+        rebindPendingView(mPendingPosition, mPendingView);
+        mPendingView = null;
+        mPendingPosition = -1;
     }
 
 
