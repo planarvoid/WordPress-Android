@@ -710,12 +710,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mIsPlaying = true;
             }
 
-            Log.i(TAG,"GET POSITION");
             long pos = mPlaybackService.position();
-            Log.i(TAG,"GOT POSITION " + pos);
             long remaining = 1000 - (pos % 1000);
-            if (remaining < 50) remaining += 1000;
-            Log.i(TAG,"GOT REMAINING " + remaining);
 
             if (pos >= 0 && mDuration > 0) {
                 mCurrentTime.setText(CloudUtils.makeTimeString(pos < 3600000 ? mDurationFormatShort
