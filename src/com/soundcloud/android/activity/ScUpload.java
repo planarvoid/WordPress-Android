@@ -14,7 +14,6 @@ import com.soundcloud.android.view.ConnectionList;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
@@ -52,7 +51,6 @@ public class ScUpload extends ScActivity {
     private double mLong, mLat;
     private Recording mRecording;
 
-
     // used for preloading foursquare venues
     private ArrayList<FoursquareVenue> mVenues = new ArrayList<FoursquareVenue>();
     private Location mLocation;
@@ -63,10 +61,9 @@ public class ScUpload extends ScActivity {
         setContentView(R.layout.sc_upload);
         initResourceRefs();
 
-        mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/images");
+        mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
-        Cursor cursor = null;
         Uri uri = null;
         File uploadFile = fileFromIntent(getIntent());
         if (uploadFile != null && uploadFile.exists()) {
@@ -81,22 +78,12 @@ public class ScUpload extends ScActivity {
             uri = getIntent().getData();
         }
 
-        if (uri != null) {
-            cursor = getContentResolver().query(uri, null, null, null, null);
-        }
-
-        if (cursor != null && cursor.moveToFirst()) {
-            mRecording = new Recording(cursor);
-            if (mRecording.exists()) {
-                mapFromRecording();
-            } else {
-                errorOut("Record file is missing");
-            }
-            cursor.close();
+        mRecording = Recording.fromUri(uri, getContentResolver());
+        if (mRecording != null && mRecording.exists()) {
+            mapFromRecording(mRecording);
         } else {
             errorOut("Recording not found");
         }
-
         if (mLocation == null) preloadLocations();
     }
 
@@ -112,7 +99,7 @@ public class ScUpload extends ScActivity {
 
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
-            mapToRecording();
+            mapToRecording(mRecording);
             getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
         }
     }
@@ -153,7 +140,7 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapToRecording();
+                mapToRecording(mRecording);
                 if (startUpload()) {
                     setResult(RESULT_OK);
                     finish();
@@ -319,7 +306,7 @@ public class ScUpload extends ScActivity {
     // for testing purposes
     void setRecording(Recording r) {
         mRecording = r;
-        mapToRecording();
+        mapToRecording(r);
     }
 
     private void clearArtwork() {
@@ -330,45 +317,44 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    // XXX pass Recording in
-    private void mapFromRecording() {
-        if (!TextUtils.isEmpty(mRecording.what_text)) mWhatText.setTextKeepState(mRecording.what_text);
-        if (!TextUtils.isEmpty(mRecording.where_text)) mWhereText.setTextKeepState(mRecording.where_text);
-        if (mRecording.artwork_path != null) setImage(mRecording.artwork_path);
-        if (!TextUtils.isEmpty(mRecording.shared_emails)) setPrivateShareEmails(mRecording.shared_emails.split(","));
+    private void mapFromRecording(final Recording recording) {
+        if (!TextUtils.isEmpty(recording.what_text)) mWhatText.setTextKeepState(recording.what_text);
+        if (!TextUtils.isEmpty(recording.where_text)) mWhereText.setTextKeepState(recording.where_text);
+        if (recording.artwork_path != null) setImage(recording.artwork_path);
+        if (!TextUtils.isEmpty(recording.shared_emails)) setPrivateShareEmails(recording.shared_emails.split(","));
 
-        setWhere(TextUtils.isEmpty(mRecording.where_text) ? "" : mRecording.where_text,
-                TextUtils.isEmpty(mRecording.four_square_venue_id) ? ""
-                        : mRecording.four_square_venue_id, mRecording.longitude,
-                mRecording.latitude);
+        setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text,
+                TextUtils.isEmpty(recording.four_square_venue_id) ? "" : recording.four_square_venue_id,
+                recording.longitude,
+                recording.latitude);
 
-        if (mRecording.is_private) {
+        if (recording.is_private) {
             mRdoPrivate.setChecked(true);
         } else {
             mRdoPublic.setChecked(true);
         }
     }
 
-    private void mapToRecording() {
-        mRecording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
-        mRecording.what_text = mWhatText.getText().toString();
-        mRecording.where_text = mWhereText.getText().toString();
-        mRecording.artwork_path = mArtworkFile;
+    private void mapToRecording(final Recording recording) {
+        recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
+        recording.what_text = mWhatText.getText().toString();
+        recording.where_text = mWhereText.getText().toString();
+        recording.artwork_path = mArtworkFile;
 
         if (mFourSquareVenueId != null) {
-            mRecording.four_square_venue_id = mFourSquareVenueId;
+            recording.four_square_venue_id = mFourSquareVenueId;
         }
-        mRecording.latitude = mLat;
-        mRecording.longitude = mLong;
-        if (!mRecording.is_private) {
+        recording.latitude = mLat;
+        recording.longitude = mLong;
+        if (!recording.is_private) {
             if (mConnectionList.postToServiceIds() != null) {
-                mRecording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
+                recording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
             }
-            mRecording.shared_emails = null;
+            recording.shared_emails = null;
         } else {
-            mRecording.service_ids = null;
+            recording.service_ids = null;
             if (mAccessList.getAdapter().getAccessList() != null) {
-                mRecording.shared_emails = TextUtils.join(",", mAccessList.getAdapter().getAccessList());
+                recording.shared_emails = TextUtils.join(",", mAccessList.getAdapter().getAccessList());
             }
         }
     }

@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
-import android.content.ContentResolver;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -11,9 +10,9 @@ import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,7 +26,12 @@ import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -128,6 +132,15 @@ public class Recording extends BaseObj implements Parcelable {
         // enforce proper construction
         if (audio_path == null) {
             throw new IllegalArgumentException("audio_path is null");
+        }
+    }
+
+    public static Recording fromUri(Uri uri, ContentResolver resolver) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
         }
     }
 

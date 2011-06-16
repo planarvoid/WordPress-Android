@@ -70,7 +70,7 @@ public class ScCreate extends ScActivity {
     private String mDurationFormatLong;
     private String mDurationFormatShort;
     private String mCurrentDurationString;
-    private Uri mRecording;
+    private Uri mRecordingUri;
     private boolean mSampleInterrupted;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
@@ -99,7 +99,7 @@ public class ScCreate extends ScActivity {
         mCurrentState = CreateState.IDLE_RECORD;
         setContentView(R.layout.sc_record);
 
-        mRecording = getIntent().getData();
+        mRecordingUri = getIntent().getData();
         initResourceRefs();
         updateUi(false);
 
@@ -188,10 +188,10 @@ public class ScCreate extends ScActivity {
         });
 
         ((Button) findViewById(R.id.btn_reset))
-                .setText(getString(mRecording == null ? R.string.reset : R.string.delete));
+                .setText(getString(mRecordingUri == null ? R.string.reset : R.string.delete));
         findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecording == null)
+                if (mRecordingUri == null)
                     showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
                 else {
                     new AlertDialog.Builder(ScCreate.this)
@@ -200,8 +200,8 @@ public class ScCreate extends ScActivity {
                             .setPositiveButton(getString(R.string.btn_yes),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
-
-                                            getContentResolver().delete(mRecording, null, null);
+                                            Recording recording = Recording.fromUri(mRecordingUri, getContentResolver());
+                                            if (recording != null) recording.delete(getContentResolver());
                                             finish();
                                         }
                                     })
@@ -216,8 +216,7 @@ public class ScCreate extends ScActivity {
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecording == null){
-
+                if (mRecordingUri == null){
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
                     r.user_id = getCurrentUserId();
@@ -232,12 +231,12 @@ public class ScCreate extends ScActivity {
                     Uri newRecordingUri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
                     startActivity(new Intent(ScCreate.this, ScUpload.class).setData(newRecordingUri));
 
-                    mRecording = null;
+                    mRecordingUri = null;
                     mRecordFile = null;
                     mCurrentState = CreateState.IDLE_RECORD;
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
-                    startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording), 0);
+                    startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecordingUri), 0);
                 }
             }
         });
@@ -270,7 +269,7 @@ public class ScCreate extends ScActivity {
                 }
             }
 
-            if (mCreateService.isRecording() && mRecording == null) {
+            if (mCreateService.isRecording() && mRecordingUri == null) {
                 mCurrentState = CreateState.RECORD;
                 setRecordFile(new File(mCreateService.getRecordingPath()));
                 getApp().setRecordListener(recListener);
@@ -756,7 +755,7 @@ public class ScCreate extends ScActivity {
                 final CharSequence[] fileIds = new CharSequence[mUnsavedRecordings.size()];
                 final boolean[] checked = new boolean[mUnsavedRecordings.size()];
                 for (int i=0; i < mUnsavedRecordings.size(); i++) {
-                    fileIds[i] = new Date(mUnsavedRecordings.get(i).timestamp).toLocaleString() + ", " + mUnsavedRecordings.get(i).formattedDuration();;
+                    fileIds[i] = new Date(mUnsavedRecordings.get(i).timestamp).toLocaleString() + ", " + mUnsavedRecordings.get(i).formattedDuration();
                     checked[i] = true;
                 }
 
@@ -786,7 +785,7 @@ public class ScCreate extends ScActivity {
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         if (mRecordFile != null){
-                                            if (mRecordFile.exists())mRecordFile.delete();
+                                            if (mRecordFile.exists()) mRecordFile.delete();
                                             mRecordFile = null;
                                         }
                                         mCurrentState = CreateState.IDLE_RECORD;
