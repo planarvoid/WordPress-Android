@@ -194,16 +194,12 @@ public class CloudUtils {
     public static boolean renameCaseSensitive(File oldFile, File newFile){
         if (oldFile.equals(newFile)){
             return oldFile.renameTo(newFile);
+        } else if (oldFile.getParentFile() == null) {
+            return false;
+        } else {
+            File tmp = new File(oldFile.getParentFile(),"."+System.currentTimeMillis());
+            return oldFile.renameTo(tmp) && tmp.renameTo(newFile);
         }
-
-        if (oldFile.getParentFile() == null) return false;
-
-        File tmp = new File(oldFile.getParentFile(),"."+System.currentTimeMillis());
-        if (!oldFile.renameTo(tmp)) return false;
-        if (!tmp.renameTo(newFile)) return false;
-
-        oldFile = newFile;
-        return true;
     }
 
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
