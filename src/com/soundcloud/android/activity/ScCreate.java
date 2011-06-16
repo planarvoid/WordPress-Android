@@ -103,7 +103,9 @@ public class ScCreate extends ScActivity {
         initResourceRefs();
         updateUi(false);
 
-        mRecordDir = CloudUtils.ensureUpdatedDirectory(CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/recordings/", CloudUtils.EXTERNAL_STORAGE_DIRECTORY + "/.rec/");
+        mRecordDir = CloudUtils.ensureUpdatedDirectory(
+                new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
+                new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY,".rec"));
         mkdirs(mRecordDir);
         mRecordErrorMessage = "";
     }
@@ -198,6 +200,7 @@ public class ScCreate extends ScActivity {
                             .setPositiveButton(getString(R.string.btn_yes),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
+
                                             getContentResolver().delete(mRecording, null, null);
                                             finish();
                                         }

@@ -206,18 +206,14 @@ public class CloudUtils {
         return true;
     }
 
-    public static File ensureUpdatedDirectory(String validPath, String deprecatedPath){
-        File depDir = new File(deprecatedPath);
-        File newDir = new File(validPath);
+    public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
         mkdirs(newDir);
-
-        if (depDir.exists()){
-            for (File f : depDir.listFiles()){
-                f.renameTo(new File(newDir,f.getName()));
+        if (deprecatedDir.exists()) {
+            for (File f : deprecatedDir.listFiles()){
+                f.renameTo(new File(newDir, f.getName()));
             }
-            depDir.delete();
+            deprecatedDir.delete();
         }
-
         return newDir;
     }
 
