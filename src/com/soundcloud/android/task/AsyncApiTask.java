@@ -7,6 +7,7 @@ import com.soundcloud.api.Endpoints;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectReader;
 
 import android.os.AsyncTask;
@@ -45,19 +46,21 @@ public abstract class AsyncApiTask<Params, Progress, Result>
 
     static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {
         List<String> errorList = new ArrayList<String>();
-        JsonNode node = reader.readTree(is);
-        //{"errors":{"error":["Email has already been taken","Email is already taken."]}}
-        //{"errors":{"error":"Username has already been taken"}}
-        //{"error":"Unknown Email Address"}
-        //{"errors":[{"error_message":"Username is too short (minimum is 3 characters)"}]}
-        JsonNode errors = node.path("errors").path("error");
-        JsonNode error  = node.path("error");
-        if (error.isTextual()) errorList.add(error.getTextValue());
-        else if (errors.isTextual()) errorList.add(errors.getTextValue());
-        else if (node.path("errors").isArray())
-            for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").getTextValue());
-        else for (JsonNode s : errors) errorList.add(s.getTextValue());
-
+        try {
+            JsonNode node = reader.readTree(is);
+            //{"errors":{"error":["Email has already been taken","Email is already taken."]}}
+            //{"errors":{"error":"Username has already been taken"}}
+            //{"error":"Unknown Email Address"}
+            //{"errors":[{"error_message":"Username is too short (minimum is 3 characters)"}]}
+            JsonNode errors = node.path("errors").path("error");
+            JsonNode error  = node.path("error");
+            if (error.isTextual()) errorList.add(error.getTextValue());
+            else if (errors.isTextual()) errorList.add(errors.getTextValue());
+            else if (node.path("errors").isArray())
+                for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").getTextValue());
+            else for (JsonNode s : errors) errorList.add(s.getTextValue());
+        } catch (JsonParseException ignored) {
+        }
         return errorList;
     }
 

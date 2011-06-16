@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.ApiTests;
@@ -44,5 +45,10 @@ public class AsyncApiTaskTest extends ApiTests {
         assertThat(
                 parse("{\"errors\":[{\"error_message\":\"Username is too short (minimum is 3 characters)\"}]}"),
                 equalTo(Arrays.asList("Username is too short (minimum is 3 characters)")));
+    }
+
+    @Test
+    public void shouldIgnoreMalformedJSON() throws Exception {
+        assertThat(parse("failz").isEmpty(), is(true));
     }
 }

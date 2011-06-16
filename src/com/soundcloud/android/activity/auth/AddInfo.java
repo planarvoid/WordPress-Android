@@ -99,20 +99,20 @@ public class AddInfo extends Activity {
     }
 
     @SuppressWarnings({"unchecked"})
-    void addUserInfo(User user, String newUsername, File avatarFile) {
+    User addUserInfo(User user, String newUsername, File avatarFile) {
         if (!TextUtils.isEmpty(newUsername)) {
             user.username = newUsername;
             user.permalink = newUsername;
         }
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
-            @Override
-            protected void onPreExecute() {
-                dialog = ProgressDialog.show(AddInfo.this, null, getString(R.string.authentication_add_info_progress_message));
+            @Override protected void onPreExecute() {
+                dialog = ProgressDialog.show(AddInfo.this, null,
+                        getString(R.string.authentication_add_info_progress_message));
             }
-            @Override
-            protected void onPostExecute(User user) {
-                dialog.dismiss();
+
+            @Override protected void onPostExecute(User user) {
+                if (dialog != null) dialog.dismiss();
                 if (user != null) {
                     finishSignup();
                 } else {
@@ -122,6 +122,7 @@ public class AddInfo extends Activity {
                 }
             }
         }.execute(Pair.create(user, avatarFile));
+        return user;
     }
 
     private void finishSignup() {

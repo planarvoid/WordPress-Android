@@ -40,7 +40,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
 
     public int pageSize;
 
-    public AppendTask(SoundCloudApplication app){
+    public AppendTask(SoundCloudApplication app) {
         mApp = app;
     }
 

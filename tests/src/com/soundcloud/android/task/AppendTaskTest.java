@@ -22,6 +22,7 @@ import java.io.InputStream;
 
 
 @RunWith(DefaultTestRunner.class)
+// XXX should extend ApiTests and test against AndroidCloudAPI
 public class AppendTaskTest {
     ScActivity activity;
     SoundCloudApplication app;
