@@ -9,7 +9,7 @@
     android:title="@string/pref_page_size"
     android:summary="@string/pref_page_size_desc"
     android:key="defaultPageSize"
-    android:defaultValue="50"
+    android:defaultValue="20"
     android:entries="@array/pref_page_size"
     android:entryValues="@array/pref_page_size_values" />
 
