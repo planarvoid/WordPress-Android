@@ -1,5 +1,5 @@
 import sbt._
-import scala.xml.{Node, Elem}
+import scala.xml.{Node, Elem, Unparsed}
 
 trait Mavenize extends DefaultProject {
   override def pomExtra =
@@ -23,6 +23,9 @@ trait Mavenize extends DefaultProject {
             </sdk>
             <undeployBeforeDeploy>true</undeployBeforeDeploy>
             <deleteConflictingFiles>true</deleteConflictingFiles>
+            <zipalign>
+              <outputApk>{Unparsed("${project.build.directory}/${project.artifactId}-${project.version}-market.apk")}</outputApk>
+            </zipalign>
           </configuration>
           <extensions>true</extensions>
           <executions>
