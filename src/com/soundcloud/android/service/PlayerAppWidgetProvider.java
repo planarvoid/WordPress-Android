@@ -199,8 +199,8 @@ import android.widget.RemoteViews;
 
             intent = new Intent(context, ScPlayer.class);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.setAction(Intent.ACTION_MAIN);
 
             pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);

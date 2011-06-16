@@ -972,8 +972,10 @@ public class CloudPlaybackService extends Service {
 
         Intent i = new Intent(this, ScPlayer.class);
         i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
         i.setAction(Intent.ACTION_MAIN);
+
 
         Notification status = new Notification();
         status.contentView = mNotificationView;

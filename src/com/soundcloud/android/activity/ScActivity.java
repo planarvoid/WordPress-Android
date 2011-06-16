@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.pm.ActivityInfo;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -227,7 +228,7 @@ public abstract class ScActivity extends Activity {
                     && mPlaybackService.getTrackId() == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
-                    startActivity(new Intent(this, ScPlayer.class));
+                    launchPlayer();
                 } else {
                     mPlaybackService.play();
                 }
@@ -252,9 +253,15 @@ public abstract class ScActivity extends Activity {
         }
 
         if (goToPlayer) {
-            startActivity(new Intent(this, ScPlayer.class));
+            launchPlayer();
             mIgnorePlaybackStatus = true;
         }
+    }
+
+    public void launchPlayer() {
+        Intent i = new Intent(this, ScPlayer.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
 

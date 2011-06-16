@@ -34,6 +34,7 @@ public class ScPlaybackActivityStarter extends Activity
         super.onCreate(icicle);
         Intent i = new Intent(getIntent());
         i.setClass(this, ScPlayer.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(i);
         finish();
     }
