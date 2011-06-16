@@ -332,7 +332,7 @@ public abstract class ScActivity extends Activity {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
-        lv.setFastScrollEnabled(true);
+        lv.setFastScrollEnabled(false);
         lv.setTextFilterEnabled(true);
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
