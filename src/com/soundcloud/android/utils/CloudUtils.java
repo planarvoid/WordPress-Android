@@ -60,7 +60,8 @@ public class CloudUtils {
     public static final String DEPRECATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
     public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
 
-    public static final String DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH = Environment.getExternalStorageDirectory()+"/Soundcloud";
+    public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
+            new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
     public static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE");
 
@@ -160,35 +161,22 @@ public class CloudUtils {
         // create external storage directory
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // fix deprecated casing
-            if (fileExistsCaseSensitive(DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH)) {
-                Log.i(TAG,
-                        "Attempting to rename external storage: "
-                                + renameCaseSensitive(new File(
-                                DEPRECATED_EXTERNAL_STORAGE_DIRECTORY_PATH),
-                                        EXTERNAL_STORAGE_DIRECTORY));
+            if (fileExistsCaseSensitive(DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
+                boolean renamed = renameCaseSensitive(DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, EXTERNAL_STORAGE_DIRECTORY);
+                Log.d(TAG, "Attempting to rename external storage: " + renamed);
             }
-
             mkdirs(EXTERNAL_STORAGE_DIRECTORY);
         }
         // do a check??
     }
 
-    public static boolean fileExistsCaseSensitive(String filepath) {
-        final File f = new File(filepath);
-        if (!f.exists())
-            return false;
-
-        if (f.getParentFile() == null)
-            return false;
-
-        if (f.getParentFile().listFiles(new FilenameFilter() {
+    public static boolean fileExistsCaseSensitive(final File f) {
+        return f.exists() && f.getParentFile() != null && f.getParentFile().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.contentEquals(f.getName());
             }
-        }).length > 0)
-            return true;
-        return false;
+        }).length > 0;
     }
 
     public static boolean renameCaseSensitive(File oldFile, File newFile){
