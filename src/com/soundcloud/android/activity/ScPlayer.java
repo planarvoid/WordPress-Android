@@ -710,8 +710,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mIsPlaying = true;
             }
 
+            Log.i(TAG,"GET POSITION");
             long pos = mPlaybackService.position();
-            long remaining = 1000 - pos % 1000;
+            Log.i(TAG,"GOT POSITION " + pos);
+            long remaining = 1000 - (pos % 1000);
+            if (remaining < 50) remaining += 1000;
+            Log.i(TAG,"GOT REMAINING " + remaining);
 
             if (pos >= 0 && mDuration > 0) {
                 mCurrentTime.setText(CloudUtils.makeTimeString(pos < 3600000 ? mDurationFormatShort
@@ -727,7 +731,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             // return the number of milliseconds until the next full second, so
             // the counter can be updated at just the right time
-            return remaining;
+            return !mPlaybackService.isPlaying() ? 1000 : remaining;
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -933,11 +937,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void onArtworkSet(){
-        if (mArtwork.getWidth() == 0)
-            return;
-
         AnimUtils.runFadeInAnimationOn(this, mArtwork);
         mArtwork.setVisibility(View.VISIBLE);
+
+        if (mArtwork.getWidth() == 0)
+            return;
 
         Matrix m = new Matrix();
         float scale;

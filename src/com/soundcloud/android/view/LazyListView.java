@@ -102,6 +102,8 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
                     || position >= list.getAdapter().getCount())
                 return; // bad list item clicked (possibly loading item)
 
+            position -= getHeaderViewsCount();
+
             if (list.getAdapter().getItem(position) instanceof Track) {
 
                 if (list.getAdapter() instanceof MyTracksAdapter) {
