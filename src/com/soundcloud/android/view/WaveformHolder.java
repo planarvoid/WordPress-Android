@@ -21,9 +21,9 @@ public class WaveformHolder extends RelativeLayout {
 
     }
 
-    public void showConnectingLayout() {
+    public void showConnectingLayout(boolean setAlpha) {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
-        if (!CloudUtils.isLandscape(getResources()))setStaticTransformationsEnabled(true);
+        if (setAlpha) setStaticTransformationsEnabled(true);
         mConnectingBar.setVisibility(View.VISIBLE);
     }
 

@@ -95,6 +95,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
+    private boolean mLandscape;
 
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -127,10 +128,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         findViewById(R.id.track_touch_bar).setOnTouchListener(this);
 
-        if (CloudUtils.isLandscape(getResources())){
-
-            mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-
+        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
+        if (mPlayerAvatarBar != null){
+            mLandscape = true;
             mPlayerAvatarBar.setOnTouchListener(this);
             mPlayerAvatarBar.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
 
@@ -183,7 +183,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showConnectingLayout() {
-       mWaveformHolder.showConnectingLayout();
+       mWaveformHolder.showConnectingLayout(!mLandscape);
     }
 
     public void hideConnectingLayout() {
@@ -198,7 +198,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
-        if (CloudUtils.isLandscape(getResources()) && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
+        if (mLandscape && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null){
                 if (mLastAutoComment != last && pos - last.timestamp < 2000){
@@ -325,9 +325,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l,t,r,b);
-
-        if (changed && CloudUtils.isLandscape(getResources())){
+        super.onLayout(changed, l, t, r, b);
+        if (changed && mLandscape) {
             int[] calc = new int[2];
 
             mPlayer.getCommentHolder().getLocationInWindow(calc);
@@ -336,12 +335,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mCommentBubble == null) mCommentBubble = new CommentBubble(mPlayer, this);
             mCommentBubble.parentWidth = getWidth();
 
-            if (mPlayerAvatarBar != null){
+            if (mPlayerAvatarBar != null) {
                 mPlayerAvatarBar.getLocationInWindow(calc);
                 mAvatarOffsetY = calc[1] - topOffset;
             }
 
-            if (mPlayerCommentBar != null){
+            if (mPlayerCommentBar != null) {
                 mPlayerCommentBar.getLocationInWindow(calc);
                 mCommentBarOffsetY = calc[1] - topOffset;
             }

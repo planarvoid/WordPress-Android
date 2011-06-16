@@ -1,25 +1,11 @@
 package com.soundcloud.android.utils;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.ScTabView;
-
 import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -31,17 +17,23 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
-import android.widget.TabHost;
-import android.widget.TabWidget;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScTabView;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -56,6 +48,8 @@ import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
+
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 public class CloudUtils {
     private static final String TAG = "CloudUtils";
@@ -641,7 +635,23 @@ public class CloudUtils {
         return stream.toString();
     }
 
-    public static boolean isLandscape(Resources r){
-        return r.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    public static int getScreenOrientation(Activity a) {
+        Display getOrient = a.getWindowManager().getDefaultDisplay();
+        int orientation = Configuration.ORIENTATION_UNDEFINED;
+        Configuration config = a.getResources().getConfiguration();
+        if (getOrient.getWidth() == getOrient.getHeight()) {
+            orientation = Configuration.ORIENTATION_SQUARE;
+        } else {
+            if (getOrient.getWidth() < getOrient.getHeight()) {
+                orientation = Configuration.ORIENTATION_PORTRAIT;
+            } else {
+                orientation = Configuration.ORIENTATION_LANDSCAPE;
+            }
+        }
+        return orientation;
+    }
+
+    public static boolean isLandscape(Activity a) {
+        return CloudUtils.getScreenOrientation(a) == Configuration.ORIENTATION_LANDSCAPE;
     }
 }
