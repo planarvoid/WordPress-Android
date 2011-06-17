@@ -137,6 +137,7 @@ public class SectionedListView extends LazyListView {
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        super.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
         if (view instanceof SectionedListView && adapter != null) {
             adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
         }
