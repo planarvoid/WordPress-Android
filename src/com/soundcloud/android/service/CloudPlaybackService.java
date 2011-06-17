@@ -1279,8 +1279,9 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return (isStagefright && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
-                    .isAsyncOpening());
+            return true;
+            //return (isStagefright && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
+              //      .isAsyncOpening());
         }
     }
 

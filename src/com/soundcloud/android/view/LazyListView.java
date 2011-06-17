@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -16,7 +17,7 @@ import com.soundcloud.android.model.*;
 import java.util.ArrayList;
 
 
-public class LazyListView extends ListView implements AbsListView.OnScrollListener {
+public class LazyListView extends PullToRefreshListView implements  LazyEndlessAdapter.RefreshedListener {
 
     private static final int MESSAGE_UPDATE_LIST_ICONS = 1;
     private static final int DELAY_SHOW_LIST_ICONS = 550;
@@ -37,7 +38,6 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
         setOnItemClickListener(mOnItemClickListener);
         setOnItemLongClickListener(mOnItemLongClickListener);
         setOnItemSelectedListener(mOnItemSelectedListener);
-        setOnScrollListener(this);
         setOnTouchListener(new FingerTracker());
     }
 
@@ -56,6 +56,16 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
 
     public void setLazyListListener(LazyListListener listener) {
         mListener = listener;
+    }
+
+    @Override
+    public void setAdapter(ListAdapter adapter) {
+        super.setAdapter(adapter);
+        if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass())) {
+            setOnRefreshListener((LazyEndlessAdapter) adapter);
+            ((LazyEndlessAdapter) adapter).addRefreshedListener(this);
+
+        }
     }
 
     @Override
@@ -163,7 +173,9 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
         }
     };
 
+    @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        super.onScrollStateChanged(view,scrollState);
         if (mScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
 
             final Handler handler = mScrollHandler;
@@ -180,7 +192,9 @@ public class LazyListView extends ListView implements AbsListView.OnScrollListen
         mScrollState = scrollState;
     }
 
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    @Override
+    public void onRefreshComplete() {
+        super.onRefreshComplete();
     }
 
     private class FingerTracker implements View.OnTouchListener {

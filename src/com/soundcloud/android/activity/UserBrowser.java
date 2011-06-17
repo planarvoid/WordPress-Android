@@ -8,11 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
@@ -182,6 +178,11 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             } else {
                 loadYou();
             }
+
+            for (LazyListView list : mLists) {
+                if (LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()))
+                    list.getWrapper().onRefresh();
+            }
         }
 
         if (isMe()) {
@@ -231,10 +232,18 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     private void restoreAdapterStates(Object[] adapterStates) {
         int i = 0;
         for (Object adapterState : adapterStates) {
-            if (adapterState != null) (mLists.get(i).getWrapper()).restoreState((Object[]) adapterState);
+            if (adapterState != null) {
+                mLists.get(i).getWrapper().restoreState((Object[]) adapterState);
+                if (mLists.get(i).getWrapper().isRefreshing()) {
+                    mLists.get(i).prepareForRefresh();
+                    mLists.get(i).setSelection(0);
+                }
+            }
             i++;
         }
     }
+
+
 
 
     @Override

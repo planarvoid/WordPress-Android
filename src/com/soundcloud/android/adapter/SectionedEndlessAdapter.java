@@ -37,7 +37,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    protected Request getRequest() {
+    protected Request getRequest(boolean refresh) {
         return getWrappedAdapter().getRequest(mSectionIndex);
     }
 
@@ -54,7 +54,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     public Object saveState(){
         return new Object[] {
                 getWrappedAdapter().sections,
-                getTask(),
+                getAppendTask(),
                 savePagingData(),
                 saveExtraData()
         };
@@ -63,7 +63,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @SuppressWarnings("unchecked")
     public void restoreState(Object[] state){
         if (state[0] != null) getWrappedAdapter().sections = (List<SectionedAdapter.Section>) state[0];
-        if (state[1] != null) restoreTask((AppendTask) state[1]);
+        if (state[1] != null) restoreAppendTask((AppendTask) state[1]);
         if (state[2] != null) restorePagingData((int[]) state[2]);
         if (state[3] != null) restoreExtraData((String) state[3]);
     }

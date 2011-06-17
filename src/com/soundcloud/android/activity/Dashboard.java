@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
@@ -55,6 +56,12 @@ public class Dashboard extends ScActivity {
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
             ((EventsAdapterWrapper) mTracklistView.adapter).restoreState(mPreviousState);
+            if (((EventsAdapterWrapper) mTracklistView.adapter).isRefreshing()) {
+                mListView.prepareForRefresh();
+                mListView.setSelection(0);
+            }
+        } else {
+            mListView.onRefresh();
         }
     }
 

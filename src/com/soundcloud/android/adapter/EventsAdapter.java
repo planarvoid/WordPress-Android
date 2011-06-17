@@ -106,13 +106,8 @@ public class EventsAdapter extends TracklistAdapter {
     }
 
     @Override
-    public void refresh(boolean userRefresh) {
-        mData.clear();
-        reset();
-    }
-
-    @Override
     public void reset() {
+        mData.clear();
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;

@@ -25,13 +25,6 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
     }
 
 
-    public void refresh(boolean userRefresh) {
-        if (userRefresh) {
-            FollowStatus.get().requestUserFollowings(mActivity.getApp(), this, true);
-        }
-        super.refresh(userRefresh);
-    }
-
     public User getUserAt(int index) {
         return (User) mData.get(index);
     }

@@ -63,12 +63,8 @@ public class LazyBaseAdapter extends BaseAdapter {
         return new LazyRow(mActivity, this);
     }
 
-    public void refresh(boolean userRefresh) {
-        mData.clear();
-        reset();
-    }
-
     public void reset() {
+        mData.clear();
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;

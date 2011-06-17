@@ -88,13 +88,6 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
     }
 
     @Override
-    public void refresh(boolean userRefresh) {
-        super.refresh(userRefresh);
-        if (userRefresh) sections.clear();
-    }
-
-
-    @Override
     public final View getView(int position, View convertView, ViewGroup parent) {
         View res = super.getView(position, convertView, parent);
         final int section = getSectionForPosition(position);

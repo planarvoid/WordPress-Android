@@ -30,11 +30,11 @@ import java.util.ArrayList;
  */
 public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
-    private WeakReference<LazyEndlessAdapter> mAdapterReference;
+    protected WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
 
     private String mNextEventsHref;
-    private Exception mException;
+    protected Exception mException;
 
     public Class<?> loadModel;
 
@@ -73,6 +73,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     protected void onPostExecute(Boolean keepGoing) {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
+        // TODO handle cancelled tasks
         if (adapter != null) {
             if (!TextUtils.isEmpty(mNextEventsHref)){
                 ((EventsAdapter) adapter.getWrappedAdapter())

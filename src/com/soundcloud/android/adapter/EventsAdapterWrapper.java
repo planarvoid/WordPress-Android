@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.api.Request;
 
@@ -22,11 +23,15 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     @Override
-    protected Request getRequest() {
-        Request request = super.getRequest();
-        if (!TextUtils.isEmpty(((EventsAdapter)getWrappedAdapter()).nextCursor)){
+    protected Request getRequest(boolean refresh) {
+        Request request = super.getRequest(refresh);
+        Log.i("asdf","Next request 1 " + request.toString() + " " + refresh);
+        if (!refresh && !TextUtils.isEmpty(((EventsAdapter)getWrappedAdapter()).nextCursor)){
             request.add("cursor", ((EventsAdapter)getWrappedAdapter()).nextCursor);
+        } else if (refresh){
+
         }
+        Log.i("asdf","Next request 2 " + request.toString());
         return request;
     }
 }

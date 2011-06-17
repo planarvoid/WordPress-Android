@@ -2,19 +2,6 @@
 package com.soundcloud.android.adapter;
 
 
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.api.Request;
-
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -25,12 +12,25 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.markupartist.android.widget.PullToRefreshListView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.*;
+import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.task.RefreshTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.api.Request;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LazyEndlessAdapter extends AdapterWrapper {
+public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshListView.OnRefreshListener {
     protected View mPendingView = null;
     protected int mPendingPosition = -1;
     private AppendTask mAppendTask;
@@ -42,6 +42,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected Boolean mException = false;
     private String mEmptyViewText = "";
     private Request mRequest;
+    private List<WeakReference<RefreshedListener>> mListeners;
+    private RefreshTask mRefreshTask;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         super(wrapped);
@@ -50,6 +52,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mCurrentPage = 0;
         mRequest = request;
         wrapped.setWrapper(this);
+
+        mListeners = new ArrayList<WeakReference<RefreshedListener>>();
     }
 
     /**
@@ -137,7 +141,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     public Object saveState(){
         return new Object[] {
                 getData(),
-                getTask(),
+                getRefreshTask(),
+                getAppendTask(),
                 savePagingData(),
                 saveExtraData()
         };
@@ -146,9 +151,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     @SuppressWarnings("unchecked")
     public void restoreState(Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
-        if (state[1] != null) restoreTask((AppendTask) state[1]);
-        if (state[2] != null) restorePagingData((int[]) state[2]);
-        if (state[3] != null) restoreExtraData((String) state[3]);
+        if (state[1] != null) restoreRefreshTask((RefreshTask) state[1]);
+        if (state[2] != null) restoreAppendTask((AppendTask) state[2]);
+        if (state[3] != null) restorePagingData((int[]) state[3]);
+        if (state[4] != null) restoreExtraData((String) state[4]);
     }
 
 
@@ -156,15 +162,26 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * Restore a possibly still running task that could have been passed in on
      * creation
      */
-    public void restoreTask(AppendTask ap) {
+    public void restoreAppendTask(AppendTask ap) {
         if (ap != null) {
             mAppendTask = ap;
             ap.setAdapter(this);
         }
     }
 
-    public AppendTask getTask() {
+    public void restoreRefreshTask(RefreshTask rt) {
+        if (rt != null) {
+            mRefreshTask = rt;
+            rt.setAdapter(this);
+        }
+    }
+
+    public AppendTask getAppendTask() {
         return mAppendTask;
+    }
+
+    public RefreshTask getRefreshTask() {
+        return mRefreshTask;
     }
 
     /**
@@ -246,7 +263,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position == super.getCount() && mKeepOnAppending.get()) {
+        if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
             if (mPendingView == null) {
 
                 mPendingView = getPendingView(parent);
@@ -260,7 +277,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     mAppendTask.pageSize =  getPageSize();
                     mAppendTask.setAdapter(this);
 
-                    mAppendTask.execute(buildRequest());
+                    mAppendTask.execute(buildRequest(false));
                 }
             }
 
@@ -356,7 +373,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    protected Request getRequest() {
+    protected Request getRequest(boolean refresh) {
         return new Request(mRequest);
     }
 
@@ -376,11 +393,32 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mException = true;
     }
 
-    /**
+    @SuppressWarnings("unchecked")
+    public void refresh(boolean userRefresh) {
+
+        if (userRefresh){
+            if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
+                FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
+            }
+        } else {
+            reset();
+        }
+
+        mRefreshTask = new RefreshTask(mActivity.getApp());
+        mRefreshTask.loadModel = getLoadModel();
+        mRefreshTask.pageSize =  getPageSize();
+        mRefreshTask.setAdapter(this);
+
+        mRefreshTask.execute(buildRequest(true));
+    }
+
+     /**
      * Clear and reset this adapter of any data. Primarily used for refreshing
      */
     @SuppressWarnings("unchecked")
-    public void refresh(boolean userRefresh) {
+    public void reset() {
+        getWrappedAdapter().reset();
+
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
         if (mListView != null)
@@ -389,18 +427,20 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mCurrentPage = 0;
         mKeepOnAppending.set(true);
 
-        getWrappedAdapter().refresh(userRefresh);
+        cancelCurrentAppendTask();
 
+        mPendingView = null;
+        mPendingPosition = -1;
+        notifyDataSetChanged();
+    }
+
+    private void cancelCurrentAppendTask(){
         if (mAppendTask != null) {
             if (!CloudUtils.isTaskFinished(mAppendTask)) {
                 mAppendTask.cancel(true);
             }
             mAppendTask = null;
         }
-
-        mPendingView = null;
-        mPendingPosition = -1;
-        notifyDataSetChanged();
     }
 
     /**
@@ -415,11 +455,11 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return the url
      */
-    protected Request buildRequest() {
-        Request request = getRequest();
+    protected Request buildRequest(boolean refresh) {
+        Request request = getRequest(refresh);
         if (request != null) {
             request.add("limit", getPageSize());
-            request.add("offset", getPageSize() * getCurrentPage());
+            if (!refresh) request.add("offset", getPageSize() * getCurrentPage());
         }
         return request;
     }
@@ -428,6 +468,49 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
         mPendingPosition = -1;
+    }
+
+    public void addRefreshedListener(RefreshedListener listener){
+        for (WeakReference<RefreshedListener> listenerRef : mListeners){
+            if (listenerRef.get() != null && listenerRef.get() == listener) return;
+        }
+        mListeners.add(new WeakReference<RefreshedListener>(listener));
+    }
+
+    public boolean removeRefreshedListener(RefreshedListener listener){
+        for (WeakReference<RefreshedListener> listenerRef : mListeners){
+            if (listenerRef.get() != null && listenerRef.get() == listener) {
+                mListeners.remove(listenerRef);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onRefresh() {
+            if (!isRefreshing()) refresh(true);
+    }
+
+    public void onPostRefresh() {
+        for (WeakReference<RefreshedListener> listenerRef : mListeners) {
+            RefreshedListener listener = listenerRef.get();
+            if (listener != null) {
+                listener.onRefreshComplete();
+            }
+        }
+
+    }
+
+    public boolean isRefreshing() {
+        if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)){
+            return true;
+        }
+        return false;
+    }
+
+    public interface RefreshedListener {
+        void onRefreshComplete();
     }
 
 
