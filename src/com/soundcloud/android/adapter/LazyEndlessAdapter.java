@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -244,7 +245,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @Override
     public int getCount() {
-        if (mKeepOnAppending.get()) {
+        if (mKeepOnAppending.get() &&  CloudUtils.isTaskFinished(mRefreshTask)) {
             return (super.getCount() + 1); // one more for "pending"
         } else {
             return (super.getCount());
@@ -429,7 +430,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         cancelCurrentAppendTask();
 
-        mPendingView = null;
+        if (mPendingView != null) {
+            rebindPendingView(mPendingPosition,mPendingView);
+            mPendingView = null;
+        }
+
         mPendingPosition = -1;
         notifyDataSetChanged();
     }

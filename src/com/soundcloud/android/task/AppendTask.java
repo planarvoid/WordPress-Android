@@ -73,7 +73,6 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     protected void onPostExecute(Boolean keepGoing) {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
-        // TODO handle cancelled tasks
         if (adapter != null) {
             if (!TextUtils.isEmpty(mNextEventsHref)){
                 ((EventsAdapter) adapter.getWrappedAdapter())
