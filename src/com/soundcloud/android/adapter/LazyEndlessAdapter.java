@@ -357,7 +357,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @return the url
      */
     protected Request getRequest() {
-        return mRequest;
+        return new Request(mRequest);
     }
 
     /**
