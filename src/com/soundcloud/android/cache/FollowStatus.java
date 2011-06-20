@@ -40,7 +40,7 @@ public class FollowStatus implements Parcelable {
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
-    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
+    private WeakHashMap<Listener, Boolean> listeners = new WeakHashMap<Listener, Boolean>();
 
     public synchronized static FollowStatus get() {
         if (sInstance == null) {
@@ -94,7 +94,7 @@ public class FollowStatus implements Parcelable {
     }
 
     public void addListener(Listener l) {
-        listeners.put(l, l);
+        listeners.put(l, true);
     }
 
     public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
