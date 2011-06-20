@@ -57,6 +57,7 @@ import android.view.ViewGroup.LayoutParams;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public abstract class ScActivity extends Activity {
@@ -69,7 +70,7 @@ public abstract class ScActivity extends Activity {
     protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
-    protected ArrayList<LazyListView> mLists;
+    protected List<LazyListView> mLists;
 
     private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;

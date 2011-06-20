@@ -97,6 +97,10 @@ public class FollowStatus implements Parcelable {
         listeners.put(l, true);
     }
 
+    public void removeListener(Listener l) {
+        listeners.remove(l);
+    }
+
     public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
                                 final AndroidCloudAPI api,
                                 final Handler handler) {

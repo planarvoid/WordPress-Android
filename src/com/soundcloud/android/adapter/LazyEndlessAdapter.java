@@ -156,14 +156,14 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * Restore a possibly still running task that could have been passed in on
      * creation
      */
-    public void restoreTask(AppendTask ap) {
+    protected void restoreTask(AppendTask ap) {
         if (ap != null) {
             mAppendTask = ap;
             ap.setAdapter(this);
         }
     }
 
-    public AppendTask getTask() {
+    protected AppendTask getTask() {
         return mAppendTask;
     }
 
@@ -173,7 +173,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * @return an integer list {whether to keep retrieving data, the current
      *         page the adapter is on}
      */
-    public int[] savePagingData() {
+    protected int[] savePagingData() {
 
         int[] ret = new int[3];
         ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
@@ -184,7 +184,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     }
 
-    public void restorePagingData(int[] restore) {
+    protected void restorePagingData(int[] restore) {
         mKeepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
         mException = restore[2] == 1;
@@ -201,7 +201,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @return a string representing any extra data pertaining to this adapter
      */
-    public String saveExtraData() {
+    protected String saveExtraData() {
         return "";
     }
 
@@ -210,7 +210,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      *
      * @param restore : the string data to restore
      */
-    public void restoreExtraData(String restore) {
+    protected void restoreExtraData(String restore) {
     }
 
     public Class<?> getLoadModel() {

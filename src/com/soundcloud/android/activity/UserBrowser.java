@@ -204,6 +204,11 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         super.onResume();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FollowStatus.get().removeListener(this);
+    }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
