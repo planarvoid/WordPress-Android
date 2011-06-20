@@ -4,30 +4,41 @@
               android:layout_height="fill_parent"
               android:orientation="vertical">
 
-    <LinearLayout android:id="@+id/LinearLayout01"
-                  android:background="@color/playerControlBackground"
-                  android:layout_height="wrap_content" android:orientation="horizontal"
+    <LinearLayout android:background="@color/playerControlBackground"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
                   android:layout_width="fill_parent">
-        <ImageView
-                android:layout_width="67dip" android:layout_height="67dip"
-                android:src="@drawable/avatar_badge_large" android:id="@+id/user_icon"
-                android:gravity="top" />
+
+        <ImageView android:id="@+id/user_icon"
+                android:layout_width="67dip"
+                android:layout_height="67dip"
+                android:src="@drawable/avatar_badge_large"
+                android:gravity="top"/>
+
         <RelativeLayout android:layout_width="wrap_content"
-                      android:layout_weight="1" android:layout_height="wrap_content" >
-            <TextView android:id="@+id/username" android:layout_alignParentTop="true"
-                      android:layout_width="wrap_content" style="@style/txt_list_main"
-                      android:layout_height="wrap_content" android:textSize="15sp"
-                      android:paddingLeft="5dip" android:paddingRight="5dip"
+                      android:layout_weight="1"
+                      android:layout_height="wrap_content">
+
+            <TextView android:id="@+id/username"
+                      android:layout_alignParentTop="true"
+                      android:layout_width="wrap_content"
+                      style="@style/txt_list_main"
+                      android:layout_height="wrap_content"
+                      android:textSize="15sp"
+                      android:paddingLeft="5dip"
+                      android:paddingRight="5dip"
                       android:paddingTop="5dip"/>
 
-            <TextView android:id="@+id/fullname" android:layout_below="@id/username"
-                      android:layout_width="wrap_content" style="@style/txt_list_sub"
-                      android:layout_height="wrap_content" android:paddingLeft="5dip"
+            <TextView android:id="@+id/fullname"
+                      android:layout_below="@id/username"
+                      android:layout_width="wrap_content"
+                      style="@style/txt_list_sub"
+                      android:layout_height="wrap_content"
+                      android:paddingLeft="5dip"
                       android:paddingRight="5dip" />
         </RelativeLayout>
 
-        <RelativeLayout android:id="@+id/LinearLayout02"
-            android:gravity="center"
+        <RelativeLayout android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:paddingRight="5dip">
@@ -40,16 +51,16 @@
               android:layout_height="wrap_content"
               android:src="@drawable/ic_follow_states"/>
         </RelativeLayout>
-
     </LinearLayout>
 
     <RelativeLayout android:id="@+id/tab_holder"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent">
-        <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:id="@android:id/tabhost"
+
+        <TabHost android:id="@android:id/tabhost"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
+
             <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="fill_parent"

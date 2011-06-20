@@ -892,7 +892,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
         if (mNotificationView == null) {
-            mNotificationView = new RemoteViews(getPackageName(), R.layout.status_play);
+            mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
             mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
         }
 

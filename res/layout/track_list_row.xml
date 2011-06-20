@@ -2,18 +2,19 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:layout_width="fill_parent"
        android:layout_height="wrap_content">
-    <ViewStub
-            android:id="@+id/stub_loading"
+
+    <ViewStub android:id="@+id/stub_loading"
             android:inflatedId="@+id/row_loader"
             android:layout="@layout/list_loading_item"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
-    <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-                    android:id="@+id/row_holder">
+    <RelativeLayout android:id="@+id/row_holder"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
         <include layout="@layout/track_list_row_common"/>
-        <ViewStub
-                android:id="@+id/stub_submenu"
+        <ViewStub android:id="@+id/stub_submenu"
                 android:inflatedId="@+id/row_submenu"
                 android:layout="@layout/track_list_row_submenu"
                 android:layout_below="@id/track_info_row"
