@@ -22,6 +22,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -62,14 +63,12 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -85,7 +84,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -562,7 +560,7 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    public void fileLengthUpdated(Track t, boolean changed) {
+    private void fileLengthUpdated(Track t, boolean changed) {
         if (t.id == mPlayingData.id) {
             if (changed) {
                 // stop the track if its playing
@@ -637,7 +635,9 @@ public class CloudPlaybackService extends Service {
                     @Override
                     public void run() {
                         try {
-                            trimCache(trackToCache.getCache());
+                            if (!TrackCache.trim(trackToCache.getCache(), Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
+                                mkdirs(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY);
+                            }
                         } catch (IOException ignored) {
                             Log.w(TAG, "error", ignored);
 
@@ -790,63 +790,9 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    private void trimCache(File keepFile) throws IOException {
-        long size = 0;
-        final long maxSize = 200000000;
 
-        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final long spaceLeft = ((long) fs.getBlockSize())
-                * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
-
-        File cacheDir = Consts.EXTERNAL_TRACK_CACHE_DIRECTORY;
-        if (cacheDir.exists()) {
-            File[] fileList = cacheDir.listFiles();
-            if (fileList != null) {
-                ArrayList<File> orderedFiles = new ArrayList<File>();
-                for (File file : fileList) {
-                    if (!file.isDirectory() && (keepFile == null || !file.equals(keepFile))) {
-                        size += file.length();
-                    }
-
-                    if (orderedFiles.size() == 0) {
-                        orderedFiles.add(file);
-                    } else {
-                        int j = 0;
-                        while (j < orderedFiles.size()
-                                && (orderedFiles.get(j)).lastModified() < file.lastModified()) {
-                            j++;
-                        }
-                        orderedFiles.add(j, file);
-                    }
-                }
-
-                Log.i(TAG, "Current Cache Size " + size + " (space left " + spaceLeft + ")");
-
-                if (size > maxSize || spaceLeft < 0) {
-                    final long toTrim = Math.max(size - maxSize, Math.abs(spaceLeft));
-                    int j = 0;
-                    long trimmed = 0;
-                    // XXX PUT THIS CODE UNDER TEST (INFINITE LOOPS)
-                    while (j < orderedFiles.size() && trimmed < toTrim) {
-                        final File moribund = orderedFiles.get(j);
-                        if (!moribund.equals(keepFile)) {
-                            Log.v(TAG, "Trimming " + moribund);
-                            trimmed += moribund.length();
-                            if (!moribund.delete()) {
-                                Log.w(TAG, "error deleting " + moribund);
-                            }
-                        }
-                        j++;
-                    }
-                }
-            }
-        } else {
-            mkdirs(cacheDir);
-        }
-    }
 
     public void sendDownloadException() {
-        //new Exception().printStackTrace();
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 

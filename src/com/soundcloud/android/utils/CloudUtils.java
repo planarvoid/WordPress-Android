@@ -20,11 +20,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -82,14 +84,15 @@ public class CloudUtils {
 
     public static void checkState(Context c) {
         checkDirs(c);
-
-        File f = new File(Consts.DEPRECATED_DB_ABS_PATH);
-        if (f.exists()) {
-            File newDb = new File(Consts.NEW_DB_ABS_PATH);
-            if (newDb.exists()) {
-                newDb.delete();
+        if (Consts.DEPRECATED_DB_ABS_PATH.exists()) {
+            if (Consts.NEW_DB_ABS_PATH.exists()) {
+                if (!Consts.NEW_DB_ABS_PATH.delete()) {
+                    Log.w(TAG, "error deleting "+Consts.NEW_DB_ABS_PATH);
+                }
             }
-            f.renameTo(newDb);
+            if (!Consts.DEPRECATED_DB_ABS_PATH.renameTo(Consts.NEW_DB_ABS_PATH)) {
+                Log.w(TAG, "error renaming "+Consts.DEPRECATED_DB_ABS_PATH);
+            }
         }
     }
 
@@ -118,7 +121,8 @@ public class CloudUtils {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // fix deprecated casing
             if (fileExistsCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
-                boolean renamed = renameCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, Consts.EXTERNAL_STORAGE_DIRECTORY);
+                boolean renamed = renameCaseSensitive(
+                    Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, Consts.EXTERNAL_STORAGE_DIRECTORY);
                 Log.d(TAG, "Attempting to rename external storage: " + renamed);
             }
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
@@ -587,5 +591,25 @@ public class CloudUtils {
 
     public static boolean isLandscape(Activity a) {
         return CloudUtils.getScreenOrientation(a) == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+
+    /**
+     * Execute a function, but only once.
+     * @param context the context
+     * @param key an identifier for the function
+     * @param fun the function to run
+     * @return whether the function was executed
+     */
+    public static boolean doOnce(Context context, String key, Runnable fun) {
+        final String k = "do.once."+key;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (!prefs.getBoolean(k, false)) {
+            fun.run();
+            prefs.edit().putBoolean(k, true).commit();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

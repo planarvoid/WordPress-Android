@@ -5,23 +5,25 @@ import android.os.Environment;
 import java.io.File;
 
 public class Consts {
-    public static final String DB_PATH = "/data/data/com.soundcloud.android/databases/";
-    public static final String DEPRECATED_DB_ABS_PATH = DB_PATH + "Overcast";
-    public static final String NEW_DB_ABS_PATH = DB_PATH + "SoundCloud.db";
-
-    public static final String FILES_PATH = "Android/data/com.soundcloud.android/files/";
+    public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
+    public static final File DEPRECATED_DB_ABS_PATH = new File(DB_PATH, "Overcast");
+    public static final File NEW_DB_ABS_PATH = new File(DB_PATH, "SoundCloud.db");
 
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
-    public static final File EXTERNAL_CACHE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(), FILES_PATH +"/.cache/");
-
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(), "SoundCloud");
 
-    public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(), FILES_PATH+"/.s/");
+    public static final File FILES_PATH = new File(
+            Environment.getExternalStorageDirectory(),
+            "Android/data/com.soundcloud.android/files");
+
+    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
+    public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
+
+    public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
+    public static final long TRACK_MIN_CACHE = 20 * 1024  * 1024; // 20  MB
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
@@ -60,8 +62,8 @@ public class Consts {
 
     // these need to be unique across app
     public interface Notifications {
-        int RECORD_NOTIFY_ID = 0;
-        int PLAYBACK_NOTIFY_ID = 1;
-        int UPLOAD_NOTIFY_ID = 2;
+        int RECORD_NOTIFY_ID    = 0;
+        int PLAYBACK_NOTIFY_ID  = 1;
+        int UPLOAD_NOTIFY_ID    = 2;
     }
 }
