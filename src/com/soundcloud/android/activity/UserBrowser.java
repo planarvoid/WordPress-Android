@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -22,7 +23,6 @@ import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
@@ -133,7 +133,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        CloudUtils.formatGraphicsUrl(mIconURL, GraphicsSizes.CROP)
+                        CloudUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
                     ).show();
                 }
 
@@ -372,7 +372,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         ScTabView tracksView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), tracksView, adpWrap, CloudUtils.ListId.LIST_USER_TRACKS, null);
+        CloudUtils.configureTabList(buildList(), tracksView, adpWrap, Consts.ListId.LIST_USER_TRACKS, null);
         CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
@@ -390,7 +390,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
 
         ScTabView favoritesView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), favoritesView, adpWrap, CloudUtils.ListId.LIST_USER_FAVORITES, null);
+        CloudUtils.configureTabList(buildList(), favoritesView, adpWrap, Consts.ListId.LIST_USER_FAVORITES, null);
         CloudUtils.createTab(mTabHost, TabTags.favorites, getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
@@ -413,7 +413,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followingsView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), followingsView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
+        CloudUtils.configureTabList(buildList(), followingsView, adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -431,7 +431,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followersView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), followersView, adpWrap, CloudUtils.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
+        CloudUtils.configureTabList(buildList(), followersView, adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 
         if (isMe()) {
@@ -580,7 +580,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, GraphicsSizes.LARGE);;
+            String remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
@@ -680,7 +680,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     @Override
     protected void handleRecordingClick(Recording recording) {
         if (recording.upload_status == Recording.UploadStatus.UPLOADING)
-            safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+            safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
             showRecordingDialog(recording);
         }
@@ -726,7 +726,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD:
+            case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
@@ -737,12 +737,12 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                                 } catch (RemoteException ignored) {
                                     Log.w(TAG, ignored);
                                 }
-                                removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                             }
                         }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                        removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                                     }
                                 }).create();
             default:

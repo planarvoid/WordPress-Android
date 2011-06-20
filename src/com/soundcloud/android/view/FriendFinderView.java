@@ -2,6 +2,8 @@ package com.soundcloud.android.view;
 
 import android.view.Gravity;
 import android.view.ViewGroup;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -212,7 +214,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
 
         CloudUtils.configureTabList(mFriendList, this, mAdapter,
-            CloudUtils.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
+            Consts.ListId.LIST_USER_SUGGESTED, null).disableLongClickListener();
     }
 
     private void addFriendsSection() {

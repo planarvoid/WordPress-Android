@@ -4,6 +4,7 @@ package com.soundcloud.android.activity;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
@@ -16,7 +17,6 @@ import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -500,9 +500,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                         mInfoButton,
                         (getResources().getDisplayMetrics().density > 1) ?
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.BADGE)
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, Consts.GraphicsSizes.BADGE)
                         :
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, GraphicsSizes.SMALL), null)) != BindResult.OK){
+                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, Consts.GraphicsSizes.SMALL), null)) != BindResult.OK){
                     mInfoButton.setImageDrawable(getResources().getDrawable(
                             R.drawable.artwork_player_sm));
                 }
@@ -914,7 +914,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
                             CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    GraphicsSizes.T500), new ImageViewCallback() {
+                                    Consts.GraphicsSizes.T500), new ImageViewCallback() {
                                 @Override
                                 public void onImageError(ImageView view, String url, Throwable error) {
                                     mCurrentArtBindResult = BindResult.ERROR;

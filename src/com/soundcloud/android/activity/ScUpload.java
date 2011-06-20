@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
@@ -61,7 +62,7 @@ public class ScUpload extends ScActivity {
         setContentView(R.layout.sc_upload);
         initResourceRefs();
 
-        mImageDir = new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
+        mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
         Uri uri = null;
