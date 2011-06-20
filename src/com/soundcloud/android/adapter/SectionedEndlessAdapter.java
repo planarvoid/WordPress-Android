@@ -31,6 +31,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
 
+
     @Override
     public List<Parcelable> getData() {
         return getWrappedAdapter().getData(mSectionIndex);
@@ -38,7 +39,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     protected Request getRequest(boolean refresh) {
-        return getWrappedAdapter().getRequest(mSectionIndex);
+        return getWrappedAdapter().getRequest(refresh? 0 : mSectionIndex);
     }
 
     @Override
@@ -46,7 +47,13 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         return getWrappedAdapter().getLoadModel(mSectionIndex);
     }
 
-    public void clearData(){
+    @Override
+    public void resetData(){
+        mSectionIndex = 0;
+        getWrappedAdapter().clearData();
+    }
+
+    public void clearSections(){
         mSectionIndex = 0;
         getWrappedAdapter().sections.clear();
     }
@@ -104,7 +111,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         }
 
         // configure the empty view depending on possible exceptions
-        setEmptyviewText();
+        applyEmptyText();
         mListView.setEmptyView(mEmptyView);
 
         mActivity.handleException();

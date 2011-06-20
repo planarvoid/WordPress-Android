@@ -92,11 +92,6 @@ public class Dashboard extends ScActivity {
         return null;
     }
 
-    @Override
-    public void onRefresh() {
-        mTracklistView.onRefresh(true);
-    }
-
     // legacy action, redirect to Main
     private boolean redirectToMain() {
         if (Intent.ACTION_MAIN.equals(getIntent().getAction())) {

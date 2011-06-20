@@ -3,11 +3,14 @@ package com.soundcloud.android.view;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.markupartist.android.widget.PullToRefreshListView;
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -58,11 +61,10 @@ public class LazyListView extends PullToRefreshListView implements  LazyEndlessA
         mListener = listener;
     }
 
-    @Override
-    public void setAdapter(ListAdapter adapter) {
+    public void setAdapter(ListAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
         if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass())) {
-            setOnRefreshListener((LazyEndlessAdapter) adapter);
+            if (refreshEnabled) setOnRefreshListener((LazyEndlessAdapter) adapter);
             ((LazyEndlessAdapter) adapter).addRefreshedListener(this);
 
         }
@@ -230,4 +232,5 @@ public class LazyListView extends PullToRefreshListView implements  LazyEndlessA
         void onFling();
         void onFlingDone();
     }
+
 }

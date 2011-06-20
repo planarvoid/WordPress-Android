@@ -169,7 +169,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
                     if (success) {
                         facebookBtn.setVisibility(View.GONE);
-                        ffAdpWrap.clearData();
+                        ffAdpWrap.clearSections();
                         addFriendsSection();
                         addSuggestedUsersSection();
                         ffAdpWrap.refresh(false);

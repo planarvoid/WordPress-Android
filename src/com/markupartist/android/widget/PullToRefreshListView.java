@@ -92,6 +92,9 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         mInflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
 
+        Log.i("asdf","REFRESH VIEW TYPE " + mInflater.inflate(
+                R.layout.pull_to_refresh_header, null));
+
         mRefreshView = (LinearLayout) mInflater.inflate(
                 R.layout.pull_to_refresh_header, null);
 

@@ -83,8 +83,10 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
         return sections.size() == 0 ? null : sections.get(index).data;
     }
 
-    public void clear(){
-        sections.clear();
+    public void clearData(){
+          for (Section section : sections) {
+              section.data.clear();
+          }
     }
 
     @Override

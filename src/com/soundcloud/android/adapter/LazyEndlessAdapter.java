@@ -8,10 +8,12 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.markupartist.android.widget.PullToRefreshListView;
@@ -62,21 +64,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * here because this adapter will control the visibility of the list
      */
     public void createListEmptyView(LazyListView lv) {
-        mListView = lv;
-
         clearEmptyView();
-
-        TextView emptyView = new TextView(mActivity);
-        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.FILL_PARENT));
-        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        emptyView.setVisibility(View.GONE);
-        emptyView.setPadding(5, 5, 5, 5);
-        emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
-        // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
-        mEmptyView = emptyView;
-
-        ((ViewGroup) mListView.getParent()).addView(emptyView);
+        LayoutInflater inflater = mActivity.getLayoutInflater();
+        mEmptyView = inflater.inflate(R.layout.empty_list, null);
+        ((ViewGroup) lv.getParent()).addView(mEmptyView);
+        lv.setEmptyView(mEmptyView);
 
     }
 
@@ -98,7 +90,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * Set the current text of the adapter, based on if we are currently dealing
      * with an exception
      */
-    public void setEmptyviewText() {
+    public void applyEmptyText() {
         if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
             return;
@@ -127,7 +119,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                     R.string.tracklist_error);
         }
 
-        ((TextView) mEmptyView).setText(textToSet);
+        ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(textToSet);
     }
 
     /**
@@ -208,8 +200,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mException = restore[2] == 1;
 
         if (!mKeepOnAppending.get()) {
-            setEmptyviewText();
-            mListView.setEmptyView(mEmptyView);
+            applyEmptyText();
+
         }
 
     }
@@ -315,8 +307,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mPendingPosition = -1;
 
         // configure the empty view depending on possible exceptions
-        setEmptyviewText();
-        mListView.setEmptyView(mEmptyView);
+        applyEmptyText();
         notifyDataSetChanged();
 
         mActivity.handleException();
@@ -396,7 +387,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @SuppressWarnings("unchecked")
     public void refresh(boolean userRefresh) {
-
         if (userRefresh){
             if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
@@ -413,20 +403,23 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mRefreshTask.execute(buildRequest(true));
     }
 
-     /**
-     * Clear and reset this adapter of any data. Primarily used for refreshing
-     */
-    @SuppressWarnings("unchecked")
+
     public void reset() {
+        reset(true);
+    }
+
+    public void resetData(){
         getWrappedAdapter().reset();
+    }
+
+    public void reset(boolean keepAppending) {
+        resetData();
 
         if (mEmptyView != null)
             mEmptyView.setVisibility(View.GONE);
-        if (mListView != null)
-            mListView.setEmptyView(null);
 
         mCurrentPage = 0;
-        mKeepOnAppending.set(true);
+        mKeepOnAppending.set(keepAppending);
 
         cancelCurrentAppendTask();
 
@@ -518,5 +511,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         void onRefreshComplete();
     }
 
+    public boolean isEmpty(){
+        Log.i("asdf","IIISSS EMPTY " + super.isEmpty());
+        return super.isEmpty();
+
+    }
 
 }

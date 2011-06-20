@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,14 +126,14 @@ public class SectionedListView extends LazyListView {
     }
 
     @Override
-    public void setAdapter(ListAdapter adapter) {
+    public void setAdapter(ListAdapter adapter, boolean refreshEnabled) {
         if (!(adapter instanceof SectionedEndlessAdapter)) {
             throw new IllegalArgumentException(SectionedListView.class.getSimpleName()
                     + " must use adapter of type " + SectionedEndlessAdapter.class.getSimpleName());
         }
 
         this.adapter = (SectionedEndlessAdapter) adapter;
-        super.setAdapter(adapter);
+        super.setAdapter(adapter, refreshEnabled);
     }
 
     @Override

@@ -243,9 +243,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
     }
 
-
-
-
     @Override
     public void onRefresh() {
         if (avatarResult == BindResult.ERROR)
@@ -259,21 +256,22 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         loadDetails();
+        refreshConnections();
+    }
 
+    public void refreshConnections(){
+        Log.i("asdf","REFRESH CONNECTIONS " );
         if (isMe() && CloudUtils.isTaskFinished(mConnectionsTask)) {
             mConnectionsTask = new LoadConnectionsTask(getApp());
             mConnectionsTask.setListener(this);
             mConnectionsTask.execute();
             if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
         }
-
-        if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
-        }
     }
 
     @Override
     public void onConnections(List<Connection> connections) {
+        Log.i("asdf","On Connections " + connections);
         mConnections = connections;
         mFriendFinderView.onConnections(connections, true);
     }
