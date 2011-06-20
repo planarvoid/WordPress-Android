@@ -1214,7 +1214,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return (isStagefright && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
+            return ((isStagefright || Build.VERSION.SDK_INT > 8) && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
                     .isAsyncOpening());
         }
     }
@@ -1228,7 +1228,7 @@ public class CloudPlaybackService extends Service {
     public long seek(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && isStagefright) {
+                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1250,7 +1250,7 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && isStagefright) {
+                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1375,8 +1375,12 @@ public class CloudPlaybackService extends Service {
         }
 
         public long seek(long whereto, boolean resumeSeek) {
-            mPlayer.setVolume(0);
-            whereto = (int) getSeekResult(whereto, resumeSeek);
+
+            if (isStagefright) {
+                mPlayer.setVolume(0);
+                whereto = (int) getSeekResult(whereto, resumeSeek);
+            }
+
             if (whereto != mPlayer.position()) mMediaPlayer.seekTo((int) whereto);
             return whereto;
         }
@@ -1445,6 +1449,9 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
             public void onSeekComplete(MediaPlayer mp) {
+                Log.i("asdf","ON SEEK COMPLETE " + mMediaPlayer.isPlaying());
+                if (!isStagefright) return;
+
                 if (!mMediaPlayer.isPlaying()) {
                     mPlayer.setVolume(0);
                     play();
