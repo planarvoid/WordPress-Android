@@ -191,27 +191,6 @@ public class CloudUtils {
             return "";
         }
     }
-    public static LazyListView configureTabList(LazyListView lv,
-                                                    FrameLayout listHolder,
-                                                    LazyEndlessAdapter adpWrap,
-                                                    int listId, OnTouchListener touchListener) {
-        return configureTabList(lv,listHolder, adpWrap,listId,touchListener,true);
-
-    }
-
-    public static LazyListView configureTabList(LazyListView lv,
-                                                FrameLayout listHolder,
-                                                LazyEndlessAdapter adpWrap,
-                                                int listId, OnTouchListener touchListener, boolean refreshEnabled) {
-
-        listHolder.setLayoutParams(new LayoutParams(FILL_PARENT, FILL_PARENT));
-        if (listId != -1) lv.setId(listId);
-        if (touchListener != null) lv.setOnTouchListener(touchListener);
-        listHolder.addView(lv);
-        adpWrap.createListEmptyView(lv);
-        lv.setAdapter(adpWrap, refreshEnabled);
-        return lv;
-    }
 
     public static void createTab(TabHost tabHost, String tabId,
                                  String indicatorText, Drawable indicatorIcon, final ScTabView tabView) {

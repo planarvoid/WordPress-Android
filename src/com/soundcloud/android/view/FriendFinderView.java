@@ -1,8 +1,6 @@
 package com.soundcloud.android.view;
 
 import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -14,7 +12,6 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
@@ -124,9 +121,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 break;
 
             case States.CONNECTION_ERROR:
-                Log.i("asdf","ON CONN ERROR " + mFriendList.getCount() + " " + mFriendList.getWrapper());
-
-                if (mFriendList != null && mFriendList.getCount() - mFriendList.getHeaderViewsCount() > 0){
+                if (mFriendList != null && !mFriendList.getWrapper().isEmpty()){
                     mFriendList.onRefreshComplete();
                     mFriendList.setSelection(0);
                 } else {
@@ -149,7 +144,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
                 mFriendList.getWrapper().setEmptyViewText(null);
                 if (refresh) mFriendList.getWrapper().onRefresh();
-                mFriendList.getWrapper().createListEmptyView(mFriendList);
+                mFriendList.getWrapper().configureViews(mFriendList);
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -162,7 +157,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 Log.i("asdf","FBCONN " + refresh);
                 mFriendList.getWrapper().setEmptyViewText(null);
                 if (refresh) mFriendList.getWrapper().onRefresh();
-                mFriendList.getWrapper().createListEmptyView(mFriendList);
+                mFriendList.getWrapper().configureViews(mFriendList);
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -196,8 +191,8 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
 
-        CloudUtils.configureTabList(mFriendList, this, mAdapter,
-            Consts.ListId.LIST_USER_SUGGESTED, null, false).disableLongClickListener();
+        setLazyListView(mFriendList, mAdapter,
+            Consts.ListId.LIST_USER_SUGGESTED, false).disableLongClickListener();
 
         if (mFbConnected) {
             addFriendsSection();
@@ -231,7 +226,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     @Override
     public void onRefresh() {
-        Log.i("asdf","On Refresh Friendfview");
+        Log.i("asdf", "On Refresh Friendfview");
         ((UserBrowser) mActivity).refreshConnections();
     }
 

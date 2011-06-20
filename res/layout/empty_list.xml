@@ -3,6 +3,7 @@
         android:layout_height="fill_parent" android:layout_width="fill_parent">
     <TextView android:layout_centerInParent="true"
             android:id="@+id/empty_txt" android:layout_height="wrap_content"
+            android:gravity="center"
             android:layout_width="wrap_content" android:text=""
             android:paddingTop="10dip" android:paddingBottom="10dip"
             android:paddingLeft="20dip" android:paddingRight="20dip"

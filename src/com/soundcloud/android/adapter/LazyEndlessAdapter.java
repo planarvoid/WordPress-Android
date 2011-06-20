@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 
+import android.nfc.Tag;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -45,7 +46,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected Boolean mException = false;
     private String mEmptyViewText = "";
     private Request mRequest;
-    private List<WeakReference<RefreshedListener>> mListeners;
     private RefreshTask mRefreshTask;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
@@ -55,31 +55,35 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mCurrentPage = 0;
         mRequest = request;
         wrapped.setWrapper(this);
-
-        mListeners = new ArrayList<WeakReference<RefreshedListener>>();
     }
 
     /**
      * Create an empty view for the list this adapter will control. This is done
      * here because this adapter will control the visibility of the list
      */
-    public void createListEmptyView(LazyListView lv) {
-        clearEmptyView();
-        LayoutInflater inflater = mActivity.getLayoutInflater();
-        mEmptyView = inflater.inflate(R.layout.empty_list, null);
-        ((ViewGroup) lv.getParent()).addView(mEmptyView);
-        lv.setEmptyView(mEmptyView);
+    public void configureViews(final LazyListView lv) {
+        mListView = lv;
 
+        clearEmptyView();
+
+        TextView emptyView = new TextView(mActivity);
+        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+                LayoutParams.FILL_PARENT));
+        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        emptyView.setVisibility(View.GONE);
+        emptyView.setPadding(5, 5, 5, 5);
+        emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
+        // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
+        mEmptyView = emptyView;
+
+        ((ViewGroup) mListView.getParent()).addView(emptyView);
     }
 
     public void clearEmptyView() {
-        if (mEmptyView != null) {
-            if (mEmptyView.getParent() != null) {
+        if (mEmptyView != null && mEmptyView.getParent() != null) {
                 ((ViewGroup) mEmptyView.getParent()).removeView(mEmptyView);
-            }
-            mEmptyView = null;
         }
-
+        mEmptyView = null;
     }
 
     public void setEmptyViewText(String str) {
@@ -97,7 +101,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         }
 
         String textToSet = "";
-
 
         if (Track.class.equals(getLoadModel())) {
             textToSet = !mException ? mActivity.getResources().getString(
@@ -119,7 +122,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                     R.string.tracklist_error);
         }
 
-        ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(textToSet);
+        ((TextView) mEmptyView).setText(textToSet);
     }
 
     /**
@@ -308,6 +311,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         // configure the empty view depending on possible exceptions
         applyEmptyText();
+        mEmptyView.setVisibility(View.VISIBLE);
+        mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
         mActivity.handleException();
@@ -395,11 +400,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             reset();
         }
 
+        if (mEmptyView != null){
+            mEmptyView.setVisibility(View.GONE);
+            mListView.setEmptyView(null);
+        }
+
         mRefreshTask = new RefreshTask(mActivity.getApp());
         mRefreshTask.loadModel = getLoadModel();
         mRefreshTask.pageSize =  getPageSize();
         mRefreshTask.setAdapter(this);
-
         mRefreshTask.execute(buildRequest(true));
     }
 
@@ -468,36 +477,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mPendingPosition = -1;
     }
 
-    public void addRefreshedListener(RefreshedListener listener){
-        for (WeakReference<RefreshedListener> listenerRef : mListeners){
-            if (listenerRef.get() != null && listenerRef.get() == listener) return;
-        }
-        mListeners.add(new WeakReference<RefreshedListener>(listener));
-    }
-
-    public boolean removeRefreshedListener(RefreshedListener listener){
-        for (WeakReference<RefreshedListener> listenerRef : mListeners){
-            if (listenerRef.get() != null && listenerRef.get() == listener) {
-                mListeners.remove(listenerRef);
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void onRefresh() {
-            if (!isRefreshing()) refresh(true);
+        if (!isRefreshing()) refresh(true);
     }
 
     public void onPostRefresh() {
-        for (WeakReference<RefreshedListener> listenerRef : mListeners) {
-            RefreshedListener listener = listenerRef.get();
-            if (listener != null) {
-                listener.onRefreshComplete();
-            }
-        }
-
+        mListView.onRefreshComplete();
+        applyEmptyText();
+        mListView.setEmptyView(mEmptyView);
     }
 
     public boolean isRefreshing() {
@@ -507,14 +495,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         return false;
     }
 
-    public interface RefreshedListener {
-        void onRefreshComplete();
-    }
-
     public boolean isEmpty(){
-        Log.i("asdf","IIISSS EMPTY " + super.isEmpty());
-        return super.isEmpty();
-
+        return super.getCount() == 0;
     }
-
 }

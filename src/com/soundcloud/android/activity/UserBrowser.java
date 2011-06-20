@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.view.ViewGroup;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -257,6 +259,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         loadDetails();
         refreshConnections();
+
+         if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
+            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
+        }
     }
 
     public void refreshConnections(){
@@ -378,8 +384,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
         }
 
-        ScTabView tracksView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), tracksView, adpWrap, Consts.ListId.LIST_USER_TRACKS, null);
+        ScTabView tracksView = new ScTabView(this);
+        tracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
         CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
@@ -396,8 +402,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
 
-        ScTabView favoritesView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), favoritesView, adpWrap, Consts.ListId.LIST_USER_FAVORITES, null);
+        ScTabView favoritesView = new ScTabView(this);
+        favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
         CloudUtils.createTab(mTabHost, TabTags.favorites, getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
@@ -419,8 +425,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
         }
 
-        final ScTabView followingsView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), followingsView, adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, null).disableLongClickListener();
+        final ScTabView followingsView = new ScTabView(this);
+        followingsView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -437,8 +443,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
         }
 
-        final ScTabView followersView = new ScTabView(this, adpWrap);
-        CloudUtils.configureTabList(buildList(), followersView, adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, null).disableLongClickListener();
+        final ScTabView followersView = new ScTabView(this);
+        followersView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
+
         CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 
         if (isMe()) {

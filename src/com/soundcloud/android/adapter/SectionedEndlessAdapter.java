@@ -112,8 +112,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
         // configure the empty view depending on possible exceptions
         applyEmptyText();
-        mListView.setEmptyView(mEmptyView);
-
         mActivity.handleException();
         mActivity.handleError();
     }

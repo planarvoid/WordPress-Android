@@ -56,7 +56,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         // XXX make this sane - createListEmpty expects list with parent view
-        ffAdpWrap.createListEmptyView(mListView);
+        ffAdpWrap.configureViews(mListView);
         ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
         mListView.setAdapter(ffAdpWrap);
 

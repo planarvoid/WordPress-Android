@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -56,8 +57,8 @@ public class Dashboard extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            ((EventsAdapterWrapper) mTracklistView.adapter).restoreState(mPreviousState);
-            if (((EventsAdapterWrapper) mTracklistView.adapter).isRefreshing()) {
+            ((LazyEndlessAdapter)mListView.getAdapter()).restoreState(mPreviousState);
+            if (((LazyEndlessAdapter) mListView.getAdapter()).isRefreshing()) {
                 mListView.prepareForRefresh();
                 mListView.setSelection(0);
             }
@@ -72,6 +73,11 @@ public class Dashboard extends ScActivity {
         pageTrack(mTrackingPath);
     }
 
+    @Override
+    public void onRefresh() {
+        mTracklistView.onRefresh(true);
+    }
+
     protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
         EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);
@@ -80,15 +86,15 @@ public class Dashboard extends ScActivity {
             adpWrap.setEmptyViewText(getResources().getString(emptyText));
         }
 
-        final ScTabView view = new ScTabView(this, adpWrap);
-        mListView = CloudUtils.configureTabList(buildList(), view, adpWrap, listId, null);
+        final ScTabView view = new ScTabView(this);
+        mListView = view.setLazyListView(buildList(), adpWrap, listId, true);
         return view;
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mTracklistView != null && mTracklistView.adapter instanceof EventsAdapterWrapper){
-            return ((EventsAdapterWrapper) mTracklistView.adapter).saveState();
+        if (mListView != null && mListView.getAdapter() instanceof EventsAdapterWrapper){
+            return ((EventsAdapterWrapper)mListView.getAdapter()).saveState();
         }
         return null;
     }

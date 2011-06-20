@@ -77,7 +77,7 @@ public class ScSearch extends ScActivity {
 
         // set the list to tracks by default
         mList.setAdapter(mTrackAdpWrapper);
-        mTrackAdpWrapper.createListEmptyView(mList);
+        mTrackAdpWrapper.configureViews(mList);
 
         mList.setId(android.R.id.list);
 
@@ -121,7 +121,7 @@ public class ScSearch extends ScActivity {
 
             if (mPreviousState[3].equals(User.class)) {
                 mList.setAdapter(mUserAdpWrapper);
-                mUserAdpWrapper.createListEmptyView(mList);
+                mUserAdpWrapper.configureViews(mList);
             }
 
         }
@@ -162,12 +162,12 @@ public class ScSearch extends ScActivity {
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
             mTrackAdpWrapper.setRequest(Request.to(Endpoints.TRACKS).with("q", query));
-            mTrackAdpWrapper.createListEmptyView(mList);
+            mTrackAdpWrapper.configureViews(mList);
             mList.setAdapter(mTrackAdpWrapper);
             mList.enableLongClickListener();
         } else {
             mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
-            mUserAdpWrapper.createListEmptyView(mList);
+            mUserAdpWrapper.configureViews(mList);
             mList.setAdapter(mUserAdpWrapper);
             mList.disableLongClickListener();
         }

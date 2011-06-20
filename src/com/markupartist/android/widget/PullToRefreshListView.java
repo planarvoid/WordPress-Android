@@ -422,15 +422,16 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
      * Resets the list to a normal state after a refresh.
      */
     public void onRefreshComplete() {
-        Log.d(TAG, "onRefreshComplete " + mRefreshView.getBottom());
+        Log.d(TAG, "onRefreshComplete " + mRefreshView.getBottom() + " " + getCount() + " " + getAdapter());
 
         resetHeader();
-
         // If refresh view is visible when loading completes, scroll down to
         // the next item.
         if (mRefreshView.getBottom() > 0) {
             invalidateViews();
             setSelection(1);
+            Log.i(TAG,"Refresh Complete selection " + this.getSelectedItemPosition());
+
         }
     }
 

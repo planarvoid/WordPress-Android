@@ -20,7 +20,7 @@ import com.soundcloud.android.model.*;
 import java.util.ArrayList;
 
 
-public class LazyListView extends PullToRefreshListView implements  LazyEndlessAdapter.RefreshedListener {
+public class LazyListView extends PullToRefreshListView {
 
     private static final int MESSAGE_UPDATE_LIST_ICONS = 1;
     private static final int DELAY_SHOW_LIST_ICONS = 550;
@@ -63,11 +63,8 @@ public class LazyListView extends PullToRefreshListView implements  LazyEndlessA
 
     public void setAdapter(ListAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
-        if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass())) {
-            if (refreshEnabled) setOnRefreshListener((LazyEndlessAdapter) adapter);
-            ((LazyEndlessAdapter) adapter).addRefreshedListener(this);
-
-        }
+        if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass()) && refreshEnabled)
+            setOnRefreshListener((LazyEndlessAdapter) adapter);
     }
 
     @Override
@@ -192,11 +189,6 @@ public class LazyListView extends PullToRefreshListView implements  LazyEndlessA
                 mListener.onFling();
         }
         mScrollState = scrollState;
-    }
-
-    @Override
-    public void onRefreshComplete() {
-        super.onRefreshComplete();
     }
 
     private class FingerTracker implements View.OnTouchListener {
