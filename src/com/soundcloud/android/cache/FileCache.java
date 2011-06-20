@@ -3,6 +3,7 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.filecache.FileResponseCache;
+import com.soundcloud.android.Consts;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -26,13 +27,6 @@ import java.util.Map;
  * @author jschmidt
  */
 public class FileCache extends FileResponseCache {
-    public static final File EXTERNAL_CACHE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(),
-            "Android/data/com.soundcloud.android/files/.cache/");
-
-    public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(),
-            "Android/data/com.soundcloud.android/files/.s/");
 
     private final Context mContext;
 
@@ -108,7 +102,7 @@ public class FileCache extends FileResponseCache {
 
     public static File getCacheDir(Context context) {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ?
-                EXTERNAL_CACHE_DIRECTORY :
+                Consts.EXTERNAL_CACHE_DIRECTORY :
                 context.getCacheDir();
     }
 

@@ -5,19 +5,23 @@ import android.os.Environment;
 import java.io.File;
 
 public class Consts {
-    public static final String DEPRECATED_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/Overcast";
-    public static final String NEW_DB_ABS_PATH = "/data/data/com.soundcloud.android/databases/SoundCloud.db";
+    public static final String DB_PATH = "/data/data/com.soundcloud.android/databases/";
+    public static final String DEPRECATED_DB_ABS_PATH = DB_PATH + "Overcast";
+    public static final String NEW_DB_ABS_PATH = DB_PATH + "SoundCloud.db";
+
+    public static final String FILES_PATH = "Android/data/com.soundcloud.android/files/";
 
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(),
-            "Android/data/com.soundcloud.android/files/.cache/");
+            Environment.getExternalStorageDirectory(), FILES_PATH +"/.cache/");
 
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(),
-            "SoundCloud");
+            Environment.getExternalStorageDirectory(), "SoundCloud");
+
+    public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(
+            Environment.getExternalStorageDirectory(), FILES_PATH+"/.s/");
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;

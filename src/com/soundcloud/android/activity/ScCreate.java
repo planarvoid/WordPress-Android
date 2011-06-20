@@ -98,7 +98,7 @@ public class ScCreate extends ScActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCurrentState = CreateState.IDLE_RECORD;
-        setContentView(R.layout.sc_record);
+        setContentView(R.layout.sc_create);
 
         mRecordingUri = getIntent().getData();
         initResourceRefs();

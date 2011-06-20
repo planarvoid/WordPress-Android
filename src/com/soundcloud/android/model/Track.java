@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -8,6 +9,7 @@ import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 
+import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -21,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,8 +100,6 @@ public class Track extends BaseObj implements Parcelable {
     @JsonIgnore
     public List<Comment> comments;
     @JsonIgnore
-    public File mCacheFile;
-    @JsonIgnore
     public long filelength;
     @JsonIgnore
     public boolean user_played;
@@ -110,7 +111,7 @@ public class Track extends BaseObj implements Parcelable {
     public boolean info_loaded;
     @JsonIgnore
     public boolean comments_loaded;
-
+    private File mCacheFile;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -320,4 +321,51 @@ public class Track extends BaseObj implements Parcelable {
             return new Track[size];
         }
     };
+
+    public boolean createCache() {
+        if (!getCache().exists()) {
+            CloudUtils.mkdirs(getCache().getParentFile());
+            try {
+                return getCache().createNewFile();
+            } catch (IOException e) {
+                Log.w(TAG, "error creating cache "+getCache(), e);
+                return false;
+            }
+        } else return false;
+    }
+
+    public File getCache() {
+        if (mCacheFile == null) {
+            mCacheFile = new File(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY, CloudUtils.md5(Long.toString(id)));
+        }
+        return mCacheFile;
+    }
+
+    public boolean isCached() {
+        return filelength > 0 &&  getCache().length() >= filelength;
+    }
+
+    public boolean touchCache() {
+        File cache = getCache();
+        if (cache.exists())  {
+            if (!cache.setLastModified(System.currentTimeMillis())) {
+                Log.w(TAG, "error touching "+cache);
+                return false;
+            } else {
+                return true;
+            }
+        } else return false;
+    }
+
+    public boolean deleteCache() {
+        File cache = getCache();
+        if (cache != null && cache.exists()) {
+            if (!cache.delete()) {
+                Log.w(TAG, "error deleting " + cache);
+                return false;
+            } else {
+                return true;
+            }
+        } else return false;
+    }
 }
