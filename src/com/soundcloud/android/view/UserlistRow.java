@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IUserlistAdapter;
@@ -8,7 +9,6 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.os.Handler;
 import android.os.Message;
@@ -102,9 +102,9 @@ public class UserlistRow extends LazyRow {
         if (mUser.avatar_url == null)
             return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.LARGE);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.LARGE);
         } else {
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, GraphicsSizes.BADGE);
+            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.BADGE);
         }
     }
 

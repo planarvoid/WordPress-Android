@@ -1,11 +1,14 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.utils.CloudUtils.doOnce;
+
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -93,6 +96,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (account != null) {
             FollowStatus.initialize(this, account);
         }
+
+        doOnce(this, "cleanup.track.cache", new Runnable() {
+            @Override public void run() {
+                TrackCache.cleanupTrackCache();
+            }
+        });
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {

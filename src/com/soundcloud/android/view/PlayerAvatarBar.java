@@ -2,10 +2,10 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -90,8 +90,8 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL));
+                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
+                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL));
             }
         }
     }
@@ -103,8 +103,8 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL));
+                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
+                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL));
                 if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
@@ -142,8 +142,8 @@ public class PlayerAvatarBar extends View {
             return;
 
         mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.BADGE) :
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, GraphicsSizes.SMALL), new BitmapCallback() {
+                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
+                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;

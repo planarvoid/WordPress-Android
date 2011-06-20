@@ -1,11 +1,14 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import junit.framework.Assert;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(DefaultTestRunner.class)
@@ -44,5 +47,33 @@ public class TrackTest {
 
         t.license = "no-rights-reserved";
         assertThat(t.formattedLicense(), equalTo("No Rights Reserved"));
+    }
+
+
+    @Test
+    public void shouldHaveCacheFile() throws Exception {
+        Track t = new Track();
+        t.id = 10;
+        t.getCache().deleteOnExit();
+
+        assertThat(t.getCache().getAbsolutePath().contains(
+                "Android/data/com.soundcloud.android/files/.s/d3d944682a44259755d38e6d163e820")
+                , is(true));
+
+        assertThat(t.getCache().exists(), is(false));
+        assertThat(t.touchCache(), is(false));
+    }
+
+    @Test
+    public void shouldDeleteCacheFile() throws Exception {
+        Track t = new Track();
+        t.id = 10;
+        t.getCache().deleteOnExit();
+
+        assertThat(t.getCache().exists(), is(false));
+        assertThat(t.createCache(), is(true));
+        assertThat(t.getCache().exists(), is(true));
+        assertThat(t.deleteCache(), is(true));
+        assertThat(t.getCache().exists(), is(false));
     }
 }

@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
@@ -97,15 +98,15 @@ public class ScCreate extends ScActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCurrentState = CreateState.IDLE_RECORD;
-        setContentView(R.layout.sc_record);
+        setContentView(R.layout.sc_create);
 
         mRecordingUri = getIntent().getData();
         initResourceRefs();
         updateUi(false);
 
         mRecordDir = CloudUtils.ensureUpdatedDirectory(
-                new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
-                new File(CloudUtils.EXTERNAL_STORAGE_DIRECTORY,".rec"));
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY,".rec"));
         mkdirs(mRecordDir);
         mRecordErrorMessage = "";
     }
@@ -192,7 +193,7 @@ public class ScCreate extends ScActivity {
         findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mRecordingUri == null)
-                    showDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                    showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                 else {
                     new AlertDialog.Builder(ScCreate.this)
                             .setTitle(R.string.dialog_confirm_delete_recording_title)
@@ -706,7 +707,7 @@ public class ScCreate extends ScActivity {
                 {
                     return Long.valueOf(r1.timestamp).compareTo(r2.timestamp);
                 } });
-            showDialog(CloudUtils.Dialogs.DIALOG_UNSAVED_RECORDING);
+            showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
         }
     }
 
@@ -751,7 +752,7 @@ public class ScCreate extends ScActivity {
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case CloudUtils.Dialogs.DIALOG_UNSAVED_RECORDING:
+            case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
                 final CharSequence[] fileIds = new CharSequence[mUnsavedRecordings.size()];
                 final boolean[] checked = new boolean[mUnsavedRecordings.size()];
                 for (int i=0; i < mUnsavedRecordings.size(); i++) {
@@ -779,7 +780,7 @@ public class ScCreate extends ScActivity {
                                 mUnsavedRecordings = null;
                             }
                         }).create();
-            case CloudUtils.Dialogs.DIALOG_RESET_RECORDING:
+            case Consts.Dialogs.DIALOG_RESET_RECORDING:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_reset_recording_title)
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
@@ -790,12 +791,12 @@ public class ScCreate extends ScActivity {
                                         }
                                         mCurrentState = CreateState.IDLE_RECORD;
                                         updateUi(true);
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                                        removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                     }
                                 }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_RESET_RECORDING);
+                                        removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                     }
                                 }).create();
             default:

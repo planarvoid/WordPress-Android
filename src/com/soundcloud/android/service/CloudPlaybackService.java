@@ -18,10 +18,11 @@ package com.soundcloud.android.service;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -62,14 +63,12 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -85,7 +84,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -256,15 +254,13 @@ public class CloudPlaybackService extends Service {
         try {
             File f = new File("/system/build.prop");
             InputStream instream = new BufferedInputStream(new FileInputStream(f));
-            if (instream != null) {
-                String line;
-                BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
-                while ((line = buffreader.readLine()) != null) {
-                    //Log.i(TAG,"~~~build.prop: " + line);
-                    if (line.contains("media.stagefright.enable-player")) {
-                        if (line.contains("false")) isStagefright = false;
-                        break;
-                    }
+            String line;
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            while ((line = buffreader.readLine()) != null) {
+                //Log.i(TAG,"~~~build.prop: " + line);
+                if (line.contains("media.stagefright.enable-player")) {
+                    if (line.contains("false")) isStagefright = false;
+                    break;
                 }
             }
             instream.close();
@@ -421,7 +417,7 @@ public class CloudPlaybackService extends Service {
         return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
     }
 
-    /**
+    /*
      * Notify the change-receivers that something has changed. The intent that
      * is sent contains the following data for the currently playing track: "id"
      * - Integer: the database row ID "artist" - String: the name of the artist
@@ -564,17 +560,13 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    public void fileLengthUpdated(Track t, boolean changed) {
+    private void fileLengthUpdated(Track t, boolean changed) {
         if (t.id == mPlayingData.id) {
             if (changed) {
                 // stop the track if its playing
                 stopStreaming(t.id);
 
-                // get rid of the existing cache file
-                if (t.mCacheFile != null && t.mCacheFile.exists()) {
-                    if (!t.mCacheFile.delete())
-                        Log.w(TAG, "error deleting " + t.mCacheFile);
-                }
+                t.deleteCache();
 
                 mPlayListManager.commitTrackToDb(t);
 
@@ -585,8 +577,8 @@ public class CloudPlaybackService extends Service {
                 assertBufferCheck();
                 mPlayListManager.commitTrackToDb(t);
             }
-        } else if (changed && t.mCacheFile != null && t.mCacheFile.exists()) {
-            if (!t.mCacheFile.delete()) Log.w(TAG, "error deleting " + t.mCacheFile);
+        } else if (changed) {
+            t.deleteCache();
         }
     }
 
@@ -596,15 +588,14 @@ public class CloudPlaybackService extends Service {
             mCurrentDownloadAttempts = 0;
 
             if (mPlayingData.isStreamable()) {
-                configureTrackData(mPlayingData);
                 notifyChange(INITIAL_BUFFERING);
 
                 if (isStagefright) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
 
-                    if (mPlayingData.filelength == 0 && mPlayingData.mCacheFile.length() > 0){
-                       if (!mPlayingData.mCacheFile.delete()) Log.w(TAG, "error deleting " + mPlayingData.mCacheFile);
+                    if (mPlayingData.filelength == 0 && mPlayingData.getCache().length() > 0) {
+                        mPlayingData.deleteCache();
                     }
 
                     if (checkNetworkStatus()) {
@@ -628,17 +619,9 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    private void configureTrackData(Track t) {
-        if (t.mCacheFile == null) {
-            t.mCacheFile = new File(FileCache.EXTERNAL_TRACK_CACHE_DIRECTORY
-                    + CloudUtils.md5(Long.toString(t.id)));
-        }
-    }
 
     private void prepareDownload(final Track trackToCache) {
         synchronized (this) {
-            configureTrackData(trackToCache);
-
             if (mDownloadThread != null && mDownloadThread.isAlive()
                     && trackToCache.id == mDownloadThread.getTrackId()) {
                 // we are already downloading this
@@ -652,12 +635,14 @@ public class CloudPlaybackService extends Service {
                     @Override
                     public void run() {
                         try {
-                            trimCache(trackToCache.mCacheFile);
+                            if (!TrackCache.trim(trackToCache.getCache(), Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
+                                mkdirs(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY);
+                            }
                         } catch (IOException ignored) {
                             Log.w(TAG, "error", ignored);
 
                         }
-                        trackToCache.mCacheFile.setLastModified(System.currentTimeMillis());
+                        trackToCache.touchCache();
                     }
                 }.start();
                 mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
@@ -677,7 +662,7 @@ public class CloudPlaybackService extends Service {
             if (mPlayingData == null || getDuration() == 0)
                 return false;
 
-            if (mPlayingData.filelength == 0 || mPlayingData.mCacheFile == null) {
+            if (mPlayingData.filelength == 0 || !mPlayingData.getCache().exists()) {
                 if (CloudUtils.checkThreadAlive(mDownloadThread) || ignoreBuffer)
                     return true;
                 else {
@@ -690,23 +675,23 @@ public class CloudPlaybackService extends Service {
             if (mPlayer != null && mPlayer.isInitialized()) {
                 // normal buffer measurement. size of cache file vs playback
                 // position
-                mCurrentBuffer = mPlayingData.mCacheFile.length() - mPlayingData.filelength
+                mCurrentBuffer = mPlayingData.getCache().length() - mPlayingData.filelength
                         * mPlayer.position() / getDuration();
 
             } else if (mResumeId == mPlayingData.id && mResumeTime > -1) {
                 // resume buffer measurement. if stream died due to lack of a
                 // buffer, measure the buffer from where we are supposed to
                 // resume
-                mCurrentBuffer = mPlayingData.mCacheFile.length() - mPlayingData.filelength
+                mCurrentBuffer = mPlayingData.getCache().length() - mPlayingData.filelength
                         * mResumeTime / getDuration();
             } else {
                 // initial buffer measurement
-                mCurrentBuffer = mPlayingData.mCacheFile.length();
+                mCurrentBuffer = mPlayingData.getCache().length();
             }
 
             if (mBufferReportCounter == 20) {
                 Log.i(TAG, "[buffer size] " + mCurrentBuffer + " [cachefile] "
-                        + mPlayingData.mCacheFile.length() + " [waiting]"
+                        + mPlayingData.getCache().length() + " [waiting]"
                         + pausedForBuffering);
                 //Log.i(TAG,"2 " + CloudUtils.checkThreadAlive(mDownloadThread) + " " + (mDownloadThread == null ? "" : mDownloadThread.lastRead));
                 if (CloudUtils.checkThreadAlive(mDownloadThread) && mDownloadThread.lastRead > 0
@@ -727,7 +712,7 @@ public class CloudPlaybackService extends Service {
                 // first round of buffering, special case where we set the
                 // playback file
                 if ((mCurrentBuffer > INITIAL_PLAYBACK_MARK && initialBuffering) || (mCurrentBuffer > PLAYBACK_MARK && !initialBuffering)
-                        || mPlayingData.mCacheFile.length() >= mPlayingData.filelength) {
+                        || mPlayingData.getCache().length() >= mPlayingData.filelength) {
 
                     if (mWaitingForArtwork)
                         return true;
@@ -747,8 +732,8 @@ public class CloudPlaybackService extends Service {
 
                         // set the media player data source
                         if (!mPlayer.getPlayingPath()
-                                .equalsIgnoreCase(mPlayingData.mCacheFile.getAbsolutePath())) {
-                            mPlayer.setDataSourceAsync(mPlayingData.mCacheFile.getAbsolutePath());
+                                .equalsIgnoreCase(mPlayingData.getCache().getAbsolutePath())) {
+                            mPlayer.setDataSourceAsync(mPlayingData.getCache().getAbsolutePath());
                         } else {
                             notifyChange(BUFFERING_COMPLETE);
                         }
@@ -762,7 +747,7 @@ public class CloudPlaybackService extends Service {
 
             } else {
                 // if we are under the buffer, but the track is not fully cached
-                if (mPlayingData.mCacheFile.length() < mPlayingData.filelength
+                if (mPlayingData.getCache().length() < mPlayingData.filelength
                         && mCurrentBuffer < LOW_WATER_MARK) {
 
                     // make sure we are trying to download
@@ -783,7 +768,7 @@ public class CloudPlaybackService extends Service {
                 }
             }
         }
-        return mPlayingData.mCacheFile.length() < mPlayingData.filelength;
+        return mPlayingData.getCache().length() < mPlayingData.filelength;
     }
 
     // helper for params
@@ -791,7 +776,7 @@ public class CloudPlaybackService extends Service {
         assertBufferCheck(true);
     }
 
-    /**
+    /*
      * queue a buffer check if we aren't paused and call one right away
      * depending on the param
      */
@@ -805,63 +790,9 @@ public class CloudPlaybackService extends Service {
 
     }
 
-    private void trimCache(File keepFile) throws IOException {
-        long size = 0;
-        final long maxSize = 200000000;
 
-        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final long spaceLeft = ((long) fs.getBlockSize())
-                * (fs.getAvailableBlocks() - fs.getBlockCount() / 10);
-
-        File cacheDir = FileCache.EXTERNAL_TRACK_CACHE_DIRECTORY;
-        if (cacheDir.exists()) {
-            File[] fileList = cacheDir.listFiles();
-            if (fileList != null) {
-                ArrayList<File> orderedFiles = new ArrayList<File>();
-                for (File file : fileList) {
-                    if (!file.isDirectory() && (keepFile == null || !file.equals(keepFile))) {
-                        size += file.length();
-                    }
-
-                    if (orderedFiles.size() == 0) {
-                        orderedFiles.add(file);
-                    } else {
-                        int j = 0;
-                        while (j < orderedFiles.size()
-                                && (orderedFiles.get(j)).lastModified() < file.lastModified()) {
-                            j++;
-                        }
-                        orderedFiles.add(j, file);
-                    }
-                }
-
-                Log.i(TAG, "Current Cache Size " + size + " (space left " + spaceLeft + ")");
-
-                if (size > maxSize || spaceLeft < 0) {
-                    final long toTrim = Math.max(size - maxSize, Math.abs(spaceLeft));
-                    int j = 0;
-                    long trimmed = 0;
-                    // XXX PUT THIS CODE UNDER TEST (INFINITE LOOPS)
-                    while (j < orderedFiles.size() && trimmed < toTrim) {
-                        final File moribund = orderedFiles.get(j);
-                        if (!moribund.equals(keepFile)) {
-                            Log.v(TAG, "Trimming " + moribund);
-                            trimmed += moribund.length();
-                            if (!moribund.delete()) {
-                                Log.w(TAG, "error deleting " + moribund);
-                            }
-                        }
-                        j++;
-                    }
-                }
-            }
-        } else {
-            mkdirs(cacheDir);
-        }
-    }
 
     public void sendDownloadException() {
-        //new Exception().printStackTrace();
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
 
@@ -889,8 +820,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private boolean checkIfTrackCached(Track track) {
-        return (track != null && track.mCacheFile != null && track.filelength > 0 && track.mCacheFile
-                .length() >= track.filelength);
+        return (track != null && track.isCached());
     }
 
     public boolean keepCaching() {
@@ -914,7 +844,7 @@ public class CloudPlaybackService extends Service {
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
 
-            if (!isStagefright || mPlayingData.mCacheFile.length() > PLAYBACK_MARK) {
+            if (!isStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
 
                 if (isStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
@@ -1225,7 +1155,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    /**
+    /*
      * Returns the duration of the file in milliseconds. Currently this method
      * returns -1 for the duration of MIDI files.
      */
@@ -1247,7 +1177,7 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    /**
+    /*
      * Returns the current playback position in milliseconds
      */
     public long position() {
@@ -1257,7 +1187,7 @@ public class CloudPlaybackService extends Service {
             return mResumeTime; // either -1 or a valid resume time
     }
 
-    /**
+    /*
      * Returns the duration of the file in milliseconds. Currently this method
      * returns -1 for the duration of MIDI files.
      */
@@ -1265,11 +1195,11 @@ public class CloudPlaybackService extends Service {
         synchronized (this) {
             if (mPlayer.isInitialized()) {
                 if (isStagefright) {
-                    if (mPlayingData.mCacheFile == null || mPlayingData.filelength <= 0
-                            || mPlayingData.filelength == 0)
+                    if (!mPlayingData.getCache().exists() || mPlayingData.filelength <= 0 || mPlayingData.filelength == 0) {
                         return 0;
-
-                    return (int) (100 * mPlayingData.mCacheFile.length() / mPlayingData.filelength);
+                    } else {
+                        return (int) (100 * mPlayingData.getCache().length() / mPlayingData.filelength);
+                    }
                 } else
                     return mLoadPercent;
             }
@@ -1289,6 +1219,7 @@ public class CloudPlaybackService extends Service {
      * Seeks to the position specified.
      *
      * @param pos The position to seek to, in milliseconds
+     * @return the new pos, or -1
      */
     public long seek(long pos) {
         synchronized (this) {
@@ -1310,6 +1241,7 @@ public class CloudPlaybackService extends Service {
      * of an actual seek
      *
      * @param pos The position to seek to, in milliseconds
+     * @return the new pos, or -1
      */
     public long getSeekResult(long pos) {
         synchronized (this) {
@@ -1370,7 +1302,7 @@ public class CloudPlaybackService extends Service {
 
             try {
                 if (isStagefright) {
-                    mMediaPlayer.setDataSource(mPlayingData.mCacheFile.getAbsolutePath());
+                    mMediaPlayer.setDataSource(mPlayingData.getCache().getAbsolutePath());
                 } else {
                     mMediaPlayer.setDataSource(resolveStreamUrl(mPlayingData.stream_url));
                 }
@@ -1472,13 +1404,11 @@ public class CloudPlaybackService extends Service {
         }
 
         private long currentMaxSeek(){
-            if (mPlayingData.filelength <= mPlayingData.mCacheFile.length())
+            if (mPlayingData.filelength <= mPlayingData.getCache().length()) {
                 return getDuration();
-            else
+            } else {
                 return Math.round(getDuration() * (loadPercent() - .1)/100) - PLAYBACK_MARK / (128 / 8);
-                //return getDuration() * (mPlayingData.mCacheFile.length()
-                  //      / mPlayingData.filelength) - PLAYBACK_MARK / (128 / 8) - 5000;
-
+            }
         }
 
         public void setVolume(float vol) {
@@ -1963,9 +1893,9 @@ public class CloudPlaybackService extends Service {
 
                 final String streamUrl = location.getValue();
 
-                if (track.mCacheFile.length() > 0 && track.filelength > 0) {
+                if (track.getCache().length() > 0 && track.filelength > 0) {
 
-                    if (track.mCacheFile.length() >= track.filelength) {
+                    if (track.getCache().length() >= track.filelength) {
                         mode = MODE_CHECK_COMPLETE;
 
                         // XXX HttpHead logs extra play
@@ -1984,11 +1914,11 @@ public class CloudPlaybackService extends Service {
                         return;
                     } else {
                         Log.d(TAG, "Resuming partial download of " + track.title +
-                                String.format(" (file: %d, track: %d)", track.mCacheFile.length(), track.filelength));
+                                String.format(" (file: %d, track: %d)", track.getCache().length(), track.filelength));
 
                         mode = MODE_PARTIAL;
                         method = new HttpGet(streamUrl);
-                        method.setHeader("Range", "bytes=" + track.mCacheFile.length() + "-");
+                        method.setHeader("Range", "bytes=" + track.getCache().length() + "-");
                     }
                 } else {
                     mode = MODE_NEW;
@@ -2023,7 +1953,7 @@ public class CloudPlaybackService extends Service {
                             Log.d(TAG, "invalid status received: " + status.getStatusCode());
                             return;
                         }
-                        if (track.filelength != getContentLength(resp) + track.mCacheFile.length()) {
+                        if (track.filelength != getContentLength(resp) + track.getCache().length()) {
                             // rare case
                             serviceRef.get().fileLengthUpdated(track, true);
                             return; // a new download thread will be started
@@ -2038,7 +1968,7 @@ public class CloudPlaybackService extends Service {
                 HttpEntity ent = resp.getEntity();
                 if (ent != null) {
                     is = ent.getContent();
-                    os = new FileOutputStream(track.mCacheFile, true);
+                    os = new FileOutputStream(track.getCache(), true);
 
                     byte[] b = new byte[2048];
                     int n;

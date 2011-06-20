@@ -2,8 +2,8 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.pm.ActivityInfo;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -414,7 +414,7 @@ public abstract class ScActivity extends Activity {
         if (getException() instanceof UnknownHostException
                 || getException() instanceof SocketException
                 || getException() instanceof JSONException) {
-            safeShowDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+            safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
         }
         setException(null);
     }
@@ -428,7 +428,7 @@ public abstract class ScActivity extends Activity {
     public void handleError() {
         if (mError != null) {
             if (mError.toLowerCase().contains("unauthorized"))
-                safeShowDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
+                safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
 
             mError = null;
         }
@@ -444,20 +444,20 @@ public abstract class ScActivity extends Activity {
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case CloudUtils.Dialogs.DIALOG_UNAUTHORIZED:
+            case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_UNAUTHORIZED);
+                                        removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
                                     }
                                 }).create();
-            case CloudUtils.Dialogs.DIALOG_ERROR_LOADING:
+            case Consts.Dialogs.DIALOG_ERROR_LOADING:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
                         .setMessage(R.string.error_loading_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(CloudUtils.Dialogs.DIALOG_ERROR_LOADING);
+                                        removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
                                     }
                                 }).create();
             default:
@@ -468,24 +468,24 @@ public abstract class ScActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (getParent() == null) {
-            menu.add(menu.size(), CloudUtils.OptionsMenu.INCOMING,
+            menu.add(menu.size(), Consts.OptionsMenu.INCOMING,
                 menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
         }
 
-        menu.add(menu.size(), CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK,
+        menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
                 menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
 
         menuCurrentUploadingItem = menu.add(menu.size(),
-                CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
+                Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
                 R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
 
-        menu.add(menu.size(), CloudUtils.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
+        menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
-        menu.add(menu.size(), CloudUtils.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        menu.add(menu.size(), CloudUtils.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+        menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                 R.drawable.ic_menu_refresh);
         return super.onCreateOptionsMenu(menu);
     }
@@ -503,30 +503,30 @@ public abstract class ScActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case CloudUtils.OptionsMenu.SETTINGS:
+            case Consts.OptionsMenu.SETTINGS:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
                 return true;
-            case CloudUtils.OptionsMenu.REFRESH:
+            case Consts.OptionsMenu.REFRESH:
                 onRefresh();
                 return true;
-            case CloudUtils.OptionsMenu.VIEW_CURRENT_TRACK:
+            case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
                 startActivity(new Intent(this, ScPlayer.class));
                 return true;
-            case CloudUtils.OptionsMenu.INCOMING:
+            case Consts.OptionsMenu.INCOMING:
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("tabTag", "incoming");
                 startActivity(intent);
                 return true;
-            case CloudUtils.OptionsMenu.FRIEND_FINDER:
+            case Consts.OptionsMenu.FRIEND_FINDER:
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
                 startActivity(intent);
                 return true;
-            case CloudUtils.OptionsMenu.CANCEL_CURRENT_UPLOAD:
-                safeShowDialog(CloudUtils.Dialogs.DIALOG_CANCEL_UPLOAD);
+            case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
+                safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
 
             default:

@@ -38,6 +38,8 @@ import java.io.InputStream;
 
 public class ImageUtils {
 
+    public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
+
     public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
             int targetHeight) throws IOException {
         return determineResizeOptions(imageUri, targetHeight, targetHeight, false);

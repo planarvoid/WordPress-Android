@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
@@ -37,13 +38,13 @@ public class Dashboard extends ScActivity {
                 mTracklistView = createList(Request.to(Endpoints.MY_ACTIVITIES),
                         Event.class,
                         R.string.empty_incoming_text,
-                        CloudUtils.ListId.LIST_INCOMING, false);
+                        Consts.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("exclusive".equalsIgnoreCase(tab)) {
                 mTracklistView = createList(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS),
                         Event.class,
                         R.string.empty_exclusive_text,
-                        CloudUtils.ListId.LIST_EXCLUSIVE, true);
+                        Consts.ListId.LIST_EXCLUSIVE, true);
                 mTrackingPath = "/exclusive";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");

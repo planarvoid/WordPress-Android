@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import com.markupartist.android.widget.PullToRefreshListView;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -196,7 +197,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
 
         CloudUtils.configureTabList(mFriendList, this, mAdapter,
-            CloudUtils.ListId.LIST_USER_SUGGESTED, null, false).disableLongClickListener();
+            Consts.ListId.LIST_USER_SUGGESTED, null, false).disableLongClickListener();
 
         if (mFbConnected) {
             addFriendsSection();

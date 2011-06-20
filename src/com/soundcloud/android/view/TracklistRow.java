@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
@@ -8,7 +9,6 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.CloudUtils.GraphicsSizes;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -263,9 +263,9 @@ public class TracklistRow extends LazyRow {
         if (mTrack == null || mTrack.artwork_url == null)
             return "";
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.LARGE);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.LARGE);
         } else
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, GraphicsSizes.BADGE);
+            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.BADGE);
 
     }
 
