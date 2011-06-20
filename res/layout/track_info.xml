@@ -92,7 +92,7 @@
   <ViewStub
     android:id="@+id/stub_loading"
     android:inflatedId="@+id/loading_layout"
-    android:layout="@layout/loading_layout"
+    android:layout="@layout/track_info_loading_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
      />

@@ -15,7 +15,7 @@ public class UserlistSectionedRow extends UserlistRow {
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.user_list_item_sectioned;
+        return R.layout.user_list_row_sectioned;
     }
 
 }

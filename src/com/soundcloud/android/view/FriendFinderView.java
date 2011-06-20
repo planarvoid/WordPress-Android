@@ -85,7 +85,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mHeaderLayout.findViewById(R.id.suggested_users_msg_txt).setVisibility(View.GONE);
         ((TextView) mHeaderLayout.findViewById(R.id.suggested_users_msg_txt)).setText(R.string.suggested_users_no_friends_msg);
 
-        mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.loading_fill, null);
+        mLoadingLayout = (RelativeLayout) inflater.inflate(R.layout.friend_finder_view_loading_fill, null);
         addView(mLoadingLayout);
     }
 

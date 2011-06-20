@@ -7,7 +7,6 @@ import android.accounts.Account;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
@@ -19,7 +18,7 @@ public class SyncAdapterService extends Service {
     private static final String TAG = "ScSyncAdapterService";
     private ScSyncAdapter mSyncAdapter;
 
-    public static final int DASHBOARD_NOTIFICATION_ID = R.layout.player_touch_bar;
+    public static final int DASHBOARD_NOTIFICATION_ID = R.layout.player_comment_bar;
 
     @Override
     public void onCreate() {

@@ -32,7 +32,7 @@ public class MyTracklistRow extends TracklistRow {
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.my_track_list_item;
+        return R.layout.my_track_list_row;
     }
 
     @Override

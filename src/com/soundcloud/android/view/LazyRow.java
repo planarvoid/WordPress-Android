@@ -20,44 +20,38 @@ public class LazyRow extends FrameLayout {
     protected ScActivity mActivity;
 
     protected LazyBaseAdapter mAdapter;
-
     protected ImageLoader mImageLoader;
-
     protected ImageView mIcon;
 
     protected int mCurrentPosition;
 
-    public boolean pendingIcon = false;
-
-    public LazyRow(ScActivity _activity, LazyBaseAdapter _adapter) {
-        super(_activity);
-        mActivity = _activity;
-        mAdapter = _adapter;
+    public LazyRow(ScActivity activity, LazyBaseAdapter adapter) {
+        super(activity);
+        mActivity = activity;
+        mAdapter = adapter;
 
         if (mActivity != null) mImageLoader = ImageLoader.get(mActivity);
 
-        LayoutInflater inflater = (LayoutInflater) mActivity
-        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
         mIcon = (ImageView) findViewById(R.id.icon);
 
         if (getContext().getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width = 67;
+            mIcon.getLayoutParams().width  = 67;
             mIcon.getLayoutParams().height = 67;
         }
     }
 
     protected int getRowResourceId() {
-        return R.layout.track_list_item;
+        return R.layout.track_list_row;
     }
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
-
         mCurrentPosition = position;
 
         if (position == mAdapter.submenuIndex) {
-            if (findViewById(R.id.row_submenu) != null){
+            if (findViewById(R.id.row_submenu) != null) {
                 findViewById(R.id.row_submenu).setVisibility(View.VISIBLE);
             } else {
                 findViewById(R.id.stub_submenu).setVisibility(View.VISIBLE);

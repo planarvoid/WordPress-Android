@@ -35,7 +35,7 @@ public class SectionedListView extends LazyListView {
         mSectionHeaderView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         ((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_header, (FrameLayout) mSectionHeaderView);
+                .inflate(R.layout.sectioned_list_header, (FrameLayout) mSectionHeaderView);
 
         setFadingEdgeLength(0);
     }

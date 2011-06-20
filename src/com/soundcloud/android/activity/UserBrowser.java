@@ -109,7 +109,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_details_view, null);
+
+        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
