@@ -142,7 +142,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.main_player);
+        setContentView(R.layout.sc_player);
 
         initControls();
 

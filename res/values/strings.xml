@@ -656,6 +656,9 @@
   <string name="menu_connect_user">Connect soundcloud account</string>
   <string name="menu_about">About</string>
 
+  <string name="about">About</string>
+  <string name="about_summary">Copyright information</string>
+
   <string name="menu_clear_playlist">Clear Playlist</string>
   <string name="menu_edit_playlist">Edit Playlist</string>
   <string name="menu_done_editing">Done Editing</string>

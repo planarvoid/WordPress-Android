@@ -78,6 +78,7 @@
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
             android:finishOnTaskLaunch="true"/>
+        <activity android:name=".activity.About"/>
 
         <service android:name=".service.CloudPlaybackService"
                  android:exported="true">

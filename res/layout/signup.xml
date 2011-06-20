@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent" android:layout_height="fill_parent"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
                 android:background="@color/createBackground">
-    <RelativeLayout android:padding="10dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
-        <TextView android:layout_height="wrap_content" style="@style/txt_auth_title"
-                  android:layout_width="wrap_content" android:layout_alignParentLeft="true"
-                  android:text="@string/authentication_sign_up" android:id="@+id/txt_title"/>
+
+    <RelativeLayout android:padding="10dip"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+        <TextView android:id="@+id/txt_title"
+                  android:layout_height="wrap_content"
+                  style="@style/txt_auth_title"
+                  android:layout_width="wrap_content"
+                  android:layout_alignParentLeft="true"
+                  android:text="@string/authentication_sign_up"/>
 
         <EditText android:id="@+id/txt_email_address"
                   android:layout_height="wrap_content"
@@ -55,13 +62,19 @@
                   android:text="@string/authentication_by_signing_in_I_agree_to_the"/>
     </RelativeLayout>
 
-    <RelativeLayout android:layout_width="fill_parent"
-                    android:layout_alignParentBottom="true" android:id="@+id/control_layout"
-                    android:background="@color/playerControlAlphaBackground" android:layout_height="wrap_content">
+    <RelativeLayout android:id="@+id/control_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/playerControlAlphaBackground"
+                    android:layout_height="wrap_content">
+
         <LinearLayout android:paddingBottom="5dip"
                       android:orientation="horizontal"
-                      android:layout_width="fill_parent" android:layout_height="wrap_content"
-                      android:paddingTop="5dip" android:layout_marginTop="5dip">
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:paddingTop="5dip"
+                      android:layout_marginTop="5dip">
+
             <Button android:id="@+id/btn_signup"
                     android:text="@string/btn_signup"
                     android:layout_weight="1"
@@ -71,7 +84,9 @@
                     android:layout_marginRight="10dip"
                     />
         </LinearLayout>
-        <View android:layout_width="fill_parent" android:layout_height="5dip"
+
+        <View android:layout_width="fill_parent"
+              android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>
     </RelativeLayout>
 </RelativeLayout>
