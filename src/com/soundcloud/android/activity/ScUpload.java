@@ -79,7 +79,7 @@ public class ScUpload extends ScActivity {
             uri = getIntent().getData();
         }
 
-        mRecording = Recording.fromUri(uri, getContentResolver());
+        mRecording = uri == null ? null : Recording.fromUri(uri, getContentResolver());
         if (mRecording != null && mRecording.exists()) {
             mapFromRecording(mRecording);
         } else {
