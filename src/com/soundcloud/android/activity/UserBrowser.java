@@ -199,14 +199,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        Intent i = new Intent(this, UserBrowser.class);
-        i.putExtra("user", intent.<Parcelable>getParcelableExtra("user"));
-        startActivity(i);
-        finish();
-    }
-
-    @Override
     protected void onResume() {
         pageTrack("/profile");
         super.onResume();
