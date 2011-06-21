@@ -52,6 +52,9 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
      */
     public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
+        if (lazyEndlessAdapter != null) {
+            loadModel = lazyEndlessAdapter.getLoadModel();
+        }
     }
 
     /**
@@ -62,7 +65,6 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null){
             adapter.onPreTaskExecute();
-            loadModel = adapter.getLoadModel();
         }
     }
 
@@ -115,7 +117,6 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
                 for (Event evt : activities) newItems.add(evt);
                 mNextEventsHref = activities.next_href;
             } else {
-
                 if (Track.class.equals(loadModel)) {
                     List<TracklistItem> tracklistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, TracklistItem.class));
                     if (tracklistItems.size() > 0){

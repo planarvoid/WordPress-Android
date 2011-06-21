@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 
+import android.util.Log;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -431,4 +432,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     }
 
 
+    public void stopAppending() {
+        mKeepOnAppending.set(false);
+    }
 }
