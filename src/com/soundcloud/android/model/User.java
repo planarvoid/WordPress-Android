@@ -79,6 +79,21 @@ public class User extends BaseObj implements Parcelable {
         }
     }
 
+    public User(UserlistItem userlistItem) {
+        this.id = userlistItem.id;
+        this.username = userlistItem.username;
+        this.track_count = userlistItem.track_count;
+        this.city = userlistItem.city;
+        this.country = userlistItem.country;
+        this.avatar_url = userlistItem.avatar_url;
+        this.permalink = userlistItem.permalink;
+        this.full_name = userlistItem.full_name;
+        this.followers_count = userlistItem.followers_count;
+        this.followings_count = userlistItem.followings_count;
+        this.public_favorites_count = userlistItem.public_favorites_count;
+        this.private_tracks_count = userlistItem.private_tracks_count;
+    }
+
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
         Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(id)},
                 null);

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -114,7 +115,29 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
                 for (Event evt : activities) newItems.add(evt);
                 mNextEventsHref = activities.next_href;
             } else {
-                newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
+
+                if (Track.class.equals(loadModel)) {
+                    List<TracklistItem> tracklistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, TracklistItem.class));
+                    if (tracklistItems.size() > 0){
+                        newItems = new ArrayList<Parcelable>();
+                        for (TracklistItem tracklistItem : tracklistItems){
+                            newItems.add(new Track(tracklistItem));
+                        }
+                    }
+
+                } else if (User.class.equals(loadModel)) {
+                    List<UserlistItem> userlistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, UserlistItem.class));
+                    if (userlistItems.size() > 0){
+                        newItems = new ArrayList<Parcelable>();
+                        for (UserlistItem userlistItem : userlistItems){
+                            newItems.add(new User(userlistItem));
+                        }
+                    }
+
+                } else {
+                    newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
+                }
+
             }
 
             // resolve data

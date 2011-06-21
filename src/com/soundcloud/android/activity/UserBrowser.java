@@ -2,6 +2,9 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.app.SearchManager;
+import android.graphics.drawable.BitmapDrawable;
+import android.view.ViewGroup;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -15,10 +18,7 @@ import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
@@ -199,6 +199,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        Intent i = new Intent(this, UserBrowser.class);
+        i.putExtra("user", intent.<Parcelable>getParcelableExtra("user"));
+        startActivity(i);
+        finish();
+    }
+
+    @Override
     protected void onResume() {
         pageTrack("/profile");
         super.onResume();
@@ -208,6 +216,15 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     protected void onStop() {
         super.onStop();
         FollowStatus.get().removeListener(this);
+
+        for (LazyListView lv : mLists) {
+            for (int i = 0; i < lv.getChildCount(); i++) {
+                ImageView iv = (ImageView) lv.getChildAt(i).findViewById(R.id.icon);
+                if (iv != null) {
+                    iv.setImageDrawable(null);
+                }
+            }
+        }
     }
 
     @Override
