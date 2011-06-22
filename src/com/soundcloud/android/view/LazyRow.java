@@ -104,7 +104,6 @@ public abstract class LazyRow extends FrameLayout {
     public void cleanup() {
         if (mIcon != null) {
             mImageLoader.unbind(mIcon);
-            mIcon.setBackgroundDrawable(null);
         }
     }
 }
