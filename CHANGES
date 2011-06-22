@@ -1,0 +1,8 @@
+1.3.4 tbd
+
+1.3.3 22/06/11
+
+  * non-expiry token
+  * always enable seeking for SDK > 8
+  * fixed memory leak in FollowStatus
+  * fixed wrong path in TrackCache
