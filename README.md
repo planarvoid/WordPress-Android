@@ -27,6 +27,8 @@ Clone and build it:
   * For major releases - install previous market version and test upgrade
   process
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
+  * Document changes in [CHANGES][]
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
+[CHANGES]: https://github.com/soundcloud/SoundCloud-Android/blob/master/CHANGES
