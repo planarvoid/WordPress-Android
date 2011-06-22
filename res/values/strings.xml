@@ -570,7 +570,7 @@
   <string name="error_stream_not_seekable_message">Sorry, seeking is not currently supported in
     android for streams, however you can seek in downloadable tracks.</string>
   <string name="error_unauthorized_title">Unauthorized</string>
-  <string name="error_unauthorized_message">Soundcloud has reported this application as unauthorized to access your account. If the problem persists, please revoke access from the settings menu to re-authorize this application.</string>
+  <string name="error_unauthorized_message">Soundcloud is having a problem authorizing this application to use your account. If the problem persists, please logout from the settings menu to re-authorize.</string>
   <string name="error_missing_sd_card_title">SD Card</string>
   <string name="error_missing_sd_card_message">Your SD card is missing or busy. You will not be
     able to download anything without your SD card.</string>
@@ -685,7 +685,7 @@
   <string name="pref_default_user_search_sorting">Default User Search Sorting</string>
   <string name="pref_default_user_search_sorting_desc">The default sorting method for user searches.</string>
 
-  <string name="pref_revoke_access">Revoke access</string>
+  <string name="pref_revoke_access">Log Out</string>
   <string name="pref_revoke_desc">Revoke current user access (requires re-authentication)</string>
 
   <string name="pref_clear_cache">Clear Cache</string>

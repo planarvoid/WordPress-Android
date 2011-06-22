@@ -426,15 +426,6 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void handleError() {
-        if (mError != null) {
-            if (mError.toLowerCase().contains("unauthorized"))
-                safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-
-            mError = null;
-        }
-    }
-
     protected void onDataConnectionChanged(boolean isConnected) {
         if (isConnected) {
             // clear image loading errors
@@ -447,7 +438,12 @@ public abstract class ScActivity extends Activity {
         switch (which) {
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
-                        .setMessage(R.string.error_unauthorized_message).setPositiveButton(
+                        .setMessage(R.string.error_unauthorized_message).setNegativeButton(
+                                R.string.menu_settings, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        startActivity(new Intent(ScActivity.this, Settings.class));
+                                    }
+                                }).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);

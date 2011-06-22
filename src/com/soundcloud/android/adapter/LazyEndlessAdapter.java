@@ -2,8 +2,8 @@
 package com.soundcloud.android.adapter;
 
 
-import android.util.Log;
 import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Comment;
@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import org.apache.http.HttpStatus;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected int mCurrentPage;
     protected ScActivity mActivity;
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
-    protected Boolean mException = false;
+    protected Boolean mError = false;
     private String mEmptyViewText = "";
     private Request mRequest;
 
@@ -92,10 +93,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Set the current text of the adapter, based on if we are currently dealing
-     * with an exception
+     * with an error
      */
     public void setEmptyviewText() {
-        if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
+        if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
             return;
         }
@@ -104,21 +105,21 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
 
         if (Track.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
         } else if (User.class.equals(getLoadModel())
                 || Friend.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
         } else if (Comment.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
         } else if (Event.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
         }
@@ -179,7 +180,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         int[] ret = new int[3];
         ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
         ret[1] = mCurrentPage;
-        ret[2] = mException ? 1 : 0;
+        ret[2] = mError ? 1 : 0;
 
         return ret;
 
@@ -188,7 +189,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected void restorePagingData(int[] restore) {
         mKeepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
-        mException = restore[2] == 1;
+        mError = restore[2] == 1;
 
         if (!mKeepOnAppending.get()) {
             setEmptyviewText();
@@ -290,20 +291,19 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         if (keepgoing != null) {
             mKeepOnAppending.set(keepgoing);
         } else {
-            mException = true;
+            mError = true;
         }
 
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
         mPendingPosition = -1;
 
-        // configure the empty view depending on possible exceptions
+        // configure the empty view depending on possible error
         setEmptyviewText();
         mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
         mActivity.handleException();
-        mActivity.handleError();
 
         // if (mActivityReference != null)
         // mActivityReference.handleException();
@@ -365,16 +365,24 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * A load task is about to be executed, do whatever we have to to get ready
      */
     public void onPreTaskExecute() {
-        mException = false;
+        mError = false;
     }
 
     /**
-     * There was an exception during the load task
+     * Handle whatever the last response code was
      *
-     * @param e : the exception
+     * @param mResponseCode : the last response code
      */
-    public void setException(Exception e) {
-        mException = true;
+    public void handleResponseCode(int mResponseCode) {
+        switch (mResponseCode){
+            case HttpStatus.SC_OK: // do nothing
+                mError = false;
+                break;
+            case HttpStatus.SC_UNAUTHORIZED :
+                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+            default:
+                mError = true;
+        }
     }
 
     /**

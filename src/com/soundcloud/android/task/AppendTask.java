@@ -36,6 +36,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
 
     private String mNextEventsHref;
     private Exception mException;
+    private int mResponseCode;
 
     public Class<?> loadModel;
 
@@ -85,7 +86,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
             if (mException == null) {
                 adapter.incrementPage();
             } else {
-                adapter.setException(mException);
+                adapter.handleResponseCode(mResponseCode);
             }
 
             if (newItems != null && newItems.size() > 0) {
@@ -105,7 +106,8 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
         try {
             HttpResponse resp = mApp.get(req);
 
-            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            mResponseCode = resp.getStatusLine().getStatusCode();
+            if (mResponseCode != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
