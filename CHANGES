@@ -6,3 +6,4 @@
   * always enable seeking for SDK > 8
   * fixed memory leak in FollowStatus
   * fixed wrong path in TrackCache
+  * reduced memory footprint by deserializer to smaller objects
