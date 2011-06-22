@@ -24,6 +24,8 @@ Clone and build it:
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
   * Build and sign: `mvn install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
   command with space to skip history)
+  * For major releases - install previous market version and test upgrade
+  process
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
 
 [Android SDK]: http://developer.android.com/sdk/index.html
