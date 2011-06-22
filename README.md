@@ -22,7 +22,7 @@ Clone and build it:
   * Tag the current version (`git tag -a 1.3.2`)
   * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
-  * Build and sign: `mvn install -Psign -Djarsigner.storepass=....` (prefix
+  * Build and sign: `mvn install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
   command with space to skip history)
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
 
