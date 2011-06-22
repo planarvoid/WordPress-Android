@@ -13,9 +13,9 @@
 
     <RelativeLayout
             android:layout_toRightOf="@+id/icon"
-            android:layout_toLeftOf="@+id/toggleFollowing"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_weight="2">
+            android:layout_height="wrap_content" android:layout_weight="2"
+            android:layout_toLeftOf="@+id/toggleFollowingHolder">
         <TextView android:layout_height="wrap_content"
                   android:paddingTop="3dip"
                   android:paddingLeft="10dip"
@@ -70,24 +70,25 @@
                       style="@style/txt_list_sub"/>
         </RelativeLayout>
     </RelativeLayout>
-    <ImageButton
-            android:id="@+id/toggleFollowing"
-            android:padding="5dip"
-            android:layout_margin="0dip"
-            android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:src="@drawable/ic_unfollow_states"
-            android:layout_height="wrap_content"/>
-    <ImageButton
-            android:id="@+id/toggleFollow"
-            android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:padding="5dip"
-            android:layout_margin="0dip"
-            android:src="@drawable/ic_follow_states"
-            android:layout_height="wrap_content"/>
+    <FrameLayout android:id="@+id/toggleFollowingHolder"
+                 android:layout_centerVertical="true"
+                 android:layout_alignParentRight="true"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content">
+        <ImageButton
+                android:id="@+id/toggleFollowing"
+                android:padding="5dip"
+                android:background="@android:color/transparent"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_unfollow_states"
+                android:layout_height="wrap_content"/>
+        <ImageButton
+                android:id="@+id/toggleFollow"
+                android:background="@android:color/transparent"
+                android:layout_width="wrap_content"
+                android:padding="5dip"
+                android:src="@drawable/ic_follow_states"
+                android:layout_height="wrap_content"/>
+    </FrameLayout>
+
 </RelativeLayout>

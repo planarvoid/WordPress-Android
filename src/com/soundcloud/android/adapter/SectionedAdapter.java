@@ -173,10 +173,8 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         }
     }
 
-    public void configurePinnedHeader(View header, int position, int bgColor, int txtColor) {
+    public void configurePinnedHeader(View header, int position) {
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
         txtHeader.setText(getSections()[getSectionForPosition(position)]);
-        txtHeader.setBackgroundColor(bgColor);
-        txtHeader.setTextColor(txtColor);
     }
 }
