@@ -2,7 +2,6 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.User;
@@ -48,14 +47,15 @@ public abstract class LoginActivity extends Activity {
                         LoginActivity.this.getString(R.string.authentication_login_progress_message));
             }
 
+
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
                     new LoadTask.LoadUserTask(api) {
                         @Override
                         protected void onPostExecute(User user) {
-                            progress.dismiss();
                             if (user != null) {
+                                dismissProgress();
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
                                         new Intent().putExtras(data)
@@ -69,14 +69,25 @@ public abstract class LoginActivity extends Activity {
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
-                    progress.dismiss();
+                    dismissProgress();
                     showError(mException);
                 }
             }
+
+            private void dismissProgress() {
+                if (!isFinishing()) try {
+                    progress.dismiss();
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
         }.execute(data);
+
+
     }
 
     protected void showError(IOException e) {
+        if (isFinishing()) return;
+
         final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
         new AlertDialog.Builder(LoginActivity.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
