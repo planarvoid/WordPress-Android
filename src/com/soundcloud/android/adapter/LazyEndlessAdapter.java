@@ -195,7 +195,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         if (!mKeepOnAppending.get()) {
             setEmptyviewText();
-            mListView.setEmptyView(mEmptyView);
+            if (mListView != null) mListView.setEmptyView(mEmptyView);
         }
 
     }
@@ -302,7 +302,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
         // configure the empty view depending on possible error
         setEmptyviewText();
-        mListView.setEmptyView(mEmptyView);
+        if (mListView != null) mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
         mActivity.handleException();
