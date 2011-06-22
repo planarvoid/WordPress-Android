@@ -130,7 +130,6 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
 
-        if (mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
     }
 
     @Override
@@ -298,6 +297,7 @@ public class ScCreate extends ScActivity {
             mCurrentState = CreateState.IDLE_RECORD;
         }
 
+        if (mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
         updateUi(takeAction);
     }
 
@@ -305,15 +305,21 @@ public class ScCreate extends ScActivity {
     @Override
     public void onSaveInstanceState(Bundle state) {
         state.putString("createCurrentCreateState", mCurrentState.toString());
+        state.putString("createCurrentRecordFilePath", mRecordFile != null ? mRecordFile.getAbsolutePath() : "");
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
+        if (!TextUtils.isEmpty(state.getString("createCurrentRecordFilePath"))) {
+            setRecordFile(new File(state.getString("createCurrentRecordFilePath")));
+        }
         if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
             mCurrentState = CreateState.valueOf(state.getString("createCurrentCreateState"));
             updateUi(false);
         }
+
+
         super.onRestoreInstanceState(state);
     }
 
