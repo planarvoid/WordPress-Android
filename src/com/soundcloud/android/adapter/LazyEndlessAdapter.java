@@ -356,11 +356,10 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     /**
      * Get the current url for this adapter
-     *
-     * @return the url
+     * @return the url or null
      */
     protected Request getRequest() {
-        return new Request(mRequest);
+        return mRequest == null ? null : new Request(mRequest);
     }
 
     /**
@@ -392,10 +391,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     @SuppressWarnings("unchecked")
     public void refresh(boolean userRefresh) {
-        if (mEmptyView != null)
-            mEmptyView.setVisibility(View.GONE);
-        if (mListView != null)
-            mListView.setEmptyView(null);
+        if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
+        if (mListView != null) mListView.setEmptyView(null);
 
         mCurrentPage = 0;
         mKeepOnAppending.set(true);
