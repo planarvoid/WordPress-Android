@@ -714,6 +714,7 @@ public class CloudPlaybackService extends Service {
                 if ((mCurrentBuffer > INITIAL_PLAYBACK_MARK && initialBuffering) || (mCurrentBuffer > PLAYBACK_MARK && !initialBuffering)
                         || mPlayingData.getCache().length() >= mPlayingData.filelength) {
 
+
                     if (mWaitingForArtwork)
                         return true;
 
@@ -840,6 +841,10 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
+        boolean wasPlaying = mIsSupposedToBePlaying;
+        mIsSupposedToBePlaying = true;
+
+
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
@@ -877,7 +882,7 @@ public class CloudPlaybackService extends Service {
             this.restart();
         }
 
-        if (!mIsSupposedToBePlaying) {
+        if (!wasPlaying) {
             mIsSupposedToBePlaying = true;
             setPlayingStatus();
             notifyChange(PLAYSTATE_CHANGED);
