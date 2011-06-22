@@ -24,15 +24,13 @@ public class WaveformHolder extends RelativeLayout {
     public void showConnectingLayout(boolean setAlpha) {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
         if (setAlpha) setStaticTransformationsEnabled(true);
-        /* this null check shouldn't be necessary, but it is sometimes, hacky defense */
-        if (mConnectingBar != null) mConnectingBar.setVisibility(View.VISIBLE);
+        mConnectingBar.setVisibility(View.VISIBLE);
     }
 
     public void hideConnectingLayout() {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
         setStaticTransformationsEnabled(false);
-        /* this null check shouldn't be necessary, but it is sometimes, hacky defense */
-        if (mConnectingBar != null) mConnectingBar.setVisibility(View.GONE);
+        mConnectingBar.setVisibility(View.GONE);
     }
 
     @Override
