@@ -282,16 +282,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mFriendFinderView.onConnections(connections, true);
     }
 
-    public void onScreenChanged(View newScreen, int newScreenIndex) {
+    public void onScreenChanged(View newScreen, int newScreenIndex) { }
+
+    public void onScreenChanging(View newScreen, int newScreenIndex) {
         mTabHost.setCurrentTab(newScreenIndex);
         if (hsv != null) {
             hsv.scrollTo(mTabWidget.getChildTabViewAt(newScreenIndex).getLeft()
                     + mTabWidget.getChildTabViewAt(newScreenIndex).getWidth() / 2 - getWidth() / 2, 0);
         }
-    }
-
-    public void onScreenChanging(View newScreen, int newScreenIndex) {
-        // do nothing
     }
 
     private void loadYou() {
