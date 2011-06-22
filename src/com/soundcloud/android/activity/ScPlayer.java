@@ -493,8 +493,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 fillTrackInfoComments();
             }
 
-            mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation());
-            mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation());
+            mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
+            mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.showNext();
             if (mPlayingTrack.artwork_url != null){
                 if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
@@ -514,8 +514,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_info_artwork_states));
         } else {
             ImageLoader.get(this).unbind(mInfoButton);
-            mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation());
-            mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation());
+            mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
+            mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.showPrevious();
             mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
             mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent_rect));
