@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.User;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
+
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString("username", username);
@@ -30,6 +32,11 @@ public abstract class LoginActivity extends Activity {
     }
 
     protected void login(final Bundle data) {
+        if (data.getString("scope") == null) {
+            // default to non-expiring scope
+            data.putString("scope", Token.SCOPE_NON_EXPIRING);
+        }
+
         final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
         new GetTokensTask(api) {
