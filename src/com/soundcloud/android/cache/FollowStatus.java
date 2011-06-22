@@ -23,6 +23,7 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -218,6 +219,10 @@ public class FollowStatus implements Parcelable {
             } else {
                 context.deleteFile(statusCache);
             }
+
+
+        } catch (FileNotFoundException ignored) {
+            // ignored
         } catch (IOException ignored) {
             Log.w(TAG, "error initializing FollowStatus", ignored);
         }
