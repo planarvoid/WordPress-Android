@@ -115,25 +115,24 @@ public class ScSearch extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            mList.setVisibility(Integer.parseInt(mPreviousState[0].toString()));
-            mTrackAdpWrapper.restoreState((Object[]) mPreviousState[1]);
-            mUserAdpWrapper.restoreState((Object[]) mPreviousState[2]);
-
-            if (mPreviousState[3].equals(User.class)) {
+            if (mPreviousState[0].equals(User.class)) {
                 mList.setAdapter(mUserAdpWrapper);
                 mUserAdpWrapper.createListEmptyView(mList);
             }
 
+            mList.setVisibility(Integer.parseInt(mPreviousState[1].toString()));
+            mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
+            mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
         }
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
+                ((LazyBaseAdapter) mList.getAdapter()).getLoadModel()
                 mList.getVisibility(),
                 mTrackAdpWrapper.saveState(),
                 mUserAdpWrapper.saveState(),
-                ((LazyBaseAdapter) mList.getAdapter()).getLoadModel()
         };
     }
 
