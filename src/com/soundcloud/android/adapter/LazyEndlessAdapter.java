@@ -36,7 +36,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     protected View mPendingView = null;
     protected int mPendingPosition = -1;
     private AppendTask mAppendTask;
-    protected View mEmptyView;
+    protected TextView mEmptyView;
     protected LazyListView mListView;
     protected int mCurrentPage;
     protected ScActivity mActivity;
@@ -58,6 +58,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      * Create an empty view for the list this adapter will control. This is done
      * here because this adapter will control the visibility of the list
      */
+    // XXX make sur emEmptyView is initialized in ctor
     public void createListEmptyView(LazyListView lv) {
         mListView = lv;
 
@@ -97,7 +98,7 @@ public class LazyEndlessAdapter extends AdapterWrapper {
      */
     public void setEmptyviewText() {
         if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-            ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
+            mEmptyView.setText(Html.fromHtml(mEmptyViewText));
             return;
         }
 
@@ -124,7 +125,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
                     R.string.tracklist_error);
         }
 
-        ((TextView) mEmptyView).setText(textToSet);
+
+        if (mEmptyView != null) mEmptyView.setText(textToSet);
     }
 
     /**
