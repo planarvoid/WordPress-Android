@@ -119,7 +119,7 @@ public class AnimUtils {
     // for the next movement
     public static Animation inFromLeftAnimation(android.view.animation.Interpolator i) {
         Animation inFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1.0f,
-                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
+                    Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         inFromLeft.setDuration(250);
         inFromLeft.setInterpolator(i);
