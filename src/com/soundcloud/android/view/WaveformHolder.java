@@ -8,12 +8,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
-import com.soundcloud.android.utils.CloudUtils;
 
 public class WaveformHolder extends RelativeLayout {
-
-    private static final String TAG = "WaveformHolder";
-
     private RelativeLayout mConnectingBar;
 
     public WaveformHolder(Context context, AttributeSet attrs) {
