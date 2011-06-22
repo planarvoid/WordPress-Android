@@ -1449,7 +1449,6 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
             public void onSeekComplete(MediaPlayer mp) {
-                Log.i("asdf","ON SEEK COMPLETE " + mMediaPlayer.isPlaying());
                 if (!isStagefright) return;
 
                 if (!mMediaPlayer.isPlaying()) {
