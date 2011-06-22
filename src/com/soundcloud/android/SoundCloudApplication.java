@@ -94,8 +94,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (account != null) {
-            // XXX should use permalink / user_id
-            FollowStatus.initialize(this, account);
+            FollowStatus.initialize(this, getCurrentUserId());
         }
 
         doOnce(this, "cleanup.track.cache", new Runnable() {
@@ -215,7 +214,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
 
         // move this when we can't guarantee we will only have 1 account active at a time
-        FollowStatus.initialize(this, account);
+        FollowStatus.initialize(this, user.id);
 
         // disable syncing
         ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);

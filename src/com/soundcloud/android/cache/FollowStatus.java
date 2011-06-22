@@ -11,7 +11,6 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -177,12 +176,8 @@ public class FollowStatus implements Parcelable {
                 '}';
     }
 
-    static String getFilename(Account account) {
-        return "follow-status-cache-" + account.name;
-    }
-
-    static String getFilename(String username) {
-        return "follow-status-cache-"+username.replace("/", "");
+    static String getFilename(long userId) {
+        return "follow-status-cache-"+userId;
     }
 
     // Google recommends not to use the filesystem to save parcelables (portability issues)
@@ -214,8 +209,8 @@ public class FollowStatus implements Parcelable {
         }
     }
 
-    public static synchronized void initialize(final Context context, Account account) {
-        final String statusCache = getFilename(account);
+    public static synchronized void initialize(final Context context, long userId) {
+        final String statusCache = getFilename(userId);
         try {
             FollowStatus status = fromInputStream(context.openFileInput(statusCache));
             if (status != null) {

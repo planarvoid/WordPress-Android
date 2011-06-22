@@ -10,7 +10,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.accounts.Account;
 import android.os.Handler;
 import android.os.Message;
 
@@ -80,9 +79,9 @@ public class FollowStatusTest extends ApiTests {
     }
 
     @Test
-    public void shouldQuoteFilename() throws Exception {
+    public void shouldGenerateFilename() throws Exception {
         assertThat(
-            FollowStatus.getFilename("over / the hill"),
-            equalTo("follow-status-cache-over  the hill"));
+            FollowStatus.getFilename(10),
+            equalTo("follow-status-cache-10"));
     }
 }
