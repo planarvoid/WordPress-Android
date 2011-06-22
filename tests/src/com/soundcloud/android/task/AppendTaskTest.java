@@ -4,18 +4,15 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,7 +34,7 @@ public class AppendTaskTest {
     @Test
     public void shouldDeserializeTracks() throws Exception {
         AppendTask task = new AppendTask(app);
-        LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new LazyBaseAdapter(null, null, Track.class), null);
+        LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new TracklistAdapter(null, null, Track.class), null);
 
         task.setAdapter(adapter);
 
@@ -59,7 +56,8 @@ public class AppendTaskTest {
     @Test
     public void shouldDeserializeUsers() throws Exception {
         AppendTask task = new AppendTask(app);
-        LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new LazyBaseAdapter(null, null, User.class), null);
+
+        LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new UserlistAdapter(null, null, User.class), null);
 
         task.setAdapter(adapter);
 

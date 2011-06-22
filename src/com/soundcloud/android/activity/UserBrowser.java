@@ -2,9 +2,6 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.app.SearchManager;
-import android.graphics.drawable.BitmapDrawable;
-import android.view.ViewGroup;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -18,7 +15,10 @@ import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
@@ -26,6 +26,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
@@ -176,10 +177,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             Intent intent = getIntent();
             if (intent != null && intent.hasExtra("user")) {
                 loadUserByObject((User) intent.getParcelableExtra("user"));
-                intent.removeExtra("user");
             } else if (intent != null && intent.hasExtra("userId")) {
                 loadUserById(intent.getLongExtra("userId", -1));
-                intent.removeExtra("userId");
             } else {
                 loadYou();
             }
@@ -208,12 +207,11 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     protected void onStop() {
         super.onStop();
         FollowStatus.get().removeListener(this);
-
-        for (LazyListView lv : mLists) {
-            for (int i = 0; i < lv.getChildCount(); i++) {
-                ImageView iv = (ImageView) lv.getChildAt(i).findViewById(R.id.icon);
-                if (iv != null) {
-                    iv.setImageDrawable(null);
+        for (LazyListView l : mLists) {
+            for (int i=0; i<l.getChildCount(); i++) {
+                View v = l.getChildAt(i);
+                if (v instanceof LazyRow) {
+                    ((LazyRow)v).cleanup();
                 }
             }
         }

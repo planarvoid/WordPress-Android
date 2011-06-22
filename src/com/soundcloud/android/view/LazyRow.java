@@ -16,7 +16,7 @@ import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class LazyRow extends FrameLayout {
+public abstract class LazyRow extends FrameLayout {
     protected ScActivity mActivity;
 
     protected LazyBaseAdapter mAdapter;
@@ -42,9 +42,7 @@ public class LazyRow extends FrameLayout {
         }
     }
 
-    protected int getRowResourceId() {
-        return R.layout.track_list_row;
-    }
+    protected abstract int getRowResourceId();
 
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
@@ -101,5 +99,12 @@ public class LazyRow extends FrameLayout {
 
     public String getIconRemoteUri() {
         return "";
+    }
+
+    public void cleanup() {
+        if (mIcon != null) {
+            mImageLoader.unbind(mIcon);
+            mIcon.setBackgroundDrawable(null);
+        }
     }
 }
