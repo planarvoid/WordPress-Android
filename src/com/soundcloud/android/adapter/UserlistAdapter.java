@@ -16,7 +16,10 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
                            ArrayList<Parcelable> data,
                            Class<?> model) {
         super(activity, data, model);
-        FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
+
+        if (activity != null) {
+            FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
+        }
     }
 
     @Override
