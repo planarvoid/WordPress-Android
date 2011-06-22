@@ -70,24 +70,23 @@ public class MyTracklistRow extends TracklistRow {
 
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
-        if (recording.artwork_path == null){
+        if (recording.artwork_path == null) {
             mImageLoader.unbind(getRowIcon());
             setTemporaryRecordingDrawable(BindResult.ERROR);
-            return;
+        } else {
+            BindResult result;
+            ImageLoader.Options options = new ImageLoader.Options();
+            try {
+                options.decodeInSampleSize = ImageUtils.determineResizeOptions(
+                    recording.artwork_path,
+                    (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
+                    (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
+            } catch (IOException e) {
+                Log.w(TAG, "error", e);
+            }
+            result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(),options);
+            setTemporaryRecordingDrawable(result);
         }
-
-        BindResult result;
-        ImageLoader.Options options = new ImageLoader.Options();
-        try {
-            options.decodeInSampleSize = ImageUtils.determineResizeOptions(
-                            recording.artwork_path,
-                            (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
-                            (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
-        } catch (IOException e) {
-            Log.w(TAG, "error", e);
-        }
-        result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(),options);
-        setTemporaryRecordingDrawable(result);
     }
 
     private void setTemporaryRecordingDrawable(BindResult result) {
