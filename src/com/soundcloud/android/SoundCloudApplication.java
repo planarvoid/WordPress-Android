@@ -94,6 +94,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (account != null) {
+            // XXX should use permalink / user_id
             FollowStatus.initialize(this, account);
         }
 

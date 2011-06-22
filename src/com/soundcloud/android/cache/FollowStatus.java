@@ -181,6 +181,10 @@ public class FollowStatus implements Parcelable {
         return "follow-status-cache-" + account.name;
     }
 
+    static String getFilename(String username) {
+        return "follow-status-cache-"+username.replace("/", "");
+    }
+
     // Google recommends not to use the filesystem to save parcelables (portability issues)
     // since this is not important information we're going to do it anyway
     // - it's fast (~ 10ms cache writes on a N1).

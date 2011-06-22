@@ -1,5 +1,6 @@
 package com.soundcloud.android.cache;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -9,6 +10,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.accounts.Account;
 import android.os.Handler;
 import android.os.Message;
 
@@ -75,5 +77,12 @@ public class FollowStatusTest extends ApiTests {
         assertThat(status.isFollowing(10), is(true));
         status.updateFollowing(10, false);
         assertThat(status.isFollowing(10), is(false));
+    }
+
+    @Test
+    public void shouldQuoteFilename() throws Exception {
+        assertThat(
+            FollowStatus.getFilename("over / the hill"),
+            equalTo("follow-status-cache-over  the hill"));
     }
 }
