@@ -129,10 +129,10 @@ public class ScSearch extends ScActivity {
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
-                ((LazyBaseAdapter) mList.getAdapter()).getLoadModel()
+                ((LazyBaseAdapter) mList.getAdapter()).getLoadModel(),
                 mList.getVisibility(),
                 mTrackAdpWrapper.saveState(),
-                mUserAdpWrapper.saveState(),
+                mUserAdpWrapper.saveState()
         };
     }
 
