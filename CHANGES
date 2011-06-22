@@ -22,6 +22,7 @@
   * Recover password
   * new Java API wrapper, migrated app to OAuth2
   * Save recordings & upload them later
+  * Support for tumblr
 
 1.2.1 17/04/11
 
@@ -30,6 +31,9 @@
 1.2.0 10/04/11
 
   * Foursquare integration
+  * In-app commenting
+  * 3rd party uplaods
+  * Support for AAC encoding (2.3.3 only)
 
 1.1.6 03/02/11
 
