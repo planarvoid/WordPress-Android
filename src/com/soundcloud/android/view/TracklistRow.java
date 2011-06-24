@@ -22,29 +22,19 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class TracklistRow extends LazyRow {
-
     protected Track mTrack;
 
     protected ImageView mPlayIndicator;
-
     protected ImageView mPrivateIndicator;
 
     protected TextView mUser;
-
     protected TextView mTitle;
-
-    protected TextView mDuration;
-
     protected TextView mCreatedAt;
 
     protected ImageButton mPlayBtn;
-
     protected ImageButton mFavoriteBtn;
-
     protected ImageButton mProfileBtn;
-
     protected ImageButton mCommentBtn;
-
     protected ImageButton mShareBtn;
 
     protected RelativeLayout mTrackInfoRow;
@@ -58,7 +48,6 @@ public class TracklistRow extends LazyRow {
 
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
-        mDuration = (TextView) findViewById(R.id.duration);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
@@ -68,7 +57,7 @@ public class TracklistRow extends LazyRow {
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.track_list_item;
+        return R.layout.track_list_row;
     }
 
     @Override

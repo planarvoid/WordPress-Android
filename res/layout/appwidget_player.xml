@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/main_holder"
+              android:layout_width="fill_parent"
+              android:background="@drawable/widget_bg"
+              android:padding="6dip"
+              android:orientation="vertical"
+              android:layout_height="fill_parent">
+
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+        <ImageButton android:id="@+id/btn_favorite"
+                     android:layout_alignParentLeft="true"
+                     android:layout_marginBottom="10dip"
+                     android:layout_height="fill_parent"
+                     style="@style/btn_sc_widget_favorite"
+                     android:src="@drawable/ic_widget_favorite_states"/>
+
+        <RelativeLayout  android:id="@+id/track_info"
+                        android:layout_width="fill_parent"
+                        android:layout_weight="1"
+                        android:layout_marginBottom="10dip"
+                        android:layout_toRightOf="@id/btn_favorite"
+                        android:layout_alignParentRight="true"
+                        android:layout_height="fill_parent"
+                        android:gravity="center">
+
+            <TextView android:id="@+id/title_txt"
+                      style="@style/txt_widget_clickable"
+                      android:clickable="true"
+                      android:focusable="true"
+                      android:ellipsize="marquee"
+                      android:layout_alignWithParentIfMissing="true"
+                      android:layout_toLeftOf="@+id/by_txt"
+                      android:layout_width="wrap_content"
+                      android:text=""
+                      android:layout_height="fill_parent"
+                      android:layout_marginTop="5dip"
+                      android:layout_marginBottom="5dip"
+                      android:layout_alignParentLeft="true"
+                      android:gravity="center"/>
+
+            <TextView android:id="@+id/by_txt"
+                      style="@style/txt_widget_secondary"
+                      android:visibility="gone"
+                      android:layout_toLeftOf="@+id/user_txt"
+                      android:layout_height="fill_parent"
+                      android:layout_width="wrap_content"
+                      android:text="by"
+                      android:gravity="center_vertical"/>
+
+            <TextView android:id="@+id/user_txt"
+                      style="@style/txt_widget_clickable"
+                      android:clickable="true"
+                      android:focusable="true"
+                      android:layout_alignParentRight="true"
+                      android:layout_width="wrap_content"
+                      android:text=""
+                      android:layout_height="fill_parent"
+                      android:gravity="center_vertical"
+                      android:layout_marginTop="5dip"
+                      android:layout_marginBottom="5dip"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <LinearLayout android:id="@+id/transport_bar"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="42dip">
+
+        <ImageButton android:id="@+id/prev"
+                     android:layout_weight="1"
+                     android:layout_alignParentLeft="true"
+                     style="@style/btn_sc_widget_transport"
+                     android:src="@drawable/ic_widget_prev_states"/>
+
+        <ImageButton android:id="@+id/pause"
+                     android:layout_width="114dip"
+                     android:layout_toRightOf="@id/prev"
+                     style="@style/btn_sc_widget_transport"
+                     android:src="@drawable/ic_widget_play_states"/>
+
+        <ImageButton android:id="@+id/next"
+                     android:layout_weight="1"
+                     android:layout_toRightOf="@id/pause"
+                     style="@style/btn_sc_widget_transport"
+                     android:src="@drawable/ic_widget_next_states"/>
+    </LinearLayout>
+</LinearLayout>

@@ -68,7 +68,7 @@ public class UserlistRow extends LazyRow {
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.user_list_item;
+        return R.layout.user_list_row;
     }
 
     /** update the views with the data corresponding to selection index */

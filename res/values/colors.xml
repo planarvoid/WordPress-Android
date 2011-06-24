@@ -11,7 +11,7 @@
 	<color name="listTxtRecSecondary">#FFcccccc</color>
 
     <color name="listTxtHeader">#777777</color>
-    <color name="listBgHeader">#EFEFEF</color>
+    <color name="listBgHeader">#DEEFEFEF</color>
 
 	<color name="commentLine">#FF6e6e6e</color>
 	<color name="activeCommentLine">#FFe36711</color>

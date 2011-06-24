@@ -2,22 +2,19 @@
 package com.soundcloud.android.adapter;
 
 
-import android.nfc.Tag;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.markupartist.android.widget.PullToRefreshListView;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
@@ -27,9 +24,8 @@ import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,12 +34,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected View mPendingView = null;
     protected int mPendingPosition = -1;
     private AppendTask mAppendTask;
-    protected View mEmptyView;
+    protected TextView mEmptyView;
     protected LazyListView mListView;
     protected int mCurrentPage;
     protected ScActivity mActivity;
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
-    protected Boolean mException = false;
+    protected Boolean mError = false;
     private String mEmptyViewText = "";
     private Request mRequest;
     private RefreshTask mRefreshTask;
@@ -92,10 +88,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     /**
      * Set the current text of the adapter, based on if we are currently dealing
-     * with an exception
+     * with an error
      */
     public void applyEmptyText() {
-        if (!TextUtils.isEmpty(mEmptyViewText) && !mException) {
+        if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
             ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
             return;
         }
@@ -103,26 +99,27 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         String textToSet = "";
 
         if (Track.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
         } else if (User.class.equals(getLoadModel())
                 || Friend.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
         } else if (Comment.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
         } else if (Event.class.equals(getLoadModel())) {
-            textToSet = !mException ? mActivity.getResources().getString(
+            textToSet = !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
         }
 
-        ((TextView) mEmptyView).setText(textToSet);
+
+        if (mEmptyView != null) mEmptyView.setText(textToSet);
     }
 
     /**
@@ -186,25 +183,26 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * @return an integer list {whether to keep retrieving data, the current
      *         page the adapter is on}
      */
-    public int[] savePagingData() {
+    protected int[] savePagingData() {
 
         int[] ret = new int[3];
         ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
         ret[1] = mCurrentPage;
-        ret[2] = mException ? 1 : 0;
+        ret[2] = mError ? 1 : 0;
 
         return ret;
 
     }
 
-    public void restorePagingData(int[] restore) {
+    protected void restorePagingData(int[] restore) {
         mKeepOnAppending.set(restore[0] == 1);
         mCurrentPage = restore[1];
-        mException = restore[2] == 1;
+        mError = restore[2] == 1;
 
         if (!mKeepOnAppending.get()) {
             applyEmptyText();
 
+            //if (mListView != null) mListView.setEmptyView(mEmptyView);
         }
 
     }
@@ -214,7 +212,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      *
      * @return a string representing any extra data pertaining to this adapter
      */
-    public String saveExtraData() {
+    protected String saveExtraData() {
         return "";
     }
 
@@ -223,7 +221,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      *
      * @param restore : the string data to restore
      */
-    public void restoreExtraData(String restore) {
+    protected void restoreExtraData(String restore) {
     }
 
     public Class<?> getLoadModel() {
@@ -302,7 +300,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (keepgoing != null) {
             mKeepOnAppending.set(keepgoing);
         } else {
-            mException = true;
+            mError = true;
         }
 
         rebindPendingView(mPendingPosition, mPendingView);
@@ -312,11 +310,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         // configure the empty view depending on possible exceptions
         applyEmptyText();
         mEmptyView.setVisibility(View.VISIBLE);
-        mListView.setEmptyView(mEmptyView);
         notifyDataSetChanged();
 
         mActivity.handleException();
-        mActivity.handleError();
 
         // if (mActivityReference != null)
         // mActivityReference.handleException();
@@ -367,27 +363,34 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     /**
      * Get the current url for this adapter
-     *
-     * @return the url
+     * @return the url or null
      */
     protected Request getRequest(boolean refresh) {
-        return new Request(mRequest);
+        return mRequest == null ? null : new Request(mRequest);
     }
 
     /**
      * A load task is about to be executed, do whatever we have to to get ready
      */
     public void onPreTaskExecute() {
-        mException = false;
+        mError = false;
     }
 
     /**
-     * There was an exception during the load task
+     * Handle whatever the last response code was
      *
-     * @param e : the exception
+     * @param mResponseCode : the last response code
      */
-    public void setException(Exception e) {
-        mException = true;
+    public void handleResponseCode(int mResponseCode) {
+        switch (mResponseCode){
+            case HttpStatus.SC_OK: // do nothing
+                mError = false;
+                break;
+            case HttpStatus.SC_UNAUTHORIZED :
+                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+            default:
+                mError = true;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -402,7 +405,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         if (mEmptyView != null){
             mEmptyView.setVisibility(View.GONE);
-            mListView.setEmptyView(null);
         }
 
         mRefreshTask = new RefreshTask(mActivity.getApp());
@@ -424,8 +426,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     public void reset(boolean keepAppending) {
         resetData();
 
-        if (mEmptyView != null)
-            mEmptyView.setVisibility(View.GONE);
+        if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
 
         mCurrentPage = 0;
         mKeepOnAppending.set(keepAppending);
@@ -485,7 +486,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     public void onPostRefresh() {
         mListView.onRefreshComplete();
         applyEmptyText();
-        mListView.setEmptyView(mEmptyView);
     }
 
     public boolean isRefreshing() {
@@ -497,5 +497,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public boolean isEmpty(){
         return super.getCount() == 0;
+    }
+
+    public void stopAppending() {
+        mKeepOnAppending.set(false);
     }
 }

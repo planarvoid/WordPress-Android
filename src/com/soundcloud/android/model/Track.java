@@ -142,6 +142,22 @@ public class Track extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
+    public Track(TracklistItem tracklistItem){
+        id = tracklistItem.id;
+        title = tracklistItem.title;
+        created_at = tracklistItem.created_at;
+        user_id = tracklistItem.user_id;
+        duration = tracklistItem.duration;
+        commentable = tracklistItem.commentable;
+        sharing = tracklistItem.sharing;
+        permalink = tracklistItem.permalink;
+        streamable = tracklistItem.streamable;
+        artwork_url = tracklistItem.artwork_url;
+        waveform_url = tracklistItem.waveform_url;
+        user = tracklistItem.user;
+        stream_url = tracklistItem.stream_url;
+    }
+
     public Track(Cursor cursor, boolean aliasesOnly ) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {

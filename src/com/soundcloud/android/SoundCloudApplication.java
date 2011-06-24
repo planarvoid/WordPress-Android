@@ -94,7 +94,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (account != null) {
-            FollowStatus.initialize(this, account);
+            FollowStatus.initialize(this, getCurrentUserId());
         }
 
         doOnce(this, "cleanup.track.cache", new Runnable() {
@@ -214,7 +214,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
 
         // move this when we can't guarantee we will only have 1 account active at a time
-        FollowStatus.initialize(this, account);
+        FollowStatus.initialize(this, user.id);
 
         // disable syncing
         ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
@@ -289,9 +289,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private Token getToken(Account account) {
-        Token token = new Token(getAccessToken(account), getRefreshToken(account));
-        token.scope = getAccountData(Token.SCOPE);
-        return token;
+        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));
     }
 
     private String getAccessToken(Account account) {
@@ -372,6 +370,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Token authorizationCode(String code) throws IOException {
         return mCloudApi.authorizationCode(code);
+    }
+
+    public Token login(String username, String password, String scope) throws IOException {
+        return mCloudApi.login(username, password, scope);
+    }
+
+    public Token authorizationCode(String code, String scope) throws IOException {
+        return mCloudApi.authorizationCode(code, scope);
     }
 
     public static interface RecordListener {

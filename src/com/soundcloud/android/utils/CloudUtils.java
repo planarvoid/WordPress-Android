@@ -296,8 +296,8 @@ public class CloudUtils {
     }
 
     public static boolean checkIconShouldLoad(String url) {
-        return !(url == null ||
-                  url.contentEquals("") || url.toLowerCase().contentEquals("null")
+        return !(TextUtils.isEmpty(url)
+                || url.toLowerCase().contentEquals("null")
                 || url.contains("default_avatar"));
     }
 

@@ -11,7 +11,6 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -23,6 +22,7 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,7 +40,7 @@ public class FollowStatus implements Parcelable {
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
-    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
+    private WeakHashMap<Listener, Boolean> listeners = new WeakHashMap<Listener, Boolean>();
 
     public synchronized static FollowStatus get() {
         if (sInstance == null) {
@@ -94,7 +94,11 @@ public class FollowStatus implements Parcelable {
     }
 
     public void addListener(Listener l) {
-        listeners.put(l, l);
+        listeners.put(l, true);
+    }
+
+    public void removeListener(Listener l) {
+        listeners.remove(l);
     }
 
     public AsyncTask<Long,Void,Boolean> toggleFollowing(final long userid,
@@ -172,8 +176,8 @@ public class FollowStatus implements Parcelable {
                 '}';
     }
 
-    static String getFilename(Account account) {
-        return "follow-status-cache-" + account.name;
+    static String getFilename(long userId) {
+        return "follow-status-cache-"+userId;
     }
 
     // Google recommends not to use the filesystem to save parcelables (portability issues)
@@ -205,8 +209,8 @@ public class FollowStatus implements Parcelable {
         }
     }
 
-    public static synchronized void initialize(final Context context, Account account) {
-        final String statusCache = getFilename(account);
+    public static synchronized void initialize(final Context context, long userId) {
+        final String statusCache = getFilename(userId);
         try {
             FollowStatus status = fromInputStream(context.openFileInput(statusCache));
             if (status != null) {
@@ -214,6 +218,10 @@ public class FollowStatus implements Parcelable {
             } else {
                 context.deleteFile(statusCache);
             }
+
+
+        } catch (FileNotFoundException ignored) {
+            // ignored
         } catch (IOException ignored) {
             Log.w(TAG, "error initializing FollowStatus", ignored);
         }

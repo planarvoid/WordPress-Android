@@ -169,7 +169,7 @@ public class EmailPicker extends ListActivity {
 
         private LayoutInflater mInflater;
 
-        private final int resource = R.layout.contacts_list_item;
+        private final int resource = R.layout.email_picker_item;
 
         private Context mContext;
 

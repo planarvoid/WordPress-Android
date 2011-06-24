@@ -94,7 +94,7 @@ public class CommentBubble extends RelativeLayout {
 
         LayoutInflater inflater = (LayoutInflater) context
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.player_comment_bubble, this);
+        inflater.inflate(R.layout.comment_bubble, this);
 
         mTxtNewTime = (TextView) findViewById(R.id.txt_new_time);
         mTxtNewInstructions = (TextView) findViewById(R.id.txt_new_instructions);

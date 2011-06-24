@@ -5,8 +5,8 @@ resources.
 
 ## Layout files / activities
 
-If possible the name of the layout file should match the name of the acitivty.
-If you rename the activity, remember to rename the layout file as well.
+If possible the name of the layout file should match the name of the activity /
+view.  If you rename the activity, remember to rename the layout file as well.
 
     FooActivity.java => foo.xml / foo_activity.xml
 
@@ -16,7 +16,6 @@ If you rename the activity, remember to rename the layout file as well.
   * Nested elements should be indented
   * attributes: id first, horizontally aligned
   * No empty bodies
-
 
 Bad:
 

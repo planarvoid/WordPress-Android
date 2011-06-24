@@ -1,124 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/createBackground"
-    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical">
-    <ScrollView android:id="@+id/ScrollView01" android:layout_weight="1" android:layout_height="wrap_content"
-                android:layout_width="fill_parent" android:paddingTop="5dip">
-        <RelativeLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
-                        android:id="@+id/input_layout">
-            <FrameLayout android:id="@+id/artwork_layout" android:layout_height="100dip"
-                         android:layout_width="100dip" android:layout_below="@id/file_layout" android:layout_marginLeft="5dip">
-                <TextView android:layout_height="fill_parent" android:background="@drawable/rec_upload_image_bg"
-                        android:layout_width="fill_parent" style="@style/txt_record_add_image"
-                        android:clickable="true" android:id="@+id/txt_artwork_bg"
-                        android:gravity="center" android:padding="10dip" android:text="Add\nImage"/>
-                <ImageView android:id="@+id/artwork" android:visibility="gone" android:layout_height="100dip" android:layout_width="100dip"
-                         android:scaleType="centerCrop" android:clickable="true"/>
+
+    <ScrollView android:id="@+id/ScrollView01"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:paddingTop="5dip">
+
+        <RelativeLayout android:id="@+id/input_layout"
+                        android:layout_height="wrap_content"
+                        android:layout_width="fill_parent">
+
+            <FrameLayout android:id="@+id/artwork_layout"
+                         android:layout_height="100dip"
+                         android:layout_width="100dip"
+                         android:layout_below="@id/file_layout"
+                         android:layout_marginLeft="5dip">
+
+                    <TextView android:id="@+id/txt_artwork_bg"
+                              android:layout_height="fill_parent"
+                              android:background="@drawable/rec_upload_image_bg"
+                              android:layout_width="fill_parent"
+                              style="@style/txt_record_add_image"
+                              android:clickable="true"
+                              android:gravity="center"
+                              android:padding="10dip"
+                              android:text="Add\nImage"/>
+                    <ImageView android:id="@+id/artwork"
+                               android:visibility="gone"
+                               android:layout_height="100dip"
+                               android:layout_width="100dip"
+                               android:scaleType="centerCrop"
+                               android:clickable="true"/>
             </FrameLayout>
-            <TextView android:layout_height="wrap_content" android:id="@+id/where"
-                      android:layout_toRightOf="@+id/artwork_layout" android:background="@drawable/rec_upload_text_bg"
-                      android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
-                      android:layout_width="fill_parent" android:ellipsize="end" style="@style/txt_record_input"
-                      android:gravity="center" android:clickable="true"
-                      android:fadingEdge="horizontal" android:fadeScrollbars="true"
+
+            <TextView android:id="@+id/where"
+                      android:layout_height="wrap_content"
+                      android:layout_toRightOf="@+id/artwork_layout"
+                      android:background="@drawable/rec_upload_text_bg"
+                      android:layout_marginLeft="10dip"
+                      android:layout_marginRight="10dip"
+                      android:layout_width="fill_parent"
+                      android:ellipsize="end"
+                      style="@style/txt_record_input"
+                      android:gravity="center"
+                      android:clickable="true"
+                      android:fadingEdge="horizontal"
+                      android:fadeScrollbars="true"
                       android:hint="Where"
                       android:layout_alignBottom="@+id/artwork_layout"/>
-            <EditText android:layout_height="wrap_content" android:id="@+id/what"
-                      android:layout_toRightOf="@+id/artwork_layout" android:background="@drawable/rec_upload_text_bg"
-                      android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
-                      android:layout_width="fill_parent" android:ellipsize="end" style="@style/txt_record_input"
-                      android:gravity="center" android:inputType="text" android:hint="What"/>
+
+            <EditText android:id="@+id/what"
+                      android:layout_height="wrap_content"
+                      android:layout_toRightOf="@+id/artwork_layout"
+                      android:background="@drawable/rec_upload_text_bg"
+                      android:layout_marginLeft="10dip"
+                      android:layout_marginRight="10dip"
+                      android:layout_width="fill_parent"
+                      android:ellipsize="end"
+                      style="@style/txt_record_input"
+                      android:gravity="center"
+                      android:inputType="text"
+                      android:hint="What"/>
+
             <RadioGroup android:id="@+id/rdo_privacy"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_alignParentBottom="false" android:layout_marginTop="5dip"
-                        android:layout_below="@+id/artwork_layout">
-                <RadioButton android:checked="true" android:id="@+id/rdo_public" android:text="\u00A0Public"
-                             android:layout_weight="1" style="@style/txt_record_rdo"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_alignParentBottom="false"
+                            android:layout_marginTop="5dip"
+                            android:layout_below="@+id/artwork_layout">
+
+                <RadioButton android:id="@+id/rdo_public"
+                             android:checked="true"
+                             android:text="\u00A0Public"
+                             android:layout_weight="1"
+                             style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
-                <RadioButton android:checked="false" android:id="@+id/rdo_private" android:text="\u00A0Private"
-                             android:layout_weight="1" style="@style/txt_record_rdo"
+
+                <RadioButton android:id="@+id/rdo_private"
+                             android:checked="false"
+                             android:text="\u00A0Private"
+                             android:layout_weight="1"
+                             style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
             </RadioGroup>
-            <TextView android:id="@+id/txt_record_options" android:background="#474747"
-                        android:layout_width="fill_parent" style="@style/txt_record_share_options"
-                        android:gravity="left" android:padding="5dip" android:text="Sharing Options"
-                        android:layout_below="@id/rdo_privacy" android:layout_height="30dip"/>
-            <View android:id="@+id/share_options_seperator" android:background="@color/recordUploadBorder"
-                        android:layout_width="fill_parent"
-                        android:layout_below="@id/txt_record_options" android:layout_height="1dip"/>
+
+            <TextView android:id="@+id/txt_record_options"
+                      android:background="#474747"
+                      android:layout_width="fill_parent"
+                      style="@style/txt_record_share_options"
+                      android:gravity="left"
+                      android:padding="5dip"
+                      android:text="Sharing Options"
+                      android:layout_below="@id/rdo_privacy"
+                      android:layout_height="30dip"/>
+
+            <View android:id="@+id/share_options_seperator"
+                  android:background="@color/recordUploadBorder"
+                  android:layout_width="fill_parent"
+                  android:layout_below="@id/txt_record_options"
+                  android:layout_height="1dip"/>
             <!-- sharing -->
             <com.soundcloud.android.view.SafeViewFlipper
-                    android:id="@+id/vfSharing"
-                    android:layout_weight="1"
+                  android:id="@+id/vfSharing"
+                  android:layout_weight="1"
                   android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_below="@+id/share_options_seperator">
+                  android:layout_height="fill_parent"
+                  android:layout_below="@+id/share_options_seperator">
 
                 <com.soundcloud.android.view.ConnectionList
-                          android:id="@+id/connectionList"
-                          android:layout_width="fill_parent"
-                          android:layout_height="fill_parent">
-                </com.soundcloud.android.view.ConnectionList>
+                      android:id="@+id/connectionList"
+                      android:layout_width="fill_parent"
+                      android:layout_height="fill_parent"/>
 
                 <RelativeLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" >
-
-                   <RelativeLayout android:id="@+id/btn_add_emails"
-                     android:focusable="true"
-                     android:clickable="true"
-                     android:layout_width="fill_parent"
-                       android:layout_height="50dip">
-                   <TextView android:id="@+id/txt_with_access"
-                            android:layout_alignParentLeft="true"
-                            style="@style/txt_record_email_access_gray"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="With Access"
-                            android:layout_centerVertical="true" />
-                     <TextView android:id="@+id/txt_with_access_values"
-                              android:layout_alignParentRight="true"
-                              style="@style/txt_record_email_access"
-                              android:text="Only You"
-                              android:layout_height="wrap_content"
-                              android:layout_width="wrap_content"
-                              android:layout_centerVertical="true" />
-                   </RelativeLayout>
-              <View android:id="@+id/share_access_seperator"
-                android:background="@color/recordUploadBorder"
                         android:layout_width="fill_parent"
-                        android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
+                        android:layout_height="fill_parent">
 
-                <com.soundcloud.android.view.AccessList
-                    android:layout_below="@id/share_access_seperator"
-                          android:id="@+id/accessList"
-                          android:layout_width="fill_parent"
-                          android:layout_height="fill_parent"/>
+                           <RelativeLayout android:id="@+id/btn_add_emails"
+                                android:focusable="true"
+                                android:clickable="true"
+                                android:layout_width="fill_parent"
+                                android:layout_height="50dip">
+
+                               <TextView android:id="@+id/txt_with_access"
+                                        android:layout_alignParentLeft="true"
+                                        style="@style/txt_record_email_access_gray"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="wrap_content"
+                                        android:text="With Access"
+                                        android:layout_centerVertical="true" />
+                                 <TextView android:id="@+id/txt_with_access_values"
+                                          android:layout_alignParentRight="true"
+                                          style="@style/txt_record_email_access"
+                                          android:text="Only You"
+                                          android:layout_height="wrap_content"
+                                          android:layout_width="wrap_content"
+                                          android:layout_centerVertical="true" />
+                           </RelativeLayout>
+
+                          <View android:id="@+id/share_access_seperator"
+                                android:background="@color/recordUploadBorder"
+                                android:layout_width="fill_parent"
+                                android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
+
+                          <com.soundcloud.android.view.AccessList
+                                  android:layout_below="@id/share_access_seperator"
+                                  android:id="@+id/accessList"
+                                  android:layout_width="fill_parent"
+                                  android:layout_height="fill_parent"/>
+
                 </RelativeLayout>
             </com.soundcloud.android.view.SafeViewFlipper>
         </RelativeLayout>
     </ScrollView>
 
-    <RelativeLayout android:layout_width="fill_parent"
-                    android:layout_alignParentBottom="true" android:id="@+id/control_layout"
-                    android:background="@color/playerControlAlphaBackground" android:layout_height="wrap_content">
+    <RelativeLayout android:id="@+id/control_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/playerControlAlphaBackground"
+                    android:layout_height="wrap_content">
+
         <LinearLayout android:paddingBottom="5dip"
                       android:orientation="horizontal"
-                      android:layout_width="fill_parent" android:layout_height="wrap_content"
-                      android:paddingTop="5dip" android:layout_marginTop="5dip">
-            <Button android:id="@+id/btn_cancel" android:text="@string/record_another_sound"
-                    android:layout_weight="1" android:layout_width="wrap_content"
-                    android:layout_marginLeft="10dip" android:layout_marginRight="15dip"
-                    android:layout_height="fill_parent"/>
-            <Button android:id="@+id/btn_upload" android:text="@string/upload_and_share"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:paddingTop="5dip"
+                      android:layout_marginTop="5dip">
+
+            <Button android:id="@+id/btn_cancel"
+                    android:text="@string/record_another_sound"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content" android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip" android:layout_height="fill_parent"/>
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="15dip"
+                    android:layout_height="fill_parent"/>
+
+            <Button android:id="@+id/btn_upload"
+                    android:text="@string/upload_and_share"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="15dip"
+                    android:layout_marginRight="10dip"
+                    android:layout_height="fill_parent"/>
         </LinearLayout>
-        <View android:layout_width="fill_parent" android:layout_height="5dip"
+
+        <View android:layout_width="fill_parent"
+              android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>
+
     </RelativeLayout>
 </LinearLayout>

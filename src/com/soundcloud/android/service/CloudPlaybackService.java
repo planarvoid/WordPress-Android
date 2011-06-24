@@ -714,6 +714,7 @@ public class CloudPlaybackService extends Service {
                 if ((mCurrentBuffer > INITIAL_PLAYBACK_MARK && initialBuffering) || (mCurrentBuffer > PLAYBACK_MARK && !initialBuffering)
                         || mPlayingData.getCache().length() >= mPlayingData.filelength) {
 
+
                     if (mWaitingForArtwork)
                         return true;
 
@@ -840,6 +841,10 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
+        boolean wasPlaying = mIsSupposedToBePlaying;
+        mIsSupposedToBePlaying = true;
+
+
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
         if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
@@ -877,7 +882,7 @@ public class CloudPlaybackService extends Service {
             this.restart();
         }
 
-        if (!mIsSupposedToBePlaying) {
+        if (!wasPlaying) {
             mIsSupposedToBePlaying = true;
             setPlayingStatus();
             notifyChange(PLAYSTATE_CHANGED);
@@ -892,7 +897,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
         if (mNotificationView == null) {
-            mNotificationView = new RemoteViews(getPackageName(), R.layout.status_play);
+            mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
             mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
         }
 
@@ -1209,9 +1214,8 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return true;
-            //return (isStagefright && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
-              //      .isAsyncOpening());
+            return ((isStagefright || Build.VERSION.SDK_INT > 8) && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
+                    .isAsyncOpening());
         }
     }
 
@@ -1224,7 +1228,7 @@ public class CloudPlaybackService extends Service {
     public long seek(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && isStagefright) {
+                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1246,7 +1250,7 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && isStagefright) {
+                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1371,8 +1375,12 @@ public class CloudPlaybackService extends Service {
         }
 
         public long seek(long whereto, boolean resumeSeek) {
-            mPlayer.setVolume(0);
-            whereto = (int) getSeekResult(whereto, resumeSeek);
+
+            if (isStagefright) {
+                mPlayer.setVolume(0);
+                whereto = (int) getSeekResult(whereto, resumeSeek);
+            }
+
             if (whereto != mPlayer.position()) mMediaPlayer.seekTo((int) whereto);
             return whereto;
         }
@@ -1441,6 +1449,8 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
             public void onSeekComplete(MediaPlayer mp) {
+                if (!isStagefright) return;
+
                 if (!mMediaPlayer.isPlaying()) {
                     mPlayer.setVolume(0);
                     play();

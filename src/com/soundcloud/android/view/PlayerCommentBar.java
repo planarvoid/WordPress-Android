@@ -16,7 +16,7 @@ public class PlayerCommentBar extends RelativeLayout {
         
         LayoutInflater inflater = (LayoutInflater) context
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.player_touch_bar, this);
+        inflater.inflate(R.layout.player_comment_bar, this);
     }
 
 

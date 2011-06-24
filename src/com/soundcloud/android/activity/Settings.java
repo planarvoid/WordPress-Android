@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
@@ -27,7 +28,7 @@ public class Settings extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.layout.settings);
+        addPreferencesFromResource(R.xml.settings);
         setClearCacheTitle();
 
         findPreference("revokeAccess").setOnPreferenceClickListener(
@@ -63,8 +64,7 @@ public class Settings extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
-                            startActivity(new Intent(
-                                    android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+                            startActivity(new Intent(ACTION_WIRELESS_SETTINGS));
                         } catch (Exception e) {
                             Log.e(TAG, "error", e);
                         }
@@ -72,6 +72,14 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
+
+        findPreference("about").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(new Intent(Settings.this, About.class));
+                        return true;
+                    }
+                });
 
         ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
 

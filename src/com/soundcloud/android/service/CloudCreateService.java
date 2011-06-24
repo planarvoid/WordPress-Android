@@ -6,7 +6,6 @@ import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOAD_NOTIFY_ID;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
@@ -412,7 +411,7 @@ public class CloudCreateService extends Service {
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .putExtra("tabTag", "profile");
 
-        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.status_upload);
+        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
 
         CharSequence trackText = (CharSequence) trackdata.get(com.soundcloud.api.Params.Track.TITLE);
         mUploadNotificationView.setTextViewText(R.id.message, trackText);

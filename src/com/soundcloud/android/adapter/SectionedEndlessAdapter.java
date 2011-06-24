@@ -107,13 +107,12 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             }
             mKeepOnAppending.set(keepgoing);
         } else {
-            mException = true;
+            mError = true;
         }
 
         // configure the empty view depending on possible exceptions
         applyEmptyText();
         mActivity.handleException();
-        mActivity.handleError();
     }
 
     @Override

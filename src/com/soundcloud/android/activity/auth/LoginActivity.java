@@ -22,6 +22,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
+
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString("username", username);
@@ -30,6 +31,11 @@ public abstract class LoginActivity extends Activity {
     }
 
     protected void login(final Bundle data) {
+        if (data.getString("scope") == null) {
+            // default to non-expiring scope
+            data.putString("scope", Token.SCOPE_NON_EXPIRING);
+        }
+
         final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
 
         new GetTokensTask(api) {
@@ -41,14 +47,15 @@ public abstract class LoginActivity extends Activity {
                         LoginActivity.this.getString(R.string.authentication_login_progress_message));
             }
 
+
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
                     new LoadTask.LoadUserTask(api) {
                         @Override
                         protected void onPostExecute(User user) {
-                            progress.dismiss();
                             if (user != null) {
+                                dismissProgress();
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
                                         new Intent().putExtras(data)
@@ -62,14 +69,25 @@ public abstract class LoginActivity extends Activity {
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
-                    progress.dismiss();
+                    dismissProgress();
                     showError(mException);
                 }
             }
+
+            private void dismissProgress() {
+                if (!isFinishing()) try {
+                    progress.dismiss();
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
         }.execute(data);
+
+
     }
 
     protected void showError(IOException e) {
+        if (isFinishing()) return;
+
         final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
         new AlertDialog.Builder(LoginActivity.this)
                 .setIcon(android.R.drawable.ic_dialog_alert)

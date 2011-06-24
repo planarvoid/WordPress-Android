@@ -15,7 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer {
+public abstract class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer {
 
     public static final String TAG = "SectionedAdapter";
 
@@ -168,10 +168,8 @@ public class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer 
         }
     }
 
-    public void configurePinnedHeader(View header, int position, int bgColor, int txtColor) {
+    public void configurePinnedHeader(View header, int position) {
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
         txtHeader.setText(getSections()[getSectionForPosition(position)]);
-        txtHeader.setBackgroundColor(bgColor);
-        txtHeader.setTextColor(txtColor);
     }
 }

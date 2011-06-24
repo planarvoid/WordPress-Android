@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Interpolator;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -83,42 +84,58 @@ public class AnimUtils {
         return animation;
     }
 
-    // for the previous movement
     public static Animation inFromRightAnimation() {
+        return inFromRightAnimation(new DecelerateInterpolator());
+    }
+
+    // for the previous movement
+    public static Animation inFromRightAnimation(android.view.animation.Interpolator i) {
 
         Animation inFromRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, +1.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         inFromRight.setDuration(250);
-        inFromRight.setInterpolator(new DecelerateInterpolator());
+        inFromRight.setInterpolator(i);
         return inFromRight;
     }
 
     public static Animation outToLeftAnimation() {
+        return outToLeftAnimation(new AccelerateInterpolator());
+    }
+
+    public static Animation outToLeftAnimation(android.view.animation.Interpolator i) {
         Animation outtoLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         outtoLeft.setDuration(250);
-        outtoLeft.setInterpolator(new AccelerateInterpolator());
+        outtoLeft.setInterpolator(i);
         return outtoLeft;
     }
 
-    // for the next movement
     public static Animation inFromLeftAnimation() {
+        return inFromLeftAnimation(new DecelerateInterpolator());
+    }
+
+    // for the next movement
+    public static Animation inFromLeftAnimation(android.view.animation.Interpolator i) {
         Animation inFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1.0f,
-                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
+                    Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         inFromLeft.setDuration(250);
-        inFromLeft.setInterpolator(new DecelerateInterpolator());
+        inFromLeft.setInterpolator(i);
         return inFromLeft;
     }
 
     public static Animation outToRightAnimation() {
+        return outToRightAnimation(new AccelerateInterpolator());
+    }
+
+    public static Animation outToRightAnimation(android.view.animation.Interpolator i) {
         Animation outtoRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, +1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f);
         outtoRight.setDuration(250);
-        outtoRight.setInterpolator(new AccelerateInterpolator());
+        outtoRight.setInterpolator(i);
         return outtoRight;
     }
 

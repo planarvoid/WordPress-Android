@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 
 import java.util.List;
 
-public class LazyBaseAdapter extends BaseAdapter {
+public abstract class LazyBaseAdapter extends BaseAdapter {
 
     public int submenuIndex = -1;
     public int animateSubmenuIndex = -1;
@@ -59,9 +59,7 @@ public class LazyBaseAdapter extends BaseAdapter {
         return rowView;
     }
 
-    protected LazyRow createRow() {
-        return new LazyRow(mActivity, this);
-    }
+    protected abstract LazyRow createRow();
 
     public void reset() {
         mData.clear();

@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:background="#FFFFFFFF">
-	<FrameLayout android:layout_width="match_parent"
-		android:layout_above="@+id/control_layout"
-        android:layout_alignParentTop="true"
-		android:id="@+id/listHolder" android:layout_height="wrap_content"></FrameLayout>
-	<RelativeLayout android:layout_width="fill_parent"
-		android:layout_alignParentBottom="true" android:id="@+id/control_layout"
-		android:background="@color/playerControlAlphaBackground"
-		android:layout_height="wrap_content">
-		<Button android:id="@+id/btn_done" android:text="@string/btn_done"
-			android:layout_marginTop="10dip" android:layout_weight="1"
-			android:layout_width="fill_parent" android:layout_marginLeft="15dip"
-			android:layout_marginRight="15dip" android:layout_height="wrap_content" />
-		<View android:layout_width="fill_parent" android:layout_height="5dip"
-			android:layout_alignParentTop="true" android:background="@drawable/drop_shadow_down" />
-	</RelativeLayout>
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="#FFFFFFFF">
+
+    <FrameLayout android:id="@+id/listHolder"
+                 android:layout_width="match_parent"
+                 android:layout_above="@+id/control_layout"
+                 android:layout_alignParentTop="true"
+                 android:layout_height="wrap_content"/>
+
+    <RelativeLayout android:id="@+id/control_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/playerControlAlphaBackground"
+                    android:layout_height="wrap_content">
+
+        <Button android:id="@+id/btn_done"
+                android:text="@string/btn_done"
+                android:layout_marginTop="10dip"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_marginLeft="15dip"
+                android:layout_marginRight="15dip"
+                android:layout_height="wrap_content"/>
+
+        <View android:layout_width="fill_parent"
+              android:layout_height="5dip"
+              android:layout_alignParentTop="true"
+              android:background="@drawable/drop_shadow_down"/>
+
+    </RelativeLayout>
 </RelativeLayout>

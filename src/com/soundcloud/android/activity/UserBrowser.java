@@ -24,6 +24,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
@@ -107,7 +108,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_details_view, null);
+
+        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -173,10 +175,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             Intent intent = getIntent();
             if (intent != null && intent.hasExtra("user")) {
                 loadUserByObject((User) intent.getParcelableExtra("user"));
-                intent.removeExtra("user");
             } else if (intent != null && intent.hasExtra("userId")) {
                 loadUserById(intent.getLongExtra("userId", -1));
-                intent.removeExtra("userId");
             } else {
                 loadYou();
             }
@@ -206,6 +206,19 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         super.onResume();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FollowStatus.get().removeListener(this);
+        for (LazyListView l : mLists) {
+            for (int i=0; i<l.getChildCount(); i++) {
+                View v = l.getChildAt(i);
+                if (v instanceof LazyRow) {
+                    ((LazyRow)v).cleanup();
+                }
+            }
+        }
+    }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
@@ -282,16 +295,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mFriendFinderView.onConnections(connections, true);
     }
 
-    public void onScreenChanged(View newScreen, int newScreenIndex) {
+    public void onScreenChanged(View newScreen, int newScreenIndex) { }
+
+    public void onScreenChanging(View newScreen, int newScreenIndex) {
         mTabHost.setCurrentTab(newScreenIndex);
         if (hsv != null) {
             hsv.scrollTo(mTabWidget.getChildTabViewAt(newScreenIndex).getLeft()
                     + mTabWidget.getChildTabViewAt(newScreenIndex).getWidth() / 2 - getWidth() / 2, 0);
         }
-    }
-
-    public void onScreenChanging(View newScreen, int newScreenIndex) {
-        // do nothing
     }
 
     private void loadYou() {

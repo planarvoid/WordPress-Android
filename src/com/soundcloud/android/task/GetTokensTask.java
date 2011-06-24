@@ -21,10 +21,12 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
     protected Token doInBackground(Bundle... params) {
         Bundle param = params[0];
         try {
+            final String scope = param.getString("scope");
+
             if (param.containsKey("code")) {
-                return mApi.authorizationCode(param.getString("code"));
+                return mApi.authorizationCode(param.getString("code"), scope);
             } else if (param.containsKey("username") && param.containsKey("password")) {
-                return mApi.login(param.getString("username"), param.getString("password"));
+                return mApi.login(param.getString("username"), param.getString("password"), scope);
             } else {
                 throw new IllegalArgumentException("invalid param " + param);
             }

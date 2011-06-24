@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:gravity="center_vertical"
+     android:layout_height="wrap_content">
+
+    <ImageView android:id="@+id/icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="10dip"
+        android:scaleType="center" android:src="@drawable/ic_contact_list_picture"/>
+
+    <TextView android:id="@+id/name"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:layout_width="0dip"
+        android:layout_marginRight="5dip"
+        android:layout_toRightOf="@id/icon"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content" android:layout_marginTop="10dip"/>
+    <TextView android:id="@+id/email"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#FFFFFF"
+        android:layout_below="@id/name"
+        android:layout_marginRight="5dip"
+        android:layout_toRightOf="@id/icon"
+        android:layout_width="0dip"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

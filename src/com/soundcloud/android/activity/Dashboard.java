@@ -31,7 +31,7 @@ public class Dashboard extends ScActivity {
 
         CloudUtils.checkState(this);
 
-        setContentView(R.layout.main_holder);
+        setContentView(R.layout.dashboard);
 
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");

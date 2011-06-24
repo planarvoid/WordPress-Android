@@ -303,7 +303,7 @@ public class Main extends TabActivity {
                      new LoadTask.LoadUserTask(app) {
                          @Override
                          protected void onPostExecute(User user) {
-                             if (app.addUserAccount(user, token)) {
+                             if (user != null && app.addUserAccount(user, token)) {
                                  Log.v(TAG, "successful token exchange");
                                  SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                  // remove old tokens after successful exchange

@@ -110,7 +110,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.waveformcontroller, this);
+        inflater.inflate(R.layout.wave_form_controller, this);
 
         mInputObjectPool = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
         for (int i = 0; i < INPUT_QUEUE_SIZE; i++) {

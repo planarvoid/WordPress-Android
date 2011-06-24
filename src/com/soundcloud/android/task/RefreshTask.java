@@ -57,7 +57,7 @@ public class RefreshTask extends AppendTask {
 
         if (adapter != null) {
             if (mException != null){
-                adapter.setException(mException);
+                 adapter.handleResponseCode(mResponseCode);
             } else if (newItems.size() > 0){
                 adapter.reset();
                 super.onPostExecute(keepGoing);

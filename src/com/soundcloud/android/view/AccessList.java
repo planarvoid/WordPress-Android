@@ -131,7 +131,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
 
                View view;
                if (convertView == null) {
-                   view = ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.contacts_list_item, parent, false);
+                   view = ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.email_picker_item, parent, false);
                } else {
                    view = convertView;
                }
