@@ -64,7 +64,7 @@ public class RefreshTask extends AppendTask {
                 super.onPostExecute(keepGoing);
             }
 
-            adapter.onPostRefresh();
+            adapter.onPostRefresh(mException == null);
         }
     }
 }

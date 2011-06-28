@@ -709,6 +709,7 @@
     <string name="pull_to_refresh_release_label">Release to refresh...</string>
     <string name="pull_to_refresh_refreshing_label">Loading...</string>
     <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
+    <string name="pull_to_refresh_last_updated">updated %1$s</string>
 
   <!-- used in various places to indicate there is one song for a given artist or album -->
     <string name="onesong">1 song</string>

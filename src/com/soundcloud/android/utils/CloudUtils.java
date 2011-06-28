@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.res.Resources;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -456,6 +457,24 @@ public class CloudUtils {
         comment.reply_to_id = replyToId;
         comment.reply_to_username = replyToUsername;
         return comment;
+    }
+
+    public static CharSequence getElapsedTimeString(Resources r, long start) {
+        double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
+
+        if (elapsed < 60)
+            return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
+        else if (elapsed < 3600)
+            return r.getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
+        else if (elapsed < 86400)
+            return r.getQuantityString(R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
+        else if (elapsed < 2592000)
+            return r.getQuantityString(R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
+        else if (elapsed < 31536000)
+            return r.getQuantityString(R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
+        else
+            return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
+
     }
 
     public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {

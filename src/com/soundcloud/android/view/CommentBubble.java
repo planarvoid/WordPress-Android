@@ -206,23 +206,7 @@ public class CommentBubble extends RelativeLayout {
         mTxtUsername.setText(mComment.user.username);
         mTxtDate.setText("at " + CloudUtils.formatTimestamp(mComment.timestamp));
         mTxtComment.setText(mComment.body);
-
-        long elapsed = (System.currentTimeMillis() - mComment.created_at.getTime())/1000;
-
-        if (elapsed < 60)
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed));
-        else if (elapsed < 3600)
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60)));
-        else if (elapsed < 86400)
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600)));
-        else if (elapsed < 2592000)
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400)));
-        else if (elapsed < 31536000)
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000)));
-        else
-            mTxtElapsed.setText(mPlayer.getResources().getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000)));
-
-
+        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime()));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtDate.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);

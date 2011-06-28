@@ -14,6 +14,7 @@ import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.utils.CloudUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -57,6 +58,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private int mLastMotionY;
 
     private View mEmptyView;
+
+    private long mLastUpdated;
 
     public PullToRefreshListView(Context context) {
         super(context);
@@ -161,16 +164,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     }
 
     /**
-     * Set a text to represent when the list was last updated. 
+     * Set a text to represent when the list was last updated.
      * @param lastUpdated Last updated at.
      */
-    public void setLastUpdated(CharSequence lastUpdated) {
-        if (lastUpdated != null) {
-            mRefreshViewLastUpdated.setVisibility(View.VISIBLE);
-            mRefreshViewLastUpdated.setText(lastUpdated);
-        } else {
-            mRefreshViewLastUpdated.setVisibility(View.GONE);
-        }
+    public void setLastUpdated(long lastUpdated) {
+        mLastUpdated = lastUpdated;
     }
 
     @Override
@@ -413,6 +411,14 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                     if (mRefreshState != TAP_TO_REFRESH) {
                         mRefreshViewImage.clearAnimation();
                         mRefreshViewImage.startAnimation(mReverseFlipAnimation);
+                    } else {
+                         if (mLastUpdated != 0) {
+                            mRefreshViewLastUpdated.setVisibility(View.VISIBLE);
+                            mRefreshViewLastUpdated.setText(getResources().getString(R.string.pull_to_refresh_last_updated,
+                                    CloudUtils.getElapsedTimeString(getResources(),mLastUpdated)));
+                        } else {
+                            mRefreshViewLastUpdated.setVisibility(View.GONE);
+                        }
                     }
                     mRefreshState = PULL_TO_REFRESH;
                 }
@@ -469,7 +475,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
      * Resets the list to a normal state after a refresh.
      * @param lastUpdated Last updated at.
      */
-    public void onRefreshComplete(CharSequence lastUpdated) {
+    public void onRefreshComplete(long lastUpdated) {
         setLastUpdated(lastUpdated);
         onRefreshComplete();
     }

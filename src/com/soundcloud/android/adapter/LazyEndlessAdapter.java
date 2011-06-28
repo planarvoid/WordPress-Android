@@ -32,6 +32,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -520,9 +521,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (!isRefreshing()) refresh(true);
     }
 
-    public void onPostRefresh() {
+    public void onPostRefresh(boolean success) {
         notifyDataSetChanged();
-        mListView.onRefreshComplete();
+        mListView.onRefreshComplete(success ? System.currentTimeMillis() : null);
 
         applyEmptyText();
     }
