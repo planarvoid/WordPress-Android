@@ -93,6 +93,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     private LoadConnectionsTask mConnectionsTask;
     private List<Connection> mConnections;
 
+    private Object mAdapterStates[];
+
     private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
@@ -204,16 +206,28 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        pageTrack("/profile");
+        if (mAdapterStates != null){
+            restoreAdapterStates(mAdapterStates);
+            mAdapterStates = null;
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         FollowStatus.get().removeListener(this);
-        for (LazyListView l : mLists) {
-            for (int i=0; i<l.getChildCount(); i++) {
-                View v = l.getChildAt(i);
-                if (v instanceof LazyRow) {
-                    ((LazyRow)v).cleanup();
-                }
+
+        mAdapterStates = new Object[mLists.size()];
+        int i = 0;
+        for (LazyListView list : mLists) {
+            if (list.getWrapper() != null){
+                mAdapterStates[i] = list.getWrapper().saveState();
+                list.getWrapper().cleanup();
             }
+            i++;
         }
     }
 
@@ -225,20 +239,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 mUser,
                 mConnectionsTask,
                 mConnections,
-                getAdapterStates(),
+                mAdapterStates,
                 mFriendFinderView != null ? mFriendFinderView.getCurrentState() : null
         };
-    }
-
-    private Object[] getAdapterStates() {
-        Object[] states = new Object[mLists.size()];
-        int i = 0;
-        for (LazyListView list : mLists) {
-            states[i] = LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()) ?
-                    (list.getWrapper()).saveState() : null;
-            i++;
-        }
-        return states;
     }
 
     private void restoreAdapterStates(Object[] adapterStates) {

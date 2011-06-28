@@ -28,9 +28,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import android.util.Log;
 
 public class LazyEndlessAdapter extends AdapterWrapper {
     protected View mPendingView = null;
@@ -398,17 +401,22 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mKeepOnAppending.set(true);
 
         getWrappedAdapter().refresh(userRefresh);
+        clearAppendTask();
+        notifyDataSetChanged();
+    }
 
-        if (mAppendTask != null) {
-            if (!CloudUtils.isTaskFinished(mAppendTask)) {
-                mAppendTask.cancel(true);
-            }
-            mAppendTask = null;
-        }
+    public void cleanup() {
+        mKeepOnAppending.set(false);
+        getWrappedAdapter().setData(new ArrayList<Parcelable>());
+        clearAppendTask();
+        notifyDataSetChanged();
+    }
 
+    private void clearAppendTask() {
+        if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        mAppendTask = null;
         mPendingView = null;
         mPendingPosition = -1;
-        notifyDataSetChanged();
     }
 
     /**
