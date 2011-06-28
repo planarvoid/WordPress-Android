@@ -2,14 +2,19 @@
 package com.soundcloud.android.adapter;
 
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
@@ -34,13 +39,18 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected View mPendingView = null;
     protected int mPendingPosition = -1;
     private AppendTask mAppendTask;
-    protected TextView mEmptyView;
+
     protected LazyListView mListView;
     protected int mCurrentPage;
     protected ScActivity mActivity;
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
     protected Boolean mError = false;
     private String mEmptyViewText = "";
+    protected View mEmptyView;
+
+    protected View mFooterView;
+    protected boolean mNeedFooterView;
+
     private Request mRequest;
     private RefreshTask mRefreshTask;
 
@@ -51,7 +61,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mCurrentPage = 0;
         mRequest = request;
         wrapped.setWrapper(this);
+
+        LayoutInflater inflater = (LayoutInflater) mActivity
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mEmptyView = inflater.inflate(R.layout.empty_list, null);
+        mEmptyView.setBackgroundColor(0xFFFFFFFF);
+
     }
+
 
     /**
      * Create an empty view for the list this adapter will control. This is done
@@ -59,20 +76,33 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     public void configureViews(final LazyListView lv) {
         mListView = lv;
+        lv.setEmptyView(mEmptyView);
 
-        clearEmptyView();
+    }
 
-        TextView emptyView = new TextView(mActivity);
-        emptyView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-                LayoutParams.FILL_PARENT));
-        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        emptyView.setVisibility(View.GONE);
-        emptyView.setPadding(5, 5, 5, 5);
-        emptyView.setTextAppearance(mActivity, R.style.txt_empty_view);
-        // emptyView.setBackgroundColor(mActivityReference.getResources().getColor(R.color.cloudProgressBackgroundCenter));
-        mEmptyView = emptyView;
+    public boolean configureFooterView(int extra){
+        if (extra > 0) {
+            if (mFooterView == null) {
+                mFooterView = new FrameLayout(mActivity);
+                mFooterView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 0));
+                mFooterView.setBackgroundColor(0xFFFFFFFF);
+            }
 
-        ((ViewGroup) mListView.getParent()).addView(emptyView);
+
+            if (!mNeedFooterView || mFooterView.getLayoutParams().height != extra){
+                mFooterView.getLayoutParams().height = extra;
+                notifyDataSetChanged();
+                mNeedFooterView = true;
+            }
+
+        } else {
+            if (mNeedFooterView){
+                notifyDataSetChanged();
+                mNeedFooterView = false;
+            }
+
+        }
+        return mNeedFooterView;
     }
 
     public void clearEmptyView() {
@@ -92,11 +122,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     public void applyEmptyText() {
         if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-            ((TextView) mEmptyView).setText(Html.fromHtml(mEmptyViewText));
+            ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(Html.fromHtml(mEmptyViewText));
             return;
         }
 
         String textToSet = "";
+
 
         if (Track.class.equals(getLoadModel())) {
             textToSet = !mError ? mActivity.getResources().getString(
@@ -119,7 +150,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         }
 
 
-        if (mEmptyView != null) mEmptyView.setText(textToSet);
+        if (mEmptyView != null) ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(textToSet);
     }
 
     /**
@@ -201,8 +232,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         if (!mKeepOnAppending.get()) {
             applyEmptyText();
-
-            //if (mListView != null) mListView.setEmptyView(mEmptyView);
         }
 
     }
@@ -238,8 +267,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @Override
     public int getCount() {
-        if (mKeepOnAppending.get() &&  CloudUtils.isTaskFinished(mRefreshTask)) {
-            return (super.getCount() + 1); // one more for "pending"
+        if ((mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) || (!mKeepOnAppending.get() && mNeedFooterView)) {
+            return super.getCount() + 1;
         } else {
             return (super.getCount());
         }
@@ -257,6 +286,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        if (position == super.getCount()){
+            if (CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0){
+                  return mEmptyView;
+            } else if (mNeedFooterView && !mKeepOnAppending.get()){
+                return mFooterView;
+            }
+        }
+
         if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
             if (mPendingView == null) {
 
@@ -309,13 +346,16 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         // configure the empty view depending on possible exceptions
         applyEmptyText();
-        mEmptyView.setVisibility(View.VISIBLE);
         notifyDataSetChanged();
 
         mActivity.handleException();
 
         // if (mActivityReference != null)
         // mActivityReference.handleException();
+    }
+
+    public void notifyDataSetChanged(){
+        super.notifyDataSetChanged();
     }
 
     /**
@@ -403,9 +443,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             reset();
         }
 
-        if (mEmptyView != null){
-            mEmptyView.setVisibility(View.GONE);
-        }
+        configureFooterView(0);
 
         mRefreshTask = new RefreshTask(mActivity.getApp());
         mRefreshTask.loadModel = getLoadModel();
@@ -416,17 +454,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
 
     public void reset() {
-        reset(true);
+        reset(true, true);
     }
 
     public void resetData(){
         getWrappedAdapter().reset();
     }
 
-    public void reset(boolean keepAppending) {
+    public void reset(boolean keepAppending, boolean notifyChange) {
         resetData();
-
-        if (mEmptyView != null) mEmptyView.setVisibility(View.GONE);
 
         mCurrentPage = 0;
         mKeepOnAppending.set(keepAppending);
@@ -439,7 +475,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         }
 
         mPendingPosition = -1;
-        notifyDataSetChanged();
+        if (notifyChange) notifyDataSetChanged();
+
     }
 
     private void cancelCurrentAppendTask(){
@@ -484,7 +521,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public void onPostRefresh() {
+        notifyDataSetChanged();
         mListView.onRefreshComplete();
+
         applyEmptyText();
     }
 
@@ -496,10 +535,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public boolean isEmpty(){
-        return super.getCount() == 0;
+        return false;
     }
 
     public void stopAppending() {
         mKeepOnAppending.set(false);
+    }
+
+    public boolean needsRefresh() {
+        return (super.getCount() == 0 && mKeepOnAppending.get()) && CloudUtils.isTaskFinished(mRefreshTask);
     }
 }

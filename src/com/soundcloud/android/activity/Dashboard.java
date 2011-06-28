@@ -57,15 +57,11 @@ public class Dashboard extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            ((LazyEndlessAdapter)mListView.getAdapter()).restoreState(mPreviousState);
-            if (((LazyEndlessAdapter) mListView.getAdapter()).isRefreshing()) {
-                mListView.prepareForRefresh();
-                mListView.setSelection(0);
-            }
-        } else {
-            mListView.onRefresh();
+            mListView.getWrapper().restoreState(mPreviousState);
         }
     }
+
+
 
     @Override
     public void onResume() {
@@ -93,8 +89,8 @@ public class Dashboard extends ScActivity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mListView != null && mListView.getAdapter() instanceof EventsAdapterWrapper){
-            return ((EventsAdapterWrapper)mListView.getAdapter()).saveState();
+        if (mListView != null && mListView.getWrapper() != null){
+            return mListView.getWrapper().saveState();
         }
         return null;
     }

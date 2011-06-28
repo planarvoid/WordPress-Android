@@ -133,7 +133,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                    mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
                    mFriendList.getWrapper().applyEmptyText();
                     // show list for refresh purposes
-                    mFriendList.getWrapper().reset(false);
+                    mFriendList.getWrapper().reset(false, true);
                 }
                 break;
 
@@ -154,7 +154,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     mFbConnected = true;
                     createList();
                 }
-                Log.i("asdf","FBCONN " + refresh);
                 mFriendList.getWrapper().setEmptyViewText(null);
                 if (refresh) mFriendList.getWrapper().onRefresh();
                 mFriendList.getWrapper().configureViews(mFriendList);
@@ -166,10 +165,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         }
 
         mCurrentState = state;
-        if (mFriendList.getWrapper().isRefreshing()) {
-            mFriendList.prepareForRefresh();
-            mFriendList.setSelection(0);
-        }
+
     }
 
 

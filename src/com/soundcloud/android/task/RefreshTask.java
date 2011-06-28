@@ -59,7 +59,8 @@ public class RefreshTask extends AppendTask {
             if (mException != null){
                  adapter.handleResponseCode(mResponseCode);
             } else if (newItems.size() > 0){
-                adapter.reset();
+                // false for notify of change, we can only notify after resetting listview
+                adapter.reset(true, false);
                 super.onPostExecute(keepGoing);
             }
 

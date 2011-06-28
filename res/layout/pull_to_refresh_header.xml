@@ -19,7 +19,7 @@
     android:layout_height="fill_parent"
     android:paddingTop="10dip"
     android:paddingBottom="15dip"
-    android:gravity="center_vertical|center_horizontal"
+    android:gravity="bottom|center_horizontal"
     android:background="@drawable/pull_to_refresh_header_background"
     >
     <RelativeLayout

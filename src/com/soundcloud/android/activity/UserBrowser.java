@@ -183,7 +183,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             for (LazyListView list : mLists) {
                 if (LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()))
-                    list.getWrapper().onRefresh();
+                    list.onRefresh();
             }
         }
 
@@ -205,6 +205,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         pageTrack("/profile");
         super.onResume();
     }
+
 
     @Override
     protected void onStop() {

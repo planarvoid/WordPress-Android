@@ -5,6 +5,7 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,8 @@ public class LazyListView extends PullToRefreshListView {
         setOnItemLongClickListener(mOnItemLongClickListener);
         setOnItemSelectedListener(mOnItemSelectedListener);
         setOnTouchListener(new FingerTracker());
+        setChoiceMode(CHOICE_MODE_SINGLE);
+
     }
 
     @Override
@@ -65,44 +68,6 @@ public class LazyListView extends PullToRefreshListView {
         super.setAdapter(adapter);
         if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass()) && refreshEnabled)
             setOnRefreshListener((LazyEndlessAdapter) adapter);
-    }
-
-    @Override
-    public ListAdapter getAdapter() {
-
-        if (super.getAdapter() == null) return null;
-
-
-        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
-                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-             return ((LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter()).getWrappedAdapter();
-
-        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
-            return ((LazyEndlessAdapter) super.getAdapter()).getWrappedAdapter();
-
-        } else
-            return super.getAdapter();
-    }
-
-    public LazyEndlessAdapter getWrapper() {
-        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
-                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-             return (LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
-
-        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
-            return (LazyEndlessAdapter) super.getAdapter();
-
-        } else
-            return null;
-    }
-
-    @Override
-    protected void layoutChildren() {
-        try {
-            super.layoutChildren();
-        } catch (Exception ignored) {
-
-        }
     }
 
     protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {

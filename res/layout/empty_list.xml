@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_height="fill_parent" android:layout_width="fill_parent">
+        android:layout_height="fill_parent" android:id="@+id/empty_root" android:layout_width="fill_parent">
     <TextView android:layout_centerInParent="true"
-            android:id="@+id/empty_txt" android:layout_height="wrap_content"
+            android:id="@+id/empty_txt" android:layout_height="fill_parent"
             android:gravity="center"
-            android:layout_width="wrap_content" android:text=""
-            android:paddingTop="10dip" android:paddingBottom="10dip"
-            android:paddingLeft="20dip" android:paddingRight="20dip"
-            style="@style/txt_empty_view">
+            android:text="blah blah blah"
+            android:layout_width="wrap_content">
     </TextView>
 </RelativeLayout>

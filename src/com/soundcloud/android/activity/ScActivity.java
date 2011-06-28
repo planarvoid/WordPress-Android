@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Comment;
@@ -86,8 +87,10 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onServiceBound() {
+        //ImageLoader.get(ScActivity.this).pause();
         if (getApp().getToken() == null) {
             pause(true);
+
         } else {
             try {
                 setPlayingTrack(mPlaybackService.getTrackId(), mPlaybackService.isPlaying());
@@ -185,6 +188,7 @@ public abstract class ScActivity extends Activity {
                 Log.e(TAG, "error", e);
             }
         }
+
     }
 
     /**
@@ -207,12 +211,22 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        // update data that may have changed in other activities (specifically followings for now)
-        // remove this when we implement content observers
-        for (LazyListView list : mLists) {
-            if (LazyBaseAdapter.class.isAssignableFrom(list.getAdapter().getClass())){
-                ((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
+        for (LazyListView l : mLists) {
+            if (l.getWrapper() != null) {
+                if (l.getWrapper().isRefreshing()) {
+                    l.prepareForRefresh();
+                    l.setSelection(1);
+                } else if (l.getWrapper().needsRefresh()) {
+                    l.onRefresh();
+                } else if (l.getFirstVisiblePosition() == 0) {
+                    l.setSelection(1);
+                }
             }
+
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
+                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
+            }
+
         }
 
         Account account = getApp().getAccount();
@@ -396,7 +410,7 @@ public abstract class ScActivity extends Activity {
         for (LazyListView list : mLists) {
             if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
                 ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
-                ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
+                //((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
             }
         }
     }

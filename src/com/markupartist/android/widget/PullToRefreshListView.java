@@ -2,7 +2,6 @@ package com.markupartist.android.widget;
 
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,11 +14,9 @@ import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.task.AppendTask;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 /*
     original source: https://github.com/johannilsson/android-pulltorefresh
@@ -55,9 +52,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
-    private int mRefreshViewHeight;
+    protected int mRefreshViewHeight;
     private int mRefreshOriginalTopPadding;
     private int mLastMotionY;
+
+    private View mEmptyView;
 
     public PullToRefreshListView(Context context) {
         super(context);
@@ -75,6 +74,9 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     }
 
     private void init(Context context) {
+
+        setOverScrollMode(OVER_SCROLL_NEVER);
+
         // Load all of the animations we need in code rather than through XML
         mFlipAnimation = new RotateAnimation(0, -180,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f,
@@ -92,8 +94,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         mInflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
 
-        Log.i("asdf","REFRESH VIEW TYPE " + mInflater.inflate(
-                R.layout.pull_to_refresh_header, null));
+        mInflater.inflate(
+                R.layout.pull_to_refresh_header, null);
 
         mRefreshView = (LinearLayout) mInflater.inflate(
                 R.layout.pull_to_refresh_header, null);
@@ -119,6 +121,12 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         measureView(mRefreshView);
         mRefreshViewHeight = mRefreshView.getMeasuredHeight();
+    }
+
+    @Override
+    public void setEmptyView(View emptyView) {
+        mEmptyView = emptyView;
+        requestLayout();
     }
 
     @Override
@@ -165,6 +173,35 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         }
     }
 
+    @Override
+    public ListAdapter getAdapter() {
+
+        if (super.getAdapter() == null) return null;
+
+
+        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
+                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
+             return ((LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter()).getWrappedAdapter();
+
+        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
+            return ((LazyEndlessAdapter) super.getAdapter()).getWrappedAdapter();
+
+        } else
+            return super.getAdapter();
+    }
+
+    public LazyEndlessAdapter getWrapper() {
+        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
+                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
+             return (LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
+
+        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
+            return (LazyEndlessAdapter) super.getAdapter();
+
+        } else
+            return null;
+    }
+
     /**
      * Smoothly scroll by distance pixels over duration milliseconds.
      * 
@@ -190,6 +227,54 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             System.err.println("unexpected " + e);
         }
     }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
+        if (changed) {
+            if (getHeight() > 0 && mEmptyView != null){
+                mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
+                mEmptyView.findViewById(R.id.empty_txt).requestLayout();
+            }
+        }
+    }
+
+    @Override
+    protected void layoutChildren() {
+        super.layoutChildren();
+
+        if (mRefreshState == TAP_TO_REFRESH && getFirstVisiblePosition() == 0) {
+
+            // not enough views to fill list so pad with an empty view
+            invalidateViews();
+
+            // we need a footer view
+            getWrapper().configureFooterView(mRefreshViewHeight + getHeight() -
+                    (getChildAt(getChildCount() - 1).getBottom() - getChildAt(0).getTop()));
+
+            // to prevent the appearance of items shifting up after invalidation
+            for (int i = 1; i < getChildCount(); i++) {
+                getChildAt(i).setVisibility(View.GONE);
+            }
+
+            // this has to happen after the next layout pass so that we are allowed
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    setSelection(1);
+                    for (int i = 1; i < getChildCount(); i++) {
+                        getChildAt(i).setVisibility(View.VISIBLE);
+                    }
+
+                }
+            });
+
+
+        }
+    }
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -229,19 +314,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         // Workaround for getPointerCount() which is unavailable in 1.5
         // (it's always 1 in 1.5)
-        int pointerCount = 1;
-        try {
-            Method method = MotionEvent.class.getMethod("getPointerCount");
-            pointerCount = (Integer)method.invoke(ev);
-        } catch (NoSuchMethodException e) {
-            pointerCount = 1;
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (IllegalAccessException e) {
-            System.err.println("unexpected " + e);
-        } catch (InvocationTargetException e) {
-            System.err.println("unexpected " + e);
-        }
+        int pointerCount = ev.getPointerCount();
 
         for (int h = 0; h < historySize; h++) {
             for (int p = 0; p < pointerCount; p++) {
@@ -250,24 +323,9 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                         setVerticalScrollBarEnabled(false);
                     }
 
-                    int historicalY = 0;
-                    try {
-                        // For Android > 2.0
-                        Method method = MotionEvent.class.getMethod(
-                                "getHistoricalY", Integer.TYPE, Integer.TYPE);
-                        historicalY = ((Float) method.invoke(ev, p, h)).intValue();
-                    } catch (NoSuchMethodException e) {
-                        // For Android < 2.0
-                        historicalY = (int) (ev.getHistoricalY(h));
-                    } catch (IllegalArgumentException e) {
-                        throw e;
-                    } catch (IllegalAccessException e) {
-                        System.err.println("unexpected " + e);
-                    } catch (InvocationTargetException e) {
-                        System.err.println("unexpected " + e);
-                    }
+                    int historicalY = ((Float) ev.getHistoricalY(p,h)).intValue();
 
-                    // Calculate the padding to apply, we divide by 1.7 to
+                   // Calculate the padding to apply, we divide by 1.7 to
                     // simulate a more resistant effect during pull.
                     int topPadding = (int) (((historicalY - mLastMotionY)
                             - mRefreshViewHeight) / 1.7);
@@ -297,7 +355,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
      * Resets the header to the original state.
      */
     private void resetHeader() {
-        if (mRefreshState != TAP_TO_REFRESH) {
             mRefreshState = TAP_TO_REFRESH;
 
             resetHeaderPadding();
@@ -311,7 +368,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             // Hide progress bar and arrow.
             mRefreshViewImage.setVisibility(View.GONE);
             mRefreshViewProgress.setVisibility(View.GONE);
-        }
     }
 
     private void measureView(View child) {
@@ -422,18 +478,13 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
      * Resets the list to a normal state after a refresh.
      */
     public void onRefreshComplete() {
-        Log.d(TAG, "onRefreshComplete " + mRefreshView.getBottom() + " " + getCount() + " " + getAdapter());
-
         resetHeader();
-        // If refresh view is visible when loading completes, scroll down to
-        // the next item.
         if (mRefreshView.getBottom() > 0) {
             invalidateViews();
             setSelection(1);
-            Log.i(TAG,"Refresh Complete selection " + this.getSelectedItemPosition());
-
         }
     }
+
 
     /**
      * Invoked when the refresh view is clicked on. This is mainly used when
