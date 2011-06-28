@@ -7,12 +7,9 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -31,8 +28,8 @@ import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -468,25 +465,22 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mCurrentPage = 0;
         mKeepOnAppending.set(keepAppending);
 
-        cancelCurrentAppendTask();
-
-        if (mPendingView != null) {
-            rebindPendingView(mPendingPosition,mPendingView);
-            mPendingView = null;
-        }
-
-        mPendingPosition = -1;
-        if (notifyChange) notifyDataSetChanged();
-
+        clearAppendTask();
+         if (notifyChange) notifyDataSetChanged();
     }
 
-    private void cancelCurrentAppendTask(){
-        if (mAppendTask != null) {
-            if (!CloudUtils.isTaskFinished(mAppendTask)) {
-                mAppendTask.cancel(true);
-            }
-            mAppendTask = null;
-        }
+    public void cleanup() {
+        mKeepOnAppending.set(false);
+        getWrappedAdapter().setData(new ArrayList<Parcelable>());
+        clearAppendTask();
+        notifyDataSetChanged();
+    }
+
+    private void clearAppendTask() {
+        if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        mAppendTask = null;
+        mPendingView = null;
+        mPendingPosition = -1;
     }
 
     /**

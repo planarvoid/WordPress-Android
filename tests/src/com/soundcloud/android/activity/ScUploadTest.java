@@ -6,16 +6,21 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.api.Params;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+
+import android.content.Intent;
+import android.net.Uri;
 
 import java.io.File;
 import java.util.Arrays;
@@ -180,5 +185,28 @@ public class ScUploadTest implements Params.Track {
         assertEquals(2, ids.size());
         assertEquals("1000", ids.get(0).toString());
         assertEquals("1001", ids.get(1).toString());
+    }
+
+
+    @Test
+    public void shouldMapIntentToRecording() throws Exception {
+        Intent i = new Intent(Consts.ACTION_SHARE)
+                .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
+                .putExtra(Consts.EXTRA_DESCRIPTION, "description")
+                .putExtra(Consts.EXTRA_GENRE, "genre")
+//                .putExtra(Consts.EXTRA_PUBLIC, false)
+                .putExtra(Consts.EXTRA_TITLE, "title")
+                .putExtra(Consts.EXTRA_WHERE, "where")
+//                .putExtra(Consts.EXTRA_TAGS, new String[] { "tags" })
+                ;
+
+        Recording r = create.recordingFromIntent(i);
+        assertThat(r, notNullValue());
+        assertThat(r.description, equalTo("description"));
+        assertThat(r.genre, equalTo("genre"));
+//        assertThat(r.is_private, is(false));
+        assertThat(r.where_text, equalTo("where"));
+        assertThat(r.what_text, equalTo("title"));
+//        assertThat(r.tags, equalTo(new String[] { "tags" } ));
     }
 }

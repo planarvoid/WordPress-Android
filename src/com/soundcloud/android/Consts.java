@@ -25,10 +25,15 @@ public class Consts {
     public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
     public static final long TRACK_MIN_CACHE = 20 * 1024  * 1024; // 20  MB
 
-    public static final String ACTION_SHARE  = "com.soundcloud.android.SHARE";
-    public static final String EXTRA_TITLE   = "com.soundcloud.android.extra.title";
-    public static final String EXTRA_WHERE   = "com.soundcloud.android.extra.where";
-    public static final String EXTRA_PUBLIC  = "com.soundcloud.android.extra.public";
+    public static final String ACTION_SHARE      = "com.soundcloud.android.SHARE";
+    public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
+    public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";
+    public static final String EXTRA_DESCRIPTION = "com.soundcloud.android.extra.description";
+    public static final String EXTRA_PUBLIC      = "com.soundcloud.android.extra.public";
+    public static final String EXTRA_LOCATION    = "com.soundcloud.android.extra.location" ;
+    public static final String EXTRA_TAGS        = "com.soundcloud.android.extra.tags" ;
+    public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
+    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork" ;
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;

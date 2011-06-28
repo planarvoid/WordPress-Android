@@ -310,11 +310,10 @@ public abstract class ScActivity extends Activity {
         }
 
         if (!uploading) {
-            r.prepareForUpload();
-            // save after preparing data in case file was renamed
-            getContentResolver().update(Content.RECORDINGS, r.buildContentValues(), Recordings.ID + "='" + r.id + "'", null);
+            r.upload_status = Recording.UploadStatus.UPLOADING;
+            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
             try {
-                mCreateService.uploadTrack(r.upload_data);
+                mCreateService.uploadTrack(r.uploadData());
                 return true;
             } catch (RemoteException ignored) {
                 Log.e(TAG, "error", ignored);

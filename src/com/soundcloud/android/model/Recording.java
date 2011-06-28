@@ -56,7 +56,10 @@ public class Recording extends BaseObj implements Parcelable {
     public int upload_status;
     public boolean upload_error;
 
-    public Map<String,Object> upload_data;
+    public String[] tags;
+    public String description, genre;
+
+    private Map<String,Object> mUpload_data;
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
 
@@ -77,9 +80,9 @@ public class Recording extends BaseObj implements Parcelable {
     }
 
     public static interface UploadStatus {
-        public static final int NOT_YET_UPLOADED    = 0;
-        public static final int UPLOADING           = 1;
-        public static final int UPLOADED            = 2;
+        int NOT_YET_UPLOADED    = 0;
+        int UPLOADING           = 1;
+        int UPLOADED            = 2;
     }
 
     public Recording(File f) {
@@ -186,11 +189,11 @@ public class Recording extends BaseObj implements Parcelable {
         return cv;
     }
 
-    public void prepareForUpload(){
-        upload_data = new HashMap<String, Object>();
-        upload_data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
-        upload_data.put(Params.Track.DOWNLOADABLE, false);
-        upload_data.put(Params.Track.STREAMABLE, true);
+    public Map<String,Object> uploadData() {
+        Map<String,Object> data = new HashMap<String, Object>();
+        data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
+        data.put(Params.Track.DOWNLOADABLE, false);
+        data.put(Params.Track.STREAMABLE, true);
 
         if (!is_private) {
             List<Integer> serviceIds = new ArrayList<Integer>();
@@ -200,25 +203,23 @@ public class Recording extends BaseObj implements Parcelable {
             }
 
              if (!serviceIds.isEmpty()) {
-                upload_data.put(
-                        Params.Track.SHARING_NOTE,
-                        sharingNote());
-                upload_data.put(Params.Track.POST_TO, serviceIds);
+                data.put(Params.Track.SHARING_NOTE, sharingNote());
+                data.put(Params.Track.POST_TO, serviceIds);
              } else {
-                upload_data.put(Params.Track.POST_TO_EMPTY, "");
+                data.put(Params.Track.POST_TO_EMPTY, "");
              }
         } else { // not private
              if (!TextUtils.isEmpty(shared_emails)) {
-                 upload_data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
+                 data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
              }
         }
 
-        upload_data.put(UploadTask.Params.SOURCE_PATH, audio_path);
+        data.put(UploadTask.Params.SOURCE_PATH, audio_path);
 
         final String title = sharingNote();
 
-        upload_data.put(Params.Track.TITLE, title);
-        upload_data.put(Params.Track.TYPE, "recording");
+        data.put(Params.Track.TITLE, title);
+        data.put(Params.Track.TYPE, "recording");
 
         // add machine tags
         List<String> tags = new ArrayList<String>();
@@ -229,29 +230,29 @@ public class Recording extends BaseObj implements Parcelable {
             tags.add("soundcloud:source=android-record");
         }
 
-
-        if (artwork_path != null) upload_data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
-        if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
-        if (latitude  != 0) tags.add("geo:lat="+latitude);
-        if (longitude != 0) tags.add("geo:lon="+longitude);
-        upload_data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
-
-        if (!external_upload) {
-            if (audio_profile == Profile.RAW) {
-                upload_data.put(UploadTask.Params.OGG_FILENAME, generateUploadFilename(title));
-                upload_data.put(UploadTask.Params.ENCODE, true);
-            } else {
-                File newRecFile = generateUploadFilename(title);
-                if (!audio_path.equals(newRecFile) && audio_path.renameTo(newRecFile)) {
-                    audio_path = newRecFile;
-                }
+        if (this.tags != null) {
+            for (String t : this.tags) {
+                tags.add(t.contains(" ") ? "\""+t+"\"" : t);
             }
         }
 
-        upload_data.put(UploadTask.Params.SOURCE_PATH, audio_path.getAbsolutePath());
-        upload_data.put(UploadTask.Params.LOCAL_RECORDING_ID, id);
+        if (artwork_path != null) data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
+        if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
+        if (latitude  != 0) tags.add("geo:lat="+latitude);
+        if (longitude != 0) tags.add("geo:lon="+longitude);
+        data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
 
-        upload_status = UploadStatus.UPLOADING;
+        if (!external_upload && audio_profile == Profile.RAW) {
+            data.put(UploadTask.Params.OGG_FILENAME, generateUploadFilename(title));
+            data.put(UploadTask.Params.ENCODE, true);
+        }
+
+        if (!TextUtils.isEmpty(description)) data.put(Params.Track.DESCRIPTION, description);
+        if (!TextUtils.isEmpty(genre)) data.put(Params.Track.GENRE, genre);
+
+        data.put(UploadTask.Params.SOURCE_PATH, audio_path.getAbsolutePath());
+        data.put(UploadTask.Params.LOCAL_RECORDING_ID, id);
+        return data;
     }
 
     /* package */ File generateUploadFilename(String title) {
@@ -281,7 +282,7 @@ public class Recording extends BaseObj implements Parcelable {
 
     private String generateFilename(String title, String extension) {
         return String.format("%s_%s.%s",
-                URLEncoder.encode(title.replace(" ","_")),
+                URLEncoder.encode(title.replace(" ", "_")),
                 dateFormat.format(new Date(timestamp)),
                 extension);
     }
@@ -326,5 +327,32 @@ public class Recording extends BaseObj implements Parcelable {
         }
         if (resolver != null) resolver.delete(toUri(), null, null);
         return deleted;
+    }
+
+    @Override
+    public String toString() {
+        return "Recording{" +
+                "id=" + id +
+                ", user_id=" + user_id +
+                ", timestamp=" + timestamp +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", what_text='" + what_text + '\'' +
+                ", where_text='" + where_text + '\'' +
+                ", audio_path=" + audio_path +
+                ", duration=" + duration +
+                ", artwork_path=" + artwork_path +
+                ", four_square_venue_id='" + four_square_venue_id + '\'' +
+                ", shared_emails='" + shared_emails + '\'' +
+                ", service_ids='" + service_ids + '\'' +
+                ", is_private=" + is_private +
+                ", external_upload=" + external_upload +
+                ", audio_profile=" + audio_profile +
+                ", upload_status=" + upload_status +
+                ", upload_error=" + upload_error +
+                ", tags=" + (tags == null ? null : Arrays.asList(tags)) +
+                ", description='" + description + '\'' +
+                ", genre='" + genre + '\'' +
+                '}';
     }
 }

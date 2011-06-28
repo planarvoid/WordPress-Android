@@ -889,4 +889,5 @@
     <string name="take_new_picture">Take a new picture</string>
     <string name="use_existing_image">Use existing image</string>
     <string name="error_change_following_status">Error changing following status</string>
+    <string name="recording_not_found">Recording not found</string>
 </resources>

@@ -40,6 +40,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
         return mData;
     }
 
+    public void setData(List<Parcelable> data) {
+        mData = data;
+        reset();
+    }
+
     public int getCount() {
         return mData.size();
     }

@@ -270,7 +270,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "myspace_name string null, "
             + "track_count integer null, "
             + "website string null, "
-            + "website_title string null, " + "description text null);";
+            + "website_title string null, "
+            + "description text null);";
 
     static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id integer primary key AUTOINCREMENT, "
             + "user_id integer null, "
@@ -288,7 +289,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "is_private boolean false, "
             + "external_upload boolean false, "
             + "audio_profile integer null, "
-            + "upload_status integer false, " + "upload_error boolean false);";
+            + "upload_status integer false, "
+            + "upload_error boolean false);";
 
 
     public static final class Tracks implements BaseColumns {
@@ -529,6 +531,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String ALIAS_ORIGIN_ID = Tables.EVENTS + "_" + ORIGIN_ID;
           public static final String ALIAS_NEXT_CURSOR = Tables.EVENTS + "_" + NEXT_CURSOR;
       }
-
-
 }
