@@ -22,6 +22,7 @@ public class CloudRecorder {
     public static class Profile {
         public static final int ENCODED_LOW   = 0;
         public static final int ENCODED_HIGH  = 1;
+        /** PCM data */
         public static final int RAW           = 2;
 
         // best available quality on device

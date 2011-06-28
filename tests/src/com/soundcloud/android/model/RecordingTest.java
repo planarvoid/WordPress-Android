@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -23,13 +24,11 @@ public class RecordingTest {
     Recording r;
     File f;
 
-
     @Before
     public void setup() throws Exception {
         f = new File("/tmp/foo");
         r = new Recording(f);
         f.delete();
-
         // 14:31:01, 15/02/2011
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
@@ -65,8 +64,7 @@ public class RecordingTest {
     @Test
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
         r.external_upload = true;
-        r.prepareForUpload();
-        String tags = String.valueOf(r.upload_data.get(Params.Track.TAG_LIST));
+        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
         assertThat(tagList.contains("soundcloud:source=android-3rdparty-upload"), is(true));
     }
@@ -101,10 +99,12 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateAnUploadFilename() throws Exception {
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
+                equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
 
         r.audio_profile = CloudRecorder.Profile.RAW;
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(), equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01.ogg"));
+        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
+                equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01.ogg"));
     }
 
 
@@ -131,5 +131,24 @@ public class RecordingTest {
 
         assertThat(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath(),
                 equalTo("/images/foo.bmp"));
+    }
+
+    @Test
+    public void shouldAddTagsToUploadData() throws Exception {
+        r.tags = new String[] { "foo baz", "bar", "baz" };
+        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
+        assertThat(tags, equalTo("soundcloud:source=android-record \"foo baz\" bar baz"));
+    }
+
+    @Test
+    public void shouldAddDescriptionToUploadData() throws Exception {
+        r.description = "foo";
+        assertThat(r.uploadData().get(Params.Track.DESCRIPTION).toString(), equalTo("foo"));
+    }
+
+    @Test
+    public void shouldAddGenreToUploadData() throws Exception {
+        r.genre = "foo";
+        assertThat(r.uploadData().get(Params.Track.GENRE).toString(), equalTo("foo"));
     }
 }

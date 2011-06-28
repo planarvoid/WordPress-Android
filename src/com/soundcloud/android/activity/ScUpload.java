@@ -3,9 +3,9 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 import com.soundcloud.android.utils.CloudUtils;
@@ -65,23 +65,18 @@ public class ScUpload extends ScActivity {
         mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
-        Uri uri = null;
         final Intent intent = getIntent();
+        if (intent != null && (mRecording = recordingFromIntent(intent)) != null) {
+            if (mRecording.external_upload) {
+                // 3rd party upload, disable "record another sound button"
+                findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+            }
 
-        Recording recording = intent == null ? null : recordingFromIntent(intent);
-        if (recording != null) {
-            // 3rd party upload, disable "record another sound button"
-            findViewById(R.id.btn_cancel).setVisibility(View.GONE);
-            uri = getContentResolver().insert(Content.RECORDINGS, recording.buildContentValues());
-        } else if (intent != null) {
-            uri = intent.getData();
-        }
-
-        mRecording = uri == null ? null : Recording.fromUri(uri, getContentResolver());
-        if (mRecording != null && mRecording.exists()) {
-            mapFromRecording(mRecording);
-        } else {
-            errorOut("Recording not found");
+            if (mRecording.exists()) {
+                mapFromRecording(mRecording);
+            } else {
+                errorOut(R.string.recording_not_found);
+            }
         }
         if (mLocation == null) preloadLocations();
     }
@@ -249,7 +244,7 @@ public class ScUpload extends ScActivity {
         return mRecording != null && startUpload(mRecording);
     }
 
-    private void errorOut(CharSequence error) {
+    private void errorOut(int error) {
         showToast(error);
         finish();
     }
@@ -428,7 +423,7 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    private Recording recordingFromIntent(Intent intent) {
+    /* package */ Recording recordingFromIntent(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) ||
             Consts.ACTION_SHARE.equals(intent.getAction()) &&
                 intent.hasExtra(Intent.EXTRA_STREAM)) {
@@ -441,16 +436,32 @@ public class ScUpload extends ScActivity {
                     Recording r = new Recording(file);
                     r.external_upload = true;
                     r.user_id = getCurrentUserId();
-                    r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
+                    r.timestamp =  System.currentTimeMillis();
 
                     r.what_text  = intent.getStringExtra(Consts.EXTRA_TITLE);
                     r.where_text = intent.getStringExtra(Consts.EXTRA_WHERE);
-                    r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, false);
+                    r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, true);
+                    Location loc = intent.getParcelableExtra(Consts.EXTRA_LOCATION);
+                    if (loc != null) {
+                        r.latitude  = loc.getLatitude();
+                        r.longitude = loc.getLongitude();
+                    }
+                    r.tags = intent.getStringArrayExtra(Consts.EXTRA_TAGS);
+                    r.description = intent.getStringExtra(Consts.EXTRA_DESCRIPTION);
+                    r.genre = intent.getStringExtra(Consts.EXTRA_GENRE);
+
+                    Uri artwork = intent.getParcelableExtra(Consts.EXTRA_ARTWORK);
+
+                    if (artwork != null && "file".equals(artwork.getScheme())) {
+                        r.artwork_path = new File(artwork.getPath());
+                    }
 
                     return r;
                 }
             }
+        } else if (intent.getData() != null) {
+            return Recording.fromUri(intent.getData(), getContentResolver());
         }
-        return null;
+        return  null;
     }
 }
