@@ -66,17 +66,15 @@ public class ScUpload extends ScActivity {
         CloudUtils.mkdirs(mImageDir);
 
         Uri uri = null;
-        File uploadFile = fileFromIntent(getIntent());
-        if (uploadFile != null && uploadFile.exists()) {
+        final Intent intent = getIntent();
+
+        Recording recording = intent == null ? null : recordingFromIntent(intent);
+        if (recording != null) {
             // 3rd party upload, disable "record another sound button"
             findViewById(R.id.btn_cancel).setVisibility(View.GONE);
-            Recording r = new Recording(uploadFile);
-            r.external_upload = true;
-            r.user_id = getCurrentUserId();
-            r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
-            uri = getContentResolver().insert(Content.RECORDINGS, r.buildContentValues());
-        } else if (getIntent() != null) {
-            uri = getIntent().getData();
+            uri = getContentResolver().insert(Content.RECORDINGS, recording.buildContentValues());
+        } else if (intent != null) {
+            uri = intent.getData();
         }
 
         mRecording = uri == null ? null : Recording.fromUri(uri, getContentResolver());
@@ -430,11 +428,27 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    private File fileFromIntent(Intent intent) {
-        if (intent != null && intent.hasExtra(Intent.EXTRA_STREAM)) {
+    private Recording recordingFromIntent(Intent intent) {
+        if (Intent.ACTION_SEND.equals(intent.getAction()) ||
+            Consts.ACTION_SHARE.equals(intent.getAction()) &&
+                intent.hasExtra(Intent.EXTRA_STREAM)) {
+
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if ("file".equals(stream.getScheme())) {
-                return new File(stream.getPath());
+                File file = new File(stream.getPath());
+                if (file.exists()) {
+
+                    Recording r = new Recording(file);
+                    r.external_upload = true;
+                    r.user_id = getCurrentUserId();
+                    r.timestamp =  System.currentTimeMillis(); // XXX also set in ctor
+
+                    r.what_text  = intent.getStringExtra(Consts.EXTRA_TITLE);
+                    r.where_text = intent.getStringExtra(Consts.EXTRA_WHERE);
+                    r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, false);
+
+                    return r;
+                }
             }
         }
         return null;

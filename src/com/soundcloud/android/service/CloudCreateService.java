@@ -76,7 +76,6 @@ public class CloudCreateService extends Service {
     private RemoteViews mUploadNotificationView;
 
     private Notification mRecordNotification;
-    private Notification mPlaybackNotification;
     private Notification mUploadNotification;
 
     private String mRecordEventTitle;
@@ -360,8 +359,8 @@ public class CloudCreateService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        mPlaybackNotification = createOngoingNotification(CloudUtils.formatString(getApplicationContext().getResources()
-                .getString(R.string.cloud_recorder_playback_notification_ticker),mPlaybackTitle),
+        Notification mPlaybackNotification = createOngoingNotification(CloudUtils.formatString(getApplicationContext().getResources()
+                .getString(R.string.cloud_recorder_playback_notification_ticker), mPlaybackTitle),
                 pendingIntent);
 
         mPlaybackNotification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
