@@ -166,7 +166,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 getRefreshTask(),
                 getAppendTask(),
                 savePagingData(),
-                saveExtraData()
+                saveExtraData(),
+                mListView.getLastUpdated()
         };
     }
 
@@ -177,6 +178,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (state[2] != null) restoreAppendTask((AppendTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
+        if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
     }
 
 
@@ -517,8 +519,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public void onPostRefresh(boolean success) {
         notifyDataSetChanged();
-        mListView.onRefreshComplete(success ? System.currentTimeMillis() : null);
-
+        mListView.onRefreshComplete(success);
         applyEmptyText();
     }
 

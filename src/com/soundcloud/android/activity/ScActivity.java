@@ -212,10 +212,13 @@ public abstract class ScActivity extends Activity {
         super.onResume();
 
         for (LazyListView l : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
+                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
+            }
             if (l.getWrapper() != null) {
                 if (l.getWrapper().isRefreshing()) {
                     l.prepareForRefresh();
-                    l.setSelection(1);
+                    l.setSelection(0);
                 } else if (l.getWrapper().needsRefresh()) {
                     l.onRefresh();
                 } else if (l.getFirstVisiblePosition() == 0) {
@@ -223,9 +226,7 @@ public abstract class ScActivity extends Activity {
                 }
             }
 
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
-                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
-            }
+
 
         }
 

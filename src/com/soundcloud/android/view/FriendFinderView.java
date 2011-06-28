@@ -122,7 +122,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
             case States.CONNECTION_ERROR:
                 if (mFriendList != null && !mFriendList.getWrapper().isEmpty()){
-                    mFriendList.onRefreshComplete();
+                    mFriendList.onRefreshComplete(false);
                     mFriendList.setSelection(0);
                 } else {
                     if (mFriendList == null || mFbConnected){
@@ -222,7 +222,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     @Override
     public void onRefresh() {
-        Log.i("asdf", "On Refresh Friendfview");
         ((UserBrowser) mActivity).refreshConnections();
     }
 

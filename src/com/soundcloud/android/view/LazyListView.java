@@ -49,7 +49,7 @@ public class LazyListView extends PullToRefreshListView {
 
     @Override
     public int getSolidColor() {
-        return 0xAA000000;
+        return 0xAAFFFFFF;
     }
 
     public void enableLongClickListener() {

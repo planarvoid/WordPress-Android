@@ -211,12 +211,12 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     @Override
     protected void onStart() {
-        super.onStart();
         pageTrack("/profile");
         if (mAdapterStates != null){
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
+        super.onStart();
     }
 
     @Override
