@@ -50,6 +50,7 @@ public class Consts {
         int CANCEL_CURRENT_UPLOAD = 203;
         int INCOMING = 204;
         int FRIEND_FINDER = 205;
+        int UPLOAD_FILE = 206;
     }
 
     public interface GraphicsSizes {

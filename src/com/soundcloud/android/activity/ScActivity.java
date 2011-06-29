@@ -501,8 +501,15 @@ public abstract class ScActivity extends Activity {
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+        if (this instanceof ScCreate) {
+            menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
+                android.R.drawable.ic_menu_upload);
+
+        }  else {
+            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                 R.drawable.ic_menu_refresh);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -544,7 +551,6 @@ public abstract class ScActivity extends Activity {
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }

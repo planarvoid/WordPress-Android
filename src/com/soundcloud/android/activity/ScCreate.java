@@ -35,6 +35,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -90,6 +91,8 @@ public class ScCreate extends ScActivity {
     public static int PCM_REC_CHANNELS = 1;
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
+
+    public static final int REQUEST_UPLOAD_FILE = 1;
 
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
@@ -810,10 +813,31 @@ public class ScCreate extends ScActivity {
         }
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.UPLOAD_FILE:
+                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-           finish();
+        switch (requestCode) {
+            case 0:
+                if (resultCode == RESULT_OK) {
+                    finish();
+                }
+                break;
+            case REQUEST_UPLOAD_FILE:
+                if (resultCode == RESULT_OK) {
+                    startActivity((new Intent(Consts.ACTION_SHARE)).putExtra(Intent.EXTRA_STREAM, data.getData()));
+                }
         }
     }
 }
