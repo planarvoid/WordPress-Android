@@ -435,6 +435,26 @@ public abstract class ScActivity extends Activity {
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
+            case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
+                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                try {
+                                    // XXX this should be handled by ScCreate
+                                    mCreateService.cancelUpload();
+                                } catch (RemoteException ignored) {
+                                    Log.w(TAG, ignored);
+                                }
+                                removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
+                            }
+                        }).setNegativeButton(getString(R.string.btn_no),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).create();
+
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(

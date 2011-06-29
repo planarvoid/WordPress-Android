@@ -18,11 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> implements Request.TransferProgressListener {
-    private long transferred;
+public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> {
     private CloudAPI api;
-
-    private Thread uploadThread;
 
     public static class Params {
         public static final String LOCAL_RECORDING_ID  = "local_recording_id";
@@ -124,53 +121,39 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         final FileBody track = new FileBody(toUpload);
         final FileBody artwork = param.artworkFile() == null ? null : new FileBody(param.artworkFile());
 
-        long totalTransfer = track.getContentLength() +
+        final long totalTransfer = track.getContentLength() +
                              (artwork == null ? 0 : artwork.getContentLength());
 
-        uploadThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Log.v(TAG, "starting upload of " + toUpload);
-                    // TODO hold wifi lock during upload
-                    HttpResponse response = api.post(param.getRequest(toUpload, UploadTask.this));
-                    StatusLine status = response.getStatusLine();
-                    if (status.getStatusCode() == HttpStatus.SC_CREATED) {
-                        Log.d(TAG, "Upload successful");
-                    } else {
-                        Log.w(TAG, String.format("Upload failed: %d (%s)",
-                                   status.getStatusCode(),
-                                   status.getReasonPhrase()));
+        try {
+            Log.v(TAG, "starting upload of " + toUpload);
+            // TODO hold wifi lock during upload
+            HttpResponse response = api.post(param.getRequest(toUpload, new Request.TransferProgressListener() {
+                long lastPublished;
 
-                        param.fail();
+                @Override
+                public void transferred(long transferred) throws IOException {
+                    if (isCancelled()) throw new IOException("canceled");
+                    if (System.currentTimeMillis() - lastPublished > 1000) {
+                        lastPublished = System.currentTimeMillis();
+                        publishProgress(transferred, totalTransfer);
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "Error uploading", e);
-                    param.fail();
                 }
+            }));
+
+            StatusLine status = response.getStatusLine();
+            if (status.getStatusCode() == HttpStatus.SC_CREATED) {
+                Log.d(TAG, "Upload successful");
+            } else {
+                Log.w(TAG, String.format("Upload failed: %d (%s)",
+                           status.getStatusCode(),
+                           status.getReasonPhrase()));
+
+                param.fail();
             }
-        });
-        if (!isCancelled()) uploadThread.start();
-
-
-        while (uploadThread.isAlive()) {
-            publishProgress(transferred, totalTransfer);
-            System.gc();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
-
+        } catch (IOException e) {
+            Log.e(TAG, "Error uploading", e);
+            param.fail();
         }
         return isCancelled() ? param.fail() : param;
-    }
-
-    @Override
-    protected void onCancelled() {
-        if (uploadThread != null && uploadThread.isAlive()) uploadThread.interrupt();
-    }
-
-    @Override
-    public void transferred(long amount) {
-        transferred = amount;
     }
 }
