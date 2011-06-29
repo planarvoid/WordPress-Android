@@ -1,5 +1,7 @@
 1.3.4 tbd
 
+  * Better sharing support (via intent/account manager)
+
 1.3.3 22/06/11
 
   * non-expiry token
