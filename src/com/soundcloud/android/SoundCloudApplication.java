@@ -390,6 +390,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.authorizationCode(code, scope);
     }
 
+    public void setDefaultContentType(String contentType) {
+        mCloudApi.setDefaultContentType(contentType);
+    }
+
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
