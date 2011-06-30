@@ -5,6 +5,7 @@ import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(DefaultTestRunner.class)
 public class SuggestUsersTest extends ApiTests {
 
-    @Test
+    @Test @Ignore
     public void testConfigureFacebook() throws Exception {
         Robolectric.application.onCreate();
 
@@ -41,7 +42,7 @@ public class SuggestUsersTest extends ApiTests {
         assertThat(intent.intent.getComponent().getClassName(), equalTo(Connect.class.getName()));
     }
 
-    @Test
+    @Test @Ignore
     public void testDoneButton() throws Exception {
         Robolectric.application.onCreate();
 

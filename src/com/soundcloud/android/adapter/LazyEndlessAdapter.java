@@ -60,11 +60,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mRequest = request;
         wrapped.setWrapper(this);
 
-        LayoutInflater inflater = (LayoutInflater) mActivity
+        if (activity != null) {
+          LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mEmptyView = inflater.inflate(R.layout.empty_list, null);
-        mEmptyView.setBackgroundColor(0xFFFFFFFF);
 
+
+            mEmptyView = inflater.inflate(R.layout.empty_list, null);
+            mEmptyView.setBackgroundColor(0xFFFFFFFF);
+        }
     }
 
 
@@ -122,7 +125,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (mEmptyView != null) {
             if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
                 ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(Html.fromHtml(mEmptyViewText));
-                return;
             } else {
                 // generic model based empty text
                 ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(getEmptyText());
