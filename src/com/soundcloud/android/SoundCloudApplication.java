@@ -391,7 +391,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void setDefaultContentType(String contentType) {
-        mCloudApi.setDefaultContentType(contentType);
+        //mCloudApi.setDefaultContentType(contentType);
     }
 
     public static interface RecordListener {

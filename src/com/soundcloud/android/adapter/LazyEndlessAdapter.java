@@ -119,36 +119,39 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * with an error
      */
     public void applyEmptyText() {
-        if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-            ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(Html.fromHtml(mEmptyViewText));
-            return;
+        if (mEmptyView != null) {
+            if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
+                ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(Html.fromHtml(mEmptyViewText));
+                return;
+            } else {
+                // generic model based empty text
+                ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(getEmptyText());
+            }
         }
 
-        String textToSet = "";
+    }
 
-
-        if (Track.class.equals(getLoadModel())) {
-            textToSet = !mError ? mActivity.getResources().getString(
+    private String getEmptyText(){
+          if (Track.class.equals(getLoadModel())) {
+            return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
         } else if (User.class.equals(getLoadModel())
                 || Friend.class.equals(getLoadModel())) {
-            textToSet = !mError ? mActivity.getResources().getString(
+            return !mError ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
         } else if (Comment.class.equals(getLoadModel())) {
-            textToSet = !mError ? mActivity.getResources().getString(
+            return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
         } else if (Event.class.equals(getLoadModel())) {
-            textToSet = !mError ? mActivity.getResources().getString(
+            return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
         }
-
-
-        if (mEmptyView != null) ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(textToSet);
+        return "";
     }
 
     /**
@@ -330,6 +333,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             default:
                 mError = true;
                 mKeepOnAppending.set(false);
+                if (super.getCount() != 0) CloudUtils.showToast(mActivity,getEmptyText());
                 break;
         }
     }
@@ -347,8 +351,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (responseCode == HttpStatus.SC_OK){
             mKeepOnAppending.set(keepgoing);
             incrementPage();
+        } else {
+            handleResponseCode(responseCode);
         }
-
 
         if (newItems != null && newItems.size() > 0) {
             for (Parcelable newitem : newItems) {
@@ -359,7 +364,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (!TextUtils.isEmpty(nextHref)) {
             getWrappedAdapter().onNextHref(nextHref);
         }
-
 
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
