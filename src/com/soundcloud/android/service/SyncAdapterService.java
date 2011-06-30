@@ -97,7 +97,7 @@ public class SyncAdapterService extends Service {
                     app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, incomingEvents.get(0).created_at.getTime());
                 }
 
-                if (incomingEvents.size() > 0 ) {
+                if (incomingExclusive.size() > 0 ) {
                     app.setAccountData(User.DataKeys.LAST_EXCLUSIVE_SYNC_EVENT_TIMESTAMP, incomingExclusive.get(0).created_at.getTime());
                 }
 
