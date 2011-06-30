@@ -92,6 +92,15 @@ public class SyncAdapterService extends Service {
             Log.i("SyncAdapterService","Got exclusives " + incomingExclusive.size());
 
             if (incomingEvents.size() > 0 || incomingExclusive.size() > 0) {
+
+                if (incomingEvents.size() > 0 ) {
+                    app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, incomingEvents.get(0).created_at.getTime());
+                }
+
+                if (incomingEvents.size() > 0 ) {
+                    app.setAccountData(User.DataKeys.LAST_EXCLUSIVE_SYNC_EVENT_TIMESTAMP, incomingExclusive.get(0).created_at.getTime());
+                }
+
                 int incomingUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN) + incomingEvents.size();
                 int exclusiveUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN) + incomingExclusive.size();
 
