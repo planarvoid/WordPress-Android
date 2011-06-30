@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScContentProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.soundcloud.android.providers.ScContentProvider";
+    public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(\\d+))?$");
 
     private DatabaseHelper dbHelper;

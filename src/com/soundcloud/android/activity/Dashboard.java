@@ -1,10 +1,14 @@
 package com.soundcloud.android.activity;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
@@ -63,6 +67,12 @@ public class Dashboard extends ScActivity {
     public void onResume() {
         super.onResume();
         pageTrack(mTrackingPath);
+
+        getApp().setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN,"0");
+        getApp().setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN,"0");
+
+        ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
+                .cancel(Consts.Notifications.DASHBOARD_NOTIFY_ID);
     }
 
     protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
