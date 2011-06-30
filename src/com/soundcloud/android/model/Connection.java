@@ -5,6 +5,9 @@ import com.soundcloud.android.R;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
@@ -13,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Connection implements Comparable<Connection> {
+public class Connection implements Comparable<Connection>, Parcelable {
     private boolean active = true;
     private Service _service;
 
@@ -43,6 +46,42 @@ public class Connection implements Comparable<Connection> {
         int rank2 = another.service().ordinal();
         return (rank1 > rank2) ? 1 : ((rank1 < rank2) ? -1 : 0);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeLong(created_at.getTime());
+        dest.writeString(display_name);
+        dest.writeInt(post_publish ? 1 : 0);
+        dest.writeInt(post_favorite ? 1 : 0);
+        dest.writeString(service);
+        dest.writeString(uri.toString());
+    }
+
+    public static Creator<Connection> CREATOR =  new Creator<Connection>() {
+        @Override
+        public Connection createFromParcel(Parcel source) {
+            Connection connection = new Connection();
+            connection.id = source.readInt();
+            connection.created_at = new Date(source.readLong());
+            connection.display_name = source.readString();
+            connection.post_publish = source.readInt() == 1;
+            connection.post_favorite = source.readInt() == 1;
+            connection.service = source.readString();
+            connection.uri = URI.create(source.readString());
+            return connection;
+        }
+
+        @Override
+        public Connection[] newArray(int size) {
+            return new Connection[size];
+        }
+    };
 
     public enum Service {
         Facebook(R.drawable.service_facebook_profile, true, false, "facebook_profile", "facebook_page"),
