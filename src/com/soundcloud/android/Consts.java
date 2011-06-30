@@ -50,6 +50,7 @@ public class Consts {
         int CANCEL_CURRENT_UPLOAD = 203;
         int INCOMING = 204;
         int FRIEND_FINDER = 205;
+        int UPLOAD_FILE = 206;
     }
 
     public interface GraphicsSizes {
@@ -75,5 +76,6 @@ public class Consts {
         int RECORD_NOTIFY_ID    = 0;
         int PLAYBACK_NOTIFY_ID  = 1;
         int UPLOAD_NOTIFY_ID    = 2;
+        int DASHBOARD_NOTIFY_ID    = 3;
     }
 }

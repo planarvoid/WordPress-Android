@@ -160,7 +160,7 @@ public class AddInfo extends Activity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
-                    setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
                     break;
                 case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
                     setImage(mAvatarFile);

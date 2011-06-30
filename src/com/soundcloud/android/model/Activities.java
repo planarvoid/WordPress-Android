@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import android.util.Log;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -41,6 +42,7 @@ public class Activities implements Iterable<Event> {
     }
 
     public String getCursor() {
+        Log.i("asdf", "Get Cursor " + next_href);
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
         for (NameValuePair param : params) {
             if (param.getName().equalsIgnoreCase("cursor")) {

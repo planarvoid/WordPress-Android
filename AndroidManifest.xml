@@ -11,7 +11,7 @@
       android:configChanges="keyboard|keyboardHidden"
       android:name="SoundCloudApplication">
         <provider android:name=".provider.ScContentProvider"
-                  android:authorities="com.soundcloud.android.providers.ScContentProvider"/>
+                  android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
         <activity android:name=".activity.Main"
                   android:label="@string/app_name"
@@ -112,15 +112,14 @@
             <meta-data android:name="android.accounts.AccountAuthenticator"
                        android:resource="@xml/authenticator"/>
         </service>
-        
-        <service android:name=".service.SyncAdapterService"
-                 android:exported="true">
-           <intentfilter>
-               <action android:name="android.content.SyncAdapter" />
-           </intentfilter>
 
-           <metadata android:name="android.content.SyncAdapter"
-                     android:resource="@xml/sync" />
+        <service android:name=".service.SyncAdapterService" android:exported="true">
+           <intent-filter>
+              <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync" />
         </service>
 
         <receiver android:label="SoundCloud Player"
@@ -139,6 +138,7 @@
              <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_record" />
         </receiver>

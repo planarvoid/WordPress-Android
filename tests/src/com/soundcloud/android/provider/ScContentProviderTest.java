@@ -15,14 +15,14 @@ import static org.junit.Assert.assertThat;
 public class ScContentProviderTest {
     @Test
     public void shouldMatchUrisToTables() throws Exception {
-        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Users");
+        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.provider.ScContentProvider/Users");
         assertThat(info.table.tableName, equalTo("Users"));
         assertThat(info.id, equalTo(-1L));
     }
 
     @Test
     public void shouldMatchUrisToTablesAndIds() throws Exception {
-        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Users/20");
+        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.provider.ScContentProvider/Users/20");
         assertThat(info.table.tableName, equalTo("Users"));
         assertThat(info.id, equalTo(20L));
     }
@@ -34,12 +34,12 @@ public class ScContentProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIfTableDoesNotExist() throws Exception {
-        ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Foos");
+        ScContentProvider.getTableInfo("content://com.soundcloud.android.provider.ScContentProvider/Foos");
     }
 
     @Test
     public void shouldAppendIdToSelection() throws Exception {
-        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.providers.ScContentProvider/Users/20");
+        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.provider.ScContentProvider/Users/20");
         assertThat(info.where(""), equalTo("_id=20"));
         assertThat(info.where("foo=bar"), equalTo("foo=bar AND _id=20"));
     }

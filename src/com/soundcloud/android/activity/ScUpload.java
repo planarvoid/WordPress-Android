@@ -22,6 +22,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -380,7 +382,7 @@ public class ScUpload extends ScActivity {
         switch (requestCode) {
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    setImage(ImageUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
@@ -425,43 +427,40 @@ public class ScUpload extends ScActivity {
 
     /* package */ Recording recordingFromIntent(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) ||
-            Consts.ACTION_SHARE.equals(intent.getAction()) &&
-                intent.hasExtra(Intent.EXTRA_STREAM)) {
+                Consts.ACTION_SHARE.equals(intent.getAction()) &&
+                        intent.hasExtra(Intent.EXTRA_STREAM)) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if ("file".equals(stream.getScheme())) {
-                File file = new File(stream.getPath());
-                if (file.exists()) {
+            File file = CloudUtils.getFromMediaUri(getContentResolver(), stream);
+            if (file != null && file.exists()) {
+                Recording r = new Recording(file);
+                r.external_upload = true;
+                r.user_id = getCurrentUserId();
+                r.timestamp = System.currentTimeMillis();
 
-                    Recording r = new Recording(file);
-                    r.external_upload = true;
-                    r.user_id = getCurrentUserId();
-                    r.timestamp =  System.currentTimeMillis();
-
-                    r.what_text  = intent.getStringExtra(Consts.EXTRA_TITLE);
-                    r.where_text = intent.getStringExtra(Consts.EXTRA_WHERE);
-                    r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, true);
-                    Location loc = intent.getParcelableExtra(Consts.EXTRA_LOCATION);
-                    if (loc != null) {
-                        r.latitude  = loc.getLatitude();
-                        r.longitude = loc.getLongitude();
-                    }
-                    r.tags = intent.getStringArrayExtra(Consts.EXTRA_TAGS);
-                    r.description = intent.getStringExtra(Consts.EXTRA_DESCRIPTION);
-                    r.genre = intent.getStringExtra(Consts.EXTRA_GENRE);
-
-                    Uri artwork = intent.getParcelableExtra(Consts.EXTRA_ARTWORK);
-
-                    if (artwork != null && "file".equals(artwork.getScheme())) {
-                        r.artwork_path = new File(artwork.getPath());
-                    }
-
-                    return r;
+                r.what_text = intent.getStringExtra(Consts.EXTRA_TITLE);
+                r.where_text = intent.getStringExtra(Consts.EXTRA_WHERE);
+                r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, true);
+                Location loc = intent.getParcelableExtra(Consts.EXTRA_LOCATION);
+                if (loc != null) {
+                    r.latitude = loc.getLatitude();
+                    r.longitude = loc.getLongitude();
                 }
+                r.tags = intent.getStringArrayExtra(Consts.EXTRA_TAGS);
+                r.description = intent.getStringExtra(Consts.EXTRA_DESCRIPTION);
+                r.genre = intent.getStringExtra(Consts.EXTRA_GENRE);
+
+                Uri artwork = intent.getParcelableExtra(Consts.EXTRA_ARTWORK);
+
+                if (artwork != null && "file".equals(artwork.getScheme())) {
+                    r.artwork_path = new File(artwork.getPath());
+                }
+
+                return r;
             }
         } else if (intent.getData() != null) {
             return Recording.fromUri(intent.getData(), getContentResolver());
         }
-        return  null;
+        return null;
     }
 }

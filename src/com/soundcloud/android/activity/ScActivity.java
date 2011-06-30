@@ -450,6 +450,26 @@ public abstract class ScActivity extends Activity {
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
+            case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
+                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
+                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
+                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                try {
+                                    // XXX this should be handled by ScCreate
+                                    mCreateService.cancelUpload();
+                                } catch (RemoteException ignored) {
+                                    Log.w(TAG, ignored);
+                                }
+                                removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
+                            }
+                        }).setNegativeButton(getString(R.string.btn_no),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
+                                    }
+                                }).create();
+
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
@@ -496,8 +516,15 @@ public abstract class ScActivity extends Activity {
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+        if (this instanceof ScCreate) {
+            menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
+                android.R.drawable.ic_menu_upload);
+
+        }  else {
+            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
                 R.drawable.ic_menu_refresh);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -539,7 +566,6 @@ public abstract class ScActivity extends Activity {
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }

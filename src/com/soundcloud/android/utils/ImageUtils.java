@@ -10,7 +10,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -24,7 +23,6 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -227,22 +225,6 @@ public class ImageUtils {
         } else {
             return false;
         }
-    }
-
-    public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
-        String[] filePathColumn = { MediaStore.MediaColumns.DATA };
-        Cursor cursor = resolver.query(uri, filePathColumn, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    return new File(filePath);
-                }
-            }
-            finally { cursor.close(); }
-        }
-        return null;
     }
 
     /**

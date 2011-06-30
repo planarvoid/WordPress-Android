@@ -95,6 +95,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());
+            if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) enableSyncing(account);
         }
 
         doOnce(this, "cleanup.track.cache", new Runnable() {
@@ -216,11 +217,20 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        // disable syncing
-        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 0);
+        enableSyncing(account);
         return created;
     }
 
+    private void enableSyncing(Account account){
+        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
+        ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), Integer.valueOf(1000 * 60 * 5).longValue());
+    }
+
+
+    public void useAccount(Account account) {
+        mCloudApi.setToken(getToken(account));
+    }
 
     public String getAccountData(String key) {
         Account account = getAccount();
@@ -378,6 +388,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Token authorizationCode(String code, String scope) throws IOException {
         return mCloudApi.authorizationCode(code, scope);
+    }
+
+    public void setDefaultContentType(String contentType) {
+        mCloudApi.setDefaultContentType(contentType);
     }
 
     public static interface RecordListener {

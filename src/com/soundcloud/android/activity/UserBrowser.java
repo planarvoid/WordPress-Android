@@ -1,9 +1,22 @@
 package com.soundcloud.android.activity;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import android.view.ViewGroup;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.*;
+import android.widget.ImageView.ScaleType;
+import android.widget.TabHost.OnTabChangeListener;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -21,42 +34,9 @@ import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.LoadConnectionsTask.ConnectionsListener;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.FriendFinderView;
-import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.LazyListView;
-import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.android.view.*;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.os.RemoteException;
-import android.text.Html;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TabHost;
-import android.widget.TabHost.OnTabChangeListener;
-import android.widget.TabWidget;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -283,7 +263,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     public void refreshConnections(){
-        Log.i("asdf","REFRESH CONNECTIONS " );
         if (isMe() && CloudUtils.isTaskFinished(mConnectionsTask)) {
             mConnectionsTask = new LoadConnectionsTask(getApp());
             mConnectionsTask.setListener(this);
@@ -294,7 +273,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     @Override
     public void onConnections(List<Connection> connections) {
-        Log.i("asdf","On Connections " + connections);
         mConnections = connections;
         mFriendFinderView.onConnections(connections, true);
     }
@@ -750,33 +728,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             }
         });
         builder.create().show();
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int which) {
-        switch (which) {
-            case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
-                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
-                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                try {
-                                    // XXX this should be handled by ScCreate
-                                    mCreateService.cancelUpload();
-                                } catch (RemoteException ignored) {
-                                    Log.w(TAG, ignored);
-                                }
-                                removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
-                            }
-                        }).setNegativeButton(getString(R.string.btn_no),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
-                                    }
-                                }).create();
-            default:
-                return super.onCreateDialog(which);
-        }
     }
 
     @Override

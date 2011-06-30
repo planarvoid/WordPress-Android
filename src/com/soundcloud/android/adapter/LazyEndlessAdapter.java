@@ -236,21 +236,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     }
 
-    /**
-     * Save the current extra data
-     *
-     * @return a string representing any extra data pertaining to this adapter
-     */
-    protected String saveExtraData() {
-        return "";
+    public String saveExtraData() {
+        return getWrappedAdapter().nextCursor;
     }
 
-    /**
-     * Restore the extra data
-     *
-     * @param restore : the string data to restore
-     */
-    protected void restoreExtraData(String restore) {
+    public void restoreExtraData(String restore) {
+        getWrappedAdapter().nextCursor = restore;
     }
 
     public Class<?> getLoadModel() {
@@ -328,17 +319,47 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 "defaultPageSize", "20")));
     }
 
+    private void handleResponseCode(int responseCode) {
+        switch (responseCode) {
+            case HttpStatus.SC_OK: // do nothing
+                mError = false;
+                break;
+
+            case HttpStatus.SC_UNAUTHORIZED:
+                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+            default:
+                mError = true;
+                mKeepOnAppending.set(false);
+                break;
+        }
+    }
+
     /**
      * A load task has just executed, set the current adapter in response
      *
+     * @param newItems
+     * @param nextHref
+     * @param responseCode
      * @param keepgoing
      */
-    public void onPostTaskExecute(Boolean keepgoing) {
-        if (keepgoing != null) {
+    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
+
+        if (responseCode == HttpStatus.SC_OK){
             mKeepOnAppending.set(keepgoing);
-        } else {
-            mError = true;
+            incrementPage();
         }
+
+
+        if (newItems != null && newItems.size() > 0) {
+            for (Parcelable newitem : newItems) {
+                getWrappedAdapter().getData().add(newitem);
+            }
+        }
+
+        if (!TextUtils.isEmpty(nextHref)) {
+            getWrappedAdapter().onNextHref(nextHref);
+        }
+
 
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
@@ -347,15 +368,20 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         // configure the empty view depending on possible exceptions
         applyEmptyText();
         notifyDataSetChanged();
-
-        mActivity.handleException();
-
-        // if (mActivityReference != null)
-        // mActivityReference.handleException();
     }
 
-    public void notifyDataSetChanged(){
-        super.notifyDataSetChanged();
+    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, boolean success) {
+        if (responseCode != HttpStatus.SC_OK){
+            handleResponseCode(responseCode);
+        } else if (newItems.size() > 0){
+                // false for notify of change, we can only notify after resetting listview
+                reset(true, false);
+                onPostTaskExecute(newItems,nextHref,responseCode,success);
+            }
+
+        notifyDataSetChanged();
+        mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
+        applyEmptyText();
     }
 
     /**
@@ -416,22 +442,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mError = false;
     }
 
-    /**
-     * Handle whatever the last response code was
-     *
-     * @param mResponseCode : the last response code
-     */
-    public void handleResponseCode(int mResponseCode) {
-        switch (mResponseCode){
-            case HttpStatus.SC_OK: // do nothing
-                mError = false;
-                break;
-            case HttpStatus.SC_UNAUTHORIZED :
-                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-            default:
-                mError = true;
-        }
-    }
 
     @SuppressWarnings("unchecked")
     public void refresh(boolean userRefresh) {
@@ -517,11 +527,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (!isRefreshing()) refresh(true);
     }
 
-    public void onPostRefresh(boolean success) {
-        notifyDataSetChanged();
-        mListView.onRefreshComplete(success);
-        applyEmptyText();
-    }
+
 
     public boolean isRefreshing() {
         if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)){

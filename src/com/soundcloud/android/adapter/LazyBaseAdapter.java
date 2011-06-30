@@ -8,18 +8,24 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
 
     public int submenuIndex = -1;
     public int animateSubmenuIndex = -1;
+    public String nextCursor;
     protected ScActivity mActivity;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
     private Class<?> mLoadModel;
+
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
@@ -83,4 +89,10 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
         if (mWrapper != null) mWrapper.onPostQueryExecute();
     }
 
+    public void onNextHref(String nextHref) {
+        List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextHref), "UTF-8");
+        for (NameValuePair param : params) {
+            if (param.getName().equalsIgnoreCase("cursor")) nextCursor = param.getValue();
+        }
+    }
 }

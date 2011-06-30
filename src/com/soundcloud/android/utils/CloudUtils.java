@@ -19,16 +19,20 @@ import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -593,6 +597,27 @@ public class CloudUtils {
             }
         }
         return orientation;
+    }
+
+    public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
+        if ("file".equals(uri.getScheme())) {
+            return new File(uri.getPath());
+        } else if ("content".equals(uri.getScheme())) {
+            String[] filePathColumn = {MediaStore.MediaColumns.DATA};
+            Cursor cursor = resolver.query(uri, filePathColumn, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        return new File(filePath);
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+        return null;
     }
 
     public static boolean isLandscape(Activity a) {

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <string name="sc_content_provider_authority">com.soundcloud.android.provider.ScContentProvider</string>
+
   <string name="this_user">this user</string>
 
   <string name="error_making_connection_title">Network error</string>
@@ -626,6 +628,7 @@
   <string name="menu_view_current_track">View Player</string>
   <string name="menu_cancel_current_upload">Cancel Upload</string>
   <string name="menu_refresh">Refresh</string>
+  <string name="menu_upload_file">Upload file</string>
   <string name="menu_incoming">Incoming</string>
   <string name="menu_friend_finder">Find Friends</string>
 

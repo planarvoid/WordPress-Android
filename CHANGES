@@ -1,6 +1,8 @@
 1.3.4 tbd
 
   * Better sharing support (via intent/account manager)
+  * Fixed cancel uploads (https://www.pivotaltracker.com/story/show/13903875)
+  * Added support to upload files/record audio with other apps
 
 1.3.3 22/06/11
 
