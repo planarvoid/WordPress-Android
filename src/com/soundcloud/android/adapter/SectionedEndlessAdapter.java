@@ -1,13 +1,14 @@
 package com.soundcloud.android.adapter;
 
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.api.Request;
-
-import android.os.Parcelable;
-import android.view.View;
-import android.view.ViewGroup;
+import org.apache.http.HttpStatus;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     protected Request getRequest(boolean refresh) {
-        return getWrappedAdapter().getRequest(refresh? 0 : mSectionIndex);
+        return getWrappedAdapter().getRequest(refresh ? 0 : mSectionIndex);
     }
 
     @Override
@@ -82,37 +83,44 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
-
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
         mPendingPosition = -1;
         notifyDataSetChanged();
 
-        if (keepgoing != null) {
-            if (!keepgoing) {
-                  for (WeakReference<SectionListener> listenerRef : mListeners) {
-                        SectionListener listener = listenerRef.get();
-                        if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
-                            listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
-                        }
-                    }
+        if (responseCode == HttpStatus.SC_OK) {
+            if (newItems != null && newItems.size() > 0) {
+                for (Parcelable newitem : newItems) {
+                    getData().add(newitem);
+                }
+            }
+            if (!TextUtils.isEmpty(nextHref)) {
+                getWrappedAdapter().onNextHref(nextHref);
+            }
 
-                    // load next section as necessary
-                    if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
-                        mCurrentPage = 0;
-                        mSectionIndex++;
-                        mKeepOnAppending.set(true);
-                        return;
+            if (!keepgoing) {
+                // end of this section
+                for (WeakReference<SectionListener> listenerRef : mListeners) {
+                    SectionListener listener = listenerRef.get();
+                    if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
+                        listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
                     }
+                }
+
+                // load next section as necessary
+                if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
+                    mCurrentPage = 0;
+                    mSectionIndex++;
+                    mKeepOnAppending.set(true);
+                    return;
+                }
             }
             mKeepOnAppending.set(keepgoing);
+            incrementPage();
         } else {
-            mError = true;
+            handleResponseCode(responseCode);
+            applyEmptyText();
         }
-
-        // configure the empty view depending on possible exceptions
-        applyEmptyText();
-        mActivity.handleException();
     }
 
     @Override

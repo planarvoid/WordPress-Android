@@ -322,7 +322,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 "defaultPageSize", "20")));
     }
 
-    private void handleResponseCode(int responseCode) {
+    protected void handleResponseCode(int responseCode) {
         switch (responseCode) {
             case HttpStatus.SC_OK: // do nothing
                 mError = false;
