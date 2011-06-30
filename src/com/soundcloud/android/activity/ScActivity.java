@@ -410,7 +410,7 @@ public abstract class ScActivity extends Activity {
         for (LazyListView list : mLists) {
             if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
                 ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
-                //((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
+                ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
             }
         }
     }

@@ -113,4 +113,9 @@ public class Dashboard extends ScActivity {
             return false;
         }
     }
+
+    public void refreshIncoming() {
+        mListView.onRefresh();
+        mListView.smoothScrollToPosition(0);
+    }
 }

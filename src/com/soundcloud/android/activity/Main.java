@@ -195,13 +195,14 @@ public class Main extends TabActivity {
                 getTabHost().setCurrentTab(3);
                 ((UserBrowser)getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             } else if (intent.hasExtra("tabTag")) {
-                if (intent.getStringExtra("tabTag").contentEquals("incoming") || intent.getStringExtra("tabTag").contentEquals("exclusive")){
-                    // TODO
-                }
                 getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
+                if (getCurrentActivity() instanceof Dashboard){
+                     ((Dashboard) getCurrentActivity()).refreshIncoming();
+                }
+
                 intent.removeExtra("tabTag");
             } else if (justAuthenticated(intent)) {
-                Log.d(TAG, "activity start after successful authentication");
+                Log.d(TAG, "activity start after succdessful authentication");
                 getTabHost().setCurrentTabByTag("record");
             }
         }
