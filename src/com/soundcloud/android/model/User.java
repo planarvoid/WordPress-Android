@@ -206,7 +206,6 @@ public class User extends BaseObj implements Parcelable {
         String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
 
         String LAST_INCOMING_SYNC_EVENT_TIMESTAMP = "last_incoming_sync_event_timestamp";
-        String LAST_EXCLUSIVE_SYNC_EVENT_TIMESTAMP = "last_exclusive_sync_event_timestamp";
 
         String LAST_FOLLOWINGS_SYNC = "last_followings_sync";
 

@@ -74,7 +74,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    public void onPostTaskExecute(Boolean keepgoing) {
+    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
 
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;

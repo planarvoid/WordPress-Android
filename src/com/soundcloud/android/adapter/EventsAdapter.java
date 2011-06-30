@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.content.ContentResolver;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
@@ -42,6 +43,10 @@ public class EventsAdapter extends TracklistAdapter {
         //addLocalEvents();
     }
 
+    public boolean isExclusive(){
+        return mExclusive;
+    }
+
     @Override
     protected LazyRow createRow() {
         return new EventsRow(mActivity, this);
@@ -52,23 +57,17 @@ public class EventsAdapter extends TracklistAdapter {
         return ((Event) getItem(index)).getTrack();
     }
 
-    /*
+
     @Override
     public boolean isQuerying(){
         return !CloudUtils.isTaskFinished(mQueryTask);
-    }*/
+    }
 
     @Override
     public void onPostQueryExecute() {
         mQueryTask = null;
         super.onPostQueryExecute();
         if (mData.size() > 0) {
-            if (mExclusive){
-                //mActivity.getSoundCloudApplication().requestRecentExclusive(this);
-            } else {
-                //mActivity.getSoundCloudApplication().requestRecentIncoming(this);
-            }
-
             if (TextUtils.isEmpty(nextCursor)){
                 // we must be at the end of the dashboard list, dont allow appending
                 mWrapper.mKeepOnAppending.set(false);
@@ -106,25 +105,13 @@ public class EventsAdapter extends TracklistAdapter {
     }
 
     @Override
-    public void refresh(boolean userRefresh) {
-        mData.clear();
-        reset();
-    }
-
-    @Override
     public void reset() {
+        mData.clear();
         mPage = 1;
         submenuIndex = -1;
         animateSubmenuIndex = -1;
         nextCursor = "";
         //addLocalEvents();
-    }
-
-    public void onNextEventsParam(String nextEventsHref) {
-        List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextEventsHref),"UTF-8");
-        for (NameValuePair param : params){
-            if (param.getName().equalsIgnoreCase("cursor")) nextCursor = param.getValue();
-        }
     }
 
     public void onNextEventsCursor(String mNextCursor) {

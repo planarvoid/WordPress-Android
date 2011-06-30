@@ -34,8 +34,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     private WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
 
-    private String mNextEventsHref;
-    private Exception mException;
+    private String mNextHref;
     private int mResponseCode;
 
     public Class<?> loadModel;
@@ -78,23 +77,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
         if (adapter != null) {
-            if (!TextUtils.isEmpty(mNextEventsHref)){
-                ((EventsAdapter) adapter.getWrappedAdapter())
-                        .onNextEventsParam(mNextEventsHref);
-            }
-
-            if (mException == null) {
-                adapter.incrementPage();
-            } else {
-                adapter.handleResponseCode(mResponseCode);
-            }
-
-            if (newItems != null && newItems.size() > 0) {
-                for (Parcelable newitem : newItems) {
-                    adapter.getData().add(newitem);
-                }
-            }
-            adapter.onPostTaskExecute(keepGoing);
+            adapter.onPostTaskExecute(newItems, mNextHref, mResponseCode, keepGoing);
         }
     }
 
@@ -117,7 +100,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
                 Activities activities = mApp.getMapper().readValue(is, Activities.class);
                 newItems = new ArrayList<Parcelable>();
                 for (Event evt : activities) newItems.add(evt);
-                mNextEventsHref = activities.next_href;
+                mNextHref = activities.next_href;
             } else {
                 if (Track.class.equals(loadModel)) {
                     List<TracklistItem> tracklistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, TracklistItem.class));
@@ -154,7 +137,6 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
             }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
-            mException = e;
             return false;
         }
     }

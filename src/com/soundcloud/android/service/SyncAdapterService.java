@@ -86,43 +86,27 @@ public class SyncAdapterService extends Service {
                     app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), false);
 
             ArrayList<Event> incomingExclusive = getNewIncomingEvents(app,
-                    app.getAccountDataLong(User.DataKeys.LAST_EXCLUSIVE_SYNC_EVENT_TIMESTAMP), true);
-
-            Log.i("SyncAdapterService","Got incoming " + incomingEvents.size());
-            Log.i("SyncAdapterService","Got exclusives " + incomingExclusive.size());
+                    app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), true);
 
             if (incomingEvents.size() > 0 || incomingExclusive.size() > 0) {
-
-                if (incomingEvents.size() > 0 ) {
-                    app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, incomingEvents.get(0).created_at.getTime());
-                }
-
-                if (incomingExclusive.size() > 0 ) {
-                    app.setAccountData(User.DataKeys.LAST_EXCLUSIVE_SYNC_EVENT_TIMESTAMP, incomingExclusive.get(0).created_at.getTime());
-                }
-
-                int incomingUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_INCOMING_UNSEEN) + incomingEvents.size();
-                int exclusiveUnseen = app.getAccountDataInt(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN) + incomingExclusive.size();
-
-                app.setAccountData(User.DataKeys.CURRENT_INCOMING_UNSEEN, incomingUnseen);
-                app.setAccountData(User.DataKeys.CURRENT_EXCLUSIVE_UNSEEN, exclusiveUnseen);
-
                 CharSequence title,message,ticker;
 
-                if (incomingUnseen == 1) {
+                //int totalUnseen = (incomingEvents.size() + incomingExclusive.size());
+
+                if (incomingEvents.size() == 1) {
                     ticker = app.getApplicationContext().getString(
                             R.string.dashboard_notifications_ticker_single);
                     title = app.getApplicationContext().getString(
                             R.string.dashboard_notifications_title_single);
                 } else {
                     ticker = String.format(app.getApplicationContext().getString(
-                            R.string.dashboard_notifications_ticker), incomingUnseen > 99 ? "99+" : incomingUnseen);
+                            R.string.dashboard_notifications_ticker), incomingEvents.size() > 99 ? "99+" : incomingEvents.size());
 
                     title = String.format(app.getApplicationContext().getString(
-                            R.string.dashboard_notifications_title), incomingUnseen > 99 ? "99+" : incomingUnseen);
+                            R.string.dashboard_notifications_title), incomingEvents.size() > 99 ? "99+" : incomingEvents.size());
                 }
 
-                if (exclusiveUnseen > 0) {
+                if (incomingExclusive.size() > 0) {
                     message = getExclusiveMessaging(app, incomingExclusive);
                 } else {
                     message = getIncomingMessaging(app, incomingEvents);
@@ -215,7 +199,6 @@ public class SyncAdapterService extends Service {
     private static ArrayList<User> getUniqueUsersFromEvents(ArrayList<Event> events){
         ArrayList<User> users = new ArrayList<User>();
         for (Event e : events){
-            Log.i("asdf","checking event " + e.getTrack());
                 boolean found = false;
                 for (User u : users){
                     if (u.id == e.getTrack().user.id){

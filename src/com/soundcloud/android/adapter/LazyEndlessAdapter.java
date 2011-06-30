@@ -203,21 +203,12 @@ public class LazyEndlessAdapter extends AdapterWrapper {
 
     }
 
-    /**
-     * Save the current extra data
-     *
-     * @return a string representing any extra data pertaining to this adapter
-     */
-    protected String saveExtraData() {
-        return "";
+    public String saveExtraData() {
+        return getWrappedAdapter().nextCursor;
     }
 
-    /**
-     * Restore the extra data
-     *
-     * @param restore : the string data to restore
-     */
-    protected void restoreExtraData(String restore) {
+    public void restoreExtraData(String restore) {
+        getWrappedAdapter().nextCursor = restore;
     }
 
     public Class<?> getLoadModel() {
@@ -290,14 +281,38 @@ public class LazyEndlessAdapter extends AdapterWrapper {
     /**
      * A load task has just executed, set the current adapter in response
      *
+     * @param newItems
+     * @param nextHref
+     * @param responseCode
      * @param keepgoing
      */
-    public void onPostTaskExecute(Boolean keepgoing) {
-        if (keepgoing != null) {
-            mKeepOnAppending.set(keepgoing);
-        } else {
-            mError = true;
+    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
+
+        switch (responseCode) {
+            case HttpStatus.SC_OK: // do nothing
+                incrementPage();
+                mKeepOnAppending.set(keepgoing);
+                mError = false;
+                break;
+
+            case HttpStatus.SC_UNAUTHORIZED:
+                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+            default:
+                mError = true;
+                mKeepOnAppending.set(false);
         }
+
+
+        if (newItems != null && newItems.size() > 0) {
+            for (Parcelable newitem : newItems) {
+                getWrappedAdapter().getData().add(newitem);
+            }
+        }
+
+        if (!TextUtils.isEmpty(nextHref)) {
+            getWrappedAdapter().onNextHref(nextHref);
+        }
+
 
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
@@ -306,12 +321,8 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         // configure the empty view depending on possible error
         setEmptyviewText();
         if (mListView != null) mListView.setEmptyView(mEmptyView);
+
         notifyDataSetChanged();
-
-        mActivity.handleException();
-
-        // if (mActivityReference != null)
-        // mActivityReference.handleException();
     }
 
     /**
@@ -372,22 +383,6 @@ public class LazyEndlessAdapter extends AdapterWrapper {
         mError = false;
     }
 
-    /**
-     * Handle whatever the last response code was
-     *
-     * @param mResponseCode : the last response code
-     */
-    public void handleResponseCode(int mResponseCode) {
-        switch (mResponseCode){
-            case HttpStatus.SC_OK: // do nothing
-                mError = false;
-                break;
-            case HttpStatus.SC_UNAUTHORIZED :
-                mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-            default:
-                mError = true;
-        }
-    }
 
     /**
      * Clear and reset this adapter of any data. Primarily used for refreshing
