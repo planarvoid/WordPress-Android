@@ -148,7 +148,9 @@ public class SyncAdapterService extends Service {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
 
-                if (activities.collection.size() > 0 && activities.collection.get(0).created_at.getTime() > activitiesSince) {
+                if (activities.collection.size() > 0 && activities.collection.get(0).created_at.getTime() <= activitiesSince) {
+                    caughtUp = true; // nothing new
+                } else {
                     for (Event evt : activities) {
                         if (evt.created_at.getTime() <= activitiesSince) {
                             caughtUp = true;
