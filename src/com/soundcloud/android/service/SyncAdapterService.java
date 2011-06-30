@@ -91,19 +91,18 @@ public class SyncAdapterService extends Service {
             if (incomingEvents.size() > 0 || incomingExclusive.size() > 0) {
                 CharSequence title,message,ticker;
 
-                //int totalUnseen = (incomingEvents.size() + incomingExclusive.size());
-
-                if (incomingEvents.size() == 1) {
+                int totalUnseen = Math.max(incomingEvents.size(),1); // takes care of an exclusive that hasn't made it to incoming yet
+                if (totalUnseen == 1) {
                     ticker = app.getApplicationContext().getString(
                             R.string.dashboard_notifications_ticker_single);
                     title = app.getApplicationContext().getString(
                             R.string.dashboard_notifications_title_single);
                 } else {
                     ticker = String.format(app.getApplicationContext().getString(
-                            R.string.dashboard_notifications_ticker), incomingEvents.size() > 99 ? "99+" : incomingEvents.size());
+                            R.string.dashboard_notifications_ticker), totalUnseen > 99 ? "99+" : totalUnseen);
 
                     title = String.format(app.getApplicationContext().getString(
-                            R.string.dashboard_notifications_title), incomingEvents.size() > 99 ? "99+" : incomingEvents.size());
+                            R.string.dashboard_notifications_title), totalUnseen > 99 ? "99+" : totalUnseen);
                 }
 
                 if (incomingExclusive.size() > 0) {
