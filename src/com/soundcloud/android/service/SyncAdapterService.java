@@ -143,7 +143,7 @@ public class SyncAdapterService extends Service {
                     }
                 }
             }
-        } while (!caughtUp && incomingEvents.size() < NOTIFICATION_MAX && !TextUtils.isEmpty(activities.next_href));
+        } while (!caughtUp && incomingEvents.size() < NOTIFICATION_MAX && activities != null && !TextUtils.isEmpty(activities.next_href));
 
         return incomingEvents;
     }
