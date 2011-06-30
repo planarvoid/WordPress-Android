@@ -6,6 +6,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.TrackCache;
@@ -95,6 +96,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());
+            Connections.initialize(this, "connections-"+getCurrentUserId());
+
             if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) enableSyncing(account);
         }
 

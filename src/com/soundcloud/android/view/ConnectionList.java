@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
 import com.soundcloud.android.task.NewConnectionTask;
-import com.soundcloud.api.Request;
 
 import android.app.Activity;
 import android.content.Context;
@@ -142,7 +142,11 @@ public class ConnectionList extends LinearLayout {
         }
 
         public void setConnections(List<Connection> connections) {
-            this.mConnections = connections;
+            setConnections(connections, false);
+        }
+
+        public void setConnections(List<Connection> connections, boolean addUnused) {
+            mConnections = addUnused ? Connection.addUnused(connections) : connections;
             notifyDataSetChanged();
         }
 
@@ -190,17 +194,16 @@ public class ConnectionList extends LinearLayout {
         }
 
         public Adapter load() {
-            new LoadConnectionsTask(api) {
-                @Override protected void onPostExecute(List<Connection> connections) {
-                    if (connections != null) {
-                        mFailed = false;
-                        setConnections(Connection.addUnused(connections));
-                    } else {
-                        mFailed = true;
-                        notifyDataSetChanged();
-                    }
-                }
-            }.execute(new Request());
+            Connections.get().requestUpdate(api,
+                    new ParcelCache.Listener<Connection>() {
+                        @Override
+                        public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
+                            if (objects != null) {
+                                setConnections(objects, true);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    }, true);
             return this;
         }
     }

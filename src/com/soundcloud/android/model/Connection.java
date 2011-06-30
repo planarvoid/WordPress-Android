@@ -9,6 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -36,6 +37,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
     }
 
     public boolean active() { return active; }
+
     public Service service() {
         if (_service == null) _service = Service.fromString(service);
         return _service;
@@ -55,12 +57,12 @@ public class Connection implements Comparable<Connection>, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeLong(created_at.getTime());
+        dest.writeLong(created_at == null ? 0 : created_at.getTime());
         dest.writeString(display_name);
         dest.writeInt(post_publish ? 1 : 0);
         dest.writeInt(post_favorite ? 1 : 0);
         dest.writeString(service);
-        dest.writeString(uri.toString());
+        dest.writeString(uri == null ? null : uri.toString());
     }
 
     public static Creator<Connection> CREATOR =  new Creator<Connection>() {
@@ -73,7 +75,8 @@ public class Connection implements Comparable<Connection>, Parcelable {
             connection.post_publish = source.readInt() == 1;
             connection.post_favorite = source.readInt() == 1;
             connection.service = source.readString();
-            connection.uri = URI.create(source.readString());
+            String uri = source.readString();
+            connection.uri = uri == null ? null : URI.create(uri);
             return connection;
         }
 
@@ -82,6 +85,20 @@ public class Connection implements Comparable<Connection>, Parcelable {
             return new Connection[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Connection{" +
+                "active=" + active +
+                ", id=" + id +
+                ", created_at=" + created_at +
+                ", display_name='" + display_name + '\'' +
+                ", post_publish=" + post_publish +
+                ", post_favorite=" + post_favorite +
+                ", service='" + service + '\'' +
+                ", uri=" + uri +
+                '}';
+    }
 
     public enum Service {
         Facebook(R.drawable.service_facebook_profile, true, false, "facebook_profile", "facebook_page"),
@@ -118,18 +135,19 @@ public class Connection implements Comparable<Connection>, Parcelable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static List<Connection> addUnused(List<Connection> connections) {
+        List<Connection> all = new ArrayList<Connection>(connections);
+
         EnumSet<Service> networks = EnumSet.allOf(Service.class);
         for (Iterator<Service> it = networks.iterator(); it.hasNext();) {
           Service svc = it.next();
           if (!svc.enabled || svc.deprecated) it.remove();
         }
 
-        for (Connection c : connections) networks.remove(c.service());
-        for (Service t : networks) connections.add(new Connection(t));
-        Collections.sort(connections);
-        return connections;
+        for (Connection c : all) networks.remove(c.service());
+        for (Service t : networks) all.add(new Connection(t));
+        Collections.sort(all);
+        return all;
     }
 
     public static boolean checkConnectionListForService(List<Connection> haystack, Connection.Service needle) {
