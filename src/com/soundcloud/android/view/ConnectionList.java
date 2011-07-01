@@ -195,7 +195,7 @@ public class ConnectionList extends LinearLayout {
 
         public Adapter load() {
             Connections.get().requestUpdate(api,
-                    new ParcelCache.Listener<Connection>() {
+                    true, new ParcelCache.Listener<Connection>() {
                         @Override
                         public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
                             if (objects != null) {
@@ -203,7 +203,7 @@ public class ConnectionList extends LinearLayout {
                                 notifyDataSetChanged();
                             }
                         }
-                    }, true);
+                    });
             return this;
         }
     }

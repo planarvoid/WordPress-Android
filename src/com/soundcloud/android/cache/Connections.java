@@ -58,10 +58,12 @@ public class Connections extends ParcelCache<Connection> {
         get().addListener(new Listener<Connection>() {
             @Override
             public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
-                try {
-                    Log.d(TAG, "saving connections cache");
-                    cache.toFilesStream(context.openFileOutput(filename, 0));
-                } catch (FileNotFoundException ignored) {
+                if (objects != null) {
+                    try {
+                        Log.d(TAG, "saving connections cache");
+                        cache.toFilesStream(context.openFileOutput(filename, 0));
+                    } catch (FileNotFoundException ignored) {
+                    }
                 }
             }
         });

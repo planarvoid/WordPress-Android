@@ -40,7 +40,7 @@ public class FollowStatus implements Parcelable {
     private long lastUpdate;
     private static FollowStatus sInstance;
     private LoadFollowingsTask mFollowingsTask;
-    private WeakHashMap<Listener, Boolean> listeners = new WeakHashMap<Listener, Boolean>();
+    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
 
     public synchronized static FollowStatus get() {
         if (sInstance == null) {
@@ -71,7 +71,9 @@ public class FollowStatus implements Parcelable {
     }
 
     public synchronized void requestUserFollowings(AndroidCloudAPI api, final Listener listener, boolean force) {
-        addListener(listener);
+        // add this listener with a weak reference
+        listeners.put(listener, null);
+
         if (CloudUtils.isTaskFinished(mFollowingsTask) &&
                 (force || System.currentTimeMillis() - lastUpdate >= MAX_AGE)) {
             mFollowingsTask = new LoadFollowingsTask(api) {
@@ -94,7 +96,7 @@ public class FollowStatus implements Parcelable {
     }
 
     public void addListener(Listener l) {
-        listeners.put(l, true);
+        listeners.put(l, l);
     }
 
     public void removeListener(Listener l) {

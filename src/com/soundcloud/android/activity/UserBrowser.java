@@ -172,7 +172,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         if (isMe()) {
-            Connections.get().requestUpdate(getApp(), this, false);
+            Connections.get().requestUpdate(getApp(), false, this);
         }
         loadDetails();
     }
@@ -259,7 +259,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     public void refreshConnections(){
         if (isMe()) {
-            Connections.get().requestUpdate(getApp(), this, true);
+            Connections.get().requestUpdate(getApp(), true, this);
             if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
         }
     }
@@ -736,7 +736,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                     toast.show();
 
                     if (success && isMe()) {
-                        Connections.get().requestUpdate(getApp(), this, true);
+                        Connections.get().requestUpdate(getApp(), true, this);
 
                         if (mFriendFinderView != null) {
                             mFriendFinderView.setState(FriendFinderView.States.LOADING, false);

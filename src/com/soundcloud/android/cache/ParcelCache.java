@@ -16,22 +16,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     private static final int MAX_AGE = 5 * 60 * 1000;
 
-    private final List<T> objects;
-
+    private final List<T> mObjects;
     private AsyncTask<?, ?, List<T>> mTask;
-    // XXX needs to be WeakHashMap
-    private HashMap<Listener<T>, Boolean> listeners = new HashMap<Listener<T>, Boolean>();
+
+    private Set<Listener<T>> mListeners = new HashSet<Listener<T>>();
+
     private boolean mLoadedFromCache;
-    private long lastUpdate;
+    private long mLastUpdate;
 
     ParcelCache() {
-        objects = new ArrayList<T>();
+        mObjects = Collections.synchronizedList(new ArrayList<T>());
     }
 
     public ParcelCache(InputStream is) throws IOException {
@@ -49,16 +51,16 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
             parcel.unmarshall(result, 0, result.length);
             parcel.setDataPosition(0);
 
-            lastUpdate = parcel.readLong();
+            mLastUpdate = parcel.readLong();
             int num = parcel.readInt();
-            objects = new ArrayList<T>(num);
+            mObjects = Collections.synchronizedList(new ArrayList<T>(num));
             while (num-- > 0) {
-                objects.add(parcel.<T>readParcelable(getClass().getClassLoader()));
+                mObjects.add(parcel.<T>readParcelable(getClass().getClassLoader()));
             }
 
             parcel.recycle();
 
-            Log.d(TAG, "loaded from cache: "+objects);
+            Log.d(TAG, "loaded from cache: "+ mObjects);
             mLoadedFromCache = true;
         } catch (ParcelFormatException e) {
             throw new IOException(e);
@@ -67,35 +69,33 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
 
 
     public void addListener(Listener<T> l) {
-        listeners.put(l, true);
+        mListeners.add(l);
     }
 
     public void removeListener(Listener<T> l) {
-        listeners.remove(l);
+        mListeners.remove(l);
     }
 
-    public synchronized void requestUpdate(AndroidCloudAPI api, final Listener<T> listener, boolean force) {
-        addListener(listener);
-
+    public synchronized void requestUpdate(AndroidCloudAPI api, boolean force, final Listener<T> listener) {
         if (mLoadedFromCache) {
-            for (Listener<T> l : listeners.keySet()) {
-                l.onChanged(getObjects(), this);
-            }
+            listener.onChanged(getObjects(), this);
         }
 
         if (CloudUtils.isTaskFinished(mTask) &&
-            (force || System.currentTimeMillis() - lastUpdate >= MAX_AGE)) {
+            (force || System.currentTimeMillis() - mLastUpdate >= MAX_AGE)) {
             mTask = executeTask(api, new Listener<T>() {
                 @Override
                 public void onChanged(List<T> objs, ParcelCache<T> cache) {
-                    lastUpdate = System.currentTimeMillis();
+                    mLastUpdate = System.currentTimeMillis();
                     if (objs != null) {
-                        synchronized (objects) {
-                            objects.clear();
-                            objects.addAll(objs);
+                        synchronized (mObjects) {
+                            mObjects.clear();
+                            mObjects.addAll(objs);
                         }
                     }
-                    for (Listener<T> l : listeners.keySet()) {
+                    listener.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
+
+                    for (Listener<T> l : mListeners) {
                         l.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
                     }
                 }
@@ -104,10 +104,14 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     }
 
     public List<T> getObjects() {
-        return objects == null ? null : new ArrayList<T>(objects);
+        return mObjects == null ? null : new ArrayList<T>(mObjects);
     }
 
     public interface Listener<T extends Parcelable> {
+        /**
+         * @param objects list of objects retrieved, or null if failed
+         * @param cache the cache object
+         */
         void onChanged(List<T> objects, ParcelCache<T> cache);
     }
 
@@ -116,8 +120,8 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" +
-                "objects=" + objects +
-                ", lastUpdate=" + lastUpdate +
+                "objects=" + mObjects +
+                ", lastUpdate=" + mLastUpdate +
                 '}';
     }
 
@@ -128,9 +132,9 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(lastUpdate);
-        dest.writeInt(objects.size());
-        for (T obj : objects) {
+        dest.writeLong(mLastUpdate);
+        dest.writeInt(mObjects.size());
+        for (T obj : mObjects) {
             dest.writeParcelable(obj, flags);
         }
     }
@@ -145,7 +149,6 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
                 Log.w(TAG, "error", ignored);
             }
             parcel.recycle();
-
             os.close();
         } catch (IOException e) {
             Log.w(TAG, "error initializing saving " + this, e);
