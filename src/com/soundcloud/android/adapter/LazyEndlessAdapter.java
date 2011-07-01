@@ -10,10 +10,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
@@ -335,7 +332,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             default:
                 mError = true;
                 mKeepOnAppending.set(false);
-                if (super.getCount() != 0) CloudUtils.showToast(mActivity,getEmptyText());
+                if (getWrappedAdapter().getCount() != 0) Toast.makeText(mActivity, getEmptyText(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -385,9 +382,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 onPostTaskExecute(newItems,nextHref,responseCode,success);
             }
 
+
+        applyEmptyText();
         notifyDataSetChanged();
         mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
-        applyEmptyText();
     }
 
     /**
@@ -530,7 +528,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @Override
     public void onRefresh() {
-        if (!isRefreshing()) refresh(true);
+        if (mActivity.isConnected()){
+            if (!isRefreshing()) refresh(true);
+        } else {
+            applyEmptyText();
+            if (getWrappedAdapter().getCount() != 0) Toast.makeText(mActivity, getEmptyText(), Toast.LENGTH_SHORT).show();
+            mListView.onRefreshComplete(false);
+        }
+
     }
 
 

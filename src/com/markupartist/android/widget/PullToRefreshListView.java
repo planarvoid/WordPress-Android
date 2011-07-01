@@ -76,6 +76,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         init(context);
     }
 
+
+
     private void init(Context context) {
 
         setOverScrollMode(OVER_SCROLL_NEVER);

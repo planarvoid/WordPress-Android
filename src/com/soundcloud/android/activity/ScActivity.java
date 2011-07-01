@@ -65,6 +65,7 @@ public abstract class ScActivity extends Activity {
 
     private Exception mException;
     private String mError;
+    private boolean mIsConnected;
 
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
@@ -84,6 +85,10 @@ public abstract class ScActivity extends Activity {
 
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+    public boolean isConnected() {
+        return mIsConnected;
     }
 
     protected void onServiceBound() {
@@ -441,6 +446,7 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onDataConnectionChanged(boolean isConnected) {
+        mIsConnected = isConnected;
         if (isConnected) {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
