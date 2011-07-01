@@ -89,12 +89,14 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
                 @Override
                 public void onChanged(List<T> objs, ParcelCache<T> cache) {
                     lastUpdate = System.currentTimeMillis();
-                    synchronized (objects) {
-                        objects.clear();
-                        objects.addAll(objs);
+                    if (objs != null) {
+                        synchronized (objects) {
+                            objects.clear();
+                            objects.addAll(objs);
+                        }
                     }
                     for (Listener<T> l : listeners.keySet()) {
-                        l.onChanged(getObjects(), ParcelCache.this);
+                        l.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
                     }
                 }
             });
