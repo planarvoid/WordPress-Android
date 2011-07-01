@@ -217,9 +217,6 @@ public abstract class ScActivity extends Activity {
         super.onResume();
 
         for (LazyListView l : mLists) {
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
-                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
-            }
             if (l.getWrapper() != null) {
                 if (l.getWrapper().isRefreshing()) {
                     l.prepareForRefresh();
@@ -231,8 +228,9 @@ public abstract class ScActivity extends Activity {
                 }
             }
 
-
-
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
+                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
+            }
         }
 
         Account account = getApp().getAccount();

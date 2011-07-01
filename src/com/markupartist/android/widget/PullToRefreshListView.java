@@ -254,19 +254,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             getWrapper().configureFooterView(mRefreshViewHeight + getHeight() -
                     (getChildAt(getChildCount() - 1).getBottom() - getChildAt(0).getTop()));
 
-            // to prevent the appearance of items shifting up after invalidation
-            for (int i = 1; i < getChildCount(); i++) {
-                getChildAt(i).setVisibility(View.GONE);
-            }
-
             // this has to happen after the next layout pass so that we are allowed
             post(new Runnable() {
                 @Override
                 public void run() {
                     setSelection(1);
-                    for (int i = 1; i < getChildCount(); i++) {
-                        getChildAt(i).setVisibility(View.VISIBLE);
-                    }
 
                 }
             });
@@ -360,8 +352,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
             resetHeaderPadding();
 
-            // Set refresh view text to the pull label
-            mRefreshViewText.setText(R.string.pull_to_refresh_tap_label);
             // Replace refresh drawable with arrow drawable
             mRefreshViewImage.setImageResource(R.drawable.ic_pulltorefresh_arrow);
             // Clear the full rotation animation
@@ -473,12 +463,12 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     }
 
     public void onRefresh() {
-        if (mRefreshState != REFRESHING){
-            prepareForRefresh();
-        }
-
-        if (mOnRefreshListener != null) {
-            mOnRefreshListener.onRefresh();
+        if (mOnRefreshListener != null && mOnRefreshListener.onRefresh()) {
+            if (mRefreshState != REFRESHING) {
+                prepareForRefresh();
+            }
+        } else {
+            setSelection(1);
         }
     }
 
@@ -522,6 +512,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
          * A call to {@link PullToRefreshListView #onRefreshComplete()} is
          * expected to indicate that the refresh has completed.
          */
-        public void onRefresh();
+        public boolean onRefresh();
     }
 }

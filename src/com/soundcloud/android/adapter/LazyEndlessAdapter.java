@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,9 +105,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public void clearEmptyView() {
-        if (mEmptyView != null && mEmptyView.getParent() != null) {
-                ((ViewGroup) mEmptyView.getParent()).removeView(mEmptyView);
-        }
         mEmptyView = null;
     }
 
@@ -376,7 +374,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, boolean success) {
         if (responseCode != HttpStatus.SC_OK){
             handleResponseCode(responseCode);
-        } else if (newItems.size() > 0){
+        } else if (newItems != null && newItems.size() > 0){
                 // false for notify of change, we can only notify after resetting listview
                 reset(true, false);
                 onPostTaskExecute(newItems,nextHref,responseCode,success);
@@ -527,13 +525,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     @Override
-    public void onRefresh() {
+    public boolean onRefresh() {
         if (mActivity.isConnected()){
             if (!isRefreshing()) refresh(true);
+            return true;
         } else {
-            applyEmptyText();
-            if (getWrappedAdapter().getCount() != 0) Toast.makeText(mActivity, getEmptyText(), Toast.LENGTH_SHORT).show();
-            mListView.onRefreshComplete(false);
+            onPostRefresh(null,null,HttpStatus.SC_SERVICE_UNAVAILABLE,false);
+            return false;
         }
 
     }

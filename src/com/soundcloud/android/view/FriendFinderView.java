@@ -221,8 +221,12 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     @Override
-    public void onRefresh() {
-        ((UserBrowser) mActivity).refreshConnections();
+    public boolean onRefresh() {
+        if (mActivity.isConnected()){
+            ((UserBrowser) mActivity).refreshConnections();
+            return true;
+        }
+        return false;
     }
 
 }
