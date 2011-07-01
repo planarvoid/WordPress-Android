@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Track;
@@ -76,7 +77,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public Request getRequest(int index) {
-        return sections.size() == 0 ? null :  sections.get(index).request;
+        return sections.size() == 0 ? null :  new Request(sections.get(index).request);
     }
 
     public List<Parcelable> getData(int index) {

@@ -3,7 +3,6 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
@@ -15,7 +14,6 @@ import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -53,7 +51,7 @@ public class AppendTask extends AsyncTask<Request, Parcelable, Boolean> {
     public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
         if (lazyEndlessAdapter != null) {
-            loadModel = lazyEndlessAdapter.getLoadModel();
+            loadModel = lazyEndlessAdapter.getLoadModel(false);
         }
     }
 

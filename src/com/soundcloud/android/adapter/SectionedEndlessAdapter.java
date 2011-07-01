@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import com.soundcloud.android.R;
@@ -44,8 +45,8 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    public Class<?> getLoadModel() {
-        return getWrappedAdapter().getLoadModel(mSectionIndex);
+    public Class<?> getLoadModel(boolean isRefresh) {
+        return getWrappedAdapter().getLoadModel(isRefresh ? 0 : mSectionIndex);
     }
 
     @Override

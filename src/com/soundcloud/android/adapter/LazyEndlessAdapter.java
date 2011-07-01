@@ -129,21 +129,21 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     private String getEmptyText(){
-          if (Track.class.equals(getLoadModel())) {
+          if (Track.class.equals(getLoadModel(false))) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
 
-        } else if (User.class.equals(getLoadModel())
-                || Friend.class.equals(getLoadModel())) {
+        } else if (User.class.equals(getLoadModel(false))
+                || Friend.class.equals(getLoadModel(false))) {
             return !mError ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
-        } else if (Comment.class.equals(getLoadModel())) {
+        } else if (Comment.class.equals(getLoadModel(false))) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
-        } else if (Event.class.equals(getLoadModel())) {
+        } else if (Event.class.equals(getLoadModel(false))) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
@@ -252,7 +252,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         getWrappedAdapter().nextCursor = restore;
     }
 
-    public Class<?> getLoadModel() {
+    public Class<?> getLoadModel(boolean isRefresh) {
         return getWrappedAdapter().getLoadModel();
     }
 
@@ -303,7 +303,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                         && (mAppendTask == null || CloudUtils.isTaskFinished(mAppendTask))) {
 
                     mAppendTask = new AppendTask(mActivity.getApp());
-                    mAppendTask.loadModel = getLoadModel();
+                    mAppendTask.loadModel = getLoadModel(false);
                     mAppendTask.pageSize =  getPageSize();
                     mAppendTask.setAdapter(this);
 
@@ -362,7 +362,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         if (newItems != null && newItems.size() > 0) {
             for (Parcelable newitem : newItems) {
-                getWrappedAdapter().getData().add(newitem);
+                getData().add(newitem);
             }
         }
 
@@ -466,7 +466,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         configureFooterView(0);
 
         mRefreshTask = new RefreshTask(mActivity.getApp());
-        mRefreshTask.loadModel = getLoadModel();
+        mRefreshTask.loadModel = getLoadModel(false);
         mRefreshTask.pageSize =  getPageSize();
         mRefreshTask.setAdapter(this);
         mRefreshTask.execute(buildRequest(true));
