@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -76,8 +77,6 @@ public class ScSearch extends ScActivity {
         mUserAdpWrapper = new LazyEndlessAdapter(this, new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class), null);
 
         // set the list to tracks by default
-        mList.setAdapter(mTrackAdpWrapper);
-        mTrackAdpWrapper.configureViews(mList);
 
         mList.setId(android.R.id.list);
 
@@ -99,13 +98,13 @@ public class ScSearch extends ScActivity {
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                btnSearch.setEnabled(s != null && s.length() > MIN_LENGTH);
+                if (!isFinishing()) btnSearch.setEnabled(s != null && s.length() > MIN_LENGTH);
             }
         });
 
         txtQuery.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER && txtQuery.getText().length() > MIN_LENGTH) {
+                if (!isFinishing() && keyCode == KeyEvent.KEYCODE_ENTER && txtQuery.getText().length() > MIN_LENGTH) {
                     doSearch(txtQuery.getText().toString());
                     return true;
                 }
@@ -115,14 +114,12 @@ public class ScSearch extends ScActivity {
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            if (mPreviousState[0].equals(User.class)) {
-                mList.setAdapter(mUserAdpWrapper);
-                mUserAdpWrapper.configureViews(mList);
-            }
-
+            setListType(mPreviousState[0].equals(User.class));
             mList.setVisibility(Integer.parseInt(mPreviousState[1].toString()));
             mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
             mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
+        } else {
+            setListType(false);
         }
     }
 
@@ -134,6 +131,12 @@ public class ScSearch extends ScActivity {
                 mTrackAdpWrapper.saveState(),
                 mUserAdpWrapper.saveState()
         };
+    }
+
+    private void setListType(boolean isUser){
+         mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper);
+        mUserAdpWrapper.configureViews(isUser ? mList : null);
+        mTrackAdpWrapper.configureViews(isUser ? null : mList);
     }
 
 
@@ -154,27 +157,26 @@ public class ScSearch extends ScActivity {
         rdoTrack.setVisibility(View.GONE);
         rdoUser.setVisibility(View.GONE);
 
-        mTrackAdpWrapper.refresh(false);
-        mUserAdpWrapper.refresh(false);
-
-        mList.setVisibility(View.VISIBLE);
-
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
             mTrackAdpWrapper.setRequest(Request.to(Endpoints.TRACKS).with("q", query));
-            mTrackAdpWrapper.configureViews(mList);
-            mList.setAdapter(mTrackAdpWrapper);
+            setListType(false);
             mList.enableLongClickListener();
+            mUserAdpWrapper.reset(false,false);
+            mTrackAdpWrapper.refresh(false);
         } else {
             mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
-            mUserAdpWrapper.configureViews(mList);
-            mList.setAdapter(mUserAdpWrapper);
+            setListType(true);
             mList.disableLongClickListener();
+            mTrackAdpWrapper.reset(false,false);
+            mUserAdpWrapper.refresh(false);
         }
+
+        mList.setVisibility(View.VISIBLE);
     }
 
     private View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
-            if (hasFocus) {
+            if (!isFinishing() && hasFocus) {
                 showControls();
             }
         }

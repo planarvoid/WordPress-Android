@@ -75,7 +75,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     public void configureViews(final LazyListView lv) {
         mListView = lv;
-        lv.setEmptyView(mEmptyView);
+        if (lv != null) lv.setEmptyView(mEmptyView);
 
     }
 
@@ -167,9 +167,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 getAppendTask(),
                 savePagingData(),
                 saveExtraData(),
-                mListView.getLastUpdated(),
-                mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
-                mListView.getChildAt(0) == null ? 0 : mListView.getChildAt(0).getTop()
+                mListView == null ? null : mListView.getLastUpdated(),
+                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getChildAt(0) == null ? 0 : mListView.getChildAt(0).getTop()
         };
     }
 
