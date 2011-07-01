@@ -36,7 +36,7 @@ public class Connection implements Comparable<Connection>, Parcelable {
         this.active = false;
     }
 
-    public boolean active() { return active; }
+    public boolean isActive() { return active; }
 
     public Service service() {
         if (_service == null) _service = Service.fromString(service);

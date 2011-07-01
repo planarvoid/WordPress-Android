@@ -31,7 +31,7 @@ public class ConnectionItem extends RelativeLayout {
         post_publish = (CheckBox) findViewById(R.id.post_publish);
         TextView configure = (TextView) findViewById(R.id.txt_configure);
 
-        if (c.active()) {
+        if (c.isActive()) {
             post_publish.setChecked(c.post_publish);
             post_publish.setVisibility(VISIBLE);
             configure.setVisibility(GONE);
@@ -47,7 +47,7 @@ public class ConnectionItem extends RelativeLayout {
 
         final OnClickListener toggle = new OnClickListener() {
             public void onClick(View v) {
-                if (c.active()) {
+                if (c.isActive()) {
                     post_publish.toggle();
                 } else {
                     configureService(c.service());
