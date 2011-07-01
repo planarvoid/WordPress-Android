@@ -167,18 +167,26 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 getAppendTask(),
                 savePagingData(),
                 saveExtraData(),
-                mListView.getLastUpdated()
+                mListView.getLastUpdated(),
+                mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
+                mListView.getChildAt(0) == null ? 0 : mListView.getChildAt(0).getTop()
         };
     }
 
     @SuppressWarnings("unchecked")
-    public void restoreState(Object[] state){
+    public void restoreState(final Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
         if (state[1] != null) restoreRefreshTask((RefreshTask) state[1]);
         if (state[2] != null) restoreAppendTask((AppendTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
+        if (state[6] != null) mListView.post(new Runnable() {
+            @Override
+            public void run() {
+                mListView.setSelectionFromTop(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()));
+            }
+        });
     }
 
 

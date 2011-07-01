@@ -42,7 +42,6 @@ public class Activities implements Iterable<Event> {
     }
 
     public String getCursor() {
-        Log.i("asdf", "Get Cursor " + next_href);
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
         for (NameValuePair param : params) {
             if (param.getName().equalsIgnoreCase("cursor")) {

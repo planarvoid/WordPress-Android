@@ -27,7 +27,6 @@ public class ScTabView extends FrameLayout {
     }
 
      public void onRefresh(boolean userRefresh) {
-         Log.i("asdf","RRRRRRRRRRFRSH " + mListView);
         if (mListView != null) {
             mListView.setSelection(0);
             mListView.onRefresh();
@@ -40,7 +39,6 @@ public class ScTabView extends FrameLayout {
         adpWrap.configureViews(lv);
         if (listId != -1) lv.setId(listId);
         lv.setAdapter(adpWrap, refreshEnabled);
-        Log.i("asdf","SET LAZY LIST VIEW " + adpWrap.getCount());
         return lv;
     }
 

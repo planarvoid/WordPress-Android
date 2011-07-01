@@ -30,7 +30,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         } else if (refresh){
 
         }
-        Log.i("asdf","Next request 2 " + request.toString());
         return request;
     }
 

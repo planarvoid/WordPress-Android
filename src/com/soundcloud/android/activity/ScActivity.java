@@ -65,7 +65,7 @@ public abstract class ScActivity extends Activity {
 
     private Exception mException;
     private String mError;
-    private boolean mIsConnected;
+    private Boolean mIsConnected;
 
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
@@ -88,6 +88,11 @@ public abstract class ScActivity extends Activity {
     }
 
     public boolean isConnected() {
+        if (mIsConnected == null){
+            // mIsConnected not set yet
+            NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+            mIsConnected = networkInfo == null ? true : networkInfo.isConnectedOrConnecting();
+        }
         return mIsConnected;
     }
 
@@ -217,6 +222,9 @@ public abstract class ScActivity extends Activity {
         super.onResume();
 
         for (LazyListView l : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
+                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
+            }
             if (l.getWrapper() != null) {
                 if (l.getWrapper().isRefreshing()) {
                     l.prepareForRefresh();
@@ -226,10 +234,6 @@ public abstract class ScActivity extends Activity {
                 } else if (l.getFirstVisiblePosition() == 0) {
                     l.setSelection(1);
                 }
-            }
-
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
-                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
             }
         }
 
@@ -585,7 +589,7 @@ public abstract class ScActivity extends Activity {
                         NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
                         if (networkInfo != null) {
                             if (networkInfo.isConnected()) ImageLoader.get(getApplicationContext()).clearErrors();
-                            ScActivity.this.onDataConnectionChanged(networkInfo.isConnected());
+                            ScActivity.this.onDataConnectionChanged(networkInfo.isConnectedOrConnecting());
                         }
                     }
                     break;
