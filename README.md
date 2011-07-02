@@ -29,6 +29,16 @@ Clone and build it:
   process
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
 
+## Integration from other Android apps
+
+This is document elsewhere:
+
+  * [Token Sharing][]
+  * [Intent Sharing][]
+
+
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
 [CHANGES]: https://github.com/soundcloud/SoundCloud-Android/blob/master/CHANGES
+[Token Sharing]: https://github.com/soundcloud/android-token-sharing
+[Intent Sharing]: https://github.com/soundcloud/android-intent-sharing
