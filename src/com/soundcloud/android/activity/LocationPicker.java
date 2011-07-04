@@ -17,6 +17,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -75,16 +76,20 @@ public class LocationPicker extends ListActivity {
 
         where.addTextChangedListener(new Capitalizer(where));
 
+        final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         final Intent intent = getIntent();
 
         if (intent.hasExtra("name")) where.setText(intent.getStringExtra("name"));
         if (intent.hasExtra("location")) mPreloadedLocation = intent.getParcelableExtra("location");
 
-        Criteria c = new Criteria();
-        c.setAccuracy(Criteria.ACCURACY_FINE);
-        mProvider = getManager().getBestProvider(c, true);
+        mProvider = getBestProvider(true);
+        String alternativeProvider = getBestProvider(false);
+        if (alternativeProvider != null &&
+            !alternativeProvider.equals(mProvider)) {
+            // request updates in case provider gets enabled later
+            requestLocationUpdates(alternativeProvider, adapter);
+        }
 
-        FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         if (intent.hasExtra("venues")) {
             ArrayList<FoursquareVenue> venues =
                     intent.getParcelableArrayListExtra("venues");
@@ -96,21 +101,20 @@ public class LocationPicker extends ListActivity {
             Location loc = getManager().getLastKnownLocation(mProvider);
             adapter.onLocationChanged(loc);
         }
+
         setListAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mProvider != null) {
-            getManager().requestLocationUpdates(mProvider, MIN_TIME, MIN_DISTANCE, (LocationListener) getListAdapter());
-        }
+        requestLocationUpdates(mProvider, getListAdapter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        getManager().removeUpdates((LocationListener) getListAdapter());
+        getManager().removeUpdates(getListAdapter());
     }
 
     @Override
@@ -129,7 +133,7 @@ public class LocationPicker extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        FoursquareVenueAdapter adapter = (FoursquareVenueAdapter) getListAdapter();
+        FoursquareVenueAdapter adapter = getListAdapter();
         FoursquareVenue venue = adapter.getItem(position);
 
         Intent data = new Intent();
@@ -148,6 +152,23 @@ public class LocationPicker extends ListActivity {
 
     private LocationManager getManager() {
         return (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    private void requestLocationUpdates(String provider, LocationListener listener) {
+        if (provider != null) {
+            getManager().requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, listener);
+        }
+    }
+
+    @Override
+    public FoursquareVenueAdapter getListAdapter() {
+        return (FoursquareVenueAdapter) super.getListAdapter();
+    }
+
+    private String getBestProvider(boolean enabled) {
+        Criteria c = new Criteria();
+        c.setAccuracy(Criteria.ACCURACY_FINE);
+        return getManager().getBestProvider(c, enabled);
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
@@ -243,6 +264,7 @@ public class LocationPicker extends ListActivity {
                 if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
                         location.hasAccuracy() &&
                         location.getAccuracy() <= MIN_ACCURACY) {
+
                     Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
                     getManager().removeUpdates(this);
                 }
@@ -250,15 +272,27 @@ public class LocationPicker extends ListActivity {
         }
 
         @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
+        public void onStatusChanged(String name, int i, Bundle bundle) {
         }
 
         @Override
-        public void onProviderEnabled(String s) {
+        public void onProviderEnabled(String name) {
+            LocationProvider provider = getManager().getProvider(name);
+            if (provider != null && mProvider != null &&
+                getManager().getProvider(mProvider).getAccuracy() >
+                provider.getAccuracy()) {
+                // this provider is better, use it
+                requestLocationUpdates(name, this);
+                mProvider = name;
+            }
         }
 
         @Override
-        public void onProviderDisabled(String s) {
+        public void onProviderDisabled(String name) {
+            if (name.equals(mProvider)) {
+                mProvider = getBestProvider(true);
+                requestLocationUpdates(mProvider, this);
+            }
         }
 
         public Location getLocation() {
