@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.task.FoursquareVenueTask;
@@ -23,6 +24,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -244,21 +247,7 @@ public class LocationPicker extends ListActivity {
                 }
 
                 this.mLocation = location;
-                new FoursquareVenueTask() {
-                    @Override
-                    protected void onPreExecute() {
-                        showDialog(LOADING);
-                    }
-
-                    @Override
-                    protected void onPostExecute(List<FoursquareVenue> venues) {
-                        try {
-                            dismissDialog(LOADING);
-                        } catch (IllegalArgumentException ignored) {
-                        }
-                        setVenues(venues);
-                    }
-                }.execute(location);
+                loadVenues(FoursquareVenueTask.VENUE_LIMIT);
 
                 // stop requesting updates when we have a recent update with good accuracy
                 if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
@@ -269,6 +258,22 @@ public class LocationPicker extends ListActivity {
                     getManager().removeUpdates(this);
                 }
             }
+        }
+
+        private void loadVenues(int max) {
+            if (mLocation == null) return;
+            new FoursquareVenueTask(max) {
+                @Override protected void onPreExecute() {
+                    showDialog(LOADING);
+                }
+                @Override protected void onPostExecute(List<FoursquareVenue> venues) {
+                    try {
+                        dismissDialog(LOADING);
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                    setVenues(venues);
+                }
+            }.execute(mLocation);
         }
 
         @Override
@@ -301,6 +306,24 @@ public class LocationPicker extends ListActivity {
 
         public void setLocation(Location location) {
             mLocation = location;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, Consts.OptionsMenu.REFRESH, 0, R.string.menu_load_more).setIcon(R.drawable.ic_menu_refresh);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.REFRESH:
+                getListAdapter().loadVenues(FoursquareVenueTask.VENUE_LIMIT_MAX);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
