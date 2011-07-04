@@ -3,6 +3,7 @@ package com.markupartist.android.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +15,9 @@ import android.widget.AbsListView.OnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.utils.CloudUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /*
     original source: https://github.com/johannilsson/android-pulltorefresh
@@ -150,29 +154,60 @@ private boolean mPushBackUp;
     }
 
     public void setSelection(int position){
+        Log.i("asdf","Set Selection " + 1);
         super.setSelection(position);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        checkHeaderVisibility();
+        checkHeaderVisibility(false);
     }
 
     @Override
     public void onTouchModeChanged(boolean isInTouchMode) {
         super.onTouchModeChanged(isInTouchMode);
-        checkHeaderVisibility();
+        checkHeaderVisibility(false);
     }
 
-    private void checkHeaderVisibility(){
+    private void checkHeaderVisibility(final boolean smooth){
         if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH) {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    setSelection(1);
+                    if (smooth && !isInTouchMode()) {
+                        scrollListBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
+                    } else {
+                        setSelection(1);
+                    }
                 }
             });
+        }
+    }
+
+    /**
+     * Smoothly scroll by distance pixels over duration milliseconds.
+     *
+     * <p>Using reflection internally to call smoothScrollBy for API Level 8
+     * otherwise scrollBy is called.
+     *
+     * @param distance Distance to scroll in pixels.
+     * @param duration Duration of the scroll animation in milliseconds.
+     */
+    private void scrollListBy(int distance, int duration) {
+        try {
+            Method method = ListView.class.getMethod("smoothScrollBy",
+                    Integer.TYPE, Integer.TYPE);
+            method.invoke(this, distance + 1, duration);
+        } catch (NoSuchMethodException e) {
+            // If smoothScrollBy is not available (< 2.2)
+        	setSelection(1);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (IllegalAccessException e) {
+            System.err.println("unexpected " + e);
+        } catch (InvocationTargetException e) {
+            System.err.println("unexpected " + e);
         }
     }
 
@@ -261,18 +296,22 @@ private boolean mPushBackUp;
             post(new Runnable() {
                 @Override
                 public void run() {
-                    smoothScrollBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
+                    scrollListBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
                     postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            checkHeaderVisibility();
+                            checkHeaderVisibility(true);
                         }
                     }, HEADER_HIDE_DURATION);
                 }
             });
             mPushBackUp = false;
+
         }
     }
+
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -362,7 +401,6 @@ private boolean mPushBackUp;
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
             int visibleItemCount, int totalItemCount) {
-
         // When the refresh view is completely visible, change the text to say
         // "Release to refresh..." and flip the arrow drawable.
         if (mCurrentScrollState == SCROLL_STATE_TOUCH_SCROLL
@@ -441,13 +479,10 @@ private boolean mPushBackUp;
     }
 
     public void onRefresh() {
-        if (mOnRefreshListener != null && mOnRefreshListener.onRefresh()) {
-            if (mRefreshState != REFRESHING) {
+        if (mRefreshState != REFRESHING) {
                 prepareForRefresh();
             }
-        } else {
-            setSelection(1);
-        }
+        mOnRefreshListener.onRefresh();
     }
 
     /**
