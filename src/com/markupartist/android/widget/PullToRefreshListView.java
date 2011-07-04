@@ -151,7 +151,6 @@ private boolean mPushBackUp;
     }
 
     public void setSelection(int position){
-        Log.i("asdf","Set Selection " + 1);
         super.setSelection(position);
     }
 
@@ -338,8 +337,35 @@ private boolean mPushBackUp;
         return super.onTouchEvent(event);
     }
 
-    private void applyHeaderPadding(MotionEvent ev) {
+     private void applyHeaderPadding(MotionEvent ev) {
+        final int historySize = ev.getHistorySize();
 
+        // Workaround for getPointerCount() which is unavailable in 1.5
+        // (it's always 1 in 1.5)
+        int pointerCount = ev.getPointerCount();
+
+        for (int h = 0; h < historySize; h++) {
+            for (int p = 0; p < pointerCount; p++) {
+                if (mRefreshState == RELEASE_TO_REFRESH) {
+                    if (isVerticalFadingEdgeEnabled()) {
+                        setVerticalScrollBarEnabled(false);
+                    }
+
+                    int historicalY = ((Float) ev.getHistoricalY(p,h)).intValue();
+
+                   // Calculate the padding to apply, we divide by 1.7 to
+                    // simulate a more resistant effect during pull.
+                    int topPadding = (int) (((historicalY - mLastMotionY)
+                            - mRefreshViewHeight) / 1.7);
+
+                    mRefreshView.setPadding(
+                            mRefreshView.getPaddingLeft(),
+                            topPadding,
+                            mRefreshView.getPaddingRight(),
+                            mRefreshView.getPaddingBottom());
+                }
+            }
+        }
     }
 
     /**
