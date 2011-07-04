@@ -467,7 +467,7 @@ public class ImageLoader {
     }
 
     private void postTask(ImageTask task) {
-        String url = task.getUrl();
+        String url = task.getUri();
         int what = getWhat(url);
         Handler handler = getTaskHandler(url);
         Message msg = handler.obtainMessage(what, task);
@@ -475,7 +475,7 @@ public class ImageLoader {
     }
 
     private void postTaskAtFrontOfQueue(ImageTask task) {
-        String url = task.getUrl();
+        String url = task.getUri();
         int what = getWhat(url);
         Handler handler = getTaskHandler(url);
         Message msg = handler.obtainMessage(what, task);
@@ -831,7 +831,7 @@ public class ImageLoader {
             this(null, view, url, callback, true, options);
         }
 
-        public String getUrl() {
+        public String getUri() {
             return mUri;
         }
 
@@ -917,11 +917,7 @@ public class ImageLoader {
          * {@inheritDoc}
          */
         public void run() {
-            if (mBitmap != null) {
-                putBitmap(mUri, mBitmap);
-            } else if (mError != null && !hasError(mUri)) {
-                putError(mUri, mError);
-            }
+
 
             if (mAdapterReference != null) {
                 BaseAdapter adapter = mAdapterReference.get();
@@ -977,6 +973,14 @@ public class ImageLoader {
             }
 
         }
+
+        public Bitmap bitmap() {
+            return mBitmap;
+        }
+
+        public Throwable error() {
+            return mError;
+        }
     }
 
     private ArrayList<ImageTask> mPendingTasks = new ArrayList<ImageTask>();
@@ -990,6 +994,12 @@ public class ImageLoader {
         public void handleMessage(Message msg) {
             ImageTask task = (ImageTask) msg.obj;
             if (task.execute()) {
+
+                if (task.bitmap() != null) {
+                    putBitmap(task.getUri(), task.bitmap());
+                } else if (task.error() != null && !hasError(task.getUri())) {
+                    putError(task.getUri(), task.error());
+                }
 
                 if (mPaused){
                     mPendingTasks.add(task);
