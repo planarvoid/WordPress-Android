@@ -426,8 +426,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @SuppressWarnings("unchecked")
     public void refresh(boolean userRefresh) {
-
-
         if (userRefresh) {
             if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
