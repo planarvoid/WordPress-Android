@@ -353,7 +353,7 @@ private boolean mPushBackUp;
 
                     int historicalY = ((Float) ev.getHistoricalY(p,h)).intValue();
 
-                   // Calculate the padding to apply, we divide by 1.7 to
+                    // Calculate the padding to apply, we divide by 1.7 to
                     // simulate a more resistant effect during pull.
                     int topPadding = (int) (((historicalY - mLastMotionY)
                             - mRefreshViewHeight) / 1.7);
@@ -496,10 +496,13 @@ private boolean mPushBackUp;
     }
 
     public void onRefresh() {
-        if (mRefreshState != REFRESHING) {
+        if (mOnRefreshListener != null) {
+            if (mRefreshState != REFRESHING) {
                 prepareForRefresh();
             }
-        mOnRefreshListener.onRefresh();
+            mOnRefreshListener.onRefresh();
+        }
+
     }
 
     /**
