@@ -83,7 +83,6 @@ private boolean mPushBackUp;
 
 
     private void init(Context context) {
-
         setOverScrollMode(OVER_SCROLL_NEVER);
 
         // Load all of the animations we need in code rather than through XML

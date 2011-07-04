@@ -2,6 +2,8 @@
 package com.soundcloud.android.adapter;
 
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import android.content.Context;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -16,6 +18,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
@@ -304,6 +307,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             case HttpStatus.SC_UNAUTHORIZED:
                 mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
             default:
+                Log.w(TAG, "unexpected responseCode "+responseCode);
+
                 mError = true;
                 mKeepOnAppending.set(false);
                 if (getWrappedAdapter().getCount() != 0) Toast.makeText(mActivity, getEmptyText(), Toast.LENGTH_SHORT).show();
@@ -421,7 +426,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @SuppressWarnings("unchecked")
     public void refresh(boolean userRefresh) {
-        if (userRefresh){
+
+
+        if (userRefresh) {
             if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
             }
@@ -429,11 +436,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             reset();
         }
 
-        mRefreshTask = new RefreshTask(mActivity.getApp());
-        mRefreshTask.loadModel = getLoadModel(false);
-        mRefreshTask.pageSize =  getPageSize();
-        mRefreshTask.setAdapter(this);
-        mRefreshTask.execute(buildRequest(true));
+        mRefreshTask = new RefreshTask(mActivity.getApp()) {
+            {
+                loadModel = getLoadModel(false);
+                pageSize  = getPageSize();
+                setAdapter(LazyEndlessAdapter.this);
+                execute(buildRequest(true));
+            }
+        };
     }
 
 
