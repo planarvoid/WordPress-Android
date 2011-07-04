@@ -679,6 +679,15 @@
   <string name="pref_live_comments">Show live commenting</string>
   <string name="pref_live_comments_desc">Show comment overlays during track playback</string>
 
+  <string name="pref_notifications">Dashboard Notifications</string>
+  <string name="pref_notifications_description">What dashboard updates do you want to be notified about?</string>
+
+  <string name="pref_notifications_incoming">Incoming Tracks</string>
+  <string name="pref_notifications_exclusive">Exclusive Tracks</string>
+
+  <string name="pref_record_high_quality_type">High quality type</string>
+  <string name="pref_record_high_quality_type_desc">Choose your preferred high quality recording type</string>
+
   <string name="pref_default_track_sorting">Default Tracklist Sorting</string>
   <string name="pref_default_track_sorting_desc">The default sorting method for track lists.</string>
   <string name="pref_default_user_sorting">Default Userlist Sorting</string>
@@ -697,9 +706,6 @@
 
   <string name="pref_record_quality">Recording quality</string>
   <string name="pref_record_quality_desc">Choose your preferred recording quality</string>
-
-  <string name="pref_record_high_quality_type">High quality type</string>
-  <string name="pref_record_high_quality_type_desc">Choose your preferred high quality recording type</string>
 
   <string name="pref_dashboard_store_max">Dashboard maximum storage</string>
   <string name="pref_dashboard_store_max_desc">How many dashboard tracks do you want to store</string>
