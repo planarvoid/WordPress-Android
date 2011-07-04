@@ -26,12 +26,12 @@ import java.util.List;
 
 // Based on https://github.com/Kaloer/Android-File-Picker-Activity
 public class AudioFilePicker extends ListActivity {
-    private static final String DEFAULT_INITIAL_DIRECTORY = "/";
+    private static final File DEFAULT_INITIAL_DIRECTORY = new File("/");
     private static final boolean SHOW_HIDDEN_FILES = false;
 
     private File mDirectory;
-    private List<File> mFiles;
     private FilePickerListAdapter mAdapter;
+    private final List<File> mFiles = new ArrayList<File>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,8 @@ public class AudioFilePicker extends ListActivity {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             mDirectory = Environment.getExternalStorageDirectory();
         } else {
-            mDirectory = new File(DEFAULT_INITIAL_DIRECTORY);
+            mDirectory = DEFAULT_INITIAL_DIRECTORY;
         }
-
-        mFiles = new ArrayList<File>();
         mAdapter = new FilePickerListAdapter(this, mFiles);
         setListAdapter(mAdapter);
     }
