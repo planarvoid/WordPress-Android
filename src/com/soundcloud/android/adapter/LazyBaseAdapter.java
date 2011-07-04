@@ -12,7 +12,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
@@ -64,13 +63,13 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     }
 
     public View getView(int index, View row, ViewGroup parent) {
-        LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow();
+        LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow(index);
         // update the cell renderer, and handle selection state
         rowView.display(index);
         return rowView;
     }
 
-    protected abstract LazyRow createRow();
+    protected abstract LazyRow createRow(int position);
 
     public void reset() {
         mData.clear();

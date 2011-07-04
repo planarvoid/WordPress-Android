@@ -195,14 +195,7 @@ public class TracklistRow extends LazyRow {
             return;
 
         mTitle.setText(mTrack.title);
-        if (mUser != null){
-            // normal tracklist row
-            mUser.setText(mTrack.user.username);
-        } else {
-            // my tracklist row
-            mCloseIcon.setVisibility(View.GONE);
-            mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtSecondaryDark));
-        }
+        mUser.setText(mTrack.user.username);
 
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mTrack.created_at.getTime()));
 

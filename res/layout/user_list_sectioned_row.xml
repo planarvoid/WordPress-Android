@@ -13,7 +13,7 @@
           android:layout_height="wrap_content"
            />
         <FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/row_holder" >
-            <include layout="@layout/user_list_row_common" />
+            <include layout="@layout/user_list_row" />
         </FrameLayout>
     </LinearLayout>
 </merge>

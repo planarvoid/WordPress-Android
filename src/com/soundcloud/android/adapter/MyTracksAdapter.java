@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Config;
 import android.util.Log;
+import com.soundcloud.android.view.TracklistRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,9 @@ public class MyTracksAdapter extends TracklistAdapter {
     private ChangeObserver mChangeObserver;
     private List<Recording> mRecordingData;
 
+    private static final int TYPE_PENDING_RECORDING = 0;
+    private static final int TYPE_TRACK = 1;
+
     public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data,
             Class<?> model) {
         super(activity, data, model);
@@ -31,8 +35,18 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     @Override
-    protected LazyRow createRow() {
-        return new MyTracklistRow(mActivity, this);
+    public int getItemViewType(int position) {
+        return (position < getPendingRecordingsCount()) ? TYPE_PENDING_RECORDING : TYPE_TRACK;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
+
+    @Override
+    protected LazyRow createRow(int position) {
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mActivity, this) : new TracklistRow(mActivity,this);
     }
 
     public int getPendingRecordingsCount(){

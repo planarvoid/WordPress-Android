@@ -18,7 +18,6 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
@@ -36,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshListView.OnRefreshListener {
     protected View mPendingView = null;
-    protected int mPendingPosition = -1;
     private AppendTask mAppendTask;
 
     protected LazyListView mListView;
@@ -49,6 +47,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     private Request mRequest;
     private RefreshTask mRefreshTask;
+
+    private final int ITEM_TYPE_LOADING = -1;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         super(wrapped);
@@ -132,6 +132,19 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     @Override
     public LazyBaseAdapter getWrappedAdapter() {
         return (LazyBaseAdapter) super.getWrappedAdapter();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position >= getWrappedAdapter().getCount()){
+            return ITEM_TYPE_LOADING;
+        }
+        return getWrappedAdapter().getItemViewType(position);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return getWrappedAdapter().getViewTypeCount() + 1; // + 1 for loading item
     }
 
 
@@ -266,22 +279,19 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
             if (mPendingView == null) {
-
-                mPendingView = getPendingView(parent);
-                mPendingPosition = position;
-
-                if (!getWrappedAdapter().isQuerying()
-                        && (mAppendTask == null || CloudUtils.isTaskFinished(mAppendTask))) {
-
-                    mAppendTask = new AppendTask(mActivity.getApp());
-                    mAppendTask.loadModel = getLoadModel(false);
-                    mAppendTask.pageSize =  getPageSize();
-                    mAppendTask.setAdapter(this);
-
-                    mAppendTask.execute(buildRequest(false));
+                if (convertView == null){
+                    mPendingView = ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
+                    if (!getWrappedAdapter().isQuerying() && (CloudUtils.isTaskFinished(mAppendTask))) {
+                        mAppendTask = new AppendTask(mActivity.getApp());
+                        mAppendTask.loadModel = getLoadModel(false);
+                        mAppendTask.pageSize =  getPageSize();
+                        mAppendTask.setAdapter(this);
+                        mAppendTask.execute(buildRequest(false));
+                    }
+                } else {
+                    mPendingView = convertView;
                 }
             }
-
             return mPendingView;
         } else if (convertView == mPendingView) {
             // if we're not at the bottom, and we're getting the
@@ -344,9 +354,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         }
 
 
-        rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
-        mPendingPosition = -1;
 
         // configure the empty view depending on possible exceptions
         applyEmptyText();
@@ -370,38 +378,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         applyEmptyText();
         notifyDataSetChanged();
         mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
-    }
-
-    /**
-     * Create a row for displaying a loading message by getting a row from the
-     * wrapped adapter and displaying the loading views of that row
-     */
-    protected View getPendingView(ViewGroup parent) {
-        ViewGroup row = getWrappedAdapter().createRow();
-        row.findViewById(R.id.row_holder).setVisibility(View.GONE);
-        row.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-
-        ProgressBar list_loader = (ProgressBar) row.findViewById(R.id.list_loading);
-        if (list_loader != null) list_loader.setVisibility(View.VISIBLE);
-
-        return row;
-    }
-
-    /**
-     * Turn the loading view into a real view
-     */
-    protected void rebindPendingView(int position, View row) {
-        if (row == null)
-            return;
-
-        row.findViewById(R.id.row_holder).setVisibility(View.VISIBLE);
-
-        if (row.findViewById(R.id.list_loading) != null)
-            row.findViewById(R.id.list_loading).setVisibility(View.GONE);
-
-        if (row.findViewById(R.id.row_loader) != null)
-            row.findViewById(R.id.row_loader).setVisibility(View.GONE);
-
     }
 
     public void setRequest(Request request) {
@@ -474,7 +450,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
-        mPendingPosition = -1;
     }
 
     /**
@@ -499,9 +474,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public void onPostQueryExecute() {
-        rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
-        mPendingPosition = -1;
     }
 
     @Override

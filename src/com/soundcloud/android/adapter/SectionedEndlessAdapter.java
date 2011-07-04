@@ -84,9 +84,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
-        rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
-        mPendingPosition = -1;
         notifyDataSetChanged();
 
         if (responseCode == HttpStatus.SC_OK) {
@@ -122,13 +120,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             handleResponseCode(responseCode);
             applyEmptyText();
         }
-    }
-
-    @Override
-    protected View getPendingView(ViewGroup parent) {
-        ViewGroup row = (ViewGroup) super.getPendingView(parent);
-        row.findViewById(R.id.listHeader).setVisibility(View.GONE);
-        return row;
     }
 
     public interface SectionListener {

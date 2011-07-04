@@ -28,7 +28,7 @@ public class FriendFinderAdapter extends SectionedAdapter implements IUserlistAd
         notifyDataSetChanged();
     }
 
-    @Override protected LazyRow createRow() {
+    @Override protected LazyRow createRow(int position) {
         return new UserlistSectionedRow(mActivity, this);
     }
 }

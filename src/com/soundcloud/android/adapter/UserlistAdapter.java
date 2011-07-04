@@ -23,7 +23,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
     }
 
     @Override
-    protected LazyRow createRow() {
+    protected LazyRow createRow(int position) {
         return new UserlistRow(mActivity, this);
     }
 

@@ -24,7 +24,7 @@ public class TracklistAdapter extends LazyBaseAdapter {
     }
 
     @Override
-    protected LazyRow createRow() {
+    protected LazyRow createRow(int position) {
         return new TracklistRow(mActivity, this);
     }
 

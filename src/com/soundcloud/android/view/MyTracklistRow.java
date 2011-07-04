@@ -20,46 +20,24 @@ import android.view.View;
 import java.io.IOException;
 
 public class MyTracklistRow extends TracklistRow {
-    private boolean mIsPendingUpload;
-
-    private final FastBitmapDrawable mPendingDefaultIcon;
 
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
-        Bitmap mPendingDefaultIconBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.artwork_badge_onhold);
-        mPendingDefaultIcon = new FastBitmapDrawable(mPendingDefaultIconBitmap);
     }
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.my_track_list_row;
+        return R.layout.record_list_item_row;
     }
 
     @Override
     public void display(int position) {
-        if (mAdapter.getItem(position) instanceof Recording){
-            setBackgroundColor(mActivity.getResources().getColor(R.color.recordListItemBackground));
-            mIsPendingUpload = true;
-            fillRowFromRecording(((Recording) mAdapter.getItem(position)));
-        } else {
-            setBackgroundColor(0xFFFFFFFF);
-            mIsPendingUpload = false;
-            super.display(position);
-        }
-    }
 
-    private void fillRowFromRecording(Recording recording){
-        onNoSubmenu(); //get rid of submenu if it exists
-        if (findViewById(R.id.row_submenu) != null) {
-            findViewById(R.id.row_submenu).setVisibility(View.GONE);
-        }
-
-        mPlayIndicator.setVisibility(View.GONE);
+        Recording recording = ((Recording) mAdapter.getItem(position));
 
         mTitle.setText(recording.sharingNote());
-        mTitle.setTextColor(0xFFFFFFFF);
 
-        if (recording.is_private){
+        if (recording.is_private) {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         } else {
             mPrivateIndicator.setVisibility(View.GONE);
@@ -72,51 +50,20 @@ public class MyTracklistRow extends TracklistRow {
 
         if (recording.artwork_path == null) {
             mImageLoader.unbind(getRowIcon());
-            setTemporaryRecordingDrawable(BindResult.ERROR);
         } else {
             BindResult result;
             ImageLoader.Options options = new ImageLoader.Options();
             try {
                 options.decodeInSampleSize = ImageUtils.determineResizeOptions(
-                    recording.artwork_path,
-                    (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
-                    (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
+                        recording.artwork_path,
+                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
+                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
             }
-            result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(),options);
-            setTemporaryRecordingDrawable(result);
+            result = mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(), options);
         }
     }
 
-    private void setTemporaryRecordingDrawable(BindResult result) {
-        if (mIcon == null) {
-            return;
-        }
 
-        if (result != BindResult.OK) {
-            mIcon.setImageDrawable(mPendingDefaultIcon);
-        }
-
-    }
-
-    /**
-     * Make the background transparent during touch events to show the normal list selector
-     */
-    @Override
-    public void setPressed(boolean pressed){
-        super.setPressed(pressed);
-        if (mIsPendingUpload){
-            if (pressed) {
-                setBackgroundColor(0x00000000);
-            } else {
-                setBackgroundColor(mActivity.getResources()
-                        .getColor(R.color.recordListItemBackground));
-            }
-        } else {
-            if (pressed) {
-                setBackgroundColor(0x00000000);
-            }
-        }
-    }
 }

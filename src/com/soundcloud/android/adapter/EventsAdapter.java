@@ -26,7 +26,7 @@ public class EventsAdapter extends TracklistAdapter {
     }
 
     @Override
-    protected LazyRow createRow() {
+    protected LazyRow createRow(int position) {
         return new EventsRow(mActivity, this);
     }
 
