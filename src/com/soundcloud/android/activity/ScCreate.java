@@ -46,7 +46,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import javax.xml.transform.Result;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -55,7 +54,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ScCreate extends ScActivity {
     private TextView txtInstructions, txtRecordStatus;
@@ -95,9 +93,6 @@ public class ScCreate extends ScActivity {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
 
-    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
-    private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +128,6 @@ public class ScCreate extends ScActivity {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         this.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
-
     }
 
     @Override
@@ -681,7 +675,7 @@ public class ScCreate extends ScActivity {
         for (File f : mRecordDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return isRawFilename(name) || isCompressedFilename(name);
+                return Recording.isRawFilename(name) || Recording.isCompressedFilename(name);
             }
         })) {
             if (f.equals(mRecordFile)) continue; // ignore current file
@@ -694,7 +688,7 @@ public class ScCreate extends ScActivity {
             // XXX TODO exclude currently uploading file!
             if ((cursor == null || cursor.getCount() == 0)) {
                 Recording r = new Recording(f);
-                r.audio_profile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
+                r.audio_profile = Recording.isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
                 r.user_id = getCurrentUserId();
 
                 try {
@@ -725,16 +719,9 @@ public class ScCreate extends ScActivity {
 
     /* package */ void setRecordFile(File f) {
         mRecordFile = f;
-        if (f != null) mAudioProfile = isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
+        if (f != null) mAudioProfile = Recording.isRawFilename(f.getName()) ? Profile.RAW : Profile.ENCODED_LOW;
     }
 
-    private boolean isRawFilename(String filename){
-        return RAW_PATTERN.matcher(filename).matches();
-    }
-
-    private boolean isCompressedFilename(String filename){
-        return COMPRESSED_PATTERN.matcher(filename).matches();
-    }
 
     public void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {

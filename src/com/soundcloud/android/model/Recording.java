@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -62,6 +63,9 @@ public class Recording extends BaseObj implements Parcelable {
     private Map<String,Object> mUpload_data;
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
+    private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
+
 
     public File generateImageFile(File imageDir) {
         if (audio_path == null) {
@@ -278,6 +282,14 @@ public class Recording extends BaseObj implements Parcelable {
             mkdirs(encodeDir);
         }
         return encodeDir;
+    }
+
+    public static boolean isRawFilename(String filename) {
+        return RAW_PATTERN.matcher(filename).matches();
+    }
+
+    public static boolean isCompressedFilename(String filename){
+        return COMPRESSED_PATTERN.matcher(filename).matches();
     }
 
     private String generateFilename(String title, String extension) {
