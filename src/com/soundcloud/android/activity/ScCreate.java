@@ -46,6 +46,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import javax.xml.transform.Result;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -836,7 +837,16 @@ public class ScCreate extends ScActivity {
                 break;
             case REQUEST_UPLOAD_FILE:
                 if (resultCode == RESULT_OK) {
-                    startActivity((new Intent(Consts.ACTION_SHARE)).putExtra(Intent.EXTRA_STREAM, data.getData()));
+                    final Uri uri = data.getData();
+                    final Intent intent = (new Intent(Consts.ACTION_SHARE))
+                            .putExtra(Intent.EXTRA_STREAM, uri);
+
+                    final String file = uri.getLastPathSegment();
+                    if (file != null && file.lastIndexOf(".") != -1) {
+                        intent.putExtra(Consts.EXTRA_TITLE,
+                                file.substring(0, file.lastIndexOf(".")));
+                    }
+                    startActivity(intent);
                 }
         }
     }
