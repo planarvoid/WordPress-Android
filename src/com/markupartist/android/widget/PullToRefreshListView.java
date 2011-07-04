@@ -41,7 +41,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
      * Listener that will receive notifications every time the list scrolls.
      */
     private OnScrollListener mOnScrollListener;
-    private LayoutInflater mInflater;
 
     private LinearLayout mRefreshView;
     private TextView mRefreshViewText;
@@ -59,14 +58,12 @@ private boolean mPushBackUp;
 
     protected int mRefreshViewHeight;
     private int mRefreshOriginalTopPadding;
-    private int mLastMotionY;
 
     private View mEmptyView;
 
     private long mLastUpdated;
 
     protected View mFooterView;
-    protected boolean mNeedFooterView;
 
 
     public PullToRefreshListView(Context context) {
@@ -74,16 +71,17 @@ private boolean mPushBackUp;
         init(context);
     }
 
+    /** @noinspection UnusedDeclaration*/
     public PullToRefreshListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    /** @noinspection UnusedDeclaration*/
     public PullToRefreshListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
-
 
 
     private void init(Context context) {
@@ -101,11 +99,10 @@ private boolean mPushBackUp;
         mReverseFlipAnimation.setDuration(250);
         mReverseFlipAnimation.setFillAfter(true);
 
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.pull_to_refresh_header, null);
 
-        mInflater.inflate(R.layout.pull_to_refresh_header, null);
-
-        mRefreshView = (LinearLayout) mInflater.inflate(
+        mRefreshView = (LinearLayout) inflater.inflate(
                 R.layout.pull_to_refresh_header, null);
 
         mRefreshViewText =
@@ -201,13 +198,11 @@ private boolean mPushBackUp;
             method.invoke(this, distance + 1, duration);
         } catch (NoSuchMethodException e) {
             // If smoothScrollBy is not available (< 2.2)
-        	setSelection(1);
-        } catch (IllegalArgumentException e) {
-            throw e;
+            setSelection(1);
         } catch (IllegalAccessException e) {
-            System.err.println("unexpected " + e);
+            Log.w(TAG, "unexpected", e);
         } catch (InvocationTargetException e) {
-            System.err.println("unexpected " + e);
+            Log.w(TAG, "unexpected", e);
         }
     }
 
@@ -315,8 +310,6 @@ private boolean mPushBackUp;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        final int y = (int) event.getY();
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
                 if (!isVerticalScrollBarEnabled()) {
@@ -337,7 +330,6 @@ private boolean mPushBackUp;
                 }
                 break;
             case MotionEvent.ACTION_DOWN:
-                mLastMotionY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
                 applyHeaderPadding(event);
@@ -386,8 +378,7 @@ private boolean mPushBackUp;
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        int childWidthSpec = ViewGroup.getChildMeasureSpec(0,
-                0 + 0, p.width);
+        int childWidthSpec = ViewGroup.getChildMeasureSpec(0, 0, p.width);
         int lpHeight = p.height;
         int childHeightSpec;
         if (lpHeight > 0) {
