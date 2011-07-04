@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserlistRow;
 
 import android.app.Activity;
 import android.app.Service;
@@ -600,6 +601,8 @@ public class CloudUtils {
     }
 
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
+        if (uri == null) return null;
+
         if ("file".equals(uri.getScheme())) {
             return new File(uri.getPath());
         } else if ("content".equals(uri.getScheme())) {

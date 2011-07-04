@@ -83,8 +83,6 @@ private boolean mPushBackUp;
 
 
     private void init(Context context) {
-        setOverScrollMode(OVER_SCROLL_NEVER);
-
         // Load all of the animations we need in code rather than through XML
         mFlipAnimation = new RotateAnimation(0, -180,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f,
@@ -99,11 +97,9 @@ private boolean mPushBackUp;
         mReverseFlipAnimation.setDuration(250);
         mReverseFlipAnimation.setFillAfter(true);
 
-        mInflater = (LayoutInflater) context.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        mInflater.inflate(
-                R.layout.pull_to_refresh_header, null);
+        mInflater.inflate(R.layout.pull_to_refresh_header, null);
 
         mRefreshView = (LinearLayout) mInflater.inflate(
                 R.layout.pull_to_refresh_header, null);

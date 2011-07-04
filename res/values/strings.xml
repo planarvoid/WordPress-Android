@@ -893,4 +893,7 @@
     <string name="use_existing_image">Use existing image</string>
     <string name="error_change_following_status">Error changing following status</string>
     <string name="recording_not_found">Recording not found</string>
+
+    <string name="audio_file_picker_label">File system</string>
+    <string name="audio_file_picker_empty">No files or directories</string>
 </resources>
