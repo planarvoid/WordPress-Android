@@ -34,9 +34,10 @@ public class AudioFilePicker extends ListActivity {
     private static final int REFRESH = 1;
 
     public static final String LAST_DIR_KEY = "last_dir";
+    public static final String START_DIR_KEY = "start_dir";
     public static final String SHOW_ALL_KEY = "show_all";
 
-    private File mDirectory;
+    private File mDirectory, mStartDirectory;
     private FilePickerListAdapter mAdapter;
     private final List<File> mFiles = new ArrayList<File>();
 
@@ -50,9 +51,7 @@ public class AudioFilePicker extends ListActivity {
         ((ViewGroup) getListView().getParent()).addView(emptyView);
         getListView().setEmptyView(emptyView);
 
-        File lastDir = bundle != null && bundle.containsKey(LAST_DIR_KEY) ?
-                new File(bundle.getString(LAST_DIR_KEY)) : null;
-
+        File lastDir = fromBundle(bundle, LAST_DIR_KEY, null);
         if (lastDir != null && lastDir.exists()) {
             mDirectory = lastDir;
         } else if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -61,16 +60,19 @@ public class AudioFilePicker extends ListActivity {
             mDirectory = DEFAULT_INITIAL_DIRECTORY;
         }
 
+        mStartDirectory = fromBundle(bundle, START_DIR_KEY, mDirectory);
         mShowAll = bundle != null && bundle.getBoolean(SHOW_ALL_KEY, false);
         mAdapter = new FilePickerListAdapter(this, mFiles);
         setListAdapter(mAdapter);
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
 
         bundle.putString(LAST_DIR_KEY, mDirectory.getAbsolutePath());
+        bundle.putString(START_DIR_KEY, mStartDirectory.getAbsolutePath());
         bundle.putBoolean(SHOW_ALL_KEY, mShowAll);
     }
 
@@ -94,7 +96,9 @@ public class AudioFilePicker extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if (mDirectory.getParentFile() != null) {
+        if (mDirectory.getParentFile() != null &&
+           !mDirectory.getParentFile().equals(mStartDirectory.getParentFile())) {
+
             mDirectory = mDirectory.getParentFile();
             refreshFilesList(mDirectory);
         } else {
@@ -180,6 +184,11 @@ public class AudioFilePicker extends ListActivity {
         }
     }
 
+    private File fromBundle(Bundle bundle, String key, File defaultFile) {
+        return bundle != null && bundle.containsKey(key ) ?
+                new File(bundle.getString(key)) : defaultFile;
+    }
+spsp
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
