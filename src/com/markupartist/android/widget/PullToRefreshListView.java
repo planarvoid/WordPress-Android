@@ -3,7 +3,6 @@ package com.markupartist.android.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,9 +15,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.utils.CloudUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /*
     original source: https://github.com/johannilsson/android-pulltorefresh
  */
@@ -30,6 +26,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private static final int PULL_TO_REFRESH = 2;
     private static final int RELEASE_TO_REFRESH = 3;
     private static final int REFRESHING = 4;
+
+    private static final int HEADER_HIDE_DURATION = 400;
 
     private static final String TAG = "PullToRefreshListView";
 
@@ -50,6 +48,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private int mCurrentScrollState;
     private int mRefreshState;
 
+private boolean mPushBackUp;
+
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
@@ -60,6 +60,10 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private View mEmptyView;
 
     private long mLastUpdated;
+
+    protected View mFooterView;
+    protected boolean mNeedFooterView;
+
 
     public PullToRefreshListView(Context context) {
         super(context);
@@ -122,6 +126,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         addHeaderView(mRefreshView);
 
+        mFooterView = new FrameLayout(context);
+        mFooterView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 0));
+        mFooterView.setBackgroundColor(0xFFFFFFFF);
+        addFooterView(mFooterView);
+
         super.setOnScrollListener(this);
 
         measureView(mRefreshView);
@@ -144,6 +153,34 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         super.setAdapter(adapter);
         setSelection(1);
     }
+
+    public void setSelection(int position){
+        super.setSelection(position);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        checkHeaderVisibility();
+    }
+
+    @Override
+    public void onTouchModeChanged(boolean isInTouchMode) {
+        super.onTouchModeChanged(isInTouchMode);
+        checkHeaderVisibility();
+    }
+
+    private void checkHeaderVisibility(){
+        if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    setSelection(1);
+                }
+            });
+        }
+    }
+
 
     /**
      * Set the listener that will receive notifications every time the list
@@ -203,32 +240,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             return null;
     }
 
-    /**
-     * Smoothly scroll by distance pixels over duration milliseconds.
-     * 
-     * <p>Using reflection internally to call smoothScrollBy for API Level 8
-     * otherwise scrollBy is called.
-     * 
-     * @param distance Distance to scroll in pixels.
-     * @param duration Duration of the scroll animation in milliseconds.
-     */
-    private void scrollListBy(int distance, int duration) {
-        try {
-            Method method = ListView.class.getMethod("smoothScrollBy",
-                    Integer.TYPE, Integer.TYPE);
-            method.invoke(this, distance + 1, duration);
-        } catch (NoSuchMethodException e) {
-            // If smoothScrollBy is not available (< 2.2)
-        	setSelection(1);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (IllegalAccessException e) {
-            System.err.println("unexpected " + e);
-        } catch (InvocationTargetException e) {
-            System.err.println("unexpected " + e);
-        }
-    }
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
@@ -236,7 +247,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         if (changed) {
             if (getHeight() > 0 && mEmptyView != null){
                 mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
-                mEmptyView.findViewById(R.id.empty_txt).requestLayout();
+                mEmptyView.invalidate();
             }
         }
     }
@@ -244,30 +255,29 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
-
-        if (mRefreshState == TAP_TO_REFRESH && getFirstVisiblePosition() == 0) {
+        if (mPushBackUp && getFirstVisiblePosition() == 0) {
 
             // not enough views to fill list so pad with an empty view
-            invalidateViews();
-
-            // we need a footer view
-            getWrapper().configureFooterView(mRefreshViewHeight + getHeight() -
-                    (getChildAt(getChildCount() - 1).getBottom() - getChildAt(0).getTop()));
-
+            if (getLastVisiblePosition() >= getWrapper().getCount() ){
+               mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
+                invalidateViews();
+            }
             // this has to happen after the next layout pass so that we are allowed
             post(new Runnable() {
                 @Override
                 public void run() {
-                    setSelection(1);
-
+                    smoothScrollBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
+                    postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkHeaderVisibility();
+                        }
+                    }, HEADER_HIDE_DURATION);
                 }
             });
-
-
+            mPushBackUp = false;
         }
     }
-
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -303,34 +313,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     }
 
     private void applyHeaderPadding(MotionEvent ev) {
-        final int historySize = ev.getHistorySize();
 
-        // Workaround for getPointerCount() which is unavailable in 1.5
-        // (it's always 1 in 1.5)
-        int pointerCount = ev.getPointerCount();
-
-        for (int h = 0; h < historySize; h++) {
-            for (int p = 0; p < pointerCount; p++) {
-                if (mRefreshState == RELEASE_TO_REFRESH) {
-                    if (isVerticalFadingEdgeEnabled()) {
-                        setVerticalScrollBarEnabled(false);
-                    }
-
-                    int historicalY = ((Float) ev.getHistoricalY(p,h)).intValue();
-
-                   // Calculate the padding to apply, we divide by 1.7 to
-                    // simulate a more resistant effect during pull.
-                    int topPadding = (int) (((historicalY - mLastMotionY)
-                            - mRefreshViewHeight) / 1.7);
-
-                    mRefreshView.setPadding(
-                            mRefreshView.getPaddingLeft(),
-                            topPadding,
-                            mRefreshView.getPaddingRight(),
-                            mRefreshView.getPaddingBottom());
-                }
-            }
-        }
     }
 
     /**
@@ -479,8 +462,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         if (success) mLastUpdated = System.currentTimeMillis();
         resetHeader();
         if (mRefreshView.getBottom() > 0) {
+            mPushBackUp = true;
             invalidateViews();
-            setSelection(1);
         }
     }
 

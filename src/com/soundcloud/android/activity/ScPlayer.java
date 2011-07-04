@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
@@ -30,11 +31,6 @@ import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
-import android.os.SystemClock;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
@@ -1011,6 +1007,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     protected void onStart() {
         super.onStart();
+
+        //Debug.stopMethodTracing();
 
         mPaused = false;
         getApp().playerWaitForArtwork = true;

@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -42,12 +43,6 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Parcelable;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -199,6 +194,8 @@ public abstract class ScActivity extends Activity {
             }
         }
 
+
+
     }
 
     /**
@@ -207,6 +204,7 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+
         connectivityListener.stopListening();
 
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
@@ -282,6 +280,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public void launchPlayer() {
+
         Intent i = new Intent(this, ScPlayer.class);
         i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(i);

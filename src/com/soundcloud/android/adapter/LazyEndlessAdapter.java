@@ -44,9 +44,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     private String mEmptyViewText = "";
     protected View mEmptyView;
 
-    protected View mFooterView;
-    protected boolean mNeedFooterView;
-
     private Request mRequest;
     private RefreshTask mRefreshTask;
 
@@ -77,31 +74,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mListView = lv;
         if (lv != null) lv.setEmptyView(mEmptyView);
 
-    }
-
-    public boolean configureFooterView(int extra){
-        if (extra > 0) {
-            if (mFooterView == null) {
-                mFooterView = new FrameLayout(mActivity);
-                mFooterView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 0));
-                mFooterView.setBackgroundColor(0xFFFFFFFF);
-            }
-
-
-            if (!mNeedFooterView || mFooterView.getLayoutParams().height != extra){
-                mFooterView.getLayoutParams().height = extra;
-                notifyDataSetChanged();
-                mNeedFooterView = true;
-            }
-
-        } else {
-            if (mNeedFooterView){
-                notifyDataSetChanged();
-                mNeedFooterView = false;
-            }
-
-        }
-        return mNeedFooterView;
     }
 
     public void clearEmptyView() {
@@ -266,7 +238,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     @Override
     public int getCount() {
-        if ((mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) || (!mKeepOnAppending.get() && mNeedFooterView)) {
+        if ((mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) || (CloudUtils.isTaskFinished(mRefreshTask) && getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1;
         } else {
             return (super.getCount());
@@ -285,12 +257,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position == super.getCount()){
-            if (CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0){
-                  return mEmptyView;
-            } else if (mNeedFooterView && !mKeepOnAppending.get()){
-                return mFooterView;
-            }
+        if (position == super.getCount() && CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0){
+            return mEmptyView;
         }
 
         if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
@@ -349,12 +317,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * @param newItems
      * @param nextHref
      * @param responseCode
-     * @param keepgoing
+     * @param keepGoing
      */
-    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
+    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
 
         if (responseCode == HttpStatus.SC_OK){
-            mKeepOnAppending.set(keepgoing);
+            mKeepOnAppending.set(keepGoing);
             incrementPage();
         } else {
             handleResponseCode(responseCode);
@@ -370,6 +338,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             getWrappedAdapter().onNextHref(nextHref);
         }
 
+
         rebindPendingView(mPendingPosition, mPendingView);
         mPendingView = null;
         mPendingPosition = -1;
@@ -379,14 +348,18 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, boolean success) {
-        if (responseCode != HttpStatus.SC_OK){
+    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
+
+        if (responseCode != HttpStatus.SC_OK) {
             handleResponseCode(responseCode);
-        } else if (newItems != null && newItems.size() > 0){
-                // false for notify of change, we can only notify after resetting listview
-                reset(true, false);
-                onPostTaskExecute(newItems,nextHref,responseCode,success);
-            }
+        } else if (newItems != null && newItems.size() > 0) {
+            // false for notify of change, we can only notify after resetting listview
+            reset(true, false);
+            onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+        } else if (super.getCount() == 0) {
+             // no items currently, no items returned, don't append until manual refresh
+            mKeepOnAppending.set(false);
+        }
 
 
         applyEmptyText();
@@ -426,13 +399,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     }
 
-    /**
-     * Set the url for this adapter
-     *
-     * @param url : url this adapter will use to get data from
-     * @param query : if this adapter is performing a search, this is the user's
-     *            search query
-     */
     public void setRequest(Request request) {
         mRequest = request;
     }
@@ -462,8 +428,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         } else {
             reset();
         }
-
-        configureFooterView(0);
 
         mRefreshTask = new RefreshTask(mActivity.getApp());
         mRefreshTask.loadModel = getLoadModel(false);
@@ -495,7 +459,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mKeepOnAppending.set(false);
         getWrappedAdapter().setData(new ArrayList<Parcelable>());
         clearAppendTask();
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
     private void clearAppendTask() {
