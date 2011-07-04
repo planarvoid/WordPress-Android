@@ -134,7 +134,7 @@ public class ScSearch extends ScActivity {
     }
 
     private void setListType(boolean isUser){
-         mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper);
+         mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
         mUserAdpWrapper.configureViews(isUser ? mList : null);
         mTrackAdpWrapper.configureViews(isUser ? null : mList);
     }

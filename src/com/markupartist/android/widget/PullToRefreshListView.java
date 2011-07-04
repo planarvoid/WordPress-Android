@@ -48,6 +48,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private ProgressBar mRefreshViewProgress;
     private TextView mRefreshViewLastUpdated;
 
+    private int mLastMotionY;
+
     private int mCurrentScrollState;
     private int mRefreshState;
 
@@ -209,8 +211,8 @@ private boolean mPushBackUp;
     /**
      * Set the listener that will receive notifications every time the list
      * scrolls.
-     * 
-     * @param l The scroll listener. 
+     *
+     * @param l The scroll listener.
      */
     @Override
     public void setOnScrollListener(AbsListView.OnScrollListener l) {
@@ -219,7 +221,7 @@ private boolean mPushBackUp;
 
     /**
      * Register a callback to be invoked when this list should be refreshed.
-     * 
+     *
      * @param onRefreshListener The callback to run.
      */
     public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
@@ -309,6 +311,7 @@ private boolean mPushBackUp;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        final int y = (int) event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
                 if (!isVerticalScrollBarEnabled()) {
@@ -329,6 +332,7 @@ private boolean mPushBackUp;
                 }
                 break;
             case MotionEvent.ACTION_DOWN:
+                mLastMotionY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
                 applyHeaderPadding(event);
