@@ -188,7 +188,7 @@ public class AudioFilePicker extends ListActivity {
         return bundle != null && bundle.containsKey(key ) ?
                 new File(bundle.getString(key)) : defaultFile;
     }
-spsp
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
