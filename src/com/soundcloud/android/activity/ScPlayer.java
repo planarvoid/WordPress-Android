@@ -1166,8 +1166,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         @Override
         public void onException(Comment c, Exception e) {
-            setException(e);
-            handleException();
+            handleException(e);
         }
     };
 

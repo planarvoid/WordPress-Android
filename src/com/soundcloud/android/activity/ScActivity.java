@@ -2,13 +2,11 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Comment;
@@ -16,8 +14,6 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -43,6 +39,12 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Parcelable;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -57,9 +59,6 @@ import java.util.List;
 
 
 public abstract class ScActivity extends Activity {
-
-    private Exception mException;
-    private String mError;
     private Boolean mIsConnected;
 
     protected Object[] mPreviousState;
@@ -83,10 +82,10 @@ public abstract class ScActivity extends Activity {
     }
 
     public boolean isConnected() {
-        if (mIsConnected == null){
+        if (mIsConnected == null) {
             // mIsConnected not set yet
             NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-            mIsConnected = networkInfo == null ? true : networkInfo.isConnectedOrConnecting();
+            mIsConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
         }
         return mIsConnected;
     }
@@ -387,8 +386,7 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onException(Comment c, Exception e) {
-            setException(e);
-            handleException();
+            handleException(e);
         }
     };
 
@@ -421,23 +419,12 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public Exception getException() {
-        return mException;
-    }
-
-    public void setException(Exception e) {
-        if (e != null) Log.i(TAG, "exception", e);
-        mException = e;
-    }
-
-    // XXX why not pass Exception in?
-    public void handleException() {
-        if (getException() instanceof UnknownHostException
-                || getException() instanceof SocketException
-                || getException() instanceof JSONException) {
+    public void handleException(Exception e) {
+        if (e instanceof UnknownHostException
+                || e instanceof SocketException
+                || e instanceof JSONException) {
             safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
         }
-        setException(null);
     }
 
     public void safeShowDialog(int dialogId) {

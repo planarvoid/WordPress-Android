@@ -30,7 +30,6 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
     public void setActivity(ScActivity activity) {
         if (activity != null) {
             mActivityReference = new WeakReference<ScActivity>(activity);
-            activity.setException(null);
         }
     }
 
