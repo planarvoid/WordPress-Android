@@ -223,7 +223,8 @@ public class CloudPlaybackService extends Service {
                 "stagefright", mIsStagefright,
                 "model",   Build.MODEL,
                 "version", Build.VERSION.SDK_INT,
-                "release", Build.VERSION.RELEASE);
+                "release", Build.VERSION.RELEASE,
+                "sc_version", CloudUtils.getAppVersion(this, "unknown"));
 
         Log.d(TAG,"::Using Stagefright Framework " + mIsStagefright);
 

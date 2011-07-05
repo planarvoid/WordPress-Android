@@ -3,8 +3,10 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Event;
@@ -19,6 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -667,5 +671,17 @@ public class CloudUtils {
             Log.e(TAG, "error", e);
         }
         return stageFright;
+    }
+
+    public static String getAppVersion(Context context, String defaultVersion) {
+        try {
+            PackageInfo info = context
+                    .getPackageManager()
+                    .getPackageInfo(SoundCloudApplication.class.getPackage().getName(),
+                    PackageManager.GET_META_DATA);
+            return info.versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return defaultVersion;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -39,12 +40,7 @@ public interface AndroidCloudAPI extends CloudAPI {
             super(clientId, clientSecret, redirectUri, token, env);
             if (context != null) {
                 mContext = context;
-                try {
-                    PackageInfo info = mContext.getPackageManager().getPackageInfo(AndroidCloudAPI.class.getPackage().getName(),
-                            PackageManager.GET_META_DATA);
-                    userAgent = "SoundCloud Android ("+info.versionName+")";
-                } catch (PackageManager.NameNotFoundException ignored) {
-                }
+                userAgent = "SoundCloud Android ("+CloudUtils.getAppVersion(context, "unknown")+")";
             }
         }
 
