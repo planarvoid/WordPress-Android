@@ -105,7 +105,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             FollowStatus.initialize(this, getCurrentUserId());
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
-            if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) enableSyncing(account);
+            if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
+                ScContentProvider.enableSyncing(account);
+            }
         }
 
         doOnce(this, "cleanup.track.cache", new Runnable() {
@@ -227,16 +229,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        enableSyncing(account);
+        ScContentProvider.enableSyncing(account);
         return created;
     }
-
-    private void enableSyncing(Account account){
-        ContentResolver.setIsSyncable(account, ScContentProvider.AUTHORITY, 1);
-        ContentResolver.setSyncAutomatically(account, ScContentProvider.AUTHORITY, true);
-        ContentResolver.addPeriodicSync(account, ScContentProvider.AUTHORITY, new Bundle(), 300l);
-    }
-
 
     public void useAccount(Account account) {
         mCloudApi.setToken(getToken(account));

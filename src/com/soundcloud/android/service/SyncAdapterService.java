@@ -68,10 +68,8 @@ public class SyncAdapterService extends Service {
                 SyncAdapterService.performSync(mApp, mContext, account, extras, authority,
                         provider, syncResult);
             } catch (OperationCanceledException e) {
-                e.printStackTrace();
+                Log.w(TAG, "canceled", e);
             }
-
-
         }
     }
 

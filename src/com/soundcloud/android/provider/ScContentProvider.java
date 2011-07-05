@@ -1,8 +1,9 @@
 package com.soundcloud.android.provider;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import org.w3c.dom.Element;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(\\d+))?$");
+    public static final long DEFAULT_POLL_FREQUENCY = 300l;
 
     private DatabaseHelper dbHelper;
 
@@ -142,5 +144,15 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         return null;
+    }
+
+    public static void enableSyncing(Account account) {
+        enableSyncing(account, DEFAULT_POLL_FREQUENCY);
+    }
+
+    public static void enableSyncing(Account account, long pollFrequency) {
+        ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
     }
 }
