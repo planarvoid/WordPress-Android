@@ -16,7 +16,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Request, Model, Model> {
+public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
     private Class<? extends Model> mModel;
 
@@ -50,9 +50,7 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
             if (isCancelled()) return null;
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                publishProgress(model);
-                return model;
+                return mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
             } else {
                 Log.w(TAG, "unexpected response " + resp.getStatusLine());
                 return null;

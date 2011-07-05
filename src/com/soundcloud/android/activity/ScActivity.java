@@ -76,7 +76,6 @@ public abstract class ScActivity extends Activity {
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
 
-
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
@@ -552,6 +551,8 @@ public abstract class ScActivity extends Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
+                pageTrack("/friend_finder");
+
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);

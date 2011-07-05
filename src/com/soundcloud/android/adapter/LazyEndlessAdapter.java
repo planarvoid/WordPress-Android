@@ -313,7 +313,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             case HttpStatus.SC_OK: // do nothing
                 mError = false;
                 break;
-
             case HttpStatus.SC_UNAUTHORIZED:
                 mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
             default:

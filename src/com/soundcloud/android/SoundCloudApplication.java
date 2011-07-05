@@ -54,7 +54,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private ImageLoader mImageLoader;
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
-    private GoogleAnalyticsTracker tracker;
+    private GoogleAnalyticsTracker mTracker;
+
     public boolean playerWaitForArtwork;
 
     @Override
@@ -65,8 +66,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
             }
-            tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.start(GA_TRACKING, this);
+            mTracker = GoogleAnalyticsTracker.getInstance();
+            mTracker.start(GA_TRACKING, 120 /* seconds */, this);
         }
 
         createImageLoaders();
@@ -283,11 +284,21 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void pageTrack(String path) {
-        if (tracker != null && !TextUtils.isEmpty(path)) {
+    public void pageTrack(String path, Object... customVars) {
+        if (mTracker != null && !TextUtils.isEmpty(path)) {
             try {
-                tracker.trackPageView(path);
-                tracker.dispatch();
+                if (customVars.length > 0 &&
+                    customVars.length % 2 == 0) {
+                    int slot=1;
+                    for (int i=0; i<customVars.length; i+=2) {
+                        Object key   = customVars[i];
+                        Object value = customVars[i+1];
+                        if (key == null || value == null) continue;
+                        mTracker.setCustomVar(slot++, key.toString(), value.toString());
+                        if (slot > 5) break; // max 5 slots
+                    }
+                }
+                mTracker.trackPageView(path);
             } catch (IllegalStateException ignored) {
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);

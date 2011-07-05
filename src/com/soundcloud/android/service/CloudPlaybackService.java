@@ -75,15 +75,11 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -173,7 +169,7 @@ public class CloudPlaybackService extends Service {
     private boolean initialBuffering = true;
     private long mCurrentBuffer;
     private NetworkInfo mCurrentNetworkInfo;
-    private boolean isStagefright;
+    private boolean mIsStagefright;
     private int mBufferReportCounter = 0;
     protected int batteryLevel;
     protected int plugState;
@@ -220,15 +216,16 @@ public class CloudPlaybackService extends Service {
         WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wm.createWifiLock("wifilock");
 
-        if (Build.VERSION.SDK_INT < 8) {
-            // 2.1 or earlier, opencore only, no stream seeking
-            isStagefright = false;
-        } else {
-            // 2.2+, check to see if stagefright enabled
-            determineAudioFramework();
-        }
+        mIsStagefright = CloudUtils.isStagefright();
 
-        Log.i(TAG,"::Using Stagefright Framework " + isStagefright);
+        // track information about used audio engine with GA
+        getApp().pageTrack("/internal/audioEngine",
+                "stagefright", mIsStagefright,
+                "model",   Build.MODEL,
+                "version", Build.VERSION.SDK_INT,
+                "release", Build.VERSION.RELEASE);
+
+        Log.d(TAG,"::Using Stagefright Framework " + mIsStagefright);
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that
@@ -241,34 +238,6 @@ public class CloudPlaybackService extends Service {
         mPlayingData = mPlayListManager.getCurrentTrack();
     }
 
-    /**
-     * SDK 8 can be either open core or stagefright. This determines it as best
-     * we can
-     */
-    private void determineAudioFramework() {
-        isStagefright = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                "isStagefright", true);
-
-        // check the build file, works in most cases and will catch cases for
-        // instant playback
-        try {
-            File f = new File("/system/build.prop");
-            InputStream instream = new BufferedInputStream(new FileInputStream(f));
-            String line;
-            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
-            while ((line = buffreader.readLine()) != null) {
-                //Log.i(TAG,"~~~build.prop: " + line);
-                if (line.contains("media.stagefright.enable-player")) {
-                    if (line.contains("false")) isStagefright = false;
-                    break;
-                }
-            }
-            instream.close();
-        } catch (Exception e) {
-            // really need to catch exception here
-            Log.e(TAG, "error", e);
-        }
-    }
 
     @Override
     public void onDestroy() {
@@ -570,7 +539,7 @@ public class CloudPlaybackService extends Service {
             if (mPlayingData.isStreamable()) {
                 notifyChange(INITIAL_BUFFERING);
 
-                if (isStagefright) {
+                if (mIsStagefright) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
 
@@ -825,11 +794,11 @@ public class CloudPlaybackService extends Service {
 
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
-        if (mPlayer.isInitialized() && (!isStagefright || mPlayingData.filelength > 0)) {
+        if (mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
 
-            if (!isStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
+            if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
 
-                if (isStagefright)
+                if (mIsStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
                         // we are not allowed to play from wherever we are
                         // mPlayer.seek(0);
@@ -843,7 +812,7 @@ public class CloudPlaybackService extends Service {
 
                 mPlayer.start();
 
-                if (isStagefright) {
+                if (mIsStagefright) {
                     assertBufferCheck();
                     // make sure we are downloading if we should be
                     checkBufferStatus();
@@ -1177,7 +1146,7 @@ public class CloudPlaybackService extends Service {
     public int loadPercent() {
         synchronized (this) {
             if (mPlayer.isInitialized()) {
-                if (isStagefright) {
+                if (mIsStagefright) {
                     if (!mPlayingData.getCache().exists() || mPlayingData.filelength <= 0 || mPlayingData.filelength == 0) {
                         return 0;
                     } else {
@@ -1192,7 +1161,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return ((isStagefright || Build.VERSION.SDK_INT > 8) && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
+            return ((mIsStagefright || Build.VERSION.SDK_INT > 8) && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
                     .isAsyncOpening());
         }
     }
@@ -1206,7 +1175,7 @@ public class CloudPlaybackService extends Service {
     public long seek(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1228,7 +1197,7 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (isStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1270,7 +1239,7 @@ public class CloudPlaybackService extends Service {
             mMediaPlayer.setOnCompletionListener(listener);
             mMediaPlayer.setOnErrorListener(errorListener);
 
-            if (!isStagefright) {
+            if (!mIsStagefright) {
                 mMediaPlayer.setOnBufferingUpdateListener(bufferinglistener);
             }
 
@@ -1283,7 +1252,7 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
-                if (isStagefright) {
+                if (mIsStagefright) {
                     mPlayingPath = mPlayingData.getCache().getAbsolutePath();
                 } else {
                     mPlayingPath = path;
@@ -1355,7 +1324,7 @@ public class CloudPlaybackService extends Service {
 
         public long seek(long whereto, boolean resumeSeek) {
 
-            if (isStagefright) {
+            if (mIsStagefright) {
                 mPlayer.setVolume(0);
                 whereto = (int) getSeekResult(whereto, resumeSeek);
             }
@@ -1428,7 +1397,7 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
             public void onSeekComplete(MediaPlayer mp) {
-                if (!isStagefright) return;
+                if (!mIsStagefright) return;
 
                 if (!mMediaPlayer.isPlaying()) {
                     mPlayer.setVolume(0);

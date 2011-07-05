@@ -3,20 +3,14 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.res.Resources;
-import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.LazyListView;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserlistRow;
 
 import android.app.Activity;
 import android.app.Service;
@@ -26,10 +20,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -45,19 +41,21 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
@@ -623,11 +621,6 @@ public class CloudUtils {
         return null;
     }
 
-    public static boolean isLandscape(Activity a) {
-        return CloudUtils.getScreenOrientation(a) == Configuration.ORIENTATION_LANDSCAPE;
-    }
-
-
     /**
      * Execute a function, but only once.
      * @param context the context
@@ -645,5 +638,34 @@ public class CloudUtils {
         } else {
             return false;
         }
+    }
+
+    /**
+     * SDK 8 can be either open core or stagefright. This determines it as best we can.
+     */
+    public static boolean isStagefright() {
+        if (Build.VERSION.SDK_INT < 8) {
+            // 2.1 or earlier, opencore only, no stream seeking
+            return false;
+        }
+        // check the build file, works in most cases and will catch cases for instant playback
+        boolean stageFright = true;
+        try {
+            File f = new File("/system/build.prop");
+            InputStream instream = new BufferedInputStream(new FileInputStream(f));
+            String line;
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            while ((line = buffreader.readLine()) != null) {
+                if (line.contains("media.stagefright.enable-player")) {
+                    if (line.contains("false")) stageFright = false;
+                    break;
+                }
+            }
+            instream.close();
+        } catch (Exception e) {
+            // really need to catch exception here
+            Log.e(TAG, "error", e);
+        }
+        return stageFright;
     }
 }
