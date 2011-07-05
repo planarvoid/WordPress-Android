@@ -64,7 +64,7 @@
                       android:ellipsize="end"
                       style="@style/txt_record_input"
                       android:gravity="center"
-                      android:inputType="text"
+                      android:inputType="textCapWords"
                       android:hint="What"/>
 
             <RadioGroup android:id="@+id/rdo_privacy"
