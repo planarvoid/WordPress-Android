@@ -21,17 +21,15 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
     val sc_repo   = "sc int repo" at "http://files.int.s-cloud.net/maven/"
     val acra_repo = "acra release repository" at
         "http://acra.googlecode.com/svn/repository/releases"
-    val oss_repo1  = "sonatype snapshots" at
+    val snapshots = "sonatype snapshots" at
         "https://oss.sonatype.org/content/repositories/snapshots"
-    val oss_repo2  = "sonatype releases" at
-        "https://oss.sonatype.org/content/repositories/releases"
 
 
     // core dependencies
     val acra = "org.acra" % "acra" % "3.1.2"
     val jackson_core = "org.codehaus.jackson" % "jackson-core-asl" % "1.7.1"
     val jackson_mapper = "org.codehaus.jackson" % "jackson-mapper-asl" % "1.7.1"
-    val java_wrapper = "com.soundcloud" % "java-api-wrapper" % "1.0.1-SNAPSHOT"
+    val java_wrapper = "com.soundcloud" % "java-api-wrapper" % "1.0.1"
     val filecache = "com.google.android" % "filecache" % "r153"
     val analytics = "com.google.android" % "libGoogleAnalytics" % "1.2"
     var wrapper   = "com.commonsware" % "CWAC-AdapterWrapper" % "0.4"
