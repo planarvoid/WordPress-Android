@@ -25,7 +25,7 @@
                   android:imeOptions="actionNext"
                   android:singleLine="true"
                   android:lines="1"
-                  android:inputType="textNoSuggestions"
+                  android:inputType="textNoSuggestions|textEmailAddress"
                   style="@style/txt_auth_input"
                 />
 
