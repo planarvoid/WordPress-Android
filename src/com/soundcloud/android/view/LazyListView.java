@@ -43,8 +43,6 @@ public class LazyListView extends PullToRefreshListView {
         setOnItemLongClickListener(mOnItemLongClickListener);
         setOnItemSelectedListener(mOnItemSelectedListener);
         setOnTouchListener(new FingerTracker());
-        setChoiceMode(CHOICE_MODE_SINGLE);
-
     }
 
     @Override
