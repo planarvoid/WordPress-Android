@@ -10,10 +10,14 @@ import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
 public class AppTest {
-
-    @Test @SuppressWarnings({"ConstantConditions"})
+    @Test
     public void shouldHaveProductionEnabled() throws Exception {
         // make sure this doesn't get accidentally committed
         assertThat(SoundCloudApplication.API_PRODUCTION, is(true));
+    }
+
+    @Test
+    public void shouldNotBeDetectedAsDalvik() throws Exception {
+        assertThat(SoundCloudApplication.DALVIK, is(false));
     }
 }

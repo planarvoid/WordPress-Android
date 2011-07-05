@@ -45,7 +45,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final String GA_TRACKING = "UA-2519404-11";
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
-    public static final boolean DALVIK = "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
+    public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
     public static final boolean API_PRODUCTION = true;
     public static boolean DEV_MODE;
 
