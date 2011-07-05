@@ -1,34 +1,35 @@
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.User;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
-import android.app.*;
-import android.content.*;
-import android.os.Build;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.utils.MultiListPreference;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.james.mime4j.io.MaxHeaderLimitException;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,22 +74,20 @@ public class SyncAdapterService extends Service {
         }
     }
 
-
     private static void performSync(final SoundCloudApplication app, Context context, Account account, Bundle extras,
                                     String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
 
         app.useAccount(account);
 
-          for (String s : PreferenceManager.getDefaultSharedPreferences(context).getString("dashboardNotifications","").split(MultiListPreference.CHOICE_DELIMITER)){
-              Log.i("asdf",s);
-          }
+        Log.i("asdf","Incoming? " + isIncomingEnabled(app));
+        Log.i("asdf","Exclusive? " + isExclusiveEnabled(app));
 
         try {
-            ArrayList<Event> incomingEvents = getNewIncomingEvents(app,
+            List<Event> incomingEvents = getNewIncomingEvents(app,
                     app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), false);
 
-            ArrayList<Event> incomingExclusive = getNewIncomingEvents(app,
+            List<Event> incomingExclusive = getNewIncomingEvents(app,
                     app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), true);
 
             if (incomingEvents.size() > 0 || incomingExclusive.size() > 0) {
@@ -120,11 +119,21 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static ArrayList<Event> getNewIncomingEvents(SoundCloudApplication app, long activitiesSince, boolean exclusive) throws IOException {
+    public static boolean isIncomingEnabled(Context c){
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", false);
+    }
 
+    public static boolean isExclusiveEnabled(Context c){
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", false);
+    }
+
+    private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long activitiesSince, boolean exclusive) throws IOException {
         boolean caughtUp = false;
         Activities activities = null;
-        ArrayList<Event> incomingEvents = new ArrayList<Event>();
+        List<Event> incomingEvents = new ArrayList<Event>();
+
+        if ((!exclusive && isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app)))
+            return incomingEvents;
 
         do {
             Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES).add("limit", 20);
@@ -151,9 +160,9 @@ public class SyncAdapterService extends Service {
         return incomingEvents;
     }
 
-    private static String getIncomingMessaging(SoundCloudApplication app, ArrayList<Event> events) {
+    private static String getIncomingMessaging(SoundCloudApplication app, List<Event> events) {
 
-        ArrayList<User> users = getUniqueUsersFromEvents(events);
+        List<User> users = getUniqueUsersFromEvents(events);
         switch (users.size()) {
             case 1:
                 return String.format(
@@ -171,7 +180,7 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static String getExclusiveMessaging(SoundCloudApplication app, ArrayList<Event> events) {
+    private static String getExclusiveMessaging(SoundCloudApplication app, List<Event> events) {
 
 
         if (events.size() == 1) {
@@ -180,7 +189,7 @@ public class SyncAdapterService extends Service {
                     events.get(0).getTrack().user.username);
 
         } else {
-            ArrayList<User> users = getUniqueUsersFromEvents(events);
+            List<User> users = getUniqueUsersFromEvents(events);
             switch (users.size()) {
                 case 1:
                     return String.format(
@@ -198,8 +207,8 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static ArrayList<User> getUniqueUsersFromEvents(ArrayList<Event> events){
-        ArrayList<User> users = new ArrayList<User>();
+    private static List<User> getUniqueUsersFromEvents(List<Event> events){
+        List<User> users = new ArrayList<User>();
         for (Event e : events){
                 boolean found = false;
                 for (User u : users){

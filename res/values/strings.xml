@@ -685,7 +685,10 @@
   <string name="pref_notifications_incoming">Incoming Tracks</string>
   <string name="pref_notifications_exclusive">Exclusive Tracks</string>
 
-  <string name="pref_record_high_quality_type">High quality type</string>
+    <string name="pref_notifications_incoming_description">blahb albh albh</string>
+    <string name="pref_notifications_exclusive_description">blahb albh albh</string>
+
+    <string name="pref_record_high_quality_type">High quality type</string>
   <string name="pref_record_high_quality_type_desc">Choose your preferred high quality recording type</string>
 
   <string name="pref_default_track_sorting">Default Tracklist Sorting</string>
@@ -905,4 +908,5 @@
     <string name="menu_show_all">Show all</string>
     <string name="menu_show_audio">Show only audio</string>
     <string name="audio_file_picker_empty">No files or directories</string>
+
 </resources>
