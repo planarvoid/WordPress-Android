@@ -456,8 +456,7 @@ public class CloudPlaybackService extends Service {
 
     public void playFromAppCache(int playPos) {
         synchronized (this) {
-            mPlayListManager.loadCachedPlaylist(
-                    ((SoundCloudApplication) this.getApplication()).flushCachePlaylist(), playPos);
+            mPlayListManager.loadCachedPlaylist(getApp().flushCachePlaylist(), playPos);
             stopStreaming(null);
             openCurrent();
             mIsSupposedToBePlaying = true;
@@ -498,7 +497,7 @@ public class CloudPlaybackService extends Service {
         }
 
         //otherwise it will wait for the waveform
-        mWaitingForArtwork = ((SoundCloudApplication)this.getApplication()).playerWaitForArtwork;
+        mWaitingForArtwork = getApp().playerWaitForArtwork;
 
         // stop in a thread so the resetting (or releasing if we are
         // async opening) doesn't holdup the UI
@@ -588,16 +587,14 @@ public class CloudPlaybackService extends Service {
 
                     // start the buffer check, but not instantly (false)
                     assertBufferCheck(false);
-
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
-                    setResolvedStreamSourceAsync(mPlayingData.stream_url);
+                    setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
-                return;
+            } else {
+                gotoIdleState();
             }
-
-            gotoIdleState();
         }
     }
 
@@ -1038,7 +1035,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void addFavorite() {
-        FavoriteAddTask f = new FavoriteAddTask((SoundCloudApplication) this.getApplication());
+        FavoriteAddTask f = new FavoriteAddTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
             public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
@@ -1056,7 +1053,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
-        FavoriteRemoveTask f = new FavoriteRemoveTask((SoundCloudApplication) this.getApplication());
+        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
             public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
@@ -1741,19 +1738,22 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    private void setResolvedStreamSourceAsync(final String url)  {
+    private void setResolvedStreamSourceAsync(final String url, final Handler handler)  {
         new Thread() {
             @Override
             public void run() {
-                String resolved = url;
-                SoundCloudApplication app = (SoundCloudApplication) getApplication();
                 try {
-                    HttpResponse resp = app.get(Request.to(url));
+                    HttpResponse resp = getApp().get(Request.to(url));
 
                     if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                        Header location = resp.getFirstHeader("Location");
-                        if (location != null) {
-                            resolved = location.getValue();
+                        final Header location = resp.getFirstHeader("Location");
+                        if (location != null && location.getValue() != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mPlayer.setDataSourceAsync(location.getValue());
+                                }
+                            });
                         } else {
                             Log.w(TAG, "no location header found");
                         }
@@ -1763,14 +1763,6 @@ public class CloudPlaybackService extends Service {
                 } catch (IOException e) {
                     Log.w(TAG, e);
                 }
-
-                final String finalResolved = resolved;
-                mMediaplayerHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayer.setDataSourceAsync(finalResolved);
-                    }
-                });
             }
         }.start();
 
@@ -1900,7 +1892,7 @@ public class CloudPlaybackService extends Service {
 
             CloudPlaybackService svc = serviceRef.get();
             if (svc == null) return;
-            SoundCloudApplication app = (SoundCloudApplication) svc.getApplication();
+            SoundCloudApplication app = getApp();
 
             // 2.1 only
             AndroidHttpClient cli = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
@@ -2191,4 +2183,8 @@ public class CloudPlaybackService extends Service {
 
     private final IBinder mBinder = new ServiceStub(this);
 
+
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
 }
