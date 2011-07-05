@@ -9,9 +9,8 @@
     <com.soundcloud.android.utils.MultiListPreference
         android:title="@string/pref_notifications"
             android:summary="@string/pref_notifications_description"
-            android:key="dashboardMaxStored"
+            android:key="dashboardNotifications"
             android:entries="@array/pref_notifications_entries"
-            android:entryValues="@array/pref_notifications_values"
             android:defaultValue="@array/pref_dashboard_store_max_values"/>
 
     <ListPreference

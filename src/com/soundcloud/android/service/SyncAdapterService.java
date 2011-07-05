@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.utils.MultiListPreference;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -80,6 +81,10 @@ public class SyncAdapterService extends Service {
             throws OperationCanceledException {
 
         app.useAccount(account);
+
+          for (String s : PreferenceManager.getDefaultSharedPreferences(context).getString("dashboardNotifications","").split(MultiListPreference.CHOICE_DELIMITER)){
+              Log.i("asdf",s);
+          }
 
         try {
             ArrayList<Event> incomingEvents = getNewIncomingEvents(app,
