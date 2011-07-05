@@ -49,7 +49,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -1761,28 +1760,24 @@ public class CloudPlaybackService extends Service {
      * to wait
      */
     private static class ChangeTracksAsync extends Thread {
-
-        WeakReference<CloudPlaybackService> serviceRef;
-        ContentResolver contentResolver;
-        SoundCloudApplication soundCloudApplication;
-
-        Track nextTrack;
-        long userId;
+        private WeakReference<CloudPlaybackService> serviceRef;
+        private Track nextTrack;
 
         public ChangeTracksAsync(CloudPlaybackService service, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(service);
-            soundCloudApplication = (SoundCloudApplication) service.getApplication();
-            userId = soundCloudApplication.getCurrentUserId();
             nextTrack = track;
-            contentResolver = service.getContentResolver();
-
         }
 
         @Override
         public void run() {
-            serviceRef.get().stopStreaming(nextTrack.id);
+            CloudPlaybackService svc = serviceRef.get();
+            if (svc == null) return;
 
-            Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null,
+            final long userId = svc.getApp().getCurrentUserId();
+
+            svc.stopStreaming(nextTrack.id);
+
+            Cursor cursor = svc.getContentResolver().query(Content.TRACK_PLAYS, null,
                     TrackPlays.TRACK_ID + " = ?", new String[]{
                     Long.toString(nextTrack.id)
             }, null);
@@ -1791,20 +1786,18 @@ public class CloudPlaybackService extends Service {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(TrackPlays.TRACK_ID, nextTrack.id);
                 contentValues.put(TrackPlays.USER_ID, userId);
-                contentResolver.insert(Content.TRACK_PLAYS, contentValues);
+                svc.getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
             }
             if (cursor != null) cursor.close();
 
-            nextTrack.updateFromDb(contentResolver,userId);
+            nextTrack.updateFromDb(svc.getContentResolver(), userId);
 
-            if (soundCloudApplication.getTrackFromCache(nextTrack.id) == null) {
-                soundCloudApplication.cacheTrack(nextTrack);
+            if (svc.getApp().getTrackFromCache(nextTrack.id) == null) {
+                svc.getApp().cacheTrack(nextTrack);
             }
 
-            if (serviceRef.get() != null) {
-                serviceRef.get().mChangeTracksThread = null;
-                serviceRef.get().queueNextTrack(0);
-            }
+            svc.mChangeTracksThread = null;
+            svc.queueNextTrack(0);
         }
     }
 
