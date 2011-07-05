@@ -40,7 +40,7 @@ import java.util.List;
 
 import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
-@ReportsCrashes(formKey = "dDNyRjc4eG1SMUcxR1A0X3BJS0JmZUE6MQ")
+@ReportsCrashes(formKey = "dGN1Wm9ZZFd0dmpCWDAwaWdicm9pR0E6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final String GA_TRACKING = "UA-2519404-11";
