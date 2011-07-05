@@ -2,6 +2,10 @@
 
 Please use Google's [Code Style Guidelines for Contributors][].
 
+*Note:* When using Intellij IDEA, copy `doc/codestyles/android.xml` to
+`$HOME/Library/Preferences/IntelliJIdea10CE/codestyles/` and select the "android" 
+code style in the project settings.
+
 ## File format
 
   * UTF-8 CRLF, no DOS file endings.
