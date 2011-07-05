@@ -49,6 +49,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -471,9 +472,9 @@ public class CloudPlaybackService extends Service {
         openAsync(mPlayListManager.getCurrentTrack());
     }
 
-    Thread mStopThread = null;
+    Thread mChangeTracksThread = null;
 
-    public void openAsync(Track track) {
+    public void openAsync(final Track track) {
         if (track == null) {
             return;
         }
@@ -490,9 +491,9 @@ public class CloudPlaybackService extends Service {
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id == track.id) {
 
-            mStopThread = new StreamStopper(this, mPlayingData.id);
-            mStopThread.setPriority(Thread.MAX_PRIORITY);
-            mStopThread.start();
+            mChangeTracksThread = new ChangeTracksAsync(this, mPlayingData);
+            mChangeTracksThread.setPriority(Thread.MAX_PRIORITY);
+            mChangeTracksThread.start();
             return;
         }
 
@@ -501,9 +502,9 @@ public class CloudPlaybackService extends Service {
 
         // stop in a thread so the resetting (or releasing if we are
         // async opening) doesn't holdup the UI
-        mStopThread = new StreamStopper(this, track.id);
-        mStopThread.setPriority(Thread.MAX_PRIORITY);
-        mStopThread.start();
+        mChangeTracksThread = new ChangeTracksAsync(this, track);
+        mChangeTracksThread.setPriority(Thread.MAX_PRIORITY);
+        mChangeTracksThread.start();
 
         // new play data
         mPlayingData = track;
@@ -514,25 +515,6 @@ public class CloudPlaybackService extends Service {
         // tell the db we played it
         track.user_played = true;
 
-        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null,
-                TrackPlays.TRACK_ID + " = ?", new String[] {
-                    Long.toString(track.id)
-                }, null);
-
-        if (cursor == null || cursor.getCount() == 0) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(TrackPlays.TRACK_ID, track.id);
-            contentValues.put(TrackPlays.USER_ID, ((SoundCloudApplication)this.getApplication()).getCurrentUserId());
-            getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
-        }
-        if (cursor != null) cursor.close();
-
-        track.updateFromDb(getContentResolver(),
-                ((SoundCloudApplication)getApplication()).getCurrentUserId());
-
-        if (((SoundCloudApplication) getApplication()).getTrackFromCache(track.id) == null) {
-            ((SoundCloudApplication) getApplication()).cacheTrack(track);
-        }
         // meta has changed
         notifyChange(META_CHANGED);
     }
@@ -584,7 +566,7 @@ public class CloudPlaybackService extends Service {
 
     private void startNextTrack() {
         synchronized (this) {
-            mStopThread = null;
+            mChangeTracksThread = null;
             mCurrentDownloadAttempts = 0;
 
             if (mPlayingData.isStreamable()) {
@@ -1816,22 +1798,49 @@ public class CloudPlaybackService extends Service {
      * of time and sometimes when navigating tracks we don't want the UI to have
      * to wait
      */
-    private static class StreamStopper extends Thread {
+    private static class ChangeTracksAsync extends Thread {
 
         WeakReference<CloudPlaybackService> serviceRef;
+        ContentResolver contentResolver;
+        SoundCloudApplication soundCloudApplication;
 
-        Long continueStreamingId;
+        Track nextTrack;
+        long userId;
 
-        public StreamStopper(CloudPlaybackService service, Long long1) {
+        public ChangeTracksAsync(CloudPlaybackService service, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(service);
-            this.continueStreamingId = long1;
+            soundCloudApplication = (SoundCloudApplication) service.getApplication();
+            userId = soundCloudApplication.getCurrentUserId();
+            nextTrack = track;
+            contentResolver = service.getContentResolver();
+
         }
 
         @Override
         public void run() {
-            serviceRef.get().stopStreaming(continueStreamingId);
+            serviceRef.get().stopStreaming(nextTrack.id);
+
+            Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null,
+                    TrackPlays.TRACK_ID + " = ?", new String[]{
+                    Long.toString(nextTrack.id)
+            }, null);
+
+            if (cursor == null || cursor.getCount() == 0) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TrackPlays.TRACK_ID, nextTrack.id);
+                contentValues.put(TrackPlays.USER_ID, userId);
+                contentResolver.insert(Content.TRACK_PLAYS, contentValues);
+            }
+            if (cursor != null) cursor.close();
+
+            nextTrack.updateFromDb(contentResolver,userId);
+
+            if (soundCloudApplication.getTrackFromCache(nextTrack.id) == null) {
+                soundCloudApplication.cacheTrack(nextTrack);
+            }
+
             if (serviceRef.get() != null) {
-                serviceRef.get().mStopThread = null;
+                serviceRef.get().mChangeTracksThread = null;
                 serviceRef.get().queueNextTrack(0);
             }
         }
