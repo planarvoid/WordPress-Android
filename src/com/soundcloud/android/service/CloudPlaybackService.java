@@ -590,7 +590,7 @@ public class CloudPlaybackService extends Service {
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
-                    setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
+                    mPlayer.setDataSourceAsync(getApp().addTokenToUrl(mPlayingData.stream_url));
                 }
             } else {
                 gotoIdleState();
@@ -1736,36 +1736,6 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
-    }
-
-    private void setResolvedStreamSourceAsync(final String url, final Handler handler)  {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    HttpResponse resp = getApp().get(Request.to(url));
-
-                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                        final Header location = resp.getFirstHeader("Location");
-                        if (location != null && location.getValue() != null) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mPlayer.setDataSourceAsync(location.getValue());
-                                }
-                            });
-                        } else {
-                            Log.w(TAG, "no location header found");
-                        }
-                    } else {
-                        Log.w(TAG, "unexpected response " + resp);
-                    }
-                } catch (IOException e) {
-                    Log.w(TAG, e);
-                }
-            }
-        }.start();
-
     }
 
     /**

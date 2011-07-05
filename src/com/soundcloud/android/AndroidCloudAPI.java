@@ -4,6 +4,7 @@ import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Http;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,8 +25,10 @@ import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
     URI REDIRECT_URI = URI.create("soundcloud://auth");
+    String OAUTH_TOKEN_PARAMETER = "oauth_token";
 
     ObjectMapper getMapper();
+    String addTokenToUrl(String url);
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         private ObjectMapper mMapper;
@@ -60,6 +63,15 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         @Override protected String getUserAgent() {
             return userAgent == null ? super.getUserAgent() : userAgent;
+        }
+
+        @Override
+        public String addTokenToUrl(String url) {
+            if (getToken().valid()) {
+                return Request.to(url).with(OAUTH_TOKEN_PARAMETER, getToken().access).toUrl();
+            } else {
+                return url;
+            }
         }
 
         public static ObjectMapper createMapper() {
