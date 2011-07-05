@@ -34,20 +34,12 @@
                               style="@style/txt_player_time_land"
                               android:layout_alignParentTop="true"/>
                 </RelativeLayout>
-
-                <FrameLayout android:id="@+id/unplayable_layout"
-                             android:layout_width="fill_parent"
-                             android:visibility="gone"
-                             android:layout_height="fill_parent"
-                             android:background="@color/playerControlAlphaBackground">
-
-                    <TextView android:id="@+id/unplayable_txt"
-                              android:layout_height="fill_parent"
-                              android:layout_width="fill_parent"
-                              android:text=""
-                              android:gravity="center"/>
-                </FrameLayout>
-
+                <ViewStub
+                    android:id="@+id/stub_unplayable_layout"
+                    android:inflatedId="@+id/unplayable_layout"
+                    android:layout="@layout/unplayable_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_alignParentBottom="true"/>
                 <View android:layout_width="fill_parent"
                       android:layout_height="5dip"
                       android:background="@drawable/drop_shadow_down"/>

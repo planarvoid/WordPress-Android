@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent" android:id="@+id/unplayable_layout"
+             android:layout_height="40dip" android:layout_alignParentBottom="true"
+             android:background="@color/playerControlAlphaBackground">
+    <TextView android:id="@+id/unplayable_txt" android:layout_height="fill_parent"
+              android:layout_width="fill_parent" android:text="" android:gravity="center"></TextView>
+</FrameLayout>

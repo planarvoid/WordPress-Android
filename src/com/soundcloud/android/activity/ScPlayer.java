@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.ImageViewCallback;
@@ -31,6 +30,11 @@ import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.os.SystemClock;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
@@ -138,6 +142,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
         setContentView(R.layout.sc_player);
 
         initControls();
@@ -171,9 +176,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         View v = (View) mTrackName.getParent();
         v.setOnTouchListener(this);
 
-        LinearLayout mTrackInfoBar = ((LinearLayout) findViewById(R.id.track_info_row));
-        mTrackInfoBar.setBackgroundColor(getResources().getColor(R.color.playerControlBackground));
-
         mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
         mInfoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -190,7 +192,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mNextButton.setOnClickListener(mNextListener);
 
         mPlayableLayout = (RelativeLayout) findViewById(R.id.playable_layout);
-        mUnplayableLayout = (FrameLayout) findViewById(R.id.unplayable_layout);
 
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
@@ -797,8 +798,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     };
 
     private void showUnplayable() {
-        if (mPlayingTrack == null || mPlayingTrack.streamable) { // playback
-            // error
+        if (mUnplayableLayout == null) {
+            mUnplayableLayout = (FrameLayout) ((ViewStub) findViewById(R.id.stub_unplayable_layout)).inflate();
+        }
+
+        if (mPlayingTrack == null || mPlayingTrack.streamable) {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_error);
         } else {
@@ -813,7 +817,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void hideUnplayable() {
         mPlayableLayout.setVisibility(View.VISIBLE);
-        mUnplayableLayout.setVisibility(View.GONE);
+        if (mUnplayableLayout != null) mUnplayableLayout.setVisibility(View.GONE);
     }
 
     private void updateTrackInfo() {
@@ -1007,8 +1011,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     @Override
     protected void onStart() {
         super.onStart();
-
-        //Debug.stopMethodTracing();
 
         mPaused = false;
         getApp().playerWaitForArtwork = true;

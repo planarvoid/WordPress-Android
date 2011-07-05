@@ -1,40 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent" android:id="@+id/main_holder"
-              android:orientation="vertical" android:layout_height="fill_parent">
-    <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
-    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="1"
+              android:orientation="vertical" android:layout_height="fill_parent" android:weightSum="8">
+    <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar" android:layout_weight="1"/>
+    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="6"
                                                  android:layout_width="fill_parent"
-                                                 android:layout_height="wrap_content">
+                                                 android:layout_height="0dp">
         <RelativeLayout android:layout_width="fill_parent"
                         android:layout_height="fill_parent">
-            <LinearLayout android:id="@+id/track_menu"
-                          android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
-                          android:paddingTop="5dip" android:paddingBottom="5dip"
-                          android:orientation="vertical" android:layout_height="wrap_content"
-                          android:layout_width="fill_parent">
-                <TableLayout android:stretchColumns="*"
-                             android:layout_height="wrap_content" android:layout_width="fill_parent">
-                    <TableRow android:layout_width="fill_parent"
-                              android:layout_height="wrap_content" android:gravity="center_horizontal">
-                        <ImageButton android:layout_alignWithParentIfMissing="true"
-                                     android:layout_weight="1" android:id="@+id/btn_profile"
-                                     style="@style/btn_sc_transport"
-                                     android:src="@drawable/ic_profile_states"/>
-                        <ImageButton android:layout_alignWithParentIfMissing="true"
-                                     android:layout_weight="1" android:id="@+id/btn_favorite"
-                                     style="@style/btn_sc_transport"
-                                     android:src="@drawable/ic_favorite_states"/>
-                        <ImageButton android:layout_alignWithParentIfMissing="true"
-                                     android:layout_weight="1" android:id="@+id/btn_comment"
-                                     style="@style/btn_sc_transport"
-                                     android:src="@drawable/ic_comment_states"/>
-                        <ImageButton android:layout_alignWithParentIfMissing="true"
-                                     android:layout_weight="1" android:id="@+id/btn_share"
-                                     style="@style/btn_sc_transport"
-                                     android:src="@drawable/ic_share_states"/>
-                    </TableRow>
-                </TableLayout>
+            <LinearLayout android:id="@+id/track_menu" android:stretchColumns="*"
+                         android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
+                         android:layout_height="wrap_content" android:layout_width="fill_parent"
+                         android:paddingTop="5dip" android:paddingBottom="5dip">
+                    <ImageButton android:layout_width="0dp"
+                                 android:layout_weight="1" android:id="@+id/btn_profile"
+                                 style="@style/btn_sc_transport"
+                                 android:src="@drawable/ic_profile_states"/>
+                    <ImageButton android:layout_width="0dp"
+                                 android:layout_weight="1" android:id="@+id/btn_favorite"
+                                 style="@style/btn_sc_transport"
+                                 android:src="@drawable/ic_favorite_states"/>
+                    <ImageButton android:layout_width="0dp"
+                                 android:layout_weight="1" android:id="@+id/btn_comment"
+                                 style="@style/btn_sc_transport"
+                                 android:src="@drawable/ic_comment_states"/>
+                    <ImageButton android:layout_width="0dp"
+                                 android:layout_weight="1" android:id="@+id/btn_share"
+                                 style="@style/btn_sc_transport"
+                                 android:src="@drawable/ic_share_states"/>
             </LinearLayout>
             <FrameLayout android:layout_width="fill_parent"
                          android:layout_below="@id/track_menu" android:background="@drawable/artwork_player"
@@ -52,13 +45,12 @@
                 <TextView android:id="@+id/currenttime" style="@style/txt_player_time"
                           android:layout_alignParentTop="true"/>
             </RelativeLayout>
-            <FrameLayout android:layout_width="fill_parent" android:id="@+id/unplayable_layout"
-                         android:visibility="gone"
-                         android:layout_height="40dip" android:layout_alignParentBottom="true"
-                         android:background="@color/playerControlAlphaBackground">
-                <TextView android:id="@+id/unplayable_txt" android:layout_height="fill_parent"
-                          android:layout_width="fill_parent" android:text="" android:gravity="center"></TextView>
-            </FrameLayout>
+            <ViewStub
+                    android:id="@+id/stub_unplayable_layout"
+                    android:inflatedId="@+id/unplayable_layout"
+                    android:layout="@layout/unplayable_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dip" android:layout_alignParentBottom="true"/>
             <View android:layout_width="fill_parent" android:layout_alignParentTop="true"
                   android:layout_height="1dip" android:layout_marginLeft="10dip"
                   android:background="@color/horizontalRule" android:layout_marginRight="10dip"/>
@@ -76,19 +68,17 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
     </com.soundcloud.android.view.SafeViewFlipper>
-    <LinearLayout android:id="@+id/transport_bar"
+    <LinearLayout android:id="@+id/transport_bar" android:layout_weight="1"
                   android:background="@color/playerControlBackground"
                   android:paddingTop="5dip" android:paddingBottom="5dip"
-                  android:orientation="horizontal" android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:layout_height="0dp"
                   android:layout_width="fill_parent">
-        <ImageButton android:layout_weight="1"
-                     android:layout_alignParentLeft="true" android:id="@+id/prev"
+        <ImageButton android:layout_weight="1" android:layout_width="0dp" android:id="@+id/prev"
                      style="@style/btn_sc_transport" android:src="@drawable/ic_prev_states"/>
-        <ImageButton android:layout_weight="1" android:id="@+id/pause" android:layout_marginLeft="1dip"
-                     android:layout_toRightOf="@id/prev" style="@style/btn_sc_transport"
+        <ImageButton android:layout_weight="1" android:layout_width="0dp"
+                     android:id="@+id/pause" android:layout_marginLeft="1dip" style="@style/btn_sc_transport"
                      android:src="@drawable/ic_play_states"/>
-        <ImageButton android:layout_weight="1"
-                     android:layout_toRightOf="@id/pause" android:id="@+id/next"
+        <ImageButton android:layout_weight="1" android:layout_width="0dp" android:id="@+id/next"
                      style="@style/btn_sc_transport" android:src="@drawable/ic_next_states"/>
     </LinearLayout>
 </LinearLayout>
