@@ -610,7 +610,7 @@ public class CloudPlaybackService extends Service {
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(resolveStreamUrl(mPlayingData.stream_url));
+                    setResolvedStreamSourceAsync(mPlayingData.stream_url);
                 }
                 return;
             }
@@ -1299,18 +1299,19 @@ public class CloudPlaybackService extends Service {
         }
 
         public void setDataSourceAsync(String path) {
-            mPlayingPath = path;
+
             if (mMediaPlayer == null) refreshMediaplayer();
 
             mIsAsyncOpening = true;
 
             try {
                 if (isStagefright) {
-                    mMediaPlayer.setDataSource(mPlayingData.getCache().getAbsolutePath());
+                    mPlayingPath = mPlayingData.getCache().getAbsolutePath();
                 } else {
-                    mMediaPlayer.setDataSource(resolveStreamUrl(mPlayingData.stream_url));
+                    mPlayingPath = path;
                 }
 
+                mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
             } catch (IllegalStateException e) {
                 Log.e(TAG, "error", e);
@@ -1758,26 +1759,39 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    private String resolveStreamUrl(String url)  {
-        String resolved = url;
-        SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        try {
-            HttpResponse resp = app.get(Request.to(url));
+    private void setResolvedStreamSourceAsync(final String url)  {
+        new Thread() {
+            @Override
+            public void run() {
+                String resolved = url;
+                SoundCloudApplication app = (SoundCloudApplication) getApplication();
+                try {
+                    HttpResponse resp = app.get(Request.to(url));
 
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                Header location = resp.getFirstHeader("Location");
-                if (location != null) {
-                    resolved = location.getValue();
-                } else {
-                    Log.w(TAG, "no location header found");
+                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                        Header location = resp.getFirstHeader("Location");
+                        if (location != null) {
+                            resolved = location.getValue();
+                        } else {
+                            Log.w(TAG, "no location header found");
+                        }
+                    } else {
+                        Log.w(TAG, "unexpected response " + resp);
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, e);
                 }
-            } else {
-                Log.w(TAG, "unexpected response " + resp);
+
+                final String finalResolved = resolved;
+                mMediaplayerHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayer.setDataSourceAsync(finalResolved);
+                    }
+                });
             }
-        } catch (IOException e) {
-            Log.w(TAG, e);
-        }
-        return resolved;
+        }.start();
+
     }
 
     /**
