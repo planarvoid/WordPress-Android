@@ -559,12 +559,42 @@ public class CloudPlaybackService extends Service {
                 } else { // !stageFright
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
-                    mPlayer.setDataSourceAsync(getApp().addTokenToUrl(mPlayingData.stream_url));
+                    // need to resolve stream url, because f***ing mediaplayer doesn't handle https
+                    setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
             } else {
                 gotoIdleState();
             }
         }
+    }
+
+    private void setResolvedStreamSourceAsync(final String url, final Handler handler) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    HttpResponse resp = getApp().get(Request.to(url));
+
+                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                        final Header location = resp.getFirstHeader("Location");
+                        if (location != null && location.getValue() != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mPlayer.setDataSourceAsync(location.getValue());
+                                }
+                            });
+                        } else {
+                            Log.w(TAG, "no location header found");
+                        }
+                    } else {
+                        Log.w(TAG, "unexpected response " + resp);
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, e);
+                }
+            }
+        }.start();
     }
 
 
@@ -1215,14 +1245,11 @@ public class CloudPlaybackService extends Service {
      */
     private class MultiPlayer {
         private MediaPlayer mMediaPlayer;
-
         private Handler mHandler;
-
-        private boolean mIsInitialized = false;
-
+        private boolean mIsInitialized;
+        private boolean mIsAsyncOpening;
         private String mPlayingPath = "";
 
-        private boolean mIsAsyncOpening = false;
 
         public MultiPlayer() {
             refreshMediaplayer();
@@ -1230,26 +1257,24 @@ public class CloudPlaybackService extends Service {
 
         private void refreshMediaplayer() {
             if (mMediaPlayer != null) mMediaPlayer.release();
-
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setOnPreparedListener(preparedlistener);
-            mMediaPlayer.setOnSeekCompleteListener(seeklistener);
-            mMediaPlayer.setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
-            mMediaPlayer.setOnCompletionListener(listener);
-            mMediaPlayer.setOnErrorListener(errorListener);
-
-            if (!mIsStagefright) {
-                mMediaPlayer.setOnBufferingUpdateListener(bufferinglistener);
-            }
-
+            mMediaPlayer = new MediaPlayer() {
+                {
+                    setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
+                    setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    setOnPreparedListener(preparedlistener);
+                    setOnSeekCompleteListener(seeklistener);
+                    setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
+                    setOnCompletionListener(listener);
+                    setOnErrorListener(errorListener);
+                    if (!mIsStagefright) {
+                        setOnBufferingUpdateListener(bufferinglistener);
+                    }
+                }
+            };
         }
 
         public void setDataSourceAsync(String path) {
-
             if (mMediaPlayer == null) refreshMediaplayer();
-
             mIsAsyncOpening = true;
 
             try {
@@ -1503,7 +1528,6 @@ public class CloudPlaybackService extends Service {
                 return true;
             }
         };
-
     }
 
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
