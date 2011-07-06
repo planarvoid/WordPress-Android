@@ -3,8 +3,8 @@
         android:layout_height="fill_parent" android:id="@+id/empty_root" android:layout_width="fill_parent">
     <TextView android:layout_centerInParent="true"
             android:id="@+id/empty_txt" android:layout_height="fill_parent"
-            android:gravity="center"
-            android:padding="20dip"
+            android:gravity="center_horizontal"
+            android:padding="30dip"
             android:text=""
             android:layout_width="wrap_content">
     </TextView>
