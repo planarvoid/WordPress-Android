@@ -217,19 +217,26 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        for (LazyListView l : mLists) {
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())){
+        for (final LazyListView l : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
                 ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
             }
             if (l.getWrapper() != null) {
-                if (l.getWrapper().isRefreshing()) {
-                    l.prepareForRefresh();
-                    l.setSelection(0);
-                } else if (l.getWrapper().needsRefresh()) {
-                    l.onRefresh();
-                } else if (l.getFirstVisiblePosition() == 0) {
-                    l.setSelection(1);
-                }
+                // refresh actions need to happen after first layout so their ui gets configured properly
+                l.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (l.getWrapper().isRefreshing()) {
+                            l.prepareForRefresh();
+                            l.setSelection(0);
+                        } else if (l.getWrapper().needsRefresh()) {
+                            l.onRefresh();
+                        } else if (l.getFirstVisiblePosition() == 0) {
+                            l.setSelection(1);
+                        }
+                    }
+                });
+
             }
         }
 

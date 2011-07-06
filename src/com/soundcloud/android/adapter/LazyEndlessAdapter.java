@@ -320,7 +320,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
                 mError = true;
                 mKeepOnAppending.set(false);
-                if (getWrappedAdapter().getCount() != 0) Toast.makeText(mActivity, getEmptyText(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }
