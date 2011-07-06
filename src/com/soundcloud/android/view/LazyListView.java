@@ -1,22 +1,25 @@
 package com.soundcloud.android.view;
 
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.text.Html;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
 import com.markupartist.android.widget.PullToRefreshListView;
-import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
 
 import java.util.ArrayList;
 
@@ -62,10 +65,9 @@ public class LazyListView extends PullToRefreshListView {
         mListener = listener;
     }
 
-    public void setAdapter(ListAdapter adapter, boolean refreshEnabled) {
+    public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
-        if (LazyEndlessAdapter.class.isAssignableFrom(adapter.getClass()) && refreshEnabled)
-            setOnRefreshListener((LazyEndlessAdapter) adapter);
+        if (refreshEnabled) setOnRefreshListener(adapter);
     }
 
     protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {

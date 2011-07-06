@@ -1,18 +1,18 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.SectionedAdapter;
+import com.soundcloud.android.adapter.SectionedEndlessAdapter;
+
 import android.content.Context;
 import android.graphics.Canvas;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 
 /**
  * A ListView that maintains a header pinned at the top of the list. The pinned header can be pushed up and dissolved as
@@ -123,7 +123,7 @@ public class SectionedListView extends LazyListView {
     }
 
     @Override
-    public void setAdapter(ListAdapter adapter, boolean refreshEnabled) {
+    public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         if (!(adapter instanceof SectionedEndlessAdapter)) {
             throw new IllegalArgumentException(SectionedListView.class.getSimpleName()
                     + " must use adapter of type " + SectionedEndlessAdapter.class.getSimpleName());
