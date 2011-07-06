@@ -80,6 +80,7 @@ public class MyTracksAdapter extends TracklistAdapter {
                 recordings.add(new Recording(cursor));
             }
         }
+        mCursor.close();
         return recordings;
     }
 

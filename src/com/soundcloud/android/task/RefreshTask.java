@@ -8,7 +8,7 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
  * data. Mostly, this code delegates to the subclass, to append the data in
  * the background thread and rebind the pending view once that is done.
  */
-public class RefreshTask extends AppendTask {
+public class RefreshTask extends LoadCollectionTask {
     public RefreshTask(SoundCloudApplication app) {
         super(app);
     }
