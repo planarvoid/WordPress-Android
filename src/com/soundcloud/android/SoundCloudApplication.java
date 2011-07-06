@@ -138,7 +138,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 }
             }, /*handler*/ null);
         }
+
         FollowStatus.set(null);
+        Connections.set(null);
     }
 
     public boolean isEmailConfirmed() {
