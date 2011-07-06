@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -153,6 +154,9 @@ public class ScContentProvider extends ContentProvider {
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
-        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
+
+        if (Build.VERSION.SDK_INT >= 8) {
+            ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
+        }
     }
 }
