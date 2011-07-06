@@ -1,19 +1,20 @@
 package com.soundcloud.android.view;
 
-import android.util.Log;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.adapter.FriendFinderAdapter;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.SectionedAdapter;
+import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.NewConnectionTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener, PullToRefreshListView.OnRefreshListener {
-
     private final RelativeLayout mHeaderLayout;
     private SectionedEndlessAdapter mAdapter;
     public LazyListView mFriendList;
@@ -38,8 +38,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private int mCurrentState;
     private boolean mFbConnected;
     private SectionedAdapter.Section mFriendsSection;
-
-
 
     public interface States {
         int LOADING = 1;
@@ -106,7 +104,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public int getCurrentState() {
         return mCurrentState;
     }
-
 
     public void setState(int state, boolean refresh) {
         switch (state) {
@@ -201,10 +198,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(User.class);
 
         }
-
-
-
-
     }
 
     private void addFriendsSection() {
