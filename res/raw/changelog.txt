@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <style type='text/css'>
+      a            { color:#EF5002 }
+      div.title    {
+          color:#CCCCCC;
+          font-size:1.2em;
+          font-weight:bold;
+          margin-top:1em;
+          margin-bottom:0.5em;
+          text-align:center }
+      div.subtitle {
+          color:#969696;
+          font-size:0.8em;
+          margin-bottom:1em;
+          text-align:center }
+      div.freetext { color:#CCCCCC }
+      div.list     { color:#969696 }
+    </style>
+  </head>
+  <body>
+$ 21
+  % v 1.3.3
+  _ 2011-06-24
+  ! Friend Finder update
+    # Friend finder (with <a href="http://www.facebook.com/">Facebook</a> integration)
+    # oAuth token exchange fixes
+    # bug fixes
+$ END_OF_CHANGE_LOG
+  </body>
+</html>

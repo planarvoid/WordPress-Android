@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -30,6 +31,17 @@ public class Settings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
         setClearCacheTitle();
+
+        final ChangeLog cl = new ChangeLog(this);
+        if (cl.firstRun()) cl.getLogDialog().show();
+
+        findPreference("changeLog").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        cl.getFullLogDialog().show();
+                        return true;
+                    }
+                });
 
         findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {

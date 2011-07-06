@@ -5,6 +5,10 @@
 
   <string name="this_user">this user</string>
 
+    <string name="changelog_full_title">Change Log</string>
+    <string name="changelog_title">New Updates</string>
+
+
   <string name="error_making_connection_title">Network error</string>
   <string name="error_making_connection_message">There was a problem contacting Soundcloud. Please make sure you have a working data connection.</string>
 
@@ -710,6 +714,9 @@
   <string name="pref_record_quality">Recording quality</string>
   <string name="pref_record_quality_desc">Choose your preferred recording quality</string>
 
+    <string name="pref_change_log">Change Log</string>
+    <string name="pref_change_log_desc">View application updates through this release</string>
+
   <string name="pref_dashboard_store_max">Dashboard maximum storage</string>
   <string name="pref_dashboard_store_max_desc">How many dashboard tracks do you want to store</string>
 
@@ -908,5 +915,6 @@
     <string name="menu_show_all">Show all</string>
     <string name="menu_show_audio">Show only audio</string>
     <string name="audio_file_picker_empty">No files or directories</string>
+
 
 </resources>

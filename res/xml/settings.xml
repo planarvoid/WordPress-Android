@@ -76,6 +76,11 @@
             android:entries="@array/pref_dashboard_store_max_entries"
             android:entryValues="@array/pref_dashboard_store_max_values"/>
 
+    <Preference
+            android:title="@string/pref_change_log"
+            android:summary="@string/pref_change_log_desc"
+            android:key="changeLog"/>
+
     <PreferenceScreen
             android:key="about"
             android:title="@string/about"
