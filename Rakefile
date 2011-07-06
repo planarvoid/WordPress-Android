@@ -65,6 +65,15 @@ end
   def package() "com.soundcloud.android" end
   flag = (t == :device ? '-d' : '-e')
     namespace t do
+
+      namespace :beta do
+        beta_path = "/mnt/sdcard/Android/data/com.soundcloud.android/files/beta"
+        desc "delete beta cache"
+        task :delete do
+          sh "adb #{flag} shell 'rm #{beta_path}/*'"
+        end
+      end
+
       namespace :prefs do
         pref_path = "/data/data/#{package}/shared_prefs/#{package}_preferences.xml"
         desc "get prefs from #{t}"

@@ -1,0 +1,8 @@
+<resources>
+    <string name="pref_beta">SoundCloud Beta</string>
+    <string name="pref_beta_summary">
+        You are running a beta version. Uninstall it first to install the market version.
+    </string>
+    <string name="pref_beta_check_for_updates">Check for updates</string>
+    <string name="pref_beta_check_for_updates_summary">Automatically check for updates</string>
+</resources>

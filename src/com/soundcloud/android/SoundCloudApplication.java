@@ -21,6 +21,7 @@ import com.soundcloud.android.cache.*;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -47,7 +48,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
     public static final boolean API_PRODUCTION = true;
-    public static boolean DEV_MODE;
+    public static boolean DEV_MODE, BETA_MODE;
 
     private RecordListener mRecListener;
     private Wrapper mCloudApi;
@@ -61,7 +62,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
-
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
@@ -84,21 +84,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi.setTokenListener(this);
         DEV_MODE = isDevMode();
+        BETA_MODE = isBetaMode();
+
         mCloudApi.debugRequests = DEV_MODE;
 
         if (DEV_MODE && Build.VERSION.SDK_INT > 8){
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .build());
-
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build());
+            setupStrictMode();
         }
 
         if (account != null) {
@@ -115,6 +106,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 TrackCache.cleanupTrackCache();
             }
         });
+
+        if (BETA_MODE) {
+            Log.d(TAG, "BETA mode enabled, scheduling update checks "+
+                    "(every "+BetaService.INTERVAL/1000/60+" minutes)");
+            BetaService.scheduleCheck(this, false);
+        }
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
@@ -454,26 +451,53 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    private boolean isDevMode() {
-        try {
-             PackageInfo info = getPackageManager().getPackageInfo(
-                     getClass().getPackage().getName(),
-                     PackageManager.GET_SIGNATURES);
-            if (info != null && info.signatures != null) {
-                String[] debugKeys = getResources().getStringArray(R.array.debug_sigs);
-                String currentSignature =  info.signatures[0].toCharsString();
-                Arrays.sort(debugKeys);
-                if (Arrays.binarySearch(debugKeys, currentSignature) > -1) return true;
-            }
-        } catch (NameNotFoundException ignored) {}
-        return false;
+    private boolean isBetaMode() {
+        return hasKey(R.array.beta_sigs);
     }
 
-     public static void handleSilentException(String msg, Exception e) {
+    private boolean isDevMode() {
+        return hasKey(R.array.debug_sigs);
+    }
+
+    private boolean hasKey(final int resource) {
+        try {
+             PackageInfo info = getPackageManager().getPackageInfo(
+                     getPackageName(),
+                     PackageManager.GET_SIGNATURES);
+            if (info != null && info.signatures != null) {
+                final String[] keys = getResources().getStringArray(resource);
+                final String sig =  info.signatures[0].toCharsString();
+                Arrays.sort(keys);
+                return Arrays.binarySearch(keys, sig) > -1;
+            } else {
+                return false;
+            }
+        } catch (NameNotFoundException ignored) {
+            return false;
+        }
+    }
+
+    public static void handleSilentException(String msg, Exception e) {
         if (msg != null) {
            Log.w(TAG, msg, e);
            ErrorReporter.getInstance().putCustomData("message", msg);
         }
         ErrorReporter.getInstance().handleSilentException(e);
+    }
+
+
+    private static void setupStrictMode() {
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                .build());
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
     }
 }

@@ -592,7 +592,6 @@ public abstract class ScActivity extends Activity {
         return getApp().getCurrentUserId();
     }
 
-
     public void pageTrack(String path) {
         getApp().pageTrack(path);
     }

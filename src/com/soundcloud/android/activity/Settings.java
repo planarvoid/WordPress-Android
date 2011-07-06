@@ -11,6 +11,7 @@ import com.soundcloud.utils.ChangeLog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +19,11 @@ import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.util.Log;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING      = 0;
@@ -30,6 +35,14 @@ public class Settings extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
+
+        if (SoundCloudApplication.BETA_MODE) {
+            PreferenceScreen screen = preferenceScreenFromResource(R.xml.settings_beta);
+            if (screen != null) {
+                getPreferenceScreen().addPreference(screen);
+            }
+        }
+
         setClearCacheTitle();
 
         final ChangeLog cl = new ChangeLog(this);
@@ -110,7 +123,25 @@ public class Settings extends PreferenceActivity {
             this.getPreferenceScreen().removePreference(findPreference("defaultRecordingHighQualityType"));
             this.getPreferenceScreen().removePreference(findPreference("dashboardMaxStored"));
         }
+    }
 
+    // hacky way to use package private method on PreferenceManager
+    private PreferenceScreen preferenceScreenFromResource(int settings_beta) {
+        try {
+            Class pm = getPreferenceManager().getClass();
+            Method m = pm.getDeclaredMethod("inflateFromResource", Context.class, Integer.TYPE, PreferenceScreen.class);
+            m.setAccessible(true);
+            return (PreferenceScreen) m.invoke(getPreferenceManager(), this, settings_beta, null);
+        } catch (NoSuchMethodException e) {
+            Log.w(TAG, "error", e);
+            return null;
+        } catch (IllegalAccessException e) {
+            Log.w(TAG, "error", e);
+            return null;
+        } catch (InvocationTargetException e) {
+            Log.w(TAG, "error", e);
+            return null;
+        }
     }
 
     public void safeShowDialog(int dialogId) {

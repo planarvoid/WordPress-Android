@@ -77,5 +77,6 @@ public class Consts {
         int PLAYBACK_NOTIFY_ID  = 1;
         int UPLOAD_NOTIFY_ID    = 2;
         int DASHBOARD_NOTIFY_ID    = 3;
+        int BETA_NOTIFY_ID    = 4;
     }
 }

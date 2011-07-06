@@ -185,6 +185,15 @@ public class CloudUtils {
         return false;
     }
 
+    public static boolean deleteFile(File f) {
+        if (f != null && f.exists()) {
+            if (!f.delete()) {
+                Log.w(TAG, "could not delete "+f);
+                return  false;
+            } else return true;
+        } else return false;
+    }
+
 
     public static String md5(String s) {
         try {

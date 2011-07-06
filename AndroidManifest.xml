@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="1.3.3"
+      android:versionName="1.3.4-BETA"
       android:installLocation="auto"
       android:versionCode="21">
 
@@ -126,12 +126,14 @@
 
         <service android:name=".service.SyncAdapterService" android:exported="true">
            <intent-filter>
-              <action android:name="android.content.SyncAdapter" />
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync" />
         </service>
+
+        <service android:name=".service.beta.BetaService" android:exported="false"/>
 
         <receiver android:label="SoundCloud Player"
                   android:name=".service.PlayerAppWidgetProvider">
@@ -179,6 +181,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>soundcloud-android-beta</Name>
+  <Prefix/>
+  <Marker/>
+  <MaxKeys>1000</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+  <Contents>
+    <Key>soundcloud-1.3.4-BETA.apk</Key>
+    <LastModified>2011-07-06T14:19:53.000Z</LastModified>
+    <ETag>"94156b52d785aec62dc65f489c9d51b3"</ETag>
+    <Size>2015887</Size>
+    <StorageClass>STANDARD</StorageClass>
+  </Contents>
+  <Contents>
+    <Key>soundcloud-1.3.5-BETA.apk</Key>
+    <LastModified>2011-07-06T14:20:29.000Z</LastModified>
+    <ETag>"94156b52d785aec62dc65f489c9d51b3"</ETag>
+    <Size>INVALID</Size>
+    <StorageClass>STANDARD</StorageClass>
+  </Contents>
+</ListBucketResult>
