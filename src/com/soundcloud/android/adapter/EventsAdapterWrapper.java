@@ -23,17 +23,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     @Override
-    protected Request getRequest(boolean refresh) {
-        Request request = super.getRequest(refresh);
-        if (!refresh && !TextUtils.isEmpty(((EventsAdapter)getWrappedAdapter()).nextCursor)){
-            request.add("cursor", ((EventsAdapter)getWrappedAdapter()).nextCursor);
-        } else if (refresh){
-
-        }
-        return request;
-    }
-
-    @Override
     public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
         if (newItems != null && newItems.size() > 0 &&
                 mActivity.getApp().getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) < ((Event) newItems.get(0)).created_at.getTime()) {

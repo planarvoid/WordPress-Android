@@ -382,12 +382,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mRequest = request;
     }
 
-    /**
-     * Get the current url for this adapter
-     * @return the url or null
-     */
     protected Request getRequest(boolean refresh) {
-        return mRequest == null ? null : new Request(mRequest);
+        Request request = mRequest == null ? null : new Request(mRequest);
+        if (request != null && !refresh && !TextUtils.isEmpty(getWrappedAdapter().nextCursor)){
+            request.add("cursor", getWrappedAdapter().nextCursor);
+        }
+        return request;
     }
 
     /**
@@ -465,8 +465,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected Request buildRequest(boolean refresh) {
         Request request = getRequest(refresh);
         if (request != null) {
+            request.add("linked_partitioning", "1");
             request.add("limit", getPageSize());
-            if (!refresh) request.add("offset", getPageSize() * getCurrentPage());
         }
         return request;
     }

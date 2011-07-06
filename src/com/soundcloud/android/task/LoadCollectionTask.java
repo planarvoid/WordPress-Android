@@ -5,7 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -74,40 +77,47 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
             InputStream is = resp.getEntity().getContent();
 
-            if (Event.class.equals(loadModel)) {
-                Activities activities = mApp.getMapper().readValue(is, Activities.class);
-                newItems = new ArrayList<Parcelable>();
-                for (Event evt : activities) newItems.add(evt);
-                mNextHref = activities.next_href;
-            } else {
-                if (Track.class.equals(loadModel)) {
-                    List<TracklistItem> tracklistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, TracklistItem.class));
-                    if (tracklistItems.size() > 0){
-                        newItems = new ArrayList<Parcelable>();
-                        for (TracklistItem tracklistItem : tracklistItems){
-                            newItems.add(new Track(tracklistItem));
-                        }
+            CollectionHolder holder = null;
+            if (Track.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
+                if (holder.size() > 0){
+                    newItems = new ArrayList<Parcelable>();
+                    for (TracklistItem t : (TracklistItemHolder) holder){
+                        newItems.add(new Track(t));
                     }
-
-                } else if (User.class.equals(loadModel)) {
-                    List<UserlistItem> userlistItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, UserlistItem.class));
-                    if (userlistItems.size() > 0){
-                        newItems = new ArrayList<Parcelable>();
-                        for (UserlistItem userlistItem : userlistItems){
-                            newItems.add(new User(userlistItem));
-                        }
-                    }
-
-                } else {
-                    newItems = mApp.getMapper().readValue(is, TypeFactory.collectionType(ArrayList.class, loadModel));
                 }
-
+            } else if (User.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
+                if (holder.size() > 0){
+                    newItems = new ArrayList<Parcelable>();
+                    for (UserlistItem u : (UserlistItemHolder) holder){
+                        newItems.add(new User(u));
+                    }
+                }
+            } else if (Event.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, EventsHolder.class);
+                if (holder.size() > 0){
+                    newItems = new ArrayList<Parcelable>();
+                    for (Event e : (EventsHolder) holder){
+                        newItems.add(e);
+                    }
+                }
+            } else if (Friend.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, FriendHolder.class);
+                if (holder.size() > 0){
+                    newItems = new ArrayList<Parcelable>();
+                    for (Friend f : (FriendHolder) holder){
+                        newItems.add(f);
+                    }
+                }
             }
+
+            mNextHref = holder == null ? null : holder.next_href;
 
             // resolve data
             if (newItems != null) {
                 for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
-                     // we have less than the requested number of items, so we are
+                // we have less than the requested number of items, so we are
                 // done grabbing items for this list
                 return newItems.size() >= pageSize;
             } else {
@@ -118,4 +128,9 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             return false;
         }
     }
+
+    public static class EventsHolder extends CollectionHolder<Event> {}
+    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
+    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
+    public static class FriendHolder extends CollectionHolder<Friend> {}
 }
