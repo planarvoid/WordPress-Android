@@ -15,6 +15,7 @@ import android.widget.AbsListView.OnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.utils.CloudUtils;
+import org.apache.james.mime4j.io.PositionInputStream;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -52,6 +53,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     private int mCurrentScrollState;
     private int mRefreshState;
+    private Runnable mSelectionRunnable;
 
 private boolean mPushBackUp;
 
@@ -141,13 +143,13 @@ private boolean mPushBackUp;
 
     @Override
     protected void onAttachedToWindow() {
-        if (mRefreshState != REFRESHING) setSelection(1);
+        if (mRefreshState != REFRESHING) postSelect(1,0, false);
     }
 
     @Override
     public void setAdapter(ListAdapter adapter) {
         super.setAdapter(adapter);
-        setSelection(1);
+        postSelect(1,0, false);
     }
 
     public void setSelection(int position){
@@ -517,6 +519,30 @@ private boolean mPushBackUp;
             mPushBackUp = true;
             invalidateViews();
         }
+    }
+
+    /**
+     * This will help initial selections from being overwritten. Also allows us to maintain
+     * list position on orientation change in UserBrowser
+     */
+    public void postSelect(final int position, final int yOffset, boolean override){
+        if (mSelectionRunnable != null) {
+            if (override){
+                removeCallbacks(mSelectionRunnable);
+            } else {
+                return;
+            }
+        }
+
+        mSelectionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                setSelectionFromTop(position, yOffset);
+                mSelectionRunnable = null;
+            }
+        };
+        this.post(mSelectionRunnable);
+
     }
 
 

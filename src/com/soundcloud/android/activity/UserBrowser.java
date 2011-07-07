@@ -170,11 +170,13 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()))
                     list.onRefresh();
             }
+
+            if (isMe()) {
+                Connections.get().requestUpdate(getApp(), false, this);
+            }
         }
 
-        if (isMe()) {
-            Connections.get().requestUpdate(getApp(), false, this);
-        }
+
         loadDetails();
     }
 

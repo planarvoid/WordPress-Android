@@ -170,12 +170,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) mListView.post(new Runnable() {
-            @Override
-            public void run() {
-                mListView.setSelectionFromTop(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()));
-            }
-        });
+        if (state[6] != null) mListView.postSelect(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()), true);
     }
 
 

@@ -222,21 +222,14 @@ public abstract class ScActivity extends Activity {
                 ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
             }
             if (l.getWrapper() != null) {
-                // refresh actions need to happen after first layout so their ui gets configured properly
-                l.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (l.getWrapper().isRefreshing()) {
-                            l.prepareForRefresh();
-                            l.setSelection(0);
-                        } else if (l.getWrapper().needsRefresh()) {
-                            l.onRefresh();
-                        } else if (l.getFirstVisiblePosition() == 0) {
-                            l.setSelection(1);
-                        }
-                    }
-                });
-
+                if (l.getWrapper().isRefreshing()) {
+                    l.prepareForRefresh();
+                    l.postSelect(0, 0, false);
+                } else if (l.getWrapper().needsRefresh()) {
+                    l.onRefresh();
+                } else if (l.getFirstVisiblePosition() == 0) {
+                    l.postSelect(1, 0, false);
+                }
             }
         }
 
