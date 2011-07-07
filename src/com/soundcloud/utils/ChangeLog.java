@@ -167,7 +167,7 @@ public class ChangeLog {
                     String version = line.substring(1).trim();
                     // stop output?
                     if (! full) {
-                        if (!Integer.toString(oldVersion).equals(version))
+                        if (Integer.toString(oldVersion).equals(version))
                             advanceToEOVS = true;
                         else if (version.equals(EOVS))
                             advanceToEOVS = false;
