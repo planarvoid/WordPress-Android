@@ -19,13 +19,63 @@
     </style>
   </head>
   <body>
-$ 21
+$ 22
+  % v 1.3.4
+  _ tbd
+  ! Notifications, sharing, and list optimizations
+    # Android notifications
+    # Pull-to-refresh
+    # Better sharing support (via intent/account manager)
+    # Fixed cancel uploads
+    # Added support to upload files/record audio with other apps + from filesystem
+    # Caching of connections
+    # Added in-app ChangeLog
+  
+$ 19
   % v 1.3.3
-  _ 2011-06-24
+  _ 2011-06-22
+  ! Authorization updates and playback fixes
+    # added non-expiring oAuth tokens
+    # always enable seeking for Android 2.3 and higher
+    # fixed Track caching path bug
+$ 18
+  % v 1.3.2
+  _ 2011-06-16
   ! Friend Finder update
     # Friend finder (with <a href="http://www.facebook.com/">Facebook</a> integration)
-    # oAuth token exchange fixes
-    # bug fixes
+    # upgraded Google Analytics
+$ 17
+  % v 1.3.1
+  _ 2011-06-07
+  ! Maintenance update
+    # various bug fixes
+$ 15
+  % v 1.3.0
+  _ 2011-06-01
+  ! SignUp changes and local Recording storage
+    # Native android and <a href="http://www.facebook.com/">Facebook</a> login + signup
+    # migrated app to OAuth2
+    # new Java SoundCloud API wrapper,
+    # Save recordings & upload them later
+    # Support for tumblr
+$ 14
+  % v 1.2.1
+  _ 2011-04-17
+  ! Maintenance update
+    # various bug fixes
+$ 12
+  % v 1.2.0
+  _ 2011-04-10
+  ! Commenting system and Recording upgrade
+    # Foursquare integration
+    # Commenting functionality
+    # 3rd party uplaods
+    # Support for AAC encoding (2.3.3 only)
+$ 10
+  % v 1.1.6
+  _ 2011-02-03
+  ! Streaming upgrade
+    # Track caching for Stagefright media users (selected 2.2 and higher devices)
 $ END_OF_CHANGE_LOG
   </body>
 </html>
