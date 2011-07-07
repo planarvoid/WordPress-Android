@@ -21,6 +21,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
@@ -883,18 +884,16 @@ public class CloudPlaybackService extends Service {
         mNotificationView.setTextViewText(R.id.username, getUserName());
         mNotificationView.setTextViewText(R.id.progress, "");
 
-        Intent i = new Intent(this, ScPlayer.class);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        i.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        i.setAction(Intent.ACTION_MAIN);
-
+        Intent intent = new Intent(this, Main.class);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+        intent.putExtra("gotoPlayer", true);
 
         Notification status = new Notification();
         status.contentView = mNotificationView;
         status.flags |= Notification.FLAG_ONGOING_EVENT;
         status.icon = R.drawable.statusbar;
-        status.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+        status.contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         startForeground(PLAYBACKSERVICE_STATUS, status);
     }

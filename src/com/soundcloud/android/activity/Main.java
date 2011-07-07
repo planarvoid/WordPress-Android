@@ -185,7 +185,12 @@ public class Main extends TabActivity {
 
     private void handleIntent(Intent intent) {
         if (intent != null) {
-            if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            if (intent.getBooleanExtra("gotoPlayer", false)) {
+                Intent i = new Intent(this, ScPlayer.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(i);
+                intent.removeExtra("gotoPlayer");
+            } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
                 getTabHost().setCurrentTabByTag("search");
                 ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
             } else if (intent.hasExtra("tabIndex")) {

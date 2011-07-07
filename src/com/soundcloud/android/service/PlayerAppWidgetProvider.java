@@ -1,6 +1,7 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScPlaybackActivityStarter;
 import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.ScPlayer;
@@ -167,18 +168,6 @@ import android.widget.RemoteViews;
 
             final ComponentName serviceName = new ComponentName(context, CloudPlaybackService.class);
 
-            if (playerActive) {
-                intent = new Intent(context, ScPlaybackActivityStarter.class);
-                pendingIntent = PendingIntent.getActivity(context,
-                        0 /* no requestCode */, intent, 0 /* no flags */);
-                //views.setOnClickPendingIntent(R.id., pendingIntent);
-            } else {
-                intent = new Intent(context, Dashboard.class);
-                pendingIntent = PendingIntent.getActivity(context,
-                        0 /* no requestCode */, intent, 0 /* no flags */);
-                //views.setOnClickPendingIntent(R.id.album_appwidget, pendingIntent);
-            }
-
             intent = new Intent(CloudPlaybackService.PREVIOUS_ACTION);
             intent.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(context,
@@ -197,13 +186,15 @@ import android.widget.RemoteViews;
                     0 /* no requestCode */, intent, 0 /* no flags */);
             views.setOnClickPendingIntent(R.id.next, pendingIntent);
 
-            intent = new Intent(context, ScPlayer.class);
+            intent = new Intent(context, Main.class);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-            intent.setAction(Intent.ACTION_MAIN);
+            if (playerActive) {
+                intent.putExtra("gotoPlayer",true);
+            }
 
-            pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
             views.setOnClickPendingIntent(R.id.title_txt, pendingIntent);
 
             if (track != null){
