@@ -41,7 +41,8 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     protected Request getRequest(boolean refresh) {
-        return getWrappedAdapter().getRequest(refresh ? 0 : mSectionIndex);
+        if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
+        return getWrappedAdapter().sections.get(mSectionIndex).getRequest(refresh);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
                 }
             }
             if (!TextUtils.isEmpty(nextHref)) {
-                getWrappedAdapter().onNextHref(nextHref);
+                getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
             }
 
             if (!keepgoing) {

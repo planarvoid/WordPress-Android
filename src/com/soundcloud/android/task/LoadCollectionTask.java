@@ -20,6 +20,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -66,7 +67,6 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     protected Boolean doInBackground(Request... request) {
         final Request req = request[0];
         if (req == null) return false;
-
         try {
             HttpResponse resp = mApp.get(req);
 
@@ -111,15 +111,11 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
                     }
                 }
             }
-
             mNextHref = holder == null ? null : holder.next_href;
 
-            // resolve data
             if (newItems != null) {
                 for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
-                // we have less than the requested number of items, so we are
-                // done grabbing items for this list
-                return newItems.size() >= pageSize;
+                return !TextUtils.isEmpty(mNextHref);
             } else {
                 return false;
             }

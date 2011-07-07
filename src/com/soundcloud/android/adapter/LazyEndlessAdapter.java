@@ -46,6 +46,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected View mEmptyView;
 
     private Request mRequest;
+    private String mNextHref;
     private RefreshTask mRefreshTask;
 
     private final int ITEM_TYPE_LOADING = -1;
@@ -233,11 +234,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public String saveExtraData() {
-        return getWrappedAdapter().nextCursor;
+        return mNextHref;
     }
 
     public void restoreExtraData(String restore) {
-        getWrappedAdapter().nextCursor = restore;
+        mNextHref = restore;
     }
 
     public Class<?> getLoadModel(boolean isRefresh) {
@@ -346,12 +347,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 getData().add(newitem);
             }
         }
-
-        if (!TextUtils.isEmpty(nextHref)) {
-            getWrappedAdapter().onNextHref(nextHref);
-        }
-
-
+        mNextHref = nextHref;
         mPendingView = null;
 
         // configure the empty view depending on possible exceptions
@@ -360,7 +356,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
-
         if (responseCode != HttpStatus.SC_OK) {
             handleResponseCode(responseCode);
         } else if (newItems != null && newItems.size() > 0) {
@@ -372,7 +367,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             mKeepOnAppending.set(false);
         }
 
-
         applyEmptyText();
         notifyDataSetChanged();
         mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
@@ -383,11 +377,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     protected Request getRequest(boolean refresh) {
-        Request request = mRequest == null ? null : new Request(mRequest);
-        if (request != null && !refresh && !TextUtils.isEmpty(getWrappedAdapter().nextCursor)){
-            request.add("cursor", getWrappedAdapter().nextCursor);
-        }
-        return request;
+        if (mRequest == null) return null;
+        return (!refresh && !TextUtils.isEmpty(mNextHref)) ? new Request(mNextHref) : new Request(mRequest);
     }
 
     /**

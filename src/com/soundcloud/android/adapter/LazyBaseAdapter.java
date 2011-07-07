@@ -18,7 +18,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
 
     public int submenuIndex = -1;
     public int animateSubmenuIndex = -1;
-    public String nextCursor;
     protected ScActivity mActivity;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
@@ -86,12 +85,5 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
 
     public void onPostQueryExecute() {
         if (mWrapper != null) mWrapper.onPostQueryExecute();
-    }
-
-    public void onNextHref(String nextHref) {
-        List<NameValuePair> params = URLEncodedUtils.parse(URI.create(nextHref), "UTF-8");
-        for (NameValuePair param : params) {
-            if (param.getName().equalsIgnoreCase("cursor")) nextCursor = param.getValue();
-        }
     }
 }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Track;
@@ -8,6 +7,7 @@ import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
 
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SectionIndexer;
@@ -27,12 +27,24 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         public final Class<?> model;
         public final List<Parcelable> data;
         public final Request request;
+        public String nextHref;
 
         public Section(String label, Class<?> model, List<Parcelable> data, Request request) {
             this.label = label;
             this.model = model;
             this.data = data;
             this.request = request;
+            this.nextHref = null;
+        }
+
+        public Request getRequest(boolean refresh) {
+            if (request == null) return null;
+            return (refresh || TextUtils.isEmpty(nextHref)) ? new Request(request) : new Request(nextHref);
+        }
+
+        public void clear() {
+            data.clear();
+            nextHref = null;
         }
     }
 
@@ -76,17 +88,14 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         return sections.size() == 0 ? null :  sections.get(index).model;
     }
 
-    public Request getRequest(int index) {
-        return sections.size() == 0 ? null :  new Request(sections.get(index).request);
-    }
-
     public List<Parcelable> getData(int index) {
         return sections.size() == 0 ? null : sections.get(index).data;
     }
 
     public void clearData(){
           for (Section section : sections) {
-              section.data.clear();
+              section.clear();
+
           }
     }
 

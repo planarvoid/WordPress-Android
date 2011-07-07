@@ -108,7 +108,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public void setState(int state, boolean refresh) {
         switch (state) {
             case States.LOADING:
-                if (mFriendList == null || !mFbConnected){
+                if (mFriendList == null){
                     mFbConnected = true;
                     createList();
                 }
@@ -141,7 +141,10 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
 
                 mFriendList.getWrapper().configureViews(mFriendList);
-                if (refresh) mFriendList.getWrapper().onRefresh();
+                if (refresh){
+                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.prepareForRefresh();
+                }
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -152,7 +155,10 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     createList();
                 }
                 mFriendList.getWrapper().configureViews(mFriendList);
-                if (refresh) mFriendList.getWrapper().onRefresh();
+                if (refresh){
+                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.prepareForRefresh();
+                }
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -214,11 +220,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     @Override
     public boolean onRefresh() {
-        if (mActivity.isConnected()){
-            ((UserBrowser) mActivity).refreshConnections();
-            return true;
-        }
-        return false;
+        ((UserBrowser) mActivity).refreshConnections();
+        return true;
+
     }
 
 }

@@ -77,7 +77,7 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     }
 
     public synchronized void requestUpdate(AndroidCloudAPI api, boolean force, final Listener<T> listener) {
-        if (mLoadedFromCache) {
+        if (mLoadedFromCache && !force) {
             listener.onChanged(getObjects(), this);
         }
 

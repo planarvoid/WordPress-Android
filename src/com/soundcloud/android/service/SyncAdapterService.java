@@ -80,9 +80,6 @@ public class SyncAdapterService extends Service {
 
         app.useAccount(account);
 
-        Log.i("asdf","Incoming? " + isIncomingEnabled(app));
-        Log.i("asdf","Exclusive? " + isExclusiveEnabled(app));
-
         try {
             List<Event> incomingEvents = getNewIncomingEvents(app,
                     app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), false);
