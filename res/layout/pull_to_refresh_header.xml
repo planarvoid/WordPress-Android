@@ -14,17 +14,17 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:paddingTop="10dip"
-    android:paddingBottom="15dip"
     android:gravity="bottom|center_horizontal"
     android:background="@drawable/pull_to_refresh_header_background"
     >
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_marginBottom="15dip"
         android:gravity="center_vertical|center_horizontal"
         >
         <ProgressBar
@@ -72,4 +72,7 @@
             android:gravity="center"
             />
     </RelativeLayout>
+    <View android:layout_width="fill_parent"
+                  android:layout_alignParentBottom="true" android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_up"/>
 </LinearLayout>

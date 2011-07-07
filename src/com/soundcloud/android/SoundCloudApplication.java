@@ -86,7 +86,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         DEV_MODE = isDevMode();
         mCloudApi.debugRequests = DEV_MODE;
 
-        if (DEV_MODE){
+        if (DEV_MODE && Build.VERSION.SDK_INT > 8){
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
                     .detectDiskWrites()

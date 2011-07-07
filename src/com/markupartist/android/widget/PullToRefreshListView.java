@@ -102,8 +102,6 @@ private boolean mPushBackUp;
         mReverseFlipAnimation.setFillAfter(true);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.pull_to_refresh_header, null);
-
         mRefreshView = (LinearLayout) inflater.inflate(
                 R.layout.pull_to_refresh_header, null);
 
