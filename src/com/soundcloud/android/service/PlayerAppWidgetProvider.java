@@ -189,12 +189,8 @@ import android.widget.RemoteViews;
             intent = new Intent(context, Main.class);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-            if (playerActive) {
-                intent.putExtra("gotoPlayer",true);
-            }
-
+            intent.putExtra("gotoPlayer",true);
             pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
             views.setOnClickPendingIntent(R.id.title_txt, pendingIntent);
 
             if (track != null){
