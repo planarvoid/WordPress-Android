@@ -104,7 +104,7 @@ public class ChangeLog {
     private AlertDialog getDialog(boolean full) {
 
         WebView wv = new WebView(this.context);
-        wv.setBackgroundColor(0); // transparent
+        wv.setBackgroundColor(0xFFFFFFFF); // transparent
         wv.loadData(this.getLog(full), "text/html", "UTF-8");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this.context);

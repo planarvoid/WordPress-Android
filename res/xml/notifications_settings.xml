@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+    <CheckBoxPreference
+            android:title="@string/pref_notifications_incoming"
+            android:summary="@string/pref_notifications_incoming_description"
+            android:key="notificationsIncoming"
+            android:defaultValue="true"/>
+    <CheckBoxPreference
+            android:title="@string/pref_notifications_exclusive"
+            android:summary="@string/pref_notifications_exclusive_description"
+            android:key="notificationsExclusive"
+            android:defaultValue="true"/>
+</PreferenceScreen>

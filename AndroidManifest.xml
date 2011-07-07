@@ -57,8 +57,8 @@
         </activity>
 
         <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.Settings" android:label="Settings" android:theme="@style/DefaultNoTitle" />
-
+        <activity android:name=".activity.Settings" android:label="Settings" />
+        <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:launchMode="singleTop"/>
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>

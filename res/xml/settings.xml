@@ -8,17 +8,9 @@
     <PreferenceScreen
             android:title="@string/pref_notifications"
             android:summary="@string/pref_notifications_description">
-        <CheckBoxPreference
-                android:title="@string/pref_notifications_incoming"
-                android:summary="@string/pref_notifications_incoming_description"
-                android:key="notificationsIncoming"
-                android:defaultValue="true"/>
-        <CheckBoxPreference
-                android:title="@string/pref_notifications_exclusive"
-                android:summary="@string/pref_notifications_exclusive_description"
-                android:key="notificationsExclusive"
-                android:defaultValue="true"/>
-
+        <intent android:action="android.intent.action.VIEW"
+                android:targetPackage="com.soundcloud.android"
+                android:targetClass="com.soundcloud.android.activity.NotificationSettings"/>
     </PreferenceScreen>
     <ListPreference
             android:title="@string/pref_page_size"
