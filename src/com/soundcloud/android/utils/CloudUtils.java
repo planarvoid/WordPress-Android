@@ -677,7 +677,7 @@ public class CloudUtils {
         try {
             PackageInfo info = context
                     .getPackageManager()
-                    .getPackageInfo(SoundCloudApplication.class.getPackage().getName(),
+                    .getPackageInfo(context.getPackageName(),
                     PackageManager.GET_META_DATA);
             return info.versionName;
         } catch (PackageManager.NameNotFoundException ignored) {
