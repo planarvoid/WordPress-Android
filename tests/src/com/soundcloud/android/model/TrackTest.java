@@ -57,7 +57,7 @@ public class TrackTest {
         t.getCache().deleteOnExit();
 
         assertThat(t.getCache().getAbsolutePath().contains(
-                "Android/data/com.soundcloud.android/files/.s/d3d944682a44259755d38e6d163e820")
+                "Android/data/com.soundcloud.android/files/.s/d3d9446802a44259755d38e6d163e820")
                 , is(true));
 
         assertThat(t.getCache().exists(), is(false));
