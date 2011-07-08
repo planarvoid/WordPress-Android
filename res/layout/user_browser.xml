@@ -16,8 +16,9 @@
                 android:gravity="top"/>
 
         <RelativeLayout android:layout_width="wrap_content"
-                      android:layout_weight="1"
-                      android:layout_height="wrap_content">
+                        android:layout_marginLeft="@dimen/user_browser_info_margin_left"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
 
             <TextView android:id="@+id/username"
                       android:layout_alignParentTop="true"
@@ -27,7 +28,8 @@
                       android:textSize="15sp"
                       android:paddingLeft="5dip"
                       android:paddingRight="5dip"
-                      android:paddingTop="5dip"/>
+                      android:layout_marginBottom="@dimen/user_browser_info_username_margin_bottom"
+                      android:layout_marginTop="@dimen/user_browser_info_username_margin_top"/>
 
             <TextView android:id="@+id/fullname"
                       android:layout_below="@id/username"

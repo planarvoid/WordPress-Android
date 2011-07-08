@@ -12,6 +12,8 @@
     <dimen name="track_list_private_margin_top">3dip</dimen>
     <dimen name="track_list_private_margin_left">5dip</dimen>
 
+    <dimen name="rec_list_text_margin_left">5dip</dimen>
+
     <dimen name="user_list_text_margin_left">10dip</dimen>
 
     <dimen name="user_browser_info_margin_left">0dip</dimen>
@@ -29,6 +31,7 @@
     <dimen name="player_time_width">80dip</dimen>
     <dimen name="player_time_text_size">10sp</dimen>
 
+    <dimen name="player_track_info_padding_top">10dip</dimen>
     <dimen name="player_track_info_padding_left">0dip</dimen>
     <dimen name="player_track_info_padding_right">0dip</dimen>
 
@@ -40,7 +43,6 @@
     <dimen name="player_comment_bar_height">35dip</dimen>
     <dimen name="player_comment_bar_toggle_margin_right">0dip</dimen>
     <dimen name="player_comment_bar_txt_size">16sp</dimen>
-
 
 
 </resources>

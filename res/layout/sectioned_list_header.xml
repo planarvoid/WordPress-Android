@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/listHeader" android:layout_height="wrap_content"
-          android:layout_width="match_parent" android:text=""
-          android:paddingTop="5dip" android:paddingBottom="5dip"
-          android:paddingLeft="10dip" android:paddingRight="10dip"
-          android:enabled="true" android:background="@color/listBgHeader"
-          android:textColor="@color/listTxtHeader" android:textSize="14sp">
+          android:id="@+id/listHeader"
+          android:layout_height="wrap_content"
+          android:layout_width="match_parent"
+          android:paddingTop="5dip"
+          android:paddingBottom="5dip"
+          android:paddingLeft="10dip"
+          android:paddingRight="10dip"
+          android:enabled="true"
+          android:background="@color/listBgHeader"
+          android:textColor="@color/listTxtHeader"
+          android:textSize="@dimen/list_txt_main_size">
 </TextView>

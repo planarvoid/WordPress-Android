@@ -27,6 +27,7 @@ public class PlayerAvatarBar extends View {
     private static final int REFRESH_AVATARS = 0;
     private static final int AVATARS_REFRESHED = 1;
     private static final int AVATAR_WIDTH = 32;
+    private static final int AVATAR_WIDTH_LARGE = 100;
 
     private long mDuration;
 
@@ -74,10 +75,10 @@ public class PlayerAvatarBar extends View {
 
         mMatrix = new Matrix();
         if (mDensity > 1) {
-            mAvatarWidth = (int) (AVATAR_WIDTH* mDensity);
+            mAvatarWidth = CloudUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : (int) (AVATAR_WIDTH* mDensity) ;
             mAvatarScale = ((float)mAvatarWidth)/47;
         } else {
-            mAvatarWidth = AVATAR_WIDTH;
+            mAvatarWidth = CloudUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : AVATAR_WIDTH;
             mAvatarScale = 1.0f;
         }
     }
@@ -89,9 +90,7 @@ public class PlayerAvatarBar extends View {
     public void onStop(){
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL));
+                mBitmapLoader.cancelLoading(c.getAvatarBarGraphicUrl(mContext));
             }
         }
     }
@@ -102,9 +101,7 @@ public class PlayerAvatarBar extends View {
 
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelLoading(getContext().getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
-                            CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL));
+                mBitmapLoader.cancelLoading(c.getAvatarBarGraphicUrl(mContext));
                 if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
@@ -141,9 +138,7 @@ public class PlayerAvatarBar extends View {
         if (!CloudUtils.checkIconShouldLoad(c.user.avatar_url))
             return;
 
-        mBitmapLoader.getBitmap(getContext().getResources().getDisplayMetrics().density > 1 ?
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.BADGE) :
-                    CloudUtils.formatGraphicsUrl(c.user.avatar_url, Consts.GraphicsSizes.SMALL), new BitmapCallback() {
+        mBitmapLoader.getBitmap(c.getAvatarBarGraphicUrl(mContext), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;
@@ -162,10 +157,11 @@ public class PlayerAvatarBar extends View {
         }, new ImageLoader.Options());
     }
 
-    private void refreshDefaultAvatar(){
-        if (mDefaultAvatar == null || mDefaultAvatar.isRecycled()){
-            mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.avatar_badge);
-            mDefaultAvatarScale = ((float)mAvatarWidth)/mDefaultAvatar.getHeight();
+    private void refreshDefaultAvatar() {
+        if (mDefaultAvatar == null || mDefaultAvatar.isRecycled()) {
+            mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
+                    CloudUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
+            mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
         }
     }
 

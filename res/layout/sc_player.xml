@@ -34,18 +34,24 @@
                                  android:src="@drawable/ic_share_states"/>
             </LinearLayout>
             <FrameLayout android:layout_width="fill_parent"
-                         android:layout_below="@id/track_menu" android:background="@drawable/artwork_player"
-                         android:layout_height="fill_parent" android:gravity="top"
+                         android:layout_height="fill_parent"
+                         android:layout_below="@id/track_menu"
+                         android:background="@drawable/artwork_player"
+                         android:gravity="top"
                          android:layout_centerHorizontal="true">
                 <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
                            android:id="@+id/artwork"/>
             </FrameLayout>
-            <RelativeLayout android:layout_width="fill_parent" android:id="@+id/playable_layout"
-                            android:layout_marginBottom="-40dip" android:layout_height="100dip"
+            <RelativeLayout android:id="@+id/playable_layout"
+                            android:layout_width="fill_parent"
+                            android:layout_marginBottom="@dimen/player_portrait_negative_half_wave_height"
+                            android:layout_height="@dimen/player_portrait_time_and_wave_height"
                             android:layout_alignParentBottom="true">
                 <com.soundcloud.android.view.WaveformController
-                        android:id="@+id/waveform_controller" android:layout_width="fill_parent"
-                        android:orientation="horizontal" android:layout_height="100dip"/>
+                        android:id="@+id/waveform_controller"
+                        android:layout_width="fill_parent"
+                        android:layout_height="@dimen/player_portrait_time_and_wave_height"
+                        android:orientation="horizontal" />
                 <TextView android:id="@+id/currenttime" style="@style/txt_player_time"
                           android:layout_alignParentTop="true"/>
             </RelativeLayout>

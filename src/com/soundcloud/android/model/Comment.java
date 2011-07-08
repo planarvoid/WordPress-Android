@@ -1,6 +1,10 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.utils.CloudUtils;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -40,6 +44,17 @@ public class Comment extends BaseObj implements Parcelable {
 
     public Comment(Parcel in) {
         readFromParcel(in);
+    }
+
+    public String getAvatarBarGraphicUrl(Context c){
+        if (CloudUtils.isScreenXL(c)) {
+              return CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+        } else {
+            return c.getResources().getDisplayMetrics().density > 1 ?
+                        CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.BADGE) :
+                            CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.SMALL);
+        }
+
     }
 
     public static final Parcelable.Creator<Comment> CREATOR = new Parcelable.Creator<Comment>() {

@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,14 @@ public abstract class LazyRow extends FrameLayout {
             mIcon.getLayoutParams().width  = 67;
             mIcon.getLayoutParams().height = 67;
         }
+    }
+
+    protected Drawable getIconBgResourceId() {
+        return getResources().getDrawable(R.drawable.artwork_badge);
+    }
+
+    protected Drawable getLargeIconBgResourceId() {
+        return getResources().getDrawable(R.drawable.artwork_badge);
     }
 
     protected abstract int getRowResourceId();

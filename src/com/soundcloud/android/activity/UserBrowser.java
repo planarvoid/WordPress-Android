@@ -108,7 +108,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mDescription = (TextView) mDetailsView.findViewById(R.id.description);
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
-        if (getResources().getDisplayMetrics().density > 1) {
+        if (getResources().getDisplayMetrics().density > 1 || CloudUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
             mIcon.getLayoutParams().height = 100;
         }
@@ -430,7 +430,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             }
         }
 
-        CloudUtils.configureTabs(this, mTabWidget, 30, -1, true);
+        CloudUtils.configureTabs(this, mTabWidget, CloudUtils.isScreenXL(this) ? 60 : 30, -1, true);
         CloudUtils.setTabTextStyle(this, mTabWidget, true);
 
         if (isMe()) {

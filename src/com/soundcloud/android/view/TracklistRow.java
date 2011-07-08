@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageButton;
@@ -58,6 +59,11 @@ public class TracklistRow extends LazyRow {
     @Override
     protected int getRowResourceId() {
         return R.layout.track_list_row;
+    }
+
+    @Override
+    protected Drawable getIconBgResourceId() {
+        return getResources().getDrawable(R.drawable.artwork_badge);
     }
 
     @Override
@@ -244,10 +250,16 @@ public class TracklistRow extends LazyRow {
     public String getIconRemoteUri() {
         if (mTrack == null || mTrack.artwork_url == null)
             return "";
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
+
+        if (CloudUtils.isScreenXL(mActivity)) {
             return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.LARGE);
-        } else
-            return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.BADGE);
+        } else {
+            if (getContext().getResources().getDisplayMetrics().density > 1) {
+                return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.LARGE);
+            } else {
+                return CloudUtils.formatGraphicsUrl(mTrack.artwork_url, Consts.GraphicsSizes.BADGE);
+            }
+        }
 
     }
 

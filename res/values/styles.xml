@@ -45,7 +45,7 @@
 
     <style name="txt_list_main">
         <item name="android:textColor">@color/listTxtValue</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
@@ -59,7 +59,7 @@
     </style>
     <style name="txt_list_sub">
         <item name="android:textColor">@color/listTxtValue</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
     </style>
@@ -97,7 +97,7 @@
     </style>
 
     <style name="TabWidgetTextAppearance" parent="@android:style/TextAppearance.Widget.TabWidget">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/tab_text_size</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/tab_indicator_text</item>
     </style>
@@ -197,12 +197,12 @@
 
 
     <style name="txt_player_time">
-        <item name="android:layout_width">80dip</item>
-        <item name="android:layout_height">20dip</item>
+        <item name="android:layout_width">@dimen/player_time_width</item>
+        <item name="android:layout_height">@dimen/player_time_height</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:background">@drawable/player_time_bg</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">@dimen/player_time_text_size</item>
         <item name="android:textStyle">bold</item>
         <item name="android:gravity">center</item>
     </style>
@@ -229,12 +229,12 @@
 
     <style name="txt_player_touch_bar">
         <item name="android:textColor">#ff7b7b7b</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/player_comment_bar_txt_size</item>
     </style>
 
     <style name="btn_sc_transport">
-        <item name="android:layout_width">60dip</item>
-        <item name="android:layout_height">50dip</item>
+         <item name="android:layout_width">@dimen/btn_sc_transport_width</item>
+         <item name="android:layout_height">@dimen/btn_sc_transport_height</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 

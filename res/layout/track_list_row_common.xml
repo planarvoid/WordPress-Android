@@ -8,27 +8,28 @@
 
         <ImageView  android:id="@+id/icon"
                 android:layout_alignParentLeft="true"
-                android:layout_width="47dip"
-                android:layout_height="47dip"
+                android:layout_width="@dimen/list_icon_width"
+                android:layout_height="@dimen/list_icon_height"
                 android:gravity="center_vertical"
                 android:background="@drawable/artwork_badge"
                 android:scaleType="centerCrop"/>
 
         <ImageView android:id="@+id/play_indicator"
                    android:gravity="center_vertical"
-                   android:paddingLeft="5dip"
-                   android:paddingTop="6dip"
+                   android:layout_marginLeft="@dimen/track_list_indicator_margin_left"
                    android:scaleType="center"
                    android:layout_alignWithParentIfMissing="true"
                    android:layout_toRightOf="@id/icon"
                    android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"/>
+                   android:layout_height="wrap_content"
+                   android:layout_alignTop="@+id/track_layout"
+                   android:layout_alignBottom="@+id/track_layout"/>
 
         <LinearLayout android:id="@+id/track_layout"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:paddingTop="3dip"
-                      android:layout_marginLeft="20dip"
+                      android:layout_marginLeft="@dimen/track_list_text_margin_left"
                       android:layout_toRightOf="@id/icon"
                       android:orientation="horizontal">
 
@@ -42,7 +43,8 @@
                       android:layout_weight="1"/>
 
             <ImageView android:id="@+id/private_indicator"
-                       android:layout_marginTop="3dip"
+                       android:layout_marginTop="@dimen/track_list_private_margin_top"
+                       android:layout_marginLeft="@dimen/track_list_private_margin_left"
                        android:src="@drawable/very_private"
                        android:scaleType="center"
                        android:layout_width="46dip"

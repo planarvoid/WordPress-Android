@@ -10,6 +10,7 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -71,6 +72,15 @@ public class UserlistRow extends LazyRow {
         return R.layout.user_list_row;
     }
 
+    protected Drawable getIconBgResourceId() {
+        return getResources().getDrawable(R.drawable.avatar_badge);
+    }
+
+    protected Drawable getLargeIconBgResourceId() {
+        return getResources().getDrawable(R.drawable.avatar_badge_large);
+    }
+
+
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
@@ -101,10 +111,15 @@ public class UserlistRow extends LazyRow {
     public String getIconRemoteUri() {
         if (mUser.avatar_url == null)
             return "";
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
+
+        if (CloudUtils.isScreenXL(mActivity)) {
             return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.LARGE);
         } else {
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.BADGE);
+            if (getContext().getResources().getDisplayMetrics().density > 1) {
+                return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.LARGE);
+            } else {
+                return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.BADGE);
+            }
         }
     }
 
