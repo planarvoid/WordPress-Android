@@ -13,25 +13,41 @@
         <RelativeLayout android:layout_width="fill_parent"
                         android:layout_height="fill_parent">
             <LinearLayout android:id="@+id/track_menu" android:stretchColumns="*"
-                         android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
-                         android:layout_height="wrap_content" android:layout_width="fill_parent"
-                         android:paddingTop="5dip" android:paddingBottom="5dip">
-                    <ImageButton android:layout_width="0dp"
-                                 android:layout_weight="1" android:id="@+id/btn_profile"
-                                 style="@style/btn_sc_transport"
+                          android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
+                          android:layout_height="wrap_content" android:layout_width="fill_parent"
+                          android:paddingTop="5dip" android:paddingBottom="5dip">
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content">
+                    <ImageButton android:id="@+id/btn_profile"
+                                 android:layout_centerHorizontal="true"
+                                 style="@style/btn_sc_transparent"
                                  android:src="@drawable/ic_profile_states"/>
-                    <ImageButton android:layout_width="0dp"
-                                 android:layout_weight="1" android:id="@+id/btn_favorite"
-                                 style="@style/btn_sc_transport"
+                </RelativeLayout>
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content">
+                    <ImageButton android:id="@+id/btn_favorite"
+                                 android:layout_centerHorizontal="true"
+                                 style="@style/btn_sc_transparent"
                                  android:src="@drawable/ic_favorite_states"/>
-                    <ImageButton android:layout_width="0dp"
-                                 android:layout_weight="1" android:id="@+id/btn_comment"
-                                 style="@style/btn_sc_transport"
+                </RelativeLayout>
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content">
+                    <ImageButton android:id="@+id/btn_comment"
+                                 android:layout_centerHorizontal="true"
+                                 style="@style/btn_sc_transparent"
                                  android:src="@drawable/ic_comment_states"/>
-                    <ImageButton android:layout_width="0dp"
-                                 android:layout_weight="1" android:id="@+id/btn_share"
-                                 style="@style/btn_sc_transport"
+                </RelativeLayout>
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content">
+                    <ImageButton android:id="@+id/btn_share"
+                                 android:layout_centerHorizontal="true"
+                                 style="@style/btn_sc_transparent"
                                  android:src="@drawable/ic_share_states"/>
+                </RelativeLayout>
             </LinearLayout>
             <FrameLayout android:layout_width="fill_parent"
                          android:layout_height="fill_parent"
@@ -78,7 +94,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
     </com.soundcloud.android.view.SafeViewFlipper>
-    <FrameLayout android:layout_weight="2"
+    <FrameLayout android:layout_weight="1"
                  android:layout_width="fill_parent"
                  android:layout_height="0dp">
         <include android:id="@+id/transport_bar" layout="@layout/transport_bar"/>

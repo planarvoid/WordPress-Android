@@ -4,6 +4,7 @@
                     android:background="@color/playerControlBackground"
                     android:paddingTop="@dimen/player_track_info_padding_top"
                     android:paddingLeft="@dimen/player_track_info_padding_left"
+                    android:paddingRight="@dimen/player_track_info_padding_right"
                     android:gravity="center_vertical"
                     android:paddingBottom="10dip"
                     android:layout_width="fill_parent">

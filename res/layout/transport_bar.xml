@@ -5,23 +5,32 @@
                   android:paddingTop="5dip"
                   android:paddingBottom="5dip"
                   android:orientation="horizontal"
+                  android:gravity="center_vertical"
                   android:layout_height="fill_parent"
                   android:layout_width="fill_parent">
-        <ImageButton android:layout_weight="1"
-                     android:layout_width="0dp"
-                     android:id="@+id/prev"
-                     style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_prev_states"/>
-        <ImageButton android:id="@+id/pause"
-                     android:layout_weight="1"
-                     android:layout_width="0dp"
-                     android:layout_marginLeft="1dip"
-                     style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_play_states"/>
-        <ImageButton android:layout_weight="1"
-                     android:layout_width="0dp"
-                     android:id="@+id/next"
-                     style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_next_states"/>
+        <RelativeLayout android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent">
+            <ImageButton android:layout_centerInParent="true"
+                         android:id="@+id/prev"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_prev_states"/>
+        </RelativeLayout>
+        <RelativeLayout android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent">
+            <ImageButton android:layout_centerInParent="true"
+                         android:id="@+id/pause"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_play_states"/>
+        </RelativeLayout>
+        <RelativeLayout android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent">
+            <ImageButton android:layout_centerInParent="true"
+                         android:id="@+id/next"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_next_states"/>
+        </RelativeLayout>
     </LinearLayout>
 </merge>

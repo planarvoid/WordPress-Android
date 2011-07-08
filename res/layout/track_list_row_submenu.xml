@@ -3,26 +3,40 @@
      android:background="@drawable/list_item_submenu_bottom"
      android:layout_height="wrap_content"
      android:layout_width="fill_parent">
-     <View android:layout_width="fill_parent" android:layout_height="1dip" android:background="#ffeeeeee" />
+     <View android:layout_width="fill_parent"
+           android:layout_height="1dip"
+           android:background="#ffeeeeee" />
      <TableLayout android:stretchColumns="*"
-         android:layout_height="wrap_content" android:layout_width="fill_parent">
+                  android:layout_height="wrap_content"
+                  android:layout_width="fill_parent">
          <TableRow android:layout_width="fill_parent"
-             android:layout_height="wrap_content" android:gravity="center_horizontal">
+                   android:layout_height="wrap_content"
+                   android:gravity="center_horizontal">
              <ImageButton android:layout_alignWithParentIfMissing="true"
-                 android:layout_weight="1" android:id="@+id/btn_play" style="@style/btn_sc_transport"
-                 android:src="@drawable/ic_submenu_play_states" />
+                          android:layout_weight="1"
+                          android:id="@+id/btn_play"
+                          style="@style/btn_sc_transparent"
+                          android:src="@drawable/ic_submenu_play_states" />
              <ImageButton android:layout_alignWithParentIfMissing="true"
-                 android:layout_weight="1" android:id="@+id/btn_profile" style="@style/btn_sc_transport"
-                 android:src="@drawable/ic_profile_states" />
+                          android:layout_weight="1"
+                          android:id="@+id/btn_profile"
+                          style="@style/btn_sc_transparent"
+                          android:src="@drawable/ic_profile_states" />
              <ImageButton android:layout_alignWithParentIfMissing="true"
-                 android:layout_weight="1" android:id="@+id/btn_favorite" style="@style/btn_sc_transport"
-                 android:src="@drawable/ic_favorite_states" />
+                          android:layout_weight="1"
+                          android:id="@+id/btn_favorite"
+                          style="@style/btn_sc_transparent"
+                          android:src="@drawable/ic_favorite_states" />
              <ImageButton android:layout_alignWithParentIfMissing="true"
-                 android:layout_weight="1" android:id="@+id/btn_comment" style="@style/btn_sc_transport"
-                 android:src="@drawable/ic_comment_states" />
+                          android:layout_weight="1"
+                          android:id="@+id/btn_comment"
+                          style="@style/btn_sc_transparent"
+                          android:src="@drawable/ic_comment_states" />
              <ImageButton android:layout_alignWithParentIfMissing="true"
-                 android:layout_weight="1" android:id="@+id/btn_share" style="@style/btn_sc_transport"
-                 android:src="@drawable/ic_share_states" />
+                          android:layout_weight="1"
+                          android:id="@+id/btn_share"
+                          style="@style/btn_sc_transparent"
+                          android:src="@drawable/ic_share_states" />
          </TableRow>
      </TableLayout>
  </FrameLayout>

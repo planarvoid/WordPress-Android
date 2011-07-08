@@ -232,9 +232,9 @@
         <item name="android:textSize">@dimen/player_comment_bar_txt_size</item>
     </style>
 
-    <style name="btn_sc_transport">
-         <item name="android:layout_width">@dimen/btn_sc_transport_width</item>
-         <item name="android:layout_height">@dimen/btn_sc_transport_height</item>
+    <style name="btn_sc_transparent">
+         <item name="android:layout_width">@dimen/btn_sc_transparent_width</item>
+         <item name="android:layout_height">@dimen/btn_sc_transparent_height</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
@@ -257,13 +257,9 @@
         <item name="android:layout_height">40dip</item>
     </style>
 
-    <style name="btn_sc_show_info" parent="btn_sc_transport">
-        <item name="android:layout_width">50dip</item>
-        <item name="android:layout_height">50dip</item>
-    </style>
-
-    <style name="btn_sc_transport_small" parent="btn_sc_transport">
-        <item name="android:layout_width">50dip</item>
+    <style name="btn_sc_show_info" parent="btn_sc_transparent">
+        <item name="android:layout_width">@dimen/play_track_info_button_width</item>
+        <item name="android:layout_height">@dimen/play_track_info_button_height</item>
     </style>
 
     <style name="btn_sc_comment_reply">
