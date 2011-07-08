@@ -70,7 +70,7 @@ public class BetaService extends Service {
         synchronized (BetaService.class) {
             if (sRunning) {
                 Log.d(TAG, "already running");
-            } else if (!shouldCheckForUpdates()) {
+            } else if (!shouldCheckForUpdates(this)) {
                 skip(null, "user disabled update check");
             } else if (!isDiskMounted()) {
                 skip(null, "no SD card");
@@ -146,8 +146,8 @@ public class BetaService extends Service {
         }.execute(BETA_BUCKET);
     }
 
-    private boolean shouldCheckForUpdates() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREF_CHECK_UPDATES, true);
+    static boolean shouldCheckForUpdates(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_CHECK_UPDATES, true);
     }
 
     private Content selectVersion(List<Content> available) {
