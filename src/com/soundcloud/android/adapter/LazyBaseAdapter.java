@@ -86,4 +86,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     public void onPostQueryExecute() {
         if (mWrapper != null) mWrapper.onPostQueryExecute();
     }
+
+    public void onDestroy(){}
 }

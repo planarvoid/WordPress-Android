@@ -173,6 +173,13 @@ public abstract class ScActivity extends Activity {
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         unregisterReceiver(mPlaybackStatusListener);
+
+        for (final LazyListView l : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
+                ((LazyBaseAdapter) l.getAdapter()).onDestroy();
+            }
+        }
+
     }
 
     @Override

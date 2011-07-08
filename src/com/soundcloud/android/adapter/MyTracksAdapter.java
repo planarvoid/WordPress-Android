@@ -22,16 +22,20 @@ import java.util.List;
 public class MyTracksAdapter extends TracklistAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
-    private ChangeObserver mChangeObserver;
     private List<Recording> mRecordingData;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
+    private ChangeObserver mChangeObserver;
 
     public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data,
             Class<?> model) {
         super(activity, data, model);
         refreshCursor();
+
+        mChangeObserver = new ChangeObserver();
+        activity.getContentResolver()
+                .registerContentObserver(Content.RECORDINGS, true, mChangeObserver);
     }
 
     @Override
@@ -54,22 +58,19 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     private void refreshCursor() {
-        if (mCursor != null) {
-            mCursor.unregisterContentObserver(mChangeObserver);
-            mCursor.close();
-        }
-
         mCursor = mActivity.getContentResolver().query(Content.RECORDINGS, null,
                 Recordings.USER_ID + "= ? AND " + Recordings.UPLOAD_STATUS + " < 2", new String[] {Long.toString(mActivity.getCurrentUserId())},
                 Recordings.TIMESTAMP + " DESC");
 
-        mChangeObserver = new ChangeObserver();
         if (mCursor != null) {
             mDataValid = true;
-            mCursor.registerContentObserver(mChangeObserver);
             mRecordingData = loadRecordings(mCursor);
         } else {
             mDataValid = false;
+        }
+        if (mCursor != null) {
+            mCursor.close();
+            mCursor = null;
         }
     }
 
@@ -80,7 +81,6 @@ public class MyTracksAdapter extends TracklistAdapter {
                 recordings.add(new Recording(cursor));
             }
         }
-        mCursor.close();
         return recordings;
     }
 
@@ -150,15 +150,16 @@ public class MyTracksAdapter extends TracklistAdapter {
      * @see ContentObserver#onChange(boolean)
      */
     protected void onContentChanged() {
-        if (mCursor != null && !mCursor.isClosed()) {
-            if (Config.LOGV) Log.v("Cursor", "Auto requerying " + mCursor + " due to update");
-            mDataValid = mCursor.requery();
+        if (mCursor == null) {
+            submenuIndex = -1;
+            animateSubmenuIndex = -1;
+            refreshCursor();
+            notifyDataSetChanged();
         }
+    }
 
-        submenuIndex = -1;
-        animateSubmenuIndex = -1;
-        mRecordingData = loadRecordings(mCursor);
-        notifyDataSetChanged();
+    public void onDestroy(){
+        mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
     }
 
     private class ChangeObserver extends ContentObserver {
