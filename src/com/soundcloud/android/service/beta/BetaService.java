@@ -294,8 +294,8 @@ public class BetaService extends Service {
 
         if (!exact) {
             alarm.setInexactRepeating(
-                    AlarmManager.RTC,                           /* type */
-                    System.currentTimeMillis(),                 /* trigger */
+                    AlarmManager.RTC,
+                    System.currentTimeMillis(),
                     INTERVAL,
                     pi);
         } else {
