@@ -138,7 +138,7 @@ public class CommentBubble extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mPlayer, UserBrowser.class);
-                intent.putExtra("userId", mComment.user.id);
+                intent.putExtra("user", mComment.user);
                 mPlayer.startActivity(intent);
             }
 

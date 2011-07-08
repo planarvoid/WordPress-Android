@@ -652,7 +652,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     @Override
                     public void onClick() {
                         Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
-                        intent.putExtra("userId", comment.user.id);
+                        intent.putExtra("user", comment.user);
                         startActivity(intent);
                     }
                 }, false);
