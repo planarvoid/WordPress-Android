@@ -74,6 +74,12 @@ end
         task :delete do
           sh "adb #{flag} shell 'rm #{beta_path}/*'"
         end
+
+        desc "list beta cache"
+        task :list do
+          sh "adb #{flag} shell 'ls #{beta_path}'"
+          sh "adb #{flag} shell 'cat #{beta_path}/*.json'"
+        end
       end
 
       namespace :prefs do
@@ -100,6 +106,17 @@ def package() manifest.root.attribute('package') end
 
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
+
+  desc "build beta"
+  task :build do
+    sh "ant release -Dkey.alias=beta-key"
+  end
+
+  desc "install beta on device"
+  task :install => :build do
+    sh "adb -d install -r bin/soundcloud-release.apk"
+  end
+
   desc "upload beta to s3"
   task :upload do
     sh "s3cmd -P put bin/soundcloud-release.apk s3://#{BUCKET}/#{package}-#{versionCode}.apk"
