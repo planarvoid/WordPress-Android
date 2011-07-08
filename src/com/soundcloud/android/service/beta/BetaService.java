@@ -50,7 +50,7 @@ public class BetaService extends Service {
     public static final String PREF_CHECK_UPDATES = "beta_check_for_updates";
 
     /** How often should the update check run */
-    public static final long INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    public static final long INTERVAL = AlarmManager.INTERVAL_HOUR;
     private static final String USER_AGENT = "SoundCloud Android BetaService";
 
     private HttpClient mClient;
@@ -289,6 +289,9 @@ public class BetaService extends Service {
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         final PendingIntent pi = PendingIntent.getService(context, 0,
                         new Intent(context, BetaService.class), 0);
+
+        alarm.cancel(pi);
+
         if (!exact) {
             alarm.setInexactRepeating(
                     AlarmManager.RTC,                           /* type */
