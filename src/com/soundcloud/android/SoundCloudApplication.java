@@ -88,7 +88,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi.debugRequests = DEV_MODE;
 
-        if (DEV_MODE && Build.VERSION.SDK_INT > 8){
+        if (DEV_MODE) {
             setupStrictMode();
         }
 
@@ -487,17 +487,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
 
     private static void setupStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()
-                .penaltyLog()
-                .build());
+        if (Build.VERSION.SDK_INT > 8) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build());
 
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectLeakedSqlLiteObjects()
-                .penaltyLog()
-                .penaltyDeath()
-                .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
     }
 }

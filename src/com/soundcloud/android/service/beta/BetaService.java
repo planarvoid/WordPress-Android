@@ -47,11 +47,11 @@ public class BetaService extends Service {
 
     public static final Uri BETA_BUCKET = Uri.parse("http://soundcloud-android-beta.s3.amazonaws.com/");
     public static final File APK_PATH = new File(Consts.FILES_PATH, "beta");
+    public static final String PREF_CHECK_UPDATES = "beta_check_for_updates";
 
     /** How often should the update check run */
     public static final long INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
     private static final String USER_AGENT = "SoundCloud Android BetaService";
-    private static final String PREF_CHECK_UPDATES = "beta_check_for_updates";
 
     private HttpClient mClient;
 

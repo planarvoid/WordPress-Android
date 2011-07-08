@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
@@ -16,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -37,10 +39,25 @@ public class Settings extends PreferenceActivity {
         addPreferencesFromResource(R.xml.settings);
 
         if (SoundCloudApplication.BETA_MODE) {
+            Preference beta = new Preference(this);
+            beta.setTitle(R.string.pref_beta);
+            beta.setSummary(R.string.pref_beta_summary);
+
+            CheckBoxPreference autoUpdate = new CheckBoxPreference(this);
+            autoUpdate.setTitle(R.string.pref_beta_check_for_updates);
+            autoUpdate.setSummary(R.string.pref_beta_check_for_updates_summary);
+            autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
+
+            getPreferenceScreen().addPreference(beta);
+            getPreferenceScreen().addPreference(autoUpdate);
+            /*
+            // does not work - android styling bug
+
             PreferenceScreen screen = preferenceScreenFromResource(R.xml.settings_beta);
             if (screen != null) {
                 getPreferenceScreen().addPreference(screen);
             }
+            */
         }
 
         setClearCacheTitle();
