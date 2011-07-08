@@ -1,3 +1,5 @@
+require 'rexml/document'
+
 namespace :doc do
   desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
   task :preview do
@@ -89,3 +91,17 @@ end
     end
 end
 
+def manifest
+  @manifest ||= REXML::Document.new(File.read('AndroidManifest.xml'))
+end
+
+def versionCode() manifest.root.attribute('versionCode') end
+def package() manifest.root.attribute('package') end
+
+namespace :beta do
+  BUCKET = "soundcloud-android-beta"
+  desc "upload beta to s3"
+  task :upload do
+    sh "s3cmd -P put bin/soundcloud-release.apk s3://#{BUCKET}/#{package}-#{versionCode}.apk"
+  end
+end
