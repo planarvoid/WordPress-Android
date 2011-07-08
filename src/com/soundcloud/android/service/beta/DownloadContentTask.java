@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -52,12 +53,8 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
                 fos.close();
                 is.close();
 
-                StringBuilder hex = new StringBuilder();
-                for (byte b : digest.digest()) {
-                    hex.append(Integer.toHexString(0xFF & b));
-                }
-
-                if (!hex.toString().equals(content.etag)) {
+                final String hex = new BigInteger(1, digest.digest()).toString(16);
+                if (!hex.equals(content.etag)) {
                     Log.w(TAG, "MD5 sums don't match: " + hex + "!=" + content.etag);
                     return null;
                 } else {

@@ -60,6 +60,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
@@ -199,10 +200,7 @@ public class CloudUtils {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             digest.update(s.getBytes());
-            byte messageDigest[] = digest.digest();
-            StringBuilder hexString = new StringBuilder();
-            for (byte aMessageDigest : messageDigest) hexString.append(Integer.toHexString(0xFF & aMessageDigest));
-            return hexString.toString();
+            return new BigInteger(1, digest.digest()).toString(16);
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";
