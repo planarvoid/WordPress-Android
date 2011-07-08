@@ -496,9 +496,6 @@ public abstract class ScActivity extends Activity {
                 menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
         }
 
-        menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
-
         menuCurrentUploadingItem = menu.add(menu.size(),
                 Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
                 R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
@@ -512,12 +509,15 @@ public abstract class ScActivity extends Activity {
         if (this instanceof ScCreate) {
             menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
                 android.R.drawable.ic_menu_upload);
-
-        }  else {
-            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                R.drawable.ic_menu_refresh);
         }
 
+         if (this instanceof ScPlayer) {
+            menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
+                R.drawable.ic_menu_refresh);
+        } else {
+             menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
+                menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
+         }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -537,9 +537,6 @@ public abstract class ScActivity extends Activity {
             case Consts.OptionsMenu.SETTINGS:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
-                return true;
-            case Consts.OptionsMenu.REFRESH:
-                onRefresh();
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
                 startActivity(new Intent(this, ScPlayer.class));
@@ -588,8 +585,6 @@ public abstract class ScActivity extends Activity {
         return getApp().getCurrentUserId();
     }
 
-    public void onRefresh() {
-    }
 
     public void pageTrack(String path) {
         getApp().pageTrack(path);

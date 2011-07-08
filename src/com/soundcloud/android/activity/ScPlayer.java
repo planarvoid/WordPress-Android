@@ -47,6 +47,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -446,23 +447,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     public boolean waveformVisible(){
         return (mTrackFlipper.getDisplayedChild() == 0);
-    }
-
-    @Override
-    public void onRefresh(){
-        mPlayingTrack.info_loaded = false;
-        mPlayingTrack.comments_loaded = false;
-        mPlayingTrack.comments = null;
-
-        mTrackInfoFilled = false;
-        mTrackInfoCommentsFilled = false;
-
-        if (mTrackInfo != null){
-            fillTrackInfoComments();
-            fillTrackDetails();
-        }
-
-        refreshComments();
     }
 
     @Override
@@ -1225,5 +1209,26 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         } catch (IllegalAccessException ie) {
             Log.e(TAG, "unexpected", ie);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.REFRESH:
+                mPlayingTrack.info_loaded = false;
+                mPlayingTrack.comments_loaded = false;
+                mPlayingTrack.comments = null;
+                mTrackInfoFilled = false;
+                mTrackInfoCommentsFilled = false;
+                if (mTrackInfo != null) {
+                    fillTrackInfoComments();
+                    fillTrackDetails();
+                }
+                refreshComments();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 }

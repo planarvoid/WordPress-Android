@@ -55,10 +55,9 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
-        // XXX make this sane - createListEmpty expects list with parent view
         ffAdpWrap.configureViews(mListView);
         ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
-        mListView.setAdapter(ffAdpWrap);
+        mListView.setAdapter(ffAdpWrap,true);
 
         facebookBtn = (Button) header.findViewById(R.id.facebook_btn);
         facebookBtn.setOnClickListener(new View.OnClickListener() {
@@ -99,13 +98,6 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
             return ((LazyEndlessAdapter) mListView.getAdapter()).saveState();
         }
         return null;
-    }
-
-    @Override
-    public void onRefresh() {
-        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter) {
-            ((LazyEndlessAdapter) mListView.getAdapter()).refresh(true);
-        }
     }
 
     public void onSectionLoaded(SectionedAdapter.Section section) {

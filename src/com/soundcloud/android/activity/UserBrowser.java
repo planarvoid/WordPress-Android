@@ -238,25 +238,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     @Override
-    public void onRefresh() {
-        if (avatarResult == BindResult.ERROR)
-            reloadAvatar();
-
-        if (mLoadDetailsTask != null) {
-            if (!CloudUtils.isTaskFinished(mLoadDetailsTask)) {
-                mLoadDetailsTask.cancel(true);
-            }
-            mLoadDetailsTask = null;
-        }
-
-        loadDetails();
-        refreshConnections();
-
-         if (!(mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen()) instanceof FriendFinderView)) {
-            ((ScTabView) mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen())).onRefresh(true);
-        }
+     protected void onDataConnectionChanged(boolean isConnected) {
+        super.onDataConnectionChanged(isConnected);
+        if (isConnected && avatarResult == BindResult.ERROR) reloadAvatar();
     }
-
 
     public void refreshConnections(){
         if (isMe()) {

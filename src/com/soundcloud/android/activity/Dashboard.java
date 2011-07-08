@@ -76,11 +76,6 @@ public class Dashboard extends ScActivity {
                 .cancel(Consts.Notifications.DASHBOARD_NOTIFY_ID);
     }
 
-    @Override
-    public void onRefresh() {
-        mTracklistView.onRefresh(true);
-    }
-
     protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
         EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);

@@ -249,13 +249,6 @@ public class ScUpload extends ScActivity {
         finish();
     }
 
-
-    @Override
-    public void onRefresh() {
-        mConnectionList.getAdapter().clear();
-        mConnectionList.getAdapter().loadIfNecessary();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle state) {
         state.putString("createWhatValue", mWhatText.getText().toString());
