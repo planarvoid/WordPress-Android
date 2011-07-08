@@ -269,7 +269,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position == super.getCount() && CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0){
+        if (position == super.getCount() && canShowEmptyView()){
             return mEmptyView;
         }
 
@@ -297,6 +297,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         }
 
         return (super.getView(position, convertView, parent));
+    }
+
+    protected boolean canShowEmptyView(){
+       return CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0 && !mKeepOnAppending.get();
     }
 
     protected int getPageSize() {
@@ -348,6 +352,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         // configure the empty view depending on possible exceptions
         applyEmptyText();
         notifyDataSetChanged();
+
     }
 
     public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
@@ -357,8 +362,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             // false for notify of change, we can only notify after resetting listview
             reset(true, false);
             onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
-        } else if (super.getCount() == 0) {
-             // no items currently, no items returned, don't append until manual refresh
+        } else {
             mKeepOnAppending.set(false);
         }
 

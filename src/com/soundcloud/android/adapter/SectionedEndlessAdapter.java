@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -42,7 +43,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @Override
     protected Request getRequest(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(mSectionIndex).getRequest(refresh);
+        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).getRequest(refresh);
     }
 
     @Override
@@ -99,27 +100,48 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             }
 
             if (!keepgoing) {
-                // end of this section
-                for (WeakReference<SectionListener> listenerRef : mListeners) {
-                    SectionListener listener = listenerRef.get();
-                    if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
-                        listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
-                    }
-                }
-
-                // load next section as necessary
-                if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
-                    mCurrentPage = 0;
-                    mSectionIndex++;
-                    mKeepOnAppending.set(true);
-                    return;
-                }
+                nextAdapterSection();
+                return;
             }
+
             mKeepOnAppending.set(keepgoing);
             incrementPage();
         } else {
             handleResponseCode(responseCode);
             applyEmptyText();
+        }
+    }
+
+    private void nextAdapterSection() {
+        // end of this section
+        for (WeakReference<SectionListener> listenerRef : mListeners) {
+            SectionListener listener = listenerRef.get();
+            if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
+                listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
+            }
+        }
+
+        // load next section as necessary
+        if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
+            mCurrentPage = 0;
+            mSectionIndex++;
+            mKeepOnAppending.set(true);
+        }
+    }
+
+
+   public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
+       super.onPostRefresh(newItems,nextHref,responseCode,keepGoing);
+       if (!mKeepOnAppending.get()) nextAdapterSection();
+   }
+
+    protected void onEmptyRefresh(){
+       if (super.getCount() == 0) {
+           if (mSectionIndex >= getWrappedAdapter().sections.size() - 1) {
+               mKeepOnAppending.set(false);
+           } else {
+               nextAdapterSection();
+           }
         }
     }
 
