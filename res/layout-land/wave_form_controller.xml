@@ -51,12 +51,12 @@
     <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
                                                  android:layout_above="@+id/player_comment_bar"
                                                  android:layout_width="fill_parent"
-                                                 android:layout_height="32dip"
+                                                 android:layout_height="@dimen/player_avatar_bar_height"
                                                  android:visibility="invisible"/>
 
     <com.soundcloud.android.view.PlayerCommentBar android:id="@+id/player_comment_bar"
                                                   android:layout_alignParentBottom="true"
                                                   android:background="@drawable/comment_touch_bar"
                                                   android:layout_width="fill_parent"
-                                                  android:layout_height="35dip"/>
+                                                  android:layout_height="@dimen/player_comment_bar_height"/>
 </RelativeLayout>

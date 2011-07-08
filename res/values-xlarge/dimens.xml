@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="tab_text_size">18sp</dimen>
+
+    <dimen name="list_icon_width">100sp</dimen>
+    <dimen name="list_icon_height">100sp</dimen>
+    <dimen name="list_txt_main_size">18sp</dimen>
+    <dimen name="list_txt_sub_size">16sp</dimen>
+
+    <dimen name="track_list_indicator_margin_left">10dip</dimen>
+    <dimen name="track_list_text_margin_left">30dip</dimen>
+    <dimen name="track_list_private_margin_top">5dip</dimen>
+    <dimen name="track_list_private_margin_left">6dip</dimen>
+
+    <dimen name="user_list_text_margin_left">15dip</dimen>
+
+    <dimen name="user_browser_info_margin_left">10dip</dimen>
+    <dimen name="user_browser_info_username_margin_top">10dip</dimen>
+    <dimen name="user_browser_info_username_margin_bottom">3dip</dimen>
+    <dimen name="user_browser_info_username_txt_size">20sp</dimen>
+
+    <!-- can't change one of these without change them all -->
+    <dimen name="player_time_height">40dip</dimen>
+    <dimen name="player_portrait_time_and_wave_height">200dip</dimen>
+    <dimen name="player_portrait_half_wave_height">80dip</dimen>
+    <dimen name="player_portrait_negative_half_wave_height">-80dip</dimen>
+    <!-- end of can't change one of these without change them all -->
+
+    <dimen name="player_time_width">120dip</dimen>
+    <dimen name="player_time_text_size">15sp</dimen>
+
+    <dimen name="player_track_info_padding_left">20dip</dimen>
+    <dimen name="player_track_info_padding_right">20dip</dimen>
+
+    <dimen name="btn_sc_transport_height">75dip</dimen>
+    <dimen name="btn_sc_transport_width">90dip</dimen>
+
+    <dimen name="player_avatar_bar_height">100dip</dimen>
+
+    <dimen name="player_comment_bar_height">70dip</dimen>
+    <dimen name="player_comment_bar_toggle_margin_right">20dip</dimen>
+    <dimen name="player_comment_bar_txt_size">22sp</dimen>
+</resources>
