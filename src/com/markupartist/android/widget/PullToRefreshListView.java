@@ -49,6 +49,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private ProgressBar mRefreshViewProgress;
     private TextView mRefreshViewLastUpdated;
 
+
     private int mLastMotionY;
 
     private int mCurrentScrollState;
@@ -68,6 +69,7 @@ private boolean mPushBackUp;
     private long mLastUpdated;
 
     protected View mFooterView;
+    private boolean mAutoScrolling;
 
 
     public PullToRefreshListView(Context context) {
@@ -197,6 +199,14 @@ private boolean mPushBackUp;
             Method method = ListView.class.getMethod("smoothScrollBy",
                     Integer.TYPE, Integer.TYPE);
             method.invoke(this, distance + 1, duration);
+            mAutoScrolling = true;
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAutoScrolling = false;
+                }
+            }, duration);
+
         } catch (NoSuchMethodException e) {
             // If smoothScrollBy is not available (< 2.2)
             setSelection(1);
@@ -452,7 +462,8 @@ private boolean mPushBackUp;
             }
         } else if (mCurrentScrollState == SCROLL_STATE_FLING
                 && firstVisibleItem == 0
-                && mRefreshState != REFRESHING) {
+                && mRefreshState != REFRESHING
+                && !mAutoScrolling) {
             setSelection(1);
         }
 
