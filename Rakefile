@@ -107,20 +107,31 @@ def package() manifest.root.attribute('package') end
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
+  APK = "bin/soundcloud-release.apk"
 
   desc "build beta"
   task :build do
-    sh "ant release -Dkey.alias=beta-key"
+    sh "ant clean release -Dkey.alias=beta-key"
   end
 
   desc "install beta on device"
   task :install => :build do
-    sh "adb -d install -r bin/soundcloud-release.apk"
+    sh "adb -d install -r #{APK}"
+  end
+
+  task :verify do
+    raise "Missing file: #{APK}" unless File.exists?(APK)
+
+    output = `jarsigner -verify -certs -verbose #{APK}`
+    raise unless $?.success?
+    if output !~ /CN=SoundCloud Android Beta/
+      raise "Wrong signature"
+    end
   end
 
   desc "upload beta to s3"
-  task :upload do
-    sh "s3cmd -P put bin/soundcloud-release.apk " +
+  task :upload => :verify do
+    sh "s3cmd -P put #{APK} " +
        "--mime-type=application/vnd.android.package-archive " +
        DEST
   end
