@@ -106,6 +106,7 @@ def package() manifest.root.attribute('package') end
 
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
+  DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
 
   desc "build beta"
   task :build do
@@ -119,6 +120,8 @@ namespace :beta do
 
   desc "upload beta to s3"
   task :upload do
-    sh "s3cmd -P put bin/soundcloud-release.apk s3://#{BUCKET}/#{package}-#{versionCode}.apk"
+    sh "s3cmd -P put bin/soundcloud-release.apk " +
+       "--mime-type=application/vnd.android.package-archive " +
+       DEST
   end
 end
