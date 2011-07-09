@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.CloudUtils.getTimeElapsed;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.Http;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -28,7 +29,6 @@ import android.os.IBinder;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.IOException;
@@ -258,31 +258,26 @@ public class BetaService extends Service {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(apk.getLocalFile()), "application/vnd.android.package-archive");
 
-        RemoteViews view = new RemoteViews(getPackageName(), R.layout.beta_service_new_update);
-        view.setTextViewText(R.id.title,   "New beta version available");
-        view.setTextViewText(R.id.version, "Updated " + getTimeElapsed(getResources(), apk.lastmodified));
+        String title   = "New beta version available";
+        String content = "Updated " + getTimeElapsed(getResources(), apk.lastmodified);
+        String ticker  = "Beta update";
 
-        Notification notification = new Notification();
-        notification.contentView = view;
-        notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
-        notification.icon = R.drawable.statusbar;
-        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        NotificationManager n = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        n.notify(Consts.Notifications.BETA_NOTIFY_ID, notification);
+        Notification n = new Notification(R.drawable.statusbar, ticker, apk.lastmodified);
+        n.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+        n.setLatestEventInfo(this, title, content, PendingIntent.getActivity(this, 0, intent, 0));
+        NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
 
     private void notifyLowDiskspace(Content content) {
-        RemoteViews view = new RemoteViews(getPackageName(), R.layout.beta_service_new_update);
-        view.setTextViewText(R.id.title, "Not enough disk space");
-        view.setTextViewText(R.id.version, "to download " + content.key);
+        String title = "Not enough diskspace";
+        String ncontent = "to download beta " + content.key;
 
-        Notification notification = new Notification();
-        notification.contentView = view;
-        notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
-        notification.icon = R.drawable.statusbar;
-        NotificationManager n = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        n.notify(Consts.Notifications.BETA_NOTIFY_ID, notification);
+        Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
+        n.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+        n.setLatestEventInfo(this, title, ncontent, null);
+        NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
 
     public static void scheduleCheck(Context context, boolean exact) {
@@ -323,11 +318,15 @@ public class BetaService extends Service {
     }
 
     private boolean isWifi() {
-        ConnectivityManager c = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        WifiManager wMgr = (WifiManager) getSystemService(WIFI_SERVICE);
-        return (wMgr.isWifiEnabled() &&
-            c.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null &&
-            c.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+        if (SoundCloudApplication.EMULATOR) {
+            return true;
+        } else {
+            ConnectivityManager c = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            WifiManager wMgr = (WifiManager) getSystemService(WIFI_SERVICE);
+            return (wMgr.isWifiEnabled() &&
+                c.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null &&
+                c.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+        }
     }
 }
 

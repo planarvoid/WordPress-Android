@@ -47,6 +47,7 @@ public class Settings extends PreferenceActivity {
             autoUpdate.setTitle(R.string.pref_beta_check_for_updates);
             autoUpdate.setSummary(R.string.pref_beta_check_for_updates_summary);
             autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
+            autoUpdate.setDefaultValue(true);
 
             getPreferenceScreen().addPreference(beta);
             getPreferenceScreen().addPreference(autoUpdate);
