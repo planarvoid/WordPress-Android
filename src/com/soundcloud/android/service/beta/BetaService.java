@@ -263,7 +263,7 @@ public class BetaService extends Service {
         String ticker  = "Beta update";
 
         Notification n = new Notification(R.drawable.statusbar, ticker, apk.lastmodified);
-        n.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+        n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, content, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
@@ -274,10 +274,16 @@ public class BetaService extends Service {
         String ncontent = "to download beta " + content.key;
 
         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
-        n.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+        n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, ncontent, null);
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
+    }
+
+    private int defaultNotificationFlags() {
+       return Notification.FLAG_ONLY_ALERT_ONCE |
+              Notification.FLAG_AUTO_CANCEL |
+              Notification.DEFAULT_LIGHTS;
     }
 
     public static void scheduleCheck(Context context, boolean exact) {
