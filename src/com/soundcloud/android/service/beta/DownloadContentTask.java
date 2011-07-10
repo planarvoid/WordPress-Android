@@ -32,7 +32,10 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
     protected File doInBackground(Content... params) {
         final Content content = params[0];
         HttpUriRequest request = new HttpGet(content.getURI().toString());
-        File dest = new File(BetaService.APK_PATH, content.key);
+        final File dest = new File(BetaService.APK_PATH, content.key);
+        final File tmp = new File(BetaService.APK_PATH, content.key+".tmp");
+        tmp.deleteOnExit();
+
         mkdirs(BetaService.APK_PATH);
 
         try {
@@ -42,7 +45,7 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
                 InputStream is = resp.getEntity().getContent();
-                OutputStream fos = new FileOutputStream(dest);
+                OutputStream fos = new FileOutputStream(tmp);
 
                 byte[] buffer = new byte[8192];
                 int n;
@@ -57,6 +60,9 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
                 if (!hex.equals(content.etag)) {
                     Log.w(TAG, "MD5 sums don't match: " + hex + "!=" + content.etag);
                     return null;
+                } else if (!tmp.renameTo(dest)) {
+                    Log.w(TAG, "could not rename file");
+                    return  null;
                 } else {
                     return dest;
                 }
