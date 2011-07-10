@@ -247,7 +247,7 @@ public class BetaService extends Service {
     private boolean isEnoughDiskLeft(Content content) {
         StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
         long free = fs.getAvailableBlocks() * fs.getBlockCount();
-        return content.size < free;
+        return content.size * 3 < free;
     }
 
     private boolean isDiskMounted() {
