@@ -29,6 +29,13 @@ Clone and build it:
   process
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
 
+## Releasing betas
+
+  * Change `versionName` in AndroidManifest.xml (but not `versionCode`)
+  * Create a tag with the versionName you used in step 1)
+  * Build the apk: `rake beta:build`
+  * Upload to S3: `rake beta:upload`
+
 ## Integration from other Android apps
 
 This is document elsewhere:
