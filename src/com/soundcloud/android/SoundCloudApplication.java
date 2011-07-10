@@ -111,7 +111,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Log.d(TAG, "BETA mode enabled, scheduling update checks "+
                     "(every "+BetaService.INTERVAL/1000/60+" minutes)");
 
-            BetaService.scheduleCheck(this, false);
+            BetaService.scheduleCheck(this, EMULATOR);
         }
     }
 
@@ -453,7 +453,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private boolean isBetaMode() {
-        return hasKey(R.array.beta_sigs);
+        return EMULATOR || hasKey(R.array.beta_sigs);
     }
 
     private boolean isDevMode() {

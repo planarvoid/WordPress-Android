@@ -33,8 +33,7 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
         final Content content = params[0];
         HttpUriRequest request = new HttpGet(content.getURI().toString());
         final File dest = new File(BetaService.APK_PATH, content.key);
-        final File tmp = new File(BetaService.APK_PATH, content.key+".tmp");
-        tmp.deleteOnExit();
+        final File tmp = new File(dest.getAbsolutePath()+".tmp") {{ deleteOnExit(); }};
 
         mkdirs(BetaService.APK_PATH);
 
