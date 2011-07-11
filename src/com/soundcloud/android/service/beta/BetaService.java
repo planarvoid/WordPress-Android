@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.beta;
 
+import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
 import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 
 import com.soundcloud.android.Consts;
@@ -17,8 +18,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
@@ -166,7 +165,7 @@ public class BetaService extends Service {
             Collections.sort(available);
             Content first = available.get(0);
 
-            if (first.getVersion() >= getVersionCode()) {
+            if (first.getVersionCode() >= getAppVersionCode(this, -1)) {
                 return first;
             } else {
                 return null;
@@ -357,16 +356,6 @@ public class BetaService extends Service {
 
         Log.d(TAG, "BETA mode enabled, scheduling update checks "+
                 "(every "+BetaService.INTERVAL/1000/60+" minutes, exact="+exact+")");
-    }
-
-    private int getVersionCode() {
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-            return info.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            // should not happen
-            throw new RuntimeException(e);
-        }
     }
 
     private boolean isBackgroundDataEnabled() {

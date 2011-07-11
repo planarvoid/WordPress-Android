@@ -692,6 +692,18 @@ public class CloudUtils {
         }
     }
 
+    public static int getAppVersionCode(Context context, int defaultVersion) {
+        try {
+            PackageInfo info = context
+                    .getPackageManager()
+                    .getPackageInfo(context.getPackageName(),
+                    PackageManager.GET_META_DATA);
+            return info.versionCode;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return defaultVersion;
+        }
+    }
+
      public static void logScreenSize(Context context) {
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:

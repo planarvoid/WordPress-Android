@@ -102,7 +102,15 @@ def manifest
 end
 
 def versionCode() manifest.root.attribute('versionCode') end
+def versionName() manifest.root.attribute('versionName') end
 def package() manifest.root.attribute('package') end
+
+def gitsha1()
+  `git rev-parse HEAD`.tap do |head|
+    raise "could not get current HEAD" unless $?.success?
+    head.strip!
+  end
+end
 
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
@@ -131,8 +139,17 @@ namespace :beta do
 
   desc "upload beta to s3"
   task :upload => :verify do
+    metadata = {
+      'android-versionname' => versionName,
+      'android-versioncode' => versionCode,
+      'git-sha1'            => gitsha1
+    }
     sh "s3cmd -P put #{APK} " +
        "--mime-type=application/vnd.android.package-archive " +
+       metadata.inject([]) { |m,(k,v)|
+         m << "--add-header=x-amz-meta-#{k}:#{v}"
+         m
+       }.join(' ')
        DEST
   end
 end

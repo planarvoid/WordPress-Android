@@ -33,6 +33,12 @@ public class Content implements Comparable<Content>, Parcelable {
     private static final Pattern VERSION = Pattern.compile(".*-(\\d+).apk$");
     public static final String META_DATA_EXT = ".json";
 
+    // metadata fields
+    public static final String VERSION_NAME = "android-versionname";
+    public static final String VERSION_CODE = "android-versioncode";
+    public static final String GIT_SHA1     = "git-sha1";
+
+
     public Uri getURI() {
         return BetaService.BETA_BUCKET.buildUpon().appendPath(key).build();
     }
@@ -53,10 +59,27 @@ public class Content implements Comparable<Content>, Parcelable {
                getLocalFile().lastModified() == lastmodified;
     }
 
-    public int getVersion() {
-        if (key == null) return -1;
-        Matcher m = VERSION.matcher(key);
-        return (m.matches()) ? Integer.parseInt(m.group(1)) : -1;
+    public int getVersionCode() {
+        if (metadata.containsKey(VERSION_CODE)) {
+            try {
+                return Integer.parseInt(metadata.get(VERSION_CODE));
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else if (key == null) {
+            return -1;
+        } else {
+            Matcher m = VERSION.matcher(key);
+            return (m.matches()) ? Integer.parseInt(m.group(1)) : -1;
+        }
+    }
+
+    public String getVersionName() {
+        return metadata.containsKey(VERSION_NAME) ? metadata.get(VERSION_NAME) : "unknown";
+    }
+
+    public String getGitSha1() {
+        return metadata.containsKey(GIT_SHA1) ? metadata.get(GIT_SHA1) : "unknown";
     }
 
     public long downloadTime() {
@@ -83,8 +106,8 @@ public class Content implements Comparable<Content>, Parcelable {
 
     @Override
     public int compareTo(Content content) {
-        return getVersion() == content.getVersion() ? 0 :
-               getVersion()  > content.getVersion() ? -1 : 1;
+        return getVersionCode() == content.getVersionCode() ? 0 :
+               getVersionCode()  > content.getVersionCode() ? -1 : 1;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.CloudUtils.getAppVersion;
+import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
 import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 
 import com.soundcloud.android.R;
@@ -31,14 +33,19 @@ public class BetaPreferences {
                 final Content content = BetaService.getMostRecentContent();
                 String message = "";
                 if (content != null) {
-                    message += String.format("Last downloaded beta: %s, version: %d (updated %s)",
+                    message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
                             getElapsedTimeString(context.getResources(), content.downloadTime()),
-                            content.getVersion(),
+                            content.getVersionName(),
+                            content.getVersionCode(),
                             getElapsedTimeString(context.getResources(), content.lastmodified)
                     );
                 } else {
-                    message += "No beta downloaded yet.";
+                    message += "No beta downloaded yet. ";
                 }
+                message += String.format("Installed version: %s (%d)",
+                        getAppVersion(context, "unknown"),
+                        getAppVersionCode(context, -1));
+
                 AlertDialog.Builder b = new AlertDialog.Builder(context)
                         .setTitle(R.string.pref_beta)
                         .setMessage(message)
