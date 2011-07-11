@@ -1,12 +1,16 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.utils.CloudUtils.deleteFile;
+import static com.soundcloud.android.utils.CloudUtils.getAppVersion;
+import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
 
+import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
@@ -88,6 +92,11 @@ public class Content implements Comparable<Content>, Parcelable {
         } else {
             return -1;
         }
+    }
+
+    public boolean isUptodate(Context context) {
+        return getAppVersionCode(context, -1) == getVersionCode() &&
+               getAppVersion(context, "").equals(getVersionName());
     }
 
     @Override

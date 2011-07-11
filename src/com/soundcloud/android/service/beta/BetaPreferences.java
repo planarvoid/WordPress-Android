@@ -33,15 +33,20 @@ public class BetaPreferences {
                 final Content content = BetaService.getMostRecentContent();
                 String message = "";
                 if (content != null) {
-                    message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
-                            getElapsedTimeString(context.getResources(), content.downloadTime()),
-                            content.getVersionName(),
-                            content.getVersionCode(),
-                            getElapsedTimeString(context.getResources(), content.lastmodified)
-                    );
+                    if (content.isUptodate(context)) {
+                        message += "Your beta version is up to date. ";
+                    } else {
+                        message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
+                                getElapsedTimeString(context.getResources(), content.downloadTime()),
+                                content.getVersionName(),
+                                content.getVersionCode(),
+                                getElapsedTimeString(context.getResources(), content.lastmodified)
+                        );
+                    }
                 } else {
                     message += "No beta downloaded yet. ";
                 }
+
                 message += String.format("Installed version: %s (%d)",
                         getAppVersion(context, "unknown"),
                         getAppVersionCode(context, -1));
@@ -59,7 +64,7 @@ public class BetaPreferences {
                             }
                         });
 
-                if (content != null) {
+                if (content != null && !content.isUptodate(context)) {
                     b.setNeutralButton(R.string.pref_beta_install_now, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
