@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -24,6 +25,9 @@ import java.lang.reflect.Method;
 public class BetaPreferences {
 
     public static void add(final Context context, PreferenceGroup group) {
+        PreferenceCategory cat = new PreferenceCategory(context);
+        cat.setTitle(R.string.pref_beta_title);
+
         Preference beta = new Preference(context);
         beta.setTitle(R.string.pref_beta);
         beta.setSummary(R.string.pref_beta_summary);
@@ -85,8 +89,10 @@ public class BetaPreferences {
         autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
         autoUpdate.setDefaultValue(true);
 
-        group.addPreference(beta);
-        group.addPreference(autoUpdate);
+        group.addPreference(cat);
+
+        cat.addPreference(beta);
+        cat.addPreference(autoUpdate);
         /*
         // does not work - android styling bug
 
