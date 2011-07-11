@@ -214,11 +214,8 @@ public class BetaService extends Service {
                             Log.d(TAG, "downloaded " + file +
                                     " in " + ((System.currentTimeMillis() - start) / 1000L) + " secs");
 
-                            if (!file.setLastModified(content.lastmodified)) {
-                                Log.w(TAG, "could not set last modified");
-                            }
-
                             try {
+                                content.touch();
                                 content.persist();
                                 notifyNewVersion(content);
 

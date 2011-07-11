@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -91,6 +92,11 @@ public class Content implements Comparable<Content>, Parcelable {
             return getMetaDataFile().lastModified();
         } else {
             return -1;
+        }
+    }
+    public void touch() throws IOException {
+        if (!getLocalFile().setLastModified(lastmodified)) {
+            throw new IOException("could not set last modified");
         }
     }
 
