@@ -146,9 +146,12 @@ public class BetaService extends Service {
                     if (recent != null && !recent.isDownloaded()) {
                         download(recent, intent);
                     } else {
-                        Log.d(TAG, "nothing to download, stopping service");
+                        Log.d(TAG, "nothing to download");
                         stopSelf();
                     }
+                } else {
+                    Log.d(TAG, "could not fetch content overview");
+                    stopSelf();
                 }
             }
         }.execute(BETA_BUCKET);

@@ -25,7 +25,6 @@ public class GetS3ContentTask extends AsyncTask<Uri, Void, List<Content>> {
 
     @Override
     protected List<Content> doInBackground(Uri... params) {
-
         try {
             HttpUriRequest req = new HttpGet(params[0].toString());
             req.setHeader("Accept", "text/xml");
