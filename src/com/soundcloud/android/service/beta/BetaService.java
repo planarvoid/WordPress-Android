@@ -272,6 +272,7 @@ public class BetaService extends Service {
     private void notifyNewVersion(Content apk) {
         String title   = getString(R.string.pref_beta_new_version_available);
         String content = getString(R.string.pref_beta_new_version_available_content,
+                apk.getVersionName(),
                 getElapsedTimeString(getResources(), apk.lastmodified));
 
         String ticker  = getString(R.string.pref_beta_new_version_available_ticker);
