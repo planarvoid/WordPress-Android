@@ -306,6 +306,9 @@ public class BetaService extends Service {
                     INTERVAL,
                     pi);
         }
+
+        Log.d(TAG, "BETA mode enabled, scheduling update checks "+
+                "(every "+BetaService.INTERVAL/1000/60+" minutes, exact="+exact+")");
     }
 
     private int getVersionCode() {
