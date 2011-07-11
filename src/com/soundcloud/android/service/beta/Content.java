@@ -7,6 +7,7 @@ import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -56,6 +57,14 @@ public class Content implements Comparable<Content>, Parcelable {
         if (key == null) return -1;
         Matcher m = VERSION.matcher(key);
         return (m.matches()) ? Integer.parseInt(m.group(1)) : -1;
+    }
+
+    public long downloadTime() {
+        if (getMetaDataFile().exists()) {
+            return getMetaDataFile().lastModified();
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -115,6 +124,11 @@ public class Content implements Comparable<Content>, Parcelable {
         }
     };
 
+    public Intent getInstallIntent() {
+        return new Intent(Intent.ACTION_VIEW)
+            .setDataAndType(Uri.fromFile(getLocalFile()), "application/vnd.android.package-archive");
+    }
+
     public void deleteFiles() {
         deleteFile(getLocalFile());
         deleteFile(getMetaDataFile());
@@ -128,6 +142,10 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public static Content fromJSON(String json) throws IOException {
+        return mapper.readValue(json, Content.class);
+    }
+
+    public static Content fromJSON(File json) throws IOException {
         return mapper.readValue(json, Content.class);
     }
 

@@ -6,26 +6,20 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.service.beta.BetaService;
+import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 import android.util.Log;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING      = 0;
@@ -39,26 +33,7 @@ public class Settings extends PreferenceActivity {
         addPreferencesFromResource(R.xml.settings);
 
         if (SoundCloudApplication.BETA_MODE) {
-            Preference beta = new Preference(this);
-            beta.setTitle(R.string.pref_beta);
-            beta.setSummary(R.string.pref_beta_summary);
-
-            CheckBoxPreference autoUpdate = new CheckBoxPreference(this);
-            autoUpdate.setTitle(R.string.pref_beta_check_for_updates);
-            autoUpdate.setSummary(R.string.pref_beta_check_for_updates_summary);
-            autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
-            autoUpdate.setDefaultValue(true);
-
-            getPreferenceScreen().addPreference(beta);
-            getPreferenceScreen().addPreference(autoUpdate);
-            /*
-            // does not work - android styling bug
-
-            PreferenceScreen screen = preferenceScreenFromResource(R.xml.settings_beta);
-            if (screen != null) {
-                getPreferenceScreen().addPreference(screen);
-            }
-            */
+            BetaPreferences.add(this, getPreferenceScreen());
         }
 
         setClearCacheTitle();
@@ -143,24 +118,7 @@ public class Settings extends PreferenceActivity {
         }
     }
 
-    // hacky way to use package private method on PreferenceManager
-    private PreferenceScreen preferenceScreenFromResource(int settings_beta) {
-        try {
-            Class pm = getPreferenceManager().getClass();
-            Method m = pm.getDeclaredMethod("inflateFromResource", Context.class, Integer.TYPE, PreferenceScreen.class);
-            m.setAccessible(true);
-            return (PreferenceScreen) m.invoke(getPreferenceManager(), this, settings_beta, null);
-        } catch (NoSuchMethodException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        } catch (IllegalAccessException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        } catch (InvocationTargetException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        }
-    }
+
 
     public void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
