@@ -915,4 +915,10 @@
     <string name="menu_show_all">Show all</string>
     <string name="menu_show_audio">Show only audio</string>
     <string name="audio_file_picker_empty">No files or directories</string>
+
+
+    <string name="pref_basic_settings">Basic settings</string>
+    <string name="pref_connection_and_data">Connection and data</string>
+    <string name="pref_app_details">App Details</string>
+    <string name="pref_dev_settings">Dev settings</string>
 </resources>

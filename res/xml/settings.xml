@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-            android:title="Basic settings">
+            android:title="@string/pref_basic_settings">
 
         <PreferenceScreen
                 android:title="@string/pref_notifications"
@@ -38,7 +38,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:title="Connection and data">
+            android:title="@string/pref_connection_and_data">
 
         <PreferenceScreen
                 android:key="wireless"
@@ -61,7 +61,7 @@
 
 
     <PreferenceCategory
-                android:title="App Details">
+                android:title="@string/pref_app_details">
 
         <Preference
                 android:title="@string/pref_change_log"
@@ -76,7 +76,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="dev-settings"
-                        android:title="Dev">
+                        android:title="@string/pref_dev_settings">
         <ListPreference
             android:title="@string/pref_dashboard_store_max"
             android:summary="@string/pref_dashboard_store_max_desc"
