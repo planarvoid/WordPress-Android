@@ -140,7 +140,14 @@ public class AudioFilePicker extends ListActivity {
             ImageView imageView = (ImageView) row.findViewById(R.id.file_picker_image);
             TextView textView = (TextView) row.findViewById(R.id.file_picker_text);
             textView.setText(object.getName());
-            imageView.setImageResource(object.isFile() ? R.drawable.sounds : R.drawable.file_picker_folder);
+
+            if (object.isDirectory()) {
+                imageView.setImageResource(R.drawable.file_picker_folder);
+            } else if (AudioFileFilter.isAudio(object.getName())) {
+                imageView.setImageResource(R.drawable.file_picker_soundfile);
+            } else {
+                imageView.setImageDrawable(null);
+            }
             return row;
         }
     }
@@ -171,14 +178,14 @@ public class AudioFilePicker extends ListActivity {
         @Override
         public boolean accept(File dir, String filename) {
             final File file = new File(dir, filename);
-            if (file.isDirectory()) {
-                return true;
-            } else {
-                int dot = filename.lastIndexOf(".");
-                if (dot != -1 && dot < filename.length()) {
-                    final String ext = filename.substring(dot + 1, filename.length()).toLowerCase();
-                    for (String e : AUDIO_EXTENSIONS) if (ext.equals(e)) return true;
-                }
+            return file.isDirectory() || isAudio(filename);
+        }
+
+        static boolean isAudio(String filename) {
+            int dot = filename.lastIndexOf(".");
+            if (dot != -1 && dot < filename.length()) {
+                final String ext = filename.substring(dot + 1, filename.length()).toLowerCase();
+                for (String e : AUDIO_EXTENSIONS) if (ext.equals(e)) return true;
             }
             return false;
         }
