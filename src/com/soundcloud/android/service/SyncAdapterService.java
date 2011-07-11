@@ -40,14 +40,12 @@ public class SyncAdapterService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate()");
         super.onCreate();
         mSyncAdapter = new ScSyncAdapter((SoundCloudApplication) getApplication(), this);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind()");
         return mSyncAdapter.getSyncAdapterBinder();
     }
 
@@ -64,7 +62,9 @@ public class SyncAdapterService extends Service {
         @Override
         public void onPerformSync(Account account, Bundle extras, String authority,
                                   ContentProviderClient provider, SyncResult syncResult) {
-            Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
+            if (SoundCloudApplication.DEV_MODE) {
+                Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
+            }
             try {
                 SyncAdapterService.performSync(mApp, mContext, account, extras, authority,
                         provider, syncResult);
@@ -74,33 +74,37 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static void performSync(final SoundCloudApplication app, Context context, Account account, Bundle extras,
+    /** @noinspection UnusedParameters*/
+    private static void performSync(final SoundCloudApplication app,
+                                    Context context, Account account,
+                                    Bundle extras,
                                     String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
 
         app.useAccount(account);
 
         try {
-            List<Event> incomingEvents = getNewIncomingEvents(app,
-                    app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), false);
+            final long lastSync = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP);
+            List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
+            List<Event> incomingExclusive = getNewExclusiveEvents(app, lastSync);
 
-            List<Event> incomingExclusive = getNewIncomingEvents(app,
-                    app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP), true);
+            final boolean hasIncoming  = incomingEvents.size() > 0;
+            final boolean hasExclusive = incomingExclusive.size() > 0;
+            if (hasIncoming || hasExclusive) {
+                final CharSequence title, message, ticker;
 
-            if (incomingEvents.size() > 0 || incomingExclusive.size() > 0) {
-                CharSequence title,message,ticker;
-
-                int totalUnseen = Math.max(incomingEvents.size(),1); // takes care of an exclusive that hasn't made it to incoming yet
+                int totalUnseen = Math.max(incomingEvents.size(), 1);
+                // takes care of an exclusive that hasn't made it to incoming yet
                 if (totalUnseen == 1) {
-                    ticker = app.getApplicationContext().getString(
+                    ticker = context.getString(
                             R.string.dashboard_notifications_ticker_single);
-                    title = app.getApplicationContext().getString(
+                    title = context.getString(
                             R.string.dashboard_notifications_title_single);
                 } else {
-                    ticker = String.format(app.getApplicationContext().getString(
+                    ticker = String.format(context.getString(
                             R.string.dashboard_notifications_ticker), totalUnseen > 99 ? "99+" : totalUnseen);
 
-                    title = String.format(app.getApplicationContext().getString(
+                    title = String.format(context.getString(
                             R.string.dashboard_notifications_title), totalUnseen > 99 ? "99+" : totalUnseen);
                 }
 
@@ -109,10 +113,10 @@ public class SyncAdapterService extends Service {
                 } else {
                     message = getIncomingMessaging(app, incomingEvents);
                 }
-                createDashboardNotification(app, ticker, title, message);
+                createDashboardNotification(app, ticker, title, message, hasExclusive);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, "i/o", e);
         }
     }
 
@@ -124,41 +128,57 @@ public class SyncAdapterService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", false);
     }
 
-    private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long activitiesSince, boolean exclusive) throws IOException {
+    private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
+        return getNewIncomingEvents(app, since, false);
+    }
+
+    private static List<Event> getNewExclusiveEvents(SoundCloudApplication app, long since) throws IOException {
+        return getNewIncomingEvents(app, since, true);
+    }
+
+    private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since, boolean exclusive)
+            throws IOException {
         boolean caughtUp = false;
         Activities activities = null;
         List<Event> incomingEvents = new ArrayList<Event>();
-
-        if ((!exclusive && isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app)))
+        if ((!exclusive && isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return incomingEvents;
-
-        do {
-            Request request = Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES).add("limit", 20);
-            if (activities != null) {request.add("cursor", activities.getCursor());}
-
-            HttpResponse response = app.get(request);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-
-                if (activities.collection.size() > 0 && activities.collection.get(0).created_at.getTime() <= activitiesSince) {
-                    caughtUp = true; // nothing new
-                } else {
-                    for (Event evt : activities) {
-                        if (evt.created_at.getTime() <= activitiesSince) {
-                            caughtUp = true;
-                            break;
-                        }
-                        incomingEvents.add(evt);
-                    }
+        } else {
+            final String resource = exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES;
+            do {
+                Request request = Request.to(resource).add("limit", 20);
+                if (activities != null) {
+                    request.add("cursor", activities.getCursor());
                 }
-            }
-        } while (!caughtUp && incomingEvents.size() < NOTIFICATION_MAX && activities != null && !TextUtils.isEmpty(activities.next_href));
 
-        return incomingEvents;
+                HttpResponse response = app.get(request);
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                    if (activities.includes(since)) {
+                        caughtUp = true; // nothing new
+                    } else {
+                        for (Event evt : activities) {
+                            if (evt.created_at.getTime() <= since) {
+                                caughtUp = true;
+                                break;
+                            } else {
+                                incomingEvents.add(evt);
+                            }
+                        }
+                    }
+                } else {
+                    Log.w(TAG, "unexpected status code: "+response.getStatusLine());
+                    throw new IOException(response.getStatusLine().toString());
+                }
+            } while (!caughtUp
+                    && incomingEvents.size() < NOTIFICATION_MAX
+                    && !TextUtils.isEmpty(activities.next_href));
+
+            return incomingEvents;
+        }
     }
 
     private static String getIncomingMessaging(SoundCloudApplication app, List<Event> events) {
-
         List<User> users = getUniqueUsersFromEvents(events);
         switch (users.size()) {
             case 1:
@@ -178,8 +198,6 @@ public class SyncAdapterService extends Service {
     }
 
     private static String getExclusiveMessaging(SoundCloudApplication app, List<Event> events) {
-
-
         if (events.size() == 1) {
             return String.format(
                     app.getString(R.string.dashboard_notifications_message_single_exclusive),
@@ -219,29 +237,27 @@ public class SyncAdapterService extends Service {
         return users;
     }
 
-    private static void createDashboardNotification(SoundCloudApplication app, CharSequence ticker, CharSequence title, CharSequence message) {
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager mNotificationManager = (NotificationManager) app
-                .getSystemService(ns);
+    private static void createDashboardNotification(SoundCloudApplication app,
+                                                    CharSequence ticker,
+                                                    CharSequence title,
+                                                    CharSequence message, boolean hasExclusive) {
 
-        Intent i = (new Intent(app, Main.class))
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nm = (NotificationManager) app.getSystemService(ns);
+
+        Intent intent = (new Intent(app, Main.class))
                 .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", "incoming");
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra("tabTag", hasExclusive ? "exclusive" : "incoming");
 
         PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(),
-                0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        int icon = R.drawable.statusbar;
-        Notification notification = new Notification(icon, ticker, System
-                .currentTimeMillis());
-        notification.contentIntent = pi;
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
-
-        notification.setLatestEventInfo(app.getApplicationContext(), title,
-                message, pi);
-        mNotificationManager.notify(Consts.Notifications.DASHBOARD_NOTIFY_ID, notification);
+        Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
+        n.contentIntent = pi;
+        n.flags = Notification.FLAG_AUTO_CANCEL;
+        n.setLatestEventInfo(app.getApplicationContext(), title, message, pi);
+        nm.notify(Consts.Notifications.DASHBOARD_NOTIFY_ID, n);
     }
 }

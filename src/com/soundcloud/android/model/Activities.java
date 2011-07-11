@@ -1,6 +1,5 @@
 package com.soundcloud.android.model;
 
-import android.util.Log;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -41,6 +40,10 @@ public class Activities implements Iterable<Event> {
         return collection.size();
     }
 
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
     public String getCursor() {
         List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
         for (NameValuePair param : params) {
@@ -49,5 +52,9 @@ public class Activities implements Iterable<Event> {
             }
         }
         return null;
+    }
+
+    public boolean includes(long timestamp) {
+        return !isEmpty() && collection.get(0).created_at.getTime() <= timestamp;
     }
 }
