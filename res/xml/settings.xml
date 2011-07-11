@@ -2,62 +2,82 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceScreen
-            android:title="@string/pref_notifications"
-            android:summary="@string/pref_notifications_description">
-        <intent android:action="android.intent.action.VIEW"
-                android:targetPackage="com.soundcloud.android"
-                android:targetClass="com.soundcloud.android.activity.NotificationSettings"/>
-    </PreferenceScreen>
-    <ListPreference
-            android:title="@string/pref_page_size"
-            android:summary="@string/pref_page_size_desc"
-            android:key="defaultPageSize"
-            android:defaultValue="20"
-            android:entries="@array/pref_page_size"
-            android:entryValues="@array/pref_page_size_values"/>
+    <PreferenceCategory
+            android:title="Basic settings">
 
-    <CheckBoxPreference
-            android:title="@string/pref_buffer_during_pause"
-            android:summary="@string/pref_buffer_during_pause_desc"
-            android:key="bufferOnPause"
-            android:defaultValue="true"
-            android:entries="@array/pref_page_size"
-            android:entryValues="@array/pref_page_size_values"/>
+        <PreferenceScreen
+                android:title="@string/pref_notifications"
+                android:summary="@string/pref_notifications_description">
+            <intent android:action="android.intent.action.VIEW"
+                    android:targetPackage="com.soundcloud.android"
+                    android:targetClass="com.soundcloud.android.activity.NotificationSettings"/>
+        </PreferenceScreen>
 
-    <Preference
-            android:title="@string/pref_clear_cache"
-            android:summary="@string/pref_clear_cache_desc"
-            android:key="clearCache"/>
-
-    <Preference
-            android:title="@string/pref_revoke_access"
-            android:summary="@string/pref_revoke_desc"
-            android:key="revokeAccess"/>
+        <ListPreference
+                android:title="@string/pref_record_quality"
+                android:summary="@string/pref_record_quality_desc"
+                android:key="defaultRecordingQuality"
+                android:defaultValue="high"
+                android:entries="@array/pref_record_quality_entries"
+                android:entryValues="@array/pref_record_quality_values"/>
 
 
-    <PreferenceScreen
-            android:key="wireless"
-            android:title="@string/wifi_settings"
-            android:summary="@string/wifi_settings_summary"/>
+        <ListPreference
+                android:title="@string/pref_page_size"
+                android:summary="@string/pref_page_size_desc"
+                android:key="defaultPageSize"
+                android:defaultValue="20"
+                android:entries="@array/pref_page_size"
+                android:entryValues="@array/pref_page_size_values"/>
 
-    <ListPreference
-            android:title="@string/pref_record_quality"
-            android:summary="@string/pref_record_quality_desc"
-            android:key="defaultRecordingQuality"
-            android:defaultValue="high"
-            android:entries="@array/pref_record_quality_entries"
-            android:entryValues="@array/pref_record_quality_values"/>
 
-    <ListPreference
-            android:title="@string/pref_record_high_quality_type"
-            android:summary="@string/pref_record_high_quality_type_desc"
-            android:key="defaultRecordingHighQualityType"
-            android:defaultValue="compressed"
-            android:entries="@array/pref_record_high_quality_type_entries"
-            android:entryValues="@array/pref_record_high_quality_type_values"/>
+        <Preference
+                android:title="@string/pref_revoke_access"
+                android:summary="@string/pref_revoke_desc"
+                android:key="revokeAccess"/>
+    </PreferenceCategory>
 
-    <ListPreference
+    <PreferenceCategory
+            android:title="Connection and data">
+
+        <PreferenceScreen
+                android:key="wireless"
+                android:title="@string/wifi_settings"
+                android:summary="@string/wifi_settings_summary"/>
+
+        <CheckBoxPreference
+                android:title="@string/pref_buffer_during_pause"
+                android:summary="@string/pref_buffer_during_pause_desc"
+                android:key="bufferOnPause"
+                android:defaultValue="true"
+                android:entries="@array/pref_page_size"
+                android:entryValues="@array/pref_page_size_values"/>
+
+        <Preference
+                android:title="@string/pref_clear_cache"
+                android:summary="@string/pref_clear_cache_desc"
+                android:key="clearCache"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+                android:title="App Details">
+
+        <Preference
+                android:title="@string/pref_change_log"
+                android:summary="@string/pref_change_log_desc"
+                android:key="changeLog"/>
+
+        <PreferenceScreen
+                android:key="about"
+                android:title="@string/about"
+                android:summary="@string/about_summary"
+                />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="dev-settings"
+                        android:title="Dev">
+        <ListPreference
             android:title="@string/pref_dashboard_store_max"
             android:summary="@string/pref_dashboard_store_max_desc"
             android:key="dashboardMaxStored"
@@ -65,16 +85,12 @@
             android:entries="@array/pref_dashboard_store_max_entries"
             android:entryValues="@array/pref_dashboard_store_max_values"/>
 
-    <Preference
-            android:title="@string/pref_change_log"
-            android:summary="@string/pref_change_log_desc"
-            android:key="changeLog"/>
-
-    <PreferenceScreen
-            android:key="about"
-            android:title="@string/about"
-            android:summary="@string/about_summary"
-            />
-
-
+        <ListPreference
+            android:title="@string/pref_dashboard_store_max"
+            android:summary="@string/pref_dashboard_store_max_desc"
+            android:key="dashboardMaxStored"
+            android:defaultValue="100"
+            android:entries="@array/pref_dashboard_store_max_entries"
+            android:entryValues="@array/pref_dashboard_store_max_values"/>
+    </PreferenceCategory>
 </PreferenceScreen>
