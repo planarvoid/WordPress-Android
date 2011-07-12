@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.StatFs;
@@ -62,7 +63,7 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public boolean isEnoughStorageLeft() {
-        StatFs fs = new StatFs(getLocalFile().getAbsolutePath());
+        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
         final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
         return (size * 3l) < free;
     }
