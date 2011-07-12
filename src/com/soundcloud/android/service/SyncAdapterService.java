@@ -105,7 +105,7 @@ public class SyncAdapterService extends Service {
             final boolean showNotification = incomingEvents.size() + exclusiveEvents.size() > currentNotificationCount;
             if ((hasIncoming || hasExclusive) && showNotification) {
                 final CharSequence title, message, ticker;
-                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT,incomingEvents.size()+ exclusiveEvents.size());
+                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, incomingEvents.size()+exclusiveEvents.size());
 
                 int totalUnseen = Math.max(incomingEvents.size(), 1);
                 // takes care of an exclusive that hasn't made it to incoming yet

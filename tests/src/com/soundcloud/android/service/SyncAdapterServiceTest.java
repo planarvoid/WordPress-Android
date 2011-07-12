@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,14 +14,17 @@ import org.junit.runner.RunWith;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import android.accounts.Account;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Bundle;
 
 import java.util.HashSet;
@@ -69,6 +73,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     @Test
     public void testGetUniqueUsersFromEvents() throws Exception {
         addPendingHttpResponse(200, resource("tracks_2.json"));
+
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 (SoundCloudApplication) Robolectric.application, 0, false);
         assertThat(events.size(), is(50));
@@ -86,6 +91,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void testIncomingMessaging() throws Exception {
 
         addPendingHttpResponse(200, resource("tracks_2.json"));
+
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 (SoundCloudApplication) Robolectric.application, 0, false);
 
@@ -119,5 +125,13 @@ public class SyncAdapterServiceTest extends ApiTests {
                 new Account("foo", "bar"),
                 new Bundle(),
                 null, null, null);
+
+        ShadowNotificationManager m =shadowOf((NotificationManager)
+                Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
+
+        List<Notification> list = m.getAllNotifications();
+        assertThat(list.size(), is(1));
+        Notification n = list.get(0);
+        assertThat(n.tickerText.toString(), equalTo("50 new sounds"));
     }
 }
