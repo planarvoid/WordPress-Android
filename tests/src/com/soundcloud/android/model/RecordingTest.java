@@ -26,9 +26,11 @@ public class RecordingTest {
 
     @Before
     public void setup() throws Exception {
-        f = new File("/tmp/foo");
+        f = new File("/tmp/recording-test");
         r = new Recording(f);
-        f.delete();
+        if (f.exists()) {
+            assertThat(f.delete(), is(true));
+        }
         // 14:31:01, 15/02/2011
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
