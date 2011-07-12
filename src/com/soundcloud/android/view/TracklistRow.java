@@ -188,12 +188,16 @@ public class TracklistRow extends LazyRow {
     }
 
 
+    protected long getTrackTime(Parcelable p) {
+        return getTrackFromParcelable(p).created_at.getTime();
+    }
+
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
+        final Parcelable p = (Parcelable) mAdapter.getItem(position);
 
-
-        mTrack = getTrackFromParcelable((Parcelable) mAdapter.getItem(position));
+        mTrack = getTrackFromParcelable(p);
 
         super.display(position);
 
@@ -203,7 +207,7 @@ public class TracklistRow extends LazyRow {
         mTitle.setText(mTrack.title);
         mUser.setText(mTrack.user.username);
 
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mTrack.created_at.getTime()));
+        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getTrackTime(p)));
 
         if (!mTrack.streamable) {
             mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);

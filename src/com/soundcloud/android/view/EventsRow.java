@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import android.os.Parcelable;
 
 public class EventsRow extends TracklistRow {
-
     public EventsRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
     }
@@ -19,4 +18,8 @@ public class EventsRow extends TracklistRow {
         return ((Event) p).getTrack();
     }
 
+    @Override
+    protected long getTrackTime(Parcelable p) {
+        return ((Event)p).created_at.getTime();
+    }
 }
