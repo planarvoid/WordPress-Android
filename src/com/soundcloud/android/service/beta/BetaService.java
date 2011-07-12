@@ -261,8 +261,8 @@ public class BetaService extends Service {
 
     private boolean isEnoughStorageLeft(Content content) {
         StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final long free = fs.getAvailableBlocks() * fs.getBlockSize();
-        return content.size * 3 < free;
+        final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
+        return (content.size * 3l) < free;
     }
 
     private static boolean isStorageAvailable() {
