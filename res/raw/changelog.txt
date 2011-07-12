@@ -13,6 +13,7 @@ $ 22
     - GA tracking changes, added audio engine tracking
     - Reorganised settings screen
     - Beta deployment service
+    - Fix timestamps in incoming/exclusive
 
 $ 19
   % v 1.3.3
