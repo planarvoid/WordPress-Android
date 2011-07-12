@@ -73,6 +73,16 @@ trait Mavenize extends DefaultProject {
             </execution>
           </executions>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.9</version>
+          <configuration>
+            <includes>
+              <include>**/*Test.java</include>
+            </includes>
+          </configuration>
+      </plugin>
       </plugins>
     </build> ++
     <profiles>
