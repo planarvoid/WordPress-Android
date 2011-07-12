@@ -1,6 +1,10 @@
 package com.markupartist.android.widget;
 
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.utils.CloudUtils;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,12 +14,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.*;
+import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.utils.CloudUtils;
-import org.apache.james.mime4j.io.PositionInputStream;
+import android.widget.FrameLayout;
+import android.widget.HeaderViewListAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +39,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private static final int PULL_TO_REFRESH = 2;
     private static final int RELEASE_TO_REFRESH = 3;
     private static final int REFRESHING = 4;
+    private static final int DONE_REFRESHING = 5;
 
     private static final int HEADER_HIDE_DURATION = 400;
 
@@ -56,8 +65,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private int mRefreshState;
     private Runnable mSelectionRunnable;
 
-private boolean mPushBackUp;
-
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
@@ -77,13 +84,17 @@ private boolean mPushBackUp;
         init(context);
     }
 
-    /** @noinspection UnusedDeclaration*/
+    /**
+     * @noinspection UnusedDeclaration
+     */
     public PullToRefreshListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    /** @noinspection UnusedDeclaration*/
+    /**
+     * @noinspection UnusedDeclaration
+     */
     public PullToRefreshListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
@@ -106,17 +117,12 @@ private boolean mPushBackUp;
         mReverseFlipAnimation.setFillAfter(true);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mRefreshView = (LinearLayout) inflater.inflate(
-                R.layout.pull_to_refresh_header, null);
+        mRefreshView = (LinearLayout) inflater.inflate(R.layout.pull_to_refresh_header, null);
 
-        mRefreshViewText =
-            (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_text);
-        mRefreshViewImage =
-            (ImageView) mRefreshView.findViewById(R.id.pull_to_refresh_image);
-        mRefreshViewProgress =
-            (ProgressBar) mRefreshView.findViewById(R.id.pull_to_refresh_progress);
-        mRefreshViewLastUpdated =
-            (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_updated_at);
+        mRefreshViewText = (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_text);
+        mRefreshViewImage = (ImageView) mRefreshView.findViewById(R.id.pull_to_refresh_image);
+        mRefreshViewProgress = (ProgressBar) mRefreshView.findViewById(R.id.pull_to_refresh_progress);
+        mRefreshViewLastUpdated = (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_updated_at);
 
         mRefreshViewImage.setMinimumHeight(50);
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
@@ -135,6 +141,17 @@ private boolean mPushBackUp;
 
         measureView(mRefreshView);
         mRefreshViewHeight = mRefreshView.getMeasuredHeight();
+
+        mEmptyView = inflater.inflate(R.layout.empty_list, null);
+        mEmptyView.setBackgroundColor(0xFFFFFFFF);
+    }
+
+    public View getEmptyView() {
+        return mEmptyView;
+    }
+
+    public void setEmptyText(CharSequence text) {
+        ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(text);
     }
 
     @Override
@@ -145,18 +162,19 @@ private boolean mPushBackUp;
 
     @Override
     protected void onAttachedToWindow() {
-        if (mRefreshState != REFRESHING) postSelect(1,0, false);
+        if (mRefreshState != REFRESHING) postSelect(1, 0, false);
     }
 
     @Override
     public void setAdapter(ListAdapter adapter) {
         super.setAdapter(adapter);
-        postSelect(1,0, false);
+        postSelect(1, 0, false);
     }
 
-    public void setSelection(int position){
+    public void setSelection(int position) {
         super.setSelection(position);
     }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
@@ -170,16 +188,14 @@ private boolean mPushBackUp;
         checkHeaderVisibility(false);
     }
 
-    private void checkHeaderVisibility(final boolean smooth){
+
+    private void checkHeaderVisibility(final boolean smooth) {
         if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH) {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    if (smooth && !isInTouchMode()) {
-                        scrollListBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
-                    } else {
+
                         setSelection(1);
-                    }
                 }
             });
         }
@@ -199,21 +215,15 @@ private boolean mPushBackUp;
             Method method = ListView.class.getMethod("smoothScrollBy",
                     Integer.TYPE, Integer.TYPE);
             method.invoke(this, distance + 1, duration);
-            mAutoScrolling = true;
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mAutoScrolling = false;
-                }
-            }, duration);
-
         } catch (NoSuchMethodException e) {
             // If smoothScrollBy is not available (< 2.2)
-            setSelection(1);
+        	setSelection(1);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (IllegalAccessException e) {
-            Log.w(TAG, "unexpected", e);
+            System.err.println("unexpected " + e);
         } catch (InvocationTargetException e) {
-            Log.w(TAG, "unexpected", e);
+            System.err.println("unexpected " + e);
         }
     }
 
@@ -255,7 +265,7 @@ private boolean mPushBackUp;
 
         if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
                 LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-             return ((LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter()).getWrappedAdapter();
+            return ((LazyEndlessAdapter) ((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter()).getWrappedAdapter();
 
         } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
             return ((LazyEndlessAdapter) super.getAdapter()).getWrappedAdapter();
@@ -267,7 +277,7 @@ private boolean mPushBackUp;
     public LazyEndlessAdapter getWrapper() {
         if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
                 LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-             return (LazyEndlessAdapter)((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
+            return (LazyEndlessAdapter) ((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
 
         } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
             return (LazyEndlessAdapter) super.getAdapter();
@@ -281,9 +291,9 @@ private boolean mPushBackUp;
         super.onLayout(changed, l, t, r, b);
 
         if (changed) {
-            if (getHeight() > 0 && mEmptyView != null){
+            if (getHeight() > 0 && mEmptyView != null) {
                 mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
-                mEmptyView.invalidate();
+                mEmptyView.findViewById(R.id.empty_txt).invalidate();
             }
         }
     }
@@ -291,37 +301,23 @@ private boolean mPushBackUp;
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
-        if (mPushBackUp && getFirstVisiblePosition() == 0) {
-
+        if (mRefreshState == DONE_REFRESHING) {
             // not enough views to fill list so pad with an empty view
-            if (getLastVisiblePosition() >= getWrapper().getCount() ){
-               mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
+            if (getFirstVisiblePosition() == 0 && getLastVisiblePosition() >= getWrapper().getCount()) {
+                mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
                 invalidateViews();
+                postSelect(1, 0, false);
             }
-            // this has to happen after the next layout pass so that we are allowed
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollListBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
-                    postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkHeaderVisibility(true);
-                        }
-                    }, HEADER_HIDE_DURATION);
-                }
-            });
-            mPushBackUp = false;
-
+            resetHeader();
         }
+
     }
-
-
 
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int y = (int) event.getY();
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
                 if (!isVerticalScrollBarEnabled()) {
@@ -333,6 +329,8 @@ private boolean mPushBackUp;
                             || mRefreshView.getTop() >= 0
                             && mRefreshState == RELEASE_TO_REFRESH) {
                         // Initiate the refresh
+                        mRefreshState = REFRESHING;
+                        prepareForRefresh();
                         onRefresh();
                     } else if (mRefreshView.getBottom() < mRefreshViewHeight) {
                         // Abort refresh and scroll down below the refresh view
@@ -351,7 +349,7 @@ private boolean mPushBackUp;
         return super.onTouchEvent(event);
     }
 
-     private void applyHeaderPadding(MotionEvent ev) {
+    private void applyHeaderPadding(MotionEvent ev) {
         final int historySize = ev.getHistorySize();
 
         // Workaround for getPointerCount() which is unavailable in 1.5
@@ -397,10 +395,13 @@ private boolean mPushBackUp;
      * Resets the header to the original state.
      */
     private void resetHeader() {
+        if (mRefreshState != TAP_TO_REFRESH) {
             mRefreshState = TAP_TO_REFRESH;
 
             resetHeaderPadding();
 
+            // Set refresh view text to the pull label
+            mRefreshViewText.setText(R.string.pull_to_refresh_refreshing_label);
             // Replace refresh drawable with arrow drawable
             mRefreshViewImage.setImageResource(R.drawable.ic_pulltorefresh_arrow);
             // Clear the full rotation animation
@@ -408,6 +409,7 @@ private boolean mPushBackUp;
             // Hide progress bar and arrow.
             mRefreshViewImage.setVisibility(View.GONE);
             mRefreshViewProgress.setVisibility(View.GONE);
+        }
     }
 
     private void measureView(View child) {
@@ -451,8 +453,6 @@ private boolean mPushBackUp;
                     if (mRefreshState != TAP_TO_REFRESH) {
                         mRefreshViewImage.clearAnimation();
                         mRefreshViewImage.startAnimation(mReverseFlipAnimation);
-                    } else {
-                        configureLastUpdated();
                     }
                     mRefreshState = PULL_TO_REFRESH;
                 }
@@ -462,8 +462,7 @@ private boolean mPushBackUp;
             }
         } else if (mCurrentScrollState == SCROLL_STATE_FLING
                 && firstVisibleItem == 0
-                && mRefreshState != REFRESHING
-                && !mAutoScrolling) {
+                && mRefreshState != REFRESHING) {
             setSelection(1);
         }
 
@@ -473,7 +472,7 @@ private boolean mPushBackUp;
         }
     }
 
-    private void configureLastUpdated(){
+    private void configureLastUpdated() {
         // can trigger a weird layout loop if done in a different state, may need to be revisited
         if (mRefreshState == TAP_TO_REFRESH && mLastUpdated != 0) {
             mRefreshViewLastUpdated.setVisibility(View.VISIBLE);
@@ -505,8 +504,6 @@ private boolean mPushBackUp;
         // Set refresh view text to the refreshing label
         mRefreshViewText.setText(R.string.pull_to_refresh_refreshing_label);
 
-        configureLastUpdated();
-
         mRefreshState = REFRESHING;
     }
 
@@ -525,10 +522,10 @@ private boolean mPushBackUp;
      */
     public void onRefreshComplete(boolean success) {
         if (success) mLastUpdated = System.currentTimeMillis();
-        resetHeader();
+        mRefreshState = DONE_REFRESHING;
         if (mRefreshView.getBottom() > 0) {
-            mPushBackUp = true;
             invalidateViews();
+            setSelection(1);
         }
     }
 
@@ -536,9 +533,9 @@ private boolean mPushBackUp;
      * This will help initial selections from being overwritten. Also allows us to maintain
      * list position on orientation change in UserBrowser
      */
-    public void postSelect(final int position, final int yOffset, boolean override){
+    public void postSelect(final int position, final int yOffset, boolean override) {
         if (mSelectionRunnable != null) {
-            if (override){
+            if (override) {
                 removeCallbacks(mSelectionRunnable);
             } else {
                 return;
@@ -580,7 +577,7 @@ private boolean mPushBackUp;
     public interface OnRefreshListener {
         /**
          * Called when the list should be refreshed.
-         * <p>
+         * <p/>
          * A call to {@link PullToRefreshListView #onRefreshComplete()} is
          * expected to indicate that the refresh has completed.
          */

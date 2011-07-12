@@ -174,7 +174,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
 
     private void removeList() {
-        mAdapter.clearEmptyView();
+        //mAdapter.clearEmptyView();
         mListAddPosition = mActivity.removeList(mFriendList);
         if (mFriendList.getParent() == this) removeView(mFriendList);
         mFriendList = null;

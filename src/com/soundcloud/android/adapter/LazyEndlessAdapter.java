@@ -43,7 +43,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
     protected Boolean mError = false;
     private String mEmptyViewText = "";
-    protected View mEmptyView;
 
     private Request mRequest;
     private String mNextHref;
@@ -58,15 +57,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         mCurrentPage = 0;
         mRequest = request;
         wrapped.setWrapper(this);
-
-        if (activity != null) {
-          LayoutInflater inflater = (LayoutInflater) activity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-
-            mEmptyView = inflater.inflate(R.layout.empty_list, null);
-            mEmptyView.setBackgroundColor(0xFFFFFFFF);
-        }
     }
 
 
@@ -76,12 +66,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      */
     public void configureViews(final LazyListView lv) {
         mListView = lv;
-        if (lv != null) lv.setEmptyView(mEmptyView);
-
-    }
-
-    public void clearEmptyView() {
-        mEmptyView = null;
     }
 
     public void setEmptyViewText(String str) {
@@ -93,12 +77,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * with an error
      */
     public void applyEmptyText() {
-        if (mEmptyView != null) {
+        if (mListView != null) {
             if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-                ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(Html.fromHtml(mEmptyViewText));
+                mListView.setEmptyText(Html.fromHtml(mEmptyViewText));
             } else {
-                // generic model based empty text
-                ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(getEmptyText());
+                mListView.setEmptyText(getEmptyText());
             }
         }
 
@@ -270,7 +253,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position == super.getCount() && canShowEmptyView()){
-            return mEmptyView;
+            return mListView.getEmptyView();
         }
 
         if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
@@ -406,6 +389,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 execute(buildRequest(true));
             }
         };
+        notifyDataSetChanged();
     }
 
 
@@ -488,10 +472,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public boolean isEmpty(){
         return false;
-    }
-
-    public void stopAppending() {
-        mKeepOnAppending.set(false);
     }
 
     public boolean needsRefresh() {

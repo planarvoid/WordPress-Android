@@ -231,11 +231,15 @@ public abstract class ScActivity extends Activity {
             if (l.getWrapper() != null) {
                 if (l.getWrapper().isRefreshing()) {
                     l.prepareForRefresh();
-                    l.postSelect(0, 0, false);
+                    if (l.getFirstVisiblePosition() != 0) {
+                        l.postSelect(0, 0, false);
+                    }
                 } else if (l.getWrapper().needsRefresh()) {
                     l.onRefresh();
-                } else if (l.getFirstVisiblePosition() == 0) {
-                    l.postSelect(1, 0, false);
+                } else {
+                    if (l.getFirstVisiblePosition() == 0) {
+                        l.postSelect(1, 0, false);
+                    }
                 }
             }
         }

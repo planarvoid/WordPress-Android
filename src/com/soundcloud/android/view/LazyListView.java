@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.markupartist.android.widget.PullToRefreshListView;
+import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -14,12 +15,14 @@ import com.soundcloud.android.model.User;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.text.Spanned;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -155,6 +158,7 @@ public class LazyListView extends PullToRefreshListView {
         }
         mScrollState = scrollState;
     }
+
 
     private class FingerTracker implements View.OnTouchListener {
         @Override
