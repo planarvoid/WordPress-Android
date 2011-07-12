@@ -228,10 +228,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         for (Object adapterState : adapterStates) {
             if (adapterState != null) {
                 mLists.get(i).getWrapper().restoreState((Object[]) adapterState);
-                if (mLists.get(i).getWrapper().isRefreshing()) {
-                    mLists.get(i).prepareForRefresh();
-                    mLists.get(i).setSelection(0);
-                }
             }
             i++;
         }

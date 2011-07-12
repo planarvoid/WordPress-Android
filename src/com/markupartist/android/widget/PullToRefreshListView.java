@@ -306,7 +306,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             if (getFirstVisiblePosition() == 0 && getLastVisiblePosition() >= getWrapper().getCount()) {
                 mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
                 invalidateViews();
-                postSelect(1, 0, false);
+                postSelect(1, 0, true);
             }
             resetHeader();
         }
