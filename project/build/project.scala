@@ -36,7 +36,7 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
     val vorbis    = "org.xiph" % "libvorbis" % "1.0.0-beta"
 
     // test dependencies
-    val robolectric = "com.pivotallabs" % "robolectric" % "1.0-RC2-SNAPSHOT-all" % "test"
+    val robolectric = "com.pivotallabs" % "robolectric" % "1.0-RC2-SNAPSHOT-jar-with-dependencies" % "test"
     val junit       = "junit" % "junit-dep" % "4.9b2" % "test"
     val mockitoCore = "org.mockito" % "mockito-core" % "1.8.5" % "test"
     val hamcrest    = "org.hamcrest" % "hamcrest-core" % "1.1" % "test"

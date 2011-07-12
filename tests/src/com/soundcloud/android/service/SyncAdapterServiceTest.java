@@ -3,7 +3,6 @@ package com.soundcloud.android.service;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.junit.Before;
