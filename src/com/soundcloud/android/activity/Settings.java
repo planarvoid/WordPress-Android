@@ -6,12 +6,18 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.service.beta.Content;
 import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -83,7 +89,7 @@ public class Settings extends PreferenceActivity {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
                             startActivity(new Intent(ACTION_WIRELESS_SETTINGS));
-                        } catch (Exception e) {
+                        } catch (ActivityNotFoundException e) {
                             Log.e(TAG, "error", e);
                         }
                         return true;
@@ -100,7 +106,6 @@ public class Settings extends PreferenceActivity {
                 });
 
         ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
-
         recordingQuality.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     @Override
@@ -110,12 +115,25 @@ public class Settings extends PreferenceActivity {
                     }
                 }
         );
-        recordingQuality.setTitle(getString(R.string.pref_record_quality) + " (" + recordingQuality.getValue() + ")");
+
+        recordingQuality.setTitle(getString(R.string.pref_record_quality) +
+                " (" + recordingQuality.getValue() + ")");
+
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference("dev-settings"));
+        } else {
+            findPreference("dev.clearNotifications").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            Log.d("foo", "onclick");
+                            SyncAdapterService.requestNewSync(getApp());
+                            return true;
+                        }
+                    });
         }
     }
-
 
 
     public void safeShowDialog(int dialogId) {
@@ -124,9 +142,14 @@ public class Settings extends PreferenceActivity {
         }
     }
 
+
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
+
     @Override
     protected void onResume() {
-        ((SoundCloudApplication) getApplication()).pageTrack("/settings");
+        getApp().pageTrack("/settings");
         super.onResume();
     }
 

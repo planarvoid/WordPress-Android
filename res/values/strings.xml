@@ -114,11 +114,6 @@
     </string>
 
     <string name='app_name'>SoundCloud</string>
-    <string name='client_id'>xce4DwrNEmNzTIcuaAjkA</string>
-    <string name='client_secret'>GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
-
-    <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
-    <string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
 
     <string name='image_load_error'>Error loading image</string>
 
@@ -281,8 +276,8 @@
     </plurals>
 
     <string name='record_instructions'>Share your Sound</string>
-    <string name='record_currently_uploading'>Your track is being uploaded. Please check the status bar to see its
-        progress.
+    <string name='record_currently_uploading'>
+        Your track is being uploaded. Please check the status bar to see its progress.
     </string>
 
     <string name='record_max_length_reached'>Maximum filesize reached.</string>
@@ -380,9 +375,6 @@
         Receive updates on new private tracks shared with you
     </string>
 
-    <string name='pref_record_high_quality_type'>High quality type</string>
-    <string name='pref_record_high_quality_type_desc'>Choose your preferred high quality recording type</string>
-
     <string name='pref_revoke_access'>Log Out</string>
     <string name='pref_revoke_desc'>Revoke current user access (requires re-authentication)</string>
 
@@ -394,9 +386,6 @@
 
     <string name='pref_change_log'>Change Log</string>
     <string name='pref_change_log_desc'>View application updates through this release</string>
-
-    <string name='pref_dashboard_store_max'>Dashboard maximum storage</string>
-    <string name='pref_dashboard_store_max_desc'>How many dashboard tracks do you want to store</string>
 
     <string name='low'>Low</string>
     <string name='high'>High</string>
@@ -464,5 +453,4 @@
     <string name='pref_basic_settings'>Basic settings</string>
     <string name='pref_connection_and_data'>Connection and data</string>
     <string name='pref_app_details'>App Details</string>
-    <string name='pref_dev_settings'>Dev settings</string>
 </resources>

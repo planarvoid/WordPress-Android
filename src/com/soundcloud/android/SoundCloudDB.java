@@ -39,7 +39,7 @@ public class SoundCloudDB {
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC, System.currentTimeMillis());
 
         int maxStored = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(app)
-                .getString("dashboardMaxStored", "100"));
+                .getString("dev.dashboardMaxStored", "100"));
 
         // get the timestamp of the newest record in the database
         Cursor firstCursor = contentResolver.query(Events.CONTENT_URI, new String[] {

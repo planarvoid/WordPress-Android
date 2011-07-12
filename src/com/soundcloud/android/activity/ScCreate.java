@@ -439,7 +439,7 @@ public class ScCreate extends ScActivity {
 
         if (hiQ && SoundCloudApplication.DEV_MODE
                 && !PreferenceManager.getDefaultSharedPreferences(this)
-                        .getString("defaultRecordingHighQualityType", "compressed")
+                        .getString("dev.defaultRecordingHighQualityType", "compressed")
                         .contentEquals("compressed")) {
             //force raw for developer mode
             mAudioProfile = Profile.RAW;

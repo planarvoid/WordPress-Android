@@ -21,7 +21,6 @@
                 android:entries="@array/pref_record_quality_entries"
                 android:entryValues="@array/pref_record_quality_values"/>
 
-
         <ListPreference
                 android:title="@string/pref_page_size"
                 android:summary="@string/pref_page_size_desc"
@@ -29,7 +28,6 @@
                 android:defaultValue="20"
                 android:entries="@array/pref_page_size"
                 android:entryValues="@array/pref_page_size_values"/>
-
 
         <Preference
                 android:title="@string/pref_revoke_access"
@@ -77,10 +75,11 @@
 
     <PreferenceCategory android:key="dev-settings"
                         android:title="@string/pref_dev_settings">
+
         <ListPreference
             android:title="@string/pref_dashboard_store_max"
             android:summary="@string/pref_dashboard_store_max_desc"
-            android:key="dashboardMaxStored"
+            android:key="dev.dashboardMaxStored"
             android:defaultValue="100"
             android:entries="@array/pref_dashboard_store_max_entries"
             android:entryValues="@array/pref_dashboard_store_max_values"/>
@@ -88,9 +87,14 @@
         <ListPreference
             android:title="@string/pref_record_high_quality_type"
             android:summary="@string/pref_record_high_quality_type_desc"
-            android:key="defaultRecordingHighQualityType"
+            android:key="dev.defaultRecordingHighQualityType"
             android:defaultValue="compressed"
             android:entries="@array/pref_record_high_quality_type_entries"
             android:entryValues="@array/pref_record_high_quality_type_values"/>
+
+        <Preference
+            android:title="@string/pref_dev_clear_notification"
+            android:summary="@string/pref_dev_clear_notification_summary"
+            android:key="dev.clearNotifications"/>
     </PreferenceCategory>
 </PreferenceScreen>

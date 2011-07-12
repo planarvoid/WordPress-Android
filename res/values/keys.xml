@@ -1,0 +1,7 @@
+<resources>
+    <string name='client_id'>xce4DwrNEmNzTIcuaAjkA</string>
+    <string name='client_secret'>GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
+
+    <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
+    <string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
+</resources>
