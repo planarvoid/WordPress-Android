@@ -213,5 +213,6 @@ public class User extends BaseObj implements Parcelable {
         String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
+        String NOTIFICATION_COUNT = "notification_count";
     }
 }
