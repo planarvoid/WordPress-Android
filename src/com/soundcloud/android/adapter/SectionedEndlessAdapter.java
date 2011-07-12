@@ -126,12 +126,14 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             mCurrentPage = 0;
             mSectionIndex++;
             mKeepOnAppending.set(true);
+            notifyDataSetChanged();
         }
     }
 
 
    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
        super.onPostRefresh(newItems,nextHref,responseCode,keepGoing);
+
        if (!mKeepOnAppending.get()) nextAdapterSection();
    }
 

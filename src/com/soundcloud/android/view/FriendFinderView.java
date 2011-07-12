@@ -121,7 +121,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             case States.CONNECTION_ERROR:
                 if (mFriendList != null && !mFriendList.getWrapper().isEmpty()){
                     mFriendList.onRefreshComplete(false);
-                    mFriendList.setSelection(0);
+                    mFriendList.postSelect(1,0,true);
                 } else {
                     if (mFriendList == null || mFbConnected){
                         mFbConnected = false;
