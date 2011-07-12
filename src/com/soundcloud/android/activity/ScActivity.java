@@ -510,9 +510,6 @@ public abstract class ScActivity extends Activity {
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
-        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
-                .setIcon(android.R.drawable.ic_menu_preferences);
-
         if (this instanceof ScCreate) {
             menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
                 android.R.drawable.ic_menu_upload);
@@ -524,7 +521,10 @@ public abstract class ScActivity extends Activity {
         } else {
              menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
                 menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
-         }
+        }
+
+        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+                .setIcon(android.R.drawable.ic_menu_preferences);
         return super.onCreateOptionsMenu(menu);
     }
 
