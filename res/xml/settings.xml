@@ -86,11 +86,11 @@
             android:entryValues="@array/pref_dashboard_store_max_values"/>
 
         <ListPreference
-            android:title="@string/pref_dashboard_store_max"
-            android:summary="@string/pref_dashboard_store_max_desc"
-            android:key="dashboardMaxStored"
-            android:defaultValue="100"
-            android:entries="@array/pref_dashboard_store_max_entries"
-            android:entryValues="@array/pref_dashboard_store_max_values"/>
+            android:title="@string/pref_record_high_quality_type"
+            android:summary="@string/pref_record_high_quality_type_desc"
+            android:key="defaultRecordingHighQualityType"
+            android:defaultValue="compressed"
+            android:entries="@array/pref_record_high_quality_type_entries"
+            android:entryValues="@array/pref_record_high_quality_type_values"/>
     </PreferenceCategory>
 </PreferenceScreen>
