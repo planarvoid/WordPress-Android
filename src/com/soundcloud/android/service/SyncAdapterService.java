@@ -11,6 +11,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.w3c.dom.UserDataHandler;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -36,7 +37,9 @@ import java.util.List;
 public class SyncAdapterService extends Service {
     private static final String TAG = "ScSyncAdapterService";
     private ScSyncAdapter mSyncAdapter;
+
     private static final int NOTIFICATION_MAX = 100;
+    private static final String ID_DELIMITER = ";";
 
     @Override
     public void onCreate() {
@@ -83,6 +86,15 @@ public class SyncAdapterService extends Service {
 
         app.useAccount(account);
 
+        // for initial sync, don't bother telling them about their entire dashboard
+        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) == 0){
+            app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, System.currentTimeMillis());
+            return;
+        }
+
+        // how many have they already been notified about, don't create repeat notifications for no new tracks
+        int currentNotificationCount = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT);
+
         try {
             final long lastSync = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP);
             List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
@@ -90,8 +102,10 @@ public class SyncAdapterService extends Service {
 
             final boolean hasIncoming  = incomingEvents.size() > 0;
             final boolean hasExclusive = incomingExclusive.size() > 0;
-            if (hasIncoming || hasExclusive) {
+            final boolean showNotification = incomingEvents.size() + incomingExclusive.size() > currentNotificationCount;
+            if ((hasIncoming || hasExclusive) && showNotification) {
                 final CharSequence title, message, ticker;
+                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT,incomingEvents.size()+incomingExclusive.size());
 
                 int totalUnseen = Math.max(incomingEvents.size(), 1);
                 // takes care of an exclusive that hasn't made it to incoming yet

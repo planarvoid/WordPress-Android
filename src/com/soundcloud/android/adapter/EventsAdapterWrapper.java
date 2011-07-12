@@ -27,6 +27,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         if (newItems != null && newItems.size() > 0 &&
                 mActivity.getApp().getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) < ((Event) newItems.get(0)).created_at.getTime()) {
             mActivity.getApp().setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, ((Event) newItems.get(0)).created_at.getTime());
+            mActivity.getApp().setAccountData(User.DataKeys.NOTIFICATION_COUNT,0);
         }
 
         super.onPostTaskExecute(newItems,nextHref,responseCode,keepgoing);
