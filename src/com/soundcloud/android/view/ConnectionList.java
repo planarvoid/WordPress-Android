@@ -35,6 +35,7 @@ public class ConnectionList extends LinearLayout {
         setOrientation(LinearLayout.VERTICAL);
     }
 
+    /** @noinspection UnusedDeclaration*/
     public ConnectionList(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOrientation(LinearLayout.VERTICAL);
@@ -148,6 +149,7 @@ public class ConnectionList extends LinearLayout {
         public void setConnections(List<Connection> connections, boolean addUnused) {
             mConnections = addUnused ? Connection.addUnused(connections) : connections;
             notifyDataSetChanged();
+            mFailed = false;
         }
 
         @Override
@@ -184,23 +186,27 @@ public class ConnectionList extends LinearLayout {
             };
         }
 
-        public void clear() {
-            mConnections = null;
-        }
-
         public Adapter loadIfNecessary() {
             if (mFailed || mConnections == null) load();
             return this;
         }
 
         public Adapter load() {
-            Connections.get().requestUpdate(api,
-                    true, new ParcelCache.Listener<Connection>() {
-                        @Override
-                        public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
-                            if (objects != null) {
-                                setConnections(objects, true);
-                                notifyDataSetChanged();
+            // try to use cached connections first
+            final List<Connection> connections = Connections.get().getObjectsOrNull();
+
+            if (connections != null) setConnections(connections, true);
+            // request update, but only use it if no cached connections were fetched
+            Connections.get().requestUpdate(api, true,
+                new ParcelCache.Listener<Connection>() {
+                        @Override public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
+                            if (connections == null) {
+                                if (objects != null) {
+                                    setConnections(objects, true);
+                                } else {
+                                    mFailed = true;
+                                    notifyDataSetChanged();
+                                }
                             }
                         }
                     });

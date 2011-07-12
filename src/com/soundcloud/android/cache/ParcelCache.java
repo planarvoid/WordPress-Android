@@ -77,10 +77,6 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     }
 
     public synchronized void requestUpdate(AndroidCloudAPI api, boolean force, final Listener<T> listener) {
-        if (mLoadedFromCache && !force) {
-            listener.onChanged(getObjects(), this);
-        }
-
         if (CloudUtils.isTaskFinished(mTask) &&
             (force || System.currentTimeMillis() - mLastUpdate >= MAX_AGE)) {
             mTask = executeTask(api, new Listener<T>() {
@@ -93,7 +89,10 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
                             mObjects.addAll(objs);
                         }
                     }
-                    listener.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
+
+                    if (listener != null) {
+                        listener.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
+                    }
 
                     for (Listener<T> l : mListeners) {
                         l.onChanged(objs == null ? null : getObjects(), ParcelCache.this);
@@ -105,6 +104,14 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
 
     public List<T> getObjects() {
         return mObjects == null ? null : new ArrayList<T>(mObjects);
+    }
+
+    public List<T> getObjectsOrNull() {
+        return isCached() ? getObjects() : null;
+    }
+
+    public boolean isCached() {
+        return mLoadedFromCache;
     }
 
     public interface Listener<T extends Parcelable> {
