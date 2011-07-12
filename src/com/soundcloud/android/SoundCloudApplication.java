@@ -51,12 +51,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static boolean DEV_MODE, BETA_MODE;
 
     private RecordListener mRecListener;
-    private Wrapper mCloudApi;
     private ImageLoader mImageLoader;
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker mTracker;
 
+    protected Wrapper mCloudApi; /* protected for testing */
     public boolean playerWaitForArtwork;
 
     @Override

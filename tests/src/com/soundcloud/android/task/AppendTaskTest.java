@@ -23,17 +23,9 @@ import java.io.InputStream;
 @RunWith(DefaultTestRunner.class)
 // XXX should extend ApiTests and test against AndroidCloudAPI
 public class AppendTaskTest {
-    SoundCloudApplication app;
-
-    @Before
-    public void setup() {
-        app = (SoundCloudApplication) Robolectric.application;
-        app.onCreate();
-    }
-
     @Test
     public void shouldDeserializeTracks() throws Exception {
-        AppendTask task = new AppendTask(app);
+        AppendTask task = new AppendTask(DefaultTestRunner.application);
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new TracklistAdapter(null, null, Track.class), null);
 
         task.setAdapter(adapter);
@@ -55,7 +47,7 @@ public class AppendTaskTest {
 
     @Test
     public void shouldDeserializeUsers() throws Exception {
-        AppendTask task = new AppendTask(app);
+        AppendTask task = new AppendTask(DefaultTestRunner.application);
 
         LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new UserlistAdapter(null, null, User.class), null);
 

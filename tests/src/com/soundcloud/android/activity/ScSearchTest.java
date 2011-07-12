@@ -16,7 +16,6 @@ public class ScSearchTest {
         Robolectric.addPendingHttpResponse(404, "Not found");
 
         Robolectric.pauseMainLooper();
-        Robolectric.application.onCreate();
 
         ScSearch search = new ScSearch();
         search.onCreate(null);

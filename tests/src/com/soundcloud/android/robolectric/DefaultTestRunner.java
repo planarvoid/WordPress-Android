@@ -1,47 +1,38 @@
 package com.soundcloud.android.robolectric;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TestApplication;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.internal.Implements;
 import org.junit.runners.model.InitializationError;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 public class DefaultTestRunner extends RobolectricTestRunner {
+    public static SoundCloudApplication application;
+
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(new File(".")));
+        super(testClass, new RobolectricConfig(new File(".")) {
+            @Override public String getApplicationName() {
+                return TestApplication.class.getSimpleName();
+            }
+        });
+    }
+
+    @Override
+    public void beforeTest(Method method) {
+        application = (SoundCloudApplication) Robolectric.application;
     }
 
     @Override
     protected void bindShadowClasses() {
         super.bindShadowClasses();
-        Robolectric.bindShadowClass(TestAccountManager.class);
         Robolectric.bindShadowClass(ShadowLog.class);
-    }
-
-    @SuppressWarnings({"UnusedDeclaration"})
-    @Implements(AccountManager.class)
-    static class TestAccountManager {
-        public static AccountManager get(Context context) {
-            AccountManager am = mock(AccountManager.class);
-            when(am.getAccounts()).thenReturn(
-                    new Account[] {}
-            );
-            when(am.getAccountsByType(anyString())).thenReturn(
-                    new Account[] {}
-            );
-            return am;
-        }
     }
 
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})

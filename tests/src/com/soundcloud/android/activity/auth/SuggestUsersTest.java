@@ -26,8 +26,6 @@ public class SuggestUsersTest extends ApiTests {
 
     @Test @Ignore
     public void testConfigureFacebook() throws Exception {
-        Robolectric.application.onCreate();
-
         SuggestedUsers users = new SuggestedUsers();
 
         addPendingHttpResponse(200, "[1,2,3]"); // followings
@@ -44,8 +42,6 @@ public class SuggestUsersTest extends ApiTests {
 
     @Test @Ignore
     public void testDoneButton() throws Exception {
-        Robolectric.application.onCreate();
-
         SuggestedUsers users = new SuggestedUsers();
         addPendingHttpResponse(200, "[]"); // followings
         users.onCreate(null);

@@ -18,7 +18,6 @@ public class UserBrowserTest {
     @Test
     public void testOnCreate() throws Exception {
         Robolectric.addPendingHttpResponse(404, "");
-        Robolectric.application.onCreate();
 
         UserBrowser browser = new UserBrowser();
         // TODO

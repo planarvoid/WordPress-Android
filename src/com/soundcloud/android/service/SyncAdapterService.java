@@ -44,7 +44,7 @@ public class SyncAdapterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mSyncAdapter = new ScSyncAdapter((SoundCloudApplication) getApplication(), this);
+        mSyncAdapter = new ScSyncAdapter((SoundCloudApplication) getApplication());
     }
 
     @Override
@@ -53,12 +53,10 @@ public class SyncAdapterService extends Service {
     }
 
     public static class ScSyncAdapter extends AbstractThreadedSyncAdapter {
-        private Context mContext;
         private SoundCloudApplication mApp;
 
-        public ScSyncAdapter(SoundCloudApplication app, Context context) {
-            super(context, true);
-            mContext = context;
+        public ScSyncAdapter(SoundCloudApplication app) {
+            super(app, true);
             mApp = app;
         }
 
@@ -69,8 +67,7 @@ public class SyncAdapterService extends Service {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
             try {
-                SyncAdapterService.performSync(mApp, mContext, account, extras, authority,
-                        provider, syncResult);
+                SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } catch (OperationCanceledException e) {
                 Log.w(TAG, "canceled", e);
             }
@@ -79,9 +76,10 @@ public class SyncAdapterService extends Service {
 
     /** @noinspection UnusedParameters*/
     /* package */ static void performSync(final SoundCloudApplication app,
-                                    Context context, Account account,
+                                    Account account,
                                     Bundle extras,
-                                    String authority, ContentProviderClient provider, SyncResult syncResult)
+                                    ContentProviderClient provider,
+                                    SyncResult syncResult)
             throws OperationCanceledException {
 
         app.useAccount(account);
@@ -110,15 +108,15 @@ public class SyncAdapterService extends Service {
                 int totalUnseen = Math.max(incomingEvents.size(), 1);
                 // takes care of an exclusive that hasn't made it to incoming yet
                 if (totalUnseen == 1) {
-                    ticker = context.getString(
+                    ticker = app.getString(
                             R.string.dashboard_notifications_ticker_single);
-                    title = context.getString(
+                    title = app.getString(
                             R.string.dashboard_notifications_title_single);
                 } else {
-                    ticker = String.format(context.getString(
+                    ticker = String.format(app.getString(
                             R.string.dashboard_notifications_ticker), totalUnseen > 99 ? "99+" : totalUnseen);
 
-                    title = String.format(context.getString(
+                    title = String.format(app.getString(
                             R.string.dashboard_notifications_title), totalUnseen > 99 ? "99+" : totalUnseen);
                 }
 

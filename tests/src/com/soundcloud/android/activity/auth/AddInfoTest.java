@@ -21,7 +21,6 @@ public class AddInfoTest extends ApiTests {
 
     @Test
     public void testAddUserInfoSuccess() throws Exception {
-        Robolectric.application.onCreate();
         AddInfo info = new AddInfo();
         User user = new User();
 
@@ -38,7 +37,6 @@ public class AddInfoTest extends ApiTests {
 
     @Test
     public void testAddUserInfoFail() throws Exception {
-        Robolectric.application.onCreate();
         AddInfo info = new AddInfo();
 
         addPendingHttpResponse(422, "{\"error\":\"Failz\"}");

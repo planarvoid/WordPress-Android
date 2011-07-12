@@ -1,30 +1,26 @@
 package com.soundcloud.android.service;
 
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import android.accounts.Account;
+import android.accounts.OperationCanceledException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Bundle;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +29,6 @@ import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncAdapterServiceTest extends ApiTests {
-    @Before
-    public void before() {
-        Robolectric.application.onCreate();
-    }
 
     @Test
     public void testGetNewIncomingEvents() throws Exception {
@@ -44,7 +36,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("tracks_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application, 0, false);
+                DefaultTestRunner.application, 0, false);
 
         assertThat(events.size(), is(100));
     }
@@ -53,7 +45,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void testWithSince() throws Exception {
         addPendingHttpResponse(200, resource("tracks_1.json"));
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application,
+                DefaultTestRunner.application,
                 1310462679000l
                 , false);
 
@@ -61,20 +53,19 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         addPendingHttpResponse(200, resource("tracks_1.json"));
         events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application,
+                DefaultTestRunner.application,
                 1310462016000l
                 , false);
 
         assertThat(events.size(), is(2));
     }
 
-
     @Test
     public void testGetUniqueUsersFromEvents() throws Exception {
         addPendingHttpResponse(200, resource("tracks_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application, 0, false);
+                DefaultTestRunner.application, 0, false);
         assertThat(events.size(), is(50));
 
         List<User> users = SyncAdapterService.getUniqueUsersFromEvents(events);
@@ -85,52 +76,77 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(ids.size(), is(users.size()));
     }
 
-
     @Test
     public void testIncomingMessaging() throws Exception {
-
         addPendingHttpResponse(200, resource("tracks_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application, 0, false);
+                DefaultTestRunner.application, 0, false);
 
         String message = SyncAdapterService.getIncomingMessaging(
-                (SoundCloudApplication) Robolectric.application, events);
+                DefaultTestRunner.application, events);
 
         assertThat(message, equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
     }
 
     @Test
     public void testExclusiveMessaging() throws Exception {
-
         addPendingHttpResponse(200, resource("tracks_2.json"));
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                (SoundCloudApplication) Robolectric.application, 0, false);
+                DefaultTestRunner.application, 0, false);
 
         String message = SyncAdapterService.getExclusiveMessaging(
-                (SoundCloudApplication) Robolectric.application, events);
+                DefaultTestRunner.application, events);
 
         assertThat(message, equalTo("exclusives from All Tomorrows Parties, DominoRecordCo and others"));
     }
 
-
-    @Test @Ignore
-    public void testPerformSync() throws Exception {
+    @Test
+    public void shouldNotifyIfSyncedBefore() throws Exception {
         addPendingHttpResponse(200, resource("tracks_2.json"));
 
+        SoundCloudApplication app = DefaultTestRunner.application;
+        app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
+
+        ShadowNotification sn = doPerformSync(app);
+        assertThat(sn.getLatestEventInfo().getContentText().toString(),
+                equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
+        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+                equalTo("50 new sounds"));
+    }
+
+
+    @Test
+    public void shouldNotify99PlusItems() throws Exception {
+        addPendingHttpResponse(200, resource("tracks_1.json"));
+        addPendingHttpResponse(200, resource("tracks_2.json"));
+
+        SoundCloudApplication app = DefaultTestRunner.application;
+        app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
+
+        ShadowNotification sn = doPerformSync(app);
+        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+                equalTo("99+ new sounds"));
+    }
+
+    @Test
+    public void shouldNotNotifyOnFirstSync() throws Exception {
+        addPendingHttpResponse(200, resource("tracks_2.json"));
+        assertThat(doPerformSync(DefaultTestRunner.application), nullValue());
+    }
+
+
+    private static ShadowNotification doPerformSync(SoundCloudApplication app)
+            throws OperationCanceledException {
         SyncAdapterService.performSync(
-                (SoundCloudApplication) Robolectric.application,
-                Robolectric.application,
+                app,
                 new Account("foo", "bar"),
-                new Bundle(),
                 null, null, null);
 
         ShadowNotificationManager m =shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
 
         List<Notification> list = m.getAllNotifications();
-        assertThat(list.size(), is(1));
-        Notification n = list.get(0);
-        assertThat(n.tickerText.toString(), equalTo("50 new sounds"));
+        return list.isEmpty() ? null : shadowOf(list.get(0));
     }
 }
