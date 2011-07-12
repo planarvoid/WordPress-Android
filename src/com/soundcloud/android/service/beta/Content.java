@@ -1,10 +1,7 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.utils.CloudUtils.deleteFile;
-import static com.soundcloud.android.utils.CloudUtils.getAppVersion;
-import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
+import static com.soundcloud.android.utils.CloudUtils.*;
 
-import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -15,7 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import android.os.StatFs;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,6 +59,12 @@ public class Content implements Comparable<Content>, Parcelable {
                getLocalFile().exists() &&
                getLocalFile().length() == size &&
                getLocalFile().lastModified() == lastmodified;
+    }
+
+    public boolean isEnoughStorageLeft() {
+        StatFs fs = new StatFs(getLocalFile().getAbsolutePath());
+        final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
+        return (size * 3l) < free;
     }
 
     public int getVersionCode() {

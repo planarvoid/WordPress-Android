@@ -26,7 +26,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -177,7 +176,7 @@ public class BetaService extends Service {
     }
 
     private void download(final Content content, Intent intent) {
-        if (!isEnoughStorageLeft(content)) {
+        if (!content.isEnoughStorageLeft()) {
             notifyLowStorage(content);
             skip(content, "not enough diskspace", intent);
         } else {
@@ -257,12 +256,6 @@ public class BetaService extends Service {
                 }
             }
         }.execute(content);
-    }
-
-    private boolean isEnoughStorageLeft(Content content) {
-        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
-        return (content.size * 3l) < free;
     }
 
     private static boolean isStorageAvailable() {

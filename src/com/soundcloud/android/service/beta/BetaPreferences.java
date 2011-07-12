@@ -8,6 +8,7 @@ import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 import com.soundcloud.android.R;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.CheckBoxPreference;
@@ -34,49 +35,7 @@ public class BetaPreferences {
         beta.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                final Content content = BetaService.getMostRecentContent();
-                String message = "";
-                if (content != null) {
-                    if (content.isUptodate(context)) {
-                        message += "Your beta version is up to date. ";
-                    } else {
-                        message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
-                                getElapsedTimeString(context.getResources(), content.downloadTime()),
-                                content.getVersionName(),
-                                content.getVersionCode(),
-                                getElapsedTimeString(context.getResources(), content.lastmodified)
-                        );
-                    }
-                } else {
-                    message += "No beta downloaded yet. ";
-                }
-
-                message += String.format("Installed version: %s (%d)",
-                        getAppVersion(context, "unknown"),
-                        getAppVersionCode(context, -1));
-
-                AlertDialog.Builder b = new AlertDialog.Builder(context)
-                        .setTitle(R.string.pref_beta)
-                        .setMessage(message)
-                        .setPositiveButton(R.string.pref_beta_check_check_now, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (BetaService.checkNow(context)) {
-                                    Toast.makeText(context, R.string.pref_beta_check_checking_now, Toast.LENGTH_SHORT)
-                                         .show();
-                                }
-                            }
-                        });
-
-                if (content != null && !content.isUptodate(context)) {
-                    b.setNeutralButton(R.string.pref_beta_install_now, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            context.startActivity(content.getInstallIntent());
-                        }
-                    });
-                }
-                b.create().show();
+                getUpdateDialog(context, BetaService.getMostRecentContent()).show();
                 return true;
             }
         });
@@ -101,6 +60,58 @@ public class BetaPreferences {
             getPreferenceScreen().addPreference(screen);
         }
         */
+    }
+
+
+    public static Dialog getUpdateDialog(final Context context, final Content content) {
+        String message = "";
+        if (content != null) {
+            if (content.isUptodate(context)) {
+                message += "Your beta version is up to date. ";
+            } else {
+                message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
+                        getElapsedTimeString(context.getResources(), content.downloadTime()),
+                        content.getVersionName(),
+                        content.getVersionCode(),
+                        getElapsedTimeString(context.getResources(), content.lastmodified)
+                );
+            }
+        } else {
+            message += "No beta downloaded yet. ";
+        }
+
+        message += String.format("Installed version: %s (%d)",
+                getAppVersion(context, "unknown"),
+                getAppVersionCode(context, -1));
+
+        AlertDialog.Builder b = new AlertDialog.Builder(context)
+                .setTitle(R.string.pref_beta)
+                .setMessage(message)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton(R.string.pref_beta_check_check_now, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (BetaService.checkNow(context)) {
+                            Toast.makeText(context, R.string.pref_beta_check_checking_now, Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+                });
+
+        if (content != null && !content.isUptodate(context)) {
+            b.setNeutralButton(R.string.pref_beta_install_now, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    context.startActivity(content.getInstallIntent());
+                }
+            });
+        }
+        return b.create();
     }
 
     /** @noinspection UnusedDeclaration*/
