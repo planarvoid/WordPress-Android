@@ -11,6 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowIntent;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.junit.Test;
@@ -20,7 +21,10 @@ import android.accounts.Account;
 import android.accounts.OperationCanceledException;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.TestIntentSender;
 
 import java.util.HashSet;
 import java.util.List;
@@ -109,11 +113,13 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
 
-        ShadowNotification sn = doPerformSync(app);
-        assertThat(sn.getLatestEventInfo().getContentText().toString(),
+        NotificationInfo n = doPerformSync(app);
+        assertThat(n.info.getContentText().toString(),
                 equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
-        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+        assertThat(n.info.getContentTitle().toString(),
                 equalTo("49 new sounds"));
+
+        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("incoming"));
     }
 
 
@@ -125,16 +131,16 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
 
-        ShadowNotification sn = doPerformSync(app);
-        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+        NotificationInfo n = doPerformSync(app);
+        assertThat(n.info.getContentTitle().toString(),
                 equalTo("53 new sounds"));
 
-        assertThat(sn.getLatestEventInfo().getContentText().toString(),
+        assertThat(n.info.getContentText().toString(),
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
         assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT), is(53));
+        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("exclusive"));
     }
-
 
     @Test
     public void shouldNotify99PlusItems() throws Exception {
@@ -145,8 +151,8 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
 
-        ShadowNotification sn = doPerformSync(app);
-        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+        NotificationInfo n = doPerformSync(app);
+        assertThat(n.info.getContentTitle().toString(),
                 equalTo("99+ new sounds"));
     }
 
@@ -157,7 +163,21 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
 
-    private static ShadowNotification doPerformSync(SoundCloudApplication app)
+    static class NotificationInfo {
+        public Notification n;
+        public ShadowNotification.LatestEventInfo info;
+
+        NotificationInfo(Notification n, ShadowNotification.LatestEventInfo info) {
+            this.n = n;
+            this.info = info;
+        }
+
+        public Intent getIntent() {
+            return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
+        }
+    }
+
+    private static NotificationInfo doPerformSync(SoundCloudApplication app)
             throws OperationCanceledException {
         SyncAdapterService.performSync(
                 app,
@@ -168,6 +188,11 @@ public class SyncAdapterServiceTest extends ApiTests {
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
 
         List<Notification> list = m.getAllNotifications();
-        return list.isEmpty() ? null : shadowOf(list.get(0));
+        if (list.isEmpty()) {
+            return null;
+        } else {
+            return new NotificationInfo(list.get(0), shadowOf(list.get(0)).getLatestEventInfo());
+
+        }
     }
 }
