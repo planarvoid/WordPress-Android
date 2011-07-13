@@ -41,7 +41,7 @@ import java.util.List;
 
 import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
-@ReportsCrashes(formKey = "dGN1Wm9ZZFd0dmpCWDAwaWdicm9pR0E6MQ")
+@ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
