@@ -19,7 +19,7 @@ Clone and build it:
   * Make sure build is green (cf [Builder][])
   * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
   * Create a new crash form & change the form key in `SoundCloudApplication`
-  * Document changes in [CHANGES][]
+  * Document changes in [changelog.txt][] and add the release date
   * Tag the current version (`git tag -a 1.3.2`)
   * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
@@ -31,7 +31,7 @@ Clone and build it:
 
 ## Releasing betas
 
-  * Change `versionName` in AndroidManifest.xml (but not `versionCode`)
+  * Change `versionName` in AndroidManifest.xml (but *not* `versionCode`)
   * Create a tag with the versionName you used in step 1)
   * Build the apk: `rake beta:build`
   * Upload to S3: `rake beta:upload`
@@ -46,6 +46,6 @@ This is document elsewhere:
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
-[CHANGES]: https://github.com/soundcloud/SoundCloud-Android/blob/master/CHANGES
+[changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt]
 [Token Sharing]: https://github.com/soundcloud/android-token-sharing
 [Intent Sharing]: https://github.com/soundcloud/android-intent-sharing
