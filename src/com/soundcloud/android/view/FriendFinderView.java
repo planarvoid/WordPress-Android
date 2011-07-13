@@ -210,7 +210,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private void addFriendsSection() {
         mFriendsSection = new SectionedAdapter.Section(mActivity.getString(R.string.list_header_fb_friends),
                 Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS));
-        mAdapter.getWrappedAdapter().sections.add(mFriendsSection);
+        mAdapter.addSection(mFriendsSection);
     }
 
     private void addSuggestedSection() {
@@ -220,10 +220,8 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     @Override
-    public boolean onRefresh() {
+    public void onRefresh() {
         ((UserBrowser) mActivity).refreshConnections();
-        return true;
-
     }
 
 }

@@ -346,12 +346,16 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
             reset(true, false);
             onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
         } else {
-            mKeepOnAppending.set(false);
+            onEmptyRefresh();
         }
 
         applyEmptyText();
         notifyDataSetChanged();
         mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
+    }
+
+    protected void onEmptyRefresh(){
+      mKeepOnAppending.set(false);
     }
 
     public void setRequest(Request request) {
@@ -450,15 +454,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     }
 
     @Override
-    public boolean onRefresh() {
-        if (mActivity.isConnected()){
-            if (!isRefreshing()) refresh(true);
-            return true;
-        } else {
-            onPostRefresh(null,null,HttpStatus.SC_SERVICE_UNAVAILABLE,false);
-            return false;
-        }
-
+    public void onRefresh() {
+        if (!isRefreshing()) refresh(true);
     }
 
 

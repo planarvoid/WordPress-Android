@@ -24,6 +24,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped) {
         super(activity, wrapped, null);
         mListeners = new ArrayList<WeakReference<SectionListener>>();
+        mKeepOnAppending.set(false);
     }
 
     public void addListener(SectionListener listener){
@@ -31,6 +32,10 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             if (listenerRef.get() != null && listenerRef.get() == listener) return;
         }
         mListeners.add(new WeakReference<SectionListener>(listener));
+    }
+
+    public void addSection(SectionedAdapter.Section newSection){
+        getWrappedAdapter().sections.add(newSection);
     }
 
 
@@ -131,12 +136,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
 
-   public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
-       super.onPostRefresh(newItems,nextHref,responseCode,keepGoing);
-
-       if (!mKeepOnAppending.get()) nextAdapterSection();
-   }
-
+    @Override
     protected void onEmptyRefresh(){
        if (super.getCount() == 0) {
            if (mSectionIndex >= getWrappedAdapter().sections.size() - 1) {
@@ -149,5 +149,9 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     public interface SectionListener {
         void onSectionLoaded(SectionedAdapter.Section seection);
+    }
+
+    @Override public boolean needsRefresh() {
+        return getWrappedAdapter().sections.size() > 0 && super.needsRefresh();
     }
 }
