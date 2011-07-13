@@ -149,7 +149,8 @@ namespace :beta do
        metadata.inject([]) { |m,(k,v)|
          m << "--add-header=x-amz-meta-#{k}:#{v}"
          m
-       }.join(' ') + ' ' +
+       }.join(' ') +
+       (ENV['DRYRUN'] ? ' --dry-run ' : ' ') +
        DEST
   end
 end

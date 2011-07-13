@@ -32,7 +32,9 @@ public class BetaPreferences {
 
         Preference beta = new Preference(context);
         beta.setTitle(R.string.pref_beta);
-        beta.setSummary(R.string.pref_beta_summary);
+        beta.setSummary(BetaService.isUptodate(context)
+                ? R.string.pref_beta_summary : R.string.pref_beta_summary_outdated);
+
         beta.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -90,7 +92,7 @@ public class BetaPreferences {
             if (content.isUptodate(context)) {
                 message += "Your beta version is up to date. ";
             } else {
-                message += String.format("Last downloaded beta: %s, version: %s (%d), updated %s. ",
+                message += String.format("Last downloaded beta:\n%s, version: %s (%d),\nupdated %s. ",
                         getElapsedTimeString(context.getResources(), content.downloadTime()),
                         content.getVersionName(),
                         content.getVersionCode(),
@@ -101,7 +103,7 @@ public class BetaPreferences {
             message += "No beta downloaded yet. ";
         }
 
-        message += String.format("Installed version: %s (%d)",
+        message += String.format("Installed version:\n%s (%d)",
                 getAppVersion(context, "unknown"),
                 getAppVersionCode(context, -1));
 

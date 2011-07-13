@@ -2,8 +2,13 @@
     <string name="pref_beta">SoundCloud Beta</string>
     <string name="pref_beta_title">Beta</string>
     <string name="pref_beta_summary">
-        You are running a beta version. Uninstall it first to install the market version.
+        You are running the latest beta version. Uninstall it first to install the market version.
     </string>
+
+    <string name="pref_beta_summary_outdated">
+        There is a more recent beta version available. Tap to install.
+    </string>
+
     <string name="pref_beta_check_for_updates">Check for updates</string>
     <string name="pref_beta_check_for_updates_summary">Automatically download beta updates (checks %s)</string>
 

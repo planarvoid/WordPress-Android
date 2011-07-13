@@ -404,5 +404,10 @@ public class BetaService extends Service {
         Collections.sort(contents);
         return contents.isEmpty() ? null : contents.get(0);
     }
+
+    static boolean isUptodate(Context context) {
+        Content recent = getMostRecentContent();
+        return recent == null || recent.isUptodate(context);
+    }
 }
 
