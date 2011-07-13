@@ -110,7 +110,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             }
 
             mKeepOnAppending.set(keepgoing);
-            incrementPage();
         } else {
             handleResponseCode(responseCode);
             applyEmptyText();
@@ -128,7 +127,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
         // load next section as necessary
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
-            mCurrentPage = 0;
             mSectionIndex++;
             mKeepOnAppending.set(true);
             notifyDataSetChanged();

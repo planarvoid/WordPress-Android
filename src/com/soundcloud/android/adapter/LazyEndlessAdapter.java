@@ -38,7 +38,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
     private AppendTask mAppendTask;
 
     protected LazyListView mListView;
-    protected int mCurrentPage;
     protected ScActivity mActivity;
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
     protected Boolean mError = false;
@@ -54,9 +53,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         super(wrapped);
 
         mActivity = activity;
-        mCurrentPage = 0;
         mRequest = request;
         wrapped.setWrapper(this);
+
+
     }
 
 
@@ -193,8 +193,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         int[] ret = new int[3];
         ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
-        ret[1] = mCurrentPage;
-        ret[2] = mError ? 1 : 0;
+        ret[1] = mError ? 1 : 0;
 
         return ret;
 
@@ -202,8 +201,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     protected void restorePagingData(int[] restore) {
         mKeepOnAppending.set(restore[0] == 1);
-        mCurrentPage = restore[1];
-        mError = restore[2] == 1;
+        mError = restore[1] == 1;
 
         if (!mKeepOnAppending.get()) {
             applyEmptyText();
@@ -221,10 +219,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public Class<?> getLoadModel(boolean isRefresh) {
         return getWrappedAdapter().getLoadModel();
-    }
-
-    public int getCurrentPage() {
-        return mCurrentPage;
     }
 
     public List<Parcelable> getData() {
@@ -319,7 +313,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
         if (responseCode == HttpStatus.SC_OK){
             mKeepOnAppending.set(keepGoing);
-            incrementPage();
+            mNextHref = nextHref;
         } else {
             handleResponseCode(responseCode);
         }
@@ -329,7 +323,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 getData().add(newitem);
             }
         }
-        mNextHref = nextHref;
+
         mPendingView = null;
 
         // configure the empty view depending on possible exceptions
@@ -407,10 +401,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public void reset(boolean keepAppending, boolean notifyChange) {
         resetData();
-
-        mCurrentPage = 0;
+        mNextHref = "";
         mKeepOnAppending.set(keepAppending);
-
         clearAppendTask();
          if (notifyChange) notifyDataSetChanged();
     }
@@ -426,13 +418,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
         if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
-    }
-
-    /**
-     * Increment the current page
-     */
-    public void incrementPage() {
-        mCurrentPage++;
     }
 
     /**
@@ -473,5 +458,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
 
     public boolean needsRefresh() {
         return (super.getCount() == 0 && mKeepOnAppending.get()) && CloudUtils.isTaskFinished(mRefreshTask);
+    }
+
+    public void onConnected() {
+       if (mError && super.getCount() > 0 && !mKeepOnAppending.get()){
+           mKeepOnAppending.set(true);
+       }
     }
 }

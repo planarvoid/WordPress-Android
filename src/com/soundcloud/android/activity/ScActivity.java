@@ -448,6 +448,8 @@ public abstract class ScActivity extends Activity {
         if (isConnected) {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
+
+            for (LazyListView lv : mLists) { lv.getWrapper().onConnected(); }
         }
     }
 
