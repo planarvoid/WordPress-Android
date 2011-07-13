@@ -46,6 +46,6 @@ This is document elsewhere:
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
-[changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt]
+[changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt
 [Token Sharing]: https://github.com/soundcloud/android-token-sharing
 [Intent Sharing]: https://github.com/soundcloud/android-intent-sharing
