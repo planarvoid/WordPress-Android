@@ -8,8 +8,8 @@ import com.soundcloud.android.utils.CloudUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,15 +55,13 @@ public class Recover extends Activity {
             }
         });
 
-        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)), getResources().getString(R.string.authentication_support), new ClickSpan.OnClickListener() {
-            @Override
-            public void onClick() {
-                final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-                emailIntent.setType("plain/text");
-                emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.authentication_support_email_address)});
-                emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.authentication_support_email_subject));
-                emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.authentication_support_email_message));
-                startActivity(Intent.createChooser(emailIntent, getString(R.string.authentication_support_email_chooser_text)));
+        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+                getResources().getString(R.string.authentication_support),
+                new ClickSpan.OnClickListener() {
+            @Override public void onClick() {
+                startActivity(
+                        new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.authentication_support_uri))));
             }
         }, true);
 

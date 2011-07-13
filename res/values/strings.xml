@@ -68,12 +68,7 @@
     <string name='authentication_error_password_mismatch'>The password and confirmation have to match.</string>
     <string name='authentication_error_password_too_short'>Your Password must have 4 or more characters.</string>
 
-    <string name='authentication_support_email_chooser_text'>Send email using...</string>
-    <string name='authentication_support_email_address'>support@soundcloud.com</string>
-    <string name='authentication_support_email_subject'>Login problems</string>
-    <string name='authentication_support_email_message'/>
-
-
+    <string name='authentication_support_uri'>http://soundcloud.com/help#contact-form</string>
     <string name='email_confirmation_thanks_later'>
         <u>Thanks, I will confirm it later</u>
     </string>

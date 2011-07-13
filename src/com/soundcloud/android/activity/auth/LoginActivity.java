@@ -47,7 +47,6 @@ public abstract class LoginActivity extends Activity {
                         LoginActivity.this.getString(R.string.authentication_login_progress_message));
             }
 
-
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
