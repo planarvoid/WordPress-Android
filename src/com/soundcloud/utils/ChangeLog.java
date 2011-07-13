@@ -1,5 +1,7 @@
 package com.soundcloud.utils;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.R;
 
 import android.app.AlertDialog;
@@ -28,14 +30,12 @@ import java.io.InputStreamReader;
  * see: http://code.google.com/p/android-change-log/
  */
 public class ChangeLog {
-    private static final String TAG = "ChangeLog";
-
     private final Context mContext;
     private int mOldVersion;
     private int mThisVersion;
 
     // this is the key for storing the version name in SharedPreferences
-    private static final String VERSION_KEY = "PREFS_VERSION_KEY";
+    private static final String VERSION_KEY = "changeLogVersionCode";
     private static final String CONTENT = "__CHANGELOG_CONTENT__";
 
     private Listmode mListMode = Listmode.NONE;
@@ -55,20 +55,12 @@ public class ChangeLog {
     public ChangeLog(Context context) {
         mContext = context;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        // get version numbers
         mOldVersion = sp.getInt(VERSION_KEY, 0);
-        Log.d(TAG, "oldVersion: " + mOldVersion);
-        //current version
         PackageInfo packageInfo;
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             mThisVersion = packageInfo.versionCode;
-            Log.d(TAG, "thisVersion: " + mThisVersion);
-
-            // save new version number to preferences
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putInt(VERSION_KEY, mThisVersion);
-            editor.commit();
+            sp.edit().putInt(VERSION_KEY, mThisVersion).commit();
         } catch (PackageManager.NameNotFoundException e) {
             Log.w(TAG, "not found", e);
         }
@@ -77,26 +69,12 @@ public class ChangeLog {
     /**
      * @return true if this version of your app is started the first time
      */
-    public boolean firstRun() {
-        return mOldVersion != mThisVersion;
+    public boolean isFirstRun() {
+        return mOldVersion < mThisVersion;
     }
 
-    /**
-     * @return an AlertDialog displaying the changes since the previous
-     *         installed version of your app (what's new).
-     */
-    public AlertDialog getLogDialog() {
-        return getDialog(false);
-    }
 
-    /**
-     * @return an AlertDialog with a full change log displayed
-     */
-    public AlertDialog getFullLogDialog() {
-        return getDialog(true);
-    }
-
-    private AlertDialog getDialog(boolean full) {
+    public AlertDialog getDialog(boolean full) {
         WebView wv = new WebView(mContext);
         wv.setBackgroundColor(0xFFFFFFFF); // transparent
         wv.loadData(getLog(full), "text/html", "UTF-8");
@@ -184,7 +162,6 @@ public class ChangeLog {
                         mSb.append("<li>").append(line.substring(1).trim()).append("</li>\n");
                     } else if (line.startsWith("-")) {
                         // private changelog entry, skip
-
                     } else {
                         // no special character: just use line as is
                         closeList();

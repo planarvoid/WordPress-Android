@@ -6,18 +6,14 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
-import com.soundcloud.android.service.beta.Content;
 import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,12 +41,10 @@ public class Settings extends PreferenceActivity {
         setClearCacheTitle();
 
         final ChangeLog cl = new ChangeLog(this);
-        if (cl.firstRun()) cl.getLogDialog().show();
-
         findPreference("changeLog").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        cl.getFullLogDialog().show();
+                        cl.getDialog(true).show();
                         return true;
                     }
                 });
@@ -133,13 +127,11 @@ public class Settings extends PreferenceActivity {
         }
     }
 
-
     public void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
             showDialog(dialogId);
         }
     }
-
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();

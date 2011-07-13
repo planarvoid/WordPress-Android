@@ -3,7 +3,7 @@
 Please use Google's [Code Style Guidelines for Contributors][].
 
 *Note:* When using Intellij IDEA, copy `doc/codestyles/android.xml` to
-`$HOME/Library/Preferences/IntelliJIdea10CE/codestyles/` and select the "android" 
+`$HOME/Library/Preferences/IntelliJIdea10CE/codestyles/` and select the "android"
 code style in the project settings.
 
 ## File format
@@ -153,6 +153,19 @@ Good:
       doAnotherThing();
     }
     // no return statement needed!
+
+
+## Methods returning booleans
+
+Should start with is:
+
+Bad:
+
+    public boolean enabled() {}
+
+Good:
+
+    public boolean isFooEnabled() { }
 
 
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
