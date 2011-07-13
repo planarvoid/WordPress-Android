@@ -4,4 +4,7 @@
 
     <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
     <string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
+
+    <string name='ga_tracking_market'>UA-2519404-11</string>
+    <string name='ga_tracking_beta'>UA-2519404-11</string>
 </resources>

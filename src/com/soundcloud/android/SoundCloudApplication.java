@@ -44,7 +44,6 @@ import static com.soundcloud.android.utils.CloudUtils.doOnce;
 @ReportsCrashes(formKey = "dGN1Wm9ZZFd0dmpCWDAwaWdicm9pR0E6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
-    public static final String GA_TRACKING = "UA-2519404-11";
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
     public static final boolean API_PRODUCTION = true;
@@ -62,12 +61,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
+        DEV_MODE = isDevMode();
+        BETA_MODE = isBetaMode();
+
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
             }
             mTracker = GoogleAnalyticsTracker.getInstance();
-            mTracker.start(GA_TRACKING, 120 /* seconds */, this);
+            mTracker.start(
+                    getString(BETA_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
+                    120 /* seconds */, this);
         }
 
         createImageLoaders();
@@ -83,9 +87,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         );
 
         mCloudApi.setTokenListener(this);
-        DEV_MODE = isDevMode();
-        BETA_MODE = isBetaMode();
-
         mCloudApi.debugRequests = DEV_MODE;
 
         if (DEV_MODE) {
@@ -108,7 +109,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         });
 
         if (BETA_MODE) {
-
             BetaService.scheduleCheck(this, EMULATOR);
         }
     }
