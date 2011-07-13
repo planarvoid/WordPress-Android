@@ -5,7 +5,7 @@
         You are running a beta version. Uninstall it first to install the market version.
     </string>
     <string name="pref_beta_check_for_updates">Check for updates</string>
-    <string name="pref_beta_check_for_updates_summary">Automatically check for beta updates (every %1$d minutes)</string>
+    <string name="pref_beta_check_for_updates_summary">Automatically download beta updates (checks %s)</string>
 
     <string name="pref_beta_check_check_now">Check now</string>
     <string name="pref_beta_check_checking_now">Checking for updates...</string>
@@ -23,4 +23,13 @@
     <string name="pref_beta_new_version_available_ticker">Beta update</string>
     <string name="pref_beta_skipped">Skipped beta download</string>
 
+    <string name="pref_beta_require_wifi">Require Wifi</string>
+    <string name="pref_beta_require_wifi_summary">Only download updates when connected to Wifi</string>
+
+    <string name="pref_beta_interval_900">every 15 minutes</string>
+    <string name="pref_beta_interval_1800">every half hour</string>
+    <string name="pref_beta_interval_3600">every hour</string>
+    <string name="pref_beta_interval_43200">twice a day</string>
+    <string name="pref_beta_interval_86400">daily</string>
+    <string name="pref_beta_interval_unknown">unknown</string>
 </resources>

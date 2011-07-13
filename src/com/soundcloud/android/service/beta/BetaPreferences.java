@@ -7,6 +7,7 @@ import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 
 import com.soundcloud.android.R;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -44,14 +45,22 @@ public class BetaPreferences {
         autoUpdate.setTitle(R.string.pref_beta_check_for_updates);
         autoUpdate.setSummary(
                 context.getString(R.string.pref_beta_check_for_updates_summary,
-                        BetaService.INTERVAL/60/1000));
+                        context.getString(getResourceForInterval((int) BetaService.INTERVAL))));
+
         autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
         autoUpdate.setDefaultValue(true);
+
+        CheckBoxPreference requireWifi = new CheckBoxPreference(context);
+        requireWifi.setTitle(R.string.pref_beta_require_wifi);
+        requireWifi.setSummary(R.string.pref_beta_require_wifi_summary);
+        requireWifi.setDefaultValue(true);
+        requireWifi.setKey(BetaService.PREF_REQUIRE_WIFI);
 
         group.addPreference(cat);
 
         cat.addPreference(beta);
         cat.addPreference(autoUpdate);
+        cat.addPreference(requireWifi);
         /*
         // does not work - android styling bug
 
@@ -62,6 +71,18 @@ public class BetaPreferences {
         */
     }
 
+    private static int getResourceForInterval(int interval) {
+        switch (interval) {
+            case (int) AlarmManager.INTERVAL_FIFTEEN_MINUTES: return R.string.pref_beta_interval_900;
+            case (int) AlarmManager.INTERVAL_HALF_HOUR: return R.string.pref_beta_interval_1800;
+            case (int) AlarmManager.INTERVAL_HOUR: return R.string.pref_beta_interval_3600;
+            case (int) AlarmManager.INTERVAL_HALF_DAY: return R.string.pref_beta_interval_43200;
+            case (int) AlarmManager.INTERVAL_DAY: return R.string.pref_beta_interval_86400;
+            default:
+                return R.string.pref_beta_interval_unknown;
+
+        }
+    }
 
     public static Dialog getUpdateDialog(final Context context, final Content content) {
         String message = "";

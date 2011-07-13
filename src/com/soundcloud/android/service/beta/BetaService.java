@@ -48,10 +48,11 @@ public class BetaService extends Service {
 
     public static final Uri BETA_BUCKET = Uri.parse("http://soundcloud-android-beta.s3.amazonaws.com/");
     public static final File APK_PATH = new File(Consts.FILES_PATH, "beta");
-    public static final String PREF_CHECK_UPDATES = "beta_check_for_updates";
+    public static final String PREF_CHECK_UPDATES = "beta.check_for_updates";
+    public static final String PREF_REQUIRE_WIFI = "beta.require_wifi";
 
     /** How often should the update check run */
-    public static final long INTERVAL = AlarmManager.INTERVAL_HOUR;
+    public static final long INTERVAL = AlarmManager.INTERVAL_HALF_DAY;
     public static final String EXTRA_MANUAL = "com.soundcloud.android.extra.beta.manual";
     private static final String USER_AGENT = "SoundCloud Android BetaService";
 
@@ -358,7 +359,10 @@ public class BetaService extends Service {
     }
 
     private boolean isWifi() {
-        if (SoundCloudApplication.EMULATOR) {
+        boolean requireWifi = PreferenceManager.getDefaultSharedPreferences(this)
+                                               .getBoolean(PREF_REQUIRE_WIFI, true);
+
+        if (!requireWifi || SoundCloudApplication.EMULATOR) {
             return true;
         } else {
             ConnectivityManager c = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -368,7 +372,6 @@ public class BetaService extends Service {
                 c.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
         }
     }
-
 
     static List<Content> getContents() {
         if (isStorageAvailable()) {
