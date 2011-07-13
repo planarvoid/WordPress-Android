@@ -33,7 +33,10 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SyncAdapterService extends Service {
     private static final String TAG = "ScSyncAdapterService";
@@ -98,15 +101,18 @@ public class SyncAdapterService extends Service {
             List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
             List<Event> exclusiveEvents = getNewExclusiveEvents(app, lastSync);
 
-            final boolean hasIncoming  = incomingEvents.size() > 0;
-            final boolean hasExclusive = exclusiveEvents.size() > 0;
-            final boolean showNotification = incomingEvents.size() + exclusiveEvents.size() > currentNotificationCount;
+            Set<Long> ids = new HashSet<Long>(incomingEvents.size());
+            for (Event e : incomingEvents) ids.add(e.getOriginId());
+            for (Event e : exclusiveEvents) ids.add(e.getOriginId());
+            final int totalUnseen = ids.size();
+
+            final boolean hasIncoming  = !incomingEvents.isEmpty();
+            final boolean hasExclusive = !exclusiveEvents.isEmpty();
+            final boolean showNotification = totalUnseen > currentNotificationCount;
             if ((hasIncoming || hasExclusive) && showNotification) {
                 final CharSequence title, message, ticker;
-                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, incomingEvents.size()+exclusiveEvents.size());
+                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, totalUnseen);
 
-                int totalUnseen = Math.max(incomingEvents.size(), 1);
-                // takes care of an exclusive that hasn't made it to incoming yet
                 if (totalUnseen == 1) {
                     ticker = app.getString(
                             R.string.dashboard_notifications_ticker_single);
@@ -120,7 +126,7 @@ public class SyncAdapterService extends Service {
                             R.string.dashboard_notifications_title), totalUnseen > 99 ? "99+" : totalUnseen);
                 }
 
-                if (exclusiveEvents.size() > 0) {
+                if (hasExclusive) {
                     message = getExclusiveMessaging(app, exclusiveEvents);
                 } else {
                     message = getIncomingMessaging(app, incomingEvents);
@@ -133,11 +139,11 @@ public class SyncAdapterService extends Service {
     }
 
     public static boolean isIncomingEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", false);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", true);
     }
 
     public static boolean isExclusiveEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", false);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", true);
     }
 
     private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
@@ -152,10 +158,10 @@ public class SyncAdapterService extends Service {
             throws IOException {
         boolean caughtUp = false;
         Activities activities = null;
-        List<Event> incomingEvents = new ArrayList<Event>();
-        if ((!exclusive && isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
-            return incomingEvents;
+        if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
+            return Collections.emptyList();
         } else {
+            List<Event> incomingEvents = new ArrayList<Event>();
             final String resource = exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES;
             do {
                 Request request = Request.to(resource).add("limit", 20);

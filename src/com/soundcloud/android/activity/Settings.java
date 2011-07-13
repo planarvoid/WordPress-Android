@@ -124,10 +124,8 @@ public class Settings extends PreferenceActivity {
         } else {
             findPreference("dev.clearNotifications").setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
-
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            Log.d("foo", "onclick");
                             SyncAdapterService.requestNewSync(getApp());
                             return true;
                         }

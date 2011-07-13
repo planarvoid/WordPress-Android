@@ -32,8 +32,8 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEvents() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_1.json"));
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_1.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, 0, false);
@@ -43,7 +43,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testWithSince() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_1.json"));
+        addPendingHttpResponse(200, resource("incoming_1.json"));
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 1310462679000l
@@ -51,7 +51,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         assertThat(events.size(), is(1));
 
-        addPendingHttpResponse(200, resource("tracks_1.json"));
+        addPendingHttpResponse(200, resource("incoming_1.json"));
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 1310462016000l
@@ -62,7 +62,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetUniqueUsersFromEvents() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, 0, false);
@@ -78,7 +78,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testIncomingMessaging() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, 0, false);
@@ -91,7 +91,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testExclusiveMessaging() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, 0, false);
 
@@ -103,7 +103,8 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addPendingHttpResponse(200, resource("empty_events.json"));
 
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
@@ -112,14 +113,34 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(sn.getLatestEventInfo().getContentText().toString(),
                 equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
         assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
-                equalTo("50 new sounds"));
+                equalTo("49 new sounds"));
+    }
+
+
+    @Test
+    public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
+        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addPendingHttpResponse(200, resource("exclusives_1.json"));
+
+        SoundCloudApplication app = DefaultTestRunner.application;
+        app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
+
+        ShadowNotification sn = doPerformSync(app);
+        assertThat(sn.getLatestEventInfo().getContentTitle().toString(),
+                equalTo("53 new sounds"));
+
+        assertThat(sn.getLatestEventInfo().getContentText().toString(),
+                equalTo("exclusives from jberkel_testing, xla and others"));
+
+        assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT), is(53));
     }
 
 
     @Test
     public void shouldNotify99PlusItems() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_1.json"));
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_1.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addPendingHttpResponse(200, resource("exclusives_1.json"));
 
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1l);
@@ -131,7 +152,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
-        addPendingHttpResponse(200, resource("tracks_2.json"));
+        addPendingHttpResponse(200, resource("incoming_2.json"));
         assertThat(doPerformSync(DefaultTestRunner.application), nullValue());
     }
 

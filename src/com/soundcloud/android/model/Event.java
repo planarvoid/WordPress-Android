@@ -13,12 +13,10 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.Comparator;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event extends BaseObj implements Parcelable {
-
     public long id;
     public Date created_at;
     public String type;
@@ -28,6 +26,7 @@ public class Event extends BaseObj implements Parcelable {
 
     // locally used field
     public long user_id;
+    // stored in db
     public long origin_id;
     public boolean exclusive;
     public String next_cursor;
@@ -43,6 +42,7 @@ public class Event extends BaseObj implements Parcelable {
     public Event(Parcel in) {
         readFromParcel(in);
     }
+
 
     public Event(Cursor cursor, boolean aliasesOnly) {
         String[] keys = cursor.getColumnNames();
@@ -77,13 +77,7 @@ public class Event extends BaseObj implements Parcelable {
     }
 
     public long getOriginId() {
-        if (track != null)
-            return track.id;
-        if (type.equalsIgnoreCase("track"))
-            return ((Track) origin).id;
-        else if (type.equalsIgnoreCase("track-sharing"))
-            return (origin.track).id;
-        return 0;
+        return getTrack() == null ? 0 : getTrack().id;
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -118,13 +112,4 @@ public class Event extends BaseObj implements Parcelable {
         if (!TextUtils.isEmpty(next_cursor)) cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
     }
-
-
-    public static class CompareCreatedAt implements Comparator<Event>{
-        @Override
-        public int compare(Event c1, Event c2) {
-            return c2.created_at.compareTo(c1.created_at);
-        }
-    }
-
 }
