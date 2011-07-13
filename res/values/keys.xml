@@ -6,5 +6,5 @@
     <string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
 
     <string name='ga_tracking_market'>UA-2519404-11</string>
-    <string name='ga_tracking_beta'>UA-2519404-11</string>
+    <string name='ga_tracking_beta'>UA-2519404-19</string>
 </resources>
