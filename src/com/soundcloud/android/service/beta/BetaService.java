@@ -217,7 +217,12 @@ public class BetaService extends Service {
                             try {
                                 content.touch();
                                 content.persist();
-                                notifyNewVersion(content);
+
+                                if (!content.isUptodate(BetaService.this)) {
+                                    notifyNewVersion(content);
+                                } else {
+                                    Log.d(TAG, "version is uptodate, not notifying");
+                                }
 
                                 new CleanupBetaTask() {
                                     @Override protected void onPostExecute(List<File> files) {
