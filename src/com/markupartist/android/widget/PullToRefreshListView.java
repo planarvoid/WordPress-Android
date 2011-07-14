@@ -578,8 +578,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                 mSelectionRunnable = null;
             }
         };
+        post(mSelectionRunnable);
     }
-
 
     /**
      * Invoked when the refresh view is clicked on. This is mainly used when
