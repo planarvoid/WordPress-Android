@@ -141,7 +141,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
                 mListView == null ? null : mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
-                mListView == null ? null : mListView.getChildAt(0) == null ? 0 : mListView.getChildAt(0).getTop()
+                mListView == null ? null : mListView.getChildAt(0) == null ||
+                        mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop()
         };
     }
 
