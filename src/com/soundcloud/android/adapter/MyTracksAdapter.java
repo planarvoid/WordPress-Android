@@ -102,9 +102,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     @Override
     public void reset() {
-        mPage = 1;
-        submenuIndex = -1;
-        animateSubmenuIndex = -1;
+        super.reset();
         refreshCursor();
     }
 
