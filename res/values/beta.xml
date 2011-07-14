@@ -23,9 +23,11 @@
     <string name="pref_beta_download_failed_title">Download failed</string>
     <string name="pref_beta_download_failed_content">Failed: %1$s</string>
 
-    <string name="pref_beta_new_version_available">New beta version downloaded</string>
-    <string name="pref_beta_new_version_available_content">%1$s, updated %2$s</string>
-    <string name="pref_beta_new_version_available_ticker">Beta update</string>
+    <string name="pref_beta_new_version_available">New beta version available</string>
+
+    <string name="pref_beta_new_version_downloaded">New beta version downloaded</string>
+    <string name="pref_beta_new_version_downloaded_content">%1$s, updated %2$s</string>
+    <string name="pref_beta_new_version_downloaded_ticker">Beta update</string>
     <string name="pref_beta_skipped">Skipped beta download</string>
 
     <string name="pref_beta_require_wifi">Require Wifi</string>

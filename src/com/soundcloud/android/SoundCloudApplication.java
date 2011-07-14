@@ -22,6 +22,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
+import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -110,6 +111,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, EMULATOR);
+            C2DMReceiver.register(this);
         }
     }
 
@@ -221,7 +223,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account,  Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
-            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
+                    user.primary_email_confirmed));
         }
 
         // move this when we can't guarantee we will only have 1 account active at a time
@@ -476,6 +479,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    /**
+     * @param msg    message
+     * @param e      exception, can be null
+     */
     public static void handleSilentException(String msg, Exception e) {
         if (msg != null) {
            Log.w(TAG, msg, e);

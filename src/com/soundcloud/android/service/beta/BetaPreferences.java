@@ -140,7 +140,6 @@ public class BetaPreferences {
     /** @noinspection UnusedDeclaration*/
     private static PreferenceScreen
         // hacky way to use package private method on PreferenceManager
-
         preferenceScreenFromResource(PreferenceManager pm, Context ctxt, int settings_beta) {
         try {
             Class pmClass = pm.getClass();

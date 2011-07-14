@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.beta;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -7,7 +8,9 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,5 +78,15 @@ public class ContentTest {
 
         c.metadata.put("android-versioncode", "UNPARSEABLE");
         assertThat(c.getVersionCode(), is(-1));
+    }
+
+    @Test
+    public void shouldTestUpdate() throws Exception {
+
+        assertTrue(Content.isUptodate(10, "foo", 10, "foo"));
+        assertTrue(Content.isUptodate(15, "foo", 10, "foo"));
+        assertFalse(Content.isUptodate(9, "foo", 10, "foo"));
+
+        assertFalse(Content.isUptodate(10, "foo-1", 10, "foo-2"));
     }
 }

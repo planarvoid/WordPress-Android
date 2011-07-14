@@ -51,6 +51,8 @@ public class BetaService extends Service {
     public static final File APK_PATH = new File(Consts.FILES_PATH, "beta");
     public static final String PREF_CHECK_UPDATES = "beta.check_for_updates";
     public static final String PREF_REQUIRE_WIFI = "beta.require_wifi";
+    public static final String PREF_BETA_VERSION = "beta.beta_version";
+
 
     /** How often should the update check run */
     public static final long INTERVAL = AlarmManager.INTERVAL_HALF_DAY;
@@ -78,6 +80,8 @@ public class BetaService extends Service {
         synchronized (BetaService.class) {
             if (sRunning) {
                 Log.d(TAG, "already running");
+
+
             } else if (!shouldCheckForUpdates(this) && !manual) {
                 skip(null, "User disabled auto-update", intent);
             } else if (!isStorageAvailable()) {
@@ -206,6 +210,7 @@ public class BetaService extends Service {
                             try {
                                 content.touch();
                                 content.persist();
+                                clearPendingBeta(BetaService.this);
 
                                 if (!content.isUptodate(BetaService.this)) {
                                     notifyNewVersion(content);
@@ -258,12 +263,12 @@ public class BetaService extends Service {
     }
 
     private void notifyNewVersion(Content apk) {
-        String title   = getString(R.string.pref_beta_new_version_available);
-        String content = getString(R.string.pref_beta_new_version_available_content,
+        String title   = getString(R.string.pref_beta_new_version_downloaded);
+        String content = getString(R.string.pref_beta_new_version_downloaded_content,
                 apk.getVersionName(),
                 getElapsedTimeString(getResources(), apk.lastmodified));
 
-        String ticker  = getString(R.string.pref_beta_new_version_available_ticker);
+        String ticker  = getString(R.string.pref_beta_new_version_downloaded_ticker);
 
         Notification n = new Notification(R.drawable.statusbar, ticker, apk.lastmodified);
         n.flags |= defaultNotificationFlags();
@@ -311,7 +316,7 @@ public class BetaService extends Service {
 
     }
 
-    private int defaultNotificationFlags() {
+    static int defaultNotificationFlags() {
        return Notification.FLAG_ONLY_ALERT_ONCE |
               Notification.FLAG_AUTO_CANCEL |
               Notification.DEFAULT_LIGHTS;
@@ -346,6 +351,14 @@ public class BetaService extends Service {
         Log.d(TAG, "BETA mode enabled, scheduling update checks "+
                 "(every "+BetaService.INTERVAL/1000/60+" minutes, exact="+exact+")");
     }
+
+    public static void scheduleNow(Context context, long delay) {
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+delay,
+                PendingIntent.getService(context, 0,
+                                        new Intent(context, BetaService.class), 0));
+    }
+
 
     private boolean isBackgroundDataEnabled() {
         ConnectivityManager c = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -440,6 +453,24 @@ public class BetaService extends Service {
         if (mWakeLock != null) {
             mWakeLock.release();
         }
+    }
+
+    public static boolean isPendingBeta(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).contains(PREF_BETA_VERSION);
+    }
+
+    public static void setPendingBeta(Context context, String version) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                         .edit()
+                         .putString(PREF_BETA_VERSION, version)
+                         .commit();
+    }
+
+    public static void clearPendingBeta(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                         .edit()
+                         .remove(PREF_BETA_VERSION)
+                         .commit();
     }
 }
 

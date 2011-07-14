@@ -1,4 +1,7 @@
 require 'rexml/document'
+require 'net/https'
+require 'uri'
+require 'pp'
 
 namespace :doc do
   desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
@@ -152,5 +155,91 @@ namespace :beta do
        }.join(' ') +
        (ENV['DRYRUN'] ? ' --dry-run ' : ' ') +
        DEST
+  end
+end
+
+namespace :c2dm do
+  CL_URL   = URI.parse("https://www.google.com/accounts/ClientLogin")
+  C2DM_URL = URI.parse("https://android.apis.google.com/c2dm/send")
+
+  def login(opts={})
+    params = {
+        'accountType' => 'HOSTED_OR_GOOGLE',
+        'Email'       => ENV['EMAIL'] || 'jan@soundcloud.com',
+        'Passwd'      => ENV['PASSWORD'],
+        'service'     => 'ac2dm',
+        'source'      => "SoundCloud-Android-#{versionName}"
+    }.merge(opts)
+    http = Net::HTTP.new(CL_URL.host, CL_URL.port)
+    http.use_ssl = true
+    req = Net::HTTP::Post.new(CL_URL.path)
+    req.set_form_data(params)
+    resp = http.start do |h|
+      h.request(req)
+    end
+    case resp
+      when Net::HTTPSuccess
+        Hash[resp.body.split(/\n/).map {|l| l.split('=', 2) }]
+      when Net::HTTPForbidden
+        STDERR.puts "Forbidden (403)"
+        keys = Hash[resp.body.split(/\n/).map {|l| l.split('=', 2) }]
+        if keys['Error'] == 'CaptchaRequired'
+          STDERR.puts "captcha required, enter below and hit enter"
+          url = keys['CaptchaUrl']
+          sh "open https://www.google.com/accounts/" + url
+          c = STDIN.readline.strip
+          login('logintoken'=>keys['CaptchaToken'], 'logincaptcha'=>c)
+        end
+    else
+      STDERR.puts "Error logging in: #{resp.inspect}"
+      nil
+    end
+  end
+
+
+  desc "get a client login token"
+  task :login do
+    if tokens = login
+      puts "AuthToken:"+ tokens['Auth']
+    end
+  end
+
+  def post(data, reg_id=ENV['REG_ID'], collapse_key='key', opts={})
+    params = {
+      'registration_id' => reg_id,
+      'collapse_key'    => collapse_key,
+    }.merge(opts)
+    data.each do |k, v|
+      params["data.#{k}"] = v
+    end
+
+    http = Net::HTTP.new(C2DM_URL.host, C2DM_URL.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    req = Net::HTTP::Post.new(C2DM_URL.path, {
+      'Authorization' => "GoogleLogin auth=#{ENV['TOKEN']}"
+    })
+    req.set_form_data(params)
+    resp = http.start do |h|
+      h.request(req)
+    end
+    case resp
+      when Net::HTTPSuccess
+        Hash[*resp.body.strip.split("=", 2)]
+     when Net::HTTPUnauthorized
+        puts "unauthorized"
+        nil
+     when Net::HTTPServiceUnavailable
+        puts "service unavailable"
+        nil
+     else
+        puts "unexpected response: #{resp.inspect}"
+        nil
+     end
+  end
+
+  desc "post a message"
+  task :post do
+    puts post('beta-version' => '21:1.3.4-BETA5')
   end
 end

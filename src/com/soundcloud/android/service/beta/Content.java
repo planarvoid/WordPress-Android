@@ -105,8 +105,24 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public boolean isUptodate(Context context) {
-        return getAppVersionCode(context, -1) == getVersionCode() &&
-               getAppVersion(context, "").equals(getVersionName());
+        return isUptodate(context, getVersionCode(), getVersionName());
+    }
+
+    public static boolean isUptodate(Context context, int newVersionCode, String newVersionName) {
+        return isUptodate(
+                getAppVersionCode(context, -1),
+                getAppVersion(context, ""),
+                newVersionCode,
+                newVersionName);
+    }
+
+    public static boolean isUptodate(int currentVersionCode,
+                                     String currentVersionName,
+                                     int newVersionCode,
+                                     String newVersionName) {
+
+        return currentVersionCode > newVersionCode ||
+               currentVersionCode == newVersionCode && currentVersionName.equals(newVersionName);
     }
 
     @Override
