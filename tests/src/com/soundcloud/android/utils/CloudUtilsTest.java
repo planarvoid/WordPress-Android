@@ -21,4 +21,9 @@ public class CloudUtilsTest {
         assertThat(CloudUtils.md5("000012345"), equalTo("4748cdb4de48635e843db0670e1ad47a"));
         assertThat(CloudUtils.md5("00001234588888"), equalTo("1dff78cccd58a9a316d872a9d6d08db2"));
     }
+
+    @Test
+    public void testHexString() throws Exception {
+        assertThat(CloudUtils.hexString(new byte[] { 0, 12, 32, 0, 16}), equalTo("000c200010"));
+    }
 }

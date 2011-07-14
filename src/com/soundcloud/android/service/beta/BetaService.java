@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -59,6 +60,8 @@ public class BetaService extends Service {
     private HttpClient mClient;
 
     private WifiManager.WifiLock mWifiLock;
+    private PowerManager.WakeLock mWakeLock;
+
     private static boolean sRunning;
 
     @Override
@@ -69,6 +72,7 @@ public class BetaService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand(" + intent + "," + flags + "," + startId + ")");
+        acquireLocks();
 
         final boolean manual = isManual(intent);
         synchronized (BetaService.class) {
@@ -85,7 +89,6 @@ public class BetaService extends Service {
             } else {
                 sRunning = true;
                 mClient = createHttpClient();
-                acquireLock();
 
                 checkForUpdates(intent);
             }
@@ -102,7 +105,7 @@ public class BetaService extends Service {
         Log.d(TAG, "onDestroy()");
         sRunning = false;
 
-        releaseLock();
+        releaseLocks();
 
         if (mClient != null) {
             if (mClient instanceof AndroidHttpClient) {
@@ -119,20 +122,6 @@ public class BetaService extends Service {
             return AndroidHttpClient.newInstance(USER_AGENT);
         } else {
             return new DefaultHttpClient(Http.defaultParams());
-        }
-    }
-
-    private synchronized void acquireLock() {
-        if (mWifiLock == null) {
-            WifiManager wMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            mWifiLock = wMgr.createWifiLock(TAG);
-        }
-        mWifiLock.acquire();
-    }
-
-    private synchronized void releaseLock() {
-        if (mWifiLock != null) {
-            mWifiLock.release();
         }
     }
 
@@ -413,6 +402,44 @@ public class BetaService extends Service {
     static boolean isUptodate(Context context) {
         Content recent = getMostRecentContent();
         return recent == null || recent.isUptodate(context);
+    }
+
+    private synchronized void acquireLocks() {
+        acquireWifiLock();
+        acquireWakeLock();
+    }
+
+    private synchronized void releaseLocks() {
+        releaseWifiLock();
+        releaseWakeLock();
+    }
+
+    private synchronized void acquireWifiLock() {
+        if (mWifiLock == null) {
+            WifiManager wMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            mWifiLock = wMgr.createWifiLock(TAG);
+        }
+        mWifiLock.acquire();
+    }
+
+    private void releaseWifiLock() {
+        if (mWifiLock != null) {
+            mWifiLock.release();
+        }
+    }
+
+    private synchronized void acquireWakeLock() {
+        if (mWakeLock == null) {
+            PowerManager mgr = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            mWakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        }
+        mWakeLock.acquire();
+    }
+
+    private void releaseWakeLock() {
+        if (mWakeLock != null) {
+            mWakeLock.release();
+        }
     }
 }
 

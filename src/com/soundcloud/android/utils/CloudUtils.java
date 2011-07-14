@@ -200,11 +200,15 @@ public class CloudUtils {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             digest.update(s.getBytes());
-            return new BigInteger(1, digest.digest()).toString(16);
+            return hexString(digest.digest());
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";
         }
+    }
+
+    public static String hexString(byte[] bytes) {
+        return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
     public static void createTab(TabHost tabHost, String tabId,
@@ -252,8 +256,6 @@ public class CloudUtils {
     public static String stripProtocol(String url) {
         return url.replace("http://www.", "").replace("http://", "");
     }
-
-
 
     public static void configureTabs(Context context, TabWidget tabWidget, int height, int width,
             boolean scrolltabs) {

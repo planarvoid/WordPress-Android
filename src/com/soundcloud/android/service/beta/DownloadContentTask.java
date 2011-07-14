@@ -1,8 +1,10 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.service.beta.BetaService.TAG;
+import static com.soundcloud.android.utils.CloudUtils.hexString;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import com.soundcloud.android.utils.CloudUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -55,7 +57,7 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
                 fos.close();
                 is.close();
 
-                final String hex = new BigInteger(1, digest.digest()).toString(16);
+                final String hex = hexString(digest.digest());
                 if (!hex.equals(content.etag)) {
                     Log.w(TAG, "MD5 sums don't match: " + hex + "!=" + content.etag);
                     return null;
