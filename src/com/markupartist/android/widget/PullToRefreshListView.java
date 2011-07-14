@@ -324,12 +324,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                     @Override
                     public void run() {
                         scrollListBy(getChildAt(1).getTop(), HEADER_HIDE_DURATION);
-                        postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                checkHeaderVisibility(false);
-                            }
-                        }, HEADER_HIDE_DURATION);
                     }
                 });
             }
