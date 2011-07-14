@@ -12,7 +12,7 @@
             android:layout_height="wrap_content" />
         <Button 
             android:id="@+id/positiveButton"
-            android:text="Done"
+            android:text="@string/btn_done"
             android:paddingLeft="20dip"
             android:paddingRight="20dip"
             android:layout_margin="3dip"

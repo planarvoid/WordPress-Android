@@ -487,4 +487,5 @@
     <string name="sc_search_tracks">\u00A0Tracks</string>
     <string name="sc_search_users">\u00A0Users</string>
     <string name="comment_bubble_readon">Read on</string>
+    <string name="error_getting_recording">Error getting recording</string>
 </resources>

@@ -96,7 +96,7 @@
                       android:layout_centerInParent="true">
 
             <com.soundcloud.android.view.DarkButton android:id="@+id/btn_reset"
-                                                    android:text="Reset"
+                                                    android:text="@string/reset"
                                                     android:layout_weight="1"
                                                     android:layout_width="wrap_content"
                                                     android:padding="15dip"
@@ -105,7 +105,7 @@
                                                     android:layout_marginRight="15dip"/>
 
             <com.soundcloud.android.view.DarkButton android:id="@+id/btn_save"
-                                                    android:text="Save"
+                                                    android:text="@string/save"
                                                     android:padding="15dip"
                                                     android:layout_weight="1"
                                                     android:layout_width="wrap_content"

@@ -263,7 +263,7 @@ public class ScCreate extends ScActivity {
                     mDuration = cursor.getLong(cursor.getColumnIndex(Recordings.DURATION));
                     cursor.close();
                 } else {
-                    showToast("Error getting recording");
+                    showToast(R.string.error_getting_recording);
                 }
             }
 

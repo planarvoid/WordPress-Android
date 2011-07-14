@@ -346,10 +346,6 @@ public abstract class ScActivity extends Activity {
         CloudUtils.showToast(this, getResources().getString(stringId));
     }
 
-    protected void showToast(CharSequence text) {
-        CloudUtils.showToast(this,text);
-    }
-
     public LazyListView buildList() {
         return configureList(new LazyListView(this));
     }
