@@ -5,7 +5,6 @@
             android:id="@+id/empty_txt" android:layout_height="fill_parent"
             android:gravity="center_horizontal"
             android:padding="30dip"
-            android:text=""
             android:layout_width="wrap_content">
     </TextView>
 </RelativeLayout>

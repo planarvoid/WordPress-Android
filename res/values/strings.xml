@@ -11,7 +11,7 @@
     <string name='dashboard_notifications_ticker_single'>1 new sound</string>
     <string name='dashboard_notifications_title_single'>1 new sound</string>
 
-    <string name='dashboard_notifications_ticker'>%s new sounds</string>
+    <string platform="ios win7" name='dashboard_notifications_ticker'>%s new sounds</string>
     <string name='dashboard_notifications_title'>%s new sounds</string>
 
     <string name='dashboard_notifications_message_single_exclusive'>1 exclusive from %s</string>
@@ -419,9 +419,11 @@
         To change your default sharing options, go to your settings on SoundCloud and
         select \'Connections\'
     </string>
+
     <string name='connection_list_error'>
         Oops! There seems to be a connection problem. Please try again shortly.
     </string>
+
     <string name='connect_progress'>Loading</string>
     <string name='connect_success'>Successfully connected with %1$s</string>
     <string name='connect_failure'>Failed connecting with %1$s</string>
@@ -448,4 +450,41 @@
     <string name='pref_basic_settings'>Basic settings</string>
     <string name='pref_connection_and_data'>Connection and data</string>
     <string name='pref_app_details'>App Details</string>
+    <string name="add_image">Add\nImage</string>
+    <string name="filename">filename</string>
+    <string name="btn_reply">Reply</string>
+    <string name="configure">Configure</string>
+
+    <string name="email_picker_clear">Clear</string>
+    <string name="email_confirmation_cant_find_it">Can\'t find it in your inbox?</string>
+    <string name="email_confirmation_resend">Resend the confirmation link</string>
+    <string name="email_confirmation_just_a_second">Just a second</string>
+    <string name="email_confirmation_confirm_later">Thanks, I will confirm it later</string>
+    <string name="email_confirmation_you_need_to_confirm">
+        To get the most out of SoundCloud you need to confirm your email address.
+    </string>
+
+    <string name="info_comments_add_comment">Add a comment</string>
+    <string name="info_comments_comments">Comments</string>
+
+
+    <string name="track">track</string>
+    <string name="user">user</string>
+    <string name="sc_upload_only_you">Only You</string>
+    <string name="sc_upload_with_access">With Access</string>
+    <string name="sc_upload_sharing_options">Sharing Options</string>
+    <string name="sc_upload_add_image">Add\nImage</string>
+    <string name="sc_upload_public">\u00A0Public</string>
+    <string name="sc_upload_private">\u00A0Private</string>
+
+    <string name="website">Website</string>
+    <string name="discogs" translatable="false">Discogs</string>
+    <string name="myspace" translatable="false">Myspace</string>
+    <string name="username">username</string>
+    <string name="track_count">track count</string>
+    <string name="follower_count">follower count</string>
+
+    <string name="sc_search_tracks">\u00A0Tracks</string>
+    <string name="sc_search_users">\u00A0Users</string>
+    <string name="comment_bubble_readon">Read on</string>
 </resources>

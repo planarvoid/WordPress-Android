@@ -26,7 +26,7 @@
                   android:id="@+id/username"
                   style="@style/txt_list_main"
                   android:ellipsize="marquee"
-                  android:text="username"
+                  android:text="@string/username"
                   android:textSize="@dimen/list_txt_main_size"
                   android:lines="1"
                   android:layout_width="wrap_content"/>
@@ -48,7 +48,7 @@
                       android:id="@+id/tracks"
                       android:layout_toRightOf="@id/tracks_icon"
                       android:paddingRight="5dip"
-                      android:text="track count"
+                      android:text="@string/track_count"
                       style="@style/txt_list_sub"/>
             <View android:background="#ffcccccc" android:layout_toRightOf="@+id/tracks"
                   android:layout_alignBottom="@+id/followers_icon"
@@ -72,7 +72,7 @@
                       android:layout_height="wrap_content"
                       android:layout_toRightOf="@id/followers_icon"
                       android:id="@+id/followers"
-                      android:text="follower count"
+                      android:text="@string/follower_count"
                       style="@style/txt_list_sub"/>
         </RelativeLayout>
     </RelativeLayout>

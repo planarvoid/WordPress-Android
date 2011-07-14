@@ -6,7 +6,7 @@
 
     <Button android:id="@+id/btn_resend"
           android:layout_width="wrap_content"
-          android:text="Resend the confirmation link"
+          android:text="@string/email_confirmation_resend"
           android:layout_centerInParent="true"
           android:background="@drawable/email_confirm_btn_bg"
           android:layout_height="30dip"
@@ -20,7 +20,7 @@
           android:layout_height="wrap_content"
           android:textColor="#ffffffff"
           android:layout_centerHorizontal="true"
-          android:text="Can't find it in your inbox?"
+          android:text="@string/email_confirmation_cant_find_it"
           android:paddingBottom="15dip"/>
 
     <TextView android:id="@+id/txt_email_confirm_2"
@@ -29,7 +29,7 @@
              android:layout_height="wrap_content"
              android:textColor="#ffffffff"
              android:layout_centerHorizontal="true"
-             android:text="To get the most out of SoundCloud you need to confirm your email address."
+             android:text="@string/email_confirmation_you_need_to_confirm"
              android:paddingRight="10dip"
              android:paddingLeft="10dip"
              android:gravity="center"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:textColor="#ffffffff"
             android:layout_centerHorizontal="true"
-            android:text="Just a second"
+            android:text="@string/email_confirmation_just_a_second"
             android:textSize="22sp"
             android:paddingBottom="20dip"/>
 
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:textColor="#ffffffff"
         android:layout_centerHorizontal="true"
-        android:text="Thanks, I will confirm it later"
+        android:text="@string/email_confirmation_confirm_later"
         android:layout_alignParentBottom="true"
         android:paddingBottom="20dip"/>
 </RelativeLayout>

@@ -23,5 +23,5 @@
             android:textSize="28sp"
             android:layout_marginLeft="10dip"
             android:singleLine="true"
-            android:text="filename"/>
+            android:text="@string/filename"/>
 </LinearLayout>

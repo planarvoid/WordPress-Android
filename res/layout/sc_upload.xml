@@ -29,7 +29,7 @@
                               android:clickable="true"
                               android:gravity="center"
                               android:padding="10dip"
-                              android:text="Add\nImage"/>
+                              android:text="@string/sc_upload_add_image"/>
                     <ImageView android:id="@+id/artwork"
                                android:visibility="gone"
                                android:layout_height="100dip"
@@ -77,14 +77,14 @@
 
                 <RadioButton android:id="@+id/rdo_public"
                              android:checked="true"
-                             android:text="\u00A0Public"
+                             android:text="@string/sc_upload_public"
                              android:layout_weight="1"
                              style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
 
                 <RadioButton android:id="@+id/rdo_private"
                              android:checked="false"
-                             android:text="\u00A0Private"
+                             android:text="@string/sc_upload_private"
                              android:layout_weight="1"
                              style="@style/txt_record_rdo"
                              android:layout_width="wrap_content"/>
@@ -96,7 +96,7 @@
                       style="@style/txt_record_share_options"
                       android:gravity="left"
                       android:padding="5dip"
-                      android:text="Sharing Options"
+                      android:text="@string/sc_upload_sharing_options"
                       android:layout_below="@id/rdo_privacy"
                       android:layout_height="30dip"/>
 
@@ -133,12 +133,12 @@
                                         style="@style/txt_record_email_access_gray"
                                         android:layout_height="wrap_content"
                                         android:layout_width="wrap_content"
-                                        android:text="With Access"
+                                        android:text="@string/sc_upload_with_access"
                                         android:layout_centerVertical="true" />
                                  <TextView android:id="@+id/txt_with_access_values"
                                           android:layout_alignParentRight="true"
                                           style="@style/txt_record_email_access"
-                                          android:text="Only You"
+                                          android:text="@string/sc_upload_only_you"
                                           android:layout_height="wrap_content"
                                           android:layout_width="wrap_content"
                                           android:layout_centerVertical="true" />

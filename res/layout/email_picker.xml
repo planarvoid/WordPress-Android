@@ -33,7 +33,7 @@
           android:layout_marginRight="5dip"
           android:layout_marginBottom="5dip"
           android:layout_toLeftOf="@+id/pick_done"
-          android:text="Clear"/>
+          android:text="@string/email_picker_clear"/>
 
 
         <Button android:id="@+id/pick_done"
@@ -43,7 +43,7 @@
           android:layout_marginRight="5dip"
           android:layout_marginBottom="5dip"
           android:layout_alignParentRight="true"
-          android:text="OK"/>
+          android:text="@android:string/ok"/>
 
     </RelativeLayout>
 

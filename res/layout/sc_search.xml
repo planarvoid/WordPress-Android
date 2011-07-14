@@ -44,7 +44,7 @@
 
         <RadioButton  android:id="@+id/rdo_tracks"
                      android:checked="true"
-                     android:text="\u00A0Tracks"
+                     android:text="@string/sc_search_tracks"
                      style="@style/txt_search_rdo"
                      android:layout_width="wrap_content"
                      android:layout_weight="1"
@@ -52,7 +52,7 @@
 
         <RadioButton android:id="@+id/rdo_users"
                      android:checked="false"
-                     android:text="\u00A0Users"
+                     android:text="@string/sc_search_users"
                      style="@style/txt_search_rdo"
                      android:layout_width="wrap_content"
                      android:layout_weight="1"

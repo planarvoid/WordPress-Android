@@ -16,7 +16,7 @@
 
             <TextView android:id="@+id/website"
                       android:layout_width="wrap_content"
-                      android:text="Website"
+                      android:text="@string/website"
                       android:padding="3dip"
                       android:layout_height="wrap_content"
                       android:gravity="center_vertical|left"
@@ -26,7 +26,7 @@
 
             <TextView android:id="@+id/discogs_name"
                       android:layout_width="wrap_content"
-                      android:text="Discogs"
+                      android:text="@string/discogs"
                       android:padding="3dip"
                       android:layout_height="wrap_content"
                       android:gravity="center_vertical"
@@ -36,7 +36,7 @@
 
             <TextView android:id="@+id/myspace_name"
                       android:layout_width="wrap_content"
-                      android:text="Myspace"
+                      android:text="@string/myspace"
                       android:padding="3dip"
                       android:layout_height="wrap_content"
                       android:gravity="center_vertical"
@@ -57,7 +57,7 @@
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:padding="3dip"
-                      android:text=""/>
+                      />
         </LinearLayout>
     </ScrollView>
 

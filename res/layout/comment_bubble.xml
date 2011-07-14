@@ -22,7 +22,6 @@
               android:gravity="center"
               android:layout_centerHorizontal="true"
               style="@style/txt_comment_bubble_new_time"
-              android:text="12.56"
               android:layout_below="@id/txt_new_instructions"/>
 
     <TextView android:id="@+id/txt_username"
@@ -32,7 +31,6 @@
               android:gravity="center_horizontal"
               android:layout_alignParentTop="true"
               style="@style/txt_comment_bubble_username"
-              android:text="nomonet"
               android:paddingLeft="5dip"
               android:paddingRight="10dip"
               android:paddingBottom="10dip"/>
@@ -43,7 +41,6 @@
               android:layout_height="wrap_content"
               android:layout_alignTop="@id/txt_username"
               style="@style/txt_comment_bubble_white"
-              android:text="at 1.15.24"
               android:layout_toRightOf="@id/txt_username"/>
 
 
@@ -54,7 +51,6 @@
               android:ellipsize="marquee"
               android:layout_alignBottom="@id/txt_username"
               style="@style/txt_comment_bubble_gray"
-              android:text="13 hours ago"
               android:layout_toRightOf="@id/txt_show_date"
               android:layout_toLeftOf="@+id/btn_close"
               android:layout_marginRight="-20dip"/>
@@ -74,7 +70,6 @@
               android:layout_height="wrap_content"
               android:layout_centerHorizontal="true"
               style="@style/txt_comment_bubble_gray"
-              android:text="Robert Owens - I'll be your friend (? remix)"
               android:layout_below="@id/txt_username"
               android:layout_centerVertical="true"
               android:layout_above="@+id/btn_reply"
@@ -86,7 +81,7 @@
             android:layout_height="21dip"
             android:layout_alignParentLeft="true"
             style="@style/txt_comment_bubble_reply"
-            android:text="Read on"
+            android:text="@string/comment_bubble_readon"
             android:gravity="center"
             android:background="@drawable/ic_submit_states"/>
 
@@ -96,7 +91,7 @@
             android:layout_height="21dip"
             android:layout_alignParentRight="true"
             style="@style/txt_comment_bubble_reply"
-            android:text="Reply"
+            android:text="@string/btn_reply"
             android:gravity="center"
             android:background="@drawable/ic_submit_states"/>
 </RelativeLayout>

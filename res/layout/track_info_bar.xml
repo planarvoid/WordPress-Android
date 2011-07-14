@@ -28,7 +28,7 @@
                   android:layout_alignWithParentIfMissing="true"
                   android:layout_toLeftOf="@+id/btn_info"
                   android:layout_toRightOf="@id/play_indicator"
-                  android:text="asdf"/>
+                  />
 
         <TextView android:id="@+id/track_by"
                   android:layout_width="wrap_content"
@@ -45,7 +45,6 @@
                   style="@style/txt_list_sub"
                   android:layout_toRightOf="@id/track_by"
                   android:layout_toLeftOf="@+id/btn_info"
-                  android:text="asdf"
                   android:layout_alignBottom="@id/track_by"
                   android:singleLine="true"
                   android:ellipsize="marquee"

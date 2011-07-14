@@ -30,7 +30,7 @@
                       android:textColor="@color/white"
                       android:singleLine="true"
                       android:ellipsize="marquee"
-                      android:text="track"
+                      android:text="@string/track"
                       android:layout_weight="1"/>
 
             <ImageView android:id="@+id/private_indicator"

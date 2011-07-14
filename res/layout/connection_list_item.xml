@@ -32,7 +32,7 @@
               android:layout_width="wrap_content"
               android:layout_alignParentRight="true"
               android:paddingRight="5dip"
-              android:text="Configure"
+              android:text="@string/configure"
               style="@style/txt_record_connections"
               android:visibility="gone"
               android:layout_centerVertical="true"
