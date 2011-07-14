@@ -174,7 +174,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     @Override
     protected void onAttachedToWindow() {
-        if (mRefreshState != REFRESHING){
+        if (mRefreshState != REFRESHING && mSelectionRunnable == null){
             setSelection(1);
         }
     }
@@ -570,7 +570,6 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                 return;
             }
         }
-
         mSelectionRunnable = new Runnable() {
             @Override
             public void run() {
