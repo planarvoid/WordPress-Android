@@ -297,7 +297,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     void prepareForRefresh() {
         resetHeaderPadding();
-        configureLastUpdated();
 
         mRefreshViewImage.setVisibility(View.INVISIBLE);
         // We need this hack, otherwise it will keep the previous drawable.
@@ -463,7 +462,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     if (mRefreshState != TAP_TO_REFRESH) {
                         mRefreshViewImage.clearAnimation();
                         mRefreshViewImage.startAnimation(mReverseFlipAnimation);
-                    }
+                    } else configureLastUpdated();
                     mRefreshState = PULL_TO_REFRESH;
                 }
             } else {
