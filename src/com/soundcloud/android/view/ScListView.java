@@ -1,14 +1,22 @@
-package com.markupartist.android.widget;
-
+package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
-import android.graphics.Rect;
-import android.opengl.Visibility;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +26,7 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
@@ -30,13 +38,17 @@ import android.widget.TextView;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+
 
 /*
-    original source: https://github.com/johannilsson/android-pulltorefresh
+    pull-to-refresh original source: https://github.com/johannilsson/android-pulltorefresh
  */
 
+public class ScListView extends ListView implements AbsListView.OnScrollListener {
 
-public class PullToRefreshListView extends ListView implements OnScrollListener {
+    private static final int MESSAGE_UPDATE_LIST_ICONS = 1;
+    private static final int DELAY_SHOW_LIST_ICONS = 550;
 
     private static final int TAP_TO_REFRESH = 1;
     private static final int PULL_TO_REFRESH = 2;
@@ -46,13 +58,17 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     private static final int HEADER_HIDE_DURATION = 400;
 
-    private static final String TAG = "PullToRefreshListView";
+    private static final String TAG = "ScListView";
 
+    private ScActivity mActivity;
+
+    private final Handler mScrollHandler = new ScrollHandler();
+    private int mCurrentScrollState = SCROLL_STATE_IDLE;
+    private boolean mFingerUp = true;
+    private boolean mAutoScrolling;
+
+    private LazyListListener mListener;
     private OnRefreshListener mOnRefreshListener;
-
-    /**
-     * Listener that will receive notifications every time the list scrolls.
-     */
     private OnScrollListener mOnScrollListener;
 
     private LinearLayout mRefreshView;
@@ -60,73 +76,56 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     private ImageView mRefreshViewImage;
     private ProgressBar mRefreshViewProgress;
     private TextView mRefreshViewLastUpdated;
+    private View mEmptyView, mFooterView;
 
-
-    private int mLastMotionY;
-
-    private int mCurrentScrollState;
-    private int mRefreshState;
     private Runnable mSelectionRunnable;
-
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
-    protected int mRefreshViewHeight;
-    private int mRefreshOriginalTopPadding;
-
-    private View mEmptyView;
-
+    protected int mLastY, mLastMotionY, mRefreshState, mRefreshViewHeight, mRefreshOriginalTopPadding;
     private long mLastUpdated;
 
-    protected View mFooterView;
-    private boolean mAutoScrolling;
-
-    private int mLastY;
-
-
-    public PullToRefreshListView(Context context) {
-        super(context);
-        init(context);
+    public ScListView(ScActivity activity) {
+        super(activity);
+        init(activity);
     }
 
     /**
      * @noinspection UnusedDeclaration
      */
-    public PullToRefreshListView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+    public ScListView(ScActivity activity, AttributeSet attrs) {
+        super(activity, attrs);
+        init(activity);
     }
 
     /**
      * @noinspection UnusedDeclaration
      */
-    public PullToRefreshListView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(context);
+    public ScListView(ScActivity activity, AttributeSet attrs, int defStyle) {
+        super(activity, attrs, defStyle);
+        init(activity);
     }
 
+    private void init(ScActivity activity) {
+        mActivity = activity;
 
-    private void init(Context context) {
-
-        if (Build.VERSION.SDK_INT >= 9){
+        if (Build.VERSION.SDK_INT >= 9) {
             setOverScrollMode(OVER_SCROLL_NEVER);
         }
 
         // Load all of the animations we need in code rather than through XML
         mFlipAnimation = new RotateAnimation(0, -180,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         mFlipAnimation.setInterpolator(new LinearInterpolator());
         mFlipAnimation.setDuration(250);
         mFlipAnimation.setFillAfter(true);
         mReverseFlipAnimation = new RotateAnimation(-180, 0,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         mReverseFlipAnimation.setInterpolator(new LinearInterpolator());
         mReverseFlipAnimation.setDuration(250);
         mReverseFlipAnimation.setFillAfter(true);
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mRefreshView = (LinearLayout) inflater.inflate(R.layout.pull_to_refresh_header, null);
 
         mRefreshViewText = (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_text);
@@ -144,7 +143,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         addHeaderView(mRefreshView);
 
-        mFooterView = new FrameLayout(context);
+        mFooterView = new FrameLayout(activity);
         mFooterView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, 0));
         mFooterView.setBackgroundColor(0xFFFFFFFF);
         addFooterView(mFooterView);
@@ -156,7 +155,132 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         mEmptyView = inflater.inflate(R.layout.empty_list, null);
         mEmptyView.setBackgroundColor(0xFFFFFFFF);
+
+        setOnItemClickListener(mOnItemClickListener);
+        setOnItemLongClickListener(mOnItemLongClickListener);
+        setOnItemSelectedListener(mOnItemSelectedListener);
+        setOnTouchListener(new FingerTracker());
     }
+
+
+    @Override
+    public int getSolidColor() {
+        return 0xAAFFFFFF;
+    }
+
+    public void enableLongClickListener() {
+        setOnItemLongClickListener(mOnItemLongClickListener);
+    }
+
+    public void disableLongClickListener() {
+        setOnItemLongClickListener(null);
+    }
+
+    public void setLazyListListener(LazyListListener listener) {
+        mListener = listener;
+    }
+
+    public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
+        super.setAdapter(adapter);
+        if (refreshEnabled) setOnRefreshListener(adapter);
+    }
+
+    protected AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> list, View row, int position, long id) {
+            if (list.getAdapter().getCount() <= 0
+                    || position >= list.getAdapter().getCount())
+                return; // bad list item clicked (possibly loading item)
+
+            position -= getHeaderViewsCount();
+
+            if (list.getAdapter().getItem(position) instanceof Track) {
+
+                if (list.getAdapter() instanceof MyTracksAdapter) {
+                    position -= ((MyTracksAdapter) list.getAdapter()).getPendingRecordingsCount();
+                }
+
+                if (mListener != null) {
+                    mListener.onTrackClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+                }
+
+            } else if (list.getAdapter().getItem(position) instanceof Event) {
+
+                if (mListener != null) {
+                    mListener.onEventClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+                }
+
+            } else if (list.getAdapter().getItem(position) instanceof User || list.getAdapter().getItem(position) instanceof Friend) {
+
+                if (mListener != null) {
+                    mListener.onUserClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+                }
+
+            } else if (list.getAdapter().getItem(position) instanceof Recording) {
+
+                if (mListener != null) {
+                    mListener.onRecordingClick((Recording) list.getAdapter().getItem(position));
+                }
+            }
+        }
+    };
+
+    protected AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+
+        public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
+            if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount()){
+                return false; // bad list item clicked (possibly loading item)
+            }
+
+            ((LazyBaseAdapter) list.getAdapter()).submenuIndex = ((LazyBaseAdapter) list.getAdapter()).animateSubmenuIndex = position;
+            ((LazyBaseAdapter) list.getAdapter()).notifyDataSetChanged();
+            return true;
+        }
+
+    };
+    protected AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
+            if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position) {
+                listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            } else {
+                listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+            }
+        }
+
+        public void onNothingSelected(AdapterView<?> listView) {
+            // This happens when you start scrolling, so we need to prevent it from staying
+            // in the afterDescendants mode if the EditText was focused
+            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+        }
+    };
+
+
+    private class FingerTracker implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            final int action = event.getAction();
+            mFingerUp = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL;
+            if (mFingerUp && mCurrentScrollState != SCROLL_STATE_FLING) {
+                //postUpdateListIcons();
+            }
+            return false;
+        }
+    }
+
+
+    private class ScrollHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_UPDATE_LIST_ICONS:
+                    if (mListener != null)
+                        mListener.onFlingDone();
+                    break;
+            }
+        }
+    }
+
+
+
 
     public View getEmptyView() {
         return mEmptyView;
@@ -174,10 +298,34 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     @Override
     protected void onAttachedToWindow() {
-        if (mRefreshState != REFRESHING && mSelectionRunnable == null){
-            setSelection(1);
+        super.onAttachedToWindow();
+        checkHeaderVisibility(false);
+    }
+
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (!hasWindowFocus) {
+            checkHeaderVisibility(false);
         }
     }
+
+    public void onResume() {
+        if (getWrapper() != null) {
+            getWrapper().notifyDataSetChanged();
+            if (getWrapper().isRefreshing()) {
+                prepareForRefresh();
+                if (getFirstVisiblePosition() != 0) {
+                    postSelect(0, 0, false);
+                }
+            } else if (getWrapper().needsRefresh()) {
+                onRefresh();
+            } else {
+                checkHeaderVisibility(false);
+            }
+        }
+
+    }
+
 
     @Override
     public void setAdapter(ListAdapter adapter) {
@@ -191,8 +339,8 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         return false;
     }
 
-    private void checkHeaderVisibility(final boolean smooth){
-        if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH) {
+    private void checkHeaderVisibility(final boolean smooth) {
+        if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH && mSelectionRunnable == null) {
             post(new Runnable() {
                 @Override
                 public void run() {
@@ -209,7 +357,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     /**
      * Smoothly scroll by distance pixels over duration milliseconds.
-     *
+     * <p/>
      * <p>Using reflection internally to call smoothScrollBy for API Level 8
      * otherwise scrollBy is called.
      *
@@ -230,7 +378,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             }, duration);
         } catch (NoSuchMethodException e) {
             // If smoothScrollBy is not available (< 2.2)
-        	setSelection(1);
+            setSelection(1);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (IllegalAccessException e) {
@@ -318,7 +466,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             if (getLastVisiblePosition() >= getWrapper().getCount()) {
                 mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
 
-                if (mRefreshState == TAP_TO_REFRESH){ // instant set selection, must be first layout
+                if (mRefreshState == TAP_TO_REFRESH) { // instant set selection, must be first layout
                     setSelection(1);
                     return;
                 }
@@ -333,6 +481,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                 });
             }
             resetHeader();
+
         }
 
     }
@@ -367,11 +516,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                 mLastMotionY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-               skipParentHandling = checkAndHandleTop(event,mLastMotionY);
+                skipParentHandling = checkAndHandleTop(event, mLastMotionY);
                 break;
         }
 
-        if (skipParentHandling){
+        if (skipParentHandling) {
             return true;
         } else {
             return super.onTouchEvent(event);
@@ -392,9 +541,9 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
         if (Math.abs(incrementalDeltaY) >= 1) {
             final int topPadding = (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7);
-            if (topPadding != mRefreshView.getPaddingTop()){
-                    mRefreshView.setPadding(mRefreshView.getPaddingLeft(),topPadding,
-                            mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
+            if (topPadding != mRefreshView.getPaddingTop()) {
+                mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
+                        mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
             }
 
         }
@@ -461,7 +610,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
-            int visibleItemCount, int totalItemCount) {
+                         int visibleItemCount, int totalItemCount) {
         // When the refresh view is completely visible, change the text to say
         // "Release to refresh..." and flip the arrow drawable.
         if (mCurrentScrollState == SCROLL_STATE_TOUCH_SCROLL
@@ -490,7 +639,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         } else if (mCurrentScrollState == SCROLL_STATE_FLING
                 && firstVisibleItem == 0
                 && mRefreshState != REFRESHING
-                 && !mAutoScrolling) {
+                && !mAutoScrolling) {
             setSelection(1);
         }
 
@@ -514,10 +663,23 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-
         mCurrentScrollState = scrollState;
         if (mOnScrollListener != null) {
             mOnScrollListener.onScrollStateChanged(view, scrollState);
+        }
+
+        if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
+
+            final Handler handler = mScrollHandler;
+            final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS,
+                    mActivity);
+            handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+            handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_LIST_ICONS);
+
+        } else if (scrollState == SCROLL_STATE_FLING) {
+            mScrollHandler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
+            if (mListener != null)
+                mListener.onFling();
         }
     }
 
@@ -573,6 +735,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         mSelectionRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.i("asdf", "Post Selecting " + position);
                 setSelectionFromTop(position, yOffset);
                 mSelectionRunnable = null;
             }
@@ -604,9 +767,19 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         /**
          * Called when the list should be refreshed.
          * <p/>
-         * A call to {@link PullToRefreshListView #onRefreshComplete()} is
+         * A call to {@link ScListView #onRefreshComplete()} is
          * expected to indicate that the refresh has completed.
          */
         public void onRefresh();
     }
+
+     public interface LazyListListener {
+        void onUserClick(ArrayList<Parcelable> users, int position);
+        void onRecordingClick(Recording recording);
+        void onTrackClick(ArrayList<Parcelable> tracks, int position);
+        void onEventClick(ArrayList<Parcelable> events, int position);
+        void onFling();
+        void onFlingDone();
+    }
+
 }

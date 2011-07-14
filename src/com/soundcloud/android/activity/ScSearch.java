@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,7 +21,7 @@ import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -37,7 +36,7 @@ public class ScSearch extends ScActivity {
     private RadioButton rdoUser;
     private RadioButton rdoTrack;
 
-    private LazyListView mList;
+    private ScListView mList;
     private LazyEndlessAdapter mTrackAdpWrapper;
     private LazyEndlessAdapter mUserAdpWrapper;
 
