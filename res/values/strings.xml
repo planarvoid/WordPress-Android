@@ -356,8 +356,8 @@
     <string name='pref_buffer_during_pause'>Idle caching</string>
     <string name='pref_buffer_during_pause_desc'>Continue caching audio even when player is paused.</string>
 
-    <string name='pref_notifications'>Dashboard Notifications</string>
-    <string name='pref_notifications_description'>Which dashboard updates would you like to receive?</string>
+    <string name='pref_notifications'>Notifications</string>
+    <string name='pref_notifications_description'>Which updates would you like to receive?</string>
 
     <string name='pref_notifications_incoming'>Incoming Tracks</string>
     <string name='pref_notifications_exclusive'>Exclusive Tracks</string>
