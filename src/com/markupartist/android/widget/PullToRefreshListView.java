@@ -313,13 +313,18 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
-        if (mRefreshState == DONE_REFRESHING) {
+        if (getFirstVisiblePosition() == 0 && (mRefreshState == TAP_TO_REFRESH || mRefreshState == DONE_REFRESHING)) {
             // not enough views to fill list so pad with an empty view
-            if (getFirstVisiblePosition() == 0){
-                if (getLastVisiblePosition() >= getWrapper().getCount()) {
-                    mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
+            if (getLastVisiblePosition() >= getWrapper().getCount()) {
+                mFooterView.getLayoutParams().height = getHeight() - (getChildAt(getWrapper().getCount()).getBottom() - getChildAt(1).getTop());
+
+                if (mRefreshState == TAP_TO_REFRESH){ // instant set selection, must be first layout
+                    setSelection(1);
+                    return;
                 }
-                // this has to happen after the next layout pass so that we are allowed
+            }
+
+            if (mRefreshState == DONE_REFRESHING) {
                 post(new Runnable() {
                     @Override
                     public void run() {
