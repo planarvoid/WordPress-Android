@@ -80,8 +80,6 @@ public class BetaService extends Service {
         synchronized (BetaService.class) {
             if (sRunning) {
                 Log.d(TAG, "already running");
-
-
             } else if (!shouldCheckForUpdates(this) && !manual) {
                 skip(null, "User disabled auto-update", intent);
             } else if (!isStorageAvailable()) {

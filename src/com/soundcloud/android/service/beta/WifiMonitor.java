@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class WifiMonitor extends BroadcastReceiver {
@@ -16,7 +17,11 @@ public class WifiMonitor extends BroadcastReceiver {
         if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
             if (info.isConnectedOrConnecting()) {
                 Log.d(TAG, "wifi enabled");
-                if (BetaService.isPendingBeta(context)) {
+                boolean requireWifi = PreferenceManager
+                               .getDefaultSharedPreferences(context)
+                               .getBoolean(BetaService.PREF_REQUIRE_WIFI, true);
+
+                if (requireWifi && BetaService.isPendingBeta(context)) {
                     BetaService.scheduleNow(context, 0);
                 }
             }

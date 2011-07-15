@@ -41,6 +41,12 @@ public class C2DMReceiver extends BroadcastReceiver {
         String error = intent.getStringExtra("error");
         if (error != null) {
             Log.w(TAG, "error registering with C2DM: "+error);
+        } else  if (intent.hasExtra("unregistered")) {
+            Log.d(TAG, "application has unregistered");
+            PreferenceManager.getDefaultSharedPreferences(context)
+                             .edit()
+                             .remove(PREF_REG_ID)
+                             .commit();
         } else {
             String regId = intent.getStringExtra("registration_id");
             Log.d(TAG, "registrationId:"+regId);
