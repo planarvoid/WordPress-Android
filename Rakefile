@@ -240,6 +240,6 @@ namespace :c2dm do
 
   desc "post a message"
   task :post do
-    puts post('beta-version' => '21:1.3.4-BETA5')
+    puts post('beta-version' => [versionCode, versionName].join(':'))
   end
 end
