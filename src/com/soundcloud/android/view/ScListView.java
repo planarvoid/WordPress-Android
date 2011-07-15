@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
@@ -37,7 +36,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 
 /*
@@ -354,46 +355,38 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            final Adapter adapter = list.getAdapter();
-            LazyBaseAdapter lazyBaseAdapter = null;
-
-            // kill me now
-            if (adapter instanceof HeaderViewListAdapter &&
-                    ((HeaderViewListAdapter) adapter).getWrappedAdapter() instanceof LazyEndlessAdapter) {
-
-                lazyBaseAdapter = ((LazyEndlessAdapter) ((HeaderViewListAdapter) adapter).getWrappedAdapter()).getWrappedAdapter();
-            }
-
-
-            if (adapter.getCount() <= 0
+            if (list.getAdapter().getCount() <= 0
                     || position >= list.getAdapter().getCount())
                 return; // bad list item clicked (possibly loading item)
 
             position -= getHeaderViewsCount();
 
-            if (adapter.getItem(position) instanceof Track) {
-                if (adapter instanceof MyTracksAdapter) {
+            if (list.getAdapter().getItem(position) instanceof Track) {
+
+                if (list.getAdapter() instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) list.getAdapter()).getPendingRecordingsCount();
                 }
 
-                if (mListener != null && lazyBaseAdapter != null) {
-                    mListener.onTrackClick(lazyBaseAdapter.getData(), position);
+                if (mListener != null) {
+                    mListener.onTrackClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
                 }
-            } else if (adapter.getItem(position) instanceof Event) {
 
-                if (mListener != null && lazyBaseAdapter != null) {
-                    mListener.onEventClick(lazyBaseAdapter.getData(), position);
-                }
-            } else if (adapter.getItem(position) instanceof User ||
-                       adapter.getItem(position) instanceof Friend) {
-
-                if (mListener != null && lazyBaseAdapter != null) {
-                    mListener.onUserClick(lazyBaseAdapter.getData(), position);
-                }
-            } else if (adapter.getItem(position) instanceof Recording) {
+            } else if (list.getAdapter().getItem(position) instanceof Event) {
 
                 if (mListener != null) {
-                    mListener.onRecordingClick((Recording) adapter.getItem(position));
+                    mListener.onEventClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+                }
+
+            } else if (list.getAdapter().getItem(position) instanceof User || list.getAdapter().getItem(position) instanceof Friend) {
+
+                if (mListener != null) {
+                    mListener.onUserClick((ArrayList<Parcelable>) ((LazyBaseAdapter) list.getAdapter()).getData(), position);
+                }
+
+            } else if (list.getAdapter().getItem(position) instanceof Recording) {
+
+                if (mListener != null) {
+                    mListener.onRecordingClick((Recording) list.getAdapter().getItem(position));
                 }
             }
         }
@@ -584,7 +577,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     }
 
-    @Override
+
+
+
+     @Override
     protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
                                    int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
         return false; // no traditional overscrolling
@@ -708,10 +704,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
      public interface LazyListListener {
-        void onUserClick(List<Parcelable> users, int position);
+        void onUserClick(ArrayList<Parcelable> users, int position);
         void onRecordingClick(Recording recording);
-        void onTrackClick(List<Parcelable> tracks, int position);
-        void onEventClick(List<Parcelable> events, int position);
+        void onTrackClick(ArrayList<Parcelable> tracks, int position);
+        void onEventClick(ArrayList<Parcelable> events, int position);
         void onFling();
         void onFlingDone();
     }

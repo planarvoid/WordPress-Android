@@ -176,7 +176,7 @@ public abstract class ScActivity extends Activity {
 
         for (final ScListView l : mLists) {
             if (LazyBaseAdapter.class.isAssignableFrom(l.getBaseAdapter().getClass())) {
-                l.getBaseAdapter().onDestroy();
+                ((LazyBaseAdapter) l.getBaseAdapter()).onDestroy();
             }
         }
 
@@ -234,7 +234,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
+    public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
         // find out if this track is already playing. If it is, just go to the player
         try {
             if (mPlaybackService != null
@@ -408,7 +408,7 @@ public abstract class ScActivity extends Activity {
         for (ScListView list : mLists) {
             if (TracklistAdapter.class.isAssignableFrom(list.getBaseAdapter().getClass())) {
                 ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
-                list.getBaseAdapter().notifyDataSetChanged();
+                ((TracklistAdapter) list.getBaseAdapter()).notifyDataSetChanged();
             }
         }
     }
@@ -592,7 +592,7 @@ public abstract class ScActivity extends Activity {
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
 
         @Override
-        public void onUserClick(List<Parcelable> users, int position) {
+        public void onUserClick(ArrayList<Parcelable> users, int position) {
             Intent i = new Intent(ScActivity.this, UserBrowser.class);
 
             i.putExtra("user", users.get(position) instanceof
@@ -601,12 +601,12 @@ public abstract class ScActivity extends Activity {
         }
 
         @Override
-        public void onTrackClick(List<Parcelable> tracks, int position) {
+        public void onTrackClick(ArrayList<Parcelable> tracks, int position) {
             playTrack(((Track) tracks.get(position)).id, tracks, position, true);
         }
 
         @Override
-        public void onEventClick(List<Parcelable> events, int position) {
+        public void onEventClick(ArrayList<Parcelable> events, int position) {
             playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
         }
 
