@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
-import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+import static android.content.pm.PackageManager.*;
 import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -40,8 +39,6 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -132,7 +129,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         getPackageManager().setComponentEnabledSetting(
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
-                0);
+                DONT_KILL_APP);
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
@@ -485,7 +482,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         try {
              PackageInfo info = getPackageManager().getPackageInfo(
                      getPackageName(),
-                     PackageManager.GET_SIGNATURES);
+                     GET_SIGNATURES);
             if (info != null && info.signatures != null) {
                 final String[] keys = getResources().getStringArray(resource);
                 final String sig =  info.signatures[0].toCharsString();
@@ -502,13 +499,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     /**
      * @param msg    message
      * @param e      exception, can be null
+     * @return       the thread used to submit the msg
      */
-    public static void handleSilentException(String msg, Exception e) {
+    public static Thread handleSilentException(String msg, Exception e) {
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);
            ErrorReporter.getInstance().putCustomData("message", msg);
         }
-        ErrorReporter.getInstance().handleSilentException(e);
+        return ErrorReporter.getInstance().handleSilentException(e);
     }
 
 

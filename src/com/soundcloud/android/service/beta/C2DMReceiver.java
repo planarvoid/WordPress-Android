@@ -16,6 +16,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -29,12 +30,24 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     public static final String EXTRA_BETA_VERSION = "beta-version";
 
+    private PowerManager.WakeLock mWakeLock;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(ACTION_REGISTRATION)) {
-            onRegister(context, intent);
-        } else if (intent.getAction().equals(ACTION_RECEIVE)) {
-            onReceiveMessage(context, intent);
+        if (mWakeLock == null) {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, C2DMReceiver.class.getSimpleName());
+        }
+
+        mWakeLock.acquire();
+        try {
+            if (intent.getAction().equals(ACTION_REGISTRATION)) {
+                onRegister(context, intent);
+            } else if (intent.getAction().equals(ACTION_RECEIVE)) {
+                onReceiveMessage(context, intent);
+            }
+        } finally {
+            mWakeLock.release();
         }
     }
 
@@ -49,10 +62,9 @@ public class C2DMReceiver extends BroadcastReceiver {
                              .remove(PREF_REG_ID)
                              .commit();
         } else {
-            String regId = intent.getStringExtra("registration_id");
+            final String regId = intent.getStringExtra("registration_id");
             Log.d(TAG, "registrationId:"+regId);
             if (regId != null) {
-
                 PreferenceManager.getDefaultSharedPreferences(context)
                                  .edit()
                                  .putString(PREF_REG_ID, regId)
@@ -60,7 +72,18 @@ public class C2DMReceiver extends BroadcastReceiver {
 
                 if (!DEV_MODE) {
                     // cheap way to get registration back to us - use acra
-                    handleSilentException("registration_id=" + regId, null);
+                    mWakeLock.acquire();
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                handleSilentException("registration_id=" + regId, null).join();
+                            } catch (InterruptedException ignored) {
+                            } finally {
+                                 mWakeLock.release();
+                            }
+                        }
+                    }.start();
                 }
             } else {
                 Log.w(TAG, "no registration id received");
@@ -71,7 +94,6 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         Log.d(TAG, "onReceiveMessage("+intent+")");
-        // TODO hold wakelock
         if (intent.hasExtra(EXTRA_BETA_VERSION)) {
             String beta = intent.getStringExtra(EXTRA_BETA_VERSION);
             String[] parts = beta.split(":",2);
@@ -106,8 +128,9 @@ public class C2DMReceiver extends BroadcastReceiver {
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
 
-    public static void register(Context context) {
+    public static synchronized void register(Context context) {
         if (Build.VERSION.SDK_INT < 8) return;
+
         String regId = PreferenceManager.getDefaultSharedPreferences(context)
                                        .getString(PREF_REG_ID, null);
 

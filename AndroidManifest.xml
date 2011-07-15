@@ -114,8 +114,7 @@
         </service>
 
         <service android:name=".service.AuthenticatorService"
-                 android:exported="true"
-                 android:process=":auth">
+                 android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
