@@ -119,7 +119,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         });
 
         if (BETA_MODE) {
-            BetaService.scheduleCheck(this, EMULATOR);
+            BetaService.scheduleCheck(this, false);
             C2DMReceiver.register(this);
         }
     }
@@ -494,7 +494,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
      */
     public static void handleSilentException(String msg, Exception e) {
         if (msg != null) {
-           Log.w(TAG, msg, e);
+           Log.w(TAG, "silentException: "+msg, e);
            ErrorReporter.getInstance().putCustomData("message", msg);
         }
         ErrorReporter.getInstance().handleSilentException(e);
