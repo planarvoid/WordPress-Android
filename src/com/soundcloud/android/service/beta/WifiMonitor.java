@@ -16,7 +16,7 @@ public class WifiMonitor extends BroadcastReceiver {
         NetworkInfo info = (NetworkInfo) intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
         if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
             if (info.isConnected()) {
-                boolean requireWifi = PreferenceManager
+                final boolean requireWifi = PreferenceManager
                                .getDefaultSharedPreferences(context)
                                .getBoolean(BetaService.PREF_REQUIRE_WIFI, true);
 

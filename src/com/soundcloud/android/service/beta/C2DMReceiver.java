@@ -77,7 +77,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                     int versionCode    = Integer.parseInt(parts[0]);
                     String versionName = parts[1];
                     if (!Content.isUptodate(context, versionCode, versionName)) {
-                        notifyNewVersion(context, versionName + "  ("+versionCode+")");
+                        //notifyNewVersion(context, versionName + "  ("+versionCode+")");
                         setPendingBeta(context, versionName);
                         BetaService.scheduleNow(context, 2000l);
                     }
@@ -90,6 +90,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         }
     }
 
+   /** @noinspection UnusedDeclaration*/
    private void notifyNewVersion(Context context, String version) {
         String title = context.getString(R.string.pref_beta_new_version_available);
         Intent intent = new Intent(context, Settings.class)
