@@ -81,7 +81,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
-            mListView.getWrapper().restoreState(mPreviousState);
+            ((LazyEndlessAdapter) mListView.getAdapter()).restoreState(mPreviousState);
         }
     }
 
@@ -94,8 +94,8 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mListView != null && mListView.getWrapper() != null) {
-            return mListView.getWrapper().saveState();
+        if (mListView != null && mListView.getAdapter() instanceof LazyEndlessAdapter) {
+            return ((LazyEndlessAdapter) mListView.getAdapter()).saveState();
         }
         return null;
     }

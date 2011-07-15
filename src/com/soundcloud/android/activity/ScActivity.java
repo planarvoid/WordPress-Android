@@ -109,9 +109,9 @@ public abstract class ScActivity extends Activity {
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter)
+            if (lv.getAdapter() instanceof MyTracksAdapter)
                 try {
-                    ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
+                    ((MyTracksAdapter) lv.getAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
                 } catch (RemoteException ignored) {}
         }
     }
@@ -175,8 +175,8 @@ public abstract class ScActivity extends Activity {
         unregisterReceiver(mPlaybackStatusListener);
 
         for (final ScListView l : mLists) {
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getBaseAdapter().getClass())) {
-                ((LazyBaseAdapter) l.getBaseAdapter()).onDestroy();
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
+                ((LazyBaseAdapter) l.getAdapter()).onDestroy();
             }
         }
 
@@ -406,9 +406,9 @@ public abstract class ScActivity extends Activity {
             return;
 
         for (ScListView list : mLists) {
-            if (TracklistAdapter.class.isAssignableFrom(list.getBaseAdapter().getClass())) {
-                ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
-                ((TracklistAdapter) list.getBaseAdapter()).notifyDataSetChanged();
+            if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
+                ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
+                ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
             }
         }
     }

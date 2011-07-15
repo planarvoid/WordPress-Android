@@ -195,12 +195,12 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             addFriendsSection();
             addSuggestedSection();
             mFriendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
-            ((LazyBaseAdapter) mFriendList.getBaseAdapter()).setModel(Friend.class);
+            ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(Friend.class);
 
         } else {
             addSuggestedSection();
             mFriendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
-            ((LazyBaseAdapter) mFriendList.getBaseAdapter()).setModel(User.class);
+            ((LazyBaseAdapter) mFriendList.getAdapter()).setModel(User.class);
 
         }
     }
