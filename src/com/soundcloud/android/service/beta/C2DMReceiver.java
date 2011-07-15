@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.beta;
 
+import static com.soundcloud.android.SoundCloudApplication.DEV_MODE;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 import static com.soundcloud.android.service.beta.BetaService.TAG;
 import static com.soundcloud.android.service.beta.BetaService.setPendingBeta;
@@ -57,8 +58,10 @@ public class C2DMReceiver extends BroadcastReceiver {
                                  .putString(PREF_REG_ID, regId)
                                  .commit();
 
-                // cheap way to get registration back to us - use acra
-                handleSilentException("registration_id=" + regId, null);
+                if (!DEV_MODE) {
+                    // cheap way to get registration back to us - use acra
+                    handleSilentException("registration_id=" + regId, null);
+                }
             } else {
                 Log.w(TAG, "no registration id received");
             }
