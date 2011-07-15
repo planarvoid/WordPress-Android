@@ -1,23 +1,16 @@
 package com.soundcloud.android;
 
-import android.accounts.*;
-import android.app.Activity;
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.StrictMode;
-import android.text.TextUtils;
-import android.util.Log;
+import static com.soundcloud.android.utils.CloudUtils.doOnce;
+
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.cache.*;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.LruCache;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -33,14 +26,30 @@ import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.app.Activity;
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.StrictMode;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
 @ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
@@ -165,7 +174,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void cachePlaylist(ArrayList<Parcelable> playlistCache) {
+    public void cachePlaylist(List<Parcelable> playlistCache) {
         mPlaylistCache = playlistCache;
     }
 
