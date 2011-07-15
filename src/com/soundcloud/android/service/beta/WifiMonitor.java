@@ -15,13 +15,13 @@ public class WifiMonitor extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         NetworkInfo info = (NetworkInfo) intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
         if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
-            if (info.isConnectedOrConnecting()) {
-                Log.d(TAG, "wifi enabled");
+            if (info.isConnected()) {
                 boolean requireWifi = PreferenceManager
                                .getDefaultSharedPreferences(context)
                                .getBoolean(BetaService.PREF_REQUIRE_WIFI, true);
 
                 if (requireWifi && BetaService.isPendingBeta(context)) {
+                    Log.d(TAG, "WifiMonitor: scheduling betaservice check");
                     BetaService.scheduleNow(context, 0);
                 }
             }

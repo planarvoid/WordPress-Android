@@ -16,6 +16,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
+import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -34,6 +35,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -121,6 +123,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
             C2DMReceiver.register(this);
+
+            getPackageManager().setComponentEnabledSetting(new ComponentName(this, WifiMonitor.class),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
         }
     }
 
