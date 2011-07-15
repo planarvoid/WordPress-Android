@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
@@ -20,6 +21,7 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -28,10 +30,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener, ScListView.OnRefreshListener {
+public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener, PullToRefreshListView.OnRefreshListener {
     private final RelativeLayout mHeaderLayout;
     private SectionedEndlessAdapter mAdapter;
-    public ScListView mFriendList;
+    public LazyListView mFriendList;
     private int mListAddPosition = -1;
 
     private int mCurrentState;

@@ -22,7 +22,7 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
-import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.LazyListView;
 import org.json.JSONException;
 
 import android.accounts.Account;
@@ -66,7 +66,7 @@ public abstract class ScActivity extends Activity {
     protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
-    protected List<ScListView> mLists;
+    protected List<LazyListView> mLists;
 
     private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;
@@ -108,7 +108,7 @@ public abstract class ScActivity extends Activity {
 
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
-        for (ScListView lv : mLists){
+        for (LazyListView lv : mLists){
             if (lv.getAdapter() instanceof MyTracksAdapter)
                 try {
                     ((MyTracksAdapter) lv.getAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
@@ -164,7 +164,7 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
-        mLists = new ArrayList<ScListView>();
+        mLists = new ArrayList<LazyListView>();
     }
 
     @Override
@@ -174,7 +174,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener = null;
         unregisterReceiver(mPlaybackStatusListener);
 
-        for (final ScListView l : mLists) {
+        for (final LazyListView l : mLists) {
             if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
                 ((LazyBaseAdapter) l.getAdapter()).onDestroy();
             }
@@ -224,8 +224,24 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        for (final ScListView l : mLists) {
-            l.onResume();
+        for (final LazyListView l : mLists) {
+            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
+                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
+            }
+            if (l.getWrapper() != null) {
+                if (l.getWrapper().isRefreshing()) {
+                    l.prepareForRefresh();
+                    if (l.getFirstVisiblePosition() != 0) {
+                        l.postSelect(0, 0, false);
+                    }
+                } else if (l.getWrapper().needsRefresh()) {
+                    l.onRefresh();
+                } else {
+                    if (l.getFirstVisiblePosition() == 0) {
+                        l.postSelect(1, 0, false);
+                    }
+                }
+            }
         }
 
         Account account = getApp().getAccount();
@@ -330,19 +346,15 @@ public abstract class ScActivity extends Activity {
         CloudUtils.showToast(this, getResources().getString(stringId));
     }
 
-    protected void showToast(CharSequence text) {
-        CloudUtils.showToast(this,text);
+    public LazyListView buildList() {
+        return configureList(new LazyListView(this));
     }
 
-    public ScListView buildList() {
-        return configureList(new ScListView(this));
-    }
-
-    public ScListView configureList(ScListView lv) {
+    public LazyListView configureList(LazyListView lv) {
         return configureList(lv,mLists.size());
     }
 
-    public ScListView configureList(ScListView lv, int addAtPosition) {
+    public LazyListView configureList(LazyListView lv, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -355,7 +367,7 @@ public abstract class ScActivity extends Activity {
         return lv;
     }
 
-    public int removeList(ScListView lazyListView){
+    public int removeList(LazyListView lazyListView){
         int i = 0;
         while (i < mLists.size()){
             if (mLists.get(i).equals(lazyListView)){
@@ -405,7 +417,7 @@ public abstract class ScActivity extends Activity {
         if (mLists == null || mLists.size() == 0)
             return;
 
-        for (ScListView list : mLists) {
+        for (LazyListView list : mLists) {
             if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
                 ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
                 ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
@@ -433,7 +445,7 @@ public abstract class ScActivity extends Activity {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
 
-            for (ScListView lv : mLists) { lv.getWrapper().onConnected(); }
+            for (LazyListView lv : mLists) { lv.getWrapper().onConnected(); }
         }
     }
 
@@ -589,7 +601,7 @@ public abstract class ScActivity extends Activity {
     protected void handleRecordingClick(Recording recording) {
     }
 
-    private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
+    private LazyListView.LazyListListener mLazyListListener = new LazyListView.LazyListListener() {
 
         @Override
         public void onUserClick(ArrayList<Parcelable> users, int position) {

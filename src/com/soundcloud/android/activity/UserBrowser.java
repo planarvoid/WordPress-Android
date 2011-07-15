@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
@@ -165,7 +166,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 loadYou();
             }
 
-            for (ScListView list : mLists) {
+            for (LazyListView list : mLists) {
                 if (LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()))
                     list.onRefresh();
             }
@@ -201,7 +202,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         mAdapterStates = new Object[mLists.size()];
         int i = 0;
-        for (ScListView list : mLists) {
+        for (LazyListView list : mLists) {
             if (list.getWrapper() != null){
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();

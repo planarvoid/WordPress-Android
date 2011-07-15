@@ -18,7 +18,7 @@ import android.widget.FrameLayout;
  * A ListView that maintains a header pinned at the top of the list. The pinned header can be pushed up and dissolved as
  * needed. Header logic taken from http://code.google.com/p/android-amazing-listview/source/browse/trunk/
  */
-public class SectionedListView extends ScListView {
+public class SectionedListView extends LazyListView {
     public static final String TAG = SectionedListView.class.getSimpleName();
 
     private final View mSectionHeaderView;
