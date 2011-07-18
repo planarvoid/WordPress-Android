@@ -337,7 +337,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mSelectionRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.i("asdf", "Post Selecting " + position);
                 setSelectionFromTop(position, yOffset);
                 mSelectionRunnable = null;
             }
@@ -358,7 +357,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
             if (adp.getItem(position) instanceof Track) {
 
-                if (list.getAdapter() instanceof MyTracksAdapter) {
+                if (adp instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
                 }
 
@@ -372,16 +371,15 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
                 }
 
-            } else if (list.getAdapter().getItem(position) instanceof User || list.getAdapter().getItem(position) instanceof Friend) {
+            } else if (adp.getItem(position) instanceof User || adp.getItem(position) instanceof Friend) {
 
                 if (mListener != null) {
                     mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
                 }
 
-            } else if (list.getAdapter().getItem(position) instanceof Recording) {
-
+            } else if (adp.getItem(position) instanceof Recording) {
                 if (mListener != null) {
-                    mListener.onRecordingClick((Recording) list.getAdapter().getItem(position));
+                    mListener.onRecordingClick((Recording) adp.getItem(position));
                 }
             }
         }
