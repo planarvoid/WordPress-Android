@@ -20,6 +20,7 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -117,20 +118,17 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 break;
 
             case States.CONNECTION_ERROR:
-                if (mFriendList != null && !mFriendList.getWrapper().isEmpty()){
+                if (mFriendList != null && !mFriendList.getWrapper().isEmpty()) {
                     mFriendList.onRefreshComplete(false);
-                    mFriendList.postSelect(1,0,true);
-                } else {
-                    if (mFriendList == null || mFbConnected){
-                        mFbConnected = false;
-                        createList();
-                    }
-
-                   mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
-                   mFriendList.getWrapper().applyEmptyText();
-                    // show list for refresh purposes
-                    mFriendList.getWrapper().reset(false, true);
+                    mFriendList.postSelect(1, 0, true);
+                } else if (mFriendList == null || mFbConnected) {
+                    mFbConnected = false;
+                    createList();
                 }
+
+                mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
+                mFriendList.getWrapper().applyEmptyText();
+                mFriendList.getWrapper().reset(false, true);
                 break;
 
             case States.NO_FB_CONNECTION:
@@ -220,6 +218,20 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     @Override
     public void onRefresh() {
         ((UserBrowser) mActivity).refreshConnections();
+    }
+
+    @Override
+    public void onConnected() {
+    }
+
+    @Override
+    public boolean needsRefresh() {
+        return (mCurrentState == States.CONNECTION_ERROR);
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return (mCurrentState == States.LOADING);
     }
 
 }

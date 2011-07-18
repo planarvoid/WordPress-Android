@@ -211,19 +211,29 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void onResume() {
         if (getWrapper() != null) {
             getWrapper().notifyDataSetChanged();
-            if (getWrapper().isRefreshing()) {
+        }
+
+        if (mOnRefreshListener != null) {
+            if (mOnRefreshListener.isRefreshing()) {
                 prepareForRefresh();
                 if (getFirstVisiblePosition() != 0) {
                     postSelect(0, 0, false);
                 }
-            } else if (getWrapper().needsRefresh()) {
+            } else if (mOnRefreshListener.needsRefresh()) {
                 onRefresh();
             } else {
                 checkHeaderVisibility();
             }
         }
-
     }
+
+    public void onConnected(boolean isForeground) {
+         if (mOnRefreshListener != null) {
+             mOnRefreshListener.onConnected();
+             if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh();
+         }
+    }
+
 
 
     @Override
@@ -695,7 +705,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public interface OnRefreshListener {
-        public void onRefresh();
+        void onRefresh();
+        void onConnected();
+        boolean needsRefresh();
+        boolean isRefreshing();
     }
 
      public interface LazyListListener {
@@ -705,6 +718,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         void onEventClick(ArrayList<Parcelable> events, int position);
         void onFling();
         void onFlingDone();
-    }
+     }
 
 }

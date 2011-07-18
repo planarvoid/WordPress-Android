@@ -69,12 +69,16 @@ public abstract class ScActivity extends Activity {
     protected List<ScListView> mLists;
 
     private MenuItem menuCurrentUploadingItem;
+    private boolean mIsForeground;
+
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
 
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
+
+
 
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
@@ -210,6 +214,8 @@ public abstract class ScActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
+        mIsForeground = false;
+
         connectivityListener.stopListening();
 
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
@@ -223,6 +229,8 @@ public abstract class ScActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        mIsForeground = true;
 
         for (final ScListView l : mLists) {
             l.onResume();
@@ -428,8 +436,7 @@ public abstract class ScActivity extends Activity {
         if (isConnected) {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
-
-            for (ScListView lv : mLists) { lv.getWrapper().onConnected(); }
+            for (ScListView lv : mLists) { lv.onConnected(mIsForeground); }
         }
     }
 
