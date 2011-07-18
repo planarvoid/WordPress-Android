@@ -23,7 +23,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.NewConnectionTask;
-import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -31,7 +31,7 @@ import com.soundcloud.api.Request;
 import java.util.ArrayList;
 
 public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
-    private LazyListView mListView;
+    private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
     private FriendFinderAdapter ffAdp;
     private SectionedEndlessAdapter ffAdpWrap;

@@ -22,7 +22,7 @@ import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
-import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScListView;
 import org.json.JSONException;
 
 import android.accounts.Account;
@@ -66,7 +66,7 @@ public abstract class ScActivity extends Activity {
     protected ICloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
-    protected List<LazyListView> mLists;
+    protected List<ScListView> mLists;
 
     private MenuItem menuCurrentUploadingItem;
     boolean mIgnorePlaybackStatus;
@@ -108,7 +108,7 @@ public abstract class ScActivity extends Activity {
 
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
-        for (LazyListView lv : mLists){
+        for (ScListView lv : mLists){
             if (lv.getAdapter() instanceof MyTracksAdapter)
                 try {
                     ((MyTracksAdapter) lv.getAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
@@ -164,7 +164,7 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
-        mLists = new ArrayList<LazyListView>();
+        mLists = new ArrayList<ScListView>();
     }
 
     @Override
@@ -174,7 +174,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener = null;
         unregisterReceiver(mPlaybackStatusListener);
 
-        for (final LazyListView l : mLists) {
+        for (final ScListView l : mLists) {
             if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
                 ((LazyBaseAdapter) l.getAdapter()).onDestroy();
             }
@@ -224,24 +224,8 @@ public abstract class ScActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        for (final LazyListView l : mLists) {
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getAdapter().getClass())) {
-                ((LazyBaseAdapter) l.getAdapter()).notifyDataSetChanged();
-            }
-            if (l.getWrapper() != null) {
-                if (l.getWrapper().isRefreshing()) {
-                    l.prepareForRefresh();
-                    if (l.getFirstVisiblePosition() != 0) {
-                        l.postSelect(0, 0, false);
-                    }
-                } else if (l.getWrapper().needsRefresh()) {
-                    l.onRefresh();
-                } else {
-                    if (l.getFirstVisiblePosition() == 0) {
-                        l.postSelect(1, 0, false);
-                    }
-                }
-            }
+        for (final ScListView l : mLists) {
+            l.onResume();
         }
 
         Account account = getApp().getAccount();
@@ -250,7 +234,7 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void playTrack(long trackId, final ArrayList<Parcelable> list, final int playPos, boolean goToPlayer) {
+    public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
         // find out if this track is already playing. If it is, just go to the player
         try {
             if (mPlaybackService != null
@@ -346,15 +330,15 @@ public abstract class ScActivity extends Activity {
         CloudUtils.showToast(this, getResources().getString(stringId));
     }
 
-    public LazyListView buildList() {
-        return configureList(new LazyListView(this));
+    public ScListView buildList() {
+        return configureList(new ScListView(this));
     }
 
-    public LazyListView configureList(LazyListView lv) {
+    public ScListView configureList(ScListView lv) {
         return configureList(lv,mLists.size());
     }
 
-    public LazyListView configureList(LazyListView lv, int addAtPosition) {
+    public ScListView configureList(ScListView lv, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -367,7 +351,7 @@ public abstract class ScActivity extends Activity {
         return lv;
     }
 
-    public int removeList(LazyListView lazyListView){
+    public int removeList(ScListView lazyListView){
         int i = 0;
         while (i < mLists.size()){
             if (mLists.get(i).equals(lazyListView)){
@@ -417,7 +401,7 @@ public abstract class ScActivity extends Activity {
         if (mLists == null || mLists.size() == 0)
             return;
 
-        for (LazyListView list : mLists) {
+        for (ScListView list : mLists) {
             if (TracklistAdapter.class.isAssignableFrom(list.getAdapter().getClass())) {
                 ((TracklistAdapter) list.getAdapter()).setPlayingId(id, isPlaying);
                 ((TracklistAdapter) list.getAdapter()).notifyDataSetChanged();
@@ -445,7 +429,7 @@ public abstract class ScActivity extends Activity {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
 
-            for (LazyListView lv : mLists) { lv.getWrapper().onConnected(); }
+            for (ScListView lv : mLists) { lv.getWrapper().onConnected(); }
         }
     }
 
@@ -601,7 +585,7 @@ public abstract class ScActivity extends Activity {
     protected void handleRecordingClick(Recording recording) {
     }
 
-    private LazyListView.LazyListListener mLazyListListener = new LazyListView.LazyListListener() {
+    private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
 
         @Override
         public void onUserClick(ArrayList<Parcelable> users, int position) {
@@ -613,7 +597,7 @@ public abstract class ScActivity extends Activity {
         }
 
         @Override
-        public void onTrackClick(ArrayList<Parcelable> tracks, int position) {
+        public void onTrackClick(List<Parcelable> tracks, int position) {
             playTrack(((Track) tracks.get(position)).id, tracks, position, true);
         }
 

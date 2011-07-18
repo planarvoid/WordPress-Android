@@ -1,18 +1,14 @@
 package com.soundcloud.android.activity;
 
-import android.util.Log;
 import android.app.NotificationManager;
 import android.content.Context;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -24,7 +20,7 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
-    protected LazyListView mListView;
+    protected ScListView mListView;
     private ScTabView mTracklistView;
     private String mTrackingPath;
 

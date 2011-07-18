@@ -182,7 +182,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void cachePlaylist(ArrayList<Parcelable> playlistCache) {
+    public void cachePlaylist(List<Parcelable> playlistCache) {
         mPlaylistCache = playlistCache;
     }
 

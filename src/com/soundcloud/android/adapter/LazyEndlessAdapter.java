@@ -13,9 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.markupartist.android.widget.PullToRefreshListView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -24,7 +23,7 @@ import com.soundcloud.android.model.*;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.LazyListView;
+import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -33,11 +32,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshListView.OnRefreshListener {
+public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener {
     protected View mPendingView = null;
     private AppendTask mAppendTask;
 
-    protected LazyListView mListView;
+    protected ScListView mListView;
     protected ScActivity mActivity;
     protected AtomicBoolean mKeepOnAppending = new AtomicBoolean(true);
     protected Boolean mError = false;
@@ -64,7 +63,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements PullToRefreshL
      * Create an empty view for the list this adapter will control. This is done
      * here because this adapter will control the visibility of the list
      */
-    public void configureViews(final LazyListView lv) {
+    public void configureViews(final ScListView lv) {
         mListView = lv;
     }
 
