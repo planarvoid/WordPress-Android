@@ -611,6 +611,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             postDelayed(new Runnable() {
                 @Override public void run() {
                     mAutoScrolling = false;
+                    checkHeaderVisibility();
                 }
             }, HEADER_HIDE_DURATION);
         } else {
