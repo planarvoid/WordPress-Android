@@ -7,12 +7,11 @@
 
     <ProgressBar android:id="@+id/list_loading"
                  android:indeterminateOnly="true"
-                 android:layout_height="30dip"
-                 android:layout_width="30dip"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
                  android:layout_margin="20dip"
                  android:gravity="center_vertical"
-                 android:minHeight="30dip"
-                 android:maxHeight="30dip"
+                 style="?android:attr/progressBarStyleSmall"
                  android:layout_centerVertical="true"
                  android:layout_centerInParent="true"/>
 </RelativeLayout>

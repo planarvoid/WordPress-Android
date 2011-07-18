@@ -139,9 +139,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mRefreshViewProgress = (ProgressBar) mRefreshView.findViewById(R.id.pull_to_refresh_progress);
         mRefreshViewLastUpdated = (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_updated_at);
 
-
-        final int imgMin = (int) (40 * getResources().getDisplayMetrics().density);
-        mRefreshViewImage.setMinimumHeight(imgMin);
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
         mRefreshOriginalTopPadding = mRefreshView.getPaddingTop();
 
@@ -461,6 +458,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     if (mRefreshState != TAP_TO_REFRESH) {
                         mRefreshViewImage.clearAnimation();
                         mRefreshViewImage.startAnimation(mReverseFlipAnimation);
+                    } else {
+                        configureLastUpdated();
                     }
                     mRefreshState = PULL_TO_REFRESH;
                 }
@@ -660,7 +659,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         } else {
             mRefreshViewLastUpdated.setVisibility(View.GONE);
         }
-
     }
 
     private class OnClickRefreshListener implements OnClickListener {

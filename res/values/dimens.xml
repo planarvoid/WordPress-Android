@@ -4,6 +4,7 @@
 
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
+    <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
 
@@ -51,6 +52,8 @@
     <dimen name="player_comment_bar_height">35dip</dimen>
     <dimen name="player_comment_bar_toggle_margin_right">0dip</dimen>
     <dimen name="player_comment_bar_txt_size">16sp</dimen>
+
+    <dimen name="pull_to_refresh_img_min_height">40dip</dimen>
 
 
 </resources>

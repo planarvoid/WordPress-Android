@@ -43,6 +43,15 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="txt_list_pull">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/list_txt_pull_size</item>
+    </style>
+
+    <style name="txt_list_pull_sub">
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+    </style>
+
     <style name="txt_list_main">
         <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
