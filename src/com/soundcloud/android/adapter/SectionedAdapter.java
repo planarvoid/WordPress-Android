@@ -180,6 +180,8 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
 
     public void configurePinnedHeader(View header, int position) {
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
-        txtHeader.setText(getSections()[getSectionForPosition(position)]);
+        if (getSectionForPosition(position) < getSections().length){
+            txtHeader.setText(getSections()[getSectionForPosition(position)]);
+        }
     }
 }
