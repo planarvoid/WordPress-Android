@@ -750,6 +750,8 @@ public class ScCreate extends ScActivity {
     protected Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
+                if (mUnsavedRecordings == null) return null;
+
                 final CharSequence[] fileIds = new CharSequence[mUnsavedRecordings.size()];
                 final boolean[] checked = new boolean[mUnsavedRecordings.size()];
                 for (int i=0; i < mUnsavedRecordings.size(); i++) {
