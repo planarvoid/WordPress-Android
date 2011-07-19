@@ -97,7 +97,7 @@ public class PlayListManager {
             if (p instanceof Track) {
                 mPlayListCache[i] = (Track) p;
             } else if (p instanceof Event) {
-                mPlayListCache[i] = ((Event) p).getTrack();
+                mPlayListCache[i] = ((Event) p).track;
             } else {
                 // not playable, must be a recording.
                 // ignore it and decrease play index to account for it

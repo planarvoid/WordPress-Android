@@ -15,7 +15,7 @@ public class EventsRow extends TracklistRow {
 
     @Override
     protected Track getTrackFromParcelable(Parcelable p) {
-        return ((Event) p).getTrack();
+        return ((Event) p).track;
     }
 
     @Override

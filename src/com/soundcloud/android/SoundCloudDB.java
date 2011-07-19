@@ -83,15 +83,15 @@ public class SoundCloudDB {
                 activities.setCursorToLastEvent();
 
                 for (Event evt : activities) {
-                    if (evt.getTrack().id != firstTrackId) {
+                    if (evt.track.id != firstTrackId) {
                         added++;
 
                         // TODO do not always add every user and track. keep a
                         // map to check against
                         // what was already added, otherwise unnecessary db IO
 
-                        tracksCV.add(0, evt.getTrack().buildContentValues());
-                        usersCV.add(0, evt.getTrack().user.buildContentValues(false));
+                        tracksCV.add(0, evt.track.buildContentValues());
+                        usersCV.add(0, evt.track.user.buildContentValues(false));
                         eventsCV.add(0, evt.buildContentValues(currentUserId, exclusive));
 
                     } else {
@@ -139,11 +139,11 @@ public class SoundCloudDB {
 
             int inserted = 0;
             for (Event evt : activities) {
-                if (evt.getTrack().id != stopAtTrackId){
+                if (evt.track.id != stopAtTrackId){
                     inserted++;
-                    tracksCV.add(0, evt.getTrack().buildContentValues());
+                    tracksCV.add(0, evt.track.buildContentValues());
                     eventsCV.add(0, evt.buildContentValues(currentUserId, false));
-                    usersCV.add(0, evt.getTrack().user.buildContentValues(false));
+                    usersCV.add(0, evt.track.user.buildContentValues(false));
                 } else {
                     break;
                 }

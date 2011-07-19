@@ -451,10 +451,8 @@ public class CloudUtils {
     public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
         if (p instanceof Track) {
             ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof Event && ((Event)p).getTrack() != null) {
-            ((Event)p).getTrack().updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof User) {
-            // check if they are a follower
+        } else if (p instanceof Event) {
+           ((Event)p).updateEventObjectsFromDb(c.getContentResolver(), user_id);
         }
     }
 

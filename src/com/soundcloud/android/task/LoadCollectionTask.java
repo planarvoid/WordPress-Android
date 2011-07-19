@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.deserialize.EventDeserializer;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Event;
@@ -16,6 +17,9 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
@@ -95,7 +99,13 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
                     }
                 }
             } else if (Event.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, EventsHolder.class);
+
+                ObjectMapper mapper = mApp.getMapper();
+                SimpleModule module = new SimpleModule("EventDeserializerModule", new Version(1, 0, 0, null))
+                    .addDeserializer(Event.class, new EventDeserializer());
+                mapper.registerModule(module);
+
+                holder = mapper.readValue(is, EventsHolder.class);
                 if (holder.size() > 0){
                     newItems = new ArrayList<Parcelable>();
                     for (Event e : (EventsHolder) holder){
@@ -114,7 +124,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             mNextHref = holder == null ? null : holder.next_href;
 
             if (newItems != null) {
-                for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
+                //for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
                 return !TextUtils.isEmpty(mNextHref);
             } else {
                 return false;

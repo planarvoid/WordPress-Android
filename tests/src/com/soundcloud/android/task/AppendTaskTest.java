@@ -4,9 +4,11 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -16,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -64,12 +68,32 @@ public class AppendTaskTest {
         assertThat(u.id, is(3135930L));
     }
 
+    @Test
+    public void shouldDeserializeEvents() throws Exception {
+        AppendTask task = new AppendTask(DefaultTestRunner.application);
+        LazyEndlessAdapter adapter = new LazyEndlessAdapter(null, new EventsAdapter(null, null, false, Event.class), null);
+
+        task.setAdapter(adapter);
+
+        Robolectric.addPendingHttpResponse(200, slurp("events.json"));
+        task.doInBackground(Request.to("http://foo.com"));
+
+        assertThat(task.newItems, not(nullValue()));
+        assertThat(task.newItems.size(), equalTo(50));
+
+        Event e = (Event) task.newItems.get(0);
+        assertThat(e.created_at, not(nullValue()));
+    }
 
     private String slurp(String res) throws IOException {
         StringBuilder sb = new StringBuilder(65536);
         int n;
         byte[] buffer = new byte[8192];
         InputStream is = getClass().getResourceAsStream(res);
+        if (is == null) {
+            throw new FileNotFoundException("readFilesInBytes: File " + res
+                    + " does not exist");
+        }
         while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
         return sb.toString();
     }

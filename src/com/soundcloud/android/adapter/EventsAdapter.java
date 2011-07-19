@@ -32,7 +32,7 @@ public class EventsAdapter extends TracklistAdapter {
 
     @Override
     public Track getTrackAt(int index) {
-        return ((Event) getItem(index)).getTrack();
+        return ((Event) getItem(index)).track;
     }
 
 

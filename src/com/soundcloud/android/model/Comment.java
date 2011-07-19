@@ -21,6 +21,8 @@ public class Comment extends BaseObj implements Parcelable {
     public long track_id;
     public long timestamp;
 
+    public Track track;
+
     public long reply_to_id;
     public String reply_to_username;
 

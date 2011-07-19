@@ -102,8 +102,8 @@ public class SyncAdapterService extends Service {
             List<Event> exclusiveEvents = getNewExclusiveEvents(app, lastSync);
 
             Set<Long> ids = new HashSet<Long>(incomingEvents.size());
-            for (Event e : incomingEvents) ids.add(e.getOriginId());
-            for (Event e : exclusiveEvents) ids.add(e.getOriginId());
+            for (Event e : incomingEvents) ids.add(e.origin_id);
+            for (Event e : exclusiveEvents) ids.add(e.origin_id);
             final int totalUnseen = ids.size();
 
             final boolean hasIncoming  = !incomingEvents.isEmpty();
@@ -219,7 +219,7 @@ public class SyncAdapterService extends Service {
         if (events.size() == 1) {
             return String.format(
                     app.getString(R.string.dashboard_notifications_message_single_exclusive),
-                    events.get(0).getTrack().user.username);
+                    events.get(0).track.user.username);
 
         } else {
             List<User> users = getUniqueUsersFromEvents(events);
@@ -245,12 +245,12 @@ public class SyncAdapterService extends Service {
         for (Event e : events){
                 boolean found = false;
                 for (User u : users){
-                    if (u.id == e.getTrack().user.id){
+                    if (u.id == e.track.user.id){
                         found = true;
                         break;
                     }
                 }
-                if (!found) users.add(e.getTrack().user);
+                if (!found) users.add(e.track.user);
         }
         return users;
     }
