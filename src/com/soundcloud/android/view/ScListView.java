@@ -489,7 +489,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        mCurrentScrollState = scrollState;
         if (mOnScrollListener != null) mOnScrollListener.onScrollStateChanged(view, scrollState);
 
         if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
@@ -502,6 +501,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             mScrollHandler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
             if (mListener != null) mListener.onFling();
         }
+        mCurrentScrollState = scrollState;
     }
 
      @Override
