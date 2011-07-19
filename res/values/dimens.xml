@@ -4,6 +4,8 @@
 
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
+    <dimen name="list_icon_margin_top">5dip</dimen>
+    <dimen name="list_icon_margin_left">5dip</dimen>
     <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>

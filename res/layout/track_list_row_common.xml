@@ -5,71 +5,86 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:ignoreGravity="@+id/icon">
-
-        <ImageView  android:id="@+id/icon"
-                android:layout_alignParentLeft="true"
-                android:layout_width="@dimen/list_icon_width"
-                android:layout_height="@dimen/list_icon_height"
-                android:gravity="center_vertical"
-                android:background="@drawable/artwork_badge"
-                android:scaleType="centerCrop"/>
-
-        <ImageView android:id="@+id/play_indicator"
+        <ImageView android:id="@+id/icon"
+                   android:layout_alignParentLeft="true"
+                   android:layout_width="@dimen/list_icon_width"
+                   android:layout_height="@dimen/list_icon_height"
+                   android:layout_marginTop="@dimen/list_icon_margin_top"
+                   android:layout_marginLeft="@dimen/list_icon_margin_left"
                    android:gravity="center_vertical"
-                   android:layout_marginLeft="@dimen/track_list_indicator_margin_left"
-                   android:scaleType="center"
-                   android:layout_alignWithParentIfMissing="true"
-                   android:layout_toRightOf="@id/icon"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_alignTop="@+id/track_layout"
-                   android:layout_alignBottom="@+id/track_layout"/>
-
-        <LinearLayout android:id="@+id/track_layout"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="3dip"
-                      android:layout_marginLeft="@dimen/track_list_text_margin_left"
-                      android:layout_toRightOf="@id/icon"
-                      android:orientation="horizontal">
-
-            <TextView android:id="@+id/track"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      style="@style/txt_list_main"
-                      android:singleLine="true"
-                      android:ellipsize="marquee"
-                      android:text="@string/track"
-                      android:layout_weight="1"/>
-
-            <ImageView android:id="@+id/private_indicator"
-                       android:layout_marginTop="@dimen/track_list_private_margin_top"
-                       android:layout_marginLeft="@dimen/track_list_private_margin_left"
-                       android:src="@drawable/very_private"
-                       android:scaleType="center"
-                       android:layout_width="46dip"
-                       android:layout_height="14dip"/>
-        </LinearLayout>
-
+                   android:background="@drawable/artwork_badge"
+                   android:scaleType="centerCrop"/>
         <TextView android:id="@+id/user"
                   android:layout_height="wrap_content"
                   style="@style/txt_list_sub"
-                  android:layout_alignLeft="@id/track_layout"
                   android:text="@string/user"
                   android:singleLine="true"
                   android:ellipsize="marquee"
                   android:layout_width="wrap_content"
-                  android:layout_below="@id/track_layout"/>
-
+                  android:layout_alignTop="@id/icon"
+                  android:layout_toRightOf="@+id/icon"/>
         <TextView android:id="@+id/track_created_at"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/txt_list_sub_secondary"
+                  android:layout_alignTop="@id/icon"
                   android:paddingLeft="0dip"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:layout_below="@id/track_layout"
-                  android:layout_toRightOf="@id/user"
-                  />
+                  android:layout_alignParentRight="true"/>
+        <TextView android:id="@+id/track"
+                  android:layout_alignLeft="@id/user"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@id/user"
+                  style="@style/txt_list_main"
+                  android:text="@string/track"
+                  android:layout_weight="1"/>
+        <RelativeLayout
+                android:id="@+id/stats"
+                android:layout_below="@id/track"
+                android:layout_alignLeft="@id/track"
+                android:layout_width="wrap_content"
+                android:paddingTop="3dip"
+                android:paddingBottom="3dip"
+                android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content"
+                      android:drawableLeft="@drawable/sounds"
+                      android:drawablePadding="3dip"
+                      android:drawableRight="@drawable/vertical_divider"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/play_count"
+                      android:layout_alignParentLeft="true"
+                      android:paddingRight="5dip"
+                      android:text="111"
+                      style="@style/txt_list_sub"/>
+            <TextView android:layout_width="wrap_content"
+                      android:drawableLeft="@drawable/sounds"
+                      android:drawablePadding="3dip"
+                      android:drawableRight="@drawable/vertical_divider"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/comment_count"
+                      android:layout_toRightOf="@id/play_count"
+                      android:paddingRight="5dip"
+                      android:text="123"
+                      style="@style/txt_list_sub"/>
+            <TextView android:layout_width="wrap_content"
+                      android:drawableLeft="@drawable/sounds"
+                      android:drawablePadding="3dip"
+                      android:drawableRight="@drawable/vertical_divider"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/favorite_count"
+                      android:layout_toRightOf="@id/comment_count"
+                      android:paddingRight="5dip"
+                      android:text="321"
+                      style="@style/txt_list_sub"/>
+            <ImageView android:id="@+id/private_indicator"
+                       android:src="@drawable/very_private"
+                       android:layout_toRightOf="@id/favorite_count"
+                       android:layout_margin="5dip"
+                       android:scaleType="center"
+                       android:layout_width="46dip"
+                       android:layout_height="14dip"/>
+        </RelativeLayout>
     </RelativeLayout>
 </merge>

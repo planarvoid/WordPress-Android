@@ -222,23 +222,6 @@ public class TracklistRow extends LazyRow {
         }
 
         _isFavorite = mTrack.user_favorite;
-
-        if (mTrack.id == ((TracklistAdapter) mAdapter).playingId) {
-            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
-                    R.drawable.list_playing));
-            mPlayIndicator.setVisibility(View.VISIBLE);
-        } else if (_isFavorite) {
-            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
-                    R.drawable.list_favorite));
-            mPlayIndicator.setVisibility(View.VISIBLE);
-        } else if (!mTrack.user_played) {
-            mPlayIndicator.setImageDrawable(mActivity.getResources().getDrawable(
-                    R.drawable.list_unlistened));
-            mPlayIndicator.setVisibility(View.VISIBLE);
-        } else {
-            mPlayIndicator.setVisibility(View.GONE);
-        }
-
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {
