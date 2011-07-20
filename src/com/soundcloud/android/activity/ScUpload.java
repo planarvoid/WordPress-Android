@@ -72,6 +72,8 @@ public class ScUpload extends ScActivity {
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
                 findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+                ((FrameLayout) findViewById(R.id.share_user_layout)).addView(
+                    new ShareUserHeader(this,SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId())));
             }
 
             if (mRecording.exists()) {
@@ -81,10 +83,6 @@ public class ScUpload extends ScActivity {
             }
         }
         if (mLocation == null) preloadLocations();
-
-        //TODO make sure they are logged in
-        ((FrameLayout) findViewById(R.id.share_user_layout)).addView(
-                new ShareUserHeader(this,SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId())));
     }
 
     @Override

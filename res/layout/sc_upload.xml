@@ -105,7 +105,7 @@
                       android:padding="5dip"
                       android:text="@string/sc_upload_sharing_options"
                       android:layout_below="@id/rdo_privacy"
-                      android:layout_height="30dip"/>
+                      android:layout_height="wrap_content"/>
 
             <View android:id="@+id/share_options_seperator"
                   android:background="@color/recordUploadBorder"
