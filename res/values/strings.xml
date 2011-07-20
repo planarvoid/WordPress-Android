@@ -488,4 +488,7 @@
     <string name="sc_search_users">\u00A0Users</string>
     <string name="comment_bubble_readon">Read on</string>
     <string name="error_getting_recording">Error getting recording</string>
+
+    <string name="share_to_soundcloud">&lt;b>Share&lt;/b> to &lt;b>SoundCloud&lt;/b></string>
+    <string name="share_log_out">Log out</string>
 </resources>

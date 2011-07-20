@@ -49,6 +49,8 @@ public class TracklistRow extends LazyRow {
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
 
+        Log.i("asdf", "Track list row ");
+
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);

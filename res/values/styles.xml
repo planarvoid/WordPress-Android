@@ -111,6 +111,22 @@
         <item name="android:textColor">@color/tab_indicator_text</item>
     </style>
 
+    <style name="txt_share_header">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">@dimen/share_user_header_text_size</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+    <style name="txt_share_header_username" parent="txt_share_header">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_share_header_title" parent="txt_share_header">
+        <item name="android:shadowColor">#ff777777</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
     <style name="txt_record_instructions">
         <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">28sp</item>
@@ -458,5 +474,9 @@
     <style name="DialogText.Title">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+
+    <style name="connection_list_header" parent="@android:style/Widget.TextView.ListSeparator">
     </style>
 </resources>

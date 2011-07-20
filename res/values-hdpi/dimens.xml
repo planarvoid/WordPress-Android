@@ -2,4 +2,7 @@
 <resources>
     <dimen name="list_icon_width">67px</dimen>
     <dimen name="list_icon_height">67px</dimen>
+
+    <dimen name="share_user_icon_width">47px</dimen>
+    <dimen name="share_user_icon_height">47px</dimen>
 </resources>

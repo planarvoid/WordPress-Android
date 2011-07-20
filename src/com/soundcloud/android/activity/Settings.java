@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.utils.ChangeLog;
 
 import android.app.AlertDialog;
@@ -175,39 +176,7 @@ public class Settings extends PreferenceActivity {
                 return mDeleteDialog;
 
             case DIALOG_USER_DELETE_CONFIRM:
-                return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
-                        .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        ((SoundCloudApplication) getApplication()).clearSoundCloudAccount(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        finish();
-                                                    }
-                                                },
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        new AlertDialog.Builder(Settings.this)
-                                                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                                                .setMessage(R.string.settings_error_revoking_account_message)
-                                                                .setTitle(R.string.settings_error_revoking_account_title)
-                                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(DialogInterface dialog, int which) {
-                                                                        // finish();
-                                                                    }
-                                                                }).create().show();
-                                                    }
-                                                }
-                                        );
-                                    }
-                                }).setNegativeButton(android.R.string.cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                    }
-                                }).create();
+                return CloudUtils.createLogoutDialog(this);
         }
         return super.onCreateDialog(id);
     }

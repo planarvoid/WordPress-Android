@@ -3,13 +3,16 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
+import com.soundcloud.android.view.ShareUserHeader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +26,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -77,6 +81,10 @@ public class ScUpload extends ScActivity {
             }
         }
         if (mLocation == null) preloadLocations();
+
+        //TODO make sure they are logged in
+        ((FrameLayout) findViewById(R.id.share_user_layout)).addView(
+                new ShareUserHeader(this,SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId())));
     }
 
     @Override
