@@ -472,7 +472,8 @@
     <string name="user">user</string>
     <string name="sc_upload_only_you">Only You</string>
     <string name="sc_upload_with_access">With Access</string>
-    <string name="sc_upload_sharing_options">Your track will be available for the public after the upload. Do you want to push it to other services afterwards?</string>
+    <string name="sc_upload_sharing_options_public">Your track will be available for the public after the upload. Do you want to push it to other services afterwards?</string>
+    <string name="sc_upload_sharing_options_private">Your track will be private after the upload. Add anyone you would like to share with below.</string>
     <string name="sc_upload_add_image">Add\nImage</string>
     <string name="sc_upload_public">\u00A0Public</string>
     <string name="sc_upload_private">\u00A0Private</string>
@@ -491,4 +492,5 @@
 
     <string name="share_to_soundcloud">&lt;b>Share&lt;/b> to &lt;b>SoundCloud&lt;/b></string>
     <string name="share_log_out">Log out</string>
+    <string name="share_uploading">Uploading</string>
 </resources>

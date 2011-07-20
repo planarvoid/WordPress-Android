@@ -2,16 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				android:id="@+id/RelativeLayout01"
                 android:layout_width="fill_parent" 
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dip">
-    <TextView
-            android:layout_width="fill_parent"
-            android:id="@+id/share_header_txt"
-            android:gravity="center_vertical"
-            android:layout_height="@dimen/share_user_header_height"
-            android:background="#FFfb561c"
-            android:text="@string/share_to_soundcloud"
-            style="@style/txt_share_header_title"/>
+                android:layout_height="wrap_content">
+    <include layout="@layout/share_header"
+             android:id="@+id/share_header_txt" />
     <RelativeLayout
             android:id="@+id/share_header_user_holder"
             android:layout_width="fill_parent"

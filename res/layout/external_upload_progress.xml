@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/createBackground">
+    <include layout="@layout/share_header"
+             android:id="@+id/share_header_txt" />
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dip"
+            android:layout_below="@id/share_header_txt"
+            android:background="@color/white">
+        <ImageView android:id="@+id/icon"
+                   android:layout_alignParentLeft="true"
+                   android:layout_width="@dimen/list_icon_width"
+                   android:layout_height="@dimen/list_icon_height"
+                   android:gravity="center_vertical"
+                   android:background="@drawable/artwork_badge"
+                   android:scaleType="centerCrop"/>
+        <TextView android:id="@+id/track"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignTop="@id/icon"
+                  android:layout_alignBottom="@id/icon"
+                  android:gravity="center_vertical"
+                  style="@style/txt_list_main"
+                  android:text="@string/track"
+                  android:layout_toRightOf="@id/icon"/>
+        <ProgressBar android:id="@+id/progress_bar"
+                     android:layout_marginTop="5dip"
+                     android:layout_marginBottom="5dip"
+                     android:layout_below="@id/icon"
+                     android:layout_width="fill_parent"
+                     android:layout_height="wrap_content"
+                     android:indeterminate="false"
+                     style="@style/ScProgressBarRound"/>
+        <ProgressBar android:id="@+id/progress_bar_ind"
+                     android:layout_marginTop="5dip"
+                     android:layout_below="@id/progress_bar"
+                     android:layout_alignParentLeft="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:indeterminate="true" />
+        <TextView android:id="@+id/track"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignTop="@id/progress_bar_ind"
+                  android:layout_alignBottom="@id/progress_bar_ind"
+                  style="@style/txt_list_main"
+                  android:gravity="center_vertical"
+                  android:textStyle="normal"
+                  android:singleLine="true"
+                  android:text="@string/share_uploading"
+                  android:layout_toRightOf="@id/progress_bar_ind"/>
+    </RelativeLayout>
+</RelativeLayout>

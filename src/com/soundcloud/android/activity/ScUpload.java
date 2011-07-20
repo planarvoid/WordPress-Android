@@ -6,7 +6,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -180,9 +179,11 @@ public class ScUpload extends ScActivity {
                 switch (checkedId) {
                     case R.id.rdo_public:
                         mSharingFlipper.setDisplayedChild(0);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
                         break;
                     case R.id.rdo_private:
                         mSharingFlipper.setDisplayedChild(1);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
                         break;
                 }
             }

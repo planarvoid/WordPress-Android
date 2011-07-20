@@ -17,7 +17,8 @@
             <FrameLayout android:id="@+id/share_user_layout"
                          android:layout_height="wrap_content"
                          android:layout_width="fill_parent"
-                         android:layout_alignParentTop="true" />
+                         android:layout_alignParentTop="true"
+                        android:paddingBottom="5dip"/>
 
             <FrameLayout android:id="@+id/artwork_layout"
                          android:layout_height="100dip"
@@ -52,7 +53,7 @@
                       android:layout_width="fill_parent"
                       android:ellipsize="end"
                       style="@style/txt_record_input"
-                      android:gravity="center"
+                      android:gravity="left"
                       android:clickable="true"
                       android:fadingEdge="horizontal"
                       android:fadeScrollbars="true"
@@ -70,7 +71,7 @@
                       android:layout_width="fill_parent"
                       android:ellipsize="end"
                       style="@style/txt_record_input"
-                      android:gravity="center"
+                      android:gravity="left"
                       android:inputType="textCapWords"
                       android:hint="What"/>
 
@@ -103,7 +104,7 @@
                       style="@style/txt_record_share_options"
                       android:gravity="left"
                       android:padding="5dip"
-                      android:text="@string/sc_upload_sharing_options"
+                      android:text="@string/sc_upload_sharing_options_public"
                       android:layout_below="@id/rdo_privacy"
                       android:layout_height="wrap_content"/>
 

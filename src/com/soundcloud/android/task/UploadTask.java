@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> {
     private CloudAPI api;
+    protected final Params param;
 
     public static class Params {
         public static final String LOCAL_RECORDING_ID  = "local_recording_id";
@@ -107,7 +108,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
     @Override
     protected Params doInBackground(final Params... params) {
-        final Params param = params[0];
+        param = params[0];
         final File toUpload = param.encode ? param.encodedFile : param.trackFile;
 
         if (!toUpload.exists()) {
