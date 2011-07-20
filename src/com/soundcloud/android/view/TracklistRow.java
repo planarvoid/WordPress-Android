@@ -26,8 +26,8 @@ public class TracklistRow extends LazyRow {
     protected Track mTrack;
 
     protected ImageView mPlayIndicator;
-    protected ImageView mPrivateIndicator;
 
+    protected TextView mPrivateIndicator;
     protected TextView mUser;
     protected TextView mTitle;
     protected TextView mCreatedAt;
@@ -52,7 +52,7 @@ public class TracklistRow extends LazyRow {
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
-        mPrivateIndicator = (ImageView) findViewById(R.id.private_indicator);
+        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
     }
 

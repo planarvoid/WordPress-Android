@@ -33,13 +33,16 @@
                       android:text="@string/track"
                       android:layout_weight="1"/>
 
-            <ImageView android:id="@+id/private_indicator"
-                       android:layout_marginTop="@dimen/track_list_private_margin_top"
-                       android:layout_marginLeft="@dimen/track_list_private_margin_left"
-                       android:src="@drawable/very_private"
+           <TextView android:id="@+id/private_indicator"
+                      android:drawableLeft="@drawable/lock"
+                      android:drawablePadding="2dp"
+                      android:textColor="@color/white"
+                      android:textSize="@dimen/list_txt_sub_size"
+                       android:background="@drawable/private_bg"
                        android:scaleType="center"
-                       android:layout_width="46dip"
-                       android:layout_height="14dip"/>
+                       android:layout_width="wrap_content"
+                       android:text="2 people"
+                       android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <TextView android:layout_width="wrap_content"
