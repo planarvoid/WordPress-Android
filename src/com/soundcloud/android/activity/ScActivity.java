@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -318,10 +319,10 @@ public abstract class ScActivity extends Activity {
         }
 
         if (!uploading) {
-            r.upload_status = Recording.UploadStatus.UPLOADING;
+            r.upload_status = Upload.UploadStatus.UPLOADING;
             getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
             try {
-                mCreateService.uploadTrack(r.uploadData());
+                mCreateService.startUpload(new Upload(r));
                 return true;
             } catch (RemoteException ignored) {
                 Log.e(TAG, "error", ignored);

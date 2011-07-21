@@ -22,6 +22,7 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class RecordingTest {
     Recording r;
+    Upload u;
     File f;
 
     @Before
@@ -37,6 +38,8 @@ public class RecordingTest {
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
         r.duration = 86 * 1000;
+
+        u = new Upload(r);
     }
 
     @Test
@@ -66,7 +69,7 @@ public class RecordingTest {
     @Test
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
         r.external_upload = true;
-        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
+        String tags = String.valueOf(u.toTrackMap().get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
         assertThat(tagList.contains("soundcloud:source=android-3rdparty-upload"), is(true));
     }
@@ -138,19 +141,19 @@ public class RecordingTest {
     @Test
     public void shouldAddTagsToUploadData() throws Exception {
         r.tags = new String[] { "foo baz", "bar", "baz" };
-        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
+        String tags = String.valueOf(u.toTrackMap().get(Params.Track.TAG_LIST));
         assertThat(tags, equalTo("soundcloud:source=android-record \"foo baz\" bar baz"));
     }
 
     @Test
     public void shouldAddDescriptionToUploadData() throws Exception {
         r.description = "foo";
-        assertThat(r.uploadData().get(Params.Track.DESCRIPTION).toString(), equalTo("foo"));
+        assertThat(u.toTrackMap().get(Params.Track.DESCRIPTION).toString(), equalTo("foo"));
     }
 
     @Test
     public void shouldAddGenreToUploadData() throws Exception {
         r.genre = "foo";
-        assertThat(r.uploadData().get(Params.Track.GENRE).toString(), equalTo("foo"));
+        assertThat(u.toTrackMap().get(Params.Track.GENRE).toString(), equalTo("foo"));
     }
 }

@@ -8,9 +8,10 @@ import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ExternalUploadProgress;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -99,8 +100,7 @@ public class CloudCreateService extends Service {
 
     private String mPlaybackTitle;
 
-    private long mUploadLocalId;
-    private Map<String,?> mCurrentUploadData;
+    private Upload mCurrentUpload;
 
 
     @Override
@@ -152,12 +152,12 @@ public class CloudCreateService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        if (mUploadLocalId != 0){
-            Log.e(TAG, "Service being destroyed while still playing.");
+        if (mCurrentUpload != null){
+            Log.e(TAG, "Service being destroyed while still uploading.");
             ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
+            cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
             cv.put(Recordings.UPLOAD_ERROR, true);
-            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+mUploadLocalId, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -171,8 +171,6 @@ public class CloudCreateService extends Service {
 
     private void gotoIdleState() {
         if (!isUploading() && !isRecording() && !isPlaying()) {
-            mUploadLocalId = 0;
-            mCurrentUploadData = null;
             mPlaybackLocal = null;
             stopForeground(true);
         }
@@ -397,43 +395,45 @@ public class CloudCreateService extends Service {
 
     @SuppressWarnings("unchecked")
     private void uploadTrack(final Map<String,?> trackdata) {
+        startUpload(new Upload(trackdata));
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    private void startUpload(final Upload upload) {
         acquireWakeLock();
 
-        if (mPlaybackFile != null
-                && mPlaybackFile.getAbsolutePath().contentEquals(
-                    String.valueOf(trackdata.get(UploadTask.Params.SOURCE_PATH)))) {
+        if (mPlaybackFile != null && mPlaybackFile.equals(upload.trackFile)) {
             stopPlayback();
         }
 
+        upload.upload_id = System.currentTimeMillis();
+        mCurrentUpload = upload;
+
+        Log.i("asdf","Start Upload " + upload.title);
 
         mCurrentUploadCancelled = false;
 
-        Intent i = (new Intent(this, Main.class))
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabTag", "profile");
-            i.putExtra("sourcePath",trackdata.get(Params.SOURCE_PATH).toString());
-            i.putExtra("artworkPath",trackdata.get(Params.ARTWORK_PATH).toString());
-            i.putExtra("title",trackdata.get(com.soundcloud.api.Params.Track.TITLE).toString());
+        Intent i = (new Intent(this, ExternalUploadProgress.class))
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra("upload", upload);
 
 
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
-
-        CharSequence trackText = (CharSequence) trackdata.get(com.soundcloud.api.Params.Track.TITLE);
-        mUploadNotificationView.setTextViewText(R.id.message, trackText);
+        mUploadNotificationView.setTextViewText(R.id.message, upload.title);
         mUploadNotificationView.setTextViewText(R.id.percentage, "0");
         mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
 
-        mUploadNotification = createOngoingNotification(
-                getString(R.string.cloud_uploader_notification_ticker),
+        mUploadNotification = createOngoingNotification( getString(R.string.cloud_uploader_notification_ticker),
                 PendingIntent.getActivity(this, 0, i, 0));
+
         mUploadNotification.contentView = mUploadNotificationView;
         startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
 
-        mCurrentUploadData = trackdata;
-        mUploadLocalId = (Long) trackdata.get(UploadTask.Params.LOCAL_RECORDING_ID);
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(new UploadTask.Params[] { new UploadTask.Params(trackdata) });
+        mOggTask.execute(new Params[] { new Params(upload) });
     }
 
     private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
@@ -482,12 +482,14 @@ public class CloudCreateService extends Service {
                     ContentValues cv = new ContentValues();
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
                     cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
+                    int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+                    Log.d(TAG, x + " row(s) audio path updated.");
 
-                 // XXX always delete here?
+                    mCurrentUpload.trackFile = mCurrentUpload.encodedFile;
+                    mCurrentUpload.encode = false;
+
+                    // XXX always delete here?
                     param.trackFile.delete();
-
-                    int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+param.local_recording_id, null);
-                    Log.d(TAG, x+" row(s) audio path updated.");
                 }
 
                 mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
@@ -557,18 +559,17 @@ public class CloudCreateService extends Service {
         protected void onProgressUpdate(Long... progress) {
             if (!isCancelled()) {
                 mUploadNotificationView.setProgressBar(R.id.progress_bar,
-                        progress[1].intValue(), (int) Math.min(progress[1], progress[0]),
-                        false);
+                        progress[1].intValue(), (int) Math.min(progress[1], progress[0]), false);
 
                 mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
                         100, (100 * progress[0]) / progress[1])));
 
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
 
-            Intent i = new Intent(UPLOAD_PROGRESS);
-            i.putExtra("sourcePath", param.trackFile.getAbsolutePath());
-            i.putExtra("progress",Math.min(100, (100 * progress[0]) / progress[1]));
-            sendBroadcast(i);
+                Intent i = new Intent(UPLOAD_PROGRESS);
+                i.putExtra("upload_id", mCurrentUpload.upload_id);
+                i.putExtra("progress", Math.min(100, (100 * progress[0]) / progress[1]));
+                sendBroadcast(i);
             }
         }
 
@@ -587,67 +588,66 @@ public class CloudCreateService extends Service {
 
         gotoIdleState();
 
+        CharSequence notificationTitle;
+        CharSequence notificationMessage;
+
+        if (params.isSuccess()) {
+            mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;
+            mCurrentUpload.upload_error = false;
+            notificationTitle = getString(R.string.cloud_uploader_notification_finished_title);
+            notificationMessage = String.format(getString(R.string.cloud_uploader_notification_finished_message),
+                    params.get(com.soundcloud.api.Params.Track.TITLE));
+
+            // XXX make really, really sure 3rd party uploads don't get deleted
+            if (mCurrentUpload.delete_after && params.encode && params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
+            if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
+
+            Intent intent = new Intent(UPLOAD_SUCCESS);
+            intent.putExtra("upload_id", mCurrentUpload.upload_id);
+            intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
+            sendBroadcast(intent);
+
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADED);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            Log.d(TAG, x+" row(s) marked as uploaded.");
+
+            mCurrentUpload = null;
+
+        } else {
+            mCurrentUpload.upload_status = Upload.UploadStatus.NOT_YET_UPLOADED;
+            mCurrentUpload.upload_error = true;
+            notificationTitle = getString(R.string.cloud_uploader_notification_error_title);
+            notificationMessage = String.format(getString(R.string.cloud_uploader_notification_error_message),
+                    params.get(com.soundcloud.api.Params.Track.TITLE));
+
+            Intent intent = new Intent(UPLOAD_ERROR);
+            intent.putExtra("upload_id", mCurrentUpload.upload_id);
+            sendBroadcast(intent);
+
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_ERROR, true);
+            cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            Log.d(TAG, x+" row(s) marked with upload error.");
+        }
+
         int icon = R.drawable.statusbar;
         CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
 
         Intent i = (new Intent(this, Main.class))
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .setAction(Intent.ACTION_MAIN);
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setAction(Intent.ACTION_MAIN)
+                .putExtra("upload", mCurrentUpload);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-
-        // the next two lines initialize the Notification, using the
-        // configurations above
         Notification notification = new Notification(icon, tickerText, when);
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
-
-        if (params.isSuccess()) {
-            // XXX make really, really sure 3rd party uploads don't get deleted
-            if (params.encode &&
-                    params.trackFile != null &&
-                    params.trackFile.exists()) params.trackFile.delete();
-            if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
-
-            notification.setLatestEventInfo(this,
-                    getString(R.string.cloud_uploader_notification_finished_title), String.format(
-                            getString(R.string.cloud_uploader_notification_finished_message),
-                            params.get(com.soundcloud.api.Params.Track.TITLE)), contentIntent);
-
-
-            Intent intent = new Intent(UPLOAD_SUCCESS);
-            i.putExtra("sourceFile",params.trackFile);
-            intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
-            sendBroadcast(intent);
-
-            ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+params.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked as uploaded.");
-
-        } else {
-            notification.setLatestEventInfo(this,
-                    getString(R.string.cloud_uploader_notification_error_title), String.format(
-                            getString(R.string.cloud_uploader_notification_error_message),
-                            params.get(com.soundcloud.api.Params.Track.TITLE)), contentIntent);
-
-            Intent intent = new Intent(UPLOAD_ERROR);
-            i.putExtra("sourceFile",params.trackFile);
-            sendBroadcast(intent);
-
-            ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_ERROR, true);
-            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+params.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked with upload error.");
-        }
-
-        mCurrentUploadData = null;
-        mUploadLocalId = 0;
-
+        notification.setLatestEventInfo(this,notificationTitle ,notificationMessage , contentIntent);
         nm.notify(UPLOAD_NOTIFY_ID, notification);
         releaseWakeLock();
     }
@@ -675,15 +675,15 @@ public class CloudCreateService extends Service {
             mUploadTask = null;
         }
 
-        if (mUploadLocalId != 0){
+        if (mCurrentUpload != null){
             ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_STATUS, Recording.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+mUploadLocalId, null);
+            cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
-            mUploadLocalId = 0;
+            mCurrentUpload.upload_status = Upload.UploadStatus.NOT_YET_UPLOADED;
         }
 
-        mCurrentUploadData = null;
+        mCurrentUpload = null;
 
 
         nm.cancel(RECORD_NOTIFY_ID);
@@ -697,7 +697,8 @@ public class CloudCreateService extends Service {
     }
 
     public long getUploadLocalId() {
-        return mUploadLocalId;
+        return (mCurrentUpload != null && mCurrentUpload.upload_status == Upload.UploadStatus.NOT_YET_UPLOADED)
+                ? mCurrentUpload.local_recording_id : 0;
     }
 
     private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent){
@@ -817,6 +818,12 @@ public class CloudCreateService extends Service {
         public void uploadTrack(Map trackdata) throws RemoteException {
             if (mService.get() != null) mService.get().uploadTrack(trackdata);
         }
+
+        @Override
+        public void startUpload(Upload upload) throws RemoteException {
+            if (mService.get() != null) mService.get().startUpload(upload);
+        }
+
 
         @Override
         public boolean isUploading() throws RemoteException {

@@ -35,6 +35,7 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -659,7 +660,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     @Override
     protected void handleRecordingClick(Recording recording) {
-        if (recording.upload_status == Recording.UploadStatus.UPLOADING)
+        if (recording.upload_status == Upload.UploadStatus.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
             showRecordingDialog(recording);
