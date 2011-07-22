@@ -27,8 +27,6 @@ public class ShareUserHeader extends RelativeLayout{
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.share_user_header, this);
 
-        ((TextView) findViewById(R.id.share_header_txt)).setText(Html.fromHtml(getResources().getString(R.string.share_to_soundcloud)));
-
         CloudUtils.clickify((TextView) findViewById(R.id.share_header_logout_txt),new ClickSpan.OnClickListener(){
             @Override
             public void onClick() {

@@ -8,8 +8,10 @@
     <include layout="@layout/share_header"
              android:id="@+id/share_header_txt" />
     <RelativeLayout
+            android:id="@+id/track_info_holder"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="20dip"
             android:padding="10dip"
             android:layout_below="@id/share_header_txt"
             android:background="@color/white">
@@ -52,4 +54,7 @@
                      style="@style/ScProgressBarRound"/>
 
     </RelativeLayout>
+    <View android:layout_width="fill_parent"
+                  android:layout_below="@id/track_info_holder" android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
 </RelativeLayout>
