@@ -449,7 +449,7 @@ public class CloudCreateService extends Service {
         mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
 
         mUploadNotification = createOngoingNotification(getString(R.string.cloud_uploader_notification_ticker),
-                PendingIntent.getActivity(this, 0, i, 0));
+                PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
         mUploadNotification.contentView = mUploadNotificationView;
 
@@ -479,10 +479,16 @@ public class CloudCreateService extends Service {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
+                final int currentProgress = (int) Math.min(100, (100 * progress[0]) / progress[1]);
                 mUploadNotificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
-                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
-                        100, (100 * progress[0]) / progress[1])));
+                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, currentProgress));
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
+
+                Intent i = new Intent(UPLOAD_PROGRESS);
+                i.putExtra("upload_id", mCurrentUpload.id);
+                i.putExtra("progress", currentProgress);
+                i.putExtra("encoding", true);
+                sendBroadcast(i);
             }
         }
 
@@ -587,12 +593,10 @@ public class CloudCreateService extends Service {
 
                 final int currentProgress = (int) Math.min(100, (100 * progress[0]) / progress[1]);
                 mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, currentProgress));
-
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
 
                 Intent i = new Intent(UPLOAD_PROGRESS);
                 i.putExtra("upload_id", mCurrentUpload.id);
-
                 i.putExtra("progress", currentProgress);
                 sendBroadcast(i);
             }

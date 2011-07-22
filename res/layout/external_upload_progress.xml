@@ -47,7 +47,7 @@
                                 android:layout_below="@id/icon"
                                 android:layout_marginTop="10dip"
                                 android:layout_marginBottom="10dip">
-                    <TextView android:id="@+id/uploading"
+                    <TextView android:id="@+id/progress_txt"
                               android:layout_alignParentTop="true"
                               android:layout_alignParentLeft="true"
                               android:layout_toLeftOf="@+id/close_icon"
@@ -61,7 +61,7 @@
                     <ProgressBar android:id="@+id/progress_bar"
                                  android:layout_marginTop="5dip"
                                  android:layout_marginBottom="5dip"
-                                 android:layout_below="@id/uploading"
+                                 android:layout_below="@id/progress_txt"
                                  android:layout_alignParentLeft="true"
                                  android:layout_toLeftOf="@+id/close_icon"
                                  android:layout_width="0dp"

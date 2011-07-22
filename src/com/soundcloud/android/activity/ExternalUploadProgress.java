@@ -40,6 +40,8 @@ public class ExternalUploadProgress extends Activity {
     private RelativeLayout mUploadingLayout;
     private RelativeLayout mFinishedLayout;
     private RelativeLayout mControlLayout;
+    private TextView mProgressText;
+    private boolean mProgressModeEncoding;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,8 @@ public class ExternalUploadProgress extends Activity {
 
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
+
+        mProgressText = (TextView) findViewById(R.id.progress_txt);
 
         findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +190,13 @@ public class ExternalUploadProgress extends Activity {
                  if (intent.getLongExtra("upload_id", -1) == mUploadId){
                       mProgressBar.setProgress(intent.getIntExtra("progress",0));
                  }
+                if (!mProgressModeEncoding && intent.hasExtra("encoding")){
+                    mProgressModeEncoding = true;
+                    mProgressText.setText(R.string.share_encoding);
+                } else if (mProgressModeEncoding && !intent.hasExtra("encoding")){
+                    mProgressModeEncoding = false;
+                    mProgressText.setText(R.string.share_uploading);
+                }
             } else if (action.equals(CloudCreateService.UPLOAD_SUCCESS)) {
                  onUploadFinished(true);
             } else if (action.equals(CloudCreateService.UPLOAD_ERROR)) {
