@@ -22,6 +22,7 @@ interface ICloudCreateService
   void startUpload(in Upload upload);
   boolean isUploading();
   void cancelUpload();
+  void cancelUploadById(long id);
   Upload getUploadById(long id);
   long getUploadLocalId();
 }

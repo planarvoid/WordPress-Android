@@ -412,7 +412,6 @@ public class CloudCreateService extends Service {
             stopPlayback();
         }
 
-        upload.upload_id = System.currentTimeMillis();
         upload.upload_status = Upload.UploadStatus.UPLOADING;
         upload.upload_error = false;
         upload.cancelled = false;
@@ -573,14 +572,15 @@ public class CloudCreateService extends Service {
                 mUploadNotificationView.setProgressBar(R.id.progress_bar,
                         progress[1].intValue(), (int) Math.min(progress[1], progress[0]), false);
 
-                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, Math.min(
-                        100, (100 * progress[0]) / progress[1])));
+                final int currentProgress = (int) Math.min(100, (100 * progress[0]) / progress[1]);
+                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, currentProgress));
 
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
 
                 Intent i = new Intent(UPLOAD_PROGRESS);
-                i.putExtra("upload_id", mCurrentUpload.upload_id);
-                i.putExtra("progress", Math.min(100, (100 * progress[0]) / progress[1]));
+                i.putExtra("upload_id", mCurrentUpload.id);
+
+                i.putExtra("progress", currentProgress);
                 sendBroadcast(i);
             }
         }
@@ -615,7 +615,7 @@ public class CloudCreateService extends Service {
             if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
-            intent.putExtra("upload_id", mCurrentUpload.upload_id);
+            intent.putExtra("upload_id", mCurrentUpload.id);
             intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
             sendBroadcast(intent);
 
@@ -634,7 +634,7 @@ public class CloudCreateService extends Service {
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
             Intent intent = new Intent(UPLOAD_ERROR);
-            intent.putExtra("upload_id", mCurrentUpload.upload_id);
+            intent.putExtra("upload_id", mCurrentUpload.id);
             sendBroadcast(intent);
 
             ContentValues cv = new ContentValues();
@@ -665,6 +665,12 @@ public class CloudCreateService extends Service {
     public boolean isUploading() {
         return (mOggTask != null || mResizeTask != null || mUploadTask != null);
     }
+
+    private void cancelUploadById(long id) {
+        // eventually add support for cancelling queued uploads, but not necessary yet
+        if (id == mCurrentUpload.id) cancelUpload();
+    }
+
 
     public void cancelUpload() {
         if (mCurrentUpload == null) return;
@@ -852,6 +858,11 @@ public class CloudCreateService extends Service {
         }
 
         @Override
+        public void cancelUploadById(long id) throws RemoteException {
+            if (mService.get() != null) mService.get().cancelUploadById(id);
+        }
+
+        @Override
         public String getPlaybackPath() throws RemoteException {
             return mService.get() != null ? mService.get().getCurrentPlaybackPath() : null;
         }
@@ -872,6 +883,7 @@ public class CloudCreateService extends Service {
         }
 
     }
+
 
     private final IBinder mBinder = new ServiceStub(this);
 

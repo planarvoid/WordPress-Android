@@ -55,7 +55,6 @@ public class Upload extends BaseObj implements Parcelable {
     public boolean streamable;
     public boolean is_native_recording;
 
-    public long upload_id;
     public int upload_status;
     public boolean upload_error;
     public boolean cancelled;

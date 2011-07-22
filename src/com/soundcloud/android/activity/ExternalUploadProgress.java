@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
+import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -26,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -38,7 +40,9 @@ public class ExternalUploadProgress extends Activity {
     private Upload mUpload;
 
     private ProgressBar mProgressBar;
-    private TextView mUploadingTxt;
+    private RelativeLayout mUploadingLayout;
+    private RelativeLayout mFinishedLayout;
+    private ImageView mCancel;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -60,9 +64,23 @@ public class ExternalUploadProgress extends Activity {
         playbackFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
         registerReceiver(mUploadStatusListener, new IntentFilter(playbackFilter));
 
-        mUploadingTxt = (TextView) findViewById(R.id.uploading);
+        mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
+        mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
+
+        mCancel = (ImageView) findViewById(R.id.close_icon);
+        mCancel.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                if (mCreateService != null) try {
+                    mCreateService.cancelUploadById(mUploadId);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void fillDataFromUpload(){
@@ -140,12 +158,14 @@ public class ExternalUploadProgress extends Activity {
     };
 
     private void onUploadFinished(boolean success) {
-        mProgressBar.setVisibility(View.GONE);
-        mUploadingTxt.setVisibility(View.GONE);
+        mUploadingLayout.setVisibility(View.GONE);
+        mFinishedLayout.setVisibility(View.VISIBLE);
         if (success){
-            Log.i("asdf","UPLOAD SUCCESS");
+            ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.success);
+            ((TextView) findViewById(R.id.result_message)).setText(R.string.share_success_message);
         } else {
-            Log.i("asdf","UPLOAD FAILED");
+            ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
+            ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
         }
     }
 
