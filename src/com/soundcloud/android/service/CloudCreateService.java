@@ -417,7 +417,7 @@ public class CloudCreateService extends Service {
         if (upload.local_recording_id != 0){
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADING);
-            getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ upload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ upload.local_recording_id, null);
         }
 
         upload.upload_status = Upload.UploadStatus.UPLOADING;
@@ -732,7 +732,7 @@ public class CloudCreateService extends Service {
     }
 
     public long getUploadLocalId() {
-        return (mCurrentUpload != null && mCurrentUpload.upload_status == Upload.UploadStatus.NOT_YET_UPLOADED)
+        return (mCurrentUpload != null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING)
                 ? mCurrentUpload.local_recording_id : 0;
     }
 
