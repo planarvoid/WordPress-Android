@@ -130,8 +130,6 @@ public class ExternalUploadProgress extends Activity {
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
 
-        Log.i("asdf","Fill Data From Upload  " + mUpload.upload_status + " " + mUpload.upload_error);
-
         if (mUpload.upload_status == Upload.UploadStatus.UPLOADED) {
             onUploadFinished(true);
         } else if (mUpload.upload_status != Upload.UploadStatus.UPLOADING && mUpload.upload_error) {

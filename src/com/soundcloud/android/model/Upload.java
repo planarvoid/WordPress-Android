@@ -45,7 +45,6 @@ public class Upload extends BaseObj implements Parcelable {
     public String title;
     public String type;
     public String tag_list;
-    public String ogg_filename;
     public String description;
     public String genre;
     public String service_ids;
@@ -172,7 +171,7 @@ public class Upload extends BaseObj implements Parcelable {
 
         if (!r.external_upload) {
             if (r.audio_profile == Profile.RAW) {
-                ogg_filename = r.generateUploadFilename(title).getAbsolutePath();
+                encodedFile = new File(r.generateUploadFilename(title).getAbsolutePath());
                 encode = true;
             }
             is_native_recording = true;
