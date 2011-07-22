@@ -620,6 +620,9 @@ public class CloudCreateService extends Service {
         CharSequence notificationTitle;
         CharSequence notificationMessage;
 
+        Intent i = (new Intent(this, ExternalUploadProgress.class))
+                .putExtra("upload", mCurrentUpload);
+
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;
             mCurrentUpload.upload_error = false;
@@ -631,10 +634,10 @@ public class CloudCreateService extends Service {
             if (mCurrentUpload.is_native_recording && params.encode && params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
             if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
 
-            Intent intent = new Intent(UPLOAD_SUCCESS);
-            intent.putExtra("upload_id", mCurrentUpload.id);
-            intent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
-            sendBroadcast(intent);
+            Intent broadcastIntent = new Intent(UPLOAD_SUCCESS);
+            broadcastIntent.putExtra("upload_id", mCurrentUpload.id);
+            broadcastIntent.putExtra("isPrivate", params.get(com.soundcloud.api.Params.Track.SHARING).equals(com.soundcloud.api.Params.Track.PRIVATE));
+            sendBroadcast(broadcastIntent);
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADED);
@@ -650,9 +653,9 @@ public class CloudCreateService extends Service {
             notificationMessage = String.format(getString(R.string.cloud_uploader_notification_error_message),
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
-            Intent intent = new Intent(UPLOAD_ERROR);
-            intent.putExtra("upload_id", mCurrentUpload.id);
-            sendBroadcast(intent);
+            Intent broadcastIntent = new Intent(UPLOAD_ERROR);
+            broadcastIntent.putExtra("upload_id", mCurrentUpload.id);
+            sendBroadcast(broadcastIntent);
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_ERROR, true);
@@ -665,10 +668,6 @@ public class CloudCreateService extends Service {
         CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
-
-
-        Intent i = (new Intent(this, ExternalUploadProgress.class))
-                .putExtra("upload", mCurrentUpload);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(icon, tickerText, when);
