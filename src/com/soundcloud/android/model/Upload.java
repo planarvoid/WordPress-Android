@@ -53,14 +53,16 @@ public class Upload extends BaseObj implements Parcelable {
     public boolean encode;
     public boolean downloadable;
     public boolean streamable;
-    public boolean delete_after;
+    public boolean is_native_recording;
 
     public long upload_id;
     public int upload_status;
     public boolean upload_error;
+    public boolean cancelled;
 
-    public File trackFile;
-    public File artworkFile;
+    public String trackPath;
+    public String artworkPath;
+
     public File encodedFile;
 
     public static final String LOCAL_RECORDING_ID = "local_recording_id";
@@ -70,7 +72,6 @@ public class Upload extends BaseObj implements Parcelable {
     public static final String ENCODE = "encode";
     public static final String DELETE_AFTER = "delete_after";
 
-
     public static interface UploadStatus {
         int NOT_YET_UPLOADED    = 0;
         int UPLOADING           = 1;
@@ -79,22 +80,20 @@ public class Upload extends BaseObj implements Parcelable {
 
     public Upload(Map<String,?> uploadData) {
 
+        id = System.currentTimeMillis();
+
         if (!uploadData.containsKey(SOURCE_PATH)) {
             throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);
         }
 
-        trackFile = new File(String.valueOf(uploadData.get(SOURCE_PATH)));
-
-        final String artwork_path = String.valueOf(uploadData.get(ARTWORK_PATH));
-        artworkFile = artwork_path == null ? null : new File(artwork_path);
+        trackPath = String.valueOf(uploadData.get(SOURCE_PATH));
+        artworkPath = String.valueOf(uploadData.get(ARTWORK_PATH));
 
         title = String.valueOf(uploadData.get(Params.Track.TITLE));
         type = String.valueOf(uploadData.get(Params.Track.TYPE));
         tag_list = String.valueOf(uploadData.get(Params.Track.TAG_LIST));
         sharing = String.valueOf(uploadData.get(Params.Track.SHARING));
         sharing_note = String.valueOf(uploadData.get(Params.Track.SHARING_NOTE));
-
-
         description = String.valueOf(uploadData.get(Params.Track.DESCRIPTION));
         genre = String.valueOf(uploadData.get(Params.Track.GENRE));
 
@@ -114,12 +113,14 @@ public class Upload extends BaseObj implements Parcelable {
 
     public Upload(Recording r){
 
+        id = System.currentTimeMillis();
+
         // defaults
         downloadable = false;
         streamable = true;
 
-        trackFile = new File(r.audio_path.getAbsolutePath());
-        if (r.artwork_path != null) artworkFile = new File(r.artwork_path.getAbsolutePath());
+        trackPath = r.audio_path.getAbsolutePath();
+        if (r.artwork_path != null) artworkPath = r.artwork_path.getAbsolutePath();
 
         title = r.sharingNote();
         type = "recording";
@@ -175,7 +176,7 @@ public class Upload extends BaseObj implements Parcelable {
                 ogg_filename = r.generateUploadFilename(title).getAbsolutePath();
                 encode = true;
             }
-            delete_after = true;
+            is_native_recording = true;
         }
     }
 
@@ -204,8 +205,6 @@ public class Upload extends BaseObj implements Parcelable {
     public Upload(Parcel in) {
         readFromParcel(in);
     }
-
-
 
     public static final Creator<Upload> CREATOR = new Creator<Upload>() {
         public Upload createFromParcel(Parcel in) {

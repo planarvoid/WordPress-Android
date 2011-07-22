@@ -130,11 +130,10 @@ public class ImageUtils {
         return BitmapFactory.decodeStream(input);
     }
 
-    public static boolean setImage(File imageFile, ImageView imageView, DisplayMetrics metrics) {
+    public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
         Bitmap bitmap;
         try {
-            final int viewDimension = (int) (metrics.density * 100f);
-            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewDimension, viewDimension);
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight);
 
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
@@ -147,18 +146,18 @@ public class ImageUtils {
 
             // assumes height and width are the same
             if (bitmap.getWidth() > bitmap.getHeight()) {
-                scale = (float) viewDimension / (float) bitmap.getHeight();
-                dx = (viewDimension - bitmap.getWidth() * scale) * 0.5f;
+                scale = (float) viewHeight / (float) bitmap.getHeight();
+                dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
             } else {
-                scale = (float) viewDimension / (float) bitmap.getWidth();
-                dy = (viewDimension - bitmap.getHeight() * scale) * 0.5f;
+                scale = (float) viewWidth / (float) bitmap.getWidth();
+                dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
             }
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
             int exifRotation = getExifRotation(imageFile.getAbsolutePath());
             if (exifRotation != 0) {
-                m.postRotate(exifRotation, viewDimension / 2, viewDimension / 2);
+                m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
             }
 
             imageView.setScaleType(ImageView.ScaleType.MATRIX);

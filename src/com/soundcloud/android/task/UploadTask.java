@@ -13,6 +13,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -31,9 +32,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public File encodedFile;
         public File trackFile;
         public boolean encode;
-        public File resizedFile
-                ;
-
+        public File resizedFile;
 
         public String get(String s) {
             return map.get(s).toString();
@@ -42,9 +41,9 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public Params(Upload upload) {
             map = upload.toTrackMap();
             encode = upload.encode;
-            trackFile = upload.trackFile;
+            trackFile = new File(upload.trackPath);
             encodedFile = upload.encodedFile;
-            artworkFile = upload.artworkFile;
+            if (!TextUtils.isEmpty(upload.artworkPath)) artworkFile = new File(upload.artworkPath);
         }
 
         public Params fail() {

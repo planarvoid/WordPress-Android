@@ -132,7 +132,8 @@ public class AddInfo extends Activity {
 
     private void setImage(final File file) {
         mAvatarFile = file;
-        ImageUtils.setImage(file, mArtwork, getResources().getDisplayMetrics());
+        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),
+                (int) (getResources().getDisplayMetrics().density * 100f));
     }
 
     public void clearArtwork() {

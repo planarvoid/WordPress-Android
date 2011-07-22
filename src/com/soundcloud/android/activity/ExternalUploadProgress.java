@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -22,7 +23,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -31,36 +34,23 @@ import java.io.IOException;
 public class ExternalUploadProgress extends Activity {
 
     protected ICloudCreateService mCreateService;
-    private String mUploadSourcePath;
+    private long mUploadId;
+    private Upload mUpload;
+
+    private ProgressBar mProgressBar;
+    private TextView mUploadingTxt;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.external_upload_progress);
 
         Intent i = getIntent();
-
-        ((TextView) findViewById(R.id.track)).setText(i.getStringExtra("title"));
-        if (!TextUtils.isEmpty(i.getStringExtra("artworkPath"))) {
-            final File artworkFile = new File(i.getStringExtra("artworkPath"));
-            ImageLoader.BindResult result;
-            ImageLoader.Options options = new ImageLoader.Options();
-            try {
-                options.decodeInSampleSize = ImageUtils.determineResizeOptions(
-                        artworkFile,
-                        (int) (getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
-                        (int) (getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
-            } catch (IOException e) {
-                Log.w(TAG, "error", e);
-            }
-            ImageLoader.get(getApplicationContext()).bind(((ImageView) findViewById(R.id.icon)), artworkFile.getAbsolutePath(), new ImageLoader.ImageViewCallback() {
-                @Override
-                public void onImageLoaded(ImageView view, String url) {
-                }
-
-                @Override
-                public void onImageError(ImageView view, String url, Throwable error) {
-                }
-            }, options);
+        if (i.hasExtra("upload_id")){
+            mUploadId = i.getLongExtra("upload_id", 0);
+        } else {
+            mUpload = i.getParcelableExtra("upload");
+            fillDataFromUpload();
         }
 
         IntentFilter playbackFilter = new IntentFilter();
@@ -70,6 +60,63 @@ public class ExternalUploadProgress extends Activity {
         playbackFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
         registerReceiver(mUploadStatusListener, new IntentFilter(playbackFilter));
 
+        mUploadingTxt = (TextView) findViewById(R.id.uploading);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mProgressBar.setMax(100);
+    }
+
+    private void fillDataFromUpload(){
+        if (mUpload == null){
+            throw new IllegalArgumentException("No Upload found");
+        }
+
+        mUploadId = mUpload.id;
+
+        ((TextView) findViewById(R.id.track)).setText(mUpload.title);
+        if (!TextUtils.isEmpty(mUpload.artworkPath)) {
+            final File artworkFile = new File(mUpload.artworkPath);
+            ImageUtils.setImage(new File(mUpload.artworkPath), ((ImageView) findViewById(R.id.icon)),
+                    (int) getResources().getDimension(R.dimen.share_progress_icon_width),
+                    (int) getResources().getDimension(R.dimen.share_progress_icon_height));
+        }
+
+        if (mUpload.upload_status == Upload.UploadStatus.UPLOADED) {
+            onUploadFinished(true);
+        } else if (mUpload.upload_status != Upload.UploadStatus.UPLOADING && mUpload.upload_error) {
+            onUploadFinished(false);
+        }
+    }
+
+     private ServiceConnection createOsc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            mCreateService = (ICloudCreateService) binder;
+            if (mUpload == null){
+                try {
+                    mUpload = mCreateService.getUploadById(mUploadId);
+                    fillDataFromUpload();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) { }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
+    }
+
+    /**
+     * Unbind our services
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        CloudUtils.unbindFromService(this, CloudCreateService.class);
+        mCreateService = null;
     }
 
     private BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
@@ -79,10 +126,27 @@ public class ExternalUploadProgress extends Activity {
 
             String action = intent.getAction();
             if (action.equals(CloudCreateService.UPLOAD_PROGRESS)) {
-
+                 if (intent.getLongExtra("upload_id", -1) == mUploadId){
+                      mProgressBar.setProgress(intent.getIntExtra("progress",0));
+                 }
             } else if (action.equals(CloudCreateService.UPLOAD_SUCCESS)) {
-
+                 onUploadFinished(true);
+            } else if (action.equals(CloudCreateService.UPLOAD_ERROR)) {
+                 onUploadFinished(false);
+            } else if (action.equals(CloudCreateService.UPLOAD_CANCELLED)) {
+                finish();
             }
         }
     };
+
+    private void onUploadFinished(boolean success) {
+        mProgressBar.setVisibility(View.GONE);
+        mUploadingTxt.setVisibility(View.GONE);
+        if (success){
+            Log.i("asdf","UPLOAD SUCCESS");
+        } else {
+            Log.i("asdf","UPLOAD FAILED");
+        }
+    }
+
 }

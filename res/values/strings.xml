@@ -492,5 +492,8 @@
 
     <string name="share_to_soundcloud">&lt;b>Share&lt;/b> to &lt;b>SoundCloud&lt;/b></string>
     <string name="share_log_out">Log out</string>
-    <string name="share_uploading">Uploading</string>
+    <string name="share_uploading">Uploading...</string>
+    <string name="share_success_message">Yay, that worked!</string>
+    <string name="share_fail_message">Ok, that went wrong.</string>
+    <string name="share_retry_upload">Retry upload</string>
 </resources>

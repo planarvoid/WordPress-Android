@@ -5,4 +5,7 @@
 
     <dimen name="share_user_icon_width">47px</dimen>
     <dimen name="share_user_icon_height">47px</dimen>
+
+    <dimen name="share_progress_icon_width">100px</dimen>
+    <dimen name="share_progress_icon_height">100px</dimen>
 </resources>

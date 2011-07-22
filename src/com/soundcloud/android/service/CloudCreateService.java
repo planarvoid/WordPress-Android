@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CloudCreateService extends Service {
@@ -87,8 +88,6 @@ public class CloudCreateService extends Service {
 
     private int mServiceStartId = -1;
 
-    private boolean mCurrentUploadCancelled = false;
-
     private long mRecordStartTime;
 
     private int frameCount;
@@ -101,6 +100,7 @@ public class CloudCreateService extends Service {
     private String mPlaybackTitle;
 
     private Upload mCurrentUpload;
+    private HashMap<Long,Upload> mUploadMap;
 
 
     @Override
@@ -146,6 +146,8 @@ public class CloudCreateService extends Service {
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mPlayer.setOnCompletionListener(completionListener);
         mPlayer.setOnErrorListener(errorListener);
+
+        mUploadMap = new HashMap<Long, Upload>();
     }
 
     @Override
@@ -404,36 +406,43 @@ public class CloudCreateService extends Service {
     private void startUpload(final Upload upload) {
         acquireWakeLock();
 
-        if (mPlaybackFile != null && mPlaybackFile.equals(upload.trackFile)) {
+        mUploadMap.put(upload.id,upload);
+
+        if (mPlaybackFile != null && mPlaybackFile.getAbsolutePath().equals(upload.trackPath)) {
             stopPlayback();
         }
 
         upload.upload_id = System.currentTimeMillis();
+        upload.upload_status = Upload.UploadStatus.UPLOADING;
+        upload.upload_error = false;
+        upload.cancelled = false;
         mCurrentUpload = upload;
 
-        Log.i("asdf","Start Upload " + upload.title);
-
-        mCurrentUploadCancelled = false;
-
-        Intent i = (new Intent(this, ExternalUploadProgress.class))
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("upload", upload);
-
-
-        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
-        mUploadNotificationView.setTextViewText(R.id.message, upload.title);
-        mUploadNotificationView.setTextViewText(R.id.percentage, "0");
-        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
-
-        mUploadNotification = createOngoingNotification( getString(R.string.cloud_uploader_notification_ticker),
-                PendingIntent.getActivity(this, 0, i, 0));
-
-        mUploadNotification.contentView = mUploadNotificationView;
-        startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
+        sendUploadingNotification();
 
         mOggTask = new EncodeOggTask();
         mOggTask.execute(new Params[] { new Params(upload) });
+    }
+
+    private boolean sendUploadingNotification(){
+        if (mCurrentUpload == null) return false;
+
+        Intent i = (new Intent(this, ExternalUploadProgress.class))
+                .putExtra("upload_id", mCurrentUpload.id);
+
+
+        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
+        mUploadNotificationView.setTextViewText(R.id.message, mCurrentUpload.title);
+        mUploadNotificationView.setTextViewText(R.id.percentage, "0");
+        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
+
+        mUploadNotification = createOngoingNotification(getString(R.string.cloud_uploader_notification_ticker),
+                PendingIntent.getActivity(this, 0, i, 0));
+
+        mUploadNotification.contentView = mUploadNotificationView;
+
+        startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
+        return true;
     }
 
     private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
@@ -468,7 +477,7 @@ public class CloudCreateService extends Service {
         @Override
         protected void onPostExecute(UploadTask.Params param) {
             mOggTask = null;
-            if (!isCancelled() && !mCurrentUploadCancelled && param.isSuccess()) {
+            if (!isCancelled() && !mCurrentUpload.cancelled && param.isSuccess()) {
                 if (param.encode && param.trackFile.exists()) {
 
                     //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
@@ -485,8 +494,11 @@ public class CloudCreateService extends Service {
                     int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
                     Log.d(TAG, x + " row(s) audio path updated.");
 
-                    mCurrentUpload.trackFile = mCurrentUpload.encodedFile;
+                    mCurrentUpload.trackPath = mCurrentUpload.encodedFile.getAbsolutePath();
                     mCurrentUpload.encode = false;
+
+                    // resend uploading notification with updated upload parcelable
+                    sendUploadingNotification();
 
                     // XXX always delete here?
                     param.trackFile.delete();
@@ -500,7 +512,7 @@ public class CloudCreateService extends Service {
                     mResizeTask = new ImageResizeTask(mUploadTask);
                     mResizeTask.execute(param);
                 }
-            } else if (!mCurrentUploadCancelled) notifyUploadCurrentUploadFinished(param);
+            } else if (!mCurrentUpload.cancelled) notifyUploadCurrentUploadFinished(param);
         }
     }
 
@@ -516,9 +528,9 @@ public class CloudCreateService extends Service {
         @Override
         protected void onPostExecute(UploadTask.Params result) {
             mResizeTask = null;
-            if (result.isSuccess() && !isCancelled() && !mCurrentUploadCancelled) {
+            if (result.isSuccess() && !isCancelled() && !mCurrentUpload.cancelled) {
                 nextTask.execute(result);
-            } else if (!mCurrentUploadCancelled) {
+            } else if (!mCurrentUpload.cancelled) {
                 notifyUploadCurrentUploadFinished(result);
             }
         }
@@ -577,7 +589,7 @@ public class CloudCreateService extends Service {
         protected void onPostExecute(UploadTask.Params result) {
             if (isCancelled()) result.fail();
             mUploadTask = null;
-            if (!mCurrentUploadCancelled) {
+            if (!mCurrentUpload.cancelled) {
                 notifyUploadCurrentUploadFinished(result);
             }
         }
@@ -599,7 +611,7 @@ public class CloudCreateService extends Service {
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
             // XXX make really, really sure 3rd party uploads don't get deleted
-            if (mCurrentUpload.delete_after && params.encode && params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
+            if (mCurrentUpload.is_native_recording && params.encode && params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
             if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
 
             Intent intent = new Intent(UPLOAD_SUCCESS);
@@ -637,11 +649,8 @@ public class CloudCreateService extends Service {
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
 
-        Intent i = (new Intent(this, Main.class))
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setAction(Intent.ACTION_MAIN)
+
+        Intent i = (new Intent(this, ExternalUploadProgress.class))
                 .putExtra("upload", mCurrentUpload);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
@@ -658,7 +667,9 @@ public class CloudCreateService extends Service {
     }
 
     public void cancelUpload() {
-        mCurrentUploadCancelled = true;
+        if (mCurrentUpload == null) return;
+
+        mCurrentUpload.cancelled = true;
 
         if (mOggTask != null && !isTaskFinished(mOggTask)) {
             mOggTask.cancel(true);
@@ -699,6 +710,11 @@ public class CloudCreateService extends Service {
     public long getUploadLocalId() {
         return (mCurrentUpload != null && mCurrentUpload.upload_status == Upload.UploadStatus.NOT_YET_UPLOADED)
                 ? mCurrentUpload.local_recording_id : 0;
+    }
+
+    private Upload getUploadById(long id) {
+        Log.i("asdf","Get upload from map " + mUploadMap.size());
+        return mUploadMap.get(id);
     }
 
     private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent){
@@ -841,6 +857,11 @@ public class CloudCreateService extends Service {
         }
 
         @Override
+        public Upload getUploadById(long id) throws RemoteException {
+            return mService.get() != null ? mService.get().getUploadById(id) : null;
+        }
+
+        @Override
         public long getUploadLocalId() throws RemoteException {
             return mService.get() != null ? mService.get().getUploadLocalId() : 0;
         }
@@ -851,6 +872,7 @@ public class CloudCreateService extends Service {
         }
 
     }
+
     private final IBinder mBinder = new ServiceStub(this);
 
 
