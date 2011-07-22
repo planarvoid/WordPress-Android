@@ -2,13 +2,10 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -29,9 +26,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ExternalUploadProgress extends Activity {
 
@@ -42,22 +39,16 @@ public class ExternalUploadProgress extends Activity {
     private ProgressBar mProgressBar;
     private RelativeLayout mUploadingLayout;
     private RelativeLayout mFinishedLayout;
-    private ImageView mCancel;
+    private RelativeLayout mControlLayout;
 
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.external_upload_progress);
 
-        Intent i = getIntent();
-        if (i.hasExtra("upload_id")){
-            mUploadId = i.getLongExtra("upload_id", 0);
-        } else {
-            mUpload = i.getParcelableExtra("upload");
-            fillDataFromUpload();
-        }
 
         IntentFilter playbackFilter = new IntentFilter();
+        playbackFilter.addAction(CloudCreateService.UPLOAD_STARTED);
         playbackFilter.addAction(CloudCreateService.UPLOAD_PROGRESS);
         playbackFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
         playbackFilter.addAction(CloudCreateService.UPLOAD_ERROR);
@@ -66,21 +57,62 @@ public class ExternalUploadProgress extends Activity {
 
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
         mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
+        mControlLayout = (RelativeLayout) findViewById(R.id.control_layout);
+
+        mFinishedLayout.setVisibility(View.GONE);
+        mControlLayout.setVisibility(View.GONE);
+
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
 
-        mCancel = (ImageView) findViewById(R.id.close_icon);
-        mCancel.setOnClickListener(new View.OnClickListener(){
-
+        findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCreateService != null) try {
+                if (mCreateService == null) return;
+                try {
                     mCreateService.cancelUploadById(mUploadId);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
         });
+
+        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        findViewById(R.id.btn_retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCreateService == null) return;
+                try {
+                    if (mCreateService.startUpload(mUpload)) return;
+                } catch (RemoteException e) {
+                    Log.e(TAG, "error", e);
+                }
+
+                Toast.makeText(ExternalUploadProgress.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
+
+            }
+        });
+
+        Intent i = getIntent();
+        if (i.hasExtra("upload")){
+            mUpload = i.getParcelableExtra("upload");
+            fillDataFromUpload();
+        } else {
+            mUploadId = i.getLongExtra("upload_id", 0);
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mUploadStatusListener);
     }
 
     private void fillDataFromUpload(){
@@ -97,6 +129,8 @@ public class ExternalUploadProgress extends Activity {
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
+
+        Log.i("asdf","Fill Data From Upload  " + mUpload.upload_status + " " + mUpload.upload_error);
 
         if (mUpload.upload_status == Upload.UploadStatus.UPLOADED) {
             onUploadFinished(true);
@@ -143,7 +177,14 @@ public class ExternalUploadProgress extends Activity {
             if (mCreateService == null) return;
 
             String action = intent.getAction();
-            if (action.equals(CloudCreateService.UPLOAD_PROGRESS)) {
+            if (action.equals(CloudCreateService.UPLOAD_STARTED)) {
+                if (intent.getLongExtra("upload_id", -1) == mUploadId) {
+                    // from a retry
+                    mUploadingLayout.setVisibility(View.VISIBLE);
+                    mFinishedLayout.setVisibility(View.GONE);
+                    mProgressBar.setProgress(0);
+                }
+            } else if (action.equals(CloudCreateService.UPLOAD_PROGRESS)) {
                  if (intent.getLongExtra("upload_id", -1) == mUploadId){
                       mProgressBar.setProgress(intent.getIntExtra("progress",0));
                  }
@@ -166,6 +207,7 @@ public class ExternalUploadProgress extends Activity {
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
+            mControlLayout.setVisibility(View.VISIBLE);
         }
     }
 

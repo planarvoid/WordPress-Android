@@ -54,6 +54,7 @@ public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
 
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
+    public static final String UPLOAD_STARTED    = "com.sound.android.fileuploadstarted";
     public static final String UPLOAD_PROGRESS    = "com.sound.android.fileuploadprogress";
     public static final String UPLOAD_SUCCESS    = "com.sound.android.fileuploadsuccessful";
     public static final String UPLOAD_ERROR      = "com.sound.android.fileuploaderror";
@@ -403,13 +404,20 @@ public class CloudCreateService extends Service {
 
 
     @SuppressWarnings("unchecked")
-    private void startUpload(final Upload upload) {
+    private boolean startUpload(final Upload upload) {
+        if (mCurrentUpload!= null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING) return false;
         acquireWakeLock();
 
         mUploadMap.put(upload.id,upload);
 
         if (mPlaybackFile != null && mPlaybackFile.getAbsolutePath().equals(upload.trackPath)) {
             stopPlayback();
+        }
+
+        if (upload.local_recording_id != 0){
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADING);
+            getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ upload.local_recording_id, null);
         }
 
         upload.upload_status = Upload.UploadStatus.UPLOADING;
@@ -419,8 +427,13 @@ public class CloudCreateService extends Service {
 
         sendUploadingNotification();
 
+        Intent i = new Intent(UPLOAD_STARTED);
+        i.putExtra("upload_id", mCurrentUpload.id);
+        sendBroadcast(i);
+
         mOggTask = new EncodeOggTask();
         mOggTask.execute(new Params[] { new Params(upload) });
+        return true;
     }
 
     private boolean sendUploadingNotification(){
@@ -653,7 +666,7 @@ public class CloudCreateService extends Service {
         Intent i = (new Intent(this, ExternalUploadProgress.class))
                 .putExtra("upload", mCurrentUpload);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(icon, tickerText, when);
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(this,notificationTitle ,notificationMessage , contentIntent);
@@ -667,6 +680,7 @@ public class CloudCreateService extends Service {
     }
 
     private void cancelUploadById(long id) {
+        if (mCurrentUpload == null) return;
         // eventually add support for cancelling queued uploads, but not necessary yet
         if (id == mCurrentUpload.id) cancelUpload();
     }
@@ -719,7 +733,6 @@ public class CloudCreateService extends Service {
     }
 
     private Upload getUploadById(long id) {
-        Log.i("asdf","Get upload from map " + mUploadMap.size());
         return mUploadMap.get(id);
     }
 
@@ -842,8 +855,9 @@ public class CloudCreateService extends Service {
         }
 
         @Override
-        public void startUpload(Upload upload) throws RemoteException {
-            if (mService.get() != null) mService.get().startUpload(upload);
+        public boolean startUpload(Upload upload) throws RemoteException {
+            return  (mService.get() != null) ? mService.get().startUpload(upload) : false;
+
         }
 
 

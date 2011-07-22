@@ -52,6 +52,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -310,28 +311,13 @@ public abstract class ScActivity extends Activity {
     public boolean startUpload(Recording r) {
         if (mCreateService == null) return false;
 
-        boolean uploading;
         try {
-            uploading = mCreateService.isUploading();
+            if (mCreateService.startUpload(new Upload(r))) return true;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
-            uploading = true;
         }
 
-        if (!uploading) {
-            r.upload_status = Upload.UploadStatus.UPLOADING;
-            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
-            try {
-                mCreateService.startUpload(new Upload(r));
-                return true;
-            } catch (RemoteException ignored) {
-                Log.e(TAG, "error", ignored);
-            }
-
-        } else {
-            showToast(R.string.wait_for_upload_to_finish);
-        }
-
+        showToast(R.string.wait_for_upload_to_finish);
         return false;
     }
 

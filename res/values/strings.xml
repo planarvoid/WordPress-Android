@@ -496,4 +496,5 @@
     <string name="share_success_message">Yay, that worked!</string>
     <string name="share_fail_message">Ok, that went wrong.</string>
     <string name="share_retry_upload">Retry upload</string>
+    <string name="share_cancel">Cancel</string>
 </resources>

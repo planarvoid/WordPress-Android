@@ -19,7 +19,7 @@ interface ICloudCreateService
   String getPlaybackPath();
   long getPlaybackLocalId();
   void uploadTrack(in Map trackdata);
-  void startUpload(in Upload upload);
+  boolean startUpload(in Upload upload);
   boolean isUploading();
   void cancelUpload();
   void cancelUploadById(long id);

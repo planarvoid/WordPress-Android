@@ -291,8 +291,7 @@ public class ScUpload extends ScActivity {
 
     public void setImage(File file) {
         mArtworkFile = file;
-        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),
-                (int) (getResources().getDisplayMetrics().density * 100f));
+        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
     }
 
     // for testing purposes
