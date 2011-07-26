@@ -559,6 +559,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     }
 
+
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
@@ -573,6 +574,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     setSelection(1);
                     return;
                 }
+            } else if (mFooterView.getLayoutParams().height != 0){
+                mFooterView.getLayoutParams().height = 0;
             }
 
             if (mRefreshState == DONE_REFRESHING) {
@@ -584,8 +587,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
             resetHeader();
 
-        }
 
+        } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
+            mFooterView.getLayoutParams().height = 0;
+        }
     }
 
 
