@@ -583,8 +583,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                         scrollPastHeader();
                     }
                 });
+                resetHeader();
+            } else if (!mAutoScrolling){
+                setSelection(1);
             }
-            resetHeader();
+
 
 
         } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
