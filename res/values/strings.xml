@@ -498,4 +498,7 @@
     <string name="share_fail_message">Ok, that went wrong.</string>
     <string name="share_retry_upload">Retry upload</string>
     <string name="share_cancel">Cancel</string>
+
+    <string name="tracklist_item_shared_with_x_people">%d People</string>
+    <string name="tracklist_item_shared_with_you">You</string>
 </resources>

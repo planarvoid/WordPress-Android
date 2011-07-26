@@ -31,6 +31,7 @@ public class TracklistRow extends LazyRow {
     protected TextView mUser;
     protected TextView mTitle;
     protected TextView mCreatedAt;
+    protected TextView mPrivateIndicator;
 
     protected ImageButton mPlayBtn;
     protected ImageButton mFavoriteBtn;
@@ -38,7 +39,7 @@ public class TracklistRow extends LazyRow {
     protected ImageButton mCommentBtn;
     protected ImageButton mShareBtn;
 
-    protected Drawable mPrivateDrawable;
+    private Drawable mPrivateDrawable;
 
     protected RelativeLayout mTrackInfoRow;
 
@@ -52,6 +53,7 @@ public class TracklistRow extends LazyRow {
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
+        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
         mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
@@ -222,9 +224,14 @@ public class TracklistRow extends LazyRow {
         }
 
         if (mTrack.sharing.contentEquals("public")) {
-            mTitle.setCompoundDrawables(null,null,null,null);
+            mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            mTitle.setCompoundDrawablesWithIntrinsicBounds(null,null,getPrivateDrawable(),null);
+            if (mTrack.shared_to_count == 1){
+                mPrivateIndicator.setText(mActivity.getString(R.string.tracklist_item_shared_with_you));
+            } else {
+                mPrivateIndicator.setText(mActivity.getString(R.string.tracklist_item_shared_with_x_people,mTrack.shared_to_count));
+            }
+            mPrivateIndicator.setVisibility(View.GONE);
         }
 
         _isFavorite = mTrack.user_favorite;
