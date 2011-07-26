@@ -172,7 +172,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     public int getSolidColor() {
-        return 0xAAFFFFFF;
+        return 0xAA000000;
     }
 
     public void enableLongClickListener() {
