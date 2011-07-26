@@ -15,7 +15,7 @@
                 android:src="@drawable/avatar_badge_large"
                 android:gravity="top"/>
 
-        <RelativeLayout android:layout_width="wrap_content"
+        <RelativeLayout android:layout_width="0dp"
                         android:layout_marginLeft="@dimen/user_browser_info_margin_left"
                         android:layout_weight="1"
                         android:layout_height="wrap_content">
@@ -76,7 +76,7 @@
                                       android:fillViewport="true" >
 
                     <TabWidget android:id="@android:id/tabs"
-                            android:layout_width="fill_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@color/listSeperator"/>
                 </HorizontalScrollView>

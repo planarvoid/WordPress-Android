@@ -3,7 +3,6 @@
                 android:id="@+id/container"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
-
     <LinearLayout android:id="@+id/main_holder"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
