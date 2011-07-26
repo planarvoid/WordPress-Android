@@ -208,7 +208,7 @@
     <string name='info_empty'>No info available</string>
 
     <string name='info_empty_you'>
-        Your profile is empty. Let people know about you!
+        Your profile is empty.&lt;br/>&lt;br/>Let people know about you!
         Go to
         <a href='http://soundcloud.com/settings'>SoundCloud.com/settings</a>
         to add your profile info.

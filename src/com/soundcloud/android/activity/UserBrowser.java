@@ -641,10 +641,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         if (displayedSomething) {
-            mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.GONE);
+            mDetailsView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
-            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.txt_empty);
-            txtEmpty.setText(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you);
+            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.empty_txt);
+            txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
             txtEmpty.setVisibility(View.VISIBLE);
         }
     }

@@ -538,7 +538,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 int incrementalDeltaY = mLastMotionY != Integer.MIN_VALUE ? (int) event.getY() - mLastMotionY : (int) event.getY();
                 if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH){
                     if (Math.abs(incrementalDeltaY) >= 1) {
-                        final int topPadding = (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7);
+                        final int topPadding = Math.max(mRefreshOriginalTopPadding,(int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7));
                         if (topPadding != mRefreshView.getPaddingTop()) {
                             mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
                                     mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
