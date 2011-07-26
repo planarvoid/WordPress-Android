@@ -1,5 +1,6 @@
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.model.Upload;
 interface ICloudCreateService
 {
   void startRecording(String path, int mode);
@@ -18,8 +19,11 @@ interface ICloudCreateService
   String getPlaybackPath();
   long getPlaybackLocalId();
   void uploadTrack(in Map trackdata);
+  boolean startUpload(in Upload upload);
   boolean isUploading();
   void cancelUpload();
+  void cancelUploadById(long id);
+  Upload getUploadById(long id);
   long getUploadLocalId();
 }
 

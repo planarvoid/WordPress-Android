@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -27,7 +28,6 @@ public class TracklistRow extends LazyRow {
 
     protected ImageView mPlayIndicator;
 
-    protected TextView mPrivateIndicator;
     protected TextView mUser;
     protected TextView mTitle;
     protected TextView mCreatedAt;
@@ -37,6 +37,8 @@ public class TracklistRow extends LazyRow {
     protected ImageButton mProfileBtn;
     protected ImageButton mCommentBtn;
     protected ImageButton mShareBtn;
+
+    protected Drawable mPrivateDrawable;
 
     protected RelativeLayout mTrackInfoRow;
 
@@ -52,8 +54,12 @@ public class TracklistRow extends LazyRow {
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
+    }
+
+    protected Drawable getPrivateDrawable() {
+        if (mPrivateDrawable == null) mPrivateDrawable = mActivity.getResources().getDrawable(R.drawable.very_private);
+        return mPrivateDrawable;
     }
 
     @Override
@@ -216,9 +222,9 @@ public class TracklistRow extends LazyRow {
         }
 
         if (mTrack.sharing.contentEquals("public")) {
-            mPrivateIndicator.setVisibility(View.GONE);
+            mTitle.setCompoundDrawables(null,null,null,null);
         } else {
-            mPrivateIndicator.setVisibility(View.VISIBLE);
+            mTitle.setCompoundDrawablesWithIntrinsicBounds(null,null,getPrivateDrawable(),null);
         }
 
         _isFavorite = mTrack.user_favorite;

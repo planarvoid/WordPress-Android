@@ -35,6 +35,7 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -641,10 +642,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         if (displayedSomething) {
-            mDetailsView.findViewById(R.id.txt_empty).setVisibility(View.GONE);
+            mDetailsView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
-            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.txt_empty);
-            txtEmpty.setText(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you);
+            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.empty_txt);
+            txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
             txtEmpty.setVisibility(View.VISIBLE);
         }
     }
@@ -659,7 +660,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
     @Override
     protected void handleRecordingClick(Recording recording) {
-        if (recording.upload_status == Recording.UploadStatus.UPLOADING)
+        if (recording.upload_status == Upload.UploadStatus.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
             showRecordingDialog(recording);

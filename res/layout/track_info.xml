@@ -1,104 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent" android:layout_height="fill_parent">
-  <ScrollView android:layout_width="fill_parent" android:id="@+id/info_view"
-    android:layout_height="fill_parent">
-    <RelativeLayout android:layout_width="fill_parent"
-      android:layout_height="wrap_content" android:id="@+id/info_holder">
-      <TableLayout android:stretchColumns="*"
-        android:layout_height="wrap_content" android:layout_width="fill_parent"
-        android:id="@+id/tblStats">
-        <TableRow android:layout_width="fill_parent"
-          android:layout_height="wrap_content" android:gravity="center_horizontal">
-          <RelativeLayout android:layout_weight="1" android:layout_marginTop="10dip"
-            android:layout_alignWithParentIfMissing="true">
-            <RelativeLayout android:layout_centerInParent="true"
-              android:layout_width="wrap_content" android:layout_height="wrap_content">
-              <ImageView android:src="@drawable/stats_plays"
-                android:id="@+id/imgPlays" android:layout_toRightOf="@+id/txtPlays"
-                android:layout_width="30dip" android:layout_height="30dip"
-                android:scaleType="center"/>
-              <TextView style="@style/txt_player_track_info_stats"
-                android:id="@+id/txtPlays" android:layout_alignBottom="@id/imgPlays"
-                android:layout_alignTop="@id/imgPlays"/>
-            </RelativeLayout>
-            <View android:background="#ffcccccc"
-              android:layout_height="30dip" android:layout_marginLeft="2dip"
-              android:layout_marginRight="2dip" android:layout_width="1dp"
-              android:id="@+id/vrPlays" android:layout_alignParentRight="true" />
-          </RelativeLayout>
-          <RelativeLayout android:layout_weight="1" android:layout_marginTop="10dip"
-            android:layout_alignWithParentIfMissing="true" android:gravity="center">
-            <RelativeLayout android:layout_centerInParent="true"
-              android:layout_width="wrap_content" android:layout_height="wrap_content">
-              <ImageView android:id="@+id/imgFavorites" android:src="@drawable/stats_favorites"
-                android:layout_toRightOf="@+id/txtFavorites"
-                android:layout_width="30dip" android:layout_height="30dip"
-                android:scaleType="center"/>
-              <TextView style="@style/txt_player_track_info_stats"
-                android:id="@+id/txtFavorites" android:layout_alignBottom="@id/imgFavorites"
-                android:layout_alignTop="@id/imgFavorites"/>
-            </RelativeLayout>
-            <View android:background="#ffcccccc"
-              android:layout_height="30dip" android:layout_marginLeft="2dip"
-              android:layout_marginRight="2dip" android:layout_width="1dp"
-              android:id="@+id/vrFavorites" android:layout_alignParentRight="true" />
-          </RelativeLayout>
-          <RelativeLayout android:layout_weight="1" android:layout_marginTop="10dip"
-            android:layout_alignWithParentIfMissing="true" android:gravity="center">
-            <RelativeLayout android:layout_centerInParent="true"
-              android:layout_width="wrap_content" android:layout_height="wrap_content">
-              <ImageView android:id="@+id/imgDownloads" android:src="@drawable/stats_downloads"
-                android:layout_toRightOf="@+id/txtDownloads"
-                android:layout_width="30dip" android:layout_height="30dip"
-                android:scaleType="center"/>
-              <TextView style="@style/txt_player_track_info_stats"
-                android:id="@+id/txtDownloads" android:layout_alignBottom="@id/imgDownloads"
-                android:layout_alignTop="@id/imgDownloads"/>
-            </RelativeLayout>
-            <View android:background="#ffcccccc"
-              android:layout_height="30dip" android:layout_marginLeft="2dip"
-              android:layout_marginRight="2dip" android:layout_width="1dp"
-              android:id="@+id/vrDownloads" android:layout_alignParentRight="true" />
-          </RelativeLayout>
-          <RelativeLayout android:layout_weight="1" android:layout_marginTop="10dip"
-            android:layout_alignWithParentIfMissing="true" android:gravity="center">
-            <ImageView android:id="@+id/imgComments" android:src="@drawable/stats_comments"
-              android:layout_toRightOf="@+id/txtComments" android:layout_width="30dip"
-              android:layout_height="30dip" android:scaleType="center"/>
-            <TextView style="@style/txt_player_track_info_stats"
-              android:id="@+id/txtComments" android:layout_alignBottom="@id/imgComments"
-              android:layout_alignTop="@id/imgComments"/>
-          </RelativeLayout>
-        </TableRow>
-      </TableLayout>
-      <TextView android:id="@+id/txtInfo"
-        android:layout_height="wrap_content"
-        style="@style/txt_player_track_info"
-        android:padding="3dip"
-        android:linksClickable="true"
-        android:layout_below="@+id/tblStats"
-        android:layout_width="fill_parent"/>
-      <ViewStub
-          android:id="@+id/stub_comments_list"
-          android:inflatedId="@+id/comments_list"
-          android:layout="@layout/info_comments_list"
-          android:layout_below="@+id/txtInfo"
-          android:layout_width="fill_parent"
-          android:layout_height="wrap_content" />
-    </RelativeLayout>
-  </ScrollView>
-  <ViewStub
-    android:id="@+id/stub_loading"
-    android:inflatedId="@+id/loading_layout"
-    android:layout="@layout/track_info_loading_layout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-     />
-  <View android:layout_width="fill_parent"
-    android:layout_alignParentTop="true" android:layout_height="5dip"
-    android:background="@drawable/drop_shadow_down" />
-  <View android:layout_width="fill_parent"
-    android:layout_alignParentBottom="true" android:layout_height="5dip"
-    android:background="@drawable/drop_shadow_up" />
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+    <ScrollView android:layout_width="fill_parent"
+                android:id="@+id/info_view"
+                android:layout_height="fill_parent">
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/info_holder">
+            <LinearLayout android:id="@+id/tblStats"
+                          android:layout_alignParentTop="true"
+                          android:layout_height="wrap_content"
+                          android:layout_width="fill_parent"
+                          android:paddingTop="10dip"
+                          android:paddingBottom="5dip">
+                <RelativeLayout android:layout_weight="1"
+                                android:layout_height="30dip"
+                                android:layout_width="0dp"
+                                android:layout_alignWithParentIfMissing="true">
+                    <TextView style="@style/txt_player_track_info_stats"
+                              android:id="@+id/txtPlays"
+                              android:layout_centerHorizontal="true"
+                              android:layout_width="wrap_content"
+                              android:layout_height="fill_parent"
+                              android:drawablePadding="10dp"
+                              android:drawableRight="@drawable/stats_plays"/>
+                    <View android:background="#ffcccccc"
+                          android:layout_height="fill_parent"
+                          android:layout_marginLeft="2dip"
+                          android:layout_marginRight="2dip"
+                          android:layout_width="1dp"
+                          android:id="@+id/vrPlays"
+                          android:layout_alignParentRight="true"/>
+                </RelativeLayout>
+                <RelativeLayout android:layout_weight="1"
+                                android:layout_height="30dip"
+                                android:layout_width="0dp"
+                                android:layout_alignWithParentIfMissing="true">
+                    <TextView style="@style/txt_player_track_info_stats"
+                              android:id="@+id/txtFavorites"
+                              android:layout_centerHorizontal="true"
+                              android:layout_width="wrap_content"
+                              android:layout_height="fill_parent"
+                              android:drawablePadding="10dp"
+                              android:drawableRight="@drawable/stats_favorites"/>
+                    <View android:background="#ffcccccc"
+                          android:layout_height="fill_parent"
+                          android:layout_marginLeft="2dip"
+                          android:layout_marginRight="2dip"
+                          android:layout_width="1dp"
+                          android:id="@+id/vrPlays"
+                          android:layout_alignParentRight="true"/>
+                </RelativeLayout>
+                <RelativeLayout android:layout_weight="1"
+                                android:layout_height="30dip"
+                                android:layout_width="0dp"
+                                android:layout_alignWithParentIfMissing="true">
+                    <TextView style="@style/txt_player_track_info_stats"
+                              android:id="@+id/txtDownloads"
+                              android:layout_centerHorizontal="true"
+                              android:layout_width="wrap_content"
+                              android:layout_height="fill_parent"
+                              android:drawablePadding="10dp"
+                              android:drawableRight="@drawable/stats_downloads"/>
+                    <View android:background="#ffcccccc"
+                          android:layout_height="fill_parent"
+                          android:layout_marginLeft="2dip"
+                          android:layout_marginRight="2dip"
+                          android:layout_width="1dp"
+                          android:id="@+id/vrPlays"
+                          android:layout_alignParentRight="true"/>
+                </RelativeLayout>
+                <RelativeLayout android:layout_weight="1"
+                                android:layout_height="30dip"
+                                android:layout_width="0dp"
+                                android:layout_alignWithParentIfMissing="true">
+                    <TextView style="@style/txt_player_track_info_stats"
+                              android:id="@+id/txtComments"
+                              android:layout_centerHorizontal="true"
+                              android:layout_width="wrap_content"
+                              android:layout_height="fill_parent"
+                              android:drawablePadding="10dp"
+                              android:drawableRight="@drawable/stats_comments"/>
+                </RelativeLayout>
+            </LinearLayout>
+            <TextView android:id="@+id/txtInfo"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_player_track_info"
+                      android:padding="3dip"
+                      android:linksClickable="true"
+                      android:layout_below="@+id/tblStats"
+                      android:layout_width="fill_parent"/>
+            <ViewStub android:id="@+id/stub_comments_list"
+                      android:inflatedId="@+id/comments_list"
+                      android:layout="@layout/info_comments_list"
+                      android:layout_below="@+id/txtInfo"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"/>
+        </RelativeLayout>
+    </ScrollView>
+    <ViewStub android:id="@+id/stub_loading"
+              android:inflatedId="@+id/loading_layout"
+              android:layout="@layout/track_info_loading_layout"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+            />
+    <View android:layout_width="fill_parent"
+          android:layout_alignParentTop="true"
+          android:layout_height="5dip"
+          android:background="@drawable/drop_shadow_down"/>
+    <View android:layout_width="fill_parent"
+          android:layout_alignParentBottom="true"
+          android:layout_height="5dip"
+          android:background="@drawable/drop_shadow_up"/>
 </RelativeLayout>

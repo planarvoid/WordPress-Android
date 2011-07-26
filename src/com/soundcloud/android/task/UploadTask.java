@@ -2,6 +2,7 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -12,6 +13,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -22,57 +24,26 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     private CloudAPI api;
 
     public static class Params {
-        public static final String LOCAL_RECORDING_ID  = "local_recording_id";
-        public static final String SOURCE_PATH  = "source_path";
-        public static final String OGG_FILENAME = "ogg_filename";
-        public static final String ARTWORK_PATH = "artwork_path";
-        public static final String ENCODE       = "encode";
 
         private boolean failed;
-        public final boolean encode;
-
-        public long local_recording_id;
-
-        public final File trackFile;
-        public File encodedFile;
-        public final File artworkFile;
-
-        public File resizedFile;
-
         private final Map<String, ?> map;
+
+        public File artworkFile;
+        public File encodedFile;
+        public File trackFile;
+        public boolean encode;
+        public File resizedFile;
 
         public String get(String s) {
             return map.get(s).toString();
         }
 
-        public Params(Map<String, ?> map) {
-            this.map = map;
-            this.encode = map.remove(ENCODE) != null;
-            if (map.containsKey(LOCAL_RECORDING_ID)) {
-                this.local_recording_id = (Long) map.remove(LOCAL_RECORDING_ID);
-            }
-
-            if (!map.containsKey(SOURCE_PATH)) {
-                throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);
-            }
-
-            if (encode && !map.containsKey(OGG_FILENAME)) {
-                throw new IllegalArgumentException("Need to specify " + OGG_FILENAME);
-            }
-
-            this.trackFile   = new File(String.valueOf(map.remove(SOURCE_PATH)));
-            this.encodedFile = new File(String.valueOf(map.remove(OGG_FILENAME)));
-
-            if (map.containsKey(ARTWORK_PATH)) {
-                artworkFile = new File(String.valueOf(map.remove(ARTWORK_PATH)));
-            } else {
-                artworkFile = null;
-            }
-        }
-
-        public File artworkFile() {
-            return resizedFile != null ? resizedFile :
-                   artworkFile != null ? artworkFile : null;
+        public Params(Upload upload) {
+            map = upload.toTrackMap();
+            encode = upload.encode;
+            trackFile = new File(upload.trackPath);
+            encodedFile = upload.encodedFile;
+            if (!TextUtils.isEmpty(upload.artworkPath)) artworkFile = new File(upload.artworkPath);
         }
 
         public Params fail() {
@@ -83,6 +54,12 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public boolean isSuccess() {
             return !failed;
         }
+
+        public File artworkFile() {
+            return resizedFile != null ? resizedFile :
+                   artworkFile != null ? artworkFile : null;
+        }
+
 
         public Request getRequest(File file, Request.TransferProgressListener listener) {
             final Request request = new Request(Endpoints.TRACKS);

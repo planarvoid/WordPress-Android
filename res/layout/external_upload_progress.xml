@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@color/createBackground"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+    <ScrollView android:id="@+id/ScrollView01"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:paddingTop="5dip">
+        <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <include layout="@layout/share_header"
+                     android:id="@+id/share_header_txt"/>
+            <RelativeLayout
+                    android:id="@+id/track_info_holder"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dip"
+                    android:padding="10dip"
+                    android:layout_below="@id/share_header_txt"
+                    android:background="@color/white">
+                <ImageView android:id="@+id/icon"
+                           android:layout_alignParentLeft="true"
+                           android:layout_width="@dimen/share_progress_icon_width"
+                           android:layout_height="@dimen/share_progress_icon_height"
+                           android:gravity="center_vertical"
+                           android:layout_marginRight="10dip"
+                           android:layout_marginBottom="10dip"
+                           android:background="@drawable/artwork_player"
+                           android:scaleType="centerCrop"/>
+                <TextView android:id="@+id/track"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_alignTop="@id/icon"
+                          android:layout_alignBottom="@id/icon"
+                          android:gravity="center_vertical"
+                          style="@style/txt_list_main"
+                          android:text="@string/track"
+                          android:layout_toRightOf="@id/icon"/>
+                <RelativeLayout android:id="@+id/uploading_layout"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/icon"
+                                android:layout_marginTop="10dip"
+                                android:layout_marginBottom="10dip">
+                    <TextView android:id="@+id/progress_txt"
+                              android:layout_alignParentTop="true"
+                              android:layout_alignParentLeft="true"
+                              android:layout_toLeftOf="@+id/close_icon"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              style="@style/txt_list_main"
+                              android:gravity="center_vertical"
+                              android:textStyle="normal"
+                              android:singleLine="true"
+                              android:text="@string/share_uploading"/>
+                    <ProgressBar android:id="@+id/progress_bar"
+                                 android:layout_marginTop="5dip"
+                                 android:layout_marginBottom="5dip"
+                                 android:layout_below="@id/progress_txt"
+                                 android:layout_alignParentLeft="true"
+                                 android:layout_toLeftOf="@+id/close_icon"
+                                 android:layout_width="0dp"
+                                 android:layout_height="wrap_content"
+                                 android:layout_margin="10dip"
+                                 android:indeterminate="false"
+                                 style="@style/ScProgressBarRound"/>
+                    <ImageView android:id="@+id/close_icon"
+                               android:layout_alignParentRight="true"
+                               android:layout_alignBottom="@id/progress_bar"
+                               android:src="@drawable/rec_close"
+                               android:scaleType="center"
+                               android:layout_width="wrap_content"
+                               android:layout_height="wrap_content"/>
+                </RelativeLayout>
+                <RelativeLayout android:id="@+id/finished_layout"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/icon"
+                                android:layout_marginBottom="10dip"
+                                android:visibility="gone"
+                                android:layout_marginTop="10dip">
+                    <ImageView android:id="@+id/result_icon"
+                               android:layout_centerHorizontal="true"
+                               android:src="@drawable/success"
+                               android:scaleType="center"
+                               android:layout_width="wrap_content"
+                               android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/result_message"
+                              android:layout_below="@id/result_icon"
+                              android:layout_width="fill_parent"
+                              android:layout_height="wrap_content"
+                              style="@style/txt_list_sub"
+                              android:gravity="center"
+                              android:textStyle="normal"
+                              android:text="@string/share_success_message"/>
+                </RelativeLayout>
+            </RelativeLayout>
+            <View android:layout_width="fill_parent"
+                  android:layout_below="@id/track_info_holder" android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
+        </RelativeLayout>
+    </ScrollView>
+    <RelativeLayout android:id="@+id/control_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/playerControlAlphaBackground"
+                    android:layout_height="wrap_content">
+
+        <LinearLayout android:paddingBottom="5dip"
+                      android:orientation="horizontal"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:paddingTop="5dip"
+                      android:layout_marginTop="5dip">
+
+            <Button android:id="@+id/btn_cancel"
+                    android:text="@string/share_cancel"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="15dip"
+                    android:layout_height="fill_parent"/>
+
+            <Button android:id="@+id/btn_retry"
+                    android:text="@string/share_retry_upload"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="15dip"
+                    android:layout_marginRight="10dip"
+                    android:layout_height="fill_parent"/>
+        </LinearLayout>
+
+        <View android:layout_width="fill_parent"
+              android:layout_height="5dip"
+              android:background="@drawable/drop_shadow_down"/>
+
+    </RelativeLayout>
+</LinearLayout>

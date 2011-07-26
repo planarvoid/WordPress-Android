@@ -13,6 +13,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -80,6 +81,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private ProgressBar mRefreshViewProgress;
     private TextView mRefreshViewLastUpdated;
     private View mEmptyView, mFooterView;
+    private Drawable mPullToRefreshArrow;
 
     private Runnable mSelectionRunnable;
     private RotateAnimation mFlipAnimation;
@@ -142,6 +144,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
         mRefreshOriginalTopPadding = mRefreshView.getPaddingTop();
 
+        mPullToRefreshArrow = getResources().getDrawable(R.drawable.ic_pulltorefresh_arrow);
+
         mRefreshState = TAP_TO_REFRESH;
 
         addHeaderView(mRefreshView);
@@ -168,7 +172,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     public int getSolidColor() {
-        return 0xAAFFFFFF;
+        return 0xAA000000;
     }
 
     public void enableLongClickListener() {
@@ -324,11 +328,14 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
      */
     public void onRefreshComplete(boolean success) {
         if (success) mLastUpdated = System.currentTimeMillis();
+        resetHeader();
         if (mRefreshView.getBottom() > 0) {
-            mRefreshState = DONE_REFRESHING;
             invalidateViews();
-        } else {
-            resetHeader();
+            if (Build.VERSION.SDK_INT < 8){
+                setSelection(1);
+            } else {
+                mRefreshState = DONE_REFRESHING;
+            }
         }
     }
 
@@ -356,14 +363,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (list.getAdapter().getCount() <= 0
-                    || position >= list.getAdapter().getCount())
-                return; // bad list item clicked (possibly loading item)
-
             position -= getHeaderViewsCount();
 
             LazyBaseAdapter adp = list instanceof ScListView ?
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
+
+            if (adp.getCount() <= 0 || position >= adp.getCount())
+                return; // bad list item clicked (possibly loading item)
 
             if (adp.getItem(position) instanceof Track) {
 
@@ -533,17 +539,19 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 break;
             case MotionEvent.ACTION_MOVE:
                 int incrementalDeltaY = mLastMotionY != Integer.MIN_VALUE ? (int) event.getY() - mLastMotionY : (int) event.getY();
-                if (Math.abs(incrementalDeltaY) >= 1) {
-                    final int topPadding = (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7);
-                    if (topPadding != mRefreshView.getPaddingTop()) {
-                        mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
-                                mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
+                if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH){
+                    if (Math.abs(incrementalDeltaY) >= 1) {
+                        final int topPadding = Math.max(mRefreshOriginalTopPadding,(int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7));
+                        if (topPadding != mRefreshView.getPaddingTop()) {
+                            mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
+                                    mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
+                        }
                     }
-                }
-                if (getFirstVisiblePosition() == 0 && incrementalDeltaY > 0) {
-                    incrementalDeltaY = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, incrementalDeltaY);
-                    if (getChildAt(0).getTop() >= 0 && incrementalDeltaY >= 0) {
-                        return true;
+                    if (getFirstVisiblePosition() == 0 && incrementalDeltaY > 0) {
+                        incrementalDeltaY = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, incrementalDeltaY);
+                        if (getChildAt(0).getTop() >= 0 && incrementalDeltaY >= 0) {
+                            return true;
+                        }
                     }
                 }
 
@@ -554,9 +562,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     }
 
+
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
+        Log.i("asdf","Layout Children " + mRefreshState + " " + getFirstVisiblePosition());
         if (getFirstVisiblePosition() == 0 && (mRefreshState == TAP_TO_REFRESH || mRefreshState == DONE_REFRESHING)) {
             // not enough views to fill list so pad with an empty view
             final int lastDataPosition = getWrapper().getCount(); // data index + header
@@ -568,6 +578,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     setSelection(1);
                     return;
                 }
+            } else if (mFooterView.getLayoutParams().height != 0){
+                mFooterView.getLayoutParams().height = 0;
             }
 
             if (mRefreshState == DONE_REFRESHING) {
@@ -576,11 +588,16 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                         scrollPastHeader();
                     }
                 });
+                resetHeader();
+            } else if (!mAutoScrolling){
+                setSelection(1);
             }
-            resetHeader();
 
+
+
+        } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
+            mFooterView.getLayoutParams().height = 0;
         }
-
     }
 
 
@@ -605,6 +622,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
 
     private void scrollPastHeader() {
+        Log.i("asdf","SCROLL PAST HEADERRR " + (Build.VERSION.SDK_INT >= 8));
         if (Build.VERSION.SDK_INT >= 8){
             smoothScrollBy(getChildAt(1).getTop() + 1, HEADER_HIDE_DURATION);
             mAutoScrolling = true;
@@ -629,9 +647,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             mRefreshState = TAP_TO_REFRESH;
 
             resetHeaderPadding();
-
             mRefreshViewText.setText(R.string.pull_to_refresh_refreshing_label);
-            mRefreshViewImage.setImageResource(R.drawable.ic_pulltorefresh_arrow);
+            mRefreshViewImage.setImageDrawable(mPullToRefreshArrow);
             mRefreshViewImage.clearAnimation();
             mRefreshViewImage.setVisibility(View.INVISIBLE);
             mRefreshViewProgress.setVisibility(View.GONE);

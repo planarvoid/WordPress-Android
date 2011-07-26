@@ -94,10 +94,11 @@ public class MyTracksAdapter extends TracklistAdapter {
         for (Recording r : mRecordingData) {
             if (r.upload_status == 1 && uploadId != r.id) {
                 r.upload_status = 0;
+                mActivity.getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
                 changed = true;
             }
         }
-        if (changed)  notifyDataSetChanged();
+        if (changed)  onContentChanged();
     }
 
     @Override

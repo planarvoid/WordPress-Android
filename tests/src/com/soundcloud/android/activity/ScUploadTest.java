@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.task.UploadTask;
@@ -153,9 +154,9 @@ public class ScUploadTest implements Params.Track {
         assertEquals("", arguments.get(POST_TO_EMPTY));
         assertEquals(PUBLIC, arguments.get(SHARING));
 
-        assertNotNull(arguments.get(UploadTask.Params.SOURCE_PATH));
+        assertNotNull(arguments.get(Upload.SOURCE_PATH));
         //assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
-        assertNull(arguments.get(UploadTask.Params.ARTWORK_PATH));
+        assertNull(arguments.get(Upload.ARTWORK_PATH));
     }
 
     @Test

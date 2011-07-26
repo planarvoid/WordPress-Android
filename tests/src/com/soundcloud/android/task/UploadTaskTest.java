@@ -4,6 +4,8 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
 import org.junit.Before;
@@ -32,8 +34,8 @@ public class UploadTaskTest extends ApiTests {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowWhenFileIsMissing() {
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        UploadTask.Params params = new UploadTask.Params(map);
+        Upload upload = new Upload(new HashMap<String, Object>());
+        UploadTask.Params params = new UploadTask.Params(upload);
 
         task.execute(params);
     }
@@ -43,8 +45,9 @@ public class UploadTaskTest extends ApiTests {
         File tmp = File.createTempFile("temp", ".ogg");
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsoluteFile());
-        UploadTask.Params params = new UploadTask.Params(map);
+        map.put(Upload.SOURCE_PATH, tmp.getAbsoluteFile());
+        Upload u = new Upload(map);
+        UploadTask.Params params = new UploadTask.Params(u);
 
         task.execute(params);
     }
@@ -145,10 +148,10 @@ public class UploadTaskTest extends ApiTests {
     public void shouldRequireOggParameterWhenEncoding() throws Exception {
         File tmp = getTestFile();
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(UploadTask.Params.SOURCE_PATH, tmp.getAbsolutePath());
-        map.put(UploadTask.Params.ENCODE, "true");
+        map.put(Upload.SOURCE_PATH, tmp.getAbsolutePath());
+        map.put(Upload.ENCODE, "true");
 
-        UploadTask.Params params = new UploadTask.Params(map);
+        UploadTask.Params params = new UploadTask.Params(new Upload(map));
         task.execute(params);
     }
 

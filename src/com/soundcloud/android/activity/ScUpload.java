@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.FoursquareVenueTask;
@@ -10,6 +11,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
+import com.soundcloud.android.view.ShareUserHeader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +25,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -68,6 +71,8 @@ public class ScUpload extends ScActivity {
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
                 findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+                ((FrameLayout) findViewById(R.id.share_user_layout)).addView(
+                    new ShareUserHeader(this,SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId())));
             }
 
             if (mRecording.exists()) {
@@ -133,7 +138,9 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 mapToRecording(mRecording);
+                getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
                 if (startUpload()) {
+                    mRecording = null;
                     setResult(RESULT_OK);
                     finish();
                 }
@@ -174,9 +181,11 @@ public class ScUpload extends ScActivity {
                 switch (checkedId) {
                     case R.id.rdo_public:
                         mSharingFlipper.setDisplayedChild(0);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
                         break;
                     case R.id.rdo_private:
                         mSharingFlipper.setDisplayedChild(1);
+                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
                         break;
                 }
             }
@@ -284,7 +293,7 @@ public class ScUpload extends ScActivity {
 
     public void setImage(File file) {
         mArtworkFile = file;
-        ImageUtils.setImage(file, mArtwork, getResources().getDisplayMetrics());
+        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
     }
 
     // for testing purposes

@@ -44,7 +44,7 @@ public class Recording extends BaseObj implements Parcelable {
     public double latitude;
     public String what_text;
     public String where_text;
-    private File audio_path;
+    public File audio_path;
     /** in msecs */
     public long duration;
     public File artwork_path;
@@ -81,12 +81,6 @@ public class Recording extends BaseObj implements Parcelable {
 
     public boolean exists() {
         return audio_path.exists();
-    }
-
-    public static interface UploadStatus {
-        int NOT_YET_UPLOADED    = 0;
-        int UPLOADING           = 1;
-        int UPLOADED            = 2;
     }
 
     public Recording(File f) {
@@ -191,72 +185,6 @@ public class Recording extends BaseObj implements Parcelable {
         cv.put(Recordings.UPLOAD_STATUS, upload_status);
         cv.put(Recordings.UPLOAD_ERROR, upload_error);
         return cv;
-    }
-
-    public Map<String,Object> uploadData() {
-        Map<String,Object> data = new HashMap<String, Object>();
-        data.put(Params.Track.SHARING, is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC);
-        data.put(Params.Track.DOWNLOADABLE, false);
-        data.put(Params.Track.STREAMABLE, true);
-
-        if (!is_private) {
-            List<Integer> serviceIds = new ArrayList<Integer>();
-            if (!TextUtils.isEmpty(service_ids))
-            for (String serviceId : service_ids.split(",")){
-                if (!TextUtils.isEmpty(serviceId)) serviceIds.add(Integer.valueOf(serviceId));
-            }
-
-             if (!serviceIds.isEmpty()) {
-                data.put(Params.Track.SHARING_NOTE, sharingNote());
-                data.put(Params.Track.POST_TO, serviceIds);
-             } else {
-                data.put(Params.Track.POST_TO_EMPTY, "");
-             }
-        } else { // not private
-             if (!TextUtils.isEmpty(shared_emails)) {
-                 data.put(Params.Track.SHARED_EMAILS, Arrays.asList(shared_emails.split(",")));
-             }
-        }
-
-        data.put(UploadTask.Params.SOURCE_PATH, audio_path);
-
-        final String title = sharingNote();
-
-        data.put(Params.Track.TITLE, title);
-        data.put(Params.Track.TYPE, "recording");
-
-        // add machine tags
-        List<String> tags = new ArrayList<String>();
-
-        if (external_upload) {
-            tags.add("soundcloud:source=android-3rdparty-upload");
-        } else {
-            tags.add("soundcloud:source=android-record");
-        }
-
-        if (this.tags != null) {
-            for (String t : this.tags) {
-                tags.add(t.contains(" ") ? "\""+t+"\"" : t);
-            }
-        }
-
-        if (artwork_path != null) data.put(UploadTask.Params.ARTWORK_PATH, artwork_path);
-        if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue="+four_square_venue_id);
-        if (latitude  != 0) tags.add("geo:lat="+latitude);
-        if (longitude != 0) tags.add("geo:lon="+longitude);
-        data.put(Params.Track.TAG_LIST, TextUtils.join(" ", tags));
-
-        if (!external_upload && audio_profile == Profile.RAW) {
-            data.put(UploadTask.Params.OGG_FILENAME, generateUploadFilename(title));
-            data.put(UploadTask.Params.ENCODE, true);
-        }
-
-        if (!TextUtils.isEmpty(description)) data.put(Params.Track.DESCRIPTION, description);
-        if (!TextUtils.isEmpty(genre)) data.put(Params.Track.GENRE, genre);
-
-        data.put(UploadTask.Params.SOURCE_PATH, audio_path.getAbsolutePath());
-        data.put(UploadTask.Params.LOCAL_RECORDING_ID, id);
-        return data;
     }
 
     /* package */ File generateUploadFilename(String title) {

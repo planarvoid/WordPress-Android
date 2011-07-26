@@ -38,9 +38,9 @@ public class MyTracklistRow extends TracklistRow {
         mTitle.setText(recording.sharingNote());
 
         if (recording.is_private) {
-            mPrivateIndicator.setVisibility(View.VISIBLE);
+            mTitle.setCompoundDrawablesWithIntrinsicBounds(null,null,getPrivateDrawable(),null);
         } else {
-            mPrivateIndicator.setVisibility(View.GONE);
+            mTitle.setCompoundDrawables(null,null,null,null);
         }
 
         mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtRecSecondary));

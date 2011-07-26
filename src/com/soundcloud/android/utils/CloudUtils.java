@@ -15,9 +15,11 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -575,6 +577,29 @@ public class CloudUtils {
         }
     }
 
+    /**
+     * Adapted from the {@link android.text.util.Linkify} class. Changes the
+     * first instance of {@code link} into a clickable link attached to the given listener
+     */
+    public static void clickify(TextView view, final ClickSpan.OnClickListener listener, boolean underline) {
+        CharSequence text = view.getText();
+        String string = text.toString();
+        ClickSpan span = new ClickSpan(listener, underline);
+
+        if (text instanceof Spannable) {
+            ((Spannable)text).setSpan(span, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            SpannableString s = SpannableString.valueOf(text);
+            s.setSpan(span, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            view.setText(s);
+        }
+
+        MovementMethod m = view.getMovementMethod();
+        if ((m == null) || !(m instanceof LinkMovementMethod)) {
+            view.setMovementMethod(LinkMovementMethod.getInstance());
+        }
+    }
+
     public static boolean mkdirs(File d) {
         if (!d.exists()) {
             final boolean success = d.mkdirs();
@@ -726,5 +751,41 @@ public class CloudUtils {
 
     public static boolean isScreenXL(Context context){
         return ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
+    }
+
+    public static AlertDialog createLogoutDialog(final Activity a) {
+        return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
+                .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ((SoundCloudApplication) a.getApplication()).clearSoundCloudAccount(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        a.finish();
+                                    }
+                                },
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(a)
+                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                .setMessage(R.string.settings_error_revoking_account_message)
+                                                .setTitle(R.string.settings_error_revoking_account_title)
+                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        // finish();
+                                                    }
+                                                }).create().show();
+                                    }
+                                }
+                        );
+                    }
+                }).setNegativeButton(android.R.string.cancel,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                }).create();
     }
 }

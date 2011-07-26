@@ -208,7 +208,7 @@
     <string name='info_empty'>No info available</string>
 
     <string name='info_empty_you'>
-        Your profile is empty. Let people know about you!
+        Your profile is empty.&lt;br/>&lt;br/>Let people know about you!
         Go to
         <a href='http://soundcloud.com/settings'>SoundCloud.com/settings</a>
         to add your profile info.
@@ -472,7 +472,8 @@
     <string name="user">user</string>
     <string name="sc_upload_only_you">Only You</string>
     <string name="sc_upload_with_access">With Access</string>
-    <string name="sc_upload_sharing_options">Sharing Options</string>
+    <string name="sc_upload_sharing_options_public">Your sound will be made public on SoundCloud. Which other networks would you like to share it to?</string>
+    <string name="sc_upload_sharing_options_private">our sound will be made private on SoundCloud. Add anyone you would like to share it with below.</string>
     <string name="sc_upload_add_image">Add\nImage</string>
     <string name="sc_upload_public">\u00A0Public</string>
     <string name="sc_upload_private">\u00A0Private</string>
@@ -488,4 +489,13 @@
     <string name="sc_search_users">\u00A0Users</string>
     <string name="comment_bubble_readon">Read on</string>
     <string name="error_getting_recording">Error getting recording</string>
+
+    <string name="share_to_soundcloud">&lt;b>Share&lt;/b> to &lt;b>SoundCloud&lt;/b></string>
+    <string name="share_log_out">Log out</string>
+    <string name="share_encoding">Encoding...</string>
+    <string name="share_uploading">Uploading...</string>
+    <string name="share_success_message">Yay, that worked!</string>
+    <string name="share_fail_message">Ok, that went wrong.</string>
+    <string name="share_retry_upload">Retry upload</string>
+    <string name="share_cancel">Cancel</string>
 </resources>
