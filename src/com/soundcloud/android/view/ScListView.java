@@ -359,14 +359,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (list.getAdapter().getCount() <= 0
-                    || position >= list.getAdapter().getCount())
-                return; // bad list item clicked (possibly loading item)
-
             position -= getHeaderViewsCount();
 
             LazyBaseAdapter adp = list instanceof ScListView ?
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
+
+            if (adp.getCount() <= 0 || position >= adp.getCount())
+                return; // bad list item clicked (possibly loading item)
 
             if (adp.getItem(position) instanceof Track) {
 
