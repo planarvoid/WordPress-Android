@@ -330,8 +330,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (success) mLastUpdated = System.currentTimeMillis();
         resetHeader();
         if (mRefreshView.getBottom() > 0) {
-            mRefreshState = DONE_REFRESHING;
             invalidateViews();
+            if (Build.VERSION.SDK_INT < 8){
+                setSelection(1);
+            } else {
+                mRefreshState = DONE_REFRESHING;
+            }
         }
     }
 
@@ -562,6 +566,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
+        Log.i("asdf","Layout Children " + mRefreshState + " " + getFirstVisiblePosition());
         if (getFirstVisiblePosition() == 0 && (mRefreshState == TAP_TO_REFRESH || mRefreshState == DONE_REFRESHING)) {
             // not enough views to fill list so pad with an empty view
             final int lastDataPosition = getWrapper().getCount(); // data index + header
@@ -617,6 +622,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
 
     private void scrollPastHeader() {
+        Log.i("asdf","SCROLL PAST HEADERRR " + (Build.VERSION.SDK_INT >= 8));
         if (Build.VERSION.SDK_INT >= 8){
             smoothScrollBy(getChildAt(1).getTop() + 1, HEADER_HIDE_DURATION);
             mAutoScrolling = true;
