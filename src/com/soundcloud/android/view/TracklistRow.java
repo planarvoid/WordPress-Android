@@ -239,7 +239,7 @@ public class TracklistRow extends LazyRow {
             } else {
                 mPrivateIndicator.setText(mActivity.getString(R.string.tracklist_item_shared_with_x_people,mTrack.shared_to_count));
             }
-            mPrivateIndicator.setVisibility(View.GONE);
+            mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
 
