@@ -67,6 +67,26 @@ public class Event extends BaseObj implements Parcelable {
         }
     }
 
+    public User getUser(){
+         if (type.contentEquals(Types.TRACK)) {
+            return track.user;
+        } else if (type.contentEquals(Types.TRACK_SHARING)) {
+            return track.user;
+        } else if (type.contentEquals(Types.COMMENT)) {
+            return comment.user;
+        } else if (type.contentEquals(Types.FAVORITING)) {
+            return user;
+        }
+        return null;
+    }
+
+    public Track getTrack(){
+         if (type.contentEquals(Types.COMMENT)) {
+            return comment.track;
+        }
+        return track;
+    }
+
     public void updateEventObjectsFromDb(ContentResolver contentResolver, Long currentUserId) {
         if (track != null) track.updateUserPlayedFromDb(contentResolver,currentUserId);
     }
@@ -102,5 +122,12 @@ public class Event extends BaseObj implements Parcelable {
         cv.put(Events.USER_ID, user_id);
         if (!TextUtils.isEmpty(next_cursor)) cv.put(Events.NEXT_CURSOR, next_cursor);
         return cv;
+    }
+
+     public interface Types {
+        String TRACK = "track";
+        String TRACK_SHARING = "track-sharing";
+        String COMMENT = "comment";
+        String FAVORITING = "favoriting";
     }
 }

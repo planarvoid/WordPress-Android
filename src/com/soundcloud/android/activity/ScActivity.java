@@ -597,7 +597,7 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onEventClick(ArrayList<Parcelable> events, int position) {
-            playTrack(((Event) events.get(position)).track.id, events, position, true);
+            playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
         }
 
         public void onFling() {

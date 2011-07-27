@@ -41,12 +41,13 @@ public class Dashboard extends ScActivity {
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
-            } else if ("exclusive".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS),
+            } else if ("news".equalsIgnoreCase(tab)) {
+                //TODO replace with proper endpoint
+                mTracklistView = createList(Request.to("/me/activities/all/own"),
                         Event.class,
-                        R.string.empty_exclusive_text,
-                        Consts.ListId.LIST_EXCLUSIVE, true);
-                mTrackingPath = "/exclusive";
+                        R.string.empty_news_text,
+                        Consts.ListId.LIST_NEWS, true);
+                mTrackingPath = "/news";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
@@ -72,8 +73,8 @@ public class Dashboard extends ScActivity {
                 .cancel(Consts.Notifications.DASHBOARD_NOTIFY_ID);
     }
 
-    protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean exclusive) {
-        EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), exclusive, model);
+    protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean isNews) {
+        EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
         EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);
 
         if (emptyText != -1) {

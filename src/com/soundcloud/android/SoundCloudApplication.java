@@ -49,7 +49,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

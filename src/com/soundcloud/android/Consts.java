@@ -64,7 +64,7 @@ public class Consts {
 
     public interface ListId {
         int LIST_INCOMING = 1001;
-        int LIST_EXCLUSIVE = 1002;
+        int LIST_NEWS = 1002;
         int LIST_USER_TRACKS = 1003;
         int LIST_USER_FAVORITES = 1004;
         int LIST_USER_FOLLOWINGS = 1006;

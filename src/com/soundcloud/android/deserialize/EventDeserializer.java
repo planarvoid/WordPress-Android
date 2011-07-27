@@ -29,16 +29,16 @@ public class EventDeserializer extends JsonDeserializer {
         JsonNode jsonNode = mapper.readValue(jsonParser, JsonNode.class);
         Event e = mapper.readValue(jsonNode, Event.class);
 
-        if (e.type.contentEquals("track")) {
+        if (e.type.contentEquals(Event.Types.TRACK)) {
             e.track = mapper.readValue(jsonNode.path("origin"), Track.class);
             e.origin_id = e.track.id;
-        } else if (e.type.contentEquals("track-sharing")) {
+        } else if (e.type.contentEquals(Event.Types.TRACK_SHARING)) {
             e.track = mapper.readValue(jsonNode.path("origin").path("track"), Track.class);
             e.origin_id = e.track.id;
-        } else if (e.type.contentEquals("comment")) {
+        } else if (e.type.contentEquals(Event.Types.COMMENT)) {
             e.comment = mapper.readValue(jsonNode.path("origin"), Comment.class);
             e.origin_id = e.comment.id;
-        } else if (e.type.contentEquals("favoriting")) {
+        } else if (e.type.contentEquals(Event.Types.FAVORITING)) {
             e.track = mapper.readValue(jsonNode.path("origin").path("track"), Track.class);
             e.user = mapper.readValue(jsonNode.path("origin").path("user"), User.class);
             e.origin_id = e.track.id;

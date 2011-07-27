@@ -172,9 +172,8 @@
         Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
     </string>
 
-    <string name='empty_exclusive_text'>
-        No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>
-        Why not send an audio shout-out to your friends to get them to share their sounds?
+    <string name='empty_news_text'>
+       You have no news. Put something out there already!
     </string>
 
     <string name='empty_my_tracks_text'>
@@ -284,7 +283,7 @@
     <string name='menu_upload'>Upload</string>
 
     <string name='tab_incoming'>Incoming</string>
-    <string name='tab_exclusive'>Exclusive</string>
+    <string name='tab_news'>News</string>
     <string name='tab_you'>You</string>
     <string name='tab_record'>Record</string>
     <string name='tab_search'>Search</string>

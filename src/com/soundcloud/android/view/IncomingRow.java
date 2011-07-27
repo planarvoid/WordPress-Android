@@ -8,8 +8,8 @@ import com.soundcloud.android.model.Track;
 
 import android.os.Parcelable;
 
-public class EventsRow extends TracklistRow {
-    public EventsRow(ScActivity _activity, LazyBaseAdapter _adapter) {
+public class IncomingRow extends TracklistRow {
+    public IncomingRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
     }
 
