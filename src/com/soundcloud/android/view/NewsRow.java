@@ -3,24 +3,20 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 
-import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.view.View;
-import android.widget.ImageButton;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
+import android.text.style.StyleSpan;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 public class NewsRow extends LazyRow {
     protected Event mEvent;
@@ -30,6 +26,9 @@ public class NewsRow extends LazyRow {
     protected TextView mCreatedAt;
 
     protected ImageView mCloseIcon;
+
+    private Drawable mFavoritedDrawable;
+    private Drawable mCommentedDrawable;
 
 
     public NewsRow(ScActivity _activity, LazyBaseAdapter _adapter) {
@@ -54,6 +53,22 @@ public class NewsRow extends LazyRow {
         return getTrackFromParcelable(p).created_at.getTime();
     }
 
+    private Drawable getFavoritedDrawable(){
+          if (mFavoritedDrawable == null) {
+              mFavoritedDrawable = getResources().getDrawable(R.drawable.stats_favorited);
+              mFavoritedDrawable.setBounds(0, 0, mFavoritedDrawable.getIntrinsicWidth(), mFavoritedDrawable.getIntrinsicHeight());
+          }
+        return mFavoritedDrawable;
+    }
+
+    private Drawable getmCommentedDrawable(){
+          if (mCommentedDrawable == null) {
+              mCommentedDrawable = getResources().getDrawable(R.drawable.stats_commented);
+              mCommentedDrawable.setBounds(0, 0, mCommentedDrawable.getIntrinsicWidth(), mCommentedDrawable.getIntrinsicHeight());
+          }
+        return mCommentedDrawable;
+    }
+
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
@@ -64,9 +79,27 @@ public class NewsRow extends LazyRow {
         if (mEvent == null)
             return;
 
-        mTitle.setText(mEvent.getTrack().title);
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        ImageSpan typeImage = new ImageSpan(mEvent.type.contentEquals(Event.Types.COMMENT)
+                ? getmCommentedDrawable() : getFavoritedDrawable(),ImageSpan.ALIGN_BASELINE);
+
+        builder.append("  ");
+        builder.setSpan(typeImage, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.append(mEvent.getTrack().title);
+
+        if (mEvent.type.contentEquals(Event.Types.COMMENT)){
+            builder.append(": ");
+            builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.append("\""+mEvent.comment.body+"\"");
+        } else {
+            builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+
+        mTitle.setText(builder);
         mUser.setText(mEvent.getUser().username);
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mEvent.created_at.getTime()));
+
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {

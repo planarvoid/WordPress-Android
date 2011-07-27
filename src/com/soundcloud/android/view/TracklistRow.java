@@ -242,6 +242,7 @@ public class TracklistRow extends LazyRow {
             mPrivateIndicator.setVisibility(View.GONE);
         }
 
+
         mFavoriteCount.setText(String.valueOf(mTrack.favoritings_count));
         mCommentCount.setText(String.valueOf(mTrack.comment_count));
         mPlayCount.setText(String.valueOf(mTrack.playback_count));
