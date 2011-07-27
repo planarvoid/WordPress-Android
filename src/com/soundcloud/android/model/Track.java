@@ -156,6 +156,9 @@ public class Track extends BaseObj implements Parcelable {
         waveform_url = tracklistItem.waveform_url;
         user = tracklistItem.user;
         stream_url = tracklistItem.stream_url;
+        playback_count = tracklistItem.playback_count;
+        comment_count = tracklistItem.comment_count;
+        favoritings_count = tracklistItem.favoritings_count;
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {

@@ -23,4 +23,8 @@ public class TracklistItem {
     public String waveform_url;
     public String stream_url;
 
+    public int playback_count;
+    public int comment_count;
+    public int favoritings_count;
+
 }
