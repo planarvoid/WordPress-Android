@@ -7,6 +7,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -113,18 +114,10 @@ public class NewsRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mEvent == null || mEvent.getUser().avatar_url == null)
+        if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null)
             return "";
 
-        if (CloudUtils.isScreenXL(mActivity)) {
-            return CloudUtils.formatGraphicsUrl(mEvent.getUser().avatar_url, Consts.GraphicsSizes.LARGE);
-        } else {
-            if (getContext().getResources().getDisplayMetrics().density > 1) {
-                return CloudUtils.formatGraphicsUrl(mEvent.getUser().avatar_url, Consts.GraphicsSizes.LARGE);
-            } else {
-                return CloudUtils.formatGraphicsUrl(mEvent.getUser().avatar_url, Consts.GraphicsSizes.BADGE);
-            }
-        }
+        return ImageUtils.formatGraphicsUrlForList(mActivity, mEvent.getUser().avatar_url);
 
     }
 

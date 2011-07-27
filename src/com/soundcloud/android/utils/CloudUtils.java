@@ -357,10 +357,6 @@ public class CloudUtils {
 
     }
 
-    public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : url.replace("large", targetSize);
-    }
-
     @SuppressWarnings("unchecked")
     public static boolean isTaskFinished(AsyncTask lt) {
         return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;

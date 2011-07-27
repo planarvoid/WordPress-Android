@@ -39,6 +39,7 @@ import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.*;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -119,7 +120,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        CloudUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
+                        ImageUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
                     ).show();
                 }
 
@@ -561,7 +562,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+            String remoteUrl = ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR

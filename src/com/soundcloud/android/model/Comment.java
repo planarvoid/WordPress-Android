@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -50,11 +51,11 @@ public class Comment extends BaseObj implements Parcelable {
 
     public String getAvatarBarGraphicUrl(Context c){
         if (CloudUtils.isScreenXL(c)) {
-              return CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+              return ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
         } else {
             return c.getResources().getDisplayMetrics().density > 1 ?
-                        CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.BADGE) :
-                            CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.SMALL);
+                        ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.BADGE) :
+                            ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.SMALL);
         }
 
     }

@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent" android:id="@+id/main_holder"
-              android:orientation="vertical" android:layout_height="fill_parent" android:weightSum="8">
-    <FrameLayout android:layout_weight="1"
-                 android:layout_width="fill_parent"
-                 android:layout_height="0dp">
-        <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
+              android:orientation="vertical" android:layout_height="fill_parent" android:weightSum="7">
+    <FrameLayout android:layout_width="fill_parent"
+                 android:layout_height="wrap_content"
+                 android:background="@color/playerControlBackground"
+                 android:gravity="center_vertical">
+        <include android:id="@+id/track_info_bar"
+                 layout="@layout/track_list_row_common"/>
     </FrameLayout>
-    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo" android:layout_weight="6"
-                                                 android:layout_width="fill_parent"
-                                                 android:layout_height="0dp">
-        <RelativeLayout android:layout_width="fill_parent"
-                        android:layout_height="fill_parent">
-            <LinearLayout android:id="@+id/track_menu" android:stretchColumns="*"
-                          android:background="@color/playerControlBackground" android:layout_alignParentTop="true"
-                          android:layout_height="wrap_content" android:layout_width="fill_parent"
+    <View android:layout_width="fill_parent"
+                  android:layout_height="1dip" android:layout_marginLeft="10dip"
+                  android:background="@color/horizontalRule" android:layout_marginRight="10dip"/>
+    <LinearLayout android:id="@+id/track_menu"
+                          android:stretchColumns="*"
+                          android:background="@color/playerControlBackground"
+                          android:layout_alignParentTop="true"
+                          android:layout_height="wrap_content"
+                          android:layout_width="fill_parent"
                           android:paddingTop="5dip" android:paddingBottom="5dip">
-                <RelativeLayout android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content">
-                    <ImageButton android:id="@+id/btn_profile"
-                                 android:layout_centerHorizontal="true"
-                                 style="@style/btn_sc_transparent"
-                                 android:src="@drawable/ic_profile_states"/>
-                </RelativeLayout>
                 <RelativeLayout android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content">
@@ -48,10 +43,24 @@
                                  style="@style/btn_sc_transparent"
                                  android:src="@drawable/ic_share_states"/>
                 </RelativeLayout>
+                <RelativeLayout android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content">
+                    <ImageButton android:id="@+id/btn_info"
+                                 android:layout_centerHorizontal="true"
+                                 style="@style/btn_sc_transparent"
+                                 android:src="@drawable/ic_info_states"/>
+                </RelativeLayout>
             </LinearLayout>
+    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
+                                                 android:layout_weight="6"
+                                                 android:layout_width="fill_parent"
+                                                 android:layout_height="0dp">
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_height="fill_parent">
             <FrameLayout android:layout_width="fill_parent"
                          android:layout_height="fill_parent"
-                         android:layout_below="@id/track_menu"
+                         android:layout_alignParentTop="true"
                          android:background="@drawable/artwork_player"
                          android:gravity="top"
                          android:layout_centerHorizontal="true">
@@ -77,9 +86,6 @@
                     android:layout="@layout/unplayable_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="40dip" android:layout_alignParentBottom="true"/>
-            <View android:layout_width="fill_parent" android:layout_alignParentTop="true"
-                  android:layout_height="1dip" android:layout_marginLeft="10dip"
-                  android:background="@color/horizontalRule" android:layout_marginRight="10dip"/>
             <View android:layout_width="fill_parent"
                   android:layout_below="@id/track_menu" android:layout_height="5dip"
                   android:background="@drawable/drop_shadow_down"/>
