@@ -1,7 +1,10 @@
 package com.soundcloud.android.activity;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -13,9 +16,15 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
@@ -23,6 +32,8 @@ public class Dashboard extends ScActivity {
     protected ScListView mListView;
     private ScTabView mTracklistView;
     private String mTrackingPath;
+    private boolean mNews;
+    private final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -36,12 +47,13 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             if ("incoming".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(Request.to(Endpoints.MY_ACTIVITIES),
+                mTracklistView = createList(getIncomingRequest(),
                         Event.class,
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("news".equalsIgnoreCase(tab)) {
+                mNews = true;
                 //TODO replace with proper endpoint
                 mTracklistView = createList(Request.to("/me/activities/all/own"),
                         Event.class,
@@ -60,6 +72,12 @@ public class Dashboard extends ScActivity {
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
+    }
+
+    private Request getIncomingRequest() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
+                ? Request.to(Endpoints.MY_EXCLUSIVE_TRACKS)
+                : Request.to(Endpoints.MY_ACTIVITIES);
     }
 
 
@@ -109,5 +127,53 @@ public class Dashboard extends ScActivity {
     public void refreshIncoming() {
         mListView.onRefresh();
         mListView.smoothScrollToPosition(0);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+         if (!mNews) {
+            menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_filter).setIcon(
+                R.drawable.ic_menu_incoming);
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.FILTER:
+                new AlertDialog.Builder(this)
+                   .setTitle(getString(R.string.dashboard_filter_title))
+                   .setNegativeButton(R.string.dashboard_filter_cancel, null)
+                        .setItems(new String[]{getString(R.string.dashboard_filter_all), getString(R.string.dashboard_filter_exclusive)},
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
+                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1 ? true : false).commit();
+                                        mListView.getWrapper().setRequest(getIncomingRequest());
+                                        mListView.getWrapper().reset();
+                                        mListView.setLastUpdated(0);
+                                        mListView.invalidateViews();
+                                        mListView.post(new Runnable() {
+                                            @Override public void run() {
+                                                mListView.onRefresh();
+                                            }
+                                        });
+
+                                    }
+                                })
+
+                   .create().show();
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 }

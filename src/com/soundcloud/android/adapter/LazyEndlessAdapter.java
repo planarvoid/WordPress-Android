@@ -404,6 +404,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mNextHref = "";
         mKeepOnAppending.set(keepAppending);
         clearAppendTask();
+        clearRefreshTask();
          if (notifyChange) notifyDataSetChanged();
     }
 
@@ -418,6 +419,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
+    }
+
+    private void clearRefreshTask() {
+        if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
+        mRefreshTask = null;
     }
 
     /**

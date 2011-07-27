@@ -500,4 +500,10 @@
 
     <string name="tracklist_item_shared_with_x_people">%d People</string>
     <string name="tracklist_item_shared_with_you">You</string>
+
+    <string name='menu_filter'>Filter</string>
+    <string name="dashboard_filter_title">What to display on your feed</string>
+    <string name="dashboard_filter_all">All incoming tracks</string>
+    <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
+    <string name="dashboard_filter_cancel">Cancel</string>
 </resources>
