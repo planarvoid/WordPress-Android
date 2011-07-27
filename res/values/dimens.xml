@@ -19,7 +19,7 @@
 
     <dimen name="rec_list_text_margin_left">5dip</dimen>
 
-    <dimen name="user_list_text_margin_left">10dip</dimen>
+    <dimen name="user_list_text_margin_left">0dip</dimen>
 
     <dimen name="user_browser_info_margin_left">0dip</dimen>
     <dimen name="user_browser_info_username_margin_top">5dip</dimen>
