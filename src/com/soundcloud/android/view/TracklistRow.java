@@ -33,6 +33,10 @@ public class TracklistRow extends LazyRow {
     protected TextView mCreatedAt;
     protected TextView mPrivateIndicator;
 
+    protected TextView mFavoriteCount;
+    protected TextView mPlayCount;
+    protected TextView mCommentCount;
+
     protected ImageButton mPlayBtn;
     protected ImageButton mFavoriteBtn;
     protected ImageButton mProfileBtn;
@@ -57,6 +61,10 @@ public class TracklistRow extends LazyRow {
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
         mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
+
+        mFavoriteCount = (TextView) findViewById(R.id.favorite_count);
+        mPlayCount = (TextView) findViewById(R.id.play_count);
+        mCommentCount = (TextView) findViewById(R.id.comment_count);
     }
 
     protected Drawable getPrivateDrawable() {
@@ -233,6 +241,10 @@ public class TracklistRow extends LazyRow {
             }
             mPrivateIndicator.setVisibility(View.GONE);
         }
+
+        mFavoriteCount.setText(String.valueOf(mTrack.favoritings_count));
+        mCommentCount.setText(String.valueOf(mTrack.comment_count));
+        mPlayCount.setText(String.valueOf(mTrack.playback_count));
 
         _isFavorite = mTrack.user_favorite;
     }

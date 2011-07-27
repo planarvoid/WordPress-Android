@@ -62,7 +62,7 @@
                   android:layout_height="wrap_content"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/sounds"
+                  android:drawableLeft="@drawable/stats_plays"
                   android:drawablePadding="3dip"
                   android:drawableRight="@drawable/vertical_divider"
                   android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
               android:id="@+id/vr_play_count"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/sounds"
+                  android:drawableLeft="@drawable/stats_comments"
                   android:drawablePadding="3dip"
                   android:drawableRight="@drawable/vertical_divider"
                   android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
               android:id="@+id/vr_comment_count"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/sounds"
+                  android:drawableLeft="@drawable/stats_favorites"
                   android:drawablePadding="3dip"
                   android:drawableRight="@drawable/vertical_divider"
                   android:layout_height="wrap_content"
