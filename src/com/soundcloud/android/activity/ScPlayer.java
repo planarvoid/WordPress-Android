@@ -197,9 +197,20 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
+        mAvatar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (mPlayingTrack == null) {
+                    return;
+                }
+
+                Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
+                intent.putExtra("userId", mPlayingTrack.user_id);
+                startActivity(intent);
+            }
+        });
 
         findViewById(R.id.private_indicator).setVisibility(View.GONE);
-
 
         ImageButton mPrevButton = (ImageButton) findViewById(R.id.prev);
         mPrevButton.setOnClickListener(mPrevListener);
@@ -221,20 +232,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                     toggleFavorite();
                 }
             });
-
-            /*mProfileButton = (ImageButton) findViewById(R.id.btn_favorite);
-            mProfileButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-
-                    if (mPlayingTrack == null) {
-                        return;
-                    }
-
-                    Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
-                    intent.putExtra("userId", mPlayingTrack.user_id);
-                    startActivity(intent);
-                }
-            }); */
 
             mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
             mInfoButton.setOnClickListener(new View.OnClickListener() {
