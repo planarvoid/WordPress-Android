@@ -38,9 +38,12 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.*;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
@@ -356,7 +359,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id));
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"));
         if (isOtherUser()) {
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
