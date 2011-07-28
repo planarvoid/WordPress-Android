@@ -7,6 +7,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
@@ -22,6 +23,12 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import com.urbanairship.AirshipConfigOptions;
+import com.urbanairship.UAirship;
+import com.urbanairship.push.CustomPushNotificationBuilder;
+import com.urbanairship.push.PushManager;
+import com.urbanairship.push.PushNotificationBuilder;
+import com.urbanairship.push.PushPreferences;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
@@ -36,8 +43,11 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,9 +59,9 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
@@ -102,7 +112,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (DEV_MODE) {
-            setupStrictMode();
+            //setupStrictMode();
+            setupPushNotifications();
         }
 
         if (account != null) {
@@ -526,4 +537,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     .build());
         }
     }
+
+    private void setupPushNotifications() {
+        UAirship.takeOff(this, AirshipConfigOptions.loadDefaultOptions(this));
+
+        PushManager.shared().setIntentReceiver(PushReceiver.class);
+        PushManager.enablePush();
+
+        PushPreferences prefs = PushManager.shared().getPreferences();
+        prefs.setSoundEnabled(true);
+        Log.i("ScPush", "MyApplication onCreate - App APID: " + prefs.getPushId());
+
+    }
+
+
+
 }
