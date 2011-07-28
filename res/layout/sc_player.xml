@@ -5,11 +5,12 @@
               android:orientation="vertical"
               android:layout_height="fill_parent"
               android:weightSum="7">
-    <FrameLayout android:layout_width="fill_parent"
-                 android:layout_height="wrap_content"
-                 android:background="@color/playerControlBackground"
-                 android:gravity="center_vertical">
+    <FrameLayout android:background="@color/playerControlBackground"
+                 android:layout_width="fill_parent"
+                 android:layout_height="@dimen/player_info_bar_height">
         <include android:id="@+id/track_info_bar"
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent"
                  layout="@layout/track_list_row_common"/>
     </FrameLayout>
     <RelativeLayout android:layout_width="fill_parent"

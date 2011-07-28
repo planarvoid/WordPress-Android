@@ -93,10 +93,10 @@ public class BetaPreferences {
                 message += "Your beta version is up to date. ";
             } else {
                 message += String.format("Last downloaded beta:\n%s, version: %s (%d),\nupdated %s. ",
-                        getElapsedTimeString(context.getResources(), content.downloadTime()),
+                        getElapsedTimeString(context.getResources(), content.downloadTime(), true),
                         content.getVersionName(),
                         content.getVersionCode(),
-                        getElapsedTimeString(context.getResources(), content.lastmodified)
+                        getElapsedTimeString(context.getResources(), content.lastmodified, true)
                 );
             }
         } else {

@@ -43,6 +43,10 @@ public class TracklistRow extends LazyRow {
     protected TextView mPlayCount;
     protected TextView mCommentCount;
 
+    protected View mPlayCountSeparator;
+    protected View mCommentCountSeparator;
+
+
     protected ImageButton mPlayBtn;
     protected ImageButton mFavoriteBtn;
     protected ImageButton mProfileBtn;
@@ -73,6 +77,11 @@ public class TracklistRow extends LazyRow {
         mFavoriteCount = (TextView) findViewById(R.id.favorite_count);
         mPlayCount = (TextView) findViewById(R.id.play_count);
         mCommentCount = (TextView) findViewById(R.id.comment_count);
+
+        mPlayCountSeparator = findViewById(R.id.vr_play_count);
+        mCommentCountSeparator = findViewById(R.id.vr_comment_count);
+
+
     }
 
     protected Drawable getPrivateDrawable() {
@@ -259,9 +268,8 @@ public class TracklistRow extends LazyRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        mFavoriteCount.setText(String.valueOf(mTrack.favoritings_count));
-        mCommentCount.setText(String.valueOf(mTrack.comment_count));
-        mPlayCount.setText(String.valueOf(mTrack.playback_count));
+        CloudUtils.setStats(mTrack.playback_count,mPlayCount,mPlayCountSeparator,mTrack.comment_count,
+                        mCommentCount,mCommentCountSeparator,mTrack.favoritings_count,mFavoriteCount);
 
         _isFavorite = mTrack.user_favorite;
 

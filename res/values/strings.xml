@@ -224,31 +224,61 @@
     <string name='upload_and_share'>Upload &amp; Share</string>
 
     <plurals name='elapsed_seconds'>
+        <item quantity='one'>1 second</item>
+        <item quantity='other'>%d seconds</item>
+    </plurals>
+
+    <plurals name='elapsed_minutes'>
+        <item quantity='one'>1 minute</item>
+        <item quantity='other'>%d minutes</item>
+    </plurals>
+
+    <plurals name='elapsed_hours'>
+        <item quantity='one'>1 hour</item>
+        <item quantity='other'>%d hours</item>
+    </plurals>
+
+    <plurals name='elapsed_days'>
+        <item quantity='one'>1 day</item>
+        <item quantity='other'>%d days</item>
+    </plurals>
+
+    <plurals name='elapsed_months'>
+        <item quantity='one'>1 month</item>
+        <item quantity='other'>%d months</item>
+    </plurals>
+
+    <plurals name='elapsed_years'>
+        <item quantity='one'>1 year</item>
+        <item quantity='other'>%d years</item>
+    </plurals>
+    
+    <plurals name='elapsed_seconds_ago'>
         <item quantity='one'>1 second ago</item>
         <item quantity='other'>%d seconds ago</item>
     </plurals>
 
-    <plurals name='elapsed_minutes'>
+    <plurals name='elapsed_minutes_ago'>
         <item quantity='one'>1 minute ago</item>
         <item quantity='other'>%d minutes ago</item>
     </plurals>
 
-    <plurals name='elapsed_hours'>
+    <plurals name='elapsed_hours_ago'>
         <item quantity='one'>1 hour ago</item>
         <item quantity='other'>%d hours ago</item>
     </plurals>
 
-    <plurals name='elapsed_days'>
+    <plurals name='elapsed_days_ago'>
         <item quantity='one'>1 day ago</item>
         <item quantity='other'>%d days ago</item>
     </plurals>
 
-    <plurals name='elapsed_months'>
+    <plurals name='elapsed_months_ago'>
         <item quantity='one'>1 month ago</item>
         <item quantity='other'>%d months ago</item>
     </plurals>
 
-    <plurals name='elapsed_years'>
+    <plurals name='elapsed_years_ago'>
         <item quantity='one'>1 year ago</item>
         <item quantity='other'>%d years ago</item>
     </plurals>

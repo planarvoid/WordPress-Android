@@ -50,6 +50,7 @@
               android:singleLine="true"
               android:ellipsize="marquee"
               android:layout_alignBottom="@id/txt_username"
+              android:layout_alignTop="@id/txt_username"
               style="@style/txt_comment_bubble_gray"
               android:layout_toRightOf="@id/txt_show_date"
               android:layout_toLeftOf="@+id/btn_close"

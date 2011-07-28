@@ -36,6 +36,7 @@
     <dimen name="player_time_width">80dip</dimen>
     <dimen name="player_time_text_size">10sp</dimen>
 
+    <dimen name="player_info_bar_height">90dip</dimen>
     <dimen name="player_track_info_padding_top">10dip</dimen>
     <dimen name="player_track_info_padding_left">0dip</dimen>
     <dimen name="player_track_info_padding_right">0dip</dimen>
@@ -65,7 +66,4 @@
     <dimen name="share_user_icon_height">32px</dimen>
     <dimen name="share_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
-
-
-
 </resources>

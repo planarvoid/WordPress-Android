@@ -206,7 +206,7 @@ public class CommentBubble extends RelativeLayout {
         mTxtUsername.setText(mComment.user.username);
         mTxtDate.setText("at " + CloudUtils.formatTimestamp(mComment.timestamp));
         mTxtComment.setText(mComment.body);
-        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime()));
+        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtDate.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);
