@@ -100,13 +100,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
                     }
                 }
             } else if (Event.class.equals(loadModel)) {
-
-                ObjectMapper mapper = mApp.getMapper();
-                SimpleModule module = new SimpleModule("EventDeserializerModule", new Version(1, 0, 0, null))
-                    .addDeserializer(Event.class, new EventDeserializer());
-                mapper.registerModule(module);
-
-                holder = mapper.readValue(is, EventsHolder.class);
+                holder = mApp.getMapper().readValue(is, EventsHolder.class);
                 if (holder.size() > 0){
                     newItems = new ArrayList<Parcelable>();
                     for (Event e : (EventsHolder) holder){
