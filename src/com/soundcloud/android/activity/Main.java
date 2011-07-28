@@ -222,10 +222,10 @@ public class Main extends TabActivity {
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
         host.addTab(spec);
 
-        spec = host.newTabSpec("news").setIndicator(
+        spec = host.newTabSpec("activity").setIndicator(
                 getString(R.string.tab_activity),
                 getResources().getDrawable(R.drawable.ic_tab_news));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "news"));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "activity"));
         host.addTab(spec);
 
         spec = host.newTabSpec("record").setIndicator(

@@ -282,8 +282,8 @@
     <string name='empty_list'>No Results</string>
     <string name='menu_upload'>Upload</string>
 
-    <string name='tab_incoming'>stream</string>
-    <string name='tab_activity'>activity</string>
+    <string name='tab_incoming'>Stream</string>
+    <string name='tab_activity'>Activity</string>
     <string name='tab_you'>You</string>
     <string name='tab_record'>Record</string>
     <string name='tab_search'>Search</string>

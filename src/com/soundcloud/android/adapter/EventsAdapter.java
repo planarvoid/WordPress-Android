@@ -15,26 +15,26 @@ import java.util.ArrayList;
 public class EventsAdapter extends TracklistAdapter {
 
     public static final String TAG = "EventsAdapter";
-    private boolean mNews;
+    private boolean mIsActivityFeed;
 
-    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isNews, Class<?> model) {
+    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isActivityFeed, Class<?> model) {
         super(context, data, model);
-        mNews = isNews;
+        mIsActivityFeed = isActivityFeed;
     }
 
-    public boolean isNews(){
-        return mNews;
+    public boolean isActivityFeed(){
+        return mIsActivityFeed;
     }
 
     @Override
     public void setPlayingId(long currentTrackId, boolean isPlaying) {
-        if (mNews) return;
+        if (mIsActivityFeed) return;
         super.setPlayingId(currentTrackId,isPlaying);
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return mNews ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
+        return mIsActivityFeed ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
     }
 
     @Override

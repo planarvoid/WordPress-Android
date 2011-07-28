@@ -52,14 +52,14 @@ public class Dashboard extends ScActivity {
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
-            } else if ("news".equalsIgnoreCase(tab)) {
+            } else if ("activity".equalsIgnoreCase(tab)) {
                 mNews = true;
                 //TODO replace with proper endpoint
                 mTracklistView = createList(Request.to("/me/activities/all/own"),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_NEWS, true);
-                mTrackingPath = "/news";
+                mTrackingPath = "/activity";
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
