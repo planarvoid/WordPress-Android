@@ -27,6 +27,12 @@ public class EventsAdapter extends TracklistAdapter {
     }
 
     @Override
+    public void setPlayingId(long currentTrackId, boolean isPlaying) {
+        if (mNews) return;
+        super.setPlayingId(currentTrackId,isPlaying);
+    }
+
+    @Override
     protected LazyRow createRow(int position) {
         return mNews ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
     }

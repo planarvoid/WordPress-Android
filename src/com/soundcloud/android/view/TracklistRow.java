@@ -7,6 +7,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -15,7 +16,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.StaticLayout;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -46,12 +50,14 @@ public class TracklistRow extends LazyRow {
     protected ImageButton mShareBtn;
 
     private Drawable mPrivateDrawable;
+    private Drawable mPlayingDrawable;
 
     protected RelativeLayout mTrackInfoRow;
 
     protected ImageView mCloseIcon;
 
     protected Boolean _isFavorite = false;
+
 
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
@@ -74,6 +80,14 @@ public class TracklistRow extends LazyRow {
         return mPrivateDrawable;
     }
 
+     private Drawable getPlayingDrawable(){
+          if (mPlayingDrawable == null) {
+              mPlayingDrawable = getResources().getDrawable(R.drawable.list_playing);
+              mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
+          }
+        return mPlayingDrawable;
+    }
+
     @Override
     protected int getRowResourceId() {
         return R.layout.track_list_row;
@@ -83,6 +97,8 @@ public class TracklistRow extends LazyRow {
     protected Drawable getIconBgResourceId() {
         return getResources().getDrawable(R.drawable.artwork_badge);
     }
+
+
 
     @Override
     protected void initSubmenu() {
@@ -222,7 +238,6 @@ public class TracklistRow extends LazyRow {
         if (mTrack == null)
             return;
 
-        mTitle.setText(mTrack.title);
         mUser.setText(mTrack.user.username);
 
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getTrackTime(p)));
@@ -249,6 +264,18 @@ public class TracklistRow extends LazyRow {
         mPlayCount.setText(String.valueOf(mTrack.playback_count));
 
         _isFavorite = mTrack.user_favorite;
+
+        if (mTrack.id == ((TracklistAdapter) mAdapter).playingId) {
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append("  ");
+            sb.setSpan(new ImageSpan(getPlayingDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.append(mTrack.title);
+            mTitle.setText(sb);
+
+        } else {
+            mTitle.setText(mTrack.title);
+        }
+
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {
