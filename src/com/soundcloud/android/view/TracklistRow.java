@@ -19,6 +19,7 @@ import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.StaticLayout;
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.View;
@@ -268,8 +269,8 @@ public class TracklistRow extends LazyRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        CloudUtils.setStats(mTrack.playback_count,mPlayCount,mPlayCountSeparator,mTrack.comment_count,
-                        mCommentCount,mCommentCountSeparator,mTrack.favoritings_count,mFavoriteCount);
+        CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
+                mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount);
 
         _isFavorite = mTrack.user_favorite;
 
@@ -297,10 +298,11 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mTrack == null || mTrack.artwork_url == null)
-            return "";
-
-        return ImageUtils.formatGraphicsUrlForList(mActivity,mTrack.artwork_url);
+        if (mTrack == null || (mTrack.artwork_url == null && mTrack.user.avatar_url == null)){
+           return "";
+        }
+        return ImageUtils.formatGraphicsUrlForList(mActivity,
+                mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
 
 
