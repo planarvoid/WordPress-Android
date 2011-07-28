@@ -28,7 +28,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
@@ -38,8 +37,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +84,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
-    private int mLastMotionY;
+    private int mTouchY;
+    private int mFakeTouchFloor;
     private int mRefreshState;
     private int mRefreshViewHeight;
     private int mRefreshOriginalTopPadding;
@@ -460,13 +458,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 && mRefreshState != REFRESHING) {
             if (firstVisibleItem == 0) {
                 mRefreshViewImage.setVisibility(View.VISIBLE);
-                if ((mRefreshView.getBottom() > mRefreshViewHeight + 20)
+                if ((mRefreshView.getBottom() > mRefreshViewHeight)
                         && mRefreshState != RELEASE_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_release_label);
                     mRefreshViewImage.clearAnimation();
                     mRefreshViewImage.startAnimation(mFlipAnimation);
                     mRefreshState = RELEASE_TO_REFRESH;
-                } else if (mRefreshView.getBottom() < mRefreshViewHeight + 20
+                } else if (mRefreshView.getBottom() < mRefreshViewHeight
                         && mRefreshState != PULL_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_pull_label);
                     if (mRefreshState != TAP_TO_REFRESH) {
@@ -520,14 +518,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
 
                 if (getFirstVisiblePosition() == 0 && mRefreshState != REFRESHING) {
-                    if (mRefreshView.getBottom() > mRefreshViewHeight
-                            || mRefreshView.getTop() >= 0
-                            && mRefreshState == RELEASE_TO_REFRESH) {
+                    if (mRefreshView.getBottom() > mRefreshViewHeight && mRefreshState == RELEASE_TO_REFRESH) {
                         // Initiate the refresh
                         mRefreshState = REFRESHING;
                         prepareForRefresh();
                         onRefresh();
-                    } else if (mRefreshView.getBottom() < mRefreshViewHeight) {
+                    } else {
                         // Abort refresh and scroll down below the refresh view
                         resetHeader();
                         setSelection(1);
@@ -535,23 +531,25 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
                 break;
             case MotionEvent.ACTION_DOWN:
-                mLastMotionY = y;
+                mTouchY = y;
+                mFakeTouchFloor = -1;
                 break;
             case MotionEvent.ACTION_MOVE:
-                int incrementalDeltaY = mLastMotionY != Integer.MIN_VALUE ? (int) event.getY() - mLastMotionY : (int) event.getY();
-                if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH){
+                final int incrementalDeltaY = mTouchY != Integer.MIN_VALUE ? y - mTouchY : y;
+                if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH) {
                     if (Math.abs(incrementalDeltaY) >= 1) {
-                        final int topPadding = Math.max(mRefreshOriginalTopPadding,(int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7));
+                        final int topPadding = Math.max(mRefreshOriginalTopPadding, (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7));
                         if (topPadding != mRefreshView.getPaddingTop()) {
                             mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
                                     mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
                         }
                     }
-                    if (getFirstVisiblePosition() == 0 && incrementalDeltaY > 0) {
-                        incrementalDeltaY = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, incrementalDeltaY);
-                        if (getChildAt(0).getTop() >= 0 && incrementalDeltaY >= 0) {
-                            return true;
-                        }
+                    if (mFakeTouchFloor != -1 && y >= mFakeTouchFloor) {
+                        return true;
+                    }
+                    if (getFirstVisiblePosition() == 0 && getChildAt(0).getTop() >= 0 && incrementalDeltaY > 0 && mFakeTouchFloor == -1) {
+                        mFakeTouchFloor = y;
+                        return true;
                     }
                 }
 
