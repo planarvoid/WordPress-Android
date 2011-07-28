@@ -1,6 +1,9 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.SoundCloudApplication;
+
+import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -127,6 +130,5 @@ public class BaseObj implements Parcelable {
         }
     }
 
-
-
+    public void resolve(SoundCloudApplication application) {}
 }

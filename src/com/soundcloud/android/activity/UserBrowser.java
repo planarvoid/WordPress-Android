@@ -263,11 +263,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     private void loadYou() {
-        if (getCurrentUserId() != -1) {
-            User u = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
-            if (u == null) u = new User(getApp());
-            setUser(u);
-        }
+        setUser(getApp().getLoggedInUser());
         build();
     }
 

@@ -446,14 +446,6 @@ public class CloudUtils {
         return emptyView;
     }
 
-    public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
-        if (p instanceof Track) {
-            ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof Event) {
-           ((Event)p).updateEventObjectsFromDb(c.getContentResolver(), user_id);
-        }
-    }
-
     public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId){
         return buildComment(context, userId, trackId, timestamp, commentBody, replyToId, "");
     }

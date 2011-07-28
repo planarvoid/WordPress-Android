@@ -2,6 +2,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -386,5 +387,10 @@ public class Track extends BaseObj implements Parcelable {
                 return true;
             }
         } else return false;
+    }
+
+    @Override
+    public void resolve(SoundCloudApplication application) {
+        updateUserPlayedFromDb(application.getContentResolver(), application.getCurrentUserId());
     }
 }

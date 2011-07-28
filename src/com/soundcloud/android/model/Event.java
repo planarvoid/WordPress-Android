@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
@@ -87,8 +88,19 @@ public class Event extends BaseObj implements Parcelable {
         return track;
     }
 
-    public void updateEventObjectsFromDb(ContentResolver contentResolver, Long currentUserId) {
-        if (track != null) track.updateUserPlayedFromDb(contentResolver,currentUserId);
+    @Override
+    public void resolve(SoundCloudApplication application) {
+        if (track != null) track.updateUserPlayedFromDb(application.getContentResolver(),application.getCurrentUserId());
+         if (type.contentEquals(Types.COMMENT)) {
+             if (comment.track.user == null){
+                 comment.track.user = application.getLoggedInUser();
+             }
+         } else if (type.contentEquals(Types.FAVORITING)) {
+            if (track.user == null){
+                track.user = application.getLoggedInUser();
+            }
+        }
+
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {

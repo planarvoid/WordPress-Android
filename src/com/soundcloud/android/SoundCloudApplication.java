@@ -65,6 +65,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker mTracker;
+    private User mLoggedInUser;
 
     protected Wrapper mCloudApi; /* protected for testing */
     public boolean playerWaitForArtwork;
@@ -131,6 +132,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 DONT_KILL_APP);
     }
 
+    public User getLoggedInUser(){
+        if (mLoggedInUser == null && getCurrentUserId() != -1){
+            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            if (mLoggedInUser == null) mLoggedInUser = new User(this);
+        }
+        return mLoggedInUser;
+    }
+
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
         mCloudApi.invalidateToken();
 
@@ -155,6 +164,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         FollowStatus.set(null);
         Connections.set(null);
+        mLoggedInUser = null;
     }
 
     public boolean isEmailConfirmed() {
