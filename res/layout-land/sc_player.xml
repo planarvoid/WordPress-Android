@@ -11,9 +11,6 @@
         <FrameLayout android:layout_width="fill_parent"
                      android:layout_height="wrap_content"
                      android:background="@color/playerControlBackground"
-                     android:paddingTop="@dimen/player_track_info_padding_top"
-                     android:paddingLeft="@dimen/player_track_info_padding_left"
-                     android:paddingRight="@dimen/player_track_info_padding_right"
                      android:gravity="center_vertical">
             <include android:id="@+id/track_info_bar"
                      layout="@layout/track_list_row_common"/>

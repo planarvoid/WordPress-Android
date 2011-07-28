@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent" android:id="@+id/main_holder"
-              android:orientation="vertical" android:layout_height="fill_parent" android:weightSum="7">
+              android:layout_width="fill_parent"
+              android:id="@+id/main_holder"
+              android:orientation="vertical"
+              android:layout_height="fill_parent"
+              android:weightSum="7">
     <FrameLayout android:layout_width="fill_parent"
                  android:layout_height="wrap_content"
                  android:background="@color/playerControlBackground"
@@ -9,16 +12,23 @@
         <include android:id="@+id/track_info_bar"
                  layout="@layout/track_list_row_common"/>
     </FrameLayout>
-    <View android:layout_width="fill_parent"
-                  android:layout_height="1dip" android:layout_marginLeft="10dip"
-                  android:background="@color/horizontalRule" android:layout_marginRight="10dip"/>
+    <RelativeLayout android:layout_width="fill_parent"
+                 android:layout_height="1dip"
+                 android:background="@color/playerControlBackground">
+        <View android:layout_width="fill_parent"
+              android:layout_height="1dip"
+              android:layout_marginLeft="10dip"
+              android:background="@color/horizontalRule"
+              android:layout_marginRight="10dip"/>
+    </RelativeLayout>
     <LinearLayout android:id="@+id/track_menu"
                           android:stretchColumns="*"
                           android:background="@color/playerControlBackground"
                           android:layout_alignParentTop="true"
                           android:layout_height="wrap_content"
                           android:layout_width="fill_parent"
-                          android:paddingTop="5dip" android:paddingBottom="5dip">
+                          android:paddingTop="5dip"
+                          android:paddingBottom="5dip">
                 <RelativeLayout android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content">
