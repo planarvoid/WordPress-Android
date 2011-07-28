@@ -783,7 +783,7 @@ public class CloudUtils {
         statTextView2.setText(String.valueOf(stat2));
         statTextView3.setText(String.valueOf(stat3));
 
-        statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
+        statTextView1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0)? View.GONE : View.VISIBLE);
         separator1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0) ? View.GONE : View.VISIBLE);
 
         statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
