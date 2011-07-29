@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -597,7 +598,18 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onEventClick(ArrayList<Parcelable> events, int position) {
-            playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            final Event e = ((Event) events.get(position));
+            if (e.type.contentEquals(Event.Types.COMMENT)) {
+                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            } else if (e.type.contentEquals(Event.Types.FAVORITING)) {
+                Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
+                Log.i("asdf","Sending " + e.getTrack().title + " " + e.getTrack().created_at);
+                i.putExtra("track", e.getTrack());
+                startActivity(i);
+            } else {
+                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            }
+
         }
 
         public void onFling() {

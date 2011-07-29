@@ -87,12 +87,16 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     protected void setTrackTime(Parcelable p) {
-        if (p instanceof IncomingRow) {
-            mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
+        if (p instanceof Event) {
+            if (((Event) p).created_at != null){
+                mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
                     ((Event) p).created_at.getTime()));
+            }
         } else {
-            mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
+            if (mTrack.created_at != null){
+                mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
                     mTrack.created_at.getTime()));
+            }
         }
     }
 
@@ -117,7 +121,7 @@ public class TrackInfoBar extends RelativeLayout {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main);
         }
 
-        if (mTrack.sharing.contentEquals("public")) {
+        if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (mTrack.shared_to_count == 1){
