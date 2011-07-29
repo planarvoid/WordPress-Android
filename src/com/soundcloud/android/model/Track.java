@@ -9,7 +9,6 @@ import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
-
 import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -18,6 +17,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -25,6 +25,8 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -112,7 +114,7 @@ public class Track extends BaseObj implements Parcelable {
     public boolean info_loaded;
     @JsonIgnore
     public boolean comments_loaded;
-    private File mCacheFile;
+    protected File mCacheFile;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -237,11 +239,6 @@ public class Track extends BaseObj implements Parcelable {
 
     public boolean isStreamable() {
         return streamable && stream_url != null;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
     }
 
     @Override

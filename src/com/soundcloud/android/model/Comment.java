@@ -7,9 +7,11 @@ import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.Comparator;
 
@@ -69,11 +71,6 @@ public class Comment extends BaseObj implements Parcelable {
             return new Comment[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
 
     public static class CompareTimestamp implements Comparator<Comment>{
         @Override

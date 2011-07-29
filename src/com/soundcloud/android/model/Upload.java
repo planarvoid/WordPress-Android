@@ -1,37 +1,20 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
-import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -216,7 +199,15 @@ public class Upload extends BaseObj implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
+        Bundle data = new Bundle();
+        try{
+            for (Field f : this.getClass().getDeclaredFields()) {
+                    setBundleFromField(data,f.getName(),f.getType(),f.get(this));
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        out.writeBundle(data);
     }
 
     @Override

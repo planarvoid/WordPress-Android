@@ -3,8 +3,11 @@ package com.soundcloud.android.model;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.lang.reflect.Field;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Friend extends BaseObj implements Parcelable {
@@ -30,14 +33,4 @@ public class Friend extends BaseObj implements Parcelable {
             return new Friend[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 }

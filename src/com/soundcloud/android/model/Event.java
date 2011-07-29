@@ -11,11 +11,13 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -112,16 +114,6 @@ public class Event extends BaseObj implements Parcelable {
             return new Event[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public ContentValues buildContentValues(long user_id, boolean exclusive){
         ContentValues cv = new ContentValues();
