@@ -18,6 +18,7 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -138,18 +139,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private static Method mUnregisterMediaButtonEventReceiver;
     private Drawable mPlayState, mPauseState, mFavoriteDrawable, mFavoritedDrawable;
 
-    protected TextView mUser;
-    protected TextView mTitle;
-    protected TextView mCreatedAt;
-    protected TextView mPrivateIndicator;
-
-    protected TextView mFavoriteCount;
-    protected TextView mPlayCount;
-    protected TextView mCommentCount;
-
-    protected View mPlayCountSeparator;
-    protected View mCommentCountSeparator;
-
+    protected TrackInfoBar mTrackInfoBar;
     protected ImageView mAvatar;
 
     static {
@@ -176,6 +166,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void initControls() {
+
+        mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
@@ -192,13 +184,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         View v = (View) mTrackName.getParent();
         v.setOnTouchListener(this);
-
-        mFavoriteCount = (TextView) findViewById(R.id.favorite_count);
-        mPlayCount = (TextView) findViewById(R.id.play_count);
-        mCommentCount = (TextView) findViewById(R.id.comment_count);
-
-        mPlayCountSeparator = findViewById(R.id.vr_play_count);
-        mCommentCountSeparator = findViewById(R.id.vr_comment_count);
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -834,14 +819,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
         mWaveformController.updateTrack(mPlayingTrack);
+        mTrackInfoBar.display(mPlayingTrack,false,-1);
         updateArtwork();
         updateAvatar();
-
-        mTrackName.setText(mPlayingTrack.title);
-        mUserName.setText(mPlayingTrack.user.username);
-
-        CloudUtils.setStats(mPlayingTrack.playback_count,mPlayCount,mPlayCountSeparator,mPlayingTrack.comment_count,
-                mCommentCount,mCommentCountSeparator,mPlayingTrack.favoritings_count,mFavoriteCount);
 
         mDuration = mPlayingTrack.duration;
 
@@ -860,10 +840,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
-            mTrackInfoFilled = false;
-            mTrackInfoCommentsFilled = false;
-            mWaveformLoaded = false;
             mCurrentTrackId = mPlayingTrack.id;
+            mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
+
+            mDuration = mPlayingTrack.duration;
+            mCurrentDurationString = CloudUtils.makeTimeString(
+                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
+                    mDuration / 1000);
 
             if (mPlayingTrack.comments != null) {
                 setCurrentComments(true);
@@ -874,11 +857,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
                 onTrackInfoFlip();
             }
-
-            mDuration = mPlayingTrack.duration;
-            mCurrentDurationString = CloudUtils.makeTimeString(
-                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
-                    mDuration / 1000);
 
             if (mCurrentTrackError)
                 return;

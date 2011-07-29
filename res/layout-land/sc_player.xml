@@ -8,10 +8,13 @@
                   android:layout_height="fill_parent"
                   android:orientation="vertical"
                   android:weightSum="11">
-        <FrameLayout android:background="@color/playerControlBackground"
-                 android:layout_width="fill_parent"
-                 android:layout_height="wrap_content">
-            <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
+        <FrameLayout android:id="@+id/info_bar_holder"
+                     android:background="@color/playerControlBackground"
+                     android:layout_width="fill_parent"
+                     android:layout_height="wrap_content">
+            <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
+                                                      android:layout_height="wrap_content"
+                                                      android:id="@+id/track_info_bar"/>
         </FrameLayout>
         <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
                                                      android:layout_weight="8"

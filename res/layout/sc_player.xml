@@ -5,10 +5,13 @@
               android:orientation="vertical"
               android:layout_height="fill_parent"
               android:weightSum="7">
-    <FrameLayout android:background="@color/playerControlBackground"
+    <FrameLayout android:id="@+id/info_bar_holder"
+                 android:background="@color/playerControlBackground"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
-        <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
+        <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
+                                                  android:layout_height="wrap_content"
+                                                  android:id="@+id/track_info_bar"/>
     </FrameLayout>
     <RelativeLayout android:layout_width="fill_parent"
                  android:layout_height="1dip"
