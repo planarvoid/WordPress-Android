@@ -133,8 +133,10 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
             mKeepOnAppending.set(true);
-            notifyDataSetChanged();
+        } else {
+            mKeepOnAppending.set(false);
         }
+        notifyDataSetChanged();
     }
 
 
