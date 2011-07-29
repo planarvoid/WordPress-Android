@@ -1275,4 +1275,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
     }
+
+    private void gotoFavoriteList(){
+        if (mPlayingTrack != null){
+            Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
+            i.putExtra("track", mPlayingTrack);
+            startActivity(i);
+        }
+    }
 }

@@ -33,31 +33,13 @@ import java.util.ArrayList;
 public class TracklistRow extends LazyRow {
     protected Track mTrack;
 
-    protected ImageView mPlayIndicator;
-
-    protected TextView mUser;
-    protected TextView mTitle;
-    protected TextView mCreatedAt;
-    protected TextView mPrivateIndicator;
-
-    protected TextView mFavoriteCount;
-    protected TextView mPlayCount;
-    protected TextView mCommentCount;
-
-    protected View mPlayCountSeparator;
-    protected View mCommentCountSeparator;
-
-
     protected ImageButton mPlayBtn;
     protected ImageButton mFavoriteBtn;
     protected ImageButton mProfileBtn;
     protected ImageButton mCommentBtn;
     protected ImageButton mShareBtn;
 
-    private Drawable mPrivateDrawable;
-    private Drawable mPlayingDrawable;
-
-    protected RelativeLayout mTrackInfoRow;
+    private TrackInfoBar mTrackInfoBar;
 
     protected ImageView mCloseIcon;
 
@@ -67,48 +49,14 @@ public class TracklistRow extends LazyRow {
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
 
-        mTitle = (TextView) findViewById(R.id.track);
-        mUser = (TextView) findViewById(R.id.user);
-        mCreatedAt = (TextView) findViewById(R.id.track_created_at);
-        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
-        mPlayIndicator = (ImageView) findViewById(R.id.play_indicator);
-        mTrackInfoRow = (RelativeLayout) findViewById(R.id.track_info_row);
-
-        mFavoriteCount = (TextView) findViewById(R.id.favorite_count);
-        mPlayCount = (TextView) findViewById(R.id.play_count);
-        mCommentCount = (TextView) findViewById(R.id.comment_count);
-
-        mPlayCountSeparator = findViewById(R.id.vr_play_count);
-        mCommentCountSeparator = findViewById(R.id.vr_comment_count);
-
-
-    }
-
-    protected Drawable getPrivateDrawable() {
-        if (mPrivateDrawable == null) mPrivateDrawable = mActivity.getResources().getDrawable(R.drawable.very_private);
-        return mPrivateDrawable;
-    }
-
-     private Drawable getPlayingDrawable(){
-          if (mPlayingDrawable == null) {
-              mPlayingDrawable = getResources().getDrawable(R.drawable.list_playing);
-              mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
-          }
-        return mPlayingDrawable;
+        mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
     }
 
     @Override
     protected int getRowResourceId() {
         return R.layout.track_list_row;
     }
-
-    @Override
-    protected Drawable getIconBgResourceId() {
-        return getResources().getDrawable(R.drawable.artwork_badge);
-    }
-
-
 
     @Override
     protected void initSubmenu() {
@@ -167,7 +115,7 @@ public class TracklistRow extends LazyRow {
             mShareBtn.setVisibility(View.GONE);
         }
 
-        mTrackInfoRow.setOnClickListener(new View.OnClickListener() {
+        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mAdapter.submenuIndex = -1;
                 mAdapter.notifyDataSetChanged();
@@ -185,18 +133,18 @@ public class TracklistRow extends LazyRow {
 
         setFavoriteStatus();
         mFavoriteBtn.setEnabled(true);
-        mTrackInfoRow.setFocusable(true);
-        mTrackInfoRow.setClickable(true);
-        mTrackInfoRow.setBackgroundResource(R.drawable.list_item_submenu_top);
+        mTrackInfoBar.setFocusable(true);
+        mTrackInfoBar.setClickable(true);
+        mTrackInfoBar.setBackgroundResource(R.drawable.list_item_submenu_top);
 
     }
 
 
     @Override
     protected void onNoSubmenu() {
-        mTrackInfoRow.setFocusable(false);
-        mTrackInfoRow.setClickable(false);
-        mTrackInfoRow.setBackgroundColor(Color.TRANSPARENT);
+        mTrackInfoBar.setFocusable(false);
+        mTrackInfoBar.setClickable(false);
+        mTrackInfoBar.setBackgroundColor(Color.TRANSPARENT);
     }
 
     private void setFavoriteStatus() {
@@ -232,58 +180,13 @@ public class TracklistRow extends LazyRow {
     }
 
 
-    protected long getTrackTime(Parcelable p) {
-        return getTrackFromParcelable(p).created_at.getTime();
-    }
-
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
-
         mTrack = getTrackFromParcelable(p);
-
         super.display(position);
-
-        if (mTrack == null)
-            return;
-
-        mUser.setText(mTrack.user.username);
-
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getTrackTime(p)));
-
-        if (!mTrack.streamable) {
-            mTitle.setTextAppearance(mActivity, R.style.txt_list_main_inactive);
-        } else {
-            mTitle.setTextAppearance(mActivity, R.style.txt_list_main);
-        }
-
-        if (mTrack.sharing.contentEquals("public")) {
-            mPrivateIndicator.setVisibility(View.GONE);
-        } else {
-            if (mTrack.shared_to_count == 1){
-                mPrivateIndicator.setText(mActivity.getString(R.string.tracklist_item_shared_with_you));
-            } else {
-                mPrivateIndicator.setText(mActivity.getString(R.string.tracklist_item_shared_with_x_people,mTrack.shared_to_count));
-            }
-            mPrivateIndicator.setVisibility(View.VISIBLE);
-        }
-
-        CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
-                mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount);
-
-        _isFavorite = mTrack.user_favorite;
-
-        if (mTrack.id == ((TracklistAdapter) mAdapter).playingId) {
-            SpannableStringBuilder sb = new SpannableStringBuilder();
-            sb.append("  ");
-            sb.setSpan(new ImageSpan(getPlayingDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            sb.append(mTrack.title);
-            mTitle.setText(sb);
-
-        } else {
-            mTitle.setText(mTrack.title);
-        }
+        mTrackInfoBar.display(mTrack, false, ((TracklistAdapter) mAdapter).playingId);
 
     }
 

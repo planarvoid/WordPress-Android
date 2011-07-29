@@ -17,9 +17,4 @@ public class IncomingRow extends TracklistRow {
     protected Track getTrackFromParcelable(Parcelable p) {
         return ((Event) p).track;
     }
-
-    @Override
-    protected long getTrackTime(Parcelable p) {
-        return ((Event)p).created_at.getTime();
-    }
 }

@@ -5,8 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.FriendFinderAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
@@ -20,7 +19,6 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -181,7 +179,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mFriendList = mActivity.configureList(new SectionedListView(mActivity), mListAddPosition);
         mFriendList.setOnRefreshListener(this);
 
-        mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity));
+        mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity));
         mAdapter.addListener(this);
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);

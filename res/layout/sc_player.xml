@@ -8,7 +8,7 @@
     <FrameLayout android:background="@color/playerControlBackground"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
-        <include android:id="@+id/track_info_bar" layout="@layout/track_list_row_common"/>
+        <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
     </FrameLayout>
     <RelativeLayout android:layout_width="fill_parent"
                  android:layout_height="1dip"

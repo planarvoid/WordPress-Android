@@ -11,7 +11,7 @@
         <FrameLayout android:background="@color/playerControlBackground"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
-            <include android:id="@+id/track_info_bar" layout="@layout/track_list_row_common"/>
+            <include android:id="@+id/track_info_bar" layout="@layout/track_info_bar"/>
         </FrameLayout>
         <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
                                                      android:layout_weight="8"

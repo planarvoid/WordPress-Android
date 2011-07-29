@@ -536,4 +536,6 @@
     <string name="dashboard_filter_all">All incoming tracks</string>
     <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
     <string name="dashboard_filter_cancel">Cancel</string>
+
+    <string name='list_header_track_favoriters'>People who liked this track</string>
 </resources>

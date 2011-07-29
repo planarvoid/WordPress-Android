@@ -8,8 +8,8 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistSectionedRow;
 
-public class FriendFinderAdapter extends SectionedAdapter implements IUserlistAdapter, FollowStatus.Listener {
-    public FriendFinderAdapter(ScActivity activity) {
+public class SectionedUserlistAdapter extends SectionedAdapter implements IUserlistAdapter, FollowStatus.Listener {
+    public SectionedUserlistAdapter(ScActivity activity) {
         super(activity);
         FollowStatus.get().requestUserFollowings(activity.getApp(), this, false);
     }

@@ -463,7 +463,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public boolean needsRefresh() {
-        return (super.getCount() == 0 && mKeepOnAppending.get()) && CloudUtils.isTaskFinished(mRefreshTask);
+        return (getWrappedAdapter().getCount() == 0 && mKeepOnAppending.get()) && CloudUtils.isTaskFinished(mRefreshTask);
     }
 
     public void onConnected() {

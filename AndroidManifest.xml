@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="1.3.4-BETA7"
+      android:versionName="1.3.4-BETA8"
       android:installLocation="auto"
       android:versionCode="21">
 
@@ -56,6 +56,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings" />
         <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
