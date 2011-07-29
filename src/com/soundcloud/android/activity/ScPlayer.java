@@ -18,6 +18,7 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.api.Endpoints;
@@ -49,6 +50,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -100,6 +102,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private ViewFlipper mTrackFlipper;
 
     private RelativeLayout mTrackInfo;
+    private FlowLayout mTrackTags;
     private RelativeLayout mPlayableLayout;
 
     private FrameLayout mUnplayableLayout;
@@ -115,6 +118,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private TextView mCurrentTime;
     private TextView mUserName;
     private TextView mTrackName;
+
+    private TextView mFavoritersTxt;
 
     private long mDuration;
 
@@ -482,6 +487,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             if (mTrackInfo == null) {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
+                mTrackTags = (FlowLayout) mTrackInfo.findViewById(R.id.tags_holder);
+                mFavoritersTxt = (TextView) mTrackInfo.findViewById(R.id.favoriters_txt);
+                mFavoritersTxt.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mPlayingTrack != null) {
+                            Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
+                            i.putExtra("track", mPlayingTrack);
+                            startActivity(i);
+                        }
+                    }
+                });
             }
 
             if (!mTrackInfoFilled) {
@@ -515,9 +532,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackInfo.findViewById(android.R.id.empty) != null) {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
             } else {
-                mTrackInfo.addView(
-                        CloudUtils.buildEmptyView(this,
-                                getResources().getString(R.string.info_error)),
+                mTrackInfo.addView(CloudUtils.buildEmptyView(this,getResources().getString(R.string.info_error)),
                         mTrackInfo.getChildCount() - 2);
             }
             mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
@@ -548,10 +563,17 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
             }
         } else {
-            ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(Integer.toString(mPlayingTrack.playback_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.favoritings_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer.toString(mPlayingTrack.download_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer.toString(mPlayingTrack.comment_count));
+
+            if (mPlayingTrack.favoritings_count == 0) {
+                mFavoritersTxt.setVisibility(View.GONE);
+            } else {
+                mFavoritersTxt.setVisibility(View.VISIBLE);
+                mFavoritersTxt.setText(String.format(getResources().getString(R.string.track_info_favoriters),
+                        mPlayingTrack.favoritings_count));
+            }
+
+            mTrackTags.removeAllViews();
+            mPlayingTrack.fillTags(mTrackTags, (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 
             TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
             txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
@@ -1152,8 +1174,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void setCurrentComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
-        if (mTrackFlipper.getDisplayedChild() == 1) fillTrackInfoComments();
-        if (mLandscape) mWaveformController.setComments(mPlayingTrack.comments, animateIn);
+
+        if (mLandscape) {
+            mWaveformController.setComments(mPlayingTrack.comments, animateIn);
+        } else if (mTrackFlipper.getDisplayedChild() == 1) {
+            fillTrackInfoComments();
+        }
     }
 
     public AddCommentListener addCommentListener = new AddCommentListener(){
@@ -1242,6 +1268,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mPlayingTrack.comments = null;
                 mTrackInfoFilled = false;
                 mTrackInfoCommentsFilled = false;
+
+                //TODO check this logic
                 if (mTrackInfo != null) {
                     fillTrackInfoComments();
                     fillTrackDetails();
@@ -1252,13 +1280,5 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    private void gotoFavoriteList(){
-        if (mPlayingTrack != null){
-            Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
-            i.putExtra("track", mPlayingTrack);
-            startActivity(i);
-        }
     }
 }

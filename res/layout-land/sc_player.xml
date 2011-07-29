@@ -16,48 +16,36 @@
                                                       android:layout_height="wrap_content"
                                                       android:id="@+id/track_info_bar"/>
         </FrameLayout>
-        <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
-                                                     android:layout_weight="8"
-                                                     android:layout_width="fill_parent"
-                                                     android:layout_height="0dp">
+        <FrameLayout
+                android:layout_weight="8"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:background="@color/white">
+            <RelativeLayout android:layout_width="fill_parent"
+                            android:id="@+id/playable_layout"
+                            android:layout_height="fill_parent">
 
-            <FrameLayout android:layout_width="fill_parent"
-                         android:background="@color/white"
-                         android:layout_height="fill_parent">
+                <com.soundcloud.android.view.WaveformController
+                        android:id="@+id/waveform_controller"
+                        android:layout_width="fill_parent"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content"/>
 
-                <RelativeLayout android:layout_width="fill_parent"
-                                android:id="@+id/playable_layout"
-                                android:layout_height="fill_parent">
-
-                    <com.soundcloud.android.view.WaveformController
-                            android:id="@+id/waveform_controller"
-                            android:layout_width="fill_parent"
-                            android:orientation="horizontal"
-                            android:layout_height="wrap_content"/>
-
-                    <TextView android:id="@+id/currenttime"
-                              style="@style/txt_player_time_land"
-                              android:layout_alignParentTop="true"/>
-                </RelativeLayout>
-                <ViewStub
+                <TextView android:id="@+id/currenttime"
+                          style="@style/txt_player_time_land"
+                          android:layout_alignParentTop="true"/>
+            </RelativeLayout>
+            <ViewStub
                     android:id="@+id/stub_unplayable_layout"
                     android:inflatedId="@+id/unplayable_layout"
                     android:layout="@layout/unplayable_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_alignParentBottom="true"/>
-                <View android:layout_width="fill_parent"
-                      android:layout_height="5dip"
-                      android:background="@drawable/drop_shadow_down"/>
-            </FrameLayout>
-
-            <ViewStub
-                    android:id="@+id/stub_info"
-                    android:inflatedId="@+id/track_info"
-                    android:layout="@layout/track_info"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"/>
-        </com.soundcloud.android.view.SafeViewFlipper>
+            <View android:layout_width="fill_parent"
+                  android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
+        </FrameLayout>
         <FrameLayout android:layout_weight="3"
                      android:layout_width="fill_parent"
                      android:layout_height="0dp">

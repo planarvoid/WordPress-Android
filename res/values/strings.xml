@@ -538,4 +538,6 @@
     <string name="dashboard_filter_cancel">Cancel</string>
 
     <string name='list_header_track_favoriters'>People who liked this track</string>
+
+    <string name='track_info_favoriters'>%d people liked it</string>
 </resources>
