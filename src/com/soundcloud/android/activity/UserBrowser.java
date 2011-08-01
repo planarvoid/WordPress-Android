@@ -390,7 +390,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followingsView = new ScTabView(this);
-        followingsView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
+        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -408,7 +408,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followersView = new ScTabView(this);
-        followersView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
+        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
         CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 

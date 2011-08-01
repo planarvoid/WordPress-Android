@@ -327,14 +327,22 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView buildList() {
-        return configureList(new ScListView(this));
+        return configureList(new ScListView(this), true);
+    }
+
+    public ScListView buildList(boolean longClickable) {
+        return configureList(new ScListView(this), longClickable);
     }
 
     public ScListView configureList(ScListView lv) {
-        return configureList(lv,mLists.size());
+        return configureList(lv,true, mLists.size());
     }
 
-    public ScListView configureList(ScListView lv, int addAtPosition) {
+    public ScListView configureList(ScListView lv, boolean longClickable) {
+        return configureList(lv,longClickable, mLists.size());
+    }
+
+    public ScListView configureList(ScListView lv, boolean longClickable, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -343,6 +351,7 @@ public abstract class ScActivity extends Activity {
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
         lv.setCacheColorHint(Color.TRANSPARENT);
+        lv.setLongClickable(longClickable);
         mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
         return lv;
     }
@@ -603,7 +612,6 @@ public abstract class ScActivity extends Activity {
                 playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
             } else if (e.type.contentEquals(Event.Types.FAVORITING)) {
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
-                Log.i("asdf","Sending " + e.getTrack().title + " " + e.getTrack().created_at);
                 i.putExtra("track", e.getTrack());
                 startActivity(i);
             } else {

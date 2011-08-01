@@ -100,7 +100,7 @@ public class Dashboard extends ScActivity {
         }
 
         final ScTabView view = new ScTabView(this);
-        mListView = view.setLazyListView(buildList(), adpWrap, listId, true);
+        mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
         return view;
     }
 
