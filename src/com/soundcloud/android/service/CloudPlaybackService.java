@@ -444,6 +444,7 @@ public class CloudPlaybackService extends Service {
     Thread mChangeTracksThread = null;
 
     public void openAsync(final Track track) {
+
         if (track == null) {
             return;
         }
@@ -535,12 +536,13 @@ public class CloudPlaybackService extends Service {
 
     private void startNextTrack() {
         synchronized (this) {
+
             mChangeTracksThread = null;
             mCurrentDownloadAttempts = 0;
 
             if (mPlayingData.isStreamable()) {
                 notifyChange(INITIAL_BUFFERING);
-
+                initialBuffering = true;
                 if (mIsStagefright) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
@@ -585,6 +587,7 @@ public class CloudPlaybackService extends Service {
                                     mPlayer.setDataSourceAsync(location.getValue());
                                 }
                             });
+                            return;
                         } else {
                             Log.w(TAG, "no location header found");
                         }
@@ -594,6 +597,14 @@ public class CloudPlaybackService extends Service {
                 } catch (IOException e) {
                     Log.w(TAG, e);
                 }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // set with original url, at least we will get proper error handling
+                        mPlayer.setDataSourceAsync(url);
+                    }
+                });
+
             }
         }.start();
     }
@@ -1133,7 +1144,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isBuffering() {
         synchronized (this) {
-            return pausedForBuffering;
+            return pausedForBuffering || initialBuffering;
         }
     }
 
@@ -1446,7 +1457,6 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
-
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
@@ -1489,7 +1499,7 @@ public class CloudPlaybackService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
-
+                initialBuffering = false;
                 notifyChange(BUFFERING_COMPLETE);
 
                 if (!mAutoPause) {
@@ -1514,7 +1524,6 @@ public class CloudPlaybackService extends Service {
                 mMediaplayerError = true;
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
-
                 switch (what) {
 
                     default:
