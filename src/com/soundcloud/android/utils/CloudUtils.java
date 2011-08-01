@@ -789,7 +789,7 @@ public class CloudUtils {
         statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
         separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
 
-        statTextView3.setVisibility(stat3 == 0 ? View.GONE : View.VISIBLE);
+        statTextView3.setVisibility(stat3 == 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
 }
