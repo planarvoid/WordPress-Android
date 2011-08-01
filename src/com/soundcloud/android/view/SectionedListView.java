@@ -8,6 +8,7 @@ import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,13 +63,13 @@ public class SectionedListView extends ScListView {
 
     public void configureHeaderView(int position) {
         int state;
-        if (this.getHeaderViewsCount() > position){
+        if (this.getHeaderViewsCount() > position || position - getHeaderViewsCount() == getBaseAdapter().getCount() - 1){
             state = SectionedAdapter.PINNED_HEADER_GONE;
         } else {
             state = adapter.getWrappedAdapter().getPinnedHeaderState(position - getHeaderViewsCount());
         }
 
-
+        final int adjPosition = position - getHeaderViewsCount();
         switch (state) {
             case SectionedAdapter.PINNED_HEADER_GONE: {
                 mSectionHeaderViewVisible = false;
@@ -77,7 +78,7 @@ public class SectionedListView extends ScListView {
 
             case SectionedAdapter.PINNED_HEADER_VISIBLE: {
                 adapter.getWrappedAdapter()
-                        .configurePinnedHeader(mSectionHeaderView, position);
+                        .configurePinnedHeader(mSectionHeaderView, adjPosition);
 
                 if (mSectionHeaderView.getTop() != 0) {
                     mSectionHeaderView.layout(0, 0, mSectionHeaderViewWidth, mSectionHeaderViewHeight);
@@ -102,7 +103,7 @@ public class SectionedListView extends ScListView {
                         alpha = 255;
                     }
                     adapter.getWrappedAdapter()
-                            .configurePinnedHeader(mSectionHeaderView, position);
+                            .configurePinnedHeader(mSectionHeaderView, adjPosition);
 
                     if (mSectionHeaderView.getTop() != y) {
                         mSectionHeaderView.layout(0, y, mSectionHeaderViewWidth, mSectionHeaderViewHeight + y);
