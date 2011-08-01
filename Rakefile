@@ -156,6 +156,22 @@ namespace :beta do
        (ENV['DRYRUN'] ? ' --dry-run ' : ' ') +
        DEST
   end
+
+  desc "list beta bucket contents"
+  task :list do
+    http_url = "http://#{BUCKET}.s3.amazonaws.com"
+    out = `curl -s #{http_url}`
+    if $?.success?
+      doc = REXML::Document.new(out)
+      doc.write(STDOUT, 4)
+      puts
+      doc.elements.to_a("//Key").each do |key|
+        sh "curl", '-I', "#{http_url}/#{key.text}"
+      end
+    else
+      raise "error getting bucket: #{$?}"
+    end
+  end
 end
 
 namespace :c2dm do
