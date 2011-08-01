@@ -290,9 +290,11 @@ public class Track extends BaseObj implements Parcelable {
             ll.addView(txt, flowLP);
         }
         for (String t : humanTags()) {
-            txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
-            txt.setText(t);
-            ll.addView(txt, flowLP);
+            if (!TextUtils.isEmpty(t)) {
+                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt.setText(t);
+                ll.addView(txt, flowLP);
+            }
         }
 
     }
@@ -311,7 +313,9 @@ public class Track extends BaseObj implements Parcelable {
             str.append(bpm).append("<br/>");
         }
 
-        str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        if (!TextUtils.isEmpty(formattedLicense())) {
+            str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        }
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")

@@ -568,8 +568,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mFavoritersTxt.setVisibility(View.GONE);
             } else {
                 mFavoritersTxt.setVisibility(View.VISIBLE);
-                mFavoritersTxt.setText(String.format(getResources().getString(R.string.track_info_favoriters),
-                        mPlayingTrack.favoritings_count));
+                mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
+                        mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
             }
 
             mTrackTags.removeAllViews();
