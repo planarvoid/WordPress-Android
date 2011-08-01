@@ -1,0 +1,34 @@
+<resources xmlns:xliff="http://schemas.android.com/apk/res/android">
+    <string name='empty_news_text'>
+       You have no news. Put something out there already!
+    </string>
+
+    <string name='tab_activity'>Activity</string>
+
+    <string name='durationformatshort' translatable='false'>
+        <xliff:g id='format'>%2$d.%5$02d</xliff:g>
+    </string>
+    <string name='durationformatlong' translatable='false'>
+        <xliff:g id='format'>%1$d.%3$02d.%5$02d</xliff:g>
+    </string>
+
+    <string name="tracklist_item_shared_with_x_people">%d People</string>
+    <string name="tracklist_item_shared_with_you">You</string>
+
+    <string name='menu_filter'>Filter</string>
+    <string name="dashboard_filter_title">What to display on your feed</string>
+    <string name="dashboard_filter_all">All incoming tracks</string>
+    <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
+    <string name="dashboard_filter_cancel">Cancel</string>
+
+    <string name='list_header_track_favoriters'>People who liked this track</string>
+    <string name='list_header_tracks_by_tag'>Other tracks tagged with %s</string>
+    <string name='list_header_tracks_by_genre'>Other tracks with genre %s</string>
+
+    <string name='track_info_favoriters'>%d people liked it</string>
+
+    <plurals name='track_info_favoriters'>
+        <item quantity='one'>1 person liked it</item>
+        <item quantity='other'>%d people liked it</item>
+    </plurals>
+</resources>
