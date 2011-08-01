@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-public class ExternalUploadProgress extends Activity {
+public class UploadMonitor extends Activity {
 
     protected ICloudCreateService mCreateService;
     private long mUploadId;
@@ -46,7 +46,7 @@ public class ExternalUploadProgress extends Activity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.external_upload_progress);
+        setContentView(R.layout.upload_monitor);
 
 
         IntentFilter playbackFilter = new IntentFilter();
@@ -98,7 +98,7 @@ public class ExternalUploadProgress extends Activity {
                     Log.e(TAG, "error", e);
                 }
 
-                Toast.makeText(ExternalUploadProgress.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
+                Toast.makeText(UploadMonitor.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
 
             }
         });

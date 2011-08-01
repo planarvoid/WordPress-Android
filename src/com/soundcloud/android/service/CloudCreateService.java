@@ -8,7 +8,7 @@ import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ExternalUploadProgress;
+import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.model.Upload;
@@ -439,7 +439,7 @@ public class CloudCreateService extends Service {
     private boolean sendUploadingNotification(){
         if (mCurrentUpload == null) return false;
 
-        Intent i = (new Intent(this, ExternalUploadProgress.class))
+        Intent i = (new Intent(this, UploadMonitor.class))
                 .putExtra("upload_id", mCurrentUpload.id);
 
 
@@ -620,7 +620,7 @@ public class CloudCreateService extends Service {
         CharSequence notificationTitle;
         CharSequence notificationMessage;
 
-        Intent i = (new Intent(this, ExternalUploadProgress.class))
+        Intent i = (new Intent(this, UploadMonitor.class))
                 .putExtra("upload", mCurrentUpload);
 
         if (params.isSuccess()) {
