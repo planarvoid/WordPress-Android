@@ -573,7 +573,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
 
             mTrackTags.removeAllViews();
-            mPlayingTrack.fillTags(mTrackTags, (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+            mPlayingTrack.fillTags(mTrackTags, this);
 
             TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
             txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));

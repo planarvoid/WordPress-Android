@@ -4,6 +4,9 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -18,6 +21,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -280,18 +284,28 @@ public class Track extends BaseObj implements Parcelable {
         return cv;
     }
 
-    public void fillTags(FlowLayout ll, LayoutInflater inflater){
+    public void fillTags(FlowLayout ll, final Context context){
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
+
+        final LayoutInflater inflater = LayoutInflater.from(context);
 
         if (!TextUtils.isEmpty(genre)) {
             txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
             txt.setText(genre);
             ll.addView(txt, flowLP);
         }
-        for (String t : humanTags()) {
+        for (final String t : humanTags()) {
             if (!TextUtils.isEmpty(t)) {
                 txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TracksByTag.class);
+                        intent.putExtra("tag", t);
+                        context.startActivity(intent);
+                    }
+                });
                 txt.setText(t);
                 ll.addView(txt, flowLP);
             }

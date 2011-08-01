@@ -1,32 +1,22 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.StaticLayout;
-import android.text.TextUtils;
-import android.text.style.ImageSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -72,7 +62,7 @@ public class TracklistRow extends LazyRow {
         mPlayBtn = (ImageButton) findViewById(R.id.btn_play);
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mTrack.id == ((TracklistAdapter) mAdapter).playingId && ((TracklistAdapter) mAdapter).isPlaying) {
+                if (mTrack.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying()) {
                     mActivity.pause(false);
                 } else {
                     mActivity.playTrack(mTrack.id, (ArrayList<Parcelable>) mAdapter.getData(),mCurrentPosition, false);
@@ -125,7 +115,7 @@ public class TracklistRow extends LazyRow {
 
     @Override
     protected void onSubmenu() {
-        if (mTrack.id == ((TracklistAdapter) mAdapter).playingId && ((TracklistAdapter) mAdapter).isPlaying) {
+        if (mTrack.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying()) {
             mPlayBtn.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.ic_submenu_pause_states));
         } else {
             mPlayBtn.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states));
@@ -171,10 +161,10 @@ public class TracklistRow extends LazyRow {
 
         if (mTrack.user_favorite) {
             mTrack.user_favorite = false;
-            ((TracklistAdapter) mAdapter).removeFavorite(mTrack);
+            ((ITracklistAdapter) mAdapter).removeFavorite(mTrack);
         } else {
             mTrack.user_favorite = true;
-            ((TracklistAdapter) mAdapter).addFavorite(mTrack);
+            ((ITracklistAdapter) mAdapter).addFavorite(mTrack);
         }
         setFavoriteStatus();
     }
@@ -186,7 +176,7 @@ public class TracklistRow extends LazyRow {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
         mTrack = getTrackFromParcelable(p);
         super.display(position);
-        mTrackInfoBar.display(mTrack, false, ((TracklistAdapter) mAdapter).playingId);
+        mTrackInfoBar.display(mTrack, false, ((ITracklistAdapter) mAdapter).getPlayingId());
 
     }
 
