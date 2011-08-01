@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -326,14 +327,22 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView buildList() {
-        return configureList(new ScListView(this));
+        return configureList(new ScListView(this), true);
+    }
+
+    public ScListView buildList(boolean longClickable) {
+        return configureList(new ScListView(this), longClickable);
     }
 
     public ScListView configureList(ScListView lv) {
-        return configureList(lv,mLists.size());
+        return configureList(lv,true, mLists.size());
     }
 
-    public ScListView configureList(ScListView lv, int addAtPosition) {
+    public ScListView configureList(ScListView lv, boolean longClickable) {
+        return configureList(lv,longClickable, mLists.size());
+    }
+
+    public ScListView configureList(ScListView lv, boolean longClickable, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -342,6 +351,7 @@ public abstract class ScActivity extends Activity {
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
         lv.setCacheColorHint(Color.TRANSPARENT);
+        lv.setLongClickable(longClickable);
         mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
         return lv;
     }
@@ -597,7 +607,17 @@ public abstract class ScActivity extends Activity {
 
         @Override
         public void onEventClick(ArrayList<Parcelable> events, int position) {
-            playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            final Event e = ((Event) events.get(position));
+            if (e.type.contentEquals(Event.Types.COMMENT)) {
+                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            } else if (e.type.contentEquals(Event.Types.FAVORITING)) {
+                Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
+                i.putExtra("track", e.getTrack());
+                startActivity(i);
+            } else {
+                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            }
+
         }
 
         public void onFling() {

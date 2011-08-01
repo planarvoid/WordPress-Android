@@ -52,6 +52,7 @@ public class Consts {
         int INCOMING = 204;
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
+        int FILTER = 207;
     }
 
     public interface GraphicsSizes {
@@ -64,7 +65,7 @@ public class Consts {
 
     public interface ListId {
         int LIST_INCOMING = 1001;
-        int LIST_EXCLUSIVE = 1002;
+        int LIST_NEWS = 1002;
         int LIST_USER_TRACKS = 1003;
         int LIST_USER_FAVORITES = 1004;
         int LIST_USER_FOLLOWINGS = 1006;

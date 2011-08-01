@@ -133,7 +133,8 @@ public class ScSearch extends ScActivity {
     }
 
     private void setListType(boolean isUser){
-         mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
+        mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
+        mList.setLongClickable(!isUser);
         mUserAdpWrapper.configureViews(isUser ? mList : null);
         mTrackAdpWrapper.configureViews(isUser ? null : mList);
     }

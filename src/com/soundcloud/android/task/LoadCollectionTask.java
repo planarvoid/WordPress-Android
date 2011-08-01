@@ -4,7 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.deserialize.EventDeserializer;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.BaseObj;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
@@ -16,6 +18,9 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
@@ -114,7 +119,9 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             mNextHref = holder == null ? null : holder.next_href;
 
             if (newItems != null) {
-                for (Parcelable p : newItems) CloudUtils.resolveListParcelable(mApp, p, mApp.getCurrentUserId());
+                for (Parcelable p : newItems) {
+                    ((BaseObj)p).resolve(mApp);
+                }
                 return !TextUtils.isEmpty(mNextHref);
             } else {
                 return false;

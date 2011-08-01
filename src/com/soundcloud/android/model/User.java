@@ -5,16 +5,18 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import java.lang.reflect.Field;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -131,16 +133,6 @@ public class User extends BaseObj implements Parcelable {
             return new User[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = new ContentValues();

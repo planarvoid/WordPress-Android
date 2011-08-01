@@ -3,15 +3,18 @@
                 android:id="@+id/RelativeLayout01"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-    <ImageView
-            android:layout_alignParentLeft="true"
-            android:layout_width="@dimen/list_icon_width"
-            android:layout_height="@dimen/list_icon_height"
-            android:id="@+id/icon"
-            android:background="@drawable/avatar_badge"/>
-
+                android:gravity="center_vertical"
+                android:paddingBottom="10dip"
+                android:paddingTop="10dip">
+    <ImageView android:id="@+id/icon"
+               android:layout_alignParentLeft="true"
+               android:layout_alignParentTop="true"
+               android:layout_width="@dimen/list_icon_width"
+               android:layout_height="@dimen/list_icon_height"
+               android:layout_marginLeft="@dimen/list_icon_margin_left"
+               android:layout_marginRight="@dimen/list_icon_margin_right"
+               android:background="@drawable/avatar_badge"
+               android:scaleType="centerCrop"/>
     <RelativeLayout
             android:layout_toRightOf="@+id/icon"
             android:layout_centerVertical="true"
@@ -22,7 +25,6 @@
             android:layout_toLeftOf="@+id/toggleFollowingHolder">
         <TextView android:layout_height="wrap_content"
                   android:paddingTop="3dip"
-                  android:paddingLeft="10dip"
                   android:id="@+id/username"
                   style="@style/txt_list_main"
                   android:ellipsize="marquee"
@@ -31,9 +33,13 @@
                   android:lines="1"
                   android:layout_width="wrap_content"/>
         <RelativeLayout
-                android:id="@+id/stats" android:layout_below="@id/username" android:layout_width="wrap_content"
-                android:paddingLeft="10dip" android:paddingTop="3dip"
-                android:layout_height="wrap_content" android:layout_alignLeft="@id/username">
+                android:id="@+id/stats"
+                android:layout_below="@id/username"
+                android:layout_width="wrap_content"
+                android:paddingTop="3dip"
+                android:paddingLeft="5dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/username">
             <ImageView android:id="@+id/tracks_icon"
                        android:gravity="center_vertical"
                        android:layout_alignParentLeft="true"
@@ -50,7 +56,8 @@
                       android:paddingRight="5dip"
                       android:text="@string/track_count"
                       style="@style/txt_list_sub"/>
-            <View android:background="#ffcccccc" android:layout_toRightOf="@+id/tracks"
+            <View android:background="#ffcccccc"
+                  android:layout_toRightOf="@+id/tracks"
                   android:layout_alignBottom="@+id/followers_icon"
                   android:layout_alignTop="@+id/followers_icon"
                   android:layout_height="wrap_content"
@@ -77,8 +84,8 @@
         </RelativeLayout>
     </RelativeLayout>
     <FrameLayout android:id="@+id/toggleFollowingHolder"
-                 android:layout_centerVertical="true"
                  android:layout_alignParentRight="true"
+                 android:layout_alignTop="@id/icon"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
         <ImageButton

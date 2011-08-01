@@ -172,9 +172,8 @@
         Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
     </string>
 
-    <string name='empty_exclusive_text'>
-        No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>
-        Why not send an audio shout-out to your friends to get them to share their sounds?
+    <string name='empty_news_text'>
+       You have no news. Put something out there already!
     </string>
 
     <string name='empty_my_tracks_text'>
@@ -225,31 +224,61 @@
     <string name='upload_and_share'>Upload &amp; Share</string>
 
     <plurals name='elapsed_seconds'>
+        <item quantity='one'>1 second</item>
+        <item quantity='other'>%d seconds</item>
+    </plurals>
+
+    <plurals name='elapsed_minutes'>
+        <item quantity='one'>1 minute</item>
+        <item quantity='other'>%d minutes</item>
+    </plurals>
+
+    <plurals name='elapsed_hours'>
+        <item quantity='one'>1 hour</item>
+        <item quantity='other'>%d hours</item>
+    </plurals>
+
+    <plurals name='elapsed_days'>
+        <item quantity='one'>1 day</item>
+        <item quantity='other'>%d days</item>
+    </plurals>
+
+    <plurals name='elapsed_months'>
+        <item quantity='one'>1 month</item>
+        <item quantity='other'>%d months</item>
+    </plurals>
+
+    <plurals name='elapsed_years'>
+        <item quantity='one'>1 year</item>
+        <item quantity='other'>%d years</item>
+    </plurals>
+    
+    <plurals name='elapsed_seconds_ago'>
         <item quantity='one'>1 second ago</item>
         <item quantity='other'>%d seconds ago</item>
     </plurals>
 
-    <plurals name='elapsed_minutes'>
+    <plurals name='elapsed_minutes_ago'>
         <item quantity='one'>1 minute ago</item>
         <item quantity='other'>%d minutes ago</item>
     </plurals>
 
-    <plurals name='elapsed_hours'>
+    <plurals name='elapsed_hours_ago'>
         <item quantity='one'>1 hour ago</item>
         <item quantity='other'>%d hours ago</item>
     </plurals>
 
-    <plurals name='elapsed_days'>
+    <plurals name='elapsed_days_ago'>
         <item quantity='one'>1 day ago</item>
         <item quantity='other'>%d days ago</item>
     </plurals>
 
-    <plurals name='elapsed_months'>
+    <plurals name='elapsed_months_ago'>
         <item quantity='one'>1 month ago</item>
         <item quantity='other'>%d months ago</item>
     </plurals>
 
-    <plurals name='elapsed_years'>
+    <plurals name='elapsed_years_ago'>
         <item quantity='one'>1 year ago</item>
         <item quantity='other'>%d years ago</item>
     </plurals>
@@ -283,8 +312,8 @@
     <string name='empty_list'>No Results</string>
     <string name='menu_upload'>Upload</string>
 
-    <string name='tab_incoming'>Incoming</string>
-    <string name='tab_exclusive'>Exclusive</string>
+    <string name='tab_incoming'>Stream</string>
+    <string name='tab_activity'>Activity</string>
     <string name='tab_you'>You</string>
     <string name='tab_record'>Record</string>
     <string name='tab_search'>Search</string>
@@ -498,4 +527,23 @@
     <string name="share_fail_message">Ok, that went wrong.</string>
     <string name="share_retry_upload">Retry upload</string>
     <string name="share_cancel">Cancel</string>
+
+    <string name="tracklist_item_shared_with_x_people">%d People</string>
+    <string name="tracklist_item_shared_with_you">You</string>
+
+    <string name='menu_filter'>Filter</string>
+    <string name="dashboard_filter_title">What to display on your feed</string>
+    <string name="dashboard_filter_all">All incoming tracks</string>
+    <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
+    <string name="dashboard_filter_cancel">Cancel</string>
+
+    <string name='list_header_track_favoriters'>People who liked this track</string>
+    <string name='list_header_tracks_by_tag'>Other tracks tagged with %s</string>
+
+    <string name='track_info_favoriters'>%d people liked it</string>
+
+    <plurals name='track_info_favoriters'>
+        <item quantity='one'>1 person liked it</item>
+        <item quantity='other'>%d people liked it</item>
+    </plurals>
 </resources>

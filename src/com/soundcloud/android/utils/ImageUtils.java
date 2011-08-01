@@ -2,12 +2,14 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -265,5 +267,27 @@ public class ImageUtils {
                     .create()
                     .show();
         }
+    }
+
+    public static String formatGraphicsUrlForList(Context c, String url){
+        return formatGraphicsUrl(url,getListItemGraphicSize(c));
+    }
+
+    public static String formatGraphicsUrl(String url, String targetSize) {
+        return url == null ? null : url.replace("large", targetSize);
+    }
+
+    public static String getListItemGraphicSize(Context c) {
+
+        if (CloudUtils.isScreenXL(c)) {
+            return Consts.GraphicsSizes.LARGE;
+        } else {
+            if (c.getResources().getDisplayMetrics().density > 1) {
+                return Consts.GraphicsSizes.LARGE;
+            } else {
+                return Consts.GraphicsSizes.BADGE;
+            }
+        }
+
     }
 }

@@ -4,7 +4,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-    <include layout="@layout/track_list_row_common"/>
+    <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
+                                              android:layout_height="wrap_content"
+                                              android:id="@+id/track_info_bar"/>
     <ViewStub android:id="@+id/stub_submenu"
               android:inflatedId="@+id/row_submenu"
               android:layout="@layout/track_list_row_submenu"

@@ -13,11 +13,11 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public class TracklistAdapter extends LazyBaseAdapter {
+public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapter {
     public static final String TAG = "TracklistAdapter";
 
-    public long playingId = -1;
-    public boolean isPlaying = false;
+    private long mPlayingId = -1;
+    private boolean mIsPlaying = false;
 
     public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data, Class<?> model) {
         super(activity, data, model);
@@ -28,31 +28,36 @@ public class TracklistAdapter extends LazyBaseAdapter {
         return new TracklistRow(mActivity, this);
     }
 
+    @Override
     public Track getTrackAt(int index) {
         return (Track) mData.get(index);
     }
 
-    public void setPlayingId(long currentTrackId, boolean isPlaying) {
-        this.playingId = currentTrackId;
-        this.isPlaying = isPlaying;
-
-        for (int i = 0; i < mData.size(); i++) {
-            if (getTrackAt(i).id == currentTrackId) {
-                getTrackAt(i).user_played = true;
-            }
-        }
+    @Override
+    public boolean isPlaying() {
+        return mIsPlaying;
     }
 
-    public void addFavorite(Track t) {
+    @Override
+    public long getPlayingId() {
+        return mPlayingId;
+    }
+
+    public void setPlayingId(long currentTrackId, boolean isPlaying) {
+        this.mPlayingId = currentTrackId;
+        this.mIsPlaying = isPlaying;
+    }
+
+    public void addFavorite(Track track) {
         FavoriteAddTask f = new FavoriteAddTask(mActivity.getApp());
         f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(t);
+        f.execute(track);
     }
 
-    public void removeFavorite(Track t) {
+    public void removeFavorite(Track track) {
         FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getApp());
         f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(t);
+        f.execute(track);
     }
 
     private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {

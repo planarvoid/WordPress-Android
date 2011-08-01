@@ -2,28 +2,44 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
-
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -111,7 +127,7 @@ public class Track extends BaseObj implements Parcelable {
     public boolean info_loaded;
     @JsonIgnore
     public boolean comments_loaded;
-    private File mCacheFile;
+    protected File mCacheFile;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -156,6 +172,9 @@ public class Track extends BaseObj implements Parcelable {
         waveform_url = tracklistItem.waveform_url;
         user = tracklistItem.user;
         stream_url = tracklistItem.stream_url;
+        playback_count = tracklistItem.playback_count;
+        comment_count = tracklistItem.comment_count;
+        favoritings_count = tracklistItem.favoritings_count;
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {
@@ -236,11 +255,6 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
@@ -270,6 +284,35 @@ public class Track extends BaseObj implements Parcelable {
         return cv;
     }
 
+    public void fillTags(FlowLayout ll, final Context context){
+        TextView txt;
+        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
+
+        final LayoutInflater inflater = LayoutInflater.from(context);
+
+        if (!TextUtils.isEmpty(genre)) {
+            txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
+            txt.setText(genre);
+            ll.addView(txt, flowLP);
+        }
+        for (final String t : humanTags()) {
+            if (!TextUtils.isEmpty(t)) {
+                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TracksByTag.class);
+                        intent.putExtra("tag", t);
+                        context.startActivity(intent);
+                    }
+                });
+                txt.setText(t);
+                ll.addView(txt, flowLP);
+            }
+        }
+
+    }
+
     public String trackInfo() {
         StringBuilder str = new StringBuilder(200);
 
@@ -277,22 +320,16 @@ public class Track extends BaseObj implements Parcelable {
             str.append(description).append("<br/><br/>");
         }
 
-        for (String t : humanTags()) {
-            str.append(t).append("<br/>");
-        }
-
         if (!TextUtils.isEmpty(key_signature)) {
             str.append(key_signature).append("<br/>");
         }
-        if (!TextUtils.isEmpty(genre)) {
-            str.append(genre).append("<br/>");
-        }
-
         if (bpm != 0) {
             str.append(bpm).append("<br/>");
         }
 
-        str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        if (!TextUtils.isEmpty(formattedLicense())) {
+            str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        }
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")
@@ -383,5 +420,10 @@ public class Track extends BaseObj implements Parcelable {
                 return true;
             }
         } else return false;
+    }
+
+    @Override
+    public void resolve(SoundCloudApplication application) {
+        updateUserPlayedFromDb(application.getContentResolver(), application.getCurrentUserId());
     }
 }

@@ -22,9 +22,13 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     private int mSectionIndex = 0;
 
     public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped) {
+        this(activity, wrapped, false);
+    }
+
+    public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped, boolean autoAppend) {
         super(activity, wrapped, null);
         mListeners = new ArrayList<WeakReference<SectionListener>>();
-        mKeepOnAppending.set(false);
+        mKeepOnAppending.set(autoAppend);
     }
 
     public void addListener(SectionListener listener){
@@ -129,8 +133,10 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
             mKeepOnAppending.set(true);
-            notifyDataSetChanged();
+        } else {
+            mKeepOnAppending.set(false);
         }
+        notifyDataSetChanged();
     }
 
 

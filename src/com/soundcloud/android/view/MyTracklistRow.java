@@ -14,20 +14,37 @@ import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.IOException;
 
 public class MyTracklistRow extends TracklistRow {
 
+    protected TextView mUser;
+    protected TextView mTitle;
+    protected TextView mCreatedAt;
+    private Drawable mPrivateDrawable;
+
     public MyTracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
+
+        mTitle = (TextView) findViewById(R.id.track);
+        mUser = (TextView) findViewById(R.id.user);
+        mCreatedAt = (TextView) findViewById(R.id.track_created_at);
     }
 
     @Override
     protected int getRowResourceId() {
         return R.layout.record_list_item_row;
+    }
+
+    protected Drawable getPrivateDrawable() {
+        if (mPrivateDrawable == null) mPrivateDrawable = getContext().getResources().getDrawable(R.drawable.very_private);
+        return mPrivateDrawable;
     }
 
     @Override

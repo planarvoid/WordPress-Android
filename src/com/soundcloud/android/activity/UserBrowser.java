@@ -40,6 +40,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.*;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -122,7 +123,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        CloudUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
+                        ImageUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
                     ).show();
                 }
 
@@ -265,11 +266,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     private void loadYou() {
-        if (getCurrentUserId() != -1) {
-            User u = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
-            if (u == null) u = new User(getApp());
-            setUser(u);
-        }
+        setUser(getApp().getLoggedInUser());
         build();
     }
 
@@ -396,7 +393,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followingsView = new ScTabView(this);
-        followingsView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
+        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
         CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -414,7 +411,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         }
 
         final ScTabView followersView = new ScTabView(this);
-        followersView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
+        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
         CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
 
@@ -564,7 +561,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = CloudUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+            String remoteUrl = ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR

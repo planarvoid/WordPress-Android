@@ -357,10 +357,6 @@ public class CloudUtils {
 
     }
 
-    public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : url.replace("large", targetSize);
-    }
-
     @SuppressWarnings("unchecked")
     public static boolean isTaskFinished(AsyncTask lt) {
         return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;
@@ -450,16 +446,6 @@ public class CloudUtils {
         return emptyView;
     }
 
-    public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
-        if (p instanceof Track) {
-            ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof Event && ((Event)p).getTrack() != null) {
-            ((Event)p).getTrack().updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof User) {
-            // check if they are a follower
-        }
-    }
-
     public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId){
         return buildComment(context, userId, trackId, timestamp, commentBody, replyToId, "");
     }
@@ -477,21 +463,21 @@ public class CloudUtils {
         return comment;
     }
 
-    public static CharSequence getElapsedTimeString(Resources r, long start) {
+    public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
 
         if (elapsed < 60)
-            return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
+            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
         else if (elapsed < 3600)
-            return r.getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
         else if (elapsed < 86400)
-            return r.getQuantityString(R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
         else if (elapsed < 2592000)
-            return r.getQuantityString(R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
         else if (elapsed < 31536000)
-            return r.getQuantityString(R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
         else
-            return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
 
     }
 
@@ -790,4 +776,20 @@ public class CloudUtils {
                     }
                 }).create();
     }
+
+    public static void setStats(int stat1, TextView statTextView1, View separator1, int stat2, TextView statTextView2,
+                                View separator2, int stat3, TextView statTextView3) {
+        statTextView1.setText(String.valueOf(stat1));
+        statTextView2.setText(String.valueOf(stat2));
+        statTextView3.setText(String.valueOf(stat3));
+
+        statTextView1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0)? View.GONE : View.VISIBLE);
+        separator1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0) ? View.GONE : View.VISIBLE);
+
+        statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
+        separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
+
+        statTextView3.setVisibility(stat3 == 0 ? View.INVISIBLE : View.VISIBLE);
+    }
+
 }

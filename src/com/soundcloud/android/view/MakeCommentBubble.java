@@ -76,7 +76,7 @@ public class MakeCommentBubble extends RelativeLayout {
          * (mCommentData.hasKey(Comment.key_timestamp)) mTimestamp =
          * Integer.parseInt(mCommentData.getData(Comment.key_timestamp)); if
          * (mCommentData.hasKey(Comment.key_user_avatar_url)){ String avatarUrl
-         * =CloudUtils.formatGraphicsUrl(mCommentData.getData(Comment.
+         * =ImageUtils.formatGraphicsUrl(mCommentData.getData(Comment.
          * key_user_avatar_url),GraphicsSizes.badge); if
          * (CloudUtils.checkIconShouldLoad(avatarUrl)){
          * ImageLoader.get(_context).bind(mAvatar, avatarUrl, null); } }

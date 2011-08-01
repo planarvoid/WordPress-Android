@@ -17,6 +17,9 @@ import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -47,6 +50,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -98,12 +102,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private ViewFlipper mTrackFlipper;
 
     private RelativeLayout mTrackInfo;
+    private FlowLayout mTrackTags;
     private RelativeLayout mPlayableLayout;
 
     private FrameLayout mUnplayableLayout;
 
     private boolean mCurrentTrackError;
     private BindResult mCurrentArtBindResult;
+    private BindResult mCurrentAvatarBindResult;
 
     private String mDurationFormatLong;
     private String mDurationFormatShort;
@@ -112,6 +118,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     private TextView mCurrentTime;
     private TextView mUserName;
     private TextView mTrackName;
+
+    private TextView mFavoritersTxt;
 
     private long mDuration;
 
@@ -134,7 +142,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private static Method mRegisterMediaButtonEventReceiver;
     private static Method mUnregisterMediaButtonEventReceiver;
-    private Drawable mPlayState, mPauseState;
+    private Drawable mPlayState, mPauseState, mFavoriteDrawable, mFavoritedDrawable;
+
+    protected TrackInfoBar mTrackInfoBar;
+    protected ImageView mAvatar;
 
     static {
         initializeRemoteControlRegistrationMethods();
@@ -160,6 +171,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void initControls() {
+
+        mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         mLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
@@ -177,12 +190,22 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         View v = (View) mTrackName.getParent();
         v.setOnTouchListener(this);
 
-        mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
-        mInfoButton.setOnClickListener(new View.OnClickListener() {
+        mAvatar = (ImageView) findViewById(R.id.icon);
+        mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
+        mAvatar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                onTrackInfoFlip();
+
+                if (mPlayingTrack == null) {
+                    return;
+                }
+
+                Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
+                intent.putExtra("userId", mPlayingTrack.user_id);
+                startActivity(intent);
             }
         });
+
+        findViewById(R.id.private_indicator).setVisibility(View.GONE);
 
         ImageButton mPrevButton = (ImageButton) findViewById(R.id.prev);
         mPrevButton.setOnClickListener(mPrevListener);
@@ -197,27 +220,21 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
         if (!mLandscape) {
-            ImageButton mProfileButton = (ImageButton) findViewById(R.id.btn_profile);
-            if (mProfileButton == null) return;// failsafe for orientation check failure
-            mProfileButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-
-                    if (mPlayingTrack == null) {
-                        return;
-                    }
-
-                    Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
-                    intent.putExtra("userId", mPlayingTrack.user_id);
-                    startActivity(intent);
-                }
-            });
-
             mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
+            if (mFavoriteButton == null) return;// failsafe for orientation check failure
             mFavoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     toggleFavorite();
                 }
             });
+
+            mInfoButton = ((ImageButton) findViewById(R.id.btn_info));
+            mInfoButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    onTrackInfoFlip();
+                }
+            });
+
 
             ImageButton mShareButton = (ImageButton) findViewById(R.id.btn_share);
             mShareButton.setOnClickListener(new View.OnClickListener() {
@@ -297,7 +314,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mCurrentArtBindResult == BindResult.ERROR) {
                 updateArtwork();
             }
+            if (mCurrentAvatarBindResult == BindResult.ERROR) {
+                updateAvatar();
+            }
         }
+
     }
 
     /**
@@ -466,6 +487,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
             if (mTrackInfo == null) {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
+                mTrackTags = (FlowLayout) mTrackInfo.findViewById(R.id.tags_holder);
+                mFavoritersTxt = (TextView) mTrackInfo.findViewById(R.id.favoriters_txt);
+                mFavoritersTxt.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mPlayingTrack != null) {
+                            Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
+                            i.putExtra("track", mPlayingTrack);
+                            startActivity(i);
+                        }
+                    }
+                });
             }
 
             if (!mTrackInfoFilled) {
@@ -477,35 +510,19 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.showNext();
-            if (mPlayingTrack.artwork_url != null){
-                if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
-                        mInfoButton,
-                        (getResources().getDisplayMetrics().density > 1) ?
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, Consts.GraphicsSizes.BADGE)
-                        :
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url, Consts.GraphicsSizes.SMALL), null)) != BindResult.OK){
-                    mInfoButton.setImageDrawable(getResources().getDrawable(
-                            R.drawable.artwork_player_sm));
-                }
-            }
-            else {
-                mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.artwork_player_sm));
-            }
-
-            mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_info_artwork_states));
         } else {
-            ImageLoader.get(this).unbind(mInfoButton);
             mTrackFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.showPrevious();
-            mInfoButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_info_states));
-            mInfoButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent_rect));
         }
     }
 
     public void onTrackInfoResult(long trackId, Track track) {
         if (trackId != mPlayingTrack.id)
             return;
+
+        if (track != null) updateTrackInfo();
+        if (mTrackInfo == null) return;
 
         if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
             mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
@@ -515,14 +532,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackInfo.findViewById(android.R.id.empty) != null) {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
             } else {
-                mTrackInfo.addView(
-                        CloudUtils.buildEmptyView(this,
-                                getResources().getString(R.string.info_error)),
+                mTrackInfo.addView(CloudUtils.buildEmptyView(this,getResources().getString(R.string.info_error)),
                         mTrackInfo.getChildCount() - 2);
             }
             mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
         } else {
-            mPlayingTrack = track;
             fillTrackDetails();
 
             if (mTrackInfo.findViewById(android.R.id.empty) != null) {
@@ -548,19 +562,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mTrackInfo.findViewById(android.R.id.empty) != null) {
                 mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
             }
-
-            if (mPlayingTrack.load_info_task == null || CloudUtils.isTaskFinished(mPlayingTrack.load_info_task))
-                mPlayingTrack.load_info_task = new LoadTrackInfoTask(getApp(), mPlayingTrack.id);
-
-            mPlayingTrack.load_info_task.setActivity(this);
-            if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task)) {
-                mPlayingTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlayingTrack.id));
-            }
         } else {
-            ((TextView) mTrackInfo.findViewById(R.id.txtPlays)).setText(Integer.toString(mPlayingTrack.playback_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtFavorites)).setText(Integer.toString(mPlayingTrack.favoritings_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtDownloads)).setText(Integer.toString(mPlayingTrack.download_count));
-            ((TextView) mTrackInfo.findViewById(R.id.txtComments)).setText(Integer.toString(mPlayingTrack.comment_count));
+
+            if (mPlayingTrack.favoritings_count == 0) {
+                mFavoritersTxt.setVisibility(View.GONE);
+            } else {
+                mFavoritersTxt.setVisibility(View.VISIBLE);
+                mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
+                        mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
+            }
+
+            mTrackTags.removeAllViews();
+            mPlayingTrack.fillTags(mTrackTags, this);
 
             TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
             txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
@@ -812,18 +825,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             long trackId = mPlaybackService.getTrackId();
             if (trackId == -1) {
                 mPlayingTrack = null;
-            } else if (mPlayingTrack == null || mPlayingTrack.id != trackId){
-
-                Log.i(TAG,"Get Playing Track " + trackId);
+            } else {
                 if (getApp().getTrackFromCache(trackId) == null) {
                     Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
-                    Log.i(TAG,"Get Playing Track from db " + t);
                     getApp().cacheTrack(t != null ? t : mPlaybackService.getTrack());
                 }
 
                 mPlayingTrack = getApp().getTrackFromCache(trackId);
             }
-
         } catch (RemoteException ignored) {}
 
         if (mPlayingTrack == null) {
@@ -831,37 +840,45 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             return;
         }
 
-        Log.i(TAG,"Got Playing Track " + mPlayingTrack + " " + mPlayingTrack.waveform_url);
-
         mWaveformController.updateTrack(mPlayingTrack);
+        mTrackInfoBar.display(mPlayingTrack,false,-1);
         updateArtwork();
+        updateAvatar();
+
+        mDuration = mPlayingTrack.duration;
+
+        setFavoriteStatus();
+
+        if (!mPlayingTrack.info_loaded) {
+              if (CloudUtils.isTaskFinished(mPlayingTrack.load_info_task)){
+                mPlayingTrack.load_info_task = new LoadTrackInfoTask(getApp(), mPlayingTrack.id);
+              }
+
+            mPlayingTrack.load_info_task.setActivity(this);
+            if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task)) {
+                mPlayingTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlayingTrack.id));
+            }
+        }
 
         if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
-            mTrackInfoFilled = false;
-            mTrackInfoCommentsFilled = false;
-            mWaveformLoaded = false;
-
             mCurrentTrackId = mPlayingTrack.id;
+            mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
-            if (mPlayingTrack.comments != null){
+            mDuration = mPlayingTrack.duration;
+            mCurrentDurationString = CloudUtils.makeTimeString(
+                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
+                    mDuration / 1000);
+
+            if (mPlayingTrack.comments != null) {
                 setCurrentComments(true);
             } else {
                 refreshComments();
             }
 
-            mTrackName.setText(mPlayingTrack.title);
-            mUserName.setText(mPlayingTrack.user.username);
-
             if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
                 onTrackInfoFlip();
             }
-
-            setFavoriteStatus();
-            mDuration = mPlayingTrack.duration;
-            mCurrentDurationString = CloudUtils.makeTimeString(
-                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
-                    mDuration / 1000);
 
             if (mCurrentTrackError)
                 return;
@@ -874,6 +891,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
         }
     }
+
+
 
     public void onWaveformLoaded(){
         mWaveformLoaded = true;
@@ -897,7 +916,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
                     if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
                             mArtwork,
-                            CloudUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
+                            ImageUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
                                     Consts.GraphicsSizes.T500), new ImageViewCallback() {
                                 @Override
                                 public void onImageError(ImageView view, String url, Throwable error) {
@@ -912,6 +931,29 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                         mArtwork.setVisibility(View.INVISIBLE);
                     }else
                         onArtworkSet();
+                }
+            }
+    }
+
+    private void updateAvatar() {
+            if (TextUtils.isEmpty(mPlayingTrack.user.avatar_url)) {
+                // no artwork
+                ImageLoader.get(this).unbind(mAvatar);
+            } else {
+                // load artwork as necessary
+                if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
+                    if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
+                            mAvatar,
+                            ImageUtils.formatGraphicsUrlForList(this,mPlayingTrack.user.avatar_url),
+                            new ImageViewCallback() {
+                                @Override
+                                public void onImageError(ImageView view, String url, Throwable error) {
+                                    mCurrentAvatarBindResult = BindResult.ERROR;
+                                }
+
+                                @Override public void onImageLoaded(ImageView view, String url) {}
+                            })) != BindResult.OK) {
+                    }
                 }
             }
     }
@@ -1082,11 +1124,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
         if (mPlayingTrack.user_favorite) {
-            mFavoriteButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_favorited_states));
+            if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(
+                    R.drawable.ic_favorited_states);
+            mFavoriteButton.setImageDrawable(mFavoritedDrawable);
         } else {
-            mFavoriteButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_favorite_states));
+            if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(
+                    R.drawable.ic_favorited_states);
+            mFavoriteButton.setImageDrawable(mFavoriteDrawable);
         }
     }
 
@@ -1130,8 +1174,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
     private void setCurrentComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
-        if (mTrackFlipper.getDisplayedChild() == 1) fillTrackInfoComments();
-        if (mLandscape) mWaveformController.setComments(mPlayingTrack.comments, animateIn);
+
+        if (mLandscape) {
+            mWaveformController.setComments(mPlayingTrack.comments, animateIn);
+        } else if (mTrackFlipper.getDisplayedChild() == 1) {
+            fillTrackInfoComments();
+        }
     }
 
     public AddCommentListener addCommentListener = new AddCommentListener(){
@@ -1220,6 +1268,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mPlayingTrack.comments = null;
                 mTrackInfoFilled = false;
                 mTrackInfoCommentsFilled = false;
+
+                //TODO check this logic
                 if (mTrackInfo != null) {
                     fillTrackInfoComments();
                     fillTrackDetails();
