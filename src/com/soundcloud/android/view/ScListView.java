@@ -415,7 +415,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     };
     private final AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
-            if (((LazyBaseAdapter) listView.getBaseAdapter()).submenuIndex == position) {
+            if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position) {
                 listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             } else {
                 listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
