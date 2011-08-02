@@ -169,7 +169,8 @@ public class ScSearch extends ScActivity {
             mTrackAdpWrapper.reset(false,false);
         }
 
-        mList.getWrapper().onRefresh();
+        mList.setLastUpdated(0);
+        mList.onRefresh();
         mList.setVisibility(View.VISIBLE);
     }
 
