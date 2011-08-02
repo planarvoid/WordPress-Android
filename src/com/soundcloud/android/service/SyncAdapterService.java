@@ -255,27 +255,27 @@ public class SyncAdapterService extends Service {
         return users;
     }
 
-    public static void createDashboardNotification(Context c,
+    private static void createDashboardNotification(SoundCloudApplication app,
                                                     CharSequence ticker,
                                                     CharSequence title,
                                                     CharSequence message, boolean hasExclusive) {
 
         String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nm = (NotificationManager) c.getSystemService(ns);
+        NotificationManager nm = (NotificationManager) app.getSystemService(ns);
 
-        Intent intent = (new Intent(c, Main.class))
+        Intent intent = (new Intent(app, Main.class))
                 .addCategory(Intent.CATEGORY_LAUNCHER)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra("tabTag", hasExclusive ? "exclusive" : "incoming");
 
-        PendingIntent pi = PendingIntent.getActivity(c.getApplicationContext(),
+        PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(),
                 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(c.getApplicationContext(), title, message, pi);
+        n.setLatestEventInfo(app.getApplicationContext(), title, message, pi);
         nm.notify(Consts.Notifications.DASHBOARD_NOTIFY_ID, n);
     }
 

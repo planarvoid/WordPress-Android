@@ -96,9 +96,5 @@
             android:title="@string/pref_dev_clear_notification"
             android:summary="@string/pref_dev_clear_notification_summary"
             android:key="dev.clearNotifications"/>
-        <Preference
-            android:title="@string/pref_dev_register_for_push"
-            android:summary="@string/pref_dev_register_for_push_summary"
-            android:key="dev.registerForPush"/>
     </PreferenceCategory>
 </PreferenceScreen>

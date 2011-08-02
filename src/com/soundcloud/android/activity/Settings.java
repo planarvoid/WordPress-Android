@@ -9,17 +9,10 @@ import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Request;
 import com.soundcloud.utils.ChangeLog;
-import com.urbanairship.push.PushManager;
-import com.urbanairship.push.PushPreferences;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -30,10 +23,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING      = 0;
@@ -133,29 +122,6 @@ public class Settings extends PreferenceActivity {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
                             SyncAdapterService.requestNewSync(getApp());
-                            return true;
-                        }
-                    });
-            findPreference("dev.registerForPush").setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            PushPreferences prefs = PushManager.shared().getPreferences();
-                            if (prefs.getPushId() == null) {
-                                Toast.makeText(Settings.this, "This app is not enabled for push", Toast.LENGTH_LONG).show();
-                                return true;
-                            }
-                            Request request = new Request("/me/push")
-                                    .add("device_token", prefs.getPushId())
-                                    .add("token_type", "android");
-
-                            try {
-                                HttpResponse resp = getApp().post(request);
-                                Toast.makeText(Settings.this, resp.getStatusLine().getStatusCode() + " : "
-                                        + CloudUtils.readInputStream(resp.getEntity().getContent()), Toast.LENGTH_LONG).show();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
                             return true;
                         }
                     });
