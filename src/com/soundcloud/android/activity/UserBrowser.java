@@ -462,7 +462,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
             CloudUtils.setTabText(mTabWidget, 2, getString(R.string.tab_info));
 
-            if (mUser.track_count != 0) {
+            if (mUser.track_count > 0) {
                 CloudUtils.setTabText(mTabWidget, 0, getString(R.string.tab_tracks)
                         + " (" + mUser.track_count + ")");
             } else {
@@ -470,14 +470,14 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
                         R.string.tab_tracks));
             }
 
-            if (mUser.public_favorites_count != 0) {
+            if (mUser.public_favorites_count > 0) {
                 CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites)
                         + " (" + mUser.public_favorites_count + ")");
             } else {
                 CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites));
             }
 
-            if (mUser.followings_count != 0) {
+            if (mUser.followings_count > 0) {
                 CloudUtils.setTabText(mTabWidget, 3, getString(R.string.tab_followings)
                         + " (" + mUser.followings_count + ")");
             } else {
@@ -485,7 +485,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             }
 
 
-            if (mUser.followers_count != 0) {
+            if (mUser.followers_count > 0) {
                 CloudUtils.setTabText(mTabWidget, 4,
                         getString(R.string.tab_followers)
                                 + " (" + mUser.followers_count + ")");
