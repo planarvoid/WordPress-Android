@@ -1134,7 +1134,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mFavoriteButton.setImageDrawable(mFavoritedDrawable);
         } else {
             if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(
-                    R.drawable.ic_favorited_states);
+                    R.drawable.ic_favorite_states);
             mFavoriteButton.setImageDrawable(mFavoriteDrawable);
         }
     }

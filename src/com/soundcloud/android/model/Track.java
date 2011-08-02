@@ -175,6 +175,7 @@ public class Track extends BaseObj implements Parcelable {
         playback_count = tracklistItem.playback_count;
         comment_count = tracklistItem.comment_count;
         favoritings_count = tracklistItem.favoritings_count;
+        user_favorite = tracklistItem.user_favorite;
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {
