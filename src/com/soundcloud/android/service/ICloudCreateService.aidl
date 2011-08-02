@@ -18,7 +18,6 @@ interface ICloudCreateService
   void seekTo(int position);
   String getPlaybackPath();
   long getPlaybackLocalId();
-  void uploadTrack(in Map trackdata);
   boolean startUpload(in Upload upload);
   boolean isUploading();
   void cancelUpload();

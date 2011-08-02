@@ -397,13 +397,6 @@ public class CloudCreateService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    private void uploadTrack(final Map<String,?> trackdata) {
-        startUpload(new Upload(trackdata));
-    }
-
-
-
-    @SuppressWarnings("unchecked")
     private boolean startUpload(final Upload upload) {
         if (mCurrentUpload!= null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING) return false;
         acquireWakeLock();
@@ -851,18 +844,11 @@ public class CloudCreateService extends Service {
             if (mService.get() != null) mService.get().seekTo(position);
         }
 
-
-        @Override
-        public void uploadTrack(Map trackdata) throws RemoteException {
-            if (mService.get() != null) mService.get().uploadTrack(trackdata);
-        }
-
         @Override
         public boolean startUpload(Upload upload) throws RemoteException {
             return  (mService.get() != null) ? mService.get().startUpload(upload) : false;
 
         }
-
 
         @Override
         public boolean isUploading() throws RemoteException {

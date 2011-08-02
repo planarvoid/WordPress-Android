@@ -65,7 +65,6 @@ public class ScUploadTest implements Params.Track {
         }
         create.startUpload();
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-        verify(service).uploadTrack(captor.capture());
         return captor.getValue();
     }
 
