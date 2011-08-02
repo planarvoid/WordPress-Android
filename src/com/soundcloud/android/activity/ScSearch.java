@@ -162,15 +162,14 @@ public class ScSearch extends ScActivity {
             setListType(false);
             mList.enableLongClickListener();
             mUserAdpWrapper.reset(false,false);
-            mTrackAdpWrapper.refresh(false);
         } else {
             mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
             setListType(true);
             mList.disableLongClickListener();
             mTrackAdpWrapper.reset(false,false);
-            mUserAdpWrapper.refresh(false);
         }
 
+        mList.getWrapper().onRefresh();
         mList.setVisibility(View.VISIBLE);
     }
 

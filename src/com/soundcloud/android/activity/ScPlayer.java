@@ -799,7 +799,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mUnplayableLayout = (FrameLayout) ((ViewStub) findViewById(R.id.stub_unplayable_layout)).inflate();
         }
 
-        if (mPlayingTrack == null || mPlayingTrack.streamable) {
+        if (mPlayingTrack == null || mPlayingTrack.isStreamable()) {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_error);
         } else {
@@ -845,7 +845,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         updateArtwork();
         updateAvatar();
 
-        mDuration = mPlayingTrack.duration;
+        if (mDuration != mPlayingTrack.duration) {
+            mDuration = mPlayingTrack.duration;
+            if (mDuration != 0) {
+                mCurrentDurationString = CloudUtils.makeTimeString(
+                        mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
+                        mDuration / 1000);
+            }
+
+        }
 
         setFavoriteStatus();
 
@@ -865,10 +873,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             mCurrentTrackId = mPlayingTrack.id;
             mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
-            mDuration = mPlayingTrack.duration;
-            mCurrentDurationString = CloudUtils.makeTimeString(
-                    mDuration < 3600000 ? mDurationFormatShort : mDurationFormatLong,
-                    mDuration / 1000);
+
 
             if (mPlayingTrack.comments != null) {
                 setCurrentComments(true);
@@ -883,7 +888,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             if (mCurrentTrackError)
                 return;
 
-            if (mPlayingTrack.streamable) {
+            if (mPlayingTrack.isStreamable()) {
                 hideUnplayable();
             } else {
                 showUnplayable();

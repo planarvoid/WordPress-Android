@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import junit.framework.Assert;
 import org.hamcrest.CoreMatchers;
@@ -9,7 +10,10 @@ import org.junit.runner.RunWith;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import android.content.ContentValues;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
@@ -75,5 +79,22 @@ public class TrackTest {
         assertThat(t.getCache().exists(), is(true));
         assertThat(t.deleteCache(), is(true));
         assertThat(t.getCache().exists(), is(false));
+    }
+
+
+    @Test
+    public void shouldBuildContentValuesEmpty() throws Exception{
+        Track t = new Track();
+        ContentValues v = t.buildContentValues();
+        assertNotNull(v);
+    }
+
+    @Test
+    public void shouldBuildContentValuesWithContent() throws Exception{
+        Track t = new Track();
+        t.id = 1000;
+        ContentValues v = t.buildContentValues();
+        assertNotNull(v);
+        assertThat(v.getAsLong(DatabaseHelper.Tracks.ID), is(1000L));
     }
 }

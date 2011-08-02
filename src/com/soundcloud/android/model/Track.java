@@ -251,7 +251,7 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public boolean isStreamable() {
-        return streamable && stream_url != null;
+        return stream_url != null;
     }
 
     @Override
@@ -263,20 +263,21 @@ public class Track extends BaseObj implements Parcelable {
         ContentValues cv = new ContentValues();
         cv.put(Tracks.ID, id);
         cv.put(Tracks.PERMALINK, permalink);
-        cv.put(Tracks.DURATION, duration);
-        cv.put(Tracks.CREATED_AT, created_at.getTime());
-        cv.put(Tracks.TAG_LIST, tag_list);
-        cv.put(Tracks.TRACK_TYPE, track_type);
-        cv.put(Tracks.TITLE, title);
-        cv.put(Tracks.PERMALINK_URL, permalink_url);
-        cv.put(Tracks.ARTWORK_URL, artwork_url);
-        cv.put(Tracks.WAVEFORM_URL, waveform_url);
-        cv.put(Tracks.DOWNLOADABLE, downloadable);
-        cv.put(Tracks.DOWNLOAD_URL, download_url);
-        cv.put(Tracks.STREAM_URL, stream_url);
-        cv.put(Tracks.STREAMABLE, streamable);
-        cv.put(Tracks.SHARING, sharing);
-        cv.put(Tracks.USER_ID, user_id);
+        // account for partial objects, don't overwrite local full objects
+        if (title != null) cv.put(Tracks.TITLE, title);
+        if (duration != 0) cv.put(Tracks.DURATION, duration);
+        if (stream_url != null) cv.put(Tracks.STREAM_URL, stream_url);
+        if (user_id != 0) cv.put(Tracks.USER_ID, user_id);
+        if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
+        if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
+        if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
+        if (permalink_url != null) cv.put(Tracks.PERMALINK_URL, permalink_url);
+        if (artwork_url != null) cv.put(Tracks.ARTWORK_URL, artwork_url);
+        if (waveform_url != null) cv.put(Tracks.WAVEFORM_URL, waveform_url);
+        if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
+        if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
+        if (streamable) cv.put(Tracks.STREAMABLE, streamable);
+        if (sharing != null) cv.put(Tracks.SHARING, sharing);
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
         if (user_favorite) cv.put(Tracks.USER_FAVORITE, user_favorite);

@@ -36,10 +36,10 @@ public class User extends BaseObj implements Parcelable {
     public String permalink;
     public String permalink_url;
     public String full_name;
-    public int followers_count;
-    public int followings_count;
-    public int public_favorites_count;
-    public int private_tracks_count;
+    public int followers_count = -1;
+    public int followings_count = -1;
+    public int public_favorites_count = -1;
+    public int private_tracks_count = -1;
     public String myspace_name;
     public String country;
     public String plan;
@@ -140,17 +140,18 @@ public class User extends BaseObj implements Parcelable {
         cv.put(Users.USERNAME, username);
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);
-        cv.put(Users.CITY, city);
-        cv.put(Users.COUNTRY, country);
-        cv.put(Users.DISCOGS_NAME, discogs_name);
-        cv.put(Users.FOLLOWERS_COUNT, followers_count);
-        cv.put(Users.FOLLOWINGS_COUNT, followings_count);
-        cv.put(Users.FULL_NAME, full_name);
-        cv.put(Users.MYSPACE_NAME, myspace_name);
-        cv.put(Users.TRACK_COUNT, track_count);
-        cv.put(Users.WEBSITE, website);
-        cv.put(Users.WEBSITE_TITLE, website_title);
-        if (isCurrentUser) cv.put(Users.DESCRIPTION, description);
+        // account for partial objects, don't overwrite local full objects
+        if (city != null) cv.put(Users.CITY, city);
+        if (country != null) cv.put(Users.COUNTRY, country);
+        if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
+        if (full_name != null) cv.put(Users.FULL_NAME, full_name);
+        if (myspace_name != null) cv.put(Users.MYSPACE_NAME, myspace_name);
+        if (followers_count != -1) cv.put(Users.FOLLOWERS_COUNT, followers_count);
+        if (followings_count != -1)cv.put(Users.FOLLOWINGS_COUNT, followings_count);
+        if (track_count != -1)cv.put(Users.TRACK_COUNT, track_count);
+        if (website != null) cv.put(Users.WEBSITE, website);
+        if (website_title != null) cv.put(Users.WEBSITE_TITLE, website_title);
+        if (isCurrentUser && description != null) cv.put(Users.DESCRIPTION, description);
         return cv;
     }
 
