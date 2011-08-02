@@ -2,6 +2,8 @@ require 'rexml/document'
 require 'net/https'
 require 'uri'
 require 'pp'
+require 'csv'
+require 'yaml'
 
 namespace :doc do
   desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
@@ -119,6 +121,10 @@ namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
   APK = "bin/soundcloud-release.apk"
+  REG_IDS = 'reg_ids.yaml'
+  ACRA_CSV = '1.3.4-BETA3.csv'
+  file ACRA_CSV
+  file REG_IDS
 
   desc "build beta"
   task :build do
@@ -172,6 +178,27 @@ namespace :beta do
       raise "error getting bucket: #{$?}"
     end
   end
+
+  task :parse => ACRA_CSV do
+    reg_ids = []
+    CSV.foreach(ACRA_CSV, :col_sep=>',') do |row|
+      custom =  row[13]
+      if custom =~ /\Amessage = registration_id=(.+)\Z/
+        reg_ids << $1
+      end
+    end
+    File.open(REG_IDS, 'w') do |f|
+      f << reg_ids.to_yaml
+    end
+  end
+
+  task :broadcast => REG_IDS do
+    YAML.load_file(REG_IDS).each do |reg_id|
+      if resp = post(reg_id, 'beta-version' => [versionCode, versionName].join(':'))
+        puts resp
+      end
+    end
+  end
 end
 
 namespace :c2dm do
@@ -220,7 +247,7 @@ namespace :c2dm do
     end
   end
 
-  def post(data, reg_id=ENV['REG_ID'], collapse_key='key', opts={})
+  def post(reg_id, data={}, collapse_key='key', opts={})
     params = {
       'registration_id' => reg_id,
       'collapse_key'    => collapse_key,
@@ -236,6 +263,7 @@ namespace :c2dm do
       'Authorization' => "GoogleLogin auth=#{ENV['TOKEN']}"
     })
     req.set_form_data(params)
+
     resp = http.start do |h|
       h.request(req)
     end
@@ -243,19 +271,19 @@ namespace :c2dm do
       when Net::HTTPSuccess
         Hash[*resp.body.strip.split("=", 2)]
      when Net::HTTPUnauthorized
-        puts "unauthorized"
+        STDERR.puts "unauthorized: #{resp.inspect}"
         nil
      when Net::HTTPServiceUnavailable
-        puts "service unavailable"
+        STDERR.puts "service unavailable: #{resp.inspect}"
         nil
      else
-        puts "unexpected response: #{resp.inspect}"
+        STDERR.puts "unexpected response: #{resp.inspect}"
         nil
      end
   end
 
   desc "post a message"
   task :post do
-    puts post('beta-version' => [versionCode, versionName].join(':'))
+    puts post(ENV['REG_ID'], 'beta-version' => [versionCode, versionName].join(':'))
   end
 end
