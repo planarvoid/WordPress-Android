@@ -121,7 +121,7 @@ namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
   APK = "bin/soundcloud-release.apk"
-  REG_IDS = 'reg_ids.yaml'
+  REG_IDS  = 'reg_ids.yaml'
   ACRA_CSV = '1.3.4-BETA3.csv'
   file ACRA_CSV
   file REG_IDS
@@ -179,6 +179,15 @@ namespace :beta do
     end
   end
 
+  desc "tag the current beta"
+  task :tag do
+    if versionName.to_s =~ /-BETA(\d+)?\Z/
+      sh "git tag -a #{versionName} -m #{versionName}"
+    else
+      raise "Not a beta version"
+    end
+  end
+
   task :parse => ACRA_CSV do
     reg_ids = []
     CSV.foreach(ACRA_CSV, :col_sep=>',') do |row|
@@ -192,7 +201,8 @@ namespace :beta do
     end
   end
 
-  task :broadcast => REG_IDS do
+  desc "announce new beta via C2DM"
+  task :notify => REG_IDS do
     YAML.load_file(REG_IDS).each do |reg_id|
       if resp = post(reg_id, 'beta-version' => [versionCode, versionName].join(':'))
         puts resp
