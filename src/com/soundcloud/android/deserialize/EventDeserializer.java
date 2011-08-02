@@ -10,6 +10,7 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.JsonDeserializer;
+import org.codehaus.jackson.map.MapperConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.util.Log;
@@ -18,16 +19,25 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
-public class EventDeserializer extends JsonDeserializer {
+public class EventDeserializer extends JsonDeserializer<Event> {
+
+    static ObjectMapper stdMapper;
+
+    private ObjectMapper getStdMapper() {
+        if (stdMapper == null) {
+            stdMapper = AndroidCloudAPI.Wrapper.createMapper();
+        }
+        return stdMapper;
+    }
+
     @Override
-    public Event deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper() {
-            {
-                getDeserializationConfig().setDateFormat(AndroidCloudAPI.CloudDateFormat.INSTANCE);
-            }
-        };
+    public Event deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+
+        final ObjectMapper mapper = getStdMapper();
+
         JsonNode jsonNode = mapper.readValue(jsonParser, JsonNode.class);
         Event e = mapper.readValue(jsonNode, Event.class);
+
 
         if (e.type.contentEquals(Event.Types.TRACK)) {
             e.track = mapper.readValue(jsonNode.path("origin"), Track.class);
