@@ -28,9 +28,6 @@ public class UserlistRow extends LazyRow {
     protected TextView mTracks;
     protected TextView mFollowers;
 
-    protected ImageView mTracksIcon;
-    protected ImageView mFollowersIcon;
-
     protected ImageButton mFollowBtn;
     protected ImageButton mFollowingBtn;
 
@@ -44,8 +41,6 @@ public class UserlistRow extends LazyRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
-        mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
         mFollowingBtn = (ImageButton) findViewById(R.id.toggleFollowing);
         mFollowBtn = (ImageButton) findViewById(R.id.toggleFollow);
 

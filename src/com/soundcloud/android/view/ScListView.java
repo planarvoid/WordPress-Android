@@ -619,6 +619,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
 
     private void scrollPastHeader() {
+        if (getChildCount() <= 1) return;
         if (Build.VERSION.SDK_INT >= 8){
             smoothScrollBy(getChildAt(1).getTop() + 1, HEADER_HIDE_DURATION);
             mAutoScrolling = true;
