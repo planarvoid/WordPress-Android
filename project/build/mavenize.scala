@@ -22,7 +22,7 @@ trait Mavenize extends DefaultProject {
               <platform>10</platform>
             </sdk>
             <undeployBeforeDeploy>true</undeployBeforeDeploy>
-            <deleteConflictingFiles>true</deleteConflictingFiles>
+            <deleteConflictingFiles>false</deleteConflictingFiles>
             <zipalign>
               <outputApk>{Unparsed("${project.build.directory}/${project.artifactId}-${project.version}-market.apk")}</outputApk>
             </zipalign>
