@@ -292,6 +292,14 @@ public class Track extends BaseObj implements Parcelable {
 
         if (!TextUtils.isEmpty(genre)) {
             txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
+            txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TracksByTag.class);
+                        intent.putExtra("genre", genre);
+                        context.startActivity(intent);
+                    }
+                });
             txt.setText(genre);
             ll.addView(txt, flowLP);
         }
