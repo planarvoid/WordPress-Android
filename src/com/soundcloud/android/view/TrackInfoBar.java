@@ -2,18 +2,12 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.text.Spannable;
@@ -21,15 +15,11 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 public class TrackInfoBar extends RelativeLayout {
     protected Track mTrack;
@@ -46,7 +36,8 @@ public class TrackInfoBar extends RelativeLayout {
     protected View mPlayCountSeparator;
     protected View mCommentCountSeparator;
 
-
+    private Drawable mFavoritesDrawable;
+    private Drawable mFavoritedDrawable;
     private Drawable mPlayingDrawable;
 
     private ImageLoader.BindResult mCurrentIconBindResult;
@@ -84,6 +75,22 @@ public class TrackInfoBar extends RelativeLayout {
               mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
           }
         return mPlayingDrawable;
+    }
+
+    private Drawable getFavoritedDrawable(){
+          if (mFavoritedDrawable == null) {
+              mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_stats_favorited_states);
+              mFavoritedDrawable.setBounds(0, 0, mFavoritedDrawable.getIntrinsicWidth(), mFavoritedDrawable.getIntrinsicHeight());
+          }
+        return mFavoritedDrawable;
+    }
+
+    private Drawable getFavoritesDrawable(){
+          if (mFavoritesDrawable == null) {
+              mFavoritesDrawable = getResources().getDrawable(R.drawable.ic_stats_favorites_states);
+              mFavoritesDrawable.setBounds(0, 0, mFavoritesDrawable.getIntrinsicWidth(), mFavoritesDrawable.getIntrinsicHeight());
+          }
+        return mFavoritesDrawable;
     }
 
     protected void setTrackTime(Parcelable p) {
@@ -135,7 +142,11 @@ public class TrackInfoBar extends RelativeLayout {
         CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
                 mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount);
 
-        _isFavorite = mTrack.user_favorite;
+        if (mTrack.user_favorite) {
+            mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
+        } else {
+            mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
+        }
 
         if (mTrack.id == playingId) {
             SpannableStringBuilder sb = new SpannableStringBuilder();

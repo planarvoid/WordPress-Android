@@ -101,7 +101,6 @@
               android:id="@+id/vr_comment_count"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
-                  android:drawableLeft="@drawable/ic_stats_favorites_states"
                   android:drawablePadding="3dip"
                   android:layout_height="wrap_content"
                   android:id="@+id/favorite_count"
