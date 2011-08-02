@@ -24,4 +24,7 @@
         <item quantity='one'>1 person liked it</item>
         <item quantity='other'>%d people liked it</item>
     </plurals>
+
+    <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
+    <string name="location_picker_go_to_settings">Go to settings</string>
 </resources>

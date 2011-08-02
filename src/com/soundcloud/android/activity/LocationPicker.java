@@ -9,10 +9,13 @@ import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
@@ -21,6 +24,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -93,7 +97,7 @@ public class LocationPicker extends ListActivity {
             requestLocationUpdates(alternativeProvider, adapter);
         }
 
-        if (intent.hasExtra("venues")) {
+        if (mPreloadedLocation != null && intent.hasExtra("venues")) {
             ArrayList<FoursquareVenue> venues =
                     intent.getParcelableArrayListExtra("venues");
 
@@ -101,16 +105,32 @@ public class LocationPicker extends ListActivity {
             adapter.setLocation(mPreloadedLocation);
         } else if  (mProvider != null) {
             Log.v(TAG, "best provider: " + mProvider);
-            Location loc = getManager().getLastKnownLocation(mProvider);
-            adapter.onLocationChanged(loc);
+            adapter.onLocationChanged(getManager().getLastKnownLocation(mProvider));
+        } else {
+            // no location provider enabled, display warning
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.location_picker_no_providers_enabled)
+                    .setPositiveButton(R.string.location_picker_go_to_settings, new Dialog.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                startActivity(
+                                        new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                            } catch (ActivityNotFoundException ignored) {
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create()
+                    .show();
         }
-
         setListAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mProvider = getBestProvider(true);
         requestLocationUpdates(mProvider, getListAdapter());
     }
 
