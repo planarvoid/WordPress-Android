@@ -1,9 +1,12 @@
 $ 22
-  % v 1.3.4-BETA7
-  _ 2011-07-15
+  % v 1.3.4-BETA8
+  _ 2011-08-01
   ! Notifications, sharing, and list optimizations
     * Android notifications
     * Pull-to-refresh
+    * List and Player UI changes
+    * Tracklists by tags
+    * Userlists of track favoriters
     * Better sharing support (via intent/account manager)
     * Fixed cancel uploads
     * Launch upload progress monitor from notifications

@@ -500,10 +500,10 @@ public abstract class ScActivity extends Activity {
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
-        if (this instanceof ScCreate) {
+        /*if (this instanceof ScCreate) {
             menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
                 android.R.drawable.ic_menu_upload);
-        }
+        }*/
 
          if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
