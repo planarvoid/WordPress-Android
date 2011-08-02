@@ -1,17 +1,15 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import junit.framework.Assert;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
 
@@ -31,7 +29,7 @@ public class TrackTest {
         t.tag_list = "punk";
         t.description = "Cool track";
 
-        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/><br/><br/>"));
+        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>"));
     }
 
     @Test

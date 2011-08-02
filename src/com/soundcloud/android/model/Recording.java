@@ -6,10 +6,8 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
-import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
-import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
@@ -27,11 +25,8 @@ import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -49,7 +44,7 @@ public class Recording extends BaseObj implements Parcelable {
     /** in msecs */
     public long duration;
     public File artwork_path;
-    public String four_square_venue_id;
+    public String four_square_venue_id; /* this is actually a hex id */
     public String shared_emails;
     public String service_ids;
     public boolean is_private;
@@ -303,5 +298,10 @@ public class Recording extends BaseObj implements Parcelable {
                 ", description='" + description + '\'' +
                 ", genre='" + genre + '\'' +
                 '}';
+    }
+
+
+    public Upload toUpload() {
+        return new Upload(this);
     }
 }
