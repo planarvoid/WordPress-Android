@@ -467,12 +467,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     public boolean waveformVisible(){
-        return (mTrackFlipper.getDisplayedChild() == 0);
+        return (mTrackFlipper == null || mTrackFlipper.getDisplayedChild() == 0);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK &&
+        if (mTrackFlipper != null && keyCode == KeyEvent.KEYCODE_BACK &&
              mTrackFlipper.getDisplayedChild() != 0) {
             onTrackInfoFlip();
             return true;
@@ -1177,7 +1177,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
 
         if (mLandscape) {
             mWaveformController.setComments(mPlayingTrack.comments, animateIn);
-        } else if (mTrackFlipper.getDisplayedChild() == 1) {
+        } else if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
             fillTrackInfoComments();
         }
     }

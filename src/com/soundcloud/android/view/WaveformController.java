@@ -188,8 +188,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void hideConnectingLayout() {
         mWaveformHolder.hideConnectingLayout();
-
-
     }
 
     public void setProgress(long pos) {
