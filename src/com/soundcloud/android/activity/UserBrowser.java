@@ -12,8 +12,10 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import android.widget.TabHost.OnTabChangeListener;
@@ -51,27 +53,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** @noinspection unchecked*/
-public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenChangeListener, ParcelCache.Listener<Connection>, FollowStatus.Listener {
+public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener {
     private ImageView mIcon;
 
     private FrameLayout mDetailsView;
     private FriendFinderView mFriendFinderView;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription;
-    private HorizontalScrollView hsv;
 
     private ImageButton mFollowStateBtn;
     private Drawable mFollowDrawable, mUnfollowDrawable;
 
     private String mIconURL;
 
-    private WorkspaceView mWorkspaceView;
+    private UserlistBrowser mUserlistBrowser;
     private LoadUserTask mLoadDetailsTask;
-
-    private TabWidget mTabWidget;
-    private TabHost mTabHost;
-
-    private int mLastTabIndex;
 
     private User mUser;
 
@@ -139,8 +135,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         mFollowDrawable = getResources().getDrawable(R.drawable.ic_follow_states);
         mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
-
-        mLastTabIndex = 0;
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
@@ -255,16 +249,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mFriendFinderView.onConnections(connections, true);
     }
 
-    public void onScreenChanged(View newScreen, int newScreenIndex) { }
-
-    public void onScreenChanging(View newScreen, int newScreenIndex) {
-        mTabHost.setCurrentTab(newScreenIndex);
-        if (hsv != null) {
-            hsv.scrollTo(mTabWidget.getChildTabViewAt(newScreenIndex).getLeft()
-                    + mTabWidget.getChildTabViewAt(newScreenIndex).getWidth() / 2 - getWidth() / 2, 0);
-        }
-    }
-
     private void loadYou() {
         setUser(getApp().getLoggedInUser());
         build();
@@ -326,12 +310,7 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         tabHost.setup();
 
-        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mTabWidget = (TabWidget) findViewById(android.R.id.tabs);
-        mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-
-        hsv = (HorizontalScrollView) findViewById(R.id.tab_scroller);
-        hsv.setBackgroundColor(0xFF555555);
+        mUserlistBrowser = (UserlistBrowser) findViewById(R.id.userlist_browser);
 
         final ScTabView emptyView = new ScTabView(this);
 
@@ -353,7 +332,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         ScTabView tracksView = new ScTabView(this);
         tracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
-        CloudUtils.createTab(mTabHost, TabTags.tracks, getString(R.string.tab_tracks), null, emptyView);
 
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"));
@@ -371,12 +349,10 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         ScTabView favoritesView = new ScTabView(this);
         favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
-        CloudUtils.createTab(mTabHost, TabTags.favorites, getString(R.string.tab_favorites), null, emptyView);
 
         final ScTabView detailsView = new ScTabView(this);
         detailsView.addView(mDetailsView);
 
-        CloudUtils.createTab(mTabHost, TabTags.details, getString(R.string.tab_info), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id));
@@ -394,7 +370,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
 
         final ScTabView followingsView = new ScTabView(this);
         followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
-        CloudUtils.createTab(mTabHost, TabTags.followings, getString(R.string.tab_followings), null, emptyView);
 
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id));
@@ -413,12 +388,8 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         final ScTabView followersView = new ScTabView(this);
         followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
-        CloudUtils.createTab(mTabHost, TabTags.followers, getString(R.string.tab_followers), null, emptyView);
-
         if (isMe()) {
             mFriendFinderView = new FriendFinderView(this);
-            CloudUtils.createTab(mTabHost, TabTags.friend_finder, getString(R.string.tab_friend_finder), null, emptyView);
-
             if (mConnections == null) {
                 mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
             } else {
@@ -426,92 +397,33 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
             }
         }
 
-        CloudUtils.configureTabs(this, mTabWidget, CloudUtils.isScreenXL(this) ? 60 : 30, -1, true);
-        CloudUtils.setTabTextStyle(this, mTabWidget, true);
-
         if (isMe()) {
-            mLastTabIndex = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
-            mWorkspaceView.initWorkspace(mLastTabIndex);
-            mTabHost.setCurrentTab(mLastTabIndex);
+            mUserlistBrowser.initWorkspace(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
         } else {
-            mWorkspaceView.initWorkspace(0);
+            mUserlistBrowser.initWorkspace(0);
         }
 
-        mWorkspaceView.addView(tracksView);
-        mWorkspaceView.addView(favoritesView);
-        mWorkspaceView.addView(detailsView);
-        mWorkspaceView.addView(followingsView);
-        mWorkspaceView.addView(followersView);
-        if (mFriendFinderView != null) mWorkspaceView.addView(mFriendFinderView);
+        mUserlistBrowser.addView(tracksView, "Tracks");
+        mUserlistBrowser.addView(favoritesView, "Favorites");
+        mUserlistBrowser.addView(detailsView, "Info");
+        mUserlistBrowser.addView(followingsView, "Following");
+        mUserlistBrowser.addView(followersView, "Followers");
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder");
 
-        mWorkspaceView.setOnScreenChangeListener(this);
-
-        mTabWidget.invalidate();
-        setTabTextInfo();
-
-        mTabHost.setOnTabChangedListener(tabListener);
-        hsv.setFillViewport(true);
     }
 
     private int getWidth() {
         return findViewById(R.id.user_details_root).getWidth();
     }
 
-    private void setTabTextInfo() {
-        if (mTabWidget != null && mUser != null) {
 
-            CloudUtils.setTabText(mTabWidget, 2, getString(R.string.tab_info));
-
-            if (mUser.track_count > 0) {
-                CloudUtils.setTabText(mTabWidget, 0, getString(R.string.tab_tracks)
-                        + " (" + mUser.track_count + ")");
-            } else {
-                CloudUtils.setTabText(mTabWidget, 0, getString(
-                        R.string.tab_tracks));
-            }
-
-            if (mUser.public_favorites_count > 0) {
-                CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites)
-                        + " (" + mUser.public_favorites_count + ")");
-            } else {
-                CloudUtils.setTabText(mTabWidget, 1, getString(R.string.tab_favorites));
-            }
-
-            if (mUser.followings_count > 0) {
-                CloudUtils.setTabText(mTabWidget, 3, getString(R.string.tab_followings)
-                        + " (" + mUser.followings_count + ")");
-            } else {
-                CloudUtils.setTabText(mTabWidget, 3, getString(R.string.tab_followings));
-            }
-
-
-            if (mUser.followers_count > 0) {
-                CloudUtils.setTabText(mTabWidget, 4,
-                        getString(R.string.tab_followers)
-                                + " (" + mUser.followers_count + ")");
-            } else {
-                CloudUtils.setTabText(mTabWidget, 4, getString(R.string.tab_followers));
-            }
-
-            ((HorizontalScrollView) findViewById(R.id.tab_scroller)).setFillViewport(true);
-            mTabWidget.setCurrentTab(mTabHost.getCurrentTab()); //forces the tab lines to redraw
-        }
-    }
 
     private OnTabChangeListener tabListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String arg0) {
-            if (mWorkspaceView != null) {
-                if (Math.abs(mLastTabIndex - mTabHost.getCurrentTab()) > 1) {
-                    mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
-                } else {
-                    mWorkspaceView.setCurrentScreen(mTabHost.getCurrentTab());
-                }
-            }
-
-            mLastTabIndex = mTabHost.getCurrentTab();
+            //TODO, get rid of this crap
             if (isMe()) {
-                getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
+                //getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
             }
         }
     };
@@ -525,8 +437,9 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
     }
 
     public void setTab(String tag) {
-        mTabHost.setCurrentTabByTag(tag);
-        mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
+        //TODO handle this too
+        //mTabHost.setCurrentTabByTag(tag);
+        //mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
     }
 
     private void toggleFollowing() {
@@ -557,7 +470,6 @@ public class UserBrowser extends ScActivity implements WorkspaceView.OnScreenCha
         mUser = user;
         mUsername.setText(user.username);
         mFullName.setText(user.full_name);
-        setTabTextInfo();
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {

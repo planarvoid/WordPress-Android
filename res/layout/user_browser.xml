@@ -88,8 +88,8 @@
             </LinearLayout>
         </TabHost>
 
-        <com.soundcloud.android.view.WorkspaceView
-                android:id="@+id/workspace_view"
+        <com.soundcloud.android.view.UserlistBrowser
+                android:id="@+id/userlist_browser"
                 android:layout_below="@android:id/tabhost"
                 android:layout_alignParentBottom="true"
                 android:layout_width="fill_parent"
