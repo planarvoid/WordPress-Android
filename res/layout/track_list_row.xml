@@ -10,7 +10,7 @@
     <ViewStub android:id="@+id/stub_submenu"
               android:inflatedId="@+id/row_submenu"
               android:layout="@layout/track_list_row_submenu"
-              android:layout_below="@id/track_info_row"
+              android:layout_below="@id/track_info_bar"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"/>
 </RelativeLayout>
