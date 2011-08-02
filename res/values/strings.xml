@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- DO NOT UPDATE - generated automatically -->
 <resources xmlns:xliff='urn:oasis:names:tc:xliff:document:1.2'>
 	<string name='about'>About</string>
 
@@ -681,4 +682,24 @@
             minutes available
         </item>
     </plurals>
+
+    <!--
+    This string is used as the format string in a String.format call,
+    and 5 additional arguments are available for printing:
+    1 - hours
+    2 - minutes
+    3 - minutes%60
+    4 - seconds
+    5 - second%60
+    -->
+    <skip/>
+    <!-- XXX still needed? CloudUtils.formatTimestamp() -->
+    <!-- Do not translate. Duration format for duration < 1 hour -->
+    <string name='durationformatshort' translatable='false'>
+        <xliff:g id='format'>%2$d.%5$02d</xliff:g>
+    </string>
+    <!-- Do not translate. Duration format for duration >= 1 hour -->
+    <string name='durationformatlong' translatable='false'>
+        <xliff:g id='format'>%1$d.%3$02d.%5$02d</xliff:g>
+    </string>
 </resources>

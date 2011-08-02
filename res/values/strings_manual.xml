@@ -5,13 +5,6 @@
 
     <string name='tab_activity'>Activity</string>
 
-    <string name='durationformatshort' translatable='false'>
-        <xliff:g id='format'>%2$d.%5$02d</xliff:g>
-    </string>
-    <string name='durationformatlong' translatable='false'>
-        <xliff:g id='format'>%1$d.%3$02d.%5$02d</xliff:g>
-    </string>
-
     <string name="tracklist_item_shared_with_x_people">%d People</string>
     <string name="tracklist_item_shared_with_you">You</string>
 
