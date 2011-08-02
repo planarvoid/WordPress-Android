@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -228,6 +229,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mPlayingTrack = track;
         mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+
+        if (TextUtils.isEmpty(track.waveform_url)){
+            waveformResult = BindResult.OK;
+            mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
+            showWaveform();
+        }
 
         if (waveformResult == BindResult.ERROR) {
             // clear loader errors so we can try to reload
