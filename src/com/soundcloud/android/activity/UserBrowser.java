@@ -181,6 +181,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         loadDetails();
     }
 
+    public void setTab(String tag) {
+        mUserlistBrowser.setCurrentScreenByTag(tag);
+    }
+
     @Override
     protected void onResume() {
         pageTrack("/profile");
@@ -315,8 +319,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         mUserlistBrowser = (UserlistBrowser) findViewById(R.id.userlist_browser);
 
+        // Details View
+        final ScTabView detailsView = new ScTabView(this);
+        detailsView.addView(mDetailsView);
+
         final ScTabView emptyView = new ScTabView(this);
 
+        // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
@@ -336,6 +345,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         ScTabView tracksView = new ScTabView(this);
         tracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
+        // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"));
         if (isOtherUser()) {
@@ -349,14 +359,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
         }
 
-
         ScTabView favoritesView = new ScTabView(this);
         favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
 
-        final ScTabView detailsView = new ScTabView(this);
-        detailsView.addView(mDetailsView);
-
-
+        // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id));
 
@@ -374,6 +380,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView followingsView = new ScTabView(this);
         followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
 
+        // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id));
 
@@ -391,6 +398,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView followersView = new ScTabView(this);
         followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
+        // Friend Finder View
         if (isMe()) {
             mFriendFinderView = new FriendFinderView(this);
             if (mConnections == null) {
@@ -400,17 +408,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
+        mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
         mUserlistBrowser.addView(tracksView, "Tracks", TabTags.tracks);
         mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
-        mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
         mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
         mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
 
         if (isMe()) {
-            mUserlistBrowser.initWorkspace(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
+            mUserlistBrowser.initWorkspace(Math.max(1, getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)));
+            mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
+                @Override
+                public void onScreenChanged(View newScreen, int newScreenIndex) {
+                    getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
+                }
+
+                @Override
+                public void onScreenChanging(View newScreen, int newScreenIndex) {
+                }
+            });
         } else {
-            mUserlistBrowser.initWorkspace(0);
+            mUserlistBrowser.initWorkspace(1);
         }
 
     }
@@ -419,30 +437,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         return findViewById(R.id.user_details_root).getWidth();
     }
 
-
-
-    private OnTabChangeListener tabListener = new OnTabChangeListener() {
-        @Override
-        public void onTabChanged(String arg0) {
-            //TODO, get rid of this crap
-            if (isMe()) {
-                //getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(mLastTabIndex));
-            }
-        }
-    };
-
     private boolean isOtherUser() {
         return !isMe();
     }
 
     private boolean isMe() {
        return mUser.id == getCurrentUserId();
-    }
-
-    public void setTab(String tag) {
-        //TODO handle this too
-        //mTabHost.setCurrentTabByTag(tag);
-        //mWorkspaceView.setCurrentScreenNow(mTabHost.getCurrentTab());
     }
 
     private void toggleFollowing() {

@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
@@ -101,7 +102,6 @@ public class UserlistBrowser extends RelativeLayout {
         labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
         mLabelHolder.addView(labelTxt);
         tabLabels.add(new TabLabel(labelTxt,label,tag, mLabelHolder.getChildCount() - 1));
-
     }
 
 
@@ -135,6 +135,20 @@ public class UserlistBrowser extends RelativeLayout {
             setLabels(mWorkspaceView.getCurrentScreen());
         }
     }
+
+    public void setOnScreenChangedListener(WorkspaceView.OnScreenChangeListener listener){
+        mWorkspaceView.setOnScreenChangeListener(listener);
+    }
+
+    public void setCurrentScreenByTag(String tag) {
+        for (TabLabel tl : tabLabels) {
+            if (tl.tag.contentEquals(tag)) {
+                mWorkspaceView.setCurrentScreenNow((int) tl.index, true);
+            }
+        }
+
+    }
+
 
     private class TabLabel {
         public String tag;
