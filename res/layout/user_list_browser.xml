@@ -42,4 +42,8 @@
                 android:layout_alignParentBottom="true"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
+    <View android:layout_width="fill_parent"
+                  android:layout_below="@id/label_strip"
+                  android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
 </RelativeLayout>

@@ -383,6 +383,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView followersView = new ScTabView(this);
         followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
+        for (ScListView list : mLists){
+            list.setFadingEdgeLength(0);
+        }
+
         // Friend Finder View
         if (isMe()) {
             mFriendFinderView = new FriendFinderView(this);

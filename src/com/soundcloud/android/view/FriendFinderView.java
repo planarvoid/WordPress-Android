@@ -178,6 +178,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         if (mFriendList != null) removeList();
         mFriendList = mActivity.configureList(new SectionedListView(mActivity), false, mListAddPosition);
         mFriendList.setOnRefreshListener(this);
+        mFriendList.setFadingEdgeLength(0);
 
         mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity));
         mAdapter.addListener(this);
