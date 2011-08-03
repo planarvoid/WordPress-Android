@@ -64,7 +64,8 @@ public class UserlistBrowser extends RelativeLayout {
     private int mMiddleHigh;
     private float mCurrentFraction = -1f;
 
-
+    private View mLeftArrow;
+    private View mRightArrow;
 
     public UserlistBrowser(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -76,6 +77,9 @@ public class UserlistBrowser extends RelativeLayout {
         mLabelHolder = (RelativeLayout) findViewById(R.id.label_holder);
         tabLabels = new ArrayList<TabLabel>();
 
+        mLeftArrow = findViewById(R.id.left_arrow);
+        mRightArrow = findViewById(R.id.right_arrow);
+
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
         mWorkspaceView.setOnScrollListener(new WorkspaceView.OnScrollListener() {
             @Override
@@ -86,6 +90,10 @@ public class UserlistBrowser extends RelativeLayout {
         mHolderPad = (int) (5 * getResources().getDisplayMetrics().density);
 
     }
+
+
+
+
 
     public void addView(View view, String label, String tag){
         mWorkspaceView.addView(view);
@@ -113,14 +121,15 @@ public class UserlistBrowser extends RelativeLayout {
              }
         }
 
-        //Log.i("asdf", "Set Labels " + screenFraction);
+        mLeftArrow.setVisibility(screenFraction < .5 ? INVISIBLE : VISIBLE);
+        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 1.5 ? INVISIBLE : VISIBLE);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed) {
-            mHolderWidth = mLabelHolder.getMeasuredWidth() - mHolderPad*2;
+            mHolderWidth = mLabelHolder.getMeasuredWidth();
             mMiddleLow = (int) (mHolderWidth/2 - 10 * getResources().getDisplayMetrics().density);
             mMiddleHigh = (int) (mHolderWidth/2 + 10 * getResources().getDisplayMetrics().density);
             setLabels(mWorkspaceView.getCurrentScreen());
@@ -171,7 +180,7 @@ public class UserlistBrowser extends RelativeLayout {
                 bold = false;
             }
 
-            ((LayoutParams) textView.getLayoutParams()).leftMargin = Math.min(holderPad + holderWidth + marginOffset * 2,
+            ((LayoutParams) textView.getLayoutParams()).leftMargin = Math.min(holderWidth + marginOffset * 2 - holderPad,
                     Math.max(holderPad, middlePos + marginOffset));
             textView.setVisibility(View.VISIBLE);
             textView.requestLayout();

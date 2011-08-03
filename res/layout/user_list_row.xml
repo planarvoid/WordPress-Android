@@ -17,14 +17,12 @@
                android:scaleType="centerCrop"/>
     <RelativeLayout
             android:layout_toRightOf="@+id/icon"
-            android:layout_centerVertical="true"
+            android:layout_alignTop="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_weight="2"
-            android:layout_marginLeft="@dimen/user_list_text_margin_left"
+            android:layout_marginLeft="@dimen/list_text_margin_left"
             android:layout_toLeftOf="@+id/toggleFollowingHolder">
         <TextView android:layout_height="wrap_content"
-                  android:paddingTop="3dip"
                   android:id="@+id/username"
                   style="@style/txt_list_main"
                   android:ellipsize="marquee"
@@ -46,6 +44,7 @@
                   android:id="@+id/tracks"
                   android:text="@string/track_count"
                   android:layout_alignParentLeft="true"
+                  android:paddingLeft="0dip"
                   android:paddingRight="5dip"
                   style="@style/txt_list_sub_secondary"/>
             <View android:background="#ffefefef"

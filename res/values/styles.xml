@@ -56,8 +56,6 @@
         <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
     </style>
 
     <style name="txt_list_main_inactive" parent="txt_list_main">
@@ -69,11 +67,9 @@
     <style name="txt_list_sub">
         <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
     </style>
     <style name="txt_list_sub_secondary" parent="txt_list_sub">
-        <item name="android:paddingLeft">8dip</item>
+        <item name="android:paddingLeft">3dip</item>
         <item name="android:textColor">@color/listTxtSecondary</item>
     </style>
     <style name="txt_user_list_browser_header">

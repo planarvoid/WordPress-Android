@@ -10,17 +10,13 @@
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
 
-    <dimen name="track_list_indicator_margin_left">5dip</dimen>
-    <dimen name="track_list_text_margin_left">20dip</dimen>
+    <dimen name="list_text_margin_left">5dip</dimen>
+    <dimen name="list_text_margin_right">5dip</dimen>
     <dimen name="track_list_private_margin_top">3dip</dimen>
     <dimen name="track_list_private_margin_left">5dip</dimen>
 
-    <dimen name="rec_list_text_margin_left">5dip</dimen>
-
-    <dimen name="user_list_text_margin_left">0dip</dimen>
-
     <dimen name="user_browser_info_margin_left">0dip</dimen>
-    <dimen name="user_browser_info_username_margin_top">5dip</dimen>
+    <dimen name="user_browser_info_username_margin_top">0dip</dimen>
     <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
     <dimen name="user_browser_info_username_txt_size">15sp</dimen>
 

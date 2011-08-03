@@ -59,7 +59,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private FrameLayout mDetailsView;
     private FriendFinderView mFriendFinderView;
 
-    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription;
+    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
 
     private ImageButton mFollowStateBtn;
     private Drawable mFollowDrawable, mUnfollowDrawable;
@@ -100,6 +100,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
         mFullName = (TextView) findViewById(R.id.fullname);
+
+        mFollowerCount = (TextView) findViewById(R.id.followers);
+        mTrackCount = (TextView) findViewById(R.id.tracks);
 
         mLocation = (TextView) mDetailsView.findViewById(R.id.location);
         mWebsite = (TextView) mDetailsView.findViewById(R.id.website);
@@ -469,7 +472,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (user == null || user.id < 0) return;
         mUser = user;
         mUsername.setText(user.username);
-        mFullName.setText(user.full_name);
+        if (TextUtils.isEmpty(user.full_name)){
+            mFullName.setVisibility(View.GONE);
+        } else {
+            mFullName.setText(user.full_name);
+            mFullName.setVisibility(View.VISIBLE);
+        }
+        mFollowerCount.setText(String.valueOf(user.followers_count));
+        mTrackCount.setText(String.valueOf(user.track_count));
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {

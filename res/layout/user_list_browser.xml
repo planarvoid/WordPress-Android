@@ -12,13 +12,29 @@
                     android:layout_below="@id/hr"
                     android:layout_height="30dip"
                     android:id="@+id/label_strip">
+        <ImageView android:id="@+id/left_arrow"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_marginTop="2dp"
+                   android:layout_marginLeft="10dp"
+                   android:layout_alignParentLeft="true"
+                   android:layout_centerVertical="true"
+                   android:src="@drawable/prev_sm"/>
         <RelativeLayout android:layout_width="fill_parent"
                         android:layout_centerHorizontal="true"
-                        android:layout_marginRight="20dip"
-                        android:layout_marginLeft="20dip"
+                        android:layout_toRightOf="@+id/left_arrow"
+                        android:layout_toLeftOf="@+id/right_arrow"
                         android:gravity="center_vertical"
                         android:layout_height="fill_parent"
                         android:id="@+id/label_holder"/>
+        <ImageView android:id="@+id/right_arrow"
+                   android:layout_marginTop="2dp"
+                   android:layout_marginRight="10dp"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentRight="true"
+                   android:layout_centerVertical="true"
+                   android:src="@drawable/next_sm"/>
     </RelativeLayout>
     <com.soundcloud.android.view.WorkspaceView
                 android:id="@+id/workspace_view"
