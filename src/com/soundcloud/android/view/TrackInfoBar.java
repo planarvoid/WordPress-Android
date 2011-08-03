@@ -101,7 +101,7 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     /** update the views with the data corresponding to selection index */
-    public void display(Parcelable p, boolean shouldLoadIcon, long playingId) {
+    public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight) {
         mTrack = p instanceof Event ? ((Event) p).getTrack() :
                  p instanceof Track ? (Track) p : null;
         if (mTrack == null) return;
@@ -127,7 +127,7 @@ public class TrackInfoBar extends RelativeLayout {
         }
 
         CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
-                mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount);
+                mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount, keepHeight);
 
         if (mTrack.user_favorite) {
             mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);

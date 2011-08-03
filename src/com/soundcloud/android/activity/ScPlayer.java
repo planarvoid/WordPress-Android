@@ -791,7 +791,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         }
 
         mWaveformController.updateTrack(mPlayingTrack);
-        mTrackInfoBar.display(mPlayingTrack,false,-1);
+        mTrackInfoBar.display(mPlayingTrack,false,-1, true);
         updateArtwork();
         updateAvatar();
 

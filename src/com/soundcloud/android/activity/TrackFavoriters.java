@@ -32,7 +32,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
         if (!i.hasExtra("track")) throw new IllegalArgumentException("No track supplied with intent");
         final Track track = i.getParcelableExtra("track");
 
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1);
+        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false);
         findViewById(R.id.track_info_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
