@@ -11,11 +11,10 @@ import android.os.AsyncTask;
 import java.io.IOException;
 
 public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
-
-    SoundCloudApplication mScApp;
-    FavoriteListener mFavoriteListener;
-    Exception mException;
-    Long trackId = (long) -1;
+    protected  SoundCloudApplication mScApp;
+    private FavoriteListener mFavoriteListener;
+    private Exception mException;
+    private long trackId = -1;
 
     public FavoriteTask(SoundCloudApplication scApp) {
         this.mScApp = scApp;
@@ -25,7 +24,6 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
         mFavoriteListener = favoriteListener;
     }
 
-
     @Override
     protected Boolean doInBackground(Track... params) {
         trackId = params[0].id;
@@ -33,15 +31,14 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
             return processResponse(executeResponse(params[0]));
         } catch (IOException e) {
             setException(e);
+            return processResponse(0);
         }
-        return processResponse(0);
     }
 
     protected int executeResponse(Track t) throws IOException{
         return mScApp.put(Request.to(Endpoints.MY_FAVORITE, t.id))
                 .getStatusLine().getStatusCode();
     }
-
 
     private void setException(Exception e){
         mException = e;
@@ -53,14 +50,13 @@ public class FavoriteTask extends AsyncTask<Track, String, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean favorite) {
-        if (mFavoriteListener != null){
+        if (mFavoriteListener != null) {
             mFavoriteListener.onNewFavoriteStatus(trackId, favorite);
         }
 
         if (mException != null && mFavoriteListener != null){
-                mFavoriteListener.onException(trackId,mException);
+            mFavoriteListener.onException(trackId,mException);
         }
-
     }
 
     public interface FavoriteListener {

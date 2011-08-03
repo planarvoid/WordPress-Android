@@ -11,7 +11,6 @@ import android.util.Log;
 import java.io.IOException;
 
 public class FavoriteRemoveTask extends FavoriteTask {
-
     public FavoriteRemoveTask(SoundCloudApplication scApp) {
         super(scApp);
     }

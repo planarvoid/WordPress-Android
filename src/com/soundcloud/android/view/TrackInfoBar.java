@@ -22,30 +22,25 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TrackInfoBar extends RelativeLayout {
-    protected Track mTrack;
+    private Track mTrack;
 
-    protected TextView mUser;
-    protected TextView mTitle;
-    protected TextView mCreatedAt;
-    protected TextView mPrivateIndicator;
+    private TextView mUser;
+    private TextView mTitle;
+    private TextView mCreatedAt;
+    private TextView mPrivateIndicator;
 
-    protected TextView mFavoriteCount;
-    protected TextView mPlayCount;
-    protected TextView mCommentCount;
+    private TextView mFavoriteCount;
+    private TextView mPlayCount;
+    private TextView mCommentCount;
 
-    protected View mPlayCountSeparator;
-    protected View mCommentCountSeparator;
+    private View mPlayCountSeparator;
+    private View mCommentCountSeparator;
 
     private Drawable mFavoritesDrawable;
     private Drawable mFavoritedDrawable;
     private Drawable mPlayingDrawable;
 
-    private ImageLoader.BindResult mCurrentIconBindResult;
-
-    protected ImageView mIcon;
-
-    protected Boolean _isFavorite = false;
-
+    private ImageView mIcon;
 
     public TrackInfoBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,13 +62,11 @@ public class TrackInfoBar extends RelativeLayout {
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
     }
 
-
-
-     private Drawable getPlayingDrawable(){
-          if (mPlayingDrawable == null) {
-              mPlayingDrawable = getResources().getDrawable(R.drawable.list_playing);
-              mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
-          }
+    private Drawable getPlayingDrawable() {
+        if (mPlayingDrawable == null) {
+            mPlayingDrawable = getResources().getDrawable(R.drawable.list_playing);
+            mPlayingDrawable.setBounds(0, 0, mPlayingDrawable.getIntrinsicWidth(), mPlayingDrawable.getIntrinsicHeight());
+        }
         return mPlayingDrawable;
     }
 
@@ -109,16 +102,11 @@ public class TrackInfoBar extends RelativeLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(Parcelable p, boolean shouldLoadIcon, long playingId) {
-        if (p == null)
-            return;
-
         mTrack = p instanceof Event ? ((Event) p).getTrack() :
                  p instanceof Track ? (Track) p : null;
-
         if (mTrack == null) return;
 
         setTrackTime(p);
-
         mUser.setText(mTrack.user.username);
 
         if (!mTrack.isStreamable()) {
@@ -153,41 +141,16 @@ public class TrackInfoBar extends RelativeLayout {
             sb.setSpan(new ImageSpan(getPlayingDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             sb.append(mTrack.title);
             mTitle.setText(sb);
-
         } else {
             mTitle.setText(mTrack.title);
         }
-
-        if (shouldLoadIcon){
-             loadIcon();
-        }
-    }
-
-    public void onConnected(){
-        if (mCurrentIconBindResult == ImageLoader.BindResult.ERROR){
-            loadIcon();
-        }
+        if (shouldLoadIcon) loadIcon();
     }
 
     private void loadIcon() {
         final String iconUrl = getTrackIcon();
         if (TextUtils.isEmpty(iconUrl)) {
-            // no artwork
-            ImageLoader.get(getContext()).unbind(mIcon);
-        } else {
-            mCurrentIconBindResult = ImageLoader.get(getContext()).bind(
-                    mIcon,
-                    ImageUtils.formatGraphicsUrlForList(getContext(), iconUrl),
-                    new ImageLoader.ImageViewCallback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentIconBindResult = ImageLoader.BindResult.ERROR;
-                        }
-
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                        }
-                    });
+            ImageLoader.get(getContext()).unbind(mIcon); // no artwork
         }
     }
 
@@ -198,8 +161,4 @@ public class TrackInfoBar extends RelativeLayout {
         return ImageUtils.formatGraphicsUrlForList(getContext(),
                 mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
-
-
-
-
 }
