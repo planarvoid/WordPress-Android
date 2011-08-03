@@ -74,6 +74,8 @@
 
 	<color name="listSeperator">#FF333333</color>
 	<color name="horizontalRule">#FFcccccc</color>
+    <color name="verticalPipe">#FFdedede</color>
+    <color name="verticalPipeDark">#FFcccccc</color>
 
 	<color name="menuBackground">#7fff0000</color>
 	<color name="tabFocused">#7fff0000</color>
