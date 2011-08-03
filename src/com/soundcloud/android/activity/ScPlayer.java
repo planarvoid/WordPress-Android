@@ -178,14 +178,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         mAvatar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                if (mPlayingTrack == null) {
-                    return;
+                if (mPlayingTrack != null) {
+                    Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
+                    intent.putExtra("userId", mPlayingTrack.user_id);
+                    startActivity(intent);
                 }
-
-                Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
-                intent.putExtra("userId", mPlayingTrack.user_id);
-                startActivity(intent);
             }
         });
 
@@ -530,8 +527,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void fillTrackDetails() {
-        if (mPlayingTrack == null)
-            return;
+        if (mPlayingTrack == null) return;
 
         if (!mPlayingTrack.info_loaded) {
             if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
@@ -573,8 +569,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
     }
 
     private void fillTrackInfoComments() {
-        if (mTrackInfo == null)
-            return;
+        if (mTrackInfo == null) return;
 
         LinearLayout commentsList;
         if (mTrackInfo.findViewById(R.id.comments_list) == null) {
@@ -595,11 +590,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
         }
 
-        if (mPlayingTrack.comments == null)
-            return;
+        if (mPlayingTrack.comments == null) return;
 
         //sort by created date descending for this list
-        Collections.sort(mPlayingTrack.comments, new Comment.CompareCreatedAt());
+        Collections.sort(mPlayingTrack.comments, Comment.CompareCreatedAt.INSTANCE);
 
         final SpannableStringBuilder commentText = new SpannableStringBuilder();
         final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.commentGray));
@@ -655,7 +649,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             }
         }
         //restore default sort
-        Collections.sort(mPlayingTrack.comments, new Comment.CompareTimestamp());
+        Collections.sort(mPlayingTrack.comments, Comment.CompareTimestamp.INSTANCE);
     }
 
     private void setPauseButtonImage() {
