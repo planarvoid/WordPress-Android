@@ -25,11 +25,15 @@ public class TrackTest {
     @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
-        t.title = "My Ttrack";
-        t.tag_list = "punk";
         t.description = "Cool track";
-
         assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>"));
+    }
+
+    @Test
+    public void shouldAddLineBreaksToTrackInfo() throws Exception {
+        Track t = new Track();
+        t.description = "Cool\ntrack";
+        assertThat(t.trackInfo(), equalTo("Cool<br/>track<br/><br/>"));
     }
 
     @Test
@@ -78,7 +82,6 @@ public class TrackTest {
         assertThat(t.deleteCache(), is(true));
         assertThat(t.getCache().exists(), is(false));
     }
-
 
     @Test
     public void shouldBuildContentValuesEmpty() throws Exception{
