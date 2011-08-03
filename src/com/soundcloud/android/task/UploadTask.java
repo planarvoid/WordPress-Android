@@ -23,6 +23,8 @@ import java.util.Map;
 public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> {
     private CloudAPI api;
 
+
+    // XXX get rid of this class, use Upload
     public static class Params {
 
         private boolean failed;

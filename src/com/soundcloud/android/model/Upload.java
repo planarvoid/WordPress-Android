@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ public class Upload extends BaseObj implements Parcelable {
     public boolean upload_error;
     public boolean cancelled;
 
+
+    // XXX should be File
     public String trackPath;
     public String artworkPath;
 
@@ -50,7 +53,6 @@ public class Upload extends BaseObj implements Parcelable {
     public static final String SOURCE_PATH = "source_path";
     public static final String OGG_FILENAME = "ogg_filename";
     public static final String ARTWORK_PATH = "artwork_path";
-    public static final String ENCODE = "encode";
     public static final String DELETE_AFTER = "delete_after";
 
     public static interface UploadStatus {
@@ -92,8 +94,7 @@ public class Upload extends BaseObj implements Parcelable {
 
     }
 
-    public Upload(Recording r){
-
+    public Upload(Recording r) {
         id = System.currentTimeMillis();
 
         // defaults
@@ -111,27 +112,25 @@ public class Upload extends BaseObj implements Parcelable {
         if (!TextUtils.isEmpty(r.description)) description = r.description;
         if (!TextUtils.isEmpty(r.genre)) genre = r.genre;
 
-
         if (!r.is_private) {
-
             List<Integer> serviceIds = new ArrayList<Integer>();
-            if (!TextUtils.isEmpty(service_ids))
-            for (String serviceId : service_ids.split(",")){
-                if (!TextUtils.isEmpty(serviceId)) serviceIds.add(Integer.valueOf(serviceId));
+            if (!TextUtils.isEmpty(r.service_ids)) {
+                for (String serviceId : r.service_ids.split(",")) {
+                    if (!TextUtils.isEmpty(serviceId)) serviceIds.add(Integer.valueOf(serviceId));
+                }
             }
 
-             if (!serviceIds.isEmpty()) {
-                 sharing_note = r.sharingNote();
-                 service_ids = TextUtils.join(",",serviceIds);
-             } else {
+            if (!serviceIds.isEmpty()) {
+                sharing_note = r.sharingNote();
+                service_ids = TextUtils.join(",", serviceIds);
+            } else {
                 post_to_empty = "";
-             }
+            }
         } else { // not private
-             if (!TextUtils.isEmpty(r.shared_emails)) {
-                 shared_emails = r.shared_emails;
-             }
+            if (!TextUtils.isEmpty(r.shared_emails)) {
+                shared_emails = r.shared_emails;
+            }
         }
-
 
         // add machine tags
         List<String> tags = new ArrayList<String>();
@@ -148,9 +147,7 @@ public class Upload extends BaseObj implements Parcelable {
         } else {
             tags.add("soundcloud:source=android-record");
         }
-        tag_list = TextUtils.join(",",tags);
-
-
+        tag_list = TextUtils.join(" ", tags);
 
         if (!r.external_upload) {
             if (r.audio_profile == Profile.RAW) {
@@ -176,8 +173,17 @@ public class Upload extends BaseObj implements Parcelable {
         if (!TextUtils.isEmpty(description)) data.put(Params.Track.DESCRIPTION, description);
         if (!TextUtils.isEmpty(genre)) data.put(Params.Track.GENRE, genre);
 
-        if (!TextUtils.isEmpty(service_ids)) data.put(Params.Track.POST_TO, service_ids.split(","));
-        if (!TextUtils.isEmpty(shared_emails)) data.put(Params.Track.SHARED_EMAILS, shared_emails.split(","));
+        if (!TextUtils.isEmpty(service_ids)) {
+            List<String> ids = new ArrayList<String>();
+            Collections.addAll(ids, service_ids.split(","));
+            data.put(Params.Track.POST_TO, ids);
+        }
+
+        if (!TextUtils.isEmpty(shared_emails)) {
+            List<String> ids = new ArrayList<String>();
+            Collections.addAll(ids, shared_emails.split(","));
+            data.put(Params.Track.SHARED_EMAILS, ids);
+        }
 
         if (post_to_empty != null) data.put(Params.Track.POST_TO_EMPTY, "");
         return data;
@@ -215,4 +221,11 @@ public class Upload extends BaseObj implements Parcelable {
         return 0;
     }
 
+    public List<String> getTags() {
+        List<String> tags = new ArrayList<String>();
+        if (tag_list != null) {
+            Collections.addAll(tags, tag_list.split("\\s+"));
+        }
+        return tags;
+    }
 }

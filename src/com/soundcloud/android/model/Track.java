@@ -4,9 +4,7 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.TracksByTag;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -24,22 +22,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -158,7 +150,7 @@ public class Track extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Track(TracklistItem tracklistItem){
+    public Track(TracklistItem tracklistItem) {
         id = tracklistItem.id;
         title = tracklistItem.title;
         created_at = tracklistItem.created_at;
@@ -327,7 +319,7 @@ public class Track extends BaseObj implements Parcelable {
         StringBuilder str = new StringBuilder(200);
 
         if (!TextUtils.isEmpty(description)) {
-            str.append(description).append("<br/><br/>");
+            str.append(description.replace("\n", "<br/>")).append("<br/><br/>");
         }
 
         if (!TextUtils.isEmpty(key_signature)) {

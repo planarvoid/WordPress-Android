@@ -32,9 +32,10 @@ Clone and build it:
 ## Releasing betas
 
   * Change `versionName` in AndroidManifest.xml (but *not* `versionCode`)
-  * Create a tag with the versionName you used in step 1)
   * Build the apk: `rake beta:build`
+  * Tag the current beta version: `rake beta:tag`
   * Upload to S3: `rake beta:upload`
+  * Push notifications to beta clients: `rake beta:notify`
 
 ## Integration from other Android apps
 

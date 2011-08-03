@@ -11,11 +11,9 @@ import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.utils.ChangeLog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -123,6 +121,14 @@ public class Settings extends PreferenceActivity {
                         public boolean onPreferenceClick(Preference preference) {
                             SyncAdapterService.requestNewSync(getApp());
                             return true;
+                        }
+                    });
+
+            findPreference("dev.crash").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            throw new RuntimeException("developer requested crash");
                         }
                     });
         }

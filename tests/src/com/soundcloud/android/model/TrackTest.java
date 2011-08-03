@@ -1,17 +1,15 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import junit.framework.Assert;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
 
@@ -27,11 +25,15 @@ public class TrackTest {
     @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
-        t.title = "My Ttrack";
-        t.tag_list = "punk";
         t.description = "Cool track";
+        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>"));
+    }
 
-        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/><br/><br/>"));
+    @Test
+    public void shouldAddLineBreaksToTrackInfo() throws Exception {
+        Track t = new Track();
+        t.description = "Cool\ntrack";
+        assertThat(t.trackInfo(), equalTo("Cool<br/>track<br/><br/>"));
     }
 
     @Test
@@ -80,7 +82,6 @@ public class TrackTest {
         assertThat(t.deleteCache(), is(true));
         assertThat(t.getCache().exists(), is(false));
     }
-
 
     @Test
     public void shouldBuildContentValuesEmpty() throws Exception{
