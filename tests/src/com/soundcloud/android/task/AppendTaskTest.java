@@ -3,7 +3,6 @@ package com.soundcloud.android.task;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -14,11 +13,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,6 +80,17 @@ public class AppendTaskTest {
 
         Event e = (Event) task.newItems.get(0);
         assertThat(e.created_at, not(nullValue()));
+        // origin=comment
+        assertThat(e.comment.id, is(21266451L));
+        // origin=favoriting
+        Event e2 = (Event) task.newItems.get(2);
+        assertThat(e2.track.id, is(12725662L));
+        // origin=track_sharing
+        Event e3 = (Event) task.newItems.get(3);
+        assertThat(e3.track.id, is(19321606L));
+        // origin=track
+        Event e4 = (Event) task.newItems.get(4);
+        assertThat(e4.track.id, is(19318826L));
     }
 
     private String slurp(String res) throws IOException {

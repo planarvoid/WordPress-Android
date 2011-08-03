@@ -7,11 +7,9 @@ import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.Comparator;
 
@@ -72,7 +70,10 @@ public class Comment extends BaseObj implements Parcelable {
         }
     };
 
-    public static class CompareTimestamp implements Comparator<Comment>{
+    public static class CompareTimestamp implements Comparator<Comment> {
+        public static final Comparator<Comment> INSTANCE = new CompareTimestamp();
+        private CompareTimestamp() {}
+
         @Override
         public int compare(Comment c1, Comment c2) {
             if (c1.timestamp > c2.timestamp)
@@ -84,7 +85,10 @@ public class Comment extends BaseObj implements Parcelable {
         }
     }
 
-    public static class CompareCreatedAt implements Comparator<Comment>{
+    public static class CompareCreatedAt implements Comparator<Comment> {
+        public static final Comparator<Comment> INSTANCE = new CompareCreatedAt();
+        private CompareCreatedAt() {}
+
         @Override
         public int compare(Comment c1, Comment c2) {
             return c2.created_at.compareTo(c1.created_at);

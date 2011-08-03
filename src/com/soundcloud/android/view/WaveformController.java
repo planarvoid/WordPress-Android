@@ -510,7 +510,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mCurrentTopComments = new ArrayList<Comment>();
 
-        Collections.sort(comments, new Comment.CompareTimestamp());
+        Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);
 
         for (int i = 0; i < mCurrentComments.size(); i++){
             if (mCurrentComments.get(i).timestamp > 0 && (i == mCurrentComments.size()-1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i+1).timestamp)){

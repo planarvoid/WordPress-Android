@@ -3,15 +3,11 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
@@ -33,7 +29,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Spannable;
@@ -165,10 +160,10 @@ public class CloudUtils {
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
         mkdirs(newDir);
         if (deprecatedDir.exists()) {
-            for (File f : deprecatedDir.listFiles()){
+            for (File f : deprecatedDir.listFiles()) {
                 f.renameTo(new File(newDir, f.getName()));
             }
-            deprecatedDir.delete();
+            CloudUtils.deleteDir(deprecatedDir);
         }
         return newDir;
     }
@@ -390,8 +385,8 @@ public class CloudUtils {
         return sFormatter.format(stringFormat, arg).toString();
     }
 
-    /** @see CloudUtils.formatTimestamp() */
-    public static String makeTimeString(String durationformat, long secs) {
+    /** @see {@link CloudUtils#formatTimestamp(long)} ()} */
+    static String makeTimeString(String durationformat, long secs) {
         // XXX global state
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
@@ -541,14 +536,18 @@ public class CloudUtils {
     /**
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
+     * @param view the textview
+     * @param link the link to set
+     * @param listener the listener
+     * @param underline underline the text
      */
-    public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener, boolean underline) {
+    public static void clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
 
-        int start = string.indexOf(clickableText);
-        int end = start + clickableText.length();
+        int start = string.indexOf(link);
+        int end = start + link.length();
         if (start == -1) return;
 
         if (text instanceof Spannable) {

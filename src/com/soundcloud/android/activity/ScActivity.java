@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -53,7 +52,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -608,14 +606,16 @@ public abstract class ScActivity extends Activity {
         @Override
         public void onEventClick(ArrayList<Parcelable> events, int position) {
             final Event e = ((Event) events.get(position));
-            if (e.type.contentEquals(Event.Types.COMMENT)) {
+            if (e == null) return;
+
+            if (Event.Types.COMMENT.contentEquals(e.type)) {
                 playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
-            } else if (e.type.contentEquals(Event.Types.FAVORITING)) {
+            } else if (Event.Types.FAVORITING.contentEquals(e.type)) {
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
                 i.putExtra("track", e.getTrack());
                 startActivity(i);
             } else {
-                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+                playTrack(e.getTrack().id, events, position, true);
             }
 
         }

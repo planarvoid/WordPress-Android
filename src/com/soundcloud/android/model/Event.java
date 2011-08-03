@@ -39,7 +39,6 @@ public class Event extends BaseObj implements Parcelable {
     public Comment comment;
     public User user;
 
-
     public Event() {
     }
 
