@@ -243,6 +243,12 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    public void playTrack(Track track, boolean goToPlayer) {
+        List<Parcelable> trackList = new ArrayList<Parcelable>();
+        trackList.add(track);
+        playTrack(track.id, trackList, 0, goToPlayer);
+    }
+
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
         // find out if this track is already playing. If it is, just go to the player
         try {

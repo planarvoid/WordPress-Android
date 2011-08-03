@@ -6,6 +6,7 @@ import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.TrackInfoBar;
@@ -14,9 +15,12 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     @Override
@@ -26,9 +30,15 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         Intent i = getIntent();
         if (!i.hasExtra("track")) throw new IllegalArgumentException("No track supplied with intent");
-        Track track = i.getParcelableExtra("track");
+        final Track track = i.getParcelableExtra("track");
 
         ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1);
+        findViewById(R.id.track_info_bar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playTrack(track, true);
+            }
+        });
 
         SectionedUserlistAdapter userAdapter = new SectionedUserlistAdapter(this);
         SectionedEndlessAdapter userAdapterWrapper = new SectionedEndlessAdapter(this, userAdapter, true);
