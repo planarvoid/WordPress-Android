@@ -12,13 +12,11 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
-import android.widget.TabHost.OnTabChangeListener;
+
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -40,13 +38,10 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.*;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
@@ -66,7 +61,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private String mIconURL;
 
-    private UserlistBrowser mUserlistBrowser;
+    private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadDetailsTask;
 
     private User mUser;
@@ -308,14 +303,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void build() {
-        TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
-        FrameLayout frameLayout = (FrameLayout) findViewById(android.R.id.tabcontent);
-        frameLayout.setPadding(0, 0, 0, 0);
-        frameLayout.getLayoutParams().height = 0;
 
-        tabHost.setup();
-
-        mUserlistBrowser = (UserlistBrowser) findViewById(R.id.userlist_browser);
+        mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
 
         // Details View
         final ScTabView detailsView = new ScTabView(this);
