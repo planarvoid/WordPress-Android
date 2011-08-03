@@ -5,6 +5,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+/**
+ * http://nishantvnair.wordpress.com/2010/09/28/flowlayout-in-android/
+ */
+
 public class FlowLayout extends ViewGroup {
 
     private int line_height;
