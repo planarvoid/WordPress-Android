@@ -5,11 +5,10 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.text.Html;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.TextView;
 
+/** @noinspection UnusedDeclaration*/
 public class ShareHeaderView extends TextView {
-
     public ShareHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setText(Html.fromHtml(getResources().getString(R.string.share_to_soundcloud)));
@@ -19,6 +18,4 @@ public class ShareHeaderView extends TextView {
         super(context, attrs, defStyle);
         setText(Html.fromHtml(getResources().getString(R.string.share_to_soundcloud)));
     }
-
-
 }

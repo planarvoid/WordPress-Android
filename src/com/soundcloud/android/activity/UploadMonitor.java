@@ -31,8 +31,7 @@ import android.widget.Toast;
 import java.io.File;
 
 public class UploadMonitor extends Activity {
-
-    protected ICloudCreateService mCreateService;
+    private ICloudCreateService mCreateService;
     private long mUploadId;
     private Upload mUpload;
 
@@ -43,11 +42,9 @@ public class UploadMonitor extends Activity {
     private TextView mProgressText;
     private boolean mProgressModeEncoding;
 
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_monitor);
-
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(CloudCreateService.UPLOAD_STARTED);
@@ -72,11 +69,12 @@ public class UploadMonitor extends Activity {
         findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCreateService == null) return;
-                try {
-                    mCreateService.cancelUploadById(mUploadId);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                if (mCreateService != null) {
+                    try {
+                        mCreateService.cancelUploadById(mUploadId);
+                    } catch (RemoteException ignored) {
+                        Log.e(TAG, "error", ignored);
+                    }
                 }
             }
         });
@@ -128,7 +126,6 @@ public class UploadMonitor extends Activity {
 
         ((TextView) findViewById(R.id.track)).setText(mUpload.title);
         if (!TextUtils.isEmpty(mUpload.artworkPath)) {
-            final File artworkFile = new File(mUpload.artworkPath);
             ImageUtils.setImage(new File(mUpload.artworkPath), ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
@@ -144,16 +141,15 @@ public class UploadMonitor extends Activity {
      private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mCreateService = (ICloudCreateService) binder;
-            if (mUpload == null){
+            if (mUpload == null) {
                 try {
                     mUpload = mCreateService.getUploadById(mUploadId);
                     fillDataFromUpload();
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                } catch (RemoteException ignored) {
+                    Log.e(TAG, "error", ignored);
                 }
             }
         }
-
         public void onServiceDisconnected(ComponentName className) { }
     };
 
@@ -219,5 +215,4 @@ public class UploadMonitor extends Activity {
             mControlLayout.setVisibility(View.VISIBLE);
         }
     }
-
 }
