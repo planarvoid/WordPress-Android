@@ -68,8 +68,6 @@ public class ScCreate extends ScActivity {
     private long mDuration, mLastSeekEventTime;
     private int mAudioProfile;
     private String mRecordErrorMessage;
-    private String mDurationFormatLong;
-    private String mDurationFormatShort;
     private String mCurrentDurationString;
     private Uri mRecordingUri;
     private boolean mSampleInterrupted;
@@ -155,9 +153,6 @@ public class ScCreate extends ScActivity {
         btn_rec_states_drawable = getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = getResources().getDrawable(R.drawable.btn_rec_stop_states);
         btn_rec_play_states_drawable = getResources().getDrawable(R.drawable.btn_rec_play_states);
-
-        mDurationFormatLong = getString(R.string.durationformatlong);
-        mDurationFormatShort = getString(R.string.durationformatshort);
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
@@ -461,6 +456,7 @@ public class ScCreate extends ScActivity {
             setRequestedOrientation(getResources().getConfiguration().orientation);
             try {
                 mCreateService.startRecording(mRecordFile.getAbsolutePath(), mAudioProfile);
+                //noinspection ResultOfMethodCallIgnored
                 mRecordFile.setLastModified(System.currentTimeMillis());
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -554,8 +550,7 @@ public class ScCreate extends ScActivity {
 
     private void configurePlaybackInfo(){
         try {
-            mCurrentDurationString =  CloudUtils.makeTimeString(mDurationFormatShort,
-                    getDuration() / 1000);
+            mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
             mProgressBar.setMax((int) (getDuration()));
 
             if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < getDuration())
@@ -607,10 +602,10 @@ public class ScCreate extends ScActivity {
                         mHandler.post(new Runnable() {
                             public void run() {
                                 if (mCurrentState == CreateState.PLAYBACK) {
-                                    mChrono.setText(CloudUtils.makeTimeString(
-                                            pos < 3600 * 1000 ? mDurationFormatShort
-                                                    : mDurationFormatLong, pos / 1000)
-                                            + " / " + mCurrentDurationString);
+                                    mChrono.setText(new StringBuilder()
+                                            .append(CloudUtils.formatTimestamp(pos))
+                                            .append(" / ")
+                                            .append(mCurrentDurationString));
                                     mProgressBar.setProgress((int) pos);
                                 }
                             }
@@ -725,8 +720,7 @@ public class ScCreate extends ScActivity {
 
     public void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setText(CloudUtils.makeTimeString(
-                elapsed < 3600000 ? mDurationFormatShort : mDurationFormatLong, elapsed/1000));
+            mChrono.setText(CloudUtils.formatTimestamp(elapsed));
             updateTimeRemaining();
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
@@ -736,12 +730,13 @@ public class ScCreate extends ScActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(CloudCreateService.RECORD_ERROR))
+            if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
-            else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE))
+            } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE)) {
                 onPlaybackComplete();
-            else if (action.equals(CloudCreateService.PLAYBACK_ERROR))
+            } else if (action.equals(CloudCreateService.PLAYBACK_ERROR)) {
                 onPlaybackComplete(); // might be unknown errors, meriting proper error handling
+            }
         }
     };
 
@@ -783,16 +778,14 @@ public class ScCreate extends ScActivity {
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_reset_recording_title)
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        if (mRecordFile != null){
-                                            if (mRecordFile.exists()) mRecordFile.delete();
-                                            mRecordFile = null;
-                                        }
-                                        mCurrentState = CreateState.IDLE_RECORD;
-                                        updateUi(true);
-                                        removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
-                                    }
-                                }).setNegativeButton(getString(R.string.btn_no),
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                CloudUtils.deleteFile(mRecordFile);
+                                mRecordFile = null;
+                                mCurrentState = CreateState.IDLE_RECORD;
+                                updateUi(true);
+                                removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                            }
+                        }).setNegativeButton(getString(R.string.btn_no),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
