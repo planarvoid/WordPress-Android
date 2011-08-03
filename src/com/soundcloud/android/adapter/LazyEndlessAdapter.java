@@ -412,7 +412,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mKeepOnAppending.set(false);
         getWrappedAdapter().setData(new ArrayList<Parcelable>());
         clearAppendTask();
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     private void clearAppendTask() {

@@ -167,7 +167,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         setOnTouchListener(new FingerTracker());
     }
 
-
     @Override
     public int getSolidColor() {
         return 0xAA000000;
@@ -190,6 +189,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (refreshEnabled) setOnRefreshListener(adapter);
     }
 
+    @Override
     public View getEmptyView() {
         return mEmptyView;
     }
@@ -204,6 +204,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         requestLayout();
     }
 
+    @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (!hasWindowFocus) checkHeaderVisibility();
@@ -400,7 +401,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     };
 
     private final AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-
+         @Override
         public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
             if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount() || !(list instanceof ScListView)){
                 return false; // bad list item clicked (possibly loading item)
@@ -414,6 +415,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     };
     private final AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
         public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
             if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position) {
                 listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -448,6 +450,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
         }
     }
+
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
