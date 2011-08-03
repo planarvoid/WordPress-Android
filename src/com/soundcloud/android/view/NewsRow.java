@@ -1,20 +1,16 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
@@ -24,20 +20,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class NewsRow extends LazyRow {
-    protected Event mEvent;
-
-    protected TextView mUser;
-    protected TextView mTitle;
-    protected TextView mCreatedAt;
-
-    protected ImageView mCloseIcon;
-
+    private Event mEvent;
+    private TextView mUser;
+    private TextView mTitle;
+    private TextView mCreatedAt;
     private Drawable mFavoritedDrawable;
     private Drawable mCommentedDrawable;
 
-
-    public NewsRow(ScActivity _activity, LazyBaseAdapter _adapter) {
-        super(_activity, _adapter);
+    public NewsRow(ScActivity activity, LazyBaseAdapter adapter) {
+        super(activity, adapter);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);
@@ -63,10 +54,6 @@ public class NewsRow extends LazyRow {
     @Override
     protected Drawable getIconBgResourceId() {
         return getResources().getDrawable(R.drawable.artwork_badge);
-    }
-
-    protected long getTrackTime(Parcelable p) {
-        return getTrackFromParcelable(p).created_at.getTime();
     }
 
     private Drawable getFavoritedDrawable(){
@@ -106,7 +93,7 @@ public class NewsRow extends LazyRow {
         if (mEvent.type.contentEquals(Event.Types.COMMENT)){
             builder.append(": ");
             builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.append("\""+mEvent.comment.body+"\"");
+            builder.append("\"").append(mEvent.comment.body).append("\"");
         } else {
             builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -116,10 +103,6 @@ public class NewsRow extends LazyRow {
         mUser.setText(mEvent.getUser().username);
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mEvent.created_at.getTime()));
 
-    }
-
-    protected Track getTrackFromParcelable(Parcelable p) {
-        return (Track) p;
     }
 
     @Override
@@ -133,8 +116,5 @@ public class NewsRow extends LazyRow {
             return "";
 
         return ImageUtils.formatGraphicsUrlForList(mActivity, mEvent.getUser().avatar_url);
-
     }
-
-
 }

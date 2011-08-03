@@ -1,9 +1,9 @@
-
 package com.soundcloud.android.model;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -17,14 +17,11 @@ import java.lang.reflect.Modifier;
 import java.util.Date;
 
 public class BaseObj implements Parcelable {
-    private static final String TAG = "Track";
-
     public enum Parcelables {
         track, user, comment
     }
 
     public BaseObj() {
-
     }
 
     public BaseObj(Parcel in) {
@@ -41,25 +38,21 @@ public class BaseObj implements Parcelable {
         }
     };
 
-        public int describeContents() {
+    public int describeContents() {
         return 0;
     }
 
     public void readFromParcel(Parcel in) {
-        Field f = null;
         Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
             try {
-                setFieldFromBundle(this,getClass().getDeclaredField(key),data,key);
+                setFieldFromBundle(this, getClass().getDeclaredField(key), data, key);
             } catch (SecurityException e) {
                 Log.e(TAG, "error ", e);
-                e.printStackTrace();
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, "error ", e);
-                e.printStackTrace();
             } catch (NoSuchFieldException e) {
                 Log.e(TAG, "error ", e);
-                e.printStackTrace();
             }
         }
     }
@@ -73,7 +66,7 @@ public class BaseObj implements Parcelable {
                     setBundleFromField(data, f.getName(), f.getType(), f.get(this));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Log.e(TAG, "error ", e);
             }
         }
         out.writeBundle(data);
@@ -81,15 +74,15 @@ public class BaseObj implements Parcelable {
 
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
         if (fieldType == String.class && !TextUtils.isEmpty(String.valueOf(fieldValue)))
-            bundle.putString(fieldName,(String) fieldValue);
+            bundle.putString(fieldName, (String) fieldValue);
         else if (fieldType == Integer.TYPE || fieldType == Integer.class)
-            bundle.putInt(fieldName,(Integer) fieldValue);
+            bundle.putInt(fieldName, (Integer) fieldValue);
         else if (fieldType == Long.TYPE || fieldType == Long.class)
-            bundle.putLong(fieldName,(Long) fieldValue);
+            bundle.putLong(fieldName, (Long) fieldValue);
         else if (fieldType == boolean.class)
-            bundle.putBoolean(fieldName,(Boolean) fieldValue);
+            bundle.putBoolean(fieldName, (Boolean) fieldValue);
         else if (fieldType == Date.class)
-            bundle.putLong(fieldName,((Date) fieldValue).getTime());
+            bundle.putLong(fieldName, ((Date) fieldValue).getTime());
         else if (Parcelable.class.isAssignableFrom(fieldType)) {
             bundle.putParcelable(fieldName, (Parcelable) fieldValue);
         } else {
@@ -119,11 +112,9 @@ public class BaseObj implements Parcelable {
                 }
             }
         } catch (IllegalArgumentException e) {
-            Log.e(p.getClass().getSimpleName(), "error ", e);
-            e.printStackTrace();
+            Log.e(TAG, "error ", e);
         } catch (IllegalAccessException e) {
-            Log.e(p.getClass().getSimpleName(), "error ", e);
-            e.printStackTrace();
+            Log.e(TAG, "error ", e);
         }
     }
 
@@ -143,13 +134,12 @@ public class BaseObj implements Parcelable {
                 }
             }
         } catch (IllegalArgumentException e) {
-            Log.e(p.getClass().getSimpleName(), "error", e);
-            e.printStackTrace();
+            Log.e(TAG, "error ", e);
         } catch (IllegalAccessException e) {
-            Log.e(p.getClass().getSimpleName(), "error", e);
-            e.printStackTrace();
+            Log.e(TAG, "error ", e);
         }
     }
 
-    public void resolve(SoundCloudApplication application) {}
+    public void resolve(SoundCloudApplication application) {
+    }
 }

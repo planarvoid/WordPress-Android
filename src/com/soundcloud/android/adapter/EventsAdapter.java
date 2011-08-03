@@ -13,8 +13,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class EventsAdapter extends TracklistAdapter {
-
-    public static final String TAG = "EventsAdapter";
     private boolean mIsActivityFeed;
 
     public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isActivityFeed, Class<?> model) {
@@ -22,14 +20,11 @@ public class EventsAdapter extends TracklistAdapter {
         mIsActivityFeed = isActivityFeed;
     }
 
-    public boolean isActivityFeed(){
-        return mIsActivityFeed;
-    }
-
     @Override
     public void setPlayingId(long currentTrackId, boolean isPlaying) {
-        if (mIsActivityFeed) return;
-        super.setPlayingId(currentTrackId,isPlaying);
+        if (!mIsActivityFeed) {
+            super.setPlayingId(currentTrackId,isPlaying);
+        }
     }
 
     @Override
@@ -41,7 +36,4 @@ public class EventsAdapter extends TracklistAdapter {
     public Track getTrackAt(int index) {
         return ((Event) getItem(index)).track;
     }
-
-
-
 }

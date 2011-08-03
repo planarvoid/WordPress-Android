@@ -6,7 +6,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -32,9 +31,6 @@ public class TracklistRow extends LazyRow {
     private TrackInfoBar mTrackInfoBar;
 
     protected ImageView mCloseIcon;
-
-    protected Boolean _isFavorite = false;
-
 
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
@@ -65,7 +61,7 @@ public class TracklistRow extends LazyRow {
                 if (mTrack.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying()) {
                     mActivity.pause(false);
                 } else {
-                    mActivity.playTrack(mTrack.id, (ArrayList<Parcelable>) mAdapter.getData(),mCurrentPosition, false);
+                    mActivity.playTrack(mTrack.id, mAdapter.getData(),mCurrentPosition, false);
                 }
             }
         });
@@ -197,8 +193,4 @@ public class TracklistRow extends LazyRow {
         return ImageUtils.formatGraphicsUrlForList(mActivity,
                 mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
-
-
-
-
 }

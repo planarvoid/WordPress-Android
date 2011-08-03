@@ -8,7 +8,6 @@ import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,13 +93,10 @@ public class SectionedListView extends ScListView {
                     int bottom = firstView.getBottom();
                     int headerHeight = mSectionHeaderView.getHeight();
                     int y;
-                    int alpha;
                     if (bottom < headerHeight) {
                         y = (bottom - headerHeight);
-                        alpha = 255 * (headerHeight + y) / headerHeight;
                     } else {
                         y = 0;
-                        alpha = 255;
                     }
                     adapter.getWrappedAdapter()
                             .configurePinnedHeader(mSectionHeaderView, adjPosition);

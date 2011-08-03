@@ -5,17 +5,12 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 
 public class TracklistSectionedRow extends TracklistRow {
-
-    private static final String TAG = "UserlistSectionedRow";
-
-    public TracklistSectionedRow(ScActivity _activity, LazyBaseAdapter _adapter) {
-        super(_activity, _adapter);
-
+    public TracklistSectionedRow(ScActivity activity, LazyBaseAdapter adapter) {
+        super(activity, adapter);
     }
 
     @Override
     protected int getRowResourceId() {
         return R.layout.track_list_sectioned_row;
     }
-
 }

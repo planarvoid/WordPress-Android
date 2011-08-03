@@ -1,23 +1,20 @@
 
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,11 +56,9 @@ public class Event extends BaseObj implements Parcelable {
                             this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),
                             cursor, key);
                 } catch (SecurityException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (NoSuchFieldException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
             }
         }
@@ -101,7 +96,6 @@ public class Event extends BaseObj implements Parcelable {
                 track.user = application.getLoggedInUser();
             }
         }
-
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
