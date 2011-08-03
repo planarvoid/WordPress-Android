@@ -76,6 +76,10 @@
         <item name="android:paddingLeft">8dip</item>
         <item name="android:textColor">@color/listTxtSecondary</item>
     </style>
+    <style name="txt_user_list_browser_header">
+        <item name="android:textColor">@color/listTxtValue</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+    </style>
 
     <style name="txt_empty_view">
         <item name="android:textSize">16sp</item>

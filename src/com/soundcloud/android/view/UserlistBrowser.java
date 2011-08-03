@@ -15,10 +15,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -45,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.zip.Inflater;
 
 public class UserlistBrowser extends RelativeLayout {
     private static final String TAG = "UserlistBrowser";
@@ -55,13 +58,13 @@ public class UserlistBrowser extends RelativeLayout {
 
     private List<TabLabel> tabLabels;
 
-    private static class TabLabel {
-        public String tag;
-        public float index;
-        public TextView textView;
-        public int marginOffset;
+    private int mHolderWidth;
+    private int mHolderPad;
+    private int mMiddleLow;
+    private int mMiddleHigh;
+    private float mCurrentFraction = -1f;
 
-    }
+
 
     public UserlistBrowser(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,7 +74,6 @@ public class UserlistBrowser extends RelativeLayout {
         inflater.inflate(R.layout.user_list_browser, this);
 
         mLabelHolder = (RelativeLayout) findViewById(R.id.label_holder);
-
         tabLabels = new ArrayList<TabLabel>();
 
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
@@ -81,61 +83,103 @@ public class UserlistBrowser extends RelativeLayout {
                 setLabels(screenFraction);
             }
         }, true);
-
+        mHolderPad = (int) (5 * getResources().getDisplayMetrics().density);
 
     }
 
-    public void addView(View view, String label){
+    public void addView(View view, String label, String tag){
         mWorkspaceView.addView(view);
-
-        TextView labelTxt = new TextView(getContext());
-        labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.FILL_PARENT));
-        labelTxt.setGravity(Gravity.CENTER);
-        labelTxt.setText(label);
+        TextView labelTxt = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.user_list_browser_label_txt,null);
+        labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
         mLabelHolder.addView(labelTxt);
-        labelTxt.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(mLabelHolder.getHeight(), MeasureSpec.EXACTLY));
-
-
-        TabLabel tabLabel = new TabLabel();
-        tabLabel.textView = labelTxt;
-        tabLabel.marginOffset = -labelTxt.getMeasuredWidth()/2;
-        tabLabel.index = (float) mLabelHolder.getChildCount() - 1;
-        tabLabels.add(tabLabel);
+        tabLabels.add(new TabLabel(labelTxt,label,tag, mLabelHolder.getChildCount() - 1));
 
     }
-
-    private void measureView(View child) {
-           ViewGroup.LayoutParams p = child.getLayoutParams();
-           if (p == null) {
-               p = new ViewGroup.LayoutParams(
-                       ViewGroup.LayoutParams.FILL_PARENT,
-                       ViewGroup.LayoutParams.WRAP_CONTENT);
-           }
-
-
-
-       }
 
 
     public void initWorkspace(int initialScreen){
         mWorkspaceView.initWorkspace(initialScreen);
+        setLabels(initialScreen);
     }
 
     private void setLabels(float screenFraction){
+        if (screenFraction == mCurrentFraction) return;
 
-        final int w = getMeasuredWidth();
         for (TabLabel tl : tabLabels){
              if (tl.index < screenFraction - 1.5 || tl.index > screenFraction + 1.5){
-                 tl.textView.setVisibility(View.GONE);
+                 tl.hide();
              } else {
-                 ((RelativeLayout.LayoutParams) tl.textView.getLayoutParams()).leftMargin = (int) (w/2 +
-                         tl.marginOffset + (((tl.index - screenFraction)/1.5)*w));
-                 tl.textView.setVisibility(View.VISIBLE);
-                 tl.textView.requestLayout();
+                 tl.setPosition(screenFraction,mHolderWidth,mHolderPad, mMiddleLow, mMiddleHigh);
              }
         }
 
         //Log.i("asdf", "Set Labels " + screenFraction);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if (changed) {
+            mHolderWidth = mLabelHolder.getMeasuredWidth() - mHolderPad*2;
+            mMiddleLow = (int) (mHolderWidth/2 - 10 * getResources().getDisplayMetrics().density);
+            mMiddleHigh = (int) (mHolderWidth/2 + 10 * getResources().getDisplayMetrics().density);
+            setLabels(mWorkspaceView.getCurrentScreen());
+        }
+    }
+
+    private class TabLabel {
+        public String tag;
+        public float index;
+
+        private int marginOffset;
+        private TextView textView;
+        private String label;
+        private String boldLabel;
+        private int currentPosition;
+        private boolean bold = true;
+
+        public TabLabel(TextView textView, String label, String tag, int index){
+            this.textView = textView;
+            this.label = label;
+            this.tag = tag;
+            this.index = index;
+
+            boldLabel = "<b>" + label + "</b>";
+
+            textView.setText(label);
+            computeMarginOffset();
+        }
+
+        private void computeMarginOffset(){
+            marginOffset = (int) (-(textView.getPaint().measureText(textView.getText().toString()))/2);
+        }
+
+        public void setPosition(float screenFraction, int holderWidth, int holderPad, int middleLow, int middleHigh){
+
+            final int middlePos = (int) (holderWidth / 2 +
+                    (((index - screenFraction) / 1.5) * holderWidth));
+
+            if (middlePos > middleLow && middlePos < middleHigh) {
+                if (!bold) {
+                    textView.setTypeface(null, Typeface.BOLD);
+                    computeMarginOffset();
+                    bold = true;
+                }
+            } else if (bold) {
+                textView.setTypeface(null, Typeface.NORMAL);
+                computeMarginOffset();
+                bold = false;
+            }
+
+            ((LayoutParams) textView.getLayoutParams()).leftMargin = Math.min(holderPad + holderWidth + marginOffset * 2,
+                    Math.max(holderPad, middlePos + marginOffset));
+            textView.setVisibility(View.VISIBLE);
+            textView.requestLayout();
+        }
+
+        public void hide(){
+           textView.setVisibility(View.GONE);
+        }
     }
 
 }

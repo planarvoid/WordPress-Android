@@ -12,6 +12,7 @@
         <ImageView android:id="@+id/user_icon"
                 android:layout_width="67dip"
                 android:layout_height="67dip"
+                android:layout_margin="10dip"
                 android:src="@drawable/avatar_badge_large"
                 android:gravity="top"/>
 

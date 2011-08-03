@@ -397,18 +397,18 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
+        mUserlistBrowser.addView(tracksView, "Tracks", TabTags.tracks);
+        mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
+        mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
+        mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
+        mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
+
         if (isMe()) {
             mUserlistBrowser.initWorkspace(getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX));
         } else {
             mUserlistBrowser.initWorkspace(0);
         }
-
-        mUserlistBrowser.addView(tracksView, "Tracks");
-        mUserlistBrowser.addView(favoritesView, "Favorites");
-        mUserlistBrowser.addView(detailsView, "Info");
-        mUserlistBrowser.addView(followingsView, "Following");
-        mUserlistBrowser.addView(followersView, "Followers");
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder");
 
     }
 
