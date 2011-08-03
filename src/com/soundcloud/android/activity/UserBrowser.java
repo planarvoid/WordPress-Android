@@ -77,8 +77,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private Object mAdapterStates[];
 
-    private static CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
-    private static CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
+    private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
+    private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
     public interface TabTags {
         String tracks = "tracks";
@@ -176,8 +176,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 Connections.get().requestUpdate(getApp(), false, this);
             }
         }
-
-
         loadDetails();
     }
 
@@ -323,8 +321,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView detailsView = new ScTabView(this);
         detailsView.addView(mDetailsView);
 
-        final ScTabView emptyView = new ScTabView(this);
-
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
@@ -431,10 +427,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mUserlistBrowser.initWorkspace(1);
         }
 
-    }
-
-    private int getWidth() {
-        return findViewById(R.id.user_details_root).getWidth();
     }
 
     private boolean isOtherUser() {

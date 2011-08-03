@@ -68,7 +68,7 @@
                           android:paddingLeft="0dip"
                           android:paddingRight="5dip"
                           style="@style/txt_list_sub_secondary"/>
-                <View android:background="@color/verticalPipeDark"
+                <View android:background="@color/verticalPipe"
                       android:layout_toRightOf="@+id/tracks"
                       android:layout_alignBottom="@+id/tracks"
                       android:layout_alignTop="@+id/tracks"

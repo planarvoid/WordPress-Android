@@ -111,7 +111,7 @@ public class UserlistBrowser extends RelativeLayout {
     }
 
     private void setLabels(float screenFraction){
-        if (screenFraction == mCurrentFraction) return;
+        if (screenFraction == mCurrentFraction || mHolderWidth == 0) return;
 
         for (TabLabel tl : tabLabels){
              if (tl.index < screenFraction - 1.5 || tl.index > screenFraction + 1.5){
@@ -127,13 +127,13 @@ public class UserlistBrowser extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
         if (changed) {
             mHolderWidth = mLabelHolder.getMeasuredWidth();
             mMiddleLow = (int) (mHolderWidth/2 - 10 * getResources().getDisplayMetrics().density);
             mMiddleHigh = (int) (mHolderWidth/2 + 10 * getResources().getDisplayMetrics().density);
             setLabels(mWorkspaceView.getCurrentScreen());
         }
+        super.onLayout(changed, l, t, r, b);
     }
 
     public void setOnScreenChangedListener(WorkspaceView.OnScreenChangeListener listener){
@@ -146,9 +146,7 @@ public class UserlistBrowser extends RelativeLayout {
                 mWorkspaceView.setCurrentScreenNow((int) tl.index, true);
             }
         }
-
     }
-
 
     private class TabLabel {
         public String tag;

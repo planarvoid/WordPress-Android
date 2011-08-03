@@ -121,8 +121,7 @@ public class TrackInfoBar extends RelativeLayout {
 
         mUser.setText(mTrack.user.username);
 
-
-        if (!mTrack.streamable) {
+        if (!mTrack.isStreamable()) {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main_inactive);
         } else {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main);
