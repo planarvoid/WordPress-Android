@@ -38,6 +38,8 @@ public class TrackInfoBar extends RelativeLayout {
 
     private Drawable mFavoritesDrawable;
     private Drawable mFavoritedDrawable;
+    private Drawable mPrivateBgDrawable;
+    private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
 
     private ImageView mIcon;
@@ -86,6 +88,22 @@ public class TrackInfoBar extends RelativeLayout {
         return mFavoritesDrawable;
     }
 
+    private Drawable getPrivateBgDrawable(){
+          if (mPrivateBgDrawable == null) {
+              mPrivateBgDrawable = getResources().getDrawable(R.drawable.private_bg_gray);
+              mPrivateBgDrawable.setBounds(0, 0, mPrivateBgDrawable.getIntrinsicWidth(), mPrivateBgDrawable.getIntrinsicHeight());
+          }
+        return mPrivateBgDrawable;
+    }
+
+    private Drawable getVeryPrivateBgDrawable(){
+          if (mVeryPrivateBgDrawable == null) {
+              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.private_bg);
+              mVeryPrivateBgDrawable.setBounds(0, 0, mVeryPrivateBgDrawable.getIntrinsicWidth(), mVeryPrivateBgDrawable.getIntrinsicHeight());
+          }
+        return mVeryPrivateBgDrawable;
+    }
+
     protected void setTrackTime(Parcelable p) {
         if (p instanceof Event) {
             if (((Event) p).created_at != null){
@@ -119,8 +137,14 @@ public class TrackInfoBar extends RelativeLayout {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (mTrack.shared_to_count == 1){
+                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_you));
             } else {
+                if (mTrack.shared_to_count < 8){
+                    mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                } else {
+                    mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
+                }
                 mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, mTrack.shared_to_count));
             }
             mPrivateIndicator.setVisibility(View.VISIBLE);
