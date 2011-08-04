@@ -16,33 +16,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
 
-public class BaseObj implements Parcelable {
-    public enum Parcelables {
-        track, user, comment
+public abstract class ModelBase implements Parcelable {
+    public long id = -1;
+
+    public ModelBase() {
     }
 
-    public BaseObj() {
-    }
-
-    public BaseObj(Parcel in) {
-        readFromParcel(in);
-    }
-
-    public static final Parcelable.Creator<BaseObj> CREATOR = new Parcelable.Creator<BaseObj>() {
-        public BaseObj createFromParcel(Parcel in) {
-            return new BaseObj(in);
-        }
-
-        public BaseObj[] newArray(int size) {
-            return new BaseObj[size];
-        }
-    };
-
-    public int describeContents() {
-        return 0;
-    }
-
-    public void readFromParcel(Parcel in) {
+    protected void readFromParcel(Parcel in) {
         Bundle data = in.readBundle(this.getClass().getClassLoader());
         for (String key : data.keySet()) {
             try {
@@ -71,6 +51,12 @@ public class BaseObj implements Parcelable {
         }
         out.writeBundle(data);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
 
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
         if (fieldType == String.class && !TextUtils.isEmpty(String.valueOf(fieldValue)))
@@ -141,5 +127,19 @@ public class BaseObj implements Parcelable {
     }
 
     public void resolve(SoundCloudApplication application) {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModelBase)) return false;
+
+        ModelBase modelBase = (ModelBase) o;
+        return id == modelBase.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

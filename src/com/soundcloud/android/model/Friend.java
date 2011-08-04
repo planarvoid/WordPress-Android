@@ -7,10 +7,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Friend extends BaseObj implements Parcelable {
+public class Friend extends ModelBase {
     @SuppressWarnings({"UnusedDeclaration"})
     public long[] connection_ids;
-
     public User user;
 
     @SuppressWarnings({"UnusedDeclaration"})

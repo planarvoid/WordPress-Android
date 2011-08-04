@@ -8,13 +8,11 @@ import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -31,9 +29,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
-@JsonIgnoreProperties(ignoreUnknown=true)
-public class Recording extends BaseObj implements Parcelable {
-    public long id;
+public class Recording extends ModelBase {
     public long user_id;
     public long timestamp;
     public double longitude;
@@ -150,24 +146,6 @@ public class Recording extends BaseObj implements Parcelable {
             return new Recording[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        Bundle data = new Bundle();
-        try {
-            for (Field f : this.getClass().getDeclaredFields()) {
-                    setBundleFromField(data,f.getName(),f.getType(),f.get(this));
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        out.writeBundle(data);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public ContentValues buildContentValues(){
         ContentValues cv = new ContentValues();

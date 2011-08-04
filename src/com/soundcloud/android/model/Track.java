@@ -38,12 +38,10 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends BaseObj implements Parcelable {
+public class Track extends ModelBase {
     private static final String TAG = "Track";
 
     // API fields
-
-    public long id;
     public Date created_at;
     public long user_id;
     public int duration;
@@ -247,11 +245,6 @@ public class Track extends BaseObj implements Parcelable {
         return stream_url != null;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public ContentValues buildContentValues(){
         ContentValues cv = new ContentValues();
         cv.put(Tracks.ID, id);
@@ -427,5 +420,13 @@ public class Track extends BaseObj implements Parcelable {
     @Override
     public void resolve(SoundCloudApplication application) {
         updateUserPlayedFromDb(application.getContentResolver(), application.getCurrentUserId());
+    }
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "title='" + title + '\'' +
+                ", user=" + user +
+                '}';
     }
 }

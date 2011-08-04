@@ -22,18 +22,22 @@ public class EventsAdapter extends TracklistAdapter {
 
     @Override
     public void setPlayingId(long currentTrackId, boolean isPlaying) {
-        if (!mIsActivityFeed) {
+        if (!isActivityFeed()) {
             super.setPlayingId(currentTrackId,isPlaying);
         }
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return mIsActivityFeed ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
+        return isActivityFeed() ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
     }
 
     @Override
     public Track getTrackAt(int index) {
         return ((Event) getItem(index)).track;
+    }
+
+    public boolean isActivityFeed() {
+        return mIsActivityFeed;
     }
 }
