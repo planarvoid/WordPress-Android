@@ -5,6 +5,7 @@
 	
 	
 	<color name="listTxtValue">#FF000000</color>
+    <color name="listTxtValuePressed">#88FFFFFF</color>
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	<color name="listTxtSecondaryDark">#FF969696</color>
