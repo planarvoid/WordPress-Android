@@ -1,6 +1,6 @@
 $ 22
-  % v 1.3.4-BETA8
-  _ 2011-08-01
+  % v 1.3.4-BETA11
+  _ 2011-08-04
   ! Notifications, sharing, and list optimizations
     * Android notifications
     * Pull-to-refresh
@@ -14,6 +14,7 @@ $ 22
     * Caching of connections
     * Added in-app ChangeLog
     - Upraded ACRA to 4.2.3
+    - Added bugsense.com bugtracking
     - GA tracking changes, added audio engine tracking
     - Reorganised settings screen
     - Beta deployment service
