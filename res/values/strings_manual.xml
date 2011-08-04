@@ -35,4 +35,17 @@
     <string name="comment_hint_untimed">Add a comment</string>
     <string name="comment_hint_timed">Add comment at %s</string>
     <string name="comment_hint_reply">Reply to %1$s at %2$s</string>
+
+    <string name='pref_notifications_favoritings'>Likes</string>
+    <string name='pref_notifications_favoritings_description'>
+         Receive updates on new likes on your sounds
+    </string>
+
+    <string name='pref_notifications_comments'>Comments</string>
+    <string name='pref_notifications_comments_description'>
+         Receive updates on new comments on your sounds
+    </string>
+
+    <string name='pref_notifications_stream'>Stream</string>
+    <string name='pref_notifications_activity'>Activity</string>
 </resources>

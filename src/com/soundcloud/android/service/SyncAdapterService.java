@@ -156,11 +156,11 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
             final CharSequence title, message, ticker;
 
-            Activities favoritings = events.favoritings();
-            Activities comments = events.comments();
+            Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
+            Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
             if (!favoritings.isEmpty() && comments.isEmpty()) {
-                // only likes
+                // only favoritings
                 List<Track> tracks = favoritings.getUniqueTracks();
 
                 if (favoritings.size() == 1) {
@@ -229,14 +229,20 @@ public class SyncAdapterService extends Service {
         }
     }
 
-
-
     public static boolean isIncomingEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", true);
     }
 
     public static boolean isExclusiveEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", true);
+    }
+
+    public static boolean isFavoritingEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsFavoritings", true);
+    }
+
+    public static boolean isCommentsEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsComments", true);
     }
 
     private static Activities getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
