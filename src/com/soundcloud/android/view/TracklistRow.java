@@ -172,7 +172,7 @@ public class TracklistRow extends LazyRow {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
         mTrack = getTrackFromParcelable(p);
         super.display(position);
-        mTrackInfoBar.display(mTrack, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false);
+        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false);
 
     }
 
