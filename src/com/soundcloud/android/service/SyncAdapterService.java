@@ -155,8 +155,86 @@ public class SyncAdapterService extends Service {
         if (!events.isEmpty() && events.size() > count) {
             app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
 
+            String title = "";
+            String message = "";
+            String ticker = "";
+
+            //CharSequence message, ticker = "";
+
+
+            Map<Track, Activities> grouped = events.groupedByTrack();
+            Activities favoritings = events.favoritings();
+            Activities comments = events.comments();
+
+            if (!favoritings.isEmpty() && comments.isEmpty()) {
+                // only likes
+                List<Track> tracks = favoritings.getUniqueTracks();
+
+                if (favoritings.size() == 1) {
+                    ticker = "New like";
+                    title = "A new like";
+                } else {
+                    title = ticker = favoritings.size()+ " new likes";
+                }
+
+                if (tracks.size() == 1) {
+                    if (favoritings.size() == 1) {
+                        message = favoritings.get(0).user.username + " likes " + favoritings.get(0).track.title;
+                    } else {
+                        message = "on "+tracks.get(0).title;
+                    }
+                } else if (tracks.size() == 2) {
+                   message = "on "+tracks.get(0).title + " and " +tracks.get(1).title;
+                } else if (tracks.size()  > 2) {
+                   message = "on "  +tracks.get(0).title + " and " +tracks.get(1).title + " and other sounds";
+                }
+
+
+            } else if (favoritings.isEmpty() && !comments.isEmpty()) {
+                // only comments
+                List<Track> tracks = comments.getUniqueTracks();
+
+                if (comments.size() == 1) {
+                    title = ticker = "1 new comment";
+                } else {
+                    title = ticker =  comments.size()+" new comments";
+                }
+
+
+                if (tracks.size() == 1) {
+                    if (comments.size() == 1) {
+                        message = "new comment on"+comments.get(0).track.title+" from "+comments.get(0).user.username;
+                    } else if (comments.size() == 2) {
+                        message = comments.size() + " new comments on"+comments.get(0).track.title+" from "+comments.get(0).user.username+
+                        " and "+comments.get(1).user.username;
+                    } else {
+                        message = comments.size() + "new comment on"+comments.get(0).track.title+" from "+comments.get(0).user.username+
+                        ", "+comments.get(1).user.username+ " and others";
+                    }
+                } else {
+
+                }
+            } else {
+               // mix of favoritings and comments
+                List<Track> tracks = events.getUniqueTracks();
+                List<User> users = events.getUniqueUsers();
+
+                ticker = title = events.size() + " new activities";
+
+                if (users.size() == 1 && tracks.size() == 1) {
+                    message = "from "+users.get(0).username+" on "+tracks.get(0).title;
+                } else if (users.size() == 2 && tracks.size() > 1) {
+                    message = "Comments and likes from "+users.get(0).username+ " and "+users.get(1).username;
+                } else {
+                    message = "Comments and likes from "+users.get(0).username+ ", "+users.get(1).username+
+                        " and others";
+                }
+            }
+            createDashboardNotification(app, ticker, title, message, "activity");
         }
     }
+
+
 
     public static boolean isIncomingEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", true);
