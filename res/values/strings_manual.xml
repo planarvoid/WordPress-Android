@@ -3,6 +3,7 @@
        You have no news. Put something out there already!
     </string>
 
+    <string name='tab_stream'>Stream</string>
     <string name='tab_activity'>Activity</string>
 
     <string name="tracklist_item_shared_with_x_people">%d People</string>

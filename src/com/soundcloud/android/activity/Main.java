@@ -217,7 +217,7 @@ public class Main extends TabActivity {
         TabHost.TabSpec spec;
 
         spec = host.newTabSpec("incoming").setIndicator(
-                getString(R.string.tab_incoming),
+                getString(R.string.tab_stream),
                 getResources().getDrawable(R.drawable.ic_tab_incoming));
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
         host.addTab(spec);
