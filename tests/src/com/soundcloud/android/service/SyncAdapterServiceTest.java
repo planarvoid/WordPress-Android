@@ -156,7 +156,7 @@ public class SyncAdapterServiceTest extends ApiTests {
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
         assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING), is(53));
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("exclusive"));
+        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("incoming"));
     }
 
     @Test
