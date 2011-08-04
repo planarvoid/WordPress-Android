@@ -20,17 +20,17 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 
 public class TracklistRow extends LazyRow {
-    protected Track mTrack;
+    private Track mTrack;
 
-    protected ImageButton mPlayBtn;
-    protected ImageButton mFavoriteBtn;
-    protected ImageButton mProfileBtn;
-    protected ImageButton mCommentBtn;
-    protected ImageButton mShareBtn;
+    private ImageButton mPlayBtn;
+    private ImageButton mFavoriteBtn;
+    private ImageButton mProfileBtn;
+    private ImageButton mCommentBtn;
+    private ImageButton mShareBtn;
 
-    private TrackInfoBar mTrackInfoBar;
+    private final TrackInfoBar mTrackInfoBar;
 
-    protected ImageView mCloseIcon;
+    protected final ImageView mCloseIcon;
 
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
