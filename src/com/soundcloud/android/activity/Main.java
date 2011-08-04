@@ -31,8 +31,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -250,9 +253,19 @@ public class Main extends TabActivity {
         if (CloudUtils.isScreenXL(this)){
             CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs),90, -1, false);
         }
-
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
-        CloudUtils.setTabImageOnly(this, (TabWidget) findViewById(android.R.id.tabs),2, true);
+
+        // set record tab to just image, if tab order is changed, change the index of the following line
+        RelativeLayout relativeLayout = (RelativeLayout) ((TabWidget) findViewById(android.R.id.tabs)).getChildAt(2);
+        for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+            if (relativeLayout.getChildAt(j) instanceof TextView) {
+                relativeLayout.getChildAt(j).setVisibility(View.GONE);
+            } else if (relativeLayout.getChildAt(j) instanceof ImageView) {
+                relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
+                ((RelativeLayout.LayoutParams) relativeLayout.getChildAt(j).getLayoutParams()).bottomMargin =
+                        (int) (5*getResources().getDisplayMetrics().density);
+            }
+        }
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
