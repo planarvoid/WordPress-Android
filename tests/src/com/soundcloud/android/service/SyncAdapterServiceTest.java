@@ -38,9 +38,20 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0, false);
+                DefaultTestRunner.application, 0l, false);
 
         assertThat(events.size(), is(100));
+    }
+
+    @Test
+    public void testGetOwnEvents() throws Exception {
+        addPendingHttpResponse(200, resource("own_1.json"));
+        addPendingHttpResponse(200, resource("own_2.json"));
+
+        List<Event> events = SyncAdapterService.getOwnEvents(
+                DefaultTestRunner.application, 0l);
+
+        assertThat(events.size(), is(42));
     }
 
     @Test
@@ -67,7 +78,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0, false);
+                DefaultTestRunner.application, 0l, false);
         assertThat(events.size(), is(50));
 
         List<User> users = SyncAdapterService.getUniqueUsersFromEvents(events);
@@ -83,7 +94,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0, false);
+                DefaultTestRunner.application, 0l, false);
 
         String message = SyncAdapterService.getIncomingMessaging(
                 DefaultTestRunner.application, events);
@@ -95,7 +106,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void testExclusiveMessaging() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
         List<Event> events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0, false);
+                DefaultTestRunner.application, 0l, false);
 
         String message = SyncAdapterService.getExclusiveMessaging(
                 DefaultTestRunner.application, events);

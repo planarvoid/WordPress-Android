@@ -77,8 +77,8 @@ public class UserlistLayout extends RelativeLayout {
              }
         }
 
-        mLeftArrow.setVisibility(screenFraction < .5 ? INVISIBLE : VISIBLE);
-        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 1.5 ? INVISIBLE : VISIBLE);
+        mLeftArrow.setVisibility(screenFraction < 1.5 ? INVISIBLE : VISIBLE);
+        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 2.5 ? INVISIBLE : VISIBLE);
     }
 
     @Override

@@ -18,7 +18,7 @@
                  android:layout_below="@id/info_bar_holder"
                  android:layout_alignParentBottom="true"/>
     <View android:layout_width="fill_parent"
-          android:layout_height="5dip"
-          android:background="@drawable/drop_shadow_up"
-          android:layout_alignBottom="@id/info_bar_holder"/>
+                  android:layout_below="@id/info_bar_holder"
+                  android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
 </RelativeLayout>

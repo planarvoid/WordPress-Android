@@ -1,9 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.app.AlertDialog;
-import android.app.NotificationManager;
-import android.content.Context;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -16,15 +12,16 @@ import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
@@ -54,8 +51,7 @@ public class Dashboard extends ScActivity {
                 mTrackingPath = "/incoming";
             } else if ("activity".equalsIgnoreCase(tab)) {
                 mNews = true;
-                //TODO replace with proper endpoint
-                mTracklistView = createList(Request.to("/me/activities/all/own"),
+                mTracklistView = createList(Request.to(AndroidCloudAPI.MY_NEWS),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_NEWS, true);

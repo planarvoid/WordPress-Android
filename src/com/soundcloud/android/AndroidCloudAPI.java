@@ -16,8 +16,6 @@ import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.map.util.StdDateFormat;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
 import android.os.Build;
@@ -29,6 +27,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    // TODO replace with EndPoint from wrapper
+    String MY_NEWS = "/me/activities/all/own";
+    String TRACK_FAVORITERS = "/tracks/%d/favoriters";
+
     URI REDIRECT_URI = URI.create("soundcloud://auth");
     String OAUTH_TOKEN_PARAMETER = "oauth_token";
 

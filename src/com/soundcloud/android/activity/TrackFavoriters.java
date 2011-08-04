@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -7,7 +8,6 @@ import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTrackInfoTask;
-import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
@@ -18,13 +18,10 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapter.SectionListener, LoadTrackInfoTask.LoadTrackInfoListener {
     @Override
@@ -53,21 +50,22 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         ScListView listView = new SectionedListView(this);
         configureList(listView);
+        listView.setFadingEdgeLength(0);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(listView);
+
 
         userAdapterWrapper.configureViews(listView);
         userAdapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
         listView.setAdapter(userAdapterWrapper, true);
 
-        //TODO real endpoint
         userAdapter.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
-                        User.class, new ArrayList<Parcelable>(), Request.to("/tracks/%d/favoriters", track.id)));
+                        User.class, new ArrayList<Parcelable>(), Request.to(AndroidCloudAPI.TRACK_FAVORITERS, track.id)));
 
         if (!track.info_loaded) {
-              if (CloudUtils.isTaskFinished(track.load_info_task)){
+            if (CloudUtils.isTaskFinished(track.load_info_task)) {
                 track.load_info_task = new LoadTrackInfoTask(getApp(), track.id, true, true);
-              }
+            }
 
             track.load_info_task.setListener(this);
             if (CloudUtils.isTaskPending(track.load_info_task)) {

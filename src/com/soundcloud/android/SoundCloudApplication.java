@@ -53,7 +53,7 @@ import java.util.Arrays;
 import java.util.List;
 
 //@ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
-@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=a42a4305", formKey="")
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=a42a4305", formKey="")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);

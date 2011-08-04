@@ -474,7 +474,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     public void onClick(View v) {
                         if (mPlayingTrack != null) {
                             Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
-                            i.putExtra("track", mPlayingTrack);
+                            i.putExtra("track_id", mPlayingTrack.id);
                             startActivity(i);
                         }
                     }
