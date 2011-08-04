@@ -23,7 +23,7 @@ public abstract class ModelBase implements Parcelable {
     }
 
     protected void readFromParcel(Parcel in) {
-        Bundle data = in.readBundle(this.getClass().getClassLoader());
+        Bundle data = in.readBundle(getClass().getClassLoader());
         for (String key : data.keySet()) {
             try {
                 setFieldFromBundle(this, getClass().getDeclaredField(key), data, key);
@@ -35,12 +35,13 @@ public abstract class ModelBase implements Parcelable {
                 Log.e(TAG, "error ", e);
             }
         }
+        this.id = data.getLong("id");
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
-        for (Field f : this.getClass().getDeclaredFields()) {
+        for (Field f : getClass().getDeclaredFields()) {
             try {
                 if (!Modifier.isStatic(f.getModifiers()) && f.get(this) != null) {
                     setBundleFromField(data, f.getName(), f.getType(), f.get(this));
@@ -49,6 +50,7 @@ public abstract class ModelBase implements Parcelable {
                 Log.e(TAG, "error ", e);
             }
         }
+        data.putLong("id", id);
         out.writeBundle(data);
     }
 
