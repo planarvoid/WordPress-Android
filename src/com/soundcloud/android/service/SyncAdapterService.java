@@ -89,7 +89,9 @@ public class SyncAdapterService extends Service {
 
         // for initial sync, don't bother telling them about their entire dashboard
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) == 0) {
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, System.currentTimeMillis());
+            final long now = System.currentTimeMillis();
+            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
+            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
             app.useAccount(account);
             // how many have they already been notified about, don't create repeat notifications for no new tracks
