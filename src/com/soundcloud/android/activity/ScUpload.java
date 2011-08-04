@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.FoursquareVenueTask;
@@ -24,8 +23,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -71,8 +70,8 @@ public class ScUpload extends ScActivity {
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
                 findViewById(R.id.btn_cancel).setVisibility(View.GONE);
-                ((FrameLayout) findViewById(R.id.share_user_layout)).addView(
-                    new ShareUserHeader(this,SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId())));
+                ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
+                    new ShareUserHeader(this, getApp().getLoggedInUser()));
             }
 
             if (mRecording.exists()) {

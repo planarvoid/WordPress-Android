@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-import static android.widget.RelativeLayout.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
@@ -538,18 +537,22 @@ public class CloudUtils {
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
      * @param view the textview
-     * @param link the link to set
+     * @param link the link to set, or null to use the whole text
      * @param listener the listener
      * @param underline underline the text
+     * @return true if the link was added
      */
-    public static void clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
+    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
 
-        int start = string.indexOf(link);
-        int end = start + link.length();
-        if (start == -1) return;
+        int start = 0, end = string.length();
+        if (link != null) {
+            start = string.indexOf(link);
+            end = start + link.length();
+            if (start == -1) return false;
+        }
 
         if (text instanceof Spannable) {
             ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -558,34 +561,11 @@ public class CloudUtils {
             s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             view.setText(s);
         }
-
         MovementMethod m = view.getMovementMethod();
         if ((m == null) || !(m instanceof LinkMovementMethod)) {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
-    }
-
-    /**
-     * Adapted from the {@link android.text.util.Linkify} class. Changes the
-     * first instance of {@code link} into a clickable link attached to the given listener
-     */
-    public static void clickify(TextView view, final ClickSpan.OnClickListener listener, boolean underline) {
-        CharSequence text = view.getText();
-        String string = text.toString();
-        ClickSpan span = new ClickSpan(listener, underline);
-
-        if (text instanceof Spannable) {
-            ((Spannable)text).setSpan(span, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else {
-            SpannableString s = SpannableString.valueOf(text);
-            s.setSpan(span, 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            view.setText(s);
-        }
-
-        MovementMethod m = view.getMovementMethod();
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {
-            view.setMovementMethod(LinkMovementMethod.getInstance());
-        }
+        return true;
     }
 
     public static boolean mkdirs(File d) {

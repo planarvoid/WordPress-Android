@@ -79,8 +79,6 @@ public abstract class ScActivity extends Activity {
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
 
-
-
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
@@ -95,7 +93,6 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onServiceBound() {
-        //ImageLoader.get(ScActivity.this).pause();
         if (getApp().getToken() == null) {
             pause(true);
 
@@ -184,7 +181,6 @@ public abstract class ScActivity extends Activity {
                 l.getBaseAdapter().onDestroy();
             }
         }
-
     }
 
     @Override
@@ -203,9 +199,6 @@ public abstract class ScActivity extends Activity {
                 Log.e(TAG, "error", e);
             }
         }
-
-
-
     }
 
     /**
@@ -485,6 +478,9 @@ public abstract class ScActivity extends Activity {
                                         removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
                                     }
                                 }).create();
+            case Consts.Dialogs.DIALOG_LOGOUT:
+                return CloudUtils.createLogoutDialog(this);
+
             default:
                 return super.onCreateDialog(which);
         }
