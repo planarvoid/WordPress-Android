@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
@@ -180,6 +181,19 @@ public class User extends ModelBase {
 
     public Uri toUri() {
         return Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
+    }
+
+
+    public String getLocation() {
+        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
+            return city + ", " + country;
+        } else if (!TextUtils.isEmpty(city)) {
+            return city;
+        } else if (!TextUtils.isEmpty(country)) {
+            return country;
+        } else {
+            return "";
+        }
     }
 
     public static interface DataKeys {

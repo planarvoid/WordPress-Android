@@ -338,20 +338,6 @@ public class CloudUtils {
         if (sb != null) context.getApplicationContext().unbindService(sb);
     }
 
-
-    public static String getLocationString(String city, String country) {
-        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
-            return city + ", " + country;
-        } else if (!TextUtils.isEmpty(city)) {
-            return city;
-        } else if (!TextUtils.isEmpty(country)) {
-            return country;
-        }
-
-        return "";
-
-    }
-
     @SuppressWarnings("unchecked")
     public static boolean isTaskFinished(AsyncTask lt) {
         return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;

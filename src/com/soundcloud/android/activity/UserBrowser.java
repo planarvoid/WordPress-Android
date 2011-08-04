@@ -1,22 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.text.Html;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.*;
-import android.widget.ImageView.ScaleType;
-
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Consts;
@@ -40,9 +23,35 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.*;
+import com.soundcloud.android.view.FriendFinderView;
+import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserlistLayout;
+import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -534,9 +543,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mMyspaceName.setVisibility(View.GONE);
         }
 
-        if (!TextUtils.isEmpty(user.city) || !TextUtils.isEmpty(user.country)) {
+        final String location = user.getLocation();
+        if (!TextUtils.isEmpty(location)) {
             displayedSomething = true;
-            mLocation.setText(getString(R.string.from)+" "+CloudUtils.getLocationString(user.city, user.country));
+            mLocation.setText(getString(R.string.from)+" "+location);
             mLocation.setVisibility(View.VISIBLE);
         } else {
             mLocation.setVisibility(View.GONE);
