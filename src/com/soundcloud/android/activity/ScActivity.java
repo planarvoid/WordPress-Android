@@ -613,8 +613,11 @@ public abstract class ScActivity extends Activity {
             if (Event.Types.COMMENT.contentEquals(e.type)) {
                 playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
             } else if (Event.Types.FAVORITING.contentEquals(e.type)) {
+                if (getApp().getTrackFromCache(e.getTrack().id) == null) {
+                    getApp().cacheTrack(e.getTrack());
+                }
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
-                i.putExtra("track", e.getTrack());
+                i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);
             } else {
                 playTrack(e.getTrack().id, events, position, true);
