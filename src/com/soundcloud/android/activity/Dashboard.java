@@ -133,7 +133,7 @@ public class Dashboard extends ScActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
          if (!mNews) {
-            menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_filter).setIcon(
+            menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_stream_setting).setIcon(
                 R.drawable.ic_menu_incoming);
         }
 
