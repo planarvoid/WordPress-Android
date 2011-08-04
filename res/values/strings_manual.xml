@@ -15,15 +15,15 @@
     <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
     <string name="dashboard_filter_cancel">Cancel</string>
 
-    <string name='list_header_track_favoriters'>People who liked this track</string>
+    <string name='list_header_track_favoriters'>People who favorited this track</string>
     <string name='list_header_tracks_by_tag'>Other tracks tagged with %s</string>
-    <string name='list_header_tracks_by_genre'>Other tracks with genre %s</string>
+    <string name='list_header_tracks_by_genre'>Other tracks with the genre %s</string>
 
-    <string name='track_info_favoriters'>%d people liked it</string>
+    <string name='track_info_favoriters'>%d people favorited it</string>
 
     <plurals name='track_info_favoriters'>
-        <item quantity='one'>1 person liked it</item>
-        <item quantity='other'>%d people liked it</item>
+        <item quantity='one'>1 person favorited it</item>
+        <item quantity='other'>%d people favorited it</item>
     </plurals>
 
     <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
