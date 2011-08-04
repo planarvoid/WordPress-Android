@@ -255,8 +255,14 @@ public class Main extends TabActivity {
         }
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
 
+        TabWidget tw = ((TabWidget) findViewById(android.R.id.tabs));
+
+        for (int i = 0; i < tw.getChildCount(); i++) {
+            ((View) tw.getChildAt(i)).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
+          }
+
         // set record tab to just image, if tab order is changed, change the index of the following line
-        RelativeLayout relativeLayout = (RelativeLayout) ((TabWidget) findViewById(android.R.id.tabs)).getChildAt(2);
+        RelativeLayout relativeLayout = (RelativeLayout) tw.getChildAt(2);
         for (int j = 0; j < relativeLayout.getChildCount(); j++) {
             if (relativeLayout.getChildAt(j) instanceof TextView) {
                 relativeLayout.getChildAt(j).setVisibility(View.GONE);
