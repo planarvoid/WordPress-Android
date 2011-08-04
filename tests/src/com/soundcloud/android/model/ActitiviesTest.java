@@ -1,11 +1,9 @@
 package com.soundcloud.android.model;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -56,7 +54,7 @@ public class ActitiviesTest {
     public void testFromJSON() throws Exception {
         Activities a = getActivities();
         assertThat(a.size(), is(42));
-        assertThat(a.getUniqueTracks().size(), is(13));
+        assertThat(a.getUniqueTracks().size(), is(19));
         assertThat(a.getUniqueUsers().size(), is(29));
     }
 
