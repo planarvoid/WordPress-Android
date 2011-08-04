@@ -10,9 +10,8 @@ $ 22
     * Better sharing support (via intent/account manager)
     * Fixed cancel uploads
     * Launch upload progress monitor from notifications
-    * Added support to upload files/record audio with other apps + from filesystem
-    * Caching of connections
     * Added in-app ChangeLog
+    - Caching of connections
     - Upraded ACRA to 4.2.3
     - Added bugsense.com bugtracking
     - GA tracking changes, added audio engine tracking
