@@ -42,11 +42,11 @@ public class AddCommentDialog extends Dialog {
 
         mInput = (EditText) findViewById(R.id.comment_input);
         if (comment.reply_to_id > 0) {
-            mInput.setHint("Reply to " + comment.reply_to_username + " at "
-                    + CloudUtils.formatTimestamp(comment.timestamp));
+            mInput.setHint(String.format(mActivity.getString(R.string.comment_hint_reply),
+                    comment.reply_to_username,CloudUtils.formatTimestamp(comment.timestamp)));
         } else {
-            mInput.setHint((comment.timestamp == -1 ? "Add an untimed comment" : "Add comment at "
-                    + CloudUtils.formatTimestamp(comment.timestamp)));
+            mInput.setHint((comment.timestamp == -1 ? mActivity.getString(R.string.comment_hint_untimed) :
+                    String.format(mActivity.getString(R.string.comment_hint_timed), CloudUtils.formatTimestamp(comment.timestamp))));
         }
         findViewById(R.id.positiveButton).setOnClickListener(new View.OnClickListener() {
             @Override
