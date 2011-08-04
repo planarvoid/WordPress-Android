@@ -123,7 +123,7 @@ public class Main extends TabActivity {
         }).execute(Request.to(Endpoints.MY_DETAILS));
     }
 
-    private Runnable addAccount = new Runnable() {
+    private final Runnable addAccount = new Runnable() {
         @Override
         public void run() {
             dismissSplash();
@@ -131,7 +131,7 @@ public class Main extends TabActivity {
         }
     };
 
-    private AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
+    private final AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
         @Override
         public void run(AccountManagerFuture<Bundle> future) {
             try {
