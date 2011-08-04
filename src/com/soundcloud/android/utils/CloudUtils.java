@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import static android.widget.RelativeLayout.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
@@ -307,6 +308,23 @@ public class CloudUtils {
 
             }
         }
+    }
+
+    public static void setTabImageOnly(Context context, TabWidget tabWidget, int index, boolean fillImage) {
+
+            if (tabWidget.getChildAt(index) instanceof RelativeLayout) {
+                RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(index);
+                for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+                    if (relativeLayout.getChildAt(j) instanceof TextView) {
+                             relativeLayout.getChildAt(j).setVisibility(View.GONE);
+                    }
+                    else {
+                        if (fillImage) {
+                            relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
+                        }
+                    }
+                }
+            }
     }
 
     public static boolean checkIconShouldLoad(String url) {

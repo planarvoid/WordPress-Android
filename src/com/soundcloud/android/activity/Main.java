@@ -247,8 +247,12 @@ public class Main extends TabActivity {
         host.addTab(spec);
 
         host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
-        CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs), CloudUtils.isScreenXL(this) ? 90 : 60, -1, false);
+        if (CloudUtils.isScreenXL(this)){
+            CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs),90, -1, false);
+        }
+
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
+        CloudUtils.setTabImageOnly(this, (TabWidget) findViewById(android.R.id.tabs),2, true);
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
