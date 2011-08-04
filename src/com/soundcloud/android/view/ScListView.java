@@ -94,8 +94,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public ScListView(ScActivity activity) {
         super(activity);
         init(activity);
-        setFadingEdgeLength((int) (5*getResources().getDisplayMetrics().density));
-        setCacheColorHint(0xAA333333);
+        setFadingEdgeLength((int) (2*getResources().getDisplayMetrics().density));
     }
 
     /**
@@ -171,7 +170,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     public int getSolidColor() {
-        return 0xAA000000;
+        return 0x666666;
     }
 
     public void enableLongClickListener() {
