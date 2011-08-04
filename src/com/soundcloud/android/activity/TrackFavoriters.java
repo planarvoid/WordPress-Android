@@ -50,7 +50,9 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         ScListView listView = new SectionedListView(this);
         configureList(listView);
+        listView.setFadingEdgeLength(0);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(listView);
+
 
         userAdapterWrapper.configureViews(listView);
         userAdapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
