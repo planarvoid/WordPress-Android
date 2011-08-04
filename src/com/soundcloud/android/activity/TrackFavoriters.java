@@ -1,12 +1,12 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.TrackInfoBar;
@@ -18,9 +18,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     @Override
@@ -52,10 +50,9 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
         userAdapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
         listView.setAdapter(userAdapterWrapper, true);
 
-        //TODO real endpoint
         userAdapter.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
-                        User.class, new ArrayList<Parcelable>(), Request.to("/tracks/%d/favoriters", track.id)));
+                        User.class, new ArrayList<Parcelable>(), Request.to(AndroidCloudAPI.TRACK_FAVORITERS, track.id)));
     }
 
     @Override

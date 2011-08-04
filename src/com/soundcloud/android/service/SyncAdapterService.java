@@ -1,5 +1,6 @@
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -43,6 +44,7 @@ public class SyncAdapterService extends Service {
     private ScSyncAdapter mSyncAdapter;
 
     private static final int NOTIFICATION_MAX = 100;
+    private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
     @Override
     public void onCreate() {
@@ -85,57 +87,65 @@ public class SyncAdapterService extends Service {
                                     SyncResult syncResult)
             throws OperationCanceledException {
 
-        app.useAccount(account);
-
         // for initial sync, don't bother telling them about their entire dashboard
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) == 0){
             app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, System.currentTimeMillis());
-            return;
-        }
+        } else {
+            app.useAccount(account);
 
-        // how many have they already been notified about, don't create repeat notifications for no new tracks
-        int currentNotificationCount = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT);
-
-        try {
+            // how many have they already been notified about, don't create repeat notifications for no new tracks
+            final int notificationCount = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT);
             final long lastSync = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP);
-            List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
-            List<Event> exclusiveEvents = getNewExclusiveEvents(app, lastSync);
-
-            Set<Long> ids = new HashSet<Long>(incomingEvents.size());
-            for (Event e : incomingEvents) ids.add(e.origin_id);
-            for (Event e : exclusiveEvents) ids.add(e.origin_id);
-            final int totalUnseen = ids.size();
-
-            final boolean hasIncoming  = !incomingEvents.isEmpty();
-            final boolean hasExclusive = !exclusiveEvents.isEmpty();
-            final boolean showNotification = totalUnseen > currentNotificationCount;
-            if ((hasIncoming || hasExclusive) && showNotification) {
-                final CharSequence title, message, ticker;
-                app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, totalUnseen);
-
-                if (totalUnseen == 1) {
-                    ticker = app.getString(
-                            R.string.dashboard_notifications_ticker_single);
-                    title = app.getString(
-                            R.string.dashboard_notifications_title_single);
-                } else {
-                    ticker = String.format(app.getString(
-                            R.string.dashboard_notifications_ticker), totalUnseen > 99 ? "99+" : totalUnseen);
-
-                    title = String.format(app.getString(
-                            R.string.dashboard_notifications_title), totalUnseen > 99 ? "99+" : totalUnseen);
-                }
-
-                if (hasExclusive) {
-                    message = getExclusiveMessaging(app, exclusiveEvents);
-                } else {
-                    message = getIncomingMessaging(app, incomingEvents);
-                }
-                createDashboardNotification(app, ticker, title, message, hasExclusive);
+            try {
+                syncIncoming(app, notificationCount, lastSync);
+                syncOwn(app, notificationCount, lastSync);
+            } catch (IOException e) {
+                Log.w(TAG, "i/o", e);
             }
-        } catch (IOException e) {
-            Log.w(TAG, "i/o", e);
         }
+    }
+
+    /* package */ static void syncIncoming(SoundCloudApplication app, int notificationCount, long lastSync)
+            throws IOException {
+        List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
+        List<Event> exclusiveEvents = getNewExclusiveEvents(app, lastSync);
+
+        Set<Long> ids = new HashSet<Long>(incomingEvents.size());
+        for (Event e : incomingEvents) ids.add(e.origin_id);
+        for (Event e : exclusiveEvents) ids.add(e.origin_id);
+        final int totalUnseen = ids.size();
+
+        final boolean hasIncoming  = !incomingEvents.isEmpty();
+        final boolean hasExclusive = !exclusiveEvents.isEmpty();
+        final boolean showNotification = totalUnseen > notificationCount;
+        if ((hasIncoming || hasExclusive) && showNotification) {
+            final CharSequence title, message, ticker;
+            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, totalUnseen);
+
+            if (totalUnseen == 1) {
+                ticker = app.getString(
+                        R.string.dashboard_notifications_ticker_single);
+                title = app.getString(
+                        R.string.dashboard_notifications_title_single);
+            } else {
+                ticker = String.format(app.getString(
+                        R.string.dashboard_notifications_ticker), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
+
+                title = String.format(app.getString(
+                        R.string.dashboard_notifications_title), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
+            }
+
+            if (hasExclusive) {
+                message = getExclusiveMessaging(app, exclusiveEvents);
+            } else {
+                message = getIncomingMessaging(app, incomingEvents);
+            }
+            createDashboardNotification(app, ticker, title, message, hasExclusive);
+        }
+    }
+
+    /* package */ static void syncOwn(SoundCloudApplication app, int notificationCount, long lastSync)
+            throws IOException {
     }
 
     public static boolean isIncomingEnabled(Context c) {
@@ -156,45 +166,56 @@ public class SyncAdapterService extends Service {
 
     /* package */ static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since, boolean exclusive)
             throws IOException {
-        boolean caughtUp = false;
-        Activities activities = null;
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Collections.emptyList();
         } else {
-            List<Event> incomingEvents = new ArrayList<Event>();
-            final String resource = exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES;
-            do {
-                Request request = Request.to(resource).add("limit", 20);
-                if (activities != null) {
-                    request.add("cursor", activities.getCursor());
-                }
-
-                HttpResponse response = app.get(request);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-                    if (activities.includes(since)) {
-                        caughtUp = true; // nothing new
-                    } else {
-                        for (Event evt : activities) {
-                            if (evt.created_at.getTime() <= since) {
-                                caughtUp = true;
-                                break;
-                            } else {
-                                incomingEvents.add(evt);
-                            }
-                        }
-                    }
-                } else {
-                    Log.w(TAG, "unexpected status code: "+response.getStatusLine());
-                    throw new IOException(response.getStatusLine().toString());
-                }
-            } while (!caughtUp
-                    && incomingEvents.size() < NOTIFICATION_MAX
-                    && !TextUtils.isEmpty(activities.next_href));
-
-            return incomingEvents;
+            return getEvents(app, since, exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES);
         }
     }
+
+    /* package */ static List<Event> getOwnEvents(SoundCloudApplication application, long since)
+            throws IOException {
+        return getEvents(application, since, AndroidCloudAPI.MY_NEWS);
+    }
+
+    /* package */
+    static List<Event> getEvents(SoundCloudApplication app, final long since, final String resource)
+            throws IOException {
+        boolean caughtUp = false;
+        Activities activities = null;
+        List<Event> events = new ArrayList<Event>();
+        do {
+            Request request = Request.to(resource).add("limit", 20);
+            if (activities != null) {
+                request.add("cursor", activities.getCursor());
+            }
+
+            HttpResponse response = app.get(request);
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                if (activities.includes(since)) {
+                    caughtUp = true; // nothing new
+                } else {
+                    for (Event evt : activities) {
+                        if (evt.created_at.getTime() <= since) {
+                            caughtUp = true;
+                            break;
+                        } else {
+                            events.add(evt);
+                        }
+                    }
+                }
+            } else {
+                Log.w(TAG, "unexpected status code: " + response.getStatusLine());
+                throw new IOException(response.getStatusLine().toString());
+            }
+        } while (!caughtUp
+                && events.size() < NOTIFICATION_MAX
+                && !TextUtils.isEmpty(activities.next_href));
+
+        return events;
+    }
+
 
     /* package */ static String getIncomingMessaging(SoundCloudApplication app, List<Event> events) {
         List<User> users = getUniqueUsersFromEvents(events);

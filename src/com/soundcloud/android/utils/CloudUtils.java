@@ -386,7 +386,7 @@ public class CloudUtils {
     }
 
     /** @see {@link CloudUtils#formatTimestamp(long)} ()} */
-    static String makeTimeString(String durationformat, long secs) {
+    /* package */ static String makeTimeString(String durationformat, long secs) {
         // XXX global state
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
