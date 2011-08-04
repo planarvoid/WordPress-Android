@@ -76,7 +76,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ScPlayer extends ScActivity implements OnTouchListener {
+public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
 
@@ -809,41 +809,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
                 mPlayingTrack.load_info_task = new LoadTrackInfoTask(getApp(), mPlayingTrack.id, true, true);
               }
 
-            mPlayingTrack.load_info_task.setListener(new LoadTrackInfoTask.LoadTrackInfoListener() {
-                @Override
-                public void onInfoLoaded(Track track) {
-                    if (track.id != mPlayingTrack.id) return;
-                    updateTrackInfo();
-                    if (mTrackInfo != null) {
-                        fillTrackDetails();
-                        if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
-                            mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
-                        }
-                        if (mTrackInfo.findViewById(android.R.id.empty) != null) {
-                            mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
-                        }
-                        mTrackInfo.findViewById(R.id.info_view).setVisibility(View.VISIBLE);
-                    }
-                }
-
-                @Override
-                public void onError(long trackId) {
-                    if (trackId != mPlayingTrack.id) return;
-                    if (mTrackInfo == null) return;
-                    if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
-                        mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
-                    }
-
-                    if (mTrackInfo.findViewById(android.R.id.empty) != null) {
-                        mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-                    } else {
-                        mTrackInfo.addView(CloudUtils.buildEmptyView(ScPlayer.this,
-                                getResources().getString(R.string.info_error)), mTrackInfo.getChildCount() - 2);
-                    }
-                    mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
-
-                }
-            });
+            mPlayingTrack.load_info_task.setListener(this);
             if (CloudUtils.isTaskPending(mPlayingTrack.load_info_task)) {
                 mPlayingTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlayingTrack.id));
             }
@@ -1267,6 +1233,40 @@ public class ScPlayer extends ScActivity implements OnTouchListener {
             default:
                 return super.onOptionsItemSelected(item);
         }
+
+    }
+
+    @Override
+    public void onTrackInfoLoaded(Track track) {
+        if (track.id != mPlayingTrack.id) return;
+        updateTrackInfo();
+        if (mTrackInfo != null) {
+            fillTrackDetails();
+            if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
+                mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
+            }
+            if (mTrackInfo.findViewById(android.R.id.empty) != null) {
+                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
+            }
+            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onTrackInfoError(long trackId) {
+        if (trackId != mPlayingTrack.id) return;
+        if (mTrackInfo == null) return;
+        if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
+            mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
+        }
+
+        if (mTrackInfo.findViewById(android.R.id.empty) != null) {
+            mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+        } else {
+            mTrackInfo.addView(CloudUtils.buildEmptyView(ScPlayer.this,
+                    getResources().getString(R.string.info_error)), mTrackInfo.getChildCount() - 2);
+        }
+        mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
 
     }
 }

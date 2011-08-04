@@ -4,9 +4,9 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Track;
+
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
@@ -50,17 +50,17 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
 
             if (listener != null){
-                listener.onInfoLoaded(result);
+                listener.onTrackInfoLoaded(result);
             }
 
         } else if (listener != null){
-            listener.onError(mTrackId);
+            listener.onTrackInfoError(mTrackId);
         }
     }
 
     // Define our custom Listener interface
     public interface LoadTrackInfoListener {
-        void onInfoLoaded(Track track);
-        void onError(long trackId);
+        void onTrackInfoLoaded(Track track);
+        void onTrackInfoError(long trackId);
     }
 }
