@@ -142,8 +142,7 @@ public class SyncAdapterService extends Service {
                 message = getIncomingMessaging(app, incomingEvents);
             }
 
-            createDashboardNotification(app, ticker, title, message,
-                    hasExclusive ? "exclusive" : "incoming");
+            createDashboardNotification(app, ticker, title, message,"incoming");
         }
     }
 
