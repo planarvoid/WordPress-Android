@@ -92,11 +92,12 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, System.currentTimeMillis());
         } else {
             app.useAccount(account);
-
             // how many have they already been notified about, don't create repeat notifications for no new tracks
             try {
                 syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
-                syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                if (isActivitySyncEnabled(app)) {
+                    syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                }
             } catch (IOException e) {
                 Log.w(TAG, "i/o", e);
             }
@@ -239,6 +240,10 @@ public class SyncAdapterService extends Service {
 
     public static boolean isFavoritingEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsFavoritings", true);
+    }
+
+    public static boolean isActivitySyncEnabled(Context c) {
+        return isFavoritingEnabled(c) || isCommentsEnabled(c);
     }
 
     public static boolean isCommentsEnabled(Context c) {
