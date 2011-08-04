@@ -15,17 +15,21 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class NewsRow extends LazyRow {
     private Event mEvent;
-    private TextView mUser;
-    private TextView mTitle;
-    private TextView mCreatedAt;
+    private final TextView mUser;
+    private final TextView mTitle;
+    private final TextView mCreatedAt;
     private Drawable mFavoritedDrawable;
     private Drawable mCommentedDrawable;
+    private Drawable mFavoritedPressedDrawable;
+    private Drawable mCommentedPressedDrawable;
+    private SpannableStringBuilder mSpanBuilder;
 
     public NewsRow(ScActivity activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
@@ -56,21 +60,6 @@ public class NewsRow extends LazyRow {
         return getResources().getDrawable(R.drawable.artwork_badge);
     }
 
-    private Drawable getFavoritedDrawable(){
-          if (mFavoritedDrawable == null) {
-              mFavoritedDrawable = getResources().getDrawable(R.drawable.stats_favorited);
-              mFavoritedDrawable.setBounds(0, 0, mFavoritedDrawable.getIntrinsicWidth(), mFavoritedDrawable.getIntrinsicHeight());
-          }
-        return mFavoritedDrawable;
-    }
-
-    private Drawable getmCommentedDrawable(){
-          if (mCommentedDrawable == null) {
-              mCommentedDrawable = getResources().getDrawable(R.drawable.stats_commented);
-              mCommentedDrawable.setBounds(0, 0, mCommentedDrawable.getIntrinsicWidth(), mCommentedDrawable.getIntrinsicHeight());
-          }
-        return mCommentedDrawable;
-    }
 
     /** update the views with the data corresponding to selection index */
     @Override
@@ -82,27 +71,37 @@ public class NewsRow extends LazyRow {
         if (mEvent == null)
             return;
 
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        ImageSpan typeImage = new ImageSpan(mEvent.type.contentEquals(Event.Types.COMMENT)
-                ? getmCommentedDrawable() : getFavoritedDrawable(),ImageSpan.ALIGN_BASELINE);
-
-        builder.append("  ");
-        builder.setSpan(typeImage, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.append(mEvent.getTrack().title);
+        mSpanBuilder = new SpannableStringBuilder();
+        mSpanBuilder.append("  ");
+        mSpanBuilder.append(mEvent.getTrack().title);
 
         if (mEvent.type.contentEquals(Event.Types.COMMENT)){
-            builder.append(": ");
-            builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.append("\"").append(mEvent.comment.body).append("\"");
+            mSpanBuilder.append(": ");
+            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mSpanBuilder.append("\"").append(mEvent.comment.body).append("\"");
         } else {
-            builder.setSpan(new StyleSpan(Typeface.BOLD), 1, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-
-        mTitle.setText(builder);
+        setImageSpan();
+        
         mUser.setText(mEvent.getUser().username);
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mEvent.created_at.getTime()));
 
+    }
+    
+    private void setImageSpan(){
+        if (mSpanBuilder == null) return;
+        if (mEvent.type.contentEquals(Event.Types.COMMENT)){
+             mSpanBuilder.setSpan(new ImageSpan(isPressed() ?
+                       getmCommentedPressedDrawable() :
+                     getmCommentedDrawable(),ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+             mSpanBuilder.setSpan(new ImageSpan(isPressed() ?
+                       getFavoritedPressedDrawable() :
+                     getFavoritedDrawable(),ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        mTitle.setText(mSpanBuilder);
     }
 
     @Override
@@ -117,4 +116,43 @@ public class NewsRow extends LazyRow {
 
         return ImageUtils.formatGraphicsUrlForList(mActivity, mEvent.getUser().avatar_url);
     }
+
+    @Override
+    public void setPressed(boolean pressed){
+        super.setPressed(pressed);
+       setImageSpan();
+    }
+
+    private Drawable getFavoritedDrawable(){
+             if (mFavoritedDrawable == null) {
+                 mFavoritedDrawable = getResources().getDrawable(R.drawable.stats_favorited);
+                 mFavoritedDrawable.setBounds(0, 0, mFavoritedDrawable.getIntrinsicWidth(), mFavoritedDrawable.getIntrinsicHeight());
+             }
+           return mFavoritedDrawable;
+       }
+
+       private Drawable getmCommentedDrawable(){
+             if (mCommentedDrawable == null) {
+                 mCommentedDrawable = getResources().getDrawable(R.drawable.stats_commented);
+                 mCommentedDrawable.setBounds(0, 0, mCommentedDrawable.getIntrinsicWidth(), mCommentedDrawable.getIntrinsicHeight());
+             }
+           return mCommentedDrawable;
+       }
+
+       private Drawable getFavoritedPressedDrawable(){
+             if (mFavoritedPressedDrawable == null) {
+                 mFavoritedPressedDrawable = getResources().getDrawable(R.drawable.stats_favorites_white_50);
+                 mFavoritedPressedDrawable.setBounds(0, 0, mFavoritedPressedDrawable.getIntrinsicWidth(), mFavoritedPressedDrawable.getIntrinsicHeight());
+             }
+           return mFavoritedPressedDrawable;
+       }
+
+       private Drawable getmCommentedPressedDrawable(){
+             if (mCommentedPressedDrawable == null) {
+                 mCommentedPressedDrawable = getResources().getDrawable(R.drawable.stats_comments_white_50);
+                 mCommentedPressedDrawable.setBounds(0, 0, mCommentedPressedDrawable.getIntrinsicWidth(), mCommentedPressedDrawable.getIntrinsicHeight());
+             }
+           return mCommentedPressedDrawable;
+       }
+
 }
