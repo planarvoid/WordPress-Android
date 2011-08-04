@@ -95,6 +95,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         super(activity);
         init(activity);
         setFadingEdgeLength((int) (2*getResources().getDisplayMetrics().density));
+        setSelector(R.drawable.list_selector_background);
     }
 
     /**

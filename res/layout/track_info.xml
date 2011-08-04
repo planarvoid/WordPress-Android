@@ -16,6 +16,7 @@
                       android:paddingLeft="5dip"
                       android:paddingRight="20dip"
                       style="@style/txt_list_main"
+                      android:background="@drawable/list_selector_background"
                       android:gravity="left|center_vertical"/>
             <View android:layout_width="fill_parent"
                   android:layout_height="1dip"
