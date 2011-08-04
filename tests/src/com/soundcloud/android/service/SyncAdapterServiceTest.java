@@ -188,17 +188,17 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertNotification("own_one_favoriting.json",
                 "New like",
                 "A new like",
-                "Paul Ko likes P. Watzlawick - Anleitung zum Unglücklichsein");
+                "Paul Ko likes P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
 
         assertNotification("own_two_favoritings.json",
                 "2 new likes",
                 "2 new likes",
-                "on P. Watzlawick - Anleitung zum Unglücklichsein");
+                "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
 
         assertNotification("own_multi_favoritings.json",
                 "3 new likes",
                 "3 new likes",
-                "on P. Watzlawick - Anleitung zum Unglücklichsein, William Gibson & Cory Doctorow on 'Zero History'" +
+                "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein, William Gibson & Cory Doctorow on 'Zero History'" +
                         " and other sounds");
     }
 
@@ -306,17 +306,16 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     static class NotificationInfo {
-          public Notification n;
-          public ShadowNotification.LatestEventInfo info;
+        public Notification n;
+        public ShadowNotification.LatestEventInfo info;
 
-          NotificationInfo(Notification n, ShadowNotification.LatestEventInfo info) {
-              this.n = n;
-              this.info = info;
-          }
+        NotificationInfo(Notification n, ShadowNotification.LatestEventInfo info) {
+            this.n = n;
+            this.info = info;
+        }
 
-          public Intent getIntent() {
-              return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
-          }
-      }
-
+        public Intent getIntent() {
+            return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
+        }
+    }
 }
