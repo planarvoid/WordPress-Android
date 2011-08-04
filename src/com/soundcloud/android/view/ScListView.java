@@ -89,13 +89,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private int mRefreshState;
     private int mRefreshViewHeight;
     private int mRefreshOriginalTopPadding;
+    private int mRefreshVerticalTolerance;
     private long mLastUpdated;
 
     public ScListView(ScActivity activity) {
         super(activity);
         init(activity);
-        setFadingEdgeLength((int) (2*getResources().getDisplayMetrics().density));
-        setSelector(R.drawable.list_selector_background);
     }
 
     /**
@@ -116,6 +115,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private void init(ScActivity activity) {
         mActivity = activity;
+
+        setFadingEdgeLength((int) (2 * getResources().getDisplayMetrics().density));
+        setSelector(R.drawable.list_selector_background);
+        mRefreshVerticalTolerance = (int) (activity.getResources().getDisplayMetrics().density*20);
 
         if (Build.VERSION.SDK_INT >= 9) {
             setOverScrollMode(OVER_SCROLL_NEVER);
@@ -464,13 +467,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 && mRefreshState != REFRESHING) {
             if (firstVisibleItem == 0) {
                 mRefreshViewImage.setVisibility(View.VISIBLE);
-                if ((mRefreshView.getBottom() > mRefreshViewHeight)
+                if ((mRefreshView.getBottom() > mRefreshViewHeight + mRefreshVerticalTolerance)
                         && mRefreshState != RELEASE_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_release_label);
                     mRefreshViewImage.clearAnimation();
                     mRefreshViewImage.startAnimation(mFlipAnimation);
                     mRefreshState = RELEASE_TO_REFRESH;
-                } else if (mRefreshView.getBottom() < mRefreshViewHeight
+                } else if (mRefreshView.getBottom() < mRefreshViewHeight + mRefreshVerticalTolerance
                         && mRefreshState != PULL_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_pull_label);
                     if (mRefreshState != TAP_TO_REFRESH) {
@@ -524,7 +527,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
 
                 if (getFirstVisiblePosition() == 0 && mRefreshState != REFRESHING) {
-                    if (mRefreshView.getBottom() > mRefreshViewHeight && mRefreshState == RELEASE_TO_REFRESH) {
+                    if (mRefreshView.getBottom() > mRefreshViewHeight + mRefreshVerticalTolerance
+                            && mRefreshState == RELEASE_TO_REFRESH) {
                         // Initiate the refresh
                         mRefreshState = REFRESHING;
                         prepareForRefresh();
