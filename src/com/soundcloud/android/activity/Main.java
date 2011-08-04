@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -257,9 +258,12 @@ public class Main extends TabActivity {
 
         TabWidget tw = ((TabWidget) findViewById(android.R.id.tabs));
 
-        for (int i = 0; i < tw.getChildCount(); i++) {
-            ((View) tw.getChildAt(i)).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
-          }
+        if (Build.VERSION.SDK_INT > 7) {
+            for (int i = 0; i < tw.getChildCount(); i++) {
+                ((View) tw.getChildAt(i)).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
+            }
+        }
+
 
         // set record tab to just image, if tab order is changed, change the index of the following line
         RelativeLayout relativeLayout = (RelativeLayout) tw.getChildAt(2);
