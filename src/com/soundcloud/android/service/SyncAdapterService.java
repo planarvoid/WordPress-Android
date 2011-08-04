@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class SyncAdapterService extends Service {
@@ -143,7 +142,8 @@ public class SyncAdapterService extends Service {
             }
 
             createDashboardNotification(app, ticker, title, message,
-                    hasExclusive ? "exclusive" : "incoming");
+                    hasExclusive ? "exclusive" : "incoming",
+                    Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
         }
     }
 
@@ -154,15 +154,8 @@ public class SyncAdapterService extends Service {
         Activities events = getOwnEvents(app, lastSync);
         if (!events.isEmpty() && events.size() > count) {
             app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
+            final CharSequence title, message, ticker;
 
-            String title = "";
-            String message = "";
-            String ticker = "";
-
-            //CharSequence message, ticker = "";
-
-
-            Map<Track, Activities> grouped = events.groupedByTrack();
             Activities favoritings = events.favoritings();
             Activities comments = events.comments();
 
@@ -185,14 +178,13 @@ public class SyncAdapterService extends Service {
                     }
                 } else if (tracks.size() == 2) {
                    message = "on "+tracks.get(0).title + " and " +tracks.get(1).title;
-                } else if (tracks.size()  > 2) {
-                   message = "on "  +tracks.get(0).title + " and " +tracks.get(1).title + " and other sounds";
+                } else {
+                   message = "on "  +tracks.get(0).title + ", " +tracks.get(1).title + " and other sounds";
                 }
-
-
             } else if (favoritings.isEmpty() && !comments.isEmpty()) {
                 // only comments
                 List<Track> tracks = comments.getUniqueTracks();
+                List<User> users = comments.getUniqueUsers();
 
                 if (comments.size() == 1) {
                     title = ticker = "1 new comment";
@@ -200,19 +192,21 @@ public class SyncAdapterService extends Service {
                     title = ticker =  comments.size()+" new comments";
                 }
 
-
                 if (tracks.size() == 1) {
                     if (comments.size() == 1) {
-                        message = "new comment on"+comments.get(0).track.title+" from "+comments.get(0).user.username;
+                        message = "new comment on "+comments.get(0).track.title+" from "+comments.get(0).user.username;
                     } else if (comments.size() == 2) {
-                        message = comments.size() + " new comments on"+comments.get(0).track.title+" from "+comments.get(0).user.username+
+                        message = comments.size() + " new comments on "+comments.get(0).track.title+" from "+comments.get(0).user.username+
                         " and "+comments.get(1).user.username;
                     } else {
-                        message = comments.size() + "new comment on"+comments.get(0).track.title+" from "+comments.get(0).user.username+
+                        message = comments.size() + " new comments on "+comments.get(0).track.title+" from "+comments.get(0).user.username+
                         ", "+comments.get(1).user.username+ " and others";
                     }
+                } else if (users.size() == 2) {
+                        message = "Comments from "+users.get(0).username+" and "+users.get(1).username;
                 } else {
-
+                        message = "Comments from "+users.get(0).username+", "+users.get(1).username
+                                +" and others";
                 }
             } else {
                // mix of favoritings and comments
@@ -230,7 +224,8 @@ public class SyncAdapterService extends Service {
                         " and others";
                 }
             }
-            createDashboardNotification(app, ticker, title, message, "activity");
+            createDashboardNotification(app, ticker, title, message, "activity",
+                    Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
         }
     }
 
@@ -352,7 +347,7 @@ public class SyncAdapterService extends Service {
     private static void createDashboardNotification(SoundCloudApplication app,
                                                     CharSequence ticker,
                                                     CharSequence title,
-                                                    CharSequence message, String tab) {
+                                                    CharSequence message, String tab, int id) {
 
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nm = (NotificationManager) app.getSystemService(ns);
@@ -370,7 +365,7 @@ public class SyncAdapterService extends Service {
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(app.getApplicationContext(), title, message, pi);
-        nm.notify(Consts.Notifications.DASHBOARD_NOTIFY_ID, n);
+        nm.notify(id, n);
     }
 
     // only used for debugging

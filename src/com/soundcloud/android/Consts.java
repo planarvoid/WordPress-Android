@@ -78,7 +78,8 @@ public class Consts {
         int RECORD_NOTIFY_ID    = 0;
         int PLAYBACK_NOTIFY_ID  = 1;
         int UPLOAD_NOTIFY_ID    = 2;
-        int DASHBOARD_NOTIFY_ID    = 3;
-        int BETA_NOTIFY_ID    = 4;
+        int DASHBOARD_NOTIFY_STREAM_ID = 3;
+        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
+        int BETA_NOTIFY_ID    = 5;
     }
 }

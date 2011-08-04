@@ -160,8 +160,8 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     @Test
-    public void shouldNotifyAboutActivity() throws Exception {
-        addPendingHttpResponse(200, resource("empty_events.json"));
+    public void shouldSendTwoSeparateNotifications() throws Exception {
+        addPendingHttpResponse(200, resource("incoming_2.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
@@ -170,34 +170,78 @@ public class SyncAdapterServiceTest extends ApiTests {
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
 
         List<NotificationInfo> notifications = doPerformSync(app);
-        assertThat(notifications.size(), is(1));
-        NotificationInfo n = notifications.get(0);
-        assertThat(n.info.getContentTitle().toString(),
+        assertThat(notifications.size(), is(2));
+
+        assertThat(notifications.get(0).info.getContentTitle().toString(),
+                equalTo("49 new sounds"));
+        assertThat(notifications.get(0).info.getContentText().toString(),
+                equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
+
+        assertThat(notifications.get(1).info.getContentTitle().toString(),
                 equalTo("42 new activities"));
-
-        assertThat(n.info.getContentText().toString(),
+        assertThat(notifications.get(1).info.getContentText().toString(),
                 equalTo("Comments and likes from Paul Ko, jensnikolaus and others"));
-
-        assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN), is(42));
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("activity"));
     }
 
     @Test
     public void shouldNotifyAboutActivityFavoriting() throws Exception {
         assertNotification("own_one_favoriting.json",
+                "New like",
                 "A new like",
                 "Paul Ko likes P. Watzlawick - Anleitung zum Unglücklichsein");
 
         assertNotification("own_two_favoritings.json",
                 "2 new likes",
+                "2 new likes",
                 "on P. Watzlawick - Anleitung zum Unglücklichsein");
 
-        assertNotification("own_multi_favoritings",
+        assertNotification("own_multi_favoritings.json",
                 "3 new likes",
-                "on P. Watzlawick - Anleitung zum Unglücklichsein, William Gibson & Cory Doctorow on 'Zero History'"+
-                " and other sounds");
+                "3 new likes",
+                "on P. Watzlawick - Anleitung zum Unglücklichsein, William Gibson & Cory Doctorow on 'Zero History'" +
+                        " and other sounds");
     }
 
+    @Test
+    public void shouldNotifyAboutActivityCommenting() throws Exception {
+        assertNotification("own_one_comment.json",
+                "1 new comment",
+                "1 new comment",
+                "new comment on Autotune at MTV from fronx");
+
+        assertNotification("own_two_comments.json",
+                "2 new comments",
+                "2 new comments",
+                "2 new comments on Autotune at MTV from fronx and bronx");
+
+        assertNotification("own_three_comments.json",
+                "3 new comments",
+                "3 new comments",
+                "3 new comments on Autotune at MTV from fronx, bronx and others");
+
+        assertNotification("own_four_comments_different_tracks.json",
+                "4 new comments",
+                "4 new comments",
+                "Comments from fronx, bronx and others");
+    }
+
+    @Test
+    public void shouldNotifyAboutActivityCommentingAndFavoriting() throws Exception {
+        assertNotification("own_comment_favoriting_same_track.json",
+                "2 new activities",
+                "2 new activities",
+                "from fronx on Autotune at MTV");
+
+        assertNotification("own_comment_favoriting_different_tracks_two_users.json",
+                "5 new activities",
+                "5 new activities",
+                "Comments and likes from fronx and bronx");
+
+        assertNotification("own_comment_favoriting_different_tracks.json",
+                "5 new activities",
+                "5 new activities",
+                "Comments and likes from fronx, bronx and others");
+    }
 
     @Test
     public void shouldNotify99PlusItems() throws Exception {
@@ -222,19 +266,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(doPerformSync(DefaultTestRunner.application).size(), is(0));
     }
 
-    static class NotificationInfo {
-        public Notification n;
-        public ShadowNotification.LatestEventInfo info;
-
-        NotificationInfo(Notification n, ShadowNotification.LatestEventInfo info) {
-            this.n = n;
-            this.info = info;
-        }
-
-        public Intent getIntent() {
-            return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
-        }
-    }
 
     private static List<NotificationInfo> doPerformSync(SoundCloudApplication app)
             throws OperationCanceledException {
@@ -254,21 +285,38 @@ public class SyncAdapterServiceTest extends ApiTests {
         return list;
     }
 
-    private void assertNotification(String resource, String title, String content) throws Exception {
+    private void assertNotification(String resource, String ticker, String title, String content) throws Exception {
         addPendingHttpResponse(200, resource("empty_events.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
         addPendingHttpResponse(200, resource(resource));
 
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
+        app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
         app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, 0l);
         List<NotificationInfo> notifications = doPerformSync(app);
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
+        assertThat(n.n.tickerText.toString(), equalTo(ticker));
         assertThat(n.info.getContentTitle().toString(),
                 equalTo(title));
 
         assertThat(n.info.getContentText().toString(),
                 equalTo(content));
     }
+
+    static class NotificationInfo {
+          public Notification n;
+          public ShadowNotification.LatestEventInfo info;
+
+          NotificationInfo(Notification n, ShadowNotification.LatestEventInfo info) {
+              this.n = n;
+              this.info = info;
+          }
+
+          public Intent getIntent() {
+              return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
+          }
+      }
+
 }
