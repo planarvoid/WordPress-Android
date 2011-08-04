@@ -31,4 +31,8 @@
 
     <string name="pref_dev_crash">Crash</string>
     <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
+
+    <string name="comment_hint_untimed">Add a comment</string>
+    <string name="comment_hint_timed">Add comment at %s</string>
+    <string name="comment_hint_reply">Reply to %1$s at %2$s</string>
 </resources>

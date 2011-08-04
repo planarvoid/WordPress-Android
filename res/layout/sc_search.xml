@@ -58,7 +58,7 @@
     <FrameLayout android:id="@+id/list_holder"
                  android:layout_width="fill_parent"
                  android:layout_height="fill_parent"
-                 android:background="@color/lightGrayBackground"
+                 android:background="@color/white"
                  android:layout_below="@id/rdo_search_type" >
     </FrameLayout>
 
