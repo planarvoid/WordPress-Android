@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
@@ -11,17 +13,13 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends BaseObj implements Parcelable {
-    public long id;
+public class User extends ModelBase {
     public String username;
     public int track_count;
     public String discogs_name;
@@ -71,11 +69,9 @@ public class User extends BaseObj implements Parcelable {
                             User.class.getDeclaredField(aliasesOnly ? key.substring(6) : key),
                             cursor, key);
                 } catch (SecurityException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (NoSuchFieldException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
             }
         }
@@ -111,11 +107,9 @@ public class User extends BaseObj implements Parcelable {
                             setFieldFromCursor(this, User.class.getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         } catch (NoSuchFieldException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         }
                     }
                 }
@@ -194,18 +188,17 @@ public class User extends BaseObj implements Parcelable {
         String EMAIL_CONFIRMED = "email_confirmed";
         String DASHBOARD_IDX = "lastDashboardIndex";
         String PROFILE_IDX = "lastProfileIndex";
+
         // legacy
         String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
         String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
 
-        String LAST_INCOMING_SYNC_EVENT_TIMESTAMP = "last_incoming_sync_event_timestamp";
+        String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
+        String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
 
-        String LAST_FOLLOWINGS_SYNC = "last_followings_sync";
-
-        String LAST_INCOMING_SYNC = "last_incoming_sync";
-        String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
+        String NOTIFICATION_COUNT_INCOMING = "notification_count";
+        String NOTIFICATION_COUNT_OWN      = "notification_count_own";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
-        String NOTIFICATION_COUNT = "notification_count";
     }
 }

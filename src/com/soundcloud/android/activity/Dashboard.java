@@ -27,7 +27,6 @@ import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
     protected ScListView mListView;
-    private ScTabView mTracklistView;
     private String mTrackingPath;
     private boolean mNews;
     private final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
@@ -43,15 +42,16 @@ public class Dashboard extends ScActivity {
 
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
+            ScTabView trackListView;
             if ("incoming".equalsIgnoreCase(tab)) {
-                mTracklistView = createList(getIncomingRequest(),
+                trackListView = createList(getIncomingRequest(),
                         Event.class,
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_INCOMING, false);
                 mTrackingPath = "/incoming";
             } else if ("activity".equalsIgnoreCase(tab)) {
                 mNews = true;
-                mTracklistView = createList(Request.to(AndroidCloudAPI.MY_NEWS),
+                trackListView = createList(Request.to(AndroidCloudAPI.MY_NEWS),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_NEWS, true);
@@ -59,7 +59,7 @@ public class Dashboard extends ScActivity {
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
-            setContentView(mTracklistView);
+            setContentView(trackListView);
         } else {
             throw new IllegalArgumentException("no tab extra");
         }
@@ -127,16 +127,12 @@ public class Dashboard extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
          if (!mNews) {
             menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_stream_setting).setIcon(
                 R.drawable.ic_menu_incoming);
         }
-
         return super.onCreateOptionsMenu(menu);
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -150,7 +146,7 @@ public class Dashboard extends ScActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
-                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1 ? true : false).commit();
+                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
                                         mListView.getWrapper().setRequest(getIncomingRequest());
                                         mListView.getWrapper().reset();
                                         mListView.setLastUpdated(0);
@@ -170,6 +166,5 @@ public class Dashboard extends ScActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 }

@@ -8,18 +8,15 @@ import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Event extends BaseObj implements Parcelable {
-    public long id;
+public class Event extends ModelBase {
     public Date created_at;
     public String type;
     public String tags;
@@ -29,7 +26,9 @@ public class Event extends BaseObj implements Parcelable {
     public long user_id;
     // stored in db
     public long origin_id;
+    /** @noinspection UnusedDeclaration*/
     public boolean exclusive;
+    /** @noinspection UnusedDeclaration*/
     public String next_cursor;
 
     public Track track;
@@ -77,11 +76,8 @@ public class Event extends BaseObj implements Parcelable {
         return null;
     }
 
-    public Track getTrack(){
-         if (type.contentEquals(Types.COMMENT)) {
-            return comment.track;
-        }
-        return track;
+    public Track getTrack() {
+        return type.contentEquals(Types.COMMENT) ? comment.track : track;
     }
 
     @Override
@@ -108,23 +104,19 @@ public class Event extends BaseObj implements Parcelable {
         }
     };
 
-    public ContentValues buildContentValues(long user_id, boolean exclusive){
-        ContentValues cv = new ContentValues();
-        cv.put(Events.TYPE, type);
-        cv.put(Events.EXCLUSIVE, exclusive);
-        cv.put(Events.CREATED_AT, created_at.getTime());
-        cv.put(Events.TAGS, tags);
-        cv.put(Events.LABEL, label);
-        cv.put(Events.ORIGIN_ID, origin_id);
-        cv.put(Events.USER_ID, user_id);
-        if (!TextUtils.isEmpty(next_cursor)) cv.put(Events.NEXT_CURSOR, next_cursor);
-        return cv;
-    }
-
-     public interface Types {
+    public interface Types {
         String TRACK = "track";
         String TRACK_SHARING = "track-sharing";
         String COMMENT = "comment";
         String FAVORITING = "favoriting";
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "type='" + type + '\'' +
+                ", track=" + (track == null ? "" : track.title) +
+                ", user=" + (user == null ? "" : user.username) +
+                '}';
     }
 }

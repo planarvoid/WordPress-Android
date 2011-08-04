@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Endpoints;
@@ -34,9 +35,9 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SyncAdapterService extends Service {
@@ -88,27 +89,27 @@ public class SyncAdapterService extends Service {
             throws OperationCanceledException {
 
         // for initial sync, don't bother telling them about their entire dashboard
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) == 0){
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, System.currentTimeMillis());
+        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) == 0) {
+            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, System.currentTimeMillis());
         } else {
             app.useAccount(account);
 
             // how many have they already been notified about, don't create repeat notifications for no new tracks
-            final int notificationCount = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT);
-            final long lastSync = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP);
             try {
-                syncIncoming(app, notificationCount, lastSync);
-                syncOwn(app, notificationCount, lastSync);
+                syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
+                syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
             } catch (IOException e) {
                 Log.w(TAG, "i/o", e);
             }
         }
     }
 
-    /* package */ static void syncIncoming(SoundCloudApplication app, int notificationCount, long lastSync)
+    /* package */ static void syncIncoming(SoundCloudApplication app, long lastSync)
             throws IOException {
-        List<Event> incomingEvents = getNewIncomingEvents(app, lastSync);
-        List<Event> exclusiveEvents = getNewExclusiveEvents(app, lastSync);
+        final int count = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING);
+
+        Activities incomingEvents = getNewIncomingEvents(app, lastSync);
+        Activities exclusiveEvents = getNewExclusiveEvents(app, lastSync);
 
         Set<Long> ids = new HashSet<Long>(incomingEvents.size());
         for (Event e : incomingEvents) ids.add(e.origin_id);
@@ -117,10 +118,10 @@ public class SyncAdapterService extends Service {
 
         final boolean hasIncoming  = !incomingEvents.isEmpty();
         final boolean hasExclusive = !exclusiveEvents.isEmpty();
-        final boolean showNotification = totalUnseen > notificationCount;
+        final boolean showNotification = totalUnseen > count;
         if ((hasIncoming || hasExclusive) && showNotification) {
             final CharSequence title, message, ticker;
-            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, totalUnseen);
+            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_INCOMING, totalUnseen);
 
             if (totalUnseen == 1) {
                 ticker = app.getString(
@@ -140,12 +141,21 @@ public class SyncAdapterService extends Service {
             } else {
                 message = getIncomingMessaging(app, incomingEvents);
             }
-            createDashboardNotification(app, ticker, title, message, hasExclusive);
+
+            createDashboardNotification(app, ticker, title, message,
+                    hasExclusive ? "exclusive" : "incoming");
         }
     }
 
-    /* package */ static void syncOwn(SoundCloudApplication app, int notificationCount, long lastSync)
+    /* package */ static void syncOwn(SoundCloudApplication app, long lastSync)
             throws IOException {
+        final int count = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN);
+
+        Activities events = getOwnEvents(app, lastSync);
+        if (!events.isEmpty() && events.size() > count) {
+            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
+
+        }
     }
 
     public static boolean isIncomingEnabled(Context c) {
@@ -156,30 +166,30 @@ public class SyncAdapterService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", true);
     }
 
-    private static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
+    private static Activities getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
         return getNewIncomingEvents(app, since, false);
     }
 
-    private static List<Event> getNewExclusiveEvents(SoundCloudApplication app, long since) throws IOException {
+    private static Activities getNewExclusiveEvents(SoundCloudApplication app, long since) throws IOException {
         return getNewIncomingEvents(app, since, true);
     }
 
-    /* package */ static List<Event> getNewIncomingEvents(SoundCloudApplication app, long since, boolean exclusive)
+    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, long since, boolean exclusive)
             throws IOException {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
-            return Collections.emptyList();
+            return Activities.EMPTY;
         } else {
             return getEvents(app, since, exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES);
         }
     }
 
-    /* package */ static List<Event> getOwnEvents(SoundCloudApplication application, long since)
+    /* package */ static Activities getOwnEvents(SoundCloudApplication application, long since)
             throws IOException {
         return getEvents(application, since, AndroidCloudAPI.MY_NEWS);
     }
 
     /* package */
-    static List<Event> getEvents(SoundCloudApplication app, final long since, final String resource)
+    static Activities getEvents(SoundCloudApplication app, final long since, final String resource)
             throws IOException {
         boolean caughtUp = false;
         Activities activities = null;
@@ -213,12 +223,12 @@ public class SyncAdapterService extends Service {
                 && events.size() < NOTIFICATION_MAX
                 && !TextUtils.isEmpty(activities.next_href));
 
-        return events;
+        return new Activities(events);
     }
 
 
-    /* package */ static String getIncomingMessaging(SoundCloudApplication app, List<Event> events) {
-        List<User> users = getUniqueUsersFromEvents(events);
+    /* package */ static String getIncomingMessaging(SoundCloudApplication app, Activities activites) {
+        List<User> users = activites.getUniqueUsers();
         switch (users.size()) {
             case 1:
                 return String.format(
@@ -236,14 +246,14 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static String getExclusiveMessaging(SoundCloudApplication app, List<Event> events) {
-        if (events.size() == 1) {
+    /* package */ static String getExclusiveMessaging(SoundCloudApplication app, Activities activities) {
+        if (activities.size() == 1) {
             return String.format(
                     app.getString(R.string.dashboard_notifications_message_single_exclusive),
-                    events.get(0).track.user.username);
+                    activities.get(0).track.user.username);
 
         } else {
-            List<User> users = getUniqueUsersFromEvents(events);
+            List<User> users = activities.getUniqueUsers();
             switch (users.size()) {
                 case 1:
                     return String.format(
@@ -261,25 +271,10 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static List<User> getUniqueUsersFromEvents(List<Event> events){
-        List<User> users = new ArrayList<User>();
-        for (Event e : events){
-                boolean found = false;
-                for (User u : users){
-                    if (u.id == e.track.user.id){
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) users.add(e.track.user);
-        }
-        return users;
-    }
-
     private static void createDashboardNotification(SoundCloudApplication app,
                                                     CharSequence ticker,
                                                     CharSequence title,
-                                                    CharSequence message, boolean hasExclusive) {
+                                                    CharSequence message, String tab) {
 
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nm = (NotificationManager) app.getSystemService(ns);
@@ -288,7 +283,7 @@ public class SyncAdapterService extends Service {
                 .addCategory(Intent.CATEGORY_LAUNCHER)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", hasExclusive ? "exclusive" : "incoming");
+                .putExtra("tabTag", tab);
 
         PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(),
                 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -302,8 +297,11 @@ public class SyncAdapterService extends Service {
 
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app) {
-        app.setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, 1);
-        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT, null);
+        app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
+        app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
+
+        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_INCOMING, null);
+        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, null);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 }

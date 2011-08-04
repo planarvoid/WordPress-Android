@@ -1,16 +1,15 @@
 
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
-import android.os.Parcelable;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.Request;
 
-import android.text.TextUtils;
+import android.os.Parcelable;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
@@ -23,13 +22,23 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     @Override
-    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
-        if (newItems != null && newItems.size() > 0 &&
-                mActivity.getApp().getAccountDataLong(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP) < ((Event) newItems.get(0)).created_at.getTime()) {
-            mActivity.getApp().setAccountData(User.DataKeys.LAST_INCOMING_SYNC_EVENT_TIMESTAMP, ((Event) newItems.get(0)).created_at.getTime());
-            mActivity.getApp().setAccountData(User.DataKeys.NOTIFICATION_COUNT,0);
-        }
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
+        final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
+                User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
+        final String counter     = getWrappedAdapter().isActivityFeed() ?
+                User.DataKeys.NOTIFICATION_COUNT_OWN : User.DataKeys.NOTIFICATION_COUNT_INCOMING;
 
+        if (newItems != null && !newItems.isEmpty()) {
+            SoundCloudApplication app = mActivity.getApp();
+
+            final Event first = (Event) newItems.get(0);
+            final long lastSeen = app.getAccountDataLong(lastSeenKey);
+
+            if (lastSeen < first.created_at.getTime()) {
+                app.setAccountData(lastSeenKey, first.created_at.getTime());
+                app.setAccountData(counter, 0);
+            }
+        }
         super.onPostTaskExecute(newItems,nextHref,responseCode,keepgoing);
     }
 }

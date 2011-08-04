@@ -4,13 +4,10 @@ import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,9 +16,7 @@ import java.util.Map;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Upload extends BaseObj implements Parcelable {
-
-    public long id;
+public class Upload extends ModelBase {
     public long local_recording_id;
     public String sharing;
     public String sharing_note;
@@ -41,7 +36,6 @@ public class Upload extends BaseObj implements Parcelable {
     public int upload_status;
     public boolean upload_error;
     public boolean cancelled;
-
 
     // XXX should be File
     public String trackPath;
@@ -202,24 +196,6 @@ public class Upload extends BaseObj implements Parcelable {
             return new Upload[size];
         }
     };
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        Bundle data = new Bundle();
-        try{
-            for (Field f : this.getClass().getDeclaredFields()) {
-                    setBundleFromField(data,f.getName(),f.getType(),f.get(this));
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        out.writeBundle(data);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public List<String> getTags() {
         List<String> tags = new ArrayList<String>();

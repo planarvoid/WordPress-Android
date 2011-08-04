@@ -13,9 +13,7 @@ import android.os.Parcelable;
 import java.sql.Date;
 import java.util.Comparator;
 
-public class Comment extends BaseObj implements Parcelable {
-
-    public long id;
+public class Comment extends ModelBase {
     public Date created_at;
 
     public long user_id;

@@ -4,9 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.deserialize.EventDeserializer;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.BaseObj;
+import com.soundcloud.android.model.ModelBase;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
@@ -14,14 +12,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.os.AsyncTask;
 import android.os.Parcelable;
@@ -32,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -120,7 +111,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
             if (newItems != null) {
                 for (Parcelable p : newItems) {
-                    ((BaseObj)p).resolve(mApp);
+                    ((ModelBase)p).resolve(mApp);
                 }
                 return !TextUtils.isEmpty(mNextHref);
             } else {

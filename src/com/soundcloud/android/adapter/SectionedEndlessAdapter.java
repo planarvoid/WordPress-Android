@@ -2,13 +2,9 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import com.soundcloud.android.R;
+
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -94,7 +90,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
         mPendingView = null;
         notifyDataSetChanged();
 
