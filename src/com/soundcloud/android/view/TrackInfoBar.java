@@ -90,7 +90,7 @@ public class TrackInfoBar extends RelativeLayout {
 
     private Drawable getPrivateBgDrawable(){
           if (mPrivateBgDrawable == null) {
-              mPrivateBgDrawable = getResources().getDrawable(R.drawable.private_bg_gray);
+              mPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_gray);
               mPrivateBgDrawable.setBounds(0, 0, mPrivateBgDrawable.getIntrinsicWidth(), mPrivateBgDrawable.getIntrinsicHeight());
           }
         return mPrivateBgDrawable;
@@ -98,7 +98,7 @@ public class TrackInfoBar extends RelativeLayout {
 
     private Drawable getVeryPrivateBgDrawable(){
           if (mVeryPrivateBgDrawable == null) {
-              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.private_bg);
+              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_orange);
               mVeryPrivateBgDrawable.setBounds(0, 0, mVeryPrivateBgDrawable.getIntrinsicWidth(), mVeryPrivateBgDrawable.getIntrinsicHeight());
           }
         return mVeryPrivateBgDrawable;
