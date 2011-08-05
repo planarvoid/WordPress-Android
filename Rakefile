@@ -182,7 +182,7 @@ namespace :beta do
   desc "tag the current beta"
   task :tag do
     if versionName.to_s =~ /-BETA(\d+)?\Z/
-      sh "git tag -a #{versionName} -m #{versionName}"
+      sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
     else
       raise "Not a beta version"
     end
