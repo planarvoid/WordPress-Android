@@ -16,7 +16,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.accounts.Account;
-import android.accounts.OperationCanceledException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -73,15 +72,21 @@ public class SyncAdapterService extends Service {
             if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
-            try {
-                if (isWifiOnlyEnabled(mApp)) {
-                    final ConnectivityManager connManager = (ConnectivityManager) mApp.getSystemService(CONNECTIVITY_SERVICE);
-                    final NetworkInfo ni = connManager == null ? null : connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                    if(ni == null || !connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting()) return;
-                }
+
+            if (shouldSync()) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
-            } catch (OperationCanceledException e) {
-                Log.w(TAG, "canceled", e);
+            } else {
+                Log.d(TAG, "skipping sync because Wifi is diabled");
+            }
+        }
+
+        private boolean shouldSync() {
+            if (isWifiOnlyEnabled(mApp)) {
+                ConnectivityManager mgr = (ConnectivityManager) mApp.getSystemService(CONNECTIVITY_SERVICE);
+                NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                return ni != null && ni.isConnectedOrConnecting();
+            } else {
+                return true;
             }
         }
     }
@@ -91,8 +96,7 @@ public class SyncAdapterService extends Service {
                                     Account account,
                                     Bundle extras,
                                     ContentProviderClient provider,
-                                    SyncResult syncResult)
-            throws OperationCanceledException {
+                                    SyncResult syncResult) {
 
         // for initial sync, don't bother telling them about their entire dashboard
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) == 0) {
