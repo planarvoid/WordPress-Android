@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -85,9 +86,6 @@ public class Start extends AccountAuthenticatorActivity {
             case RESULT_OK:
                 handleActivityResult(requestCode, data);
                 break;
-            case RESULT_CANCELED:
-                finish();
-                break;
         }
     }
 
@@ -127,6 +125,7 @@ public class Start extends AccountAuthenticatorActivity {
     }
 
     private void handleSuggestedUsersReturned(Intent data) {
+
         finish();
     }
 

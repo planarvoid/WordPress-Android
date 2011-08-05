@@ -82,6 +82,9 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
+
+        // result ok no matter what
+        setResult(RESULT_OK);
     }
 
     @Override
