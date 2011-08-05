@@ -51,7 +51,6 @@ public class ScSearch extends ScActivity {
         txtQuery = (EditText) findViewById(R.id.query);
 
         Button btnSearch = (Button) findViewById(R.id.search);
-        btnSearch.setEnabled(false);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 doSearch(txtQuery.getText().toString());
@@ -132,7 +131,6 @@ public class ScSearch extends ScActivity {
 
     void doSearch(final String query) {
         if (TextUtils.isEmpty(query)) return;
-
         txtQuery.setText(query); // when called from Main
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
