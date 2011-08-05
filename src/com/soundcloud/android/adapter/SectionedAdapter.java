@@ -71,7 +71,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public Object getItem(int location) {
-         int c = 0;
+        int c = 0;
         for (Section section : sections) {
             if (section.data.size() > 0) {
                 if (location >= c && location < c + section.data.size()) {
@@ -79,7 +79,6 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
                 }
                 c += section.data.size();
             }
-
         }
         return null;
     }

@@ -167,12 +167,11 @@ public class SyncAdapterService extends Service {
 
         if (!events.isEmpty() && events.size() > count) {
             app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
-            final Resources res = app.getResources();
 
             Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
-            Message msg = new Message(res, events, favoritings, comments);
+            Message msg = new Message(app.getResources(), events, favoritings, comments);
             createDashboardNotification(app, msg.ticker, msg.title, msg.message, "activity",
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
         }
@@ -279,9 +278,8 @@ public class SyncAdapterService extends Service {
                                                     CharSequence ticker,
                                                     CharSequence title,
                                                     CharSequence message, String tab, int id) {
-
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nm = (NotificationManager) app.getSystemService(ns);
+        NotificationManager nm = (NotificationManager)
+                app.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent intent = (new Intent(app, Main.class))
                 .addCategory(Intent.CATEGORY_LAUNCHER)

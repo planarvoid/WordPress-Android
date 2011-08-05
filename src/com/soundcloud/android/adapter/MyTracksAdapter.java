@@ -7,14 +7,12 @@ import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
+import com.soundcloud.android.view.TracklistRow;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.util.Config;
-import android.util.Log;
-import com.soundcloud.android.view.TracklistRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +116,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     @Override
     public Object getItem(int position) {
         if (mDataValid && mRecordingData != null) {
-            if (position < mRecordingData.size()){
+            if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
             } else {
                 return super.getItem(position - mRecordingData.size());

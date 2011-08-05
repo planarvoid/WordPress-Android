@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -375,8 +374,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             if (adp.getCount() <= 0 || position >= adp.getCount())
                 return; // bad list item clicked (possibly loading item)
 
-            if (adp.getItem(position) instanceof Track) {
-
+            Object item = adp.getItem(position);
+            if (item instanceof Track) {
                 if (adp instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
                 }
@@ -385,19 +384,19 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     mListener.onTrackClick(adp.getData(), position);
                 }
 
-            } else if (adp.getItem(position) instanceof Event) {
+            } else if (item instanceof Event) {
 
                 if (mListener != null) {
                     mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
                 }
 
-            } else if (adp.getItem(position) instanceof User || adp.getItem(position) instanceof Friend) {
+            } else if (item instanceof User || item instanceof Friend) {
 
                 if (mListener != null) {
                     mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
                 }
 
-            } else if (adp.getItem(position) instanceof Recording) {
+            } else if (item instanceof Recording) {
                 if (mListener != null) {
                     mListener.onRecordingClick((Recording) adp.getItem(position));
                 }

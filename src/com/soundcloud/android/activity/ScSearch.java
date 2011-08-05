@@ -1,21 +1,6 @@
 package com.soundcloud.android.activity;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
@@ -25,11 +10,24 @@ import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
 import java.util.ArrayList;
 
 // XXX decouple from ScActivity
 public class ScSearch extends ScActivity {
-    private Button btnSearch;
     private EditText txtQuery;
 
     private RadioGroup rdoType;
@@ -39,8 +37,6 @@ public class ScSearch extends ScActivity {
     private ScListView mList;
     private LazyEndlessAdapter mTrackAdpWrapper;
     private LazyEndlessAdapter mUserAdpWrapper;
-
-    private static final int MIN_LENGTH = 2;
 
     @Override
     public void onCreate(Bundle state) {
@@ -54,7 +50,7 @@ public class ScSearch extends ScActivity {
 
         txtQuery = (EditText) findViewById(R.id.query);
 
-        btnSearch = (Button) findViewById(R.id.search);
+        Button btnSearch = (Button) findViewById(R.id.search);
         btnSearch.setEnabled(false);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -88,22 +84,10 @@ public class ScSearch extends ScActivity {
 
         txtQuery.setOnFocusChangeListener(queryFocusListener);
         txtQuery.setOnClickListener(queryClickListener);
-
-        txtQuery.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!isFinishing()) btnSearch.setEnabled(s != null && s.length() > MIN_LENGTH);
-            }
-        });
-
         txtQuery.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (!isFinishing() && keyCode == KeyEvent.KEYCODE_ENTER && txtQuery.getText().length() > MIN_LENGTH) {
+                if (!isFinishing() &&
+                        keyCode == KeyEvent.KEYCODE_ENTER) {
                     doSearch(txtQuery.getText().toString());
                     return true;
                 }
@@ -147,6 +131,8 @@ public class ScSearch extends ScActivity {
     }
 
     void doSearch(final String query) {
+        if (TextUtils.isEmpty(query)) return;
+
         txtQuery.setText(query); // when called from Main
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
