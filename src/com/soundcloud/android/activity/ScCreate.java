@@ -664,6 +664,7 @@ public class ScCreate extends ScActivity {
         String[] columns = { Recordings.ID };
         Cursor cursor;
 
+        // XXX background thread?
         MediaPlayer mp = null;
         mUnsavedRecordings = new ArrayList<Recording>();
 

@@ -64,9 +64,11 @@ public class Settings extends PreferenceActivity {
                             }
 
                             @Override protected void onProgressUpdate(Integer... progress) {
-                                mDeleteDialog.setIndeterminate(false);
-                                mDeleteDialog.setProgress(progress[0]);
-                                mDeleteDialog.setMax(progress[1]);
+                                if (mDeleteDialog != null) {
+                                    mDeleteDialog.setIndeterminate(false);
+                                    mDeleteDialog.setProgress(progress[0]);
+                                    mDeleteDialog.setMax(progress[1]);
+                                }
                             }
 
                             @Override protected void onPostExecute(Boolean result) {

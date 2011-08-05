@@ -386,7 +386,7 @@ public class CloudUtils {
     }
 
     public static boolean checkThreadAlive(Thread t) {
-        return (!(t == null || !t.isAlive()));
+        return t != null && t.isAlive();
     }
 
     // Show an event in the LogCat view, for debugging

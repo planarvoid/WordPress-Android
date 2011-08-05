@@ -506,10 +506,8 @@ public class CloudPlaybackService extends Service {
                     && (continueId == null || mDownloadThread.getTrackId() != continueId)) {
                 mDownloadThread.interrupt();
                 mDownloadThread.stopDownload();
-
             }
         }
-
     }
 
     private void fileLengthUpdated(Track t, boolean changed) {

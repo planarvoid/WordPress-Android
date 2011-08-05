@@ -249,9 +249,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         setSelection(1);
     }
 
-
-
-
     @Override
     public void setOnScrollListener(AbsListView.OnScrollListener l) {
         mOnScrollListener = l;
