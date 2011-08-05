@@ -9,8 +9,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.WebView;
@@ -57,13 +55,9 @@ public class ChangeLog {
         mContext = context;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         mOldVersion = sp.getInt(VERSION_KEY, 0);
-        PackageInfo packageInfo;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            mThisVersion = packageInfo.versionCode;
+        mThisVersion = CloudUtils.getAppVersionCode(context, 0);
+        if (mThisVersion != 0) {
             sp.edit().putInt(VERSION_KEY, mThisVersion).commit();
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.w(TAG, "not found", e);
         }
     }
 
