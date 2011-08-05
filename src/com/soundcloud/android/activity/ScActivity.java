@@ -71,6 +71,7 @@ public abstract class ScActivity extends Activity {
 
     private MenuItem menuCurrentUploadingItem;
     private boolean mIsForeground;
+    private long mCurrentUserId;
 
     boolean mIgnorePlaybackStatus;
 
@@ -579,7 +580,10 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getCurrentUserId() {
-        return getApp().getCurrentUserId();
+        if (mCurrentUserId == 0){
+            mCurrentUserId = getApp().getCurrentUserId();
+        }
+        return mCurrentUserId;
     }
 
     public void pageTrack(String path) {
