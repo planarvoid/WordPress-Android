@@ -42,6 +42,8 @@ public class TrackInfoBar extends RelativeLayout {
     private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
 
+    private boolean mInactive;
+
     private ImageView mIcon;
 
     public TrackInfoBar(Context context, AttributeSet attrs) {
@@ -107,13 +109,11 @@ public class TrackInfoBar extends RelativeLayout {
     protected void setTrackTime(Parcelable p) {
         if (p instanceof Event) {
             if (((Event) p).created_at != null){
-                mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
-                    ((Event) p).created_at.getTime()));
+                mCreatedAt.setText(((Event) p).getElapsedTime(getContext()));
             }
         } else {
             if (mTrack.created_at != null){
-                mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(),
-                    mTrack.created_at.getTime()));
+                mCreatedAt.setText(mTrack.getElapsedTime(getContext()));
             }
         }
     }
@@ -127,10 +127,12 @@ public class TrackInfoBar extends RelativeLayout {
         setTrackTime(p);
         mUser.setText(mTrack.user.username);
 
-        if (!mTrack.isStreamable()) {
+        if (!mTrack.isStreamable() && !mInactive) {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main_inactive);
-        } else {
+            mInactive = true;
+        } else if (mInactive){
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main);
+            mInactive = false;
         }
 
         if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {

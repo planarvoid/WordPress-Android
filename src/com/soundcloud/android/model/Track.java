@@ -118,6 +118,7 @@ public class Track extends ModelBase {
     @JsonIgnore
     public boolean comments_loaded;
     protected File mCacheFile;
+    private CharSequence mElapsedTime;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -415,6 +416,14 @@ public class Track extends ModelBase {
                 return true;
             }
         } else return false;
+    }
+
+    public CharSequence getElapsedTime(Context c) {
+        if (mElapsedTime == null){
+            mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
+        }
+
+        return mElapsedTime;
     }
 
     @Override

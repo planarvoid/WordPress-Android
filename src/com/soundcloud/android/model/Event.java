@@ -6,8 +6,10 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
+import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -34,6 +36,7 @@ public class Event extends ModelBase {
     public Track track;
     public Comment comment;
     public User user;
+    private CharSequence mElapsedTime;
 
     public Event() {
     }
@@ -103,6 +106,14 @@ public class Event extends ModelBase {
             return new Event[size];
         }
     };
+
+    public CharSequence getElapsedTime(Context c) {
+        if (mElapsedTime == null){
+            mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
+        }
+
+        return mElapsedTime;
+    }
 
     public interface Types {
         String TRACK = "track";
