@@ -55,30 +55,8 @@ public class ApiTests implements Endpoints {
         when(mockedApi.get(requestMatcher(request))).thenReturn(resp);
     }
 
-
-
     private Request requestMatcher(String request) {
-        //return request == null ? any(Request.class) : RequestMatcher.isRequest(request);
-
         return any(Request.class);
-    }
-
-    static class RequestMatcher extends BaseMatcher<Request> {
-        public RequestMatcher(String url) {
-        }
-
-        public static RequestMatcher isRequest(String url) {
-            return new RequestMatcher(url);
-        }
-
-        @Override
-        public boolean matches(Object o) {
-            return false;
-        }
-
-        @Override
-        public void describeTo(Description description) {
-        }
     }
 
     protected String resource(String res) throws IOException {
