@@ -274,7 +274,7 @@ public class ImageUtils {
     }
 
     public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : url.replace("large", targetSize);
+        return url == null ? null : targetSize == Consts.GraphicsSizes.LARGE ? url : url.replace(Consts.GraphicsSizes.LARGE, targetSize);
     }
 
     public static String getListItemGraphicSize(Context c) {
