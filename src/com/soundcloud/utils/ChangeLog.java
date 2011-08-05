@@ -3,6 +3,7 @@ package com.soundcloud.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -140,24 +141,28 @@ public class ChangeLog {
                         advanceToEOVS = Integer.toString(mOldVersion).equals(version);
                     }
                 } else if (!advanceToEOVS) {
+                    // line contains version title
                     if (line.startsWith("%")) {
-                        // line contains version title
                         closeList();
-                        mSb.append("<div class='title'>").append(line.substring(1).trim()).append("</div>\n");
+                        String version = line.substring(1).trim();
+                        if ("v current".equals(version)) {
+                            version = "v " + CloudUtils.getAppVersion(mContext, "unknown");
+                        }
+                        mSb.append("<div class='title'>").append(version).append("</div>\n");
+                    // line contains version title
                     } else if (line.startsWith("_")) {
-                        // line contains version title
                         closeList();
                         mSb.append("<div class='subtitle'>").append(line.substring(1).trim()).append("</div>\n");
+                    // line contains free text
                     } else if (line.startsWith("!")) {
-                        // line contains free text
                         closeList();
                         mSb.append("<div class='freetext'>").append(line.substring(1).trim()).append("</div>\n");
+                    // line contains numbered list item
                     } else if (line.startsWith("#")) {
-                        // line contains numbered list item
                         openList(Listmode.ORDERED);
                         mSb.append("<li>").append(line.substring(1).trim()).append("</li>\n");
+                    // line contains bullet list item
                     } else if (line.startsWith("*")) {
-                        // line contains bullet list item
                         openList(Listmode.UNORDERED);
                         mSb.append("<li>").append(line.substring(1).trim()).append("</li>\n");
                     } else if (line.startsWith("-")) {

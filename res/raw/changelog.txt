@@ -1,5 +1,5 @@
 $ 22
-  % v 1.3.4-BETA11
+  % v current
   _ 2011-08-04
   ! Notifications, sharing, and list optimizations
     * Android notifications
