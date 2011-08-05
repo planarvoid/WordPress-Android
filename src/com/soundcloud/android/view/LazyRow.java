@@ -81,15 +81,12 @@ public abstract class LazyRow extends FrameLayout {
         }
 
         if (TextUtils.isEmpty(getIconRemoteUri())){
-            mImageLoader.unbind(getRowIcon());
             mIcon.setImageDrawable(null);
             return;
         }
 
         if (CloudUtils.checkIconShouldLoad(getIconRemoteUri())) {
             mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
-        } else {
-            mImageLoader.unbind(getRowIcon());
         }
     }
 
