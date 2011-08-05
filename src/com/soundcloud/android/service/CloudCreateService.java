@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -613,8 +614,7 @@ public class CloudCreateService extends Service {
         CharSequence notificationTitle;
         CharSequence notificationMessage;
 
-        Intent i = (new Intent(this, UploadMonitor.class))
-                .putExtra("upload", mCurrentUpload);
+        Intent i = (new Intent(this, Main.class)).putExtra("userBrowserTag", UserBrowser.TabTags.tracks);
 
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;

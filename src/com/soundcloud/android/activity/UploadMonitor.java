@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.logging.Handler;
 
 public class UploadMonitor extends Activity {
     private ICloudCreateService mCreateService;
@@ -41,6 +42,9 @@ public class UploadMonitor extends Activity {
     private RelativeLayout mControlLayout;
     private TextView mProgressText;
     private boolean mProgressModeEncoding;
+    protected final android.os.Handler mHandler = new android.os.Handler();
+
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -209,6 +213,14 @@ public class UploadMonitor extends Activity {
         if (success){
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.success);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_success_message);
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isFinishing()) {
+                        finish();
+                    }
+                }
+            }, 2000);
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
