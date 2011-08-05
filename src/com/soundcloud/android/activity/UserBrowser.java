@@ -472,8 +472,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mFullName.setText(user.full_name);
             mFullName.setVisibility(View.VISIBLE);
         }
-        mFollowerCount.setText(String.valueOf(user.followers_count));
-        mTrackCount.setText(String.valueOf(user.track_count));
+        mFollowerCount.setText(Integer.toString(user.followers_count));
+        mTrackCount.setText(Integer.toString(user.track_count));
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {

@@ -745,9 +745,9 @@ public class CloudUtils {
 
     public static void setStats(int stat1, TextView statTextView1, View separator1, int stat2, TextView statTextView2,
                                 View separator2, int stat3, TextView statTextView3, boolean maintainSize) {
-        statTextView1.setText(String.valueOf(stat1));
-        statTextView2.setText(String.valueOf(stat2));
-        statTextView3.setText(String.valueOf(stat3));
+        statTextView1.setText(Integer.toString(stat1));
+        statTextView2.setText(Integer.toString(stat2));
+        statTextView3.setText(Integer.toString(stat3));
 
         statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
         separator1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
