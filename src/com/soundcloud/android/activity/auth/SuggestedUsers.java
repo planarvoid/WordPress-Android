@@ -42,7 +42,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         setContentView(R.layout.suggested_users);
 
         ffAdp = new SectionedUserlistAdapter(this);
-        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
+        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp, true);
         ffAdpWrap.addListener(this);
 
         mListView = new SectionedListView(this);
