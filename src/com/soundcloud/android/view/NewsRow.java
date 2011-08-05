@@ -55,12 +55,6 @@ public class NewsRow extends LazyRow {
         return R.layout.news_list_row;
     }
 
-    @Override
-    protected Drawable getIconBgResourceId() {
-        return getResources().getDrawable(R.drawable.artwork_badge);
-    }
-
-
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
