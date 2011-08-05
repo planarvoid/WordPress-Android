@@ -27,6 +27,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -72,6 +74,11 @@ public class SyncAdapterService extends Service {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
             try {
+                if (isWifiOnlyEnabled(mApp)) {
+                    final ConnectivityManager connManager = (ConnectivityManager) mApp.getSystemService(CONNECTIVITY_SERVICE);
+                    final NetworkInfo ni = connManager == null ? null : connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                    if(ni == null || !connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting()) return;
+                }
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } catch (OperationCanceledException e) {
                 Log.w(TAG, "canceled", e);
@@ -230,6 +237,10 @@ public class SyncAdapterService extends Service {
             createDashboardNotification(app, ticker, title, message, "activity",
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
         }
+    }
+
+    public static boolean isWifiOnlyEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsWifiOnly", false);
     }
 
     public static boolean isIncomingEnabled(Context c) {

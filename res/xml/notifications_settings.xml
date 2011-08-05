@@ -4,7 +4,11 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
-
+    <CheckBoxPreference
+                android:title="@string/pref_notifications_wifi_only"
+                android:summary="@string/pref_notifications_wifi_only_description"
+                android:key="notificationsWifiOnly"
+                android:defaultValue="false"/>
      <PreferenceCategory android:title="@string/pref_notifications_stream">
         <CheckBoxPreference
                 android:title="@string/pref_notifications_incoming"
