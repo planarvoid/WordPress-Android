@@ -452,6 +452,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     public void onConnected() {
        if (mError && !mKeepOnAppending.get()){
            mKeepOnAppending.set(true);
+           notifyDataSetChanged();
        }
     }
 }
