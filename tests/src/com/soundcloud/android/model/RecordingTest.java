@@ -65,7 +65,7 @@ public class RecordingTest {
     public void shouldGenerateStatusWithNotUploaded() throws Exception {
         assertThat(
                 r.getStatus(Robolectric.application.getResources()),
-                equalTo("null, 1.26, not yet uploaded"));
+                equalTo("10 years, 1.26, not yet uploaded"));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class RecordingTest {
         r.upload_error = true;
         assertThat(
                  r.getStatus(Robolectric.application.getResources()),
-                 equalTo("null, 1.26, upload failed"));
+                 equalTo("10 years, 1.26, upload failed"));
      }
 
     @Test

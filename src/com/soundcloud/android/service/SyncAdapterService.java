@@ -177,11 +177,15 @@ public class SyncAdapterService extends Service {
                 // only favoritings
                 List<Track> tracks = favoritings.getUniqueTracks();
 
+               ticker = app.getResources().getQuantityString(
+                       R.plurals.dashboard_notifications_activity_ticker_like,
+                       favoritings.size(),
+                       favoritings.size());
+
                 if (favoritings.size() == 1) {
-                    ticker = "New like";
                     title = "A new like";
                 } else {
-                    title = ticker = favoritings.size()+ " new likes";
+                    title = favoritings.size()+ " new likes";
                 }
 
                 if (tracks.size() == 1) {
