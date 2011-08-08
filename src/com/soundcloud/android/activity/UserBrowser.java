@@ -195,7 +195,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     @Override
     protected void onStart() {
-        if (mAdapterStates != null){
+        if (getApp().getAccount() != null && mAdapterStates != null){
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
