@@ -767,11 +767,13 @@ public class ScCreate extends ScActivity {
                         }).setPositiveButton(R.string.btn_save,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                for (int i = 0; i < mUnsavedRecordings.size(); i++){
-                                    if (checked[i]){
-                                        getContentResolver().insert(Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
-                                    } else {
-                                        mUnsavedRecordings.get(i).delete(null);
+                                if (mUnsavedRecordings != null) {
+                                    for (int i = 0; i < mUnsavedRecordings.size(); i++){
+                                        if (checked[i]){
+                                            getContentResolver().insert(Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
+                                        } else {
+                                            mUnsavedRecordings.get(i).delete(null);
+                                        }
                                     }
                                 }
                                 mUnsavedRecordings = null;
