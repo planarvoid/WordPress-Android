@@ -37,7 +37,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -321,7 +320,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
             mOnRefreshListener.onRefresh();
         }
-
     }
 
     /**
@@ -371,7 +369,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
 
             final int count = adp.getCount();
-            if (count <= 0 || position >= count)
+            if (count <= 0 || position < 0 || position >= count)
                 return; // bad list item clicked (possibly loading item)
 
             Object item;
@@ -389,11 +387,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
                 mListener.onTrackClick(adp.getData(), position);
             } else if (item instanceof Event) {
-                mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
+                mListener.onEventClick(adp.getData(), position);
             } else if (item instanceof User || item instanceof Friend) {
-                mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
+                mListener.onUserClick(adp.getData(), position);
             } else if (item instanceof Recording) {
-                mListener.onRecordingClick((Recording) adp.getItem(position));
+                mListener.onRecordingClick((Recording) item);
             }
         }
     };
@@ -730,10 +728,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
      public interface LazyListListener {
-        void onUserClick(ArrayList<Parcelable> users, int position);
+        void onUserClick(List<Parcelable> users, int position);
         void onRecordingClick(Recording recording);
         void onTrackClick(List<Parcelable> tracks, int position);
-        void onEventClick(ArrayList<Parcelable> events, int position);
+        void onEventClick(List<Parcelable> events, int position);
         void onFling();
         void onFlingDone();
      }
