@@ -44,6 +44,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -189,7 +190,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     @Override
     protected void onResume() {
-        pageTrack("/profile");
+        trackCurrentScreen();
         super.onResume();
     }
 
@@ -295,6 +296,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     public void onChange(boolean success, FollowStatus status) {
         setFollowingButtonText();
     }
+
+    private void trackCurrentScreen(){
+        pageTrack(String.format("/%s/" + mUserlistBrowser.getCurrentTag(), isMe() ? "you" : mUser.username));
+    }
+
 
     private class LoadUserTask extends LoadTask<User> {
         public LoadUserTask(SoundCloudApplication api) {
@@ -414,21 +420,22 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
 
 
-        if (isMe()) {
-            mUserlistBrowser.initWorkspace(Math.max(1, getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)));
-            mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
-                @Override
-                public void onScreenChanged(View newScreen, int newScreenIndex) {
+        mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
+            @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
+                trackCurrentScreen();
+                if (isMe()) {
                     getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
                 }
+            }
+            @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
+        });
 
-                @Override
-                public void onScreenChanging(View newScreen, int newScreenIndex) {
-                }
-            });
+        if (isMe()) {
+            mUserlistBrowser.initWorkspace(Math.max(1, getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)));
         } else {
             mUserlistBrowser.initWorkspace(1);
         }
+
 
     }
 

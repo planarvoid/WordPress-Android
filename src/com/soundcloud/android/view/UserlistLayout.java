@@ -93,7 +93,7 @@ public class UserlistLayout extends RelativeLayout {
     }
 
     public void setOnScreenChangedListener(WorkspaceView.OnScreenChangeListener listener){
-        mWorkspaceView.setOnScreenChangeListener(listener);
+        mWorkspaceView.setOnScreenChangeListener(listener, false);
     }
 
     public void setCurrentScreenByTag(String tag) {
@@ -102,6 +102,11 @@ public class UserlistLayout extends RelativeLayout {
                 mWorkspaceView.setCurrentScreenNow((int) tl.index, true);
             }
         }
+    }
+
+    public String getCurrentTag(){
+        return tabLabels.get(mWorkspaceView.getCurrentScreen()).tag;
+
     }
 
     private static class TabLabel {
