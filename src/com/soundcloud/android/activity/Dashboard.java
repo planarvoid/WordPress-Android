@@ -84,7 +84,9 @@ public class Dashboard extends ScActivity {
         pageTrack(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
-                .cancel(Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+                .cancel(mNews ?
+                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
+                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
     protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean isNews) {
