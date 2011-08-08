@@ -98,4 +98,16 @@ public class TrackTest {
         assertNotNull(v);
         assertThat(v.getAsLong(DatabaseHelper.Tracks.ID), is(1000L));
     }
+
+    @Test
+    public void shouldGeneratePageTrack() throws Exception {
+        Track t = new Track();
+        User u = new User();
+        u.username = "user";
+        t.permalink = "foo";
+        t.user = u;
+        assertThat(t.pageTrack(), equalTo("/user/foo"));
+        assertThat(t.pageTrack("bar"), equalTo("/user/foo/bar"));
+        assertThat(t.pageTrack("bar", "baz"), equalTo("/user/foo/bar/baz"));
+    }
 }

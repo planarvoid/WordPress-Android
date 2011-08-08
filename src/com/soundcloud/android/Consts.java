@@ -84,6 +84,7 @@ public class Consts {
     }
 
     public interface TrackingEvents {
+        String AUDIO_ENGINE = "/internal/audioEngine";
         String INCOMING = "/incoming";
         String ACTIVITY = "/activity";
         String RECORD = "/record";
@@ -94,10 +95,8 @@ public class Consts {
         String SEARCH = "/search";
         String SEARCH_TRACKS = "/search/tracks/q=";
         String SEARCH_USERS = "/search/users/q=";
-        String MY_PROFILE = "/you/";
-        String PROFILE = "/$/";
         String LOGGED_OUT = "/loggedout";
-        String LOGIN = "/login/";
+        String LOGIN = "/login";
         String SIGNUP = "/signup";
         String SIGNUP_DETAILS = "/signup/details";
         String PEOPLE_FINDER = "/people/finder";

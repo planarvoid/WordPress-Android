@@ -7,7 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.view.ScTabView;
 
@@ -713,10 +712,9 @@ public class CloudUtils {
                 .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        if (ScActivity.class.isAssignableFrom(a.getClass())){
-                            ((ScActivity) a).pageTrack(Consts.TrackingEvents.LOGGED_OUT);
-                        }
-                        ((SoundCloudApplication) a.getApplication()).clearSoundCloudAccount(
+                        SoundCloudApplication app =(SoundCloudApplication) a.getApplication();
+                        app.pageTrack(Consts.TrackingEvents.LOGGED_OUT);
+                        app.clearSoundCloudAccount(
                                 new Runnable() {
                                     @Override public void run() {
                                         a.finish();
@@ -732,7 +730,6 @@ public class CloudUtils {
                                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
-                                                        // finish();
                                                     }
                                                 }).create().show();
                                     }

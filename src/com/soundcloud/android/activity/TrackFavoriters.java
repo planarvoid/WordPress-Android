@@ -81,7 +81,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
     public void onResume() {
         super.onResume();
         if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
-            pageTrack(mTrack.user.username + "/" + mTrack.id + "/favorites");
+            pageTrack(mTrack.pageTrack("favorites"));
         }
     }
 

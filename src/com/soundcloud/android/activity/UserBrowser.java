@@ -44,7 +44,6 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -298,10 +297,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void trackCurrentScreen(){
-        pageTrack(isMe() ? Consts.TrackingEvents.MY_PROFILE + mUserlistBrowser.getCurrentTag()
-                : String.format("/%s/" + mUserlistBrowser.getCurrentTag(),mUser.username));
+        pageTrack(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
     }
-
 
     private class LoadUserTask extends LoadTask<User> {
         public LoadUserTask(SoundCloudApplication api) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
@@ -281,5 +282,9 @@ public class Recording extends ModelBase {
 
     public Upload toUpload() {
         return new Upload(this);
+    }
+
+    public String pageTrack() {
+         return is_private ? Consts.TrackingEvents.SHARE_PRIVATE : Consts.TrackingEvents.SHARE_PUBLIC;
     }
 }

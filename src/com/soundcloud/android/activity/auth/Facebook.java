@@ -29,9 +29,8 @@ import android.webkit.WebViewClient;
 public class Facebook extends LoginActivity {
     private WebView mWebview;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+
+    protected void build() {
         setContentView(R.layout.facebook);
 
         mWebview = (WebView) findViewById(R.id.webview);

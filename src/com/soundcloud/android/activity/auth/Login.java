@@ -5,7 +5,6 @@ import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -14,12 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class Login extends LoginActivity {
-    @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        build();
-    }
-
     protected void build() {
         setContentView(R.layout.login);
 

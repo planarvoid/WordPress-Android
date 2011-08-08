@@ -124,4 +124,12 @@ public class RecordingTest {
         assertThat(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath(),
                 equalTo("/images/foo.bmp"));
     }
+
+    @Test
+    public void shouldGeneratePageTrack() throws Exception {
+        Recording r = new Recording(new File("/tmp"));
+        assertThat(r.pageTrack(), equalTo("/record/share/public"));
+        r.is_private = true;
+        assertThat(r.pageTrack(), equalTo("/record/share/private"));
+    }
 }

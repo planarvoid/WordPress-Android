@@ -218,7 +218,7 @@ public class CloudPlaybackService extends Service {
         mIsStagefright = CloudUtils.isStagefright();
 
         // track information about used audio engine with GA
-        getApp().pageTrack("/internal/audioEngine",
+        getApp().pageTrack(Consts.TrackingEvents.AUDIO_ENGINE,
                 "stagefright", mIsStagefright,
                 "model",   Build.MODEL,
                 "version", Build.VERSION.SDK_INT,

@@ -35,4 +35,13 @@ public class UserTest {
         ContentValues cv = u.buildContentValues(false);
         assertThat(cv.getAsLong(DatabaseHelper.Users.ID), is(1000L));
     }
+
+    @Test
+    public void shouldPageTrack() throws Exception {
+        User u = new User();
+        u.username = "username";
+
+        assertThat(u.pageTrack(false, "foo"), equalTo("/username/foo"));
+        assertThat(u.pageTrack(true, "foo"), equalTo("/you/foo"));
+    }
 }

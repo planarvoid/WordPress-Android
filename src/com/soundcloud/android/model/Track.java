@@ -446,4 +446,16 @@ public class Track extends ModelBase {
                 ", user=" + user +
                 '}';
     }
+
+    public String pageTrack(String... paths) {
+        StringBuilder sb = new StringBuilder();
+        if (user != null && !TextUtils.isEmpty(user.username)) {
+            sb.append("/").append(user.username).append("/");
+        }
+        sb.append(permalink);
+        for (CharSequence p : paths) {
+            sb.append("/").append(p);
+        }
+        return sb.toString();
+    }
 }

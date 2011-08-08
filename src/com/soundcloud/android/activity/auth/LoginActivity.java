@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity.auth;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -25,6 +24,14 @@ import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
 
+    @Override
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        build();
+    }
+
+    protected abstract void build();
+
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString("username", username);
@@ -38,9 +45,9 @@ public abstract class LoginActivity extends Activity {
             data.putString("scope", Token.SCOPE_NON_EXPIRING);
         }
 
-        final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-        new GetTokensTask(api) {
+        new GetTokensTask(app) {
             ProgressDialog progress;
 
             @Override
@@ -52,11 +59,11 @@ public abstract class LoginActivity extends Activity {
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
-                    new LoadTask.LoadUserTask(api) {
+                    new LoadTask.LoadUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
-                                ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.LOGIN);
+                                app.pageTrack(Consts.TrackingEvents.LOGIN);
                                 dismissProgress();
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
@@ -83,8 +90,6 @@ public abstract class LoginActivity extends Activity {
                 }
             }
         }.execute(data);
-
-
     }
 
     protected void showError(IOException e) {

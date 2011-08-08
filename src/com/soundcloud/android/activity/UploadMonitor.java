@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -29,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.logging.Handler;
 
 public class UploadMonitor extends Activity {
     private ICloudCreateService mCreateService;
@@ -42,9 +42,7 @@ public class UploadMonitor extends Activity {
     private RelativeLayout mControlLayout;
     private TextView mProgressText;
     private boolean mProgressModeEncoding;
-    protected final android.os.Handler mHandler = new android.os.Handler();
-
-
+    private final Handler mHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

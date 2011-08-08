@@ -196,6 +196,15 @@ public class User extends ModelBase {
         }
     }
 
+    public String pageTrack(boolean currentUser, String... paths) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/").append(currentUser ? "you" : username);
+        for (String p : paths) {
+            sb.append("/").append(p);
+        }
+        return sb.toString();
+    }
+
     public static interface DataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";
