@@ -48,6 +48,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -528,6 +529,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
             TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
             txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
+            Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
 
             // for some reason this needs to be set to support links
             // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
