@@ -2,8 +2,6 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.accounts.*;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -18,6 +16,10 @@ import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import com.soundcloud.utils.ChangeLog;
 
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -279,8 +281,13 @@ public class Main extends TabActivity {
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
-            public void onTabChanged(String tabId) {
-                app.setAccountData(User.DataKeys.DASHBOARD_IDX, tabId);
+            public void onTabChanged(final String tabId) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        app.setAccountData(User.DataKeys.DASHBOARD_IDX, tabId);
+                    }
+                }.start();
             }
         });
     }

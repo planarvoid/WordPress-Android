@@ -289,15 +289,15 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
      * @return
      */
     public LazyEndlessAdapter getWrapper() {
-        if (super.getAdapter() == null) return null;
-        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
-                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-            return (LazyEndlessAdapter) ((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
-
-        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
-            return (LazyEndlessAdapter) super.getAdapter();
-
-        } else return null;
+        final ListAdapter adapter = super.getAdapter();
+        if (adapter instanceof HeaderViewListAdapter &&
+               ((HeaderViewListAdapter) adapter).getWrappedAdapter() instanceof LazyEndlessAdapter)  {
+            return (LazyEndlessAdapter) ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+        } else if (adapter instanceof LazyEndlessAdapter) {
+            return (LazyEndlessAdapter) adapter;
+        } else {
+            return null;
+        }
     }
 
     public void prepareForRefresh() {
@@ -439,7 +439,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-
         if (changed) {
             if (getHeight() > 0 && mEmptyView != null) {
                 mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
@@ -447,7 +446,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
         }
     }
-
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
@@ -564,7 +562,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     @Override
     protected void layoutChildren() {
-        super.layoutChildren();
+        try {
+            super.layoutChildren();
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "ise: getCount()="+getAdapter().getCount()+",adapter="+getWrapper());
+            throw e;
+        }
+
         if (getFirstVisiblePosition() == 0 && (mRefreshState == TAP_TO_REFRESH || mRefreshState == DONE_REFRESHING)) {
             // not enough views to fill list so pad with an empty view
             final int lastDataPosition = getWrapper().getCount(); // data index + header

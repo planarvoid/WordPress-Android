@@ -22,9 +22,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
@@ -35,7 +35,6 @@ import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -80,7 +79,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.net.URLEncoder;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -1773,7 +1771,7 @@ public class CloudPlaybackService extends Service {
             CloudPlaybackService svc = serviceRef.get();
             if (svc == null) return;
 
-            final long userId = svc.getApp().getCurrentUserId();
+            final User user = svc.getApp().getLoggedInUser();
 
             svc.stopStreaming(nextTrack.id);
 
@@ -1785,12 +1783,12 @@ public class CloudPlaybackService extends Service {
             if (cursor == null || cursor.getCount() == 0) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(TrackPlays.TRACK_ID, nextTrack.id);
-                contentValues.put(TrackPlays.USER_ID, userId);
+                contentValues.put(TrackPlays.USER_ID, user.id);
                 svc.getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
             }
             if (cursor != null) cursor.close();
 
-            nextTrack.updateFromDb(svc.getContentResolver(), userId);
+            nextTrack.updateFromDb(svc.getContentResolver(), user);
 
             if (svc.getApp().getTrackFromCache(nextTrack.id) == null) {
                 svc.getApp().cacheTrack(nextTrack);

@@ -299,7 +299,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 updateAvatar();
             }
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mWaveformController != null) {
+            mWaveformController.onDestroy();
+        }
     }
 
     /**

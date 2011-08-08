@@ -725,9 +725,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     };
 
+    public void onDestroy() {
+        if (mTouchThread != null) {
+            mTouchThread.stopped = true;
+            mTouchThread.interrupt();
+        }
+    }
+
     private class TouchThread extends Thread {
         private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
-        public boolean stopped = false;
+        private boolean stopped = false;
 
         public synchronized void feedInput(InputObject input) {
                 try {
@@ -746,13 +753,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
                         processInputObject(input);
                     }
-                } catch (InterruptedException e) {
-                    Log.e(TAG, e.getMessage(), e);
+                } catch (InterruptedException ignored) {
                 } finally {
                     if (input != null) input.returnToPool();
                 }
             }
         }
     }
-
-}
+  }

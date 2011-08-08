@@ -461,4 +461,20 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
            notifyDataSetChanged();
        }
     }
+
+    @Override
+    public String toString() {
+        return "LazyEndlessAdapter{" +
+                "mRefreshTask=" + mRefreshTask +
+                ", mNextHref='" + mNextHref + '\'' +
+                ", mRequest=" + mRequest +
+                ", mEmptyViewText='" + mEmptyViewText + '\'' +
+                ", mKeepOnAppending=" + mKeepOnAppending +
+                ", mError=" + mError +
+                ", mAppendTask=" + mAppendTask +
+                ", mPendingView=" + mPendingView +
+                ", mActivity=" + mActivity +
+                ", mListView=" + mListView +
+                '}';
+    }
 }

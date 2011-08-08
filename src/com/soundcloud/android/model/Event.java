@@ -85,11 +85,14 @@ public class Event extends ModelBase {
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        if (track != null) track.updateUserPlayedFromDb(application.getContentResolver(),application.getCurrentUserId());
-         if (type.contentEquals(Types.COMMENT)) {
-             if (comment.track.user == null){
+        if (track != null) {
+            track.updateUserPlayedFromDb(application.getContentResolver(), application.getLoggedInUser());
+        }
+
+        if (type.contentEquals(Types.COMMENT)) {
+            if (comment.track.user == null){
                  comment.track.user = application.getLoggedInUser();
-             }
+            }
          } else if (type.contentEquals(Types.FAVORITING)) {
             if (track.user == null){
                 track.user = application.getLoggedInUser();

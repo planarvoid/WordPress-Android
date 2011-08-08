@@ -187,9 +187,13 @@ public class Track extends ModelBase {
         }
     }
 
-    public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?", new String[] { Long.toString(id) },
-                null);
+    public void updateFromDb(ContentResolver resolver, User user) {
+        updateFromDb(resolver, user.id);
+    }
+
+    public void updateFromDb(ContentResolver resolver, long currentUserId) {
+        Cursor cursor = resolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
+                new String[] { Long.toString(id) }, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -210,27 +214,31 @@ public class Track extends ModelBase {
                     }
                 }
                 if (!user_played) {
-                    this.updateUserPlayedFromDb(contentResolver, currentUserId);
+                    this.updateUserPlayedFromDb(resolver, currentUserId);
                 }
             }
             cursor.close();
         }
         if (user != null) {
-            user.updateFromDb(contentResolver, currentUserId);
+            user.updateFromDb(resolver, currentUserId);
         }
     }
 
-    public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
+    public boolean updateUserPlayedFromDb(ContentResolver resolver, User user) {
+        return updateUserPlayedFromDb(resolver, user.id);
+    }
+
+    public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
                 + "= ? AND " + TrackPlays.USER_ID + " = ?", new String[] {
-                Long.toString(id), Long.toString(currentUserId) }, null);
+                String.valueOf(id), String.valueOf(userId)
+        }, null);
 
         if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                user_played = true;
-            }
+            user_played = cursor.getCount() > 0;
             cursor.close();
         }
+        return user_played;
     }
 
     public void setAppFields(Track t) {

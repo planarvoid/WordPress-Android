@@ -1,12 +1,12 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.text.TextUtils;
-
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+
+import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -92,8 +92,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
         mPendingView = null;
-        notifyDataSetChanged();
-
         if (responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
                 for (Parcelable newitem : newItems) {
@@ -103,17 +101,16 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             if (!TextUtils.isEmpty(nextHref)) {
                 getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
             }
-
             if (!keepgoing) {
                 nextAdapterSection();
-                return;
+            } else {
+                mKeepOnAppending.set(keepgoing);
             }
-
-            mKeepOnAppending.set(keepgoing);
         } else {
             handleResponseCode(responseCode);
             applyEmptyText();
         }
+        notifyDataSetChanged();
     }
 
     private void nextAdapterSection() {
