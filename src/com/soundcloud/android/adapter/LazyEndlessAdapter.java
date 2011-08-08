@@ -336,7 +336,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         applyEmptyText();
         mRefreshTask = null;
         notifyDataSetChanged();
-        mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
+
+        if (mListView != null) {
+            mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
+        }
     }
 
     protected void onEmptyRefresh(){
