@@ -407,11 +407,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
         mUserlistBrowser.addView(tracksView, "Tracks", TabTags.tracks);
         mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
         mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
         mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
+
 
         if (isMe()) {
             mUserlistBrowser.initWorkspace(Math.max(1, getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)));
