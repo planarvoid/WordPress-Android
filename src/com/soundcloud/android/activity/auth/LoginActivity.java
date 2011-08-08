@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.User;
@@ -54,6 +56,7 @@ public abstract class LoginActivity extends Activity {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
+                                ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.LOGIN);
                                 dismissProgress();
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,

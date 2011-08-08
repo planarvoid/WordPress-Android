@@ -822,6 +822,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mCurrentTrackId = mPlayingTrack.id;
             mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
+            if (mPlayingTrack.user != null && TextUtils.isEmpty(mPlayingTrack.user.username)){
+                pageTrack(mPlayingTrack.user.username +"/"+mPlayingTrack.id);
+            }
 
 
             if (mPlayingTrack.comments != null) {
@@ -1012,8 +1015,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     @Override
     protected void onResume() {
-        pageTrack("/player");
-
         super.onResume();
 
         registerHeadphoneRemoteControl();

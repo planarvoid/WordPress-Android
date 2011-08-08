@@ -111,7 +111,7 @@ public class ScCreate extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        pageTrack("/record");
+        pageTrack(Consts.TrackingEvents.RECORD);
     }
 
     @Override
@@ -410,6 +410,7 @@ public class ScCreate extends ScActivity {
     }
 
     private void startRecording() {
+        pageTrack(Consts.TrackingEvents.RECORD_RECORDING);
         pause(true);
 
         mRecordErrorMessage = "";
@@ -521,6 +522,7 @@ public class ScCreate extends ScActivity {
     };
 
     private void stopRecording() {
+        pageTrack(Consts.TrackingEvents.RECORD_COMPLETE);
         if (getApp().getRecordListener() == recListener) getApp().setRecordListener(null);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 

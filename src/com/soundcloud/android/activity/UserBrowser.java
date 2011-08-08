@@ -298,7 +298,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void trackCurrentScreen(){
-        pageTrack(String.format("/%s/" + mUserlistBrowser.getCurrentTag(), isMe() ? "you" : mUser.username));
+        pageTrack(isMe() ? Consts.TrackingEvents.MY_PROFILE + mUserlistBrowser.getCurrentTag()
+                : String.format("/%s/" + mUserlistBrowser.getCurrentTag(),mUser.username));
     }
 
 

@@ -137,6 +137,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 mapToRecording(mRecording);
+                pageTrack(mRecording.is_private ? Consts.TrackingEvents.SHARE_PRIVATE : Consts.TrackingEvents.SHARE_PUBLIC);
                 if (!mRecording.external_upload) {
                     getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
                 }

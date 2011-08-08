@@ -3,7 +3,9 @@ package com.soundcloud.android.activity.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -129,6 +131,14 @@ public class AddInfo extends Activity {
         setResult(RESULT_OK, getIntent());
         finish();
     }
+
+     @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.SIGNUP_DETAILS);
+    }
+
+
 
     private void setImage(final File file) {
         mAvatarFile = file;

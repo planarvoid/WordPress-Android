@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -130,6 +131,7 @@ public class SignUp extends Activity {
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
+                                ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.LOGIN);
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
                                         .putExtra("signed_up", signedUp ? "native" : null)
                                         .putExtra("user", user)

@@ -18,12 +18,15 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
 public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapter.SectionListener, LoadTrackInfoTask.LoadTrackInfoListener {
+
+    Track mTrack;
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -31,16 +34,16 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         Intent i = getIntent();
         if (!i.hasExtra("track_id")) throw new IllegalArgumentException("No track id supplied with intent");
-        final Track track = getApp().getTrackFromCache(i.getLongExtra("track_id", 0));
+        mTrack = getApp().getTrackFromCache(i.getLongExtra("track_id", 0));
 
         // overly cautious, should never happen
-        if (track == null) return;
+        if (mTrack == null) return;
 
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, true);
+        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(mTrack, true, -1, true);
         findViewById(R.id.track_info_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTrack(track, true);
+                playTrack(mTrack, true);
             }
         });
 
@@ -60,16 +63,16 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         userAdapter.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
-                        User.class, new ArrayList<Parcelable>(), Request.to(AndroidCloudAPI.TRACK_FAVORITERS, track.id)));
+                        User.class, new ArrayList<Parcelable>(), Request.to(AndroidCloudAPI.TRACK_FAVORITERS, mTrack.id)));
 
-        if (!track.info_loaded) {
-            if (CloudUtils.isTaskFinished(track.load_info_task)) {
-                track.load_info_task = new LoadTrackInfoTask(getApp(), track.id, true, true);
+        if (!mTrack.info_loaded) {
+            if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
+                mTrack.load_info_task = new LoadTrackInfoTask(getApp(), mTrack.id, true, true);
             }
 
-            track.load_info_task.setListener(this);
-            if (CloudUtils.isTaskPending(track.load_info_task)) {
-                track.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, track.id));
+            mTrack.load_info_task.setListener(this);
+            if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
+                mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
             }
         }
     }
@@ -77,7 +80,9 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack("/track_favoriters");
+        if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
+            pageTrack(mTrack.user.username + "/" + mTrack.id + "/favorites");
+        }
     }
 
     @Override

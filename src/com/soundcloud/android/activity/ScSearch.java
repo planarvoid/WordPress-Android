@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -126,7 +127,7 @@ public class ScSearch extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        pageTrack("/search");
+        pageTrack( Consts.TrackingEvents.SEARCH);
     }
 
     void doSearch(final String query) {
@@ -146,11 +147,13 @@ public class ScSearch extends ScActivity {
             setListType(false);
             mList.enableLongClickListener();
             mUserAdpWrapper.reset(false,false);
+            pageTrack( Consts.TrackingEvents.SEARCH_TRACKS + query);
         } else {
             mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
             setListType(true);
             mList.disableLongClickListener();
             mTrackAdpWrapper.reset(false,false);
+            pageTrack( Consts.TrackingEvents.SEARCH_USERS + query);
         }
 
         mList.setLastUpdated(0);

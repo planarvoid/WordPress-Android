@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -90,7 +92,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack("/suggested_users");
+        pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
     }
 
 

@@ -546,7 +546,7 @@ public abstract class ScActivity extends Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                pageTrack("/friend_finder");
+                pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
 
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
