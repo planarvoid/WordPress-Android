@@ -8,14 +8,10 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 
-import java.net.URI;
 import java.util.List;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
-
     public int submenuIndex = -1;
     public int animateSubmenuIndex = -1;
     protected ScActivity mActivity;
@@ -80,8 +76,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     public Class<?> getLoadModel() {
         return mLoadModel;
     }
-
-    public boolean isQuerying() { return false;}
 
     public void onPostQueryExecute() {
         if (mWrapper != null) mWrapper.onPostQueryExecute();

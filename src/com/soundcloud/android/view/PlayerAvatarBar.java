@@ -2,7 +2,6 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
@@ -187,6 +186,7 @@ public class PlayerAvatarBar extends View {
             try {
                 mNextCanvasBmp = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
             } catch (OutOfMemoryError e){
+                // XXX really catch oom here?
                 Log.e(TAG,"Out of memory during avatar refresher bitmap creation");
                 return; // just don't show the updated bar, acceptable failure
             }

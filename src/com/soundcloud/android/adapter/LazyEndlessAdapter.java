@@ -88,26 +88,27 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     private String getEmptyText(){
-          if (Track.class.equals(getLoadModel(false))) {
+        final Class loadModel = getLoadModel(false);
+        if (Track.class.equals(loadModel)) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
-
-        } else if (User.class.equals(getLoadModel(false))
-                || Friend.class.equals(getLoadModel(false))) {
+        } else if (User.class.equals(loadModel)
+                || Friend.class.equals(loadModel)) {
             return !mError ? mActivity.getResources().getString(
                     R.string.userlist_empty) : mActivity.getResources().getString(
                     R.string.userlist_error);
-        } else if (Comment.class.equals(getLoadModel(false))) {
+        } else if (Comment.class.equals(loadModel)) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
-        } else if (Event.class.equals(getLoadModel(false))) {
+        } else if (Event.class.equals(loadModel)) {
             return !mError ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);
+        } else {
+            return "";
         }
-        return "";
     }
 
     /**
@@ -255,7 +256,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             if (mPendingView == null) {
                 if (convertView == null){
                     mPendingView = ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
-                    if (!getWrappedAdapter().isQuerying() && (CloudUtils.isTaskFinished(mAppendTask))) {
+                    if (CloudUtils.isTaskFinished(mAppendTask)) {
                         mAppendTask = new AppendTask(mActivity.getApp());
                         mAppendTask.loadModel = getLoadModel(false);
                         mAppendTask.pageSize =  getPageSize();

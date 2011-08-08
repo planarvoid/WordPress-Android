@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -363,40 +364,36 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
+            if (mListener == null) return;
             position -= getHeaderViewsCount();
 
             LazyBaseAdapter adp = list instanceof ScListView ?
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
 
-            if (adp.getCount() <= 0 || position >= adp.getCount())
+            final int count = adp.getCount();
+            if (count <= 0 || position >= count)
                 return; // bad list item clicked (possibly loading item)
 
-            Object item = adp.getItem(position);
+            Object item;
+            try {
+                item = adp.getItem(position);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // XXX sometimes throws ArrayIndexOutOfBoundsException
+                Log.e("ScListView", "count=" + count + " , position=" + position + ", hcount=" + getHeaderViewsCount());
+                throw e;
+            }
+
             if (item instanceof Track) {
                 if (adp instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
                 }
-
-                if (mListener != null) {
-                    mListener.onTrackClick(adp.getData(), position);
-                }
-
+                mListener.onTrackClick(adp.getData(), position);
             } else if (item instanceof Event) {
-
-                if (mListener != null) {
-                    mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
-                }
-
+                mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
             } else if (item instanceof User || item instanceof Friend) {
-
-                if (mListener != null) {
-                    mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
-                }
-
+                mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
             } else if (item instanceof Recording) {
-                if (mListener != null) {
-                    mListener.onRecordingClick((Recording) adp.getItem(position));
-                }
+                mListener.onRecordingClick((Recording) adp.getItem(position));
             }
         }
     };
