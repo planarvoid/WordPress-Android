@@ -1402,7 +1402,9 @@ public class CloudPlaybackService extends Service {
         }
 
         public void setVolume(float vol) {
-            mMediaPlayer.setVolume(vol, vol);
+            if (mMediaPlayer != null) {
+                mMediaPlayer.setVolume(vol, vol);
+            }
         }
 
         /**
