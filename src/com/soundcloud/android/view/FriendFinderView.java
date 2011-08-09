@@ -106,11 +106,10 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public void setState(int state, boolean refresh) {
         switch (state) {
             case States.LOADING:
-                if (mFriendList == null){
+                if (mFriendList == null) {
                     mFbConnected = true;
                     createList();
                 }
-
                 mFriendList.prepareForRefresh();
                 mFriendList.setSelection(0);
                 break;

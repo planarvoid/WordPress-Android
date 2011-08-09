@@ -14,7 +14,6 @@ import java.util.List;
 
 public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     private List<WeakReference<SectionListener>> mListeners;
-
     private int mSectionIndex = 0;
 
     public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped) {
@@ -37,8 +36,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     public void addSection(SectionedAdapter.Section newSection){
         getWrappedAdapter().sections.add(newSection);
     }
-
-
 
     @Override
     public List<Parcelable> getData() {
