@@ -3,6 +3,10 @@
         You have no news. Put something out there already!
     </string>
 
+    <string name='empty_incoming_text'>
+		 Your list of sounds is empty. Find new sounds from our Suggested Users tab.
+	</string>
+
     <string name='tab_stream'>Stream</string>
     <string name='tab_activity'>Activity</string>
 

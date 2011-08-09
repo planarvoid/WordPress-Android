@@ -263,10 +263,6 @@
 		 No one has shared any exclusive sounds with you yet.<br/><br/> Why not send an audio shout-out to your friends to get them to share their sounds?
 	</string>
 
-	<string name='empty_incoming_text'>
-		 Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
-	</string>
-
 	<string name='empty_list'>No Results</string>
 
 	<string name='empty_my_favorites_text'>
