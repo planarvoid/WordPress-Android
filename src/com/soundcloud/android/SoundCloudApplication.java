@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import static android.content.pm.PackageManager.*;
-import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
@@ -11,7 +10,6 @@ import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.LruCache;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -113,12 +111,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 ScContentProvider.enableSyncing(account);
             }
         }
-
-        doOnce(this, "cleanup.track.cache", new Runnable() {
-            @Override public void run() {
-                TrackCache.cleanupTrackCache();
-            }
-        });
 
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);

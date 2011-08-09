@@ -8,7 +8,6 @@ import android.os.StatFs;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -67,28 +66,5 @@ public class TrackCache {
             }
         }
         return true;
-    }
-
-    // Deletes cached track data which got written to the wrong directory (due to a bug)
-    public static void cleanupTrackCache() {
-        new Thread() {
-            @Override
-            public void run() {
-                Log.d(TAG, "cleaning up track cache");
-                File[] files = Consts.FILES_PATH.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.isFile() && f.getName().startsWith(".s");
-                    }
-                });
-                if (files != null) {
-                    for (File f : files) {
-                        if (!f.delete()) {
-                            Log.w(TAG, "error deleting " + f);
-                        }
-                    }
-                }
-            }
-        }.start();
     }
 }
