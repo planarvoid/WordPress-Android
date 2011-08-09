@@ -19,7 +19,7 @@ Clone and build it:
   * Make sure build is green (cf [Builder][])
   * For major releases - install previous market version and test upgrade process
   * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`, set version in `pom.xml`
-  * Document changes in [changelog.txt][] and add the release date
+  * Document changes in [changelog.txt][] and change the release date
   * Tag the current version (`rake release:tag`)
   * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
