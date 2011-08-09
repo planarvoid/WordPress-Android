@@ -156,15 +156,17 @@ public class SignUp extends Activity {
     }
 
     private void signupFail(String error) {
-        new AlertDialog.Builder(this)
-                .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
-                .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
+        if (!isFinishing()) {
+          new AlertDialog.Builder(this)
+                  .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
+                  .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
+                  .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {
+                      }
+                  })
+                  .show();
+        }
     }
 
     @Override
