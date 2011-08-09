@@ -272,7 +272,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public int getAccountDataInt(String key) {
         String data = getAccountData(key);
-        return data == null ? 0 : Integer.parseInt(data);
+        return data == null ? -1 : Integer.parseInt(data);
     }
 
     public long getAccountDataLong(String key) {

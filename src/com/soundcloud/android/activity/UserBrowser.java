@@ -429,7 +429,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         });
 
         if (isMe()) {
-            mUserlistBrowser.initWorkspace(Math.max(1, getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX)));
+            final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
+            if (initialTab == -1){
+                //tracks tab
+                mUserlistBrowser.initWorkspace(2);
+            } else {
+                mUserlistBrowser.initWorkspace(initialTab);
+            }
+
         } else {
             mUserlistBrowser.initWorkspace(1);
         }

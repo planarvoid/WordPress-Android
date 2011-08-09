@@ -120,7 +120,7 @@ public class SyncAdapterService extends Service {
 
     /* package */ static void syncIncoming(SoundCloudApplication app, long lastSync)
             throws IOException {
-        final int count = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING);
+        final int count = Math.max(0,app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING));
 
         Activities incomingEvents = getNewIncomingEvents(app, lastSync);
         Activities exclusiveEvents = getNewExclusiveEvents(app, lastSync);
@@ -162,7 +162,7 @@ public class SyncAdapterService extends Service {
 
     /* package */ static void syncOwn(SoundCloudApplication app, long lastSync)
             throws IOException {
-        final int count = app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN);
+        final int count = Math.max(0,app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN));
         Activities events = getOwnEvents(app, lastSync);
 
         if (!events.isEmpty() && events.size() > count) {
