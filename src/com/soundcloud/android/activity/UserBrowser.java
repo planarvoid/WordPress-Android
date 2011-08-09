@@ -593,38 +593,36 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void showRecordingDialog(final Recording recording) {
         final CharSequence[] curr_items = recording.external_upload ? EXTERNAL_RECORDING_ITEMS : RECORDING_ITEMS;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(true);
-        builder.setTitle(recording.sharingNote());
-        builder.setNegativeButton(getString(android.R.string.cancel), null);
-        builder.setItems(curr_items, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                if (curr_items[item].equals(RECORDING_ITEMS[0])) {
-                    startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
-                } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                    startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
-                } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
-                    startUpload(recording);
-                } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
-                    new AlertDialog.Builder(UserBrowser.this)
-                            .setTitle(R.string.dialog_confirm_delete_recording_title)
-                            .setMessage(R.string.dialog_confirm_delete_recording_message)
-                            .setPositiveButton(getString(R.string.btn_yes),
+        new AlertDialog.Builder(this)
+            .setInverseBackgroundForced(true)
+            .setTitle(recording.sharingNote())
+            .setNegativeButton(getString(android.R.string.cancel), null)
+            .setItems(curr_items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    if (curr_items[item].equals(RECORDING_ITEMS[0])) {
+                        startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                    } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
+                        startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+                    } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
+                        startUpload(recording);
+                    } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
+                        new AlertDialog.Builder(UserBrowser.this)
+                                .setTitle(R.string.dialog_confirm_delete_recording_title)
+                                .setMessage(R.string.dialog_confirm_delete_recording_message)
+                                .setPositiveButton(getString(R.string.btn_yes),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                             recording.delete(getContentResolver());
                                         }
                                     })
-                            .setNegativeButton(getString(R.string.btn_no),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog,
-                                                            int whichButton) {
-                                        }
-                                    }).create().show();
+                                .setNegativeButton(getString(R.string.btn_no), null)
+                                .create()
+                                .show();
+                    }
                 }
-            }
-        });
-        builder.create().show();
+            })
+            .create()
+            .show();
     }
 
     @Override

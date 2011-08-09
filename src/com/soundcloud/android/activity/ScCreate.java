@@ -198,11 +198,9 @@ public class ScCreate extends ScActivity {
                                             finish();
                                         }
                                     })
-                            .setNegativeButton(getString(R.string.btn_no),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                        }
-                                    }).create().show();
+                            .setNegativeButton(getString(R.string.btn_no), null)
+                            .create()
+                            .show();
                 }
             }
         });
@@ -790,12 +788,8 @@ public class ScCreate extends ScActivity {
                                 updateUi(true);
                                 removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                             }
-                        }).setNegativeButton(getString(R.string.btn_no),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
-                                    }
-                                }).create();
+                        }).setNegativeButton(getString(R.string.btn_no), null)
+                        .create();
             default:
                 return super.onCreateDialog(which);
         }

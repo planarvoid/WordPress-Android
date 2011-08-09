@@ -86,7 +86,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private boolean mLandscape;
 
     private ImageView mArtwork;
-
     private ImageButton mFavoriteButton;
 
     private int mTouchSlop;
@@ -160,7 +159,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void initControls() {
-
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
@@ -215,7 +213,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     onTrackInfoFlip();
                 }
             });
-
 
             ImageButton mShareButton = (ImageButton) findViewById(R.id.btn_share);
             mShareButton.setOnClickListener(new View.OnClickListener() {

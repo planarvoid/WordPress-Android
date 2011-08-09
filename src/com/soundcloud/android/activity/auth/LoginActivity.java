@@ -93,20 +93,20 @@ public abstract class LoginActivity extends Activity {
     }
 
     protected void showError(IOException e) {
-        if (isFinishing()) return;
-
-        final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
-        new AlertDialog.Builder(LoginActivity.this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
-                .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // finish();
-                    }
-                })
-                .create()
-                .show();
+        if (!isFinishing()) {
+            final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
+            new AlertDialog.Builder(LoginActivity.this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
+                    .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // finish();
+                        }
+                    })
+                    .create()
+                    .show();
+        }
     }
 }

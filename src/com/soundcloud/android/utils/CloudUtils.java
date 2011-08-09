@@ -709,38 +709,34 @@ public class CloudUtils {
 
     public static AlertDialog createLogoutDialog(final Activity a) {
         return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
-                .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        SoundCloudApplication app =(SoundCloudApplication) a.getApplication();
-                        app.pageTrack(Consts.TrackingEvents.LOGGED_OUT);
-                        app.clearSoundCloudAccount(
-                                new Runnable() {
-                                    @Override public void run() {
-                                        a.finish();
-                                    }
-                                },
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        new AlertDialog.Builder(a)
+            .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+                                app.pageTrack(Consts.TrackingEvents.LOGGED_OUT);
+                                app.clearSoundCloudAccount(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                a.finish();
+                                            }
+                                        },
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                new AlertDialog.Builder(a)
                                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                                 .setMessage(R.string.settings_error_revoking_account_message)
-                                                .setTitle(R.string.settings_error_revoking_account_title)
-                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                    }
-                                                }).create().show();
-                                    }
-                                }
-                        );
-                    }
-                }).setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                }).create();
+                                                .setPositiveButton(android.R.string.ok, null)
+                                                .create()
+                                                .show();
+                                            }
+                                        }
+                                );
+                            }
+                        })
+           .setNegativeButton(android.R.string.cancel, null)
+           .create();
     }
 
     public static void setStats(int stat1, TextView statTextView1, View separator1, int stat2, TextView statTextView2,

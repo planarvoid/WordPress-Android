@@ -162,8 +162,8 @@ public class Dashboard extends ScActivity {
                                     }
                                 })
 
-                   .create().show();
-
+                   .create()
+                   .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
