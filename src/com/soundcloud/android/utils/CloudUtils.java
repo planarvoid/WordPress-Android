@@ -753,5 +753,4 @@ public class CloudUtils {
 
         statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
-
 }

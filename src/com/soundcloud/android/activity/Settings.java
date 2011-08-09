@@ -9,8 +9,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.utils.ChangeLog;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;

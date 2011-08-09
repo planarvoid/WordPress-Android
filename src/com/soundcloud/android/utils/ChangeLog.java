@@ -1,9 +1,8 @@
-package com.soundcloud.utils;
+package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.CloudUtils;
 
 import android.app.AlertDialog;
 import android.content.Context;

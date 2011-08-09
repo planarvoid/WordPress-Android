@@ -13,6 +13,8 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -43,7 +45,6 @@ import java.util.List;
 /*
     pull-to-refresh original source: https://github.com/johannilsson/android-pulltorefresh
  */
-
 public class ScListView extends ListView implements AbsListView.OnScrollListener {
 
     @SuppressWarnings({"UnusedDeclaration"})
@@ -59,6 +60,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private static final int DONE_REFRESHING = 5;
 
     private static final int HEADER_HIDE_DURATION = 400;
+    private static final int VERTICAL_TOLERANCE_PORTRAIT = 20;
+    private static final int VERTICAL_TOLERANCE_LANDSCAPE = 5;
 
     private ScActivity mActivity;
 
@@ -114,10 +117,14 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private void init(ScActivity activity) {
         mActivity = activity;
+        final Resources res = getResources();
 
-        setFadingEdgeLength((int) (2 * getResources().getDisplayMetrics().density));
+        setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
         setSelector(R.drawable.list_selector_background);
-        mRefreshVerticalTolerance = (int) (activity.getResources().getDisplayMetrics().density*20);
+
+        mRefreshVerticalTolerance = (int) (res.getDisplayMetrics().density *
+            (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ?
+            VERTICAL_TOLERANCE_LANDSCAPE : VERTICAL_TOLERANCE_PORTRAIT));
 
         if (Build.VERSION.SDK_INT >= 9) {
             setOverScrollMode(OVER_SCROLL_NEVER);
@@ -146,7 +153,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
         mRefreshOriginalTopPadding = mRefreshView.getPaddingTop();
 
-        mPullToRefreshArrow = getResources().getDrawable(R.drawable.ic_pulltorefresh_arrow);
+        mPullToRefreshArrow = res.getDrawable(R.drawable.ic_pulltorefresh_arrow);
 
         mRefreshState = TAP_TO_REFRESH;
 

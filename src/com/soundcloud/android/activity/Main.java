@@ -10,11 +10,11 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import com.soundcloud.utils.ChangeLog;
 
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
