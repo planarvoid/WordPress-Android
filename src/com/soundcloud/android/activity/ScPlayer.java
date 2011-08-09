@@ -723,7 +723,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 if (mPlayingTrack != null && mPlayingTrack.id == intent.getLongExtra("id", -1)){
                     mPlayingTrack.user_favorite = intent.getBooleanExtra("isFavorite", false);
                     if (mFavoriteButton != null) mFavoriteButton.setEnabled(true);
-                    setFavoriteStatus();
+                    updateTrackInfo();
                 }
             } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
                 mCurrentTrackError = false;
@@ -1103,16 +1103,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         try {
             if (mPlayingTrack.user_favorite) {
                     mPlaybackService.setFavoriteStatus(mPlayingTrack.id, false);
-                track.user_favorite = false;
             } else {
                 mPlaybackService.setFavoriteStatus(mPlayingTrack.id, true);
-                track.user_favorite = true;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
             mFavoriteButton.setEnabled(true);
         }
-        setFavoriteStatus();
     }
 
     public void refreshComments() {

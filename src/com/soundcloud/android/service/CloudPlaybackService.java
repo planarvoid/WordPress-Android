@@ -1040,6 +1040,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void addFavorite() {
+        onFavoriteStatusSet(mPlayingData.id, true);
         FavoriteAddTask f = new FavoriteAddTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1058,6 +1059,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
+        onFavoriteStatusSet(mPlayingData.id, false);
         FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1076,7 +1078,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        if (mPlayingData.id == trackId) {
+        if (mPlayingData.id == trackId && mPlayingData.user_favorite != isFavorite) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
         }
