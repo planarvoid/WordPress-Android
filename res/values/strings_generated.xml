@@ -260,25 +260,25 @@
 	<string name='email_picker_clear'>Clear</string>
 
 	<string name='empty_exclusive_text'>
-		 No one has shared any exclusive sounds with you yet.<br/><br/> Why not send an audio shout-out to your friends to get them to share their sounds?
+		 <![CDATA[No one has shared any exclusive sounds with you yet.<br/><br/> Why not send an audio shout-out to your friends to get them to share their sounds?]]>
 	</string>
 
 	<string name='empty_list'>No Results</string>
 
 	<string name='empty_my_favorites_text'>
-		 You don\'t have any favorites yet.<br/><br/> Find new sounds using the Suggested Users and Search tabs.
+		 <![CDATA[You don\'t have any favorites yet.<br/><br/> Find new sounds using the Suggested Users and Search tabs.]]>
 	</string>
 
 	<string name='empty_my_followers_text'>
-		 You aren\'t being followed by anyone yet.<br/><br/> Why not send an audio shout-out to your friends to get them to follow you?
+		 <![CDATA[You aren\'t being followed by anyone yet.<br/><br/> Why not send an audio shout-out to your friends to get them to follow you?]]>
 	</string>
 
 	<string name='empty_my_followings_text'>
-		 You haven\'t started following anyone yet.<br/><br/> Find interesting sounds from our Suggested People tab.
+		 <![CDATA[You haven\'t started following anyone yet.<br/><br/> Find interesting sounds from our Suggested People tab.]]>
 	</string>
 
 	<string name='empty_my_tracks_text'>
-		 You don\'t have any sounds yet.<br/><br/> Why not record and share your favorite sounds?
+		 <![CDATA[You don\'t have any sounds yet.<br/><br/> Why not record and share your favorite sounds?]]>
 	</string>
 
 	<string name='empty_user_favorites_text'>%1$s hasn\'t chosen any favorites yet.</string>
