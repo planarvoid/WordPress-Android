@@ -20,6 +20,7 @@ $ 22
     - Fix timestamps in incoming/exclusive
     - Added support for beta push notifications (C2DM)
     - Updated app wording
+    - Handle more KEYCODE_MEDIA_* events
 
 $ 19
   % v 1.3.3
