@@ -52,7 +52,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-//@ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
 @ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=a42a4305", formKey="")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
