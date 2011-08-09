@@ -117,6 +117,17 @@ def gitsha1()
   end
 end
 
+namespace :release do
+  desc "tag the current release"
+  task :tag do
+    if versionName.to_s =~ /-BETA(\d+)?\Z/
+      raise "#{versionName}: Not a release version"
+    else
+      sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
+    end
+  end
+end
+
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
@@ -184,7 +195,7 @@ namespace :beta do
     if versionName.to_s =~ /-BETA(\d+)?\Z/
       sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
     else
-      raise "Not a beta version"
+      raise "#{versionName}: not a beta version"
     end
   end
 
