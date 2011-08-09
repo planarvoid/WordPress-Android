@@ -19,6 +19,7 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -110,6 +111,8 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     mFbConnected = true;
                     createList();
                 }
+                mFriendList.getWrapper().setEmptyViewText(" ");
+                mFriendList.getWrapper().applyEmptyText();
                 mFriendList.prepareForRefresh();
                 mFriendList.setSelection(0);
                 break;
@@ -136,7 +139,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
                 mFriendList.getWrapper().configureViews(mFriendList);
                 if (refresh){
-                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.getWrapper().refresh(false);
                     mFriendList.prepareForRefresh();
                 }
                 mFriendList.setVisibility(View.VISIBLE);
@@ -150,7 +153,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
                 mFriendList.getWrapper().configureViews(mFriendList);
                 if (refresh){
-                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.getWrapper().refresh(false);
                     mFriendList.prepareForRefresh();
                 }
                 mFriendList.setVisibility(View.VISIBLE);
