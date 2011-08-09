@@ -519,7 +519,7 @@
 
 	<string name='settings_error_revoking_account_title'>Oops!</string>
 
-	<string name='share_to_soundcloud'>&lt;b>Share&lt;/b> to &lt;b>SoundCloud&lt;/b></string>
+	<string name='share_to_soundcloud'><![CDATA[<b>Share</b> to <b>SoundCloud</b>]]></string>
 
 	<string name='share_log_out'>Log out</string>
 
