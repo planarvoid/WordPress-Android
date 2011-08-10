@@ -138,12 +138,12 @@ public class AddInfo extends Activity {
         ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.SIGNUP_DETAILS);
     }
 
-
-
     private void setImage(final File file) {
-        mAvatarFile = file;
-        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),
+        if (file != null) {
+            mAvatarFile = file;
+            ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),
                 (int) (getResources().getDisplayMetrics().density * 100f));
+        }
     }
 
     public void clearArtwork() {
