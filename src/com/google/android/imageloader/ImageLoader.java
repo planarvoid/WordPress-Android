@@ -318,8 +318,19 @@ public class ImageLoader {
     private static boolean isWaiting(Handler handler) {
         Looper looper = handler.getLooper();
         Thread thread = looper.getThread();
-        Thread.State state = thread.getState();
+        Thread.State state = getThreadState(thread);
         return state == Thread.State.WAITING || state == Thread.State.TIMED_WAITING;
+    }
+
+
+    private static Thread.State getThreadState(Thread t) {
+        try {
+            return t.getState();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Android 2.2.x seems to throw this exception occasionally
+            Log.w(TAG, e);
+            return Thread.State.WAITING;
+        }
     }
 
     /**
