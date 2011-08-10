@@ -66,12 +66,12 @@ public class Facebook extends LoginActivity {
 
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                progress.show();
+                showDialog(progress);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                try { progress.dismiss(); } catch (IllegalArgumentException ignored) { }
+                dismissDialog(progress);
             }
 
             @Override

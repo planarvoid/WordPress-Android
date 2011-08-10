@@ -15,6 +15,7 @@ import com.soundcloud.api.Token;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -107,6 +108,21 @@ public abstract class LoginActivity extends Activity {
                     })
                     .create()
                     .show();
+        }
+    }
+
+    protected void showDialog(Dialog d) {
+        if (!isFinishing()) {
+            d.show();
+        }
+    }
+
+    protected void dismissDialog(Dialog d) {
+        if (!isFinishing()) {
+            try {
+                d.dismiss();
+            } catch (IllegalArgumentException ignored) {
+            }
         }
     }
 }

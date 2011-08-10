@@ -124,8 +124,11 @@ public class SignUp extends Activity {
 
             @Override
             protected void onPostExecute(final User user) {
-                // XXX proper fix
-                try { progress.dismiss(); } catch (IllegalArgumentException ignored) {}
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
 
                 if (user != null) {
                     // need to create user account as soon as possible, so the refresh logic in
