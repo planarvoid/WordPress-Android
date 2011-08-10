@@ -17,6 +17,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -124,7 +125,9 @@ public class Dashboard extends ScActivity {
 
     public void refreshIncoming() {
         mListView.onRefresh();
-        mListView.smoothScrollToPosition(0);
+        if (Build.VERSION.SDK_INT >= 8) {
+            mListView.smoothScrollToPosition(0);
+        }
     }
 
     @Override
