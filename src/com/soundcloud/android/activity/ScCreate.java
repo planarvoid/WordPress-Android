@@ -539,14 +539,16 @@ public class ScCreate extends ScActivity {
         loadPlaybackTrack();
     }
 
-    private void loadPlaybackTrack(){
+    private void loadPlaybackTrack() {
         try {
-            // might be loaded and paused already
-            if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
-                !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
-                mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+            if (mCreateService != null && mRecordFile != null) {
+                // might be loaded and paused already
+                if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
+                    !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
+                    mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+                }
+                configurePlaybackInfo();
             }
-            configurePlaybackInfo();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
