@@ -449,7 +449,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private boolean isMe() {
-       return mUser.id == getCurrentUserId();
+       return mUser != null && mUser.id == getCurrentUserId();
     }
 
     private void toggleFollowing() {

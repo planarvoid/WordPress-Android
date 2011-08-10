@@ -586,7 +586,7 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getCurrentUserId() {
-        if (mCurrentUserId == 0){
+        if (mCurrentUserId == 0) {
             mCurrentUserId = getApp().getCurrentUserId();
         }
         return mCurrentUserId;
