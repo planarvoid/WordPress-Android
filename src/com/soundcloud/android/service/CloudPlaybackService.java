@@ -1035,11 +1035,12 @@ public class CloudPlaybackService extends Service {
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
-            if (mPlayingData.id == trackId) {
-                if (favoriteStatus)
+            if (mPlayingData != null && mPlayingData.id == trackId) {
+                if (favoriteStatus) {
                     addFavorite();
-                else
+                } else {
                     removeFavorite();
+                }
             }
         }
     }
