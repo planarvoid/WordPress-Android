@@ -1414,7 +1414,11 @@ public class CloudPlaybackService extends Service {
 
         public void setVolume(float vol) {
             if (mMediaPlayer != null) {
-                mMediaPlayer.setVolume(vol, vol);
+                try {
+                    mMediaPlayer.setVolume(vol, vol);
+                } catch (IllegalStateException ignored) {
+                    Log.w(TAG, ignored);
+                }
             }
         }
 
