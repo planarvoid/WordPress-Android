@@ -521,11 +521,15 @@ public class ScCreate extends ScActivity {
 
     private void stopRecording() {
         pageTrack(Consts.TrackingEvents.RECORD_COMPLETE);
-        if (getApp().getRecordListener() == recListener) getApp().setRecordListener(null);
+        if (getApp().getRecordListener() == recListener) {
+            getApp().setRecordListener(null);
+        }
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         try {
-            mCreateService.stopRecording();
+            if (mCreateService != null) {
+                mCreateService.stopRecording();
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -538,14 +542,14 @@ public class ScCreate extends ScActivity {
     private void loadPlaybackTrack(){
         try {
             // might be loaded and paused already
-            if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) || !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath()))
+            if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
+                !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
                 mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
-
+            }
             configurePlaybackInfo();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-
     }
 
     private void configurePlaybackInfo(){
@@ -553,11 +557,12 @@ public class ScCreate extends ScActivity {
             mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
             mProgressBar.setMax((int) (getDuration()));
 
-            if (mCreateService.getCurrentPlaybackPosition() > 0 && mCreateService.getCurrentPlaybackPosition() < getDuration())
+            if (mCreateService.getCurrentPlaybackPosition() > 0
+                    && mCreateService.getCurrentPlaybackPosition() < getDuration()) {
                 mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
-            else
+            } else {
                 mProgressBar.setProgress(0);
-
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
