@@ -75,15 +75,22 @@ public class Recover extends Activity {
             private ProgressDialog progressDialog;
             @Override
             protected void onPreExecute() {
-                progressDialog = ProgressDialog.show(Recover.this, "", Recover.this.getString(R.string.authentication_recover_progress_message));
+                if (!isFinishing()) {
+                    progressDialog = ProgressDialog.show(Recover.this,
+                            "",
+                            Recover.this.getString(R.string.authentication_recover_progress_message));
+                }
             }
 
             @Override
             protected void onPostExecute(Boolean success) {
-                progressDialog.dismiss();
+                if (!isFinishing() && progressDialog != null) {
+                    progressDialog.dismiss();
+                }
                 setResult(RESULT_OK, new Intent()
                         .putExtra("success", success)
                         .putExtra("error", getFirstError()));
+
                 finish();
             }
         }.execute(email);
