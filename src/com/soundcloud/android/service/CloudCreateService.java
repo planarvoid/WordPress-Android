@@ -1,16 +1,14 @@
 
 package com.soundcloud.android.service;
 
-import static com.soundcloud.android.Consts.Notifications.PLAYBACK_NOTIFY_ID;
-import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
-import static com.soundcloud.android.Consts.Notifications.UPLOAD_NOTIFY_ID;
+import static com.soundcloud.android.Consts.Notifications.*;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
+import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
@@ -49,7 +47,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.Map;
 
 public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
@@ -426,7 +423,7 @@ public class CloudCreateService extends Service {
         sendBroadcast(i);
 
         mOggTask = new EncodeOggTask();
-        mOggTask.execute(new Params[] { new Params(upload) });
+        mOggTask.execute(new Params(upload));
         return true;
     }
 

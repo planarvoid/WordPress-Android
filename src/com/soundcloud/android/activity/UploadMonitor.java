@@ -106,7 +106,7 @@ public class UploadMonitor extends Activity {
         Intent i = getIntent();
         if (i.hasExtra("upload")){
             mUpload = i.getParcelableExtra("upload");
-            fillDataFromUpload();
+            fillDataFromUpload(mUpload);
         } else {
             mUploadId = i.getLongExtra("upload_id", 0);
         }
@@ -119,23 +119,23 @@ public class UploadMonitor extends Activity {
         unregisterReceiver(mUploadStatusListener);
     }
 
-    private void fillDataFromUpload(){
-        if (mUpload == null){
+    private void fillDataFromUpload(final Upload upload) {
+        if (upload == null) {
             throw new IllegalArgumentException("No Upload found");
         }
 
-        mUploadId = mUpload.id;
+        mUploadId = upload.id;
 
-        ((TextView) findViewById(R.id.track)).setText(mUpload.title);
-        if (!TextUtils.isEmpty(mUpload.artworkPath)) {
-            ImageUtils.setImage(new File(mUpload.artworkPath), ((ImageView) findViewById(R.id.icon)),
+        ((TextView) findViewById(R.id.track)).setText(upload.title);
+        if (!TextUtils.isEmpty(upload.artworkPath)) {
+            ImageUtils.setImage(new File(upload.artworkPath), ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
 
-        if (mUpload.upload_status == Upload.UploadStatus.UPLOADED) {
+        if (upload.upload_status == Upload.UploadStatus.UPLOADED) {
             onUploadFinished(true);
-        } else if (mUpload.upload_status != Upload.UploadStatus.UPLOADING && mUpload.upload_error) {
+        } else if (upload.upload_status != Upload.UploadStatus.UPLOADING && upload.upload_error) {
             onUploadFinished(false);
         }
     }
@@ -146,7 +146,9 @@ public class UploadMonitor extends Activity {
             if (mUpload == null) {
                 try {
                     mUpload = mCreateService.getUploadById(mUploadId);
-                    fillDataFromUpload();
+                    if (mUpload != null) {
+                        fillDataFromUpload(mUpload);
+                    }
                 } catch (RemoteException ignored) {
                     Log.e(TAG, "error", ignored);
                 }
