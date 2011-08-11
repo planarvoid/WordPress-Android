@@ -1,5 +1,6 @@
+package com.soundcloud.android.utils;
 
-package com.soundcloud.android.utils.net;
+import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,27 +13,20 @@ import android.os.Message;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A wrapper for a broadcast receiver that provides network connectivity state
- * information, independent of network type (mobile, Wi-Fi, etc.). {@hide
+ * information, independent of network type (mobile, Wi-Fi, etc.).
  */
 public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
 
-    private static final boolean DBG = false;
-
     private Context mContext;
-
-    private HashMap<Handler, Integer> mHandlers = new HashMap<Handler, Integer>();
+    private Map<Handler, Integer> mHandlers = new HashMap<Handler, Integer>();
 
     private State mState;
-
     private boolean mListening;
-
-    private String mReason;
-
-    private boolean mIsFailover;
 
     /** Network connectivity information */
     private NetworkInfo mNetworkInfo;
@@ -70,10 +64,8 @@ public class NetworkConnectivityListener {
             mOtherNetworkInfo = (NetworkInfo) intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
 
-            mReason = intent.getStringExtra(ConnectivityManager.EXTRA_REASON);
-            mIsFailover = intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER, false);
 
-            if (DBG) {
+            if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onReceive(): mNetworkInfo="
                         + mNetworkInfo
                         + " mOtherNetworkInfo = "
@@ -137,8 +129,6 @@ public class NetworkConnectivityListener {
             mContext = null;
             mNetworkInfo = null;
             mOtherNetworkInfo = null;
-            mIsFailover = false;
-            mReason = null;
             mListening = false;
         }
     }
@@ -186,27 +176,5 @@ public class NetworkConnectivityListener {
      */
     public NetworkInfo getOtherNetworkInfo() {
         return mOtherNetworkInfo;
-    }
-
-    /**
-     * Returns true if the most recent event was for an attempt to switch over
-     * to a new network following loss of connectivity on another network.
-     * 
-     * @return {@code true} if this was a failover attempt, {@code false}
-     *         otherwise.
-     */
-    public boolean isFailover() {
-        return mIsFailover;
-    }
-
-    /**
-     * An optional reason for the connectivity state change may have been
-     * supplied. This returns it.
-     * 
-     * @return the reason for the state change, if available, or {@code null}
-     *         otherwise.
-     */
-    public String getReason() {
-        return mReason;
     }
 }

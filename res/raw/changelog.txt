@@ -2,7 +2,10 @@ $ 23
   % v current
   _ 2011-08-xx
   ! Maintenance release
+    * Note: app will not work properly when installed on SD card
+    * Fix crashes
     * Fix for notifications going to the wrong tab
+    - Fix GA tracking
 
 $ 22
   % v 1.4.0

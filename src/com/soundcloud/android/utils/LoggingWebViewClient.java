@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils.net;
+package com.soundcloud.android.utils;
 
 import android.graphics.Bitmap;
 import android.net.http.SslError;

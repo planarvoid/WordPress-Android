@@ -307,8 +307,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     for (int i=0; i<customVars.length; i+=2) {
                         Object key   = customVars[i];
                         Object value = customVars[i+1];
-                        if (key == null || value == null) continue;
-                        mTracker.setCustomVar(slot++, key.toString(), value.toString());
+                        if (key == null) continue;
+                        mTracker.setCustomVar(slot++, key.toString(), value != null ? value.toString() : "");
                         if (slot > 5) break; // max 5 slots
                     }
                 }

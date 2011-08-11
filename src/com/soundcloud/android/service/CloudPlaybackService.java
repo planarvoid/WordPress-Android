@@ -29,7 +29,7 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.net.NetworkConnectivityListener;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -227,7 +227,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
+                    "network_info", mCurrentNetworkInfo,
                     "stagefright", mIsStagefright);
 
         Log.d(TAG,"::Using Stagefright Framework " + mIsStagefright);
@@ -1550,7 +1550,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(CloudPlaybackService.this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
+                    "network_info", mCurrentNetworkInfo,
                     "stagefright_what_extra", mIsStagefright + "_" + what + "_" + extra);
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
@@ -1773,7 +1773,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
+                    "network_info", mCurrentNetworkInfo,
                     "status_line", stoppableDownloadThread.statusLine.toString()
                     );
         } else if (stoppableDownloadThread.exception != null) {
@@ -1781,7 +1781,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
+                    "network_info", mCurrentNetworkInfo,
                     "exception", stoppableDownloadThread.exception.getMessage());
         }
     }
