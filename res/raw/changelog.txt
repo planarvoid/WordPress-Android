@@ -6,6 +6,7 @@ $ 23
     * Fix crashes
     * Fix for notifications going to the wrong tab
     - Fix GA tracking
+    - Tracking of playback errors
 
 $ 22
   % v 1.4.0
