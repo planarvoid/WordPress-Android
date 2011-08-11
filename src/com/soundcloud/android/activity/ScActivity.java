@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -122,8 +123,7 @@ public abstract class ScActivity extends Activity {
     @Override
     public boolean onSearchRequested() {
         // just focus on the search tab, don't show default android search dialog
-        startActivity(new Intent(this, Main.class)
-                .putExtra("tabTag", Dashboard.Tabs.SEARCH)
+        startActivity(new Intent(Actions.SEARCH)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         return false;
     }
@@ -548,9 +548,8 @@ public abstract class ScActivity extends Activity {
                 startActivity(new Intent(this, ScPlayer.class));
                 return true;
             case Consts.OptionsMenu.STREAM:
-                intent = new Intent(this, Main.class);
+                intent = new Intent(Actions.STREAM);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("tabTag", Dashboard.Tabs.ACTIVITY);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:

@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -826,12 +827,12 @@ public class ScCreate extends ScActivity {
             case REQUEST_UPLOAD_FILE:
                 if (resultCode == RESULT_OK) {
                     final Uri uri = data.getData();
-                    final Intent intent = (new Intent(Consts.ACTION_SHARE))
+                    final Intent intent = (new Intent(Actions.SHARE))
                             .putExtra(Intent.EXTRA_STREAM, uri);
 
                     final String file = uri.getLastPathSegment();
                     if (file != null && file.lastIndexOf(".") != -1) {
-                        intent.putExtra(Consts.EXTRA_TITLE,
+                        intent.putExtra(Actions.EXTRA_TITLE,
                                 file.substring(0, file.lastIndexOf(".")));
                     }
                     startActivity(intent);

@@ -1,11 +1,10 @@
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
@@ -156,7 +155,7 @@ public class SyncAdapterService extends Service {
             }
 
             createDashboardNotification(app, ticker, title, message,
-                Dashboard.Tabs.STREAM,
+                Actions.STREAM,
                 Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
         }
     }
@@ -173,7 +172,7 @@ public class SyncAdapterService extends Service {
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
             Message msg = new Message(app.getResources(), events, favoritings, comments);
-            createDashboardNotification(app, msg.ticker, msg.title, msg.message, "activity",
+            createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
         }
     }
@@ -189,7 +188,7 @@ public class SyncAdapterService extends Service {
 
     /* package */ static Activities getOwnEvents(SoundCloudApplication application, long since)
             throws IOException {
-        return getEvents(application, since, AndroidCloudAPI.MY_NEWS);
+        return getEvents(application, since, AndroidCloudAPI.MY_ACTIVITY);
     }
 
     /* package */
@@ -275,26 +274,24 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static void createDashboardNotification(SoundCloudApplication app,
+    private static void createDashboardNotification(Context context,
                                                     CharSequence ticker,
                                                     CharSequence title,
-                                                    CharSequence message, String tab, int id) {
+                                                    CharSequence message, String action, int id) {
         NotificationManager nm = (NotificationManager)
-                app.getSystemService(Context.NOTIFICATION_SERVICE);
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent intent = (new Intent(app, Main.class))
-                .addCategory(Intent.CATEGORY_LAUNCHER)
+        Intent intent = (new Intent(action))
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", tab);
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent pi = PendingIntent.getActivity(app.getApplicationContext(),
-                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pi = PendingIntent.getActivity(
+                context.getApplicationContext(), 0, intent, 0);
 
         Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(app.getApplicationContext(), title, message, pi);
+        n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
         nm.notify(id, n);
     }
 

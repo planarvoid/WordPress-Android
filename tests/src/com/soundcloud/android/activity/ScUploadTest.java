@@ -1,13 +1,12 @@
 package com.soundcloud.android.activity;
 
 import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Upload;
@@ -125,14 +124,14 @@ public class ScUploadTest implements Params.Track {
 
     @Test
     public void shouldMapIntentToRecording() throws Exception {
-        Intent i = new Intent(Consts.ACTION_SHARE)
+        Intent i = new Intent(Actions.SHARE)
                 .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
-                .putExtra(Consts.EXTRA_DESCRIPTION, "description")
-                .putExtra(Consts.EXTRA_GENRE, "genre")
-//                .putExtra(Consts.EXTRA_PUBLIC, false)
-                .putExtra(Consts.EXTRA_TITLE, "title")
-                .putExtra(Consts.EXTRA_WHERE, "where")
-//                .putExtra(Consts.EXTRA_TAGS, new String[] { "tags" })
+                .putExtra(Actions.EXTRA_DESCRIPTION, "description")
+                .putExtra(Actions.EXTRA_GENRE, "genre")
+//                .putExtra(Actions.EXTRA_PUBLIC, false)
+                .putExtra(Actions.EXTRA_TITLE, "title")
+                .putExtra(Actions.EXTRA_WHERE, "where")
+//                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
                 ;
 
         Recording r = create.recordingFromIntent(i);

@@ -15,12 +15,11 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class NewsRow extends LazyRow {
+public class ActivityRow extends LazyRow {
     private Event mEvent;
     private final TextView mUser;
     private final TextView mTitle;
@@ -31,7 +30,7 @@ public class NewsRow extends LazyRow {
     private Drawable mCommentedPressedDrawable;
     private SpannableStringBuilder mSpanBuilder;
 
-    public NewsRow(ScActivity activity, LazyBaseAdapter adapter) {
+    public ActivityRow(ScActivity activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
 
         mTitle = (TextView) findViewById(R.id.title);
@@ -52,7 +51,7 @@ public class NewsRow extends LazyRow {
 
     @Override
     protected int getRowResourceId() {
-        return R.layout.news_list_row;
+        return R.layout.activity_list_row;
     }
 
     /** update the views with the data corresponding to selection index */

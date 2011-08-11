@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -188,34 +189,34 @@ public class Main extends TabActivity {
         }
     }
 
-
     private void handleIntent(Intent intent) {
         if (intent != null) {
             intent.getStringExtra("dummy");
             Log.d(TAG, "handleIntent("+intent+","+intent.getExtras()+")");
 
-            if (intent.getBooleanExtra("gotoPlayer", false)) {
-                Intent i = new Intent(this, ScPlayer.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(i);
-                intent.removeExtra("gotoPlayer");
-            } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-                getTabHost().setCurrentTabByTag(Dashboard.Tabs.SEARCH);
-                ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
-            } else if (intent.hasExtra("tabIndex")) {
-                getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
-                intent.removeExtra("tabIndex");
-            } else if (intent.hasExtra("userBrowserTag")) {
-                getTabHost().setCurrentTab(3);
-                ((UserBrowser)getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
-            } else if (intent.hasExtra("tabTag")) {
-                getTabHost().setCurrentTabByTag(intent.getStringExtra("tabTag"));
-                if (getCurrentActivity() instanceof Dashboard){
+            final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
+            if (tab != null) {
+                getTabHost().setCurrentTabByTag(tab);
+                if (getCurrentActivity() instanceof Dashboard) {
                      ((Dashboard) getCurrentActivity()).refreshIncoming();
                 }
-                intent.removeExtra("tabTag");
+            } else if (Actions.PLAYER.equals(intent.getAction())) {
+                // start another activity to control history (back from player moves back to main)
+                startActivity(
+                    new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                );
+            } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+                getTabHost().setCurrentTabByTag(Dashboard.Tabs.SEARCH);
+                if (getCurrentActivity() instanceof ScSearch) {
+                    ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
+                }
+            } else if (Actions.USER_BROWSER.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
+                getTabHost().setCurrentTabByTag(Dashboard.Tabs.PROFILE);
+                if (getCurrentActivity() instanceof UserBrowser) {
+                    ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
+                }
             } else if (justAuthenticated(intent)) {
-                Log.d(TAG, "activity start after succdessful authentication");
+                Log.d(TAG, "activity start after successful authentication");
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);
             }
         }
@@ -264,10 +265,9 @@ public class Main extends TabActivity {
 
         if (Build.VERSION.SDK_INT > 7) {
             for (int i = 0; i < tw.getChildCount(); i++) {
-                ((View) tw.getChildAt(i)).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
+                tw.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
         }
-
 
         // set record tab to just image, if tab order is changed, change the index of the following line
         RelativeLayout relativeLayout = (RelativeLayout) tw.getChildAt(2);

@@ -6,8 +6,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Dashboard;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
@@ -134,7 +135,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(n.info.getContentTitle().toString(),
                 equalTo("49 new sounds"));
 
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo(Dashboard.Tabs.STREAM));
+        assertThat(n.getIntent().getAction(), equalTo(Actions.STREAM));
     }
 
 
@@ -157,7 +158,7 @@ public class SyncAdapterServiceTest extends ApiTests {
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
         assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING), is(53));
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo(Dashboard.Tabs.STREAM));
+        assertThat(n.getIntent().getAction(), equalTo(Actions.STREAM));
     }
 
     @Test
@@ -178,10 +179,16 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(notifications.get(0).info.getContentText().toString(),
                 equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
 
+        assertThat(notifications.get(0).getIntent().getAction(),
+                equalTo(Actions.STREAM));
+
         assertThat(notifications.get(1).info.getContentTitle().toString(),
                 equalTo("42 new activities"));
         assertThat(notifications.get(1).info.getContentText().toString(),
                 equalTo("Comments and likes from Paul Ko, jensnikolaus and others"));
+
+        assertThat(notifications.get(1).getIntent().getAction(),
+                equalTo(Actions.ACTIVITY));
     }
 
     @Test

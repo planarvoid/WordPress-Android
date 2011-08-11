@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.FoursquareVenue;
@@ -125,11 +126,9 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = (new Intent(ScUpload.this, Main.class))
-                        .addCategory(Intent.CATEGORY_LAUNCHER)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        .putExtra("tabTag", Dashboard.Tabs.RECORD);
-                startActivity(i);
+                startActivity((new Intent(Actions.RECORD))
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
             }
         });
 
@@ -426,7 +425,7 @@ public class ScUpload extends ScActivity {
 
     /* package */ Recording recordingFromIntent(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction()) ||
-                Consts.ACTION_SHARE.equals(intent.getAction()) &&
+                Actions.SHARE.equals(intent.getAction()) &&
                         intent.hasExtra(Intent.EXTRA_STREAM)) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -437,19 +436,19 @@ public class ScUpload extends ScActivity {
                 r.user_id = getCurrentUserId();
                 r.timestamp = System.currentTimeMillis();
 
-                r.what_text = intent.getStringExtra(Consts.EXTRA_TITLE);
-                r.where_text = intent.getStringExtra(Consts.EXTRA_WHERE);
-                r.is_private = !intent.getBooleanExtra(Consts.EXTRA_PUBLIC, true);
-                Location loc = intent.getParcelableExtra(Consts.EXTRA_LOCATION);
+                r.what_text = intent.getStringExtra(Actions.EXTRA_TITLE);
+                r.where_text = intent.getStringExtra(Actions.EXTRA_WHERE);
+                r.is_private = !intent.getBooleanExtra(Actions.EXTRA_PUBLIC, true);
+                Location loc = intent.getParcelableExtra(Actions.EXTRA_LOCATION);
                 if (loc != null) {
                     r.latitude = loc.getLatitude();
                     r.longitude = loc.getLongitude();
                 }
-                r.tags = intent.getStringArrayExtra(Consts.EXTRA_TAGS);
-                r.description = intent.getStringExtra(Consts.EXTRA_DESCRIPTION);
-                r.genre = intent.getStringExtra(Consts.EXTRA_GENRE);
+                r.tags = intent.getStringArrayExtra(Actions.EXTRA_TAGS);
+                r.description = intent.getStringExtra(Actions.EXTRA_DESCRIPTION);
+                r.genre = intent.getStringExtra(Actions.EXTRA_GENRE);
 
-                Uri artwork = intent.getParcelableExtra(Consts.EXTRA_ARTWORK);
+                Uri artwork = intent.getParcelableExtra(Actions.EXTRA_ARTWORK);
 
                 if (artwork != null && "file".equals(artwork.getScheme())) {
                     r.artwork_path = new File(artwork.getPath());

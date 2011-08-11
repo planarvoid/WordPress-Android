@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 public class Dashboard extends ScActivity {
     protected ScListView mListView;
     private String mTrackingPath;
-    private boolean mNews;
+    private boolean mIsActivityTab;
     private final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
 
     @Override
@@ -44,18 +45,18 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             ScTabView trackListView;
-            if ("stream".equalsIgnoreCase(tab)) {
+            if (Tabs.STREAM.equalsIgnoreCase(tab)) {
                 trackListView = createList(getIncomingRequest(),
                         Event.class,
                         R.string.empty_incoming_text,
-                        Consts.ListId.LIST_INCOMING, false);
+                        Consts.ListId.LIST_STREAM, false);
                 mTrackingPath = Consts.TrackingEvents.STREAM;
-            } else if ("activity".equalsIgnoreCase(tab)) {
-                mNews = true;
-                trackListView = createList(Request.to(AndroidCloudAPI.MY_NEWS),
+            } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
+                mIsActivityTab = true;
+                trackListView = createList(Request.to(AndroidCloudAPI.MY_ACTIVITY),
                         Event.class,
                         R.string.empty_news_text,
-                        Consts.ListId.LIST_NEWS, true);
+                        Consts.ListId.LIST_ACTIVITY, true);
                 mTrackingPath = Consts.TrackingEvents.ACTIVITY;
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
@@ -77,15 +78,13 @@ public class Dashboard extends ScActivity {
                 : Request.to(Endpoints.MY_ACTIVITIES);
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
         pageTrack(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
-                .cancel(mNews ?
+                .cancel(mIsActivityTab ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
@@ -132,7 +131,7 @@ public class Dashboard extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         if (!mNews) {
+         if (!mIsActivityTab) {
             menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_stream_setting).setIcon(
                 R.drawable.ic_menu_incoming);
         }
@@ -173,11 +172,29 @@ public class Dashboard extends ScActivity {
         }
     }
 
-    public static interface Tabs {
-        String STREAM = "stream";
-        String ACTIVITY = "activity";
-        String RECORD = "record";
-        String PROFILE = "profile";
-        String SEARCH = "search";
+    public static final class Tabs {
+        public static final String STREAM = "stream";
+        public static final String ACTIVITY = "activity";
+        public static final String RECORD = "record";
+        public static final String PROFILE = "profile";
+        public static final String SEARCH = "search";
+
+        public static String fromAction(String action, String defaultTab) {
+            String tab = defaultTab;
+            if (action != null) {
+                if (Actions.ACTIVITY.equals(action)) {
+                    tab = ACTIVITY;
+                } else if (Actions.RECORD.equals(action)) {
+                    tab = RECORD;
+                } else if (Actions.SEARCH.equals(action)) {
+                    tab = SEARCH;
+                } else if (Actions.STREAM.equals(action)) {
+                    tab = STREAM;
+                } else if (Actions.PROFILE.equals(action)) {
+                    tab = PROFILE;
+                }
+            }
+            return tab;
+        }
     }
 }

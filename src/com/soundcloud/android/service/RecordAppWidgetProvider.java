@@ -1,7 +1,7 @@
 package com.soundcloud.android.service;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Main;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -42,12 +42,11 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
 
     private void linkButtons(Context context, RemoteViews views) {
         // Connect up various buttons and touch events
-        Intent i = (new Intent(context, Main.class))
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", "record");
+        Intent i = (new Intent(Actions.RECORD))
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         views.setOnClickPendingIntent(R.id.btn_action,
-                PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+                PendingIntent.getActivity(context, 0, i, 0));
     }
 }

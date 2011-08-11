@@ -4,7 +4,7 @@ import android.os.Environment;
 
 import java.io.File;
 
-public class Consts {
+public final class Consts {
     public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
     public static final File DEPRECATED_DB_ABS_PATH = new File(DB_PATH, "Overcast");
     public static final File NEW_DB_ABS_PATH = new File(DB_PATH, "SoundCloud.db");
@@ -24,16 +24,6 @@ public class Consts {
 
     public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
     public static final long TRACK_MIN_CACHE = 20 * 1024  * 1024; // 20  MB
-
-    public static final String ACTION_SHARE      = "com.soundcloud.android.SHARE";
-    public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
-    public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";
-    public static final String EXTRA_DESCRIPTION = "com.soundcloud.android.extra.description";
-    public static final String EXTRA_PUBLIC      = "com.soundcloud.android.extra.public";
-    public static final String EXTRA_LOCATION    = "com.soundcloud.android.extra.location" ;
-    public static final String EXTRA_TAGS        = "com.soundcloud.android.extra.tags" ;
-    public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
-    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork" ;
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
@@ -64,13 +54,13 @@ public class Consts {
     }
 
     public interface ListId {
-        int LIST_INCOMING = 1001;
-        int LIST_NEWS = 1002;
-        int LIST_USER_TRACKS = 1003;
-        int LIST_USER_FAVORITES = 1004;
+        int LIST_STREAM          = 1001;
+        int LIST_ACTIVITY        = 1002;
+        int LIST_USER_TRACKS     = 1003;
+        int LIST_USER_FAVORITES  = 1004;
         int LIST_USER_FOLLOWINGS = 1006;
-        int LIST_USER_FOLLOWERS = 1007;
-        int LIST_USER_SUGGESTED = 1008;
+        int LIST_USER_FOLLOWERS  = 1007;
+        int LIST_USER_SUGGESTED  = 1008;
     }
 
     // these need to be unique across app

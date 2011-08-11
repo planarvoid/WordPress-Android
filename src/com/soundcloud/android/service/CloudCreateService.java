@@ -4,9 +4,9 @@ package com.soundcloud.android.service;
 import static com.soundcloud.android.Consts.Notifications.*;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
@@ -215,9 +215,9 @@ public class CloudCreateService extends Service {
             }
         };
 
-        Intent i = (new Intent(this, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("tabTag", "record");
+        Intent i = (new Intent(Actions.RECORD))
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         mRecordPendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -346,10 +346,10 @@ public class CloudCreateService extends Service {
         mPlayer.start();
 
         Intent i;
-        if (mPlaybackLocal == null){
-            i = (new Intent(this, Main.class)).addCategory(Intent.CATEGORY_LAUNCHER)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            .putExtra("tabTag", "record");
+        if (mPlaybackLocal == null) {
+            i = (new Intent(Actions.RECORD))
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         } else {
             i = (new Intent(this, ScCreate.class))
             .setData(mPlaybackLocal)
@@ -361,8 +361,12 @@ public class CloudCreateService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification mPlaybackNotification = createOngoingNotification(CloudUtils.formatString(getApplicationContext().getResources()
-                .getString(R.string.cloud_recorder_playback_notification_ticker), mPlaybackTitle),
+        Notification mPlaybackNotification = createOngoingNotification(
+                CloudUtils.formatString(
+                        getApplicationContext()
+                                .getResources()
+                                .getString(R.string.cloud_recorder_playback_notification_ticker),
+                        mPlaybackTitle),
                 pendingIntent);
 
         mPlaybackNotification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
@@ -371,8 +375,6 @@ public class CloudCreateService extends Service {
 
         startForeground(PLAYBACK_NOTIFY_ID, mPlaybackNotification);
     }
-
-
 
     public void seekTo(int position) {
         mPlayer.seekTo(position);
@@ -432,7 +434,6 @@ public class CloudCreateService extends Service {
 
         Intent i = (new Intent(this, UploadMonitor.class))
                 .putExtra("upload_id", mCurrentUpload.id);
-
 
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
         mUploadNotificationView.setTextViewText(R.id.message, mCurrentUpload.title);
@@ -607,11 +608,10 @@ public class CloudCreateService extends Service {
         nm.cancel(UPLOAD_NOTIFY_ID);
 
         gotoIdleState();
+        final CharSequence notificationTitle;
+        final CharSequence notificationMessage;
 
-        CharSequence notificationTitle;
-        CharSequence notificationMessage;
-
-        Intent i = (new Intent(this, Main.class)).putExtra("userBrowserTag", UserBrowser.TabTags.tracks);
+        Intent i = (new Intent(Actions.USER_BROWSER).putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
 
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;
@@ -621,8 +621,15 @@ public class CloudCreateService extends Service {
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
             // XXX make really, really sure 3rd party uploads don't get deleted
-            if (mCurrentUpload.is_native_recording && params.encode && params.trackFile != null && params.trackFile.exists()) params.trackFile.delete();
-            if (params.encodedFile != null && params.encodedFile.exists()) params.encodedFile.delete();
+            if (mCurrentUpload.is_native_recording
+                    && params.encode
+                    && params.trackFile != null
+                    && params.trackFile.exists()) {
+                params.trackFile.delete();
+            }
+            if (params.encodedFile != null && params.encodedFile.exists()) {
+                params.encodedFile.delete();
+            }
 
             Intent broadcastIntent = new Intent(UPLOAD_SUCCESS);
             broadcastIntent.putExtra("upload_id", mCurrentUpload.id);
@@ -650,7 +657,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_ERROR, true);
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS, cv, Recordings.ID + "=" + mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -729,7 +736,7 @@ public class CloudCreateService extends Service {
         return mUploadMap.get(id);
     }
 
-    private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent){
+    private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
         int icon = R.drawable.statusbar;
         Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
         notification.contentIntent = pendingIntent;

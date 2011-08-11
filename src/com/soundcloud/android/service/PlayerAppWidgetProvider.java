@@ -140,6 +140,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         intent.setComponent(serviceName);
         pendingIntent = PendingIntent.getService(context,
                 0 /* no requestCode */, intent, 0 /* no flags */);
+
         views.setOnClickPendingIntent(R.id.prev, pendingIntent);
 
         intent = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION);

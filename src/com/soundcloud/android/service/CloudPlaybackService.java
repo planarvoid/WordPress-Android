@@ -16,13 +16,10 @@
 
 package com.soundcloud.android.service;
 
-import static com.soundcloud.android.utils.CloudUtils.isStagefright;
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -635,11 +632,14 @@ public class CloudPlaybackService extends Service {
                     @Override
                     public void run() {
                         try {
-                            if (!TrackCache.trim(trackToCache.getCache(), Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
-                                mkdirs(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY);
+                            if (!TrackCache.trim(trackToCache.getCache(),
+                                    Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
+                                // TODO move outside of thread
+                                CloudUtils.mkdirs(Consts.EXTERNAL_CACHE_DIRECTORY);
+                                Log.w(TAG, "error trimming cache");
                             }
                         } catch (IOException ignored) {
-                            Log.w(TAG, "error", ignored);
+                            Log.w(TAG, "error trimming cache", ignored);
 
                         }
                         trackToCache.touchCache();
@@ -905,16 +905,14 @@ public class CloudPlaybackService extends Service {
         mNotificationView.setTextViewText(R.id.username, getUserName());
         mNotificationView.setTextViewText(R.id.progress, "");
 
-        Intent intent = new Intent(this, Main.class);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        intent.putExtra("gotoPlayer", true);
 
         Notification status = new Notification();
         status.contentView = mNotificationView;
         status.flags |= Notification.FLAG_ONGOING_EVENT;
         status.icon = R.drawable.statusbar;
-        status.contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        status.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         startForeground(PLAYBACKSERVICE_STATUS, status);
     }
