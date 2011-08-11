@@ -16,6 +16,7 @@
 
 package com.soundcloud.android.service;
 
+import static com.soundcloud.android.utils.CloudUtils.isStagefright;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.Consts;
@@ -225,7 +226,16 @@ public class CloudPlaybackService extends Service {
                 "release", Build.VERSION.RELEASE,
                 "sc_version", CloudUtils.getAppVersion(this, "unknown"));
 
+        getApp().pageTrack(Consts.TrackingEvents.INVALID_STATUS,
+                    "model", Build.MODEL,
+                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
+                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
+                    "network_info", mCurrentNetworkInfo.toString(),
+                    "stagefright", mIsStagefright);
+
         Log.d(TAG,"::Using Stagefright Framework " + mIsStagefright);
+
+
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that
@@ -787,7 +797,6 @@ public class CloudPlaybackService extends Service {
     public void sendDownloadException() {
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
-
     }
 
     /*
@@ -1539,6 +1548,13 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
+                getApp().pageTrack(Consts.TrackingEvents.MP_ERROR,
+                    "model", Build.MODEL,
+                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
+                    "sc_version", CloudUtils.getAppVersion(CloudPlaybackService.this, "unknown"),
+                    "network_info", mCurrentNetworkInfo.toString(),
+                    "stagefright_what_extra", mIsStagefright + "_" + what + "_" + extra);
+
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
 
@@ -1753,6 +1769,23 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
+
+        if (stoppableDownloadThread.statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            getApp().pageTrack(Consts.TrackingEvents.INVALID_STATUS,
+                    "model", Build.MODEL,
+                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
+                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
+                    "network_info", mCurrentNetworkInfo.toString(),
+                    "status_line", stoppableDownloadThread.statusLine.toString()
+                    );
+        } else if (stoppableDownloadThread.exception != null) {
+            getApp().pageTrack(Consts.TrackingEvents.DOWNLOAD_EXCEPTION,
+                    "model", Build.MODEL,
+                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
+                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
+                    "network_info", mCurrentNetworkInfo.toString(),
+                    "exception", stoppableDownloadThread.exception.getMessage());
+        }
     }
 
     /**
@@ -1836,6 +1869,9 @@ public class CloudPlaybackService extends Service {
         private long bytes;
         private int mode;
 
+        public Exception exception;
+        public StatusLine statusLine;
+
         public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
             serviceRef = new WeakReference<CloudPlaybackService>(cloudPlaybackService);
             this.track = track;
@@ -1908,8 +1944,10 @@ public class CloudPlaybackService extends Service {
                         HttpUriRequest request = new HttpHead(streamUrl);
                         resp = cli.execute(request);
 
-                        if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                            Log.i(TAG, "invalid status received: " + resp.getStatusLine().getStatusCode());
+                        statusLine = resp.getStatusLine();
+
+                        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                            Log.i(TAG, "invalid status received: " + statusLine.toString());
                             return;
                         }
 
@@ -1941,11 +1979,16 @@ public class CloudPlaybackService extends Service {
 
                 if (mStopped) return;
 
-                StatusLine status = resp.getStatusLine();
+                 statusLine = resp.getStatusLine();
+
+                if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                    Log.i(TAG, "invalid status received: " + statusLine.toString());
+                    return;
+                }
                 switch (mode) {
                     case MODE_NEW:
-                        if (status.getStatusCode() != HttpStatus.SC_OK) {
-                            Log.d(TAG, "invalid status received: " + status.getStatusCode());
+                        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                            Log.d(TAG, "invalid status received: " + statusLine.toString());
                             return;
                         }
                         // is the stored length equal to the cached file length plus
@@ -1955,8 +1998,8 @@ public class CloudPlaybackService extends Service {
                         break;
 
                     case MODE_PARTIAL:
-                        if (status.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT) {
-                            Log.d(TAG, "invalid status received: " + status.getStatusCode());
+                        if (statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT) {
+                            Log.d(TAG, "invalid status received: " + statusLine.toString());
                             return;
                         }
                         if (track.filelength != getContentLength(resp) + track.getCache().length()) {
@@ -1969,12 +2012,14 @@ public class CloudPlaybackService extends Service {
                         break;
                 }
 
-                // reset download counter. if we got here, we have a successful connection
-                mCurrentDownloadAttempts = 0;
+
                 HttpEntity ent = resp.getEntity();
                 if (ent != null) {
                     is = ent.getContent();
                     os = new FileOutputStream(track.getCache(), true);
+
+                    // reset download counter. if we got here, we have a successful connection
+                    mCurrentDownloadAttempts = 0;
 
                     byte[] b = new byte[2048];
                     int n;
@@ -1994,6 +2039,7 @@ public class CloudPlaybackService extends Service {
                  * regardless as there would be no need to handle it.
                  */
                 if (!mStopped) Log.w(TAG, e);
+                exception = e;
             } finally {
 
                 if (bytes > 0) {

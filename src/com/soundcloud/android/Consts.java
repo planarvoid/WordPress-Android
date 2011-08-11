@@ -84,7 +84,6 @@ public class Consts {
     }
 
     public interface TrackingEvents {
-        String AUDIO_ENGINE = "/internal/audioEngine";
         String INCOMING = "/incoming";
         String ACTIVITY = "/activity";
         String RECORD = "/record";
@@ -103,5 +102,10 @@ public class Consts {
         String SETTINGS = "/settings";
         String TRACKS_BY_TAG = "/tracks_by_tag/";
         String TRACKS_BY_GENRE = "/tracks_by_genre/";
+
+        String AUDIO_ENGINE = "/internal/audioEngine";
+        String INVALID_STATUS = "/internal/cache_invalidCode/";
+        String DOWNLOAD_EXCEPTION = "/internal/cache_exception/";
+        String MP_ERROR = "/internal/mpError/";
     }
 }

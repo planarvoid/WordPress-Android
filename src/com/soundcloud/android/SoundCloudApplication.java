@@ -80,7 +80,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }
             mTracker = GoogleAnalyticsTracker.getInstance();
             mTracker.start(
-                    getString(BETA_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
+                    getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
                     120 /* seconds */, this);
         }
 
