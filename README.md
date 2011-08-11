@@ -17,24 +17,23 @@ Clone and build it:
 ## Releasing
 
   * Make sure build is green (cf [Builder][])
-  * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
-  * Create a new crash form & change the form key in `SoundCloudApplication`
-  * Document changes in [changelog.txt][] and add the release date
-  * Tag the current version (`git tag -a 1.3.2`)
+  * For major releases - install previous market version and test upgrade process
+  * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`, set version in `pom.xml`
+  * Document changes in [changelog.txt][] and change the release date
+  * Tag the current version (`rake release:tag`)
   * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
-  * Build and sign: `mvn install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
+  * Build and sign: `mvn clean install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
   command with space to skip history)
-  * For major releases - install previous market version and test upgrade
-  process
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
 
 ## Releasing betas
 
   * Change `versionName` in AndroidManifest.xml (but *not* `versionCode`)
-  * Create a tag with the versionName you used in step 1)
   * Build the apk: `rake beta:build`
+  * Tag the current beta version: `rake beta:tag`
   * Upload to S3: `rake beta:upload`
+  * Push notifications to beta clients: `rake beta:notify`
 
 ## Integration from other Android apps
 

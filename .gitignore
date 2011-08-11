@@ -42,3 +42,5 @@ lib_managed
 src_managed
 
 c2dm.credentials
+
+reg_ids.yaml

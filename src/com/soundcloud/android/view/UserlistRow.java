@@ -9,10 +9,12 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,9 +27,6 @@ public class UserlistRow extends LazyRow {
     protected TextView mFullname;
     protected TextView mTracks;
     protected TextView mFollowers;
-
-    protected ImageView mTracksIcon;
-    protected ImageView mFollowersIcon;
 
     protected ImageButton mFollowBtn;
     protected ImageButton mFollowingBtn;
@@ -42,8 +41,6 @@ public class UserlistRow extends LazyRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mTracksIcon = (ImageView) findViewById(R.id.tracks_icon);
-        mFollowersIcon = (ImageView) findViewById(R.id.followers_icon);
         mFollowingBtn = (ImageButton) findViewById(R.id.toggleFollowing);
         mFollowBtn = (ImageButton) findViewById(R.id.toggleFollow);
 
@@ -96,10 +93,16 @@ public class UserlistRow extends LazyRow {
     public void setFollowingStatus(boolean enabled) {
         boolean following = FollowStatus.get().isFollowing(mUser);
 
-        mFollowingBtn.setVisibility(following ? View.VISIBLE : View.GONE);
-        mFollowBtn.setVisibility(following ? View.GONE : View.VISIBLE);
-        mFollowingBtn.setEnabled(enabled);
-        mFollowBtn.setEnabled(enabled);
+        if (mUser.id == mActivity.getCurrentUserId()) {
+            mFollowingBtn.setVisibility(View.GONE);
+            mFollowBtn.setVisibility(View.GONE);
+        } else {
+            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.GONE);
+            mFollowBtn.setVisibility(following ? View.GONE : View.VISIBLE);
+            mFollowingBtn.setEnabled(enabled);
+            mFollowBtn.setEnabled(enabled);
+        }
+
     }
 
     @Override
@@ -111,16 +114,7 @@ public class UserlistRow extends LazyRow {
     public String getIconRemoteUri() {
         if (mUser.avatar_url == null)
             return "";
-
-        if (CloudUtils.isScreenXL(mActivity)) {
-            return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.LARGE);
-        } else {
-            if (getContext().getResources().getDisplayMetrics().density > 1) {
-                return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.LARGE);
-            } else {
-                return CloudUtils.formatGraphicsUrl(mUser.avatar_url, Consts.GraphicsSizes.BADGE);
-            }
-        }
+        return ImageUtils.formatGraphicsUrlForList(mActivity,mUser.avatar_url);
     }
 
     protected void setTrackCount() {

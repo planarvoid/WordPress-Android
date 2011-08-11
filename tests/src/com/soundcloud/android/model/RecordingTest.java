@@ -6,16 +6,13 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 
 @SuppressWarnings({"ResultOfMethodCallIgnored"})
@@ -63,19 +60,12 @@ public class RecordingTest {
         assertThat(r.sharingNote(), equalTo("Party"));
     }
 
-    @Test
-    public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
-        r.external_upload = true;
-        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
-        List<String> tagList = Arrays.asList(tags.split("\\s+"));
-        assertThat(tagList.contains("soundcloud:source=android-3rdparty-upload"), is(true));
-    }
 
     @Test
     public void shouldGenerateStatusWithNotUploaded() throws Exception {
         assertThat(
                 r.getStatus(Robolectric.application.getResources()),
-                equalTo("null, 1.26, not yet uploaded"));
+                equalTo("10 years, 1.26, not yet uploaded"));
     }
 
     @Test
@@ -83,7 +73,7 @@ public class RecordingTest {
         r.upload_error = true;
         assertThat(
                  r.getStatus(Robolectric.application.getResources()),
-                 equalTo("null, 1.26, upload failed"));
+                 equalTo("10 years, 1.26, upload failed"));
      }
 
     @Test
@@ -91,7 +81,7 @@ public class RecordingTest {
         r.upload_status = 1;
         assertThat(
                 r.getStatus(Robolectric.application.getResources()),
-                equalTo("Uploading, progress is in notifications"));
+                equalTo("\n\t\tUploading. You can check on progress in Notifications\n\t"));
     }
 
     @Test
@@ -136,21 +126,10 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldAddTagsToUploadData() throws Exception {
-        r.tags = new String[] { "foo baz", "bar", "baz" };
-        String tags = String.valueOf(r.uploadData().get(Params.Track.TAG_LIST));
-        assertThat(tags, equalTo("soundcloud:source=android-record \"foo baz\" bar baz"));
-    }
-
-    @Test
-    public void shouldAddDescriptionToUploadData() throws Exception {
-        r.description = "foo";
-        assertThat(r.uploadData().get(Params.Track.DESCRIPTION).toString(), equalTo("foo"));
-    }
-
-    @Test
-    public void shouldAddGenreToUploadData() throws Exception {
-        r.genre = "foo";
-        assertThat(r.uploadData().get(Params.Track.GENRE).toString(), equalTo("foo"));
+    public void shouldGeneratePageTrack() throws Exception {
+        Recording r = new Recording(new File("/tmp"));
+        assertThat(r.pageTrack(), equalTo("/record/share/public"));
+        r.is_private = true;
+        assertThat(r.pageTrack(), equalTo("/record/share/private"));
     }
 }

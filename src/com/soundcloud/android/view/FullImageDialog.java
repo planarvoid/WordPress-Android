@@ -38,9 +38,8 @@ public class FullImageDialog extends Dialog {
                 if (!isShowing()) return;
                 ScActivity activity = mActivityRef.get();
                 if (activity != null) {
-                    new FullImageDialog(activity, imageUri).show();
+                    activity.safeShowDialog(new FullImageDialog(activity, imageUri));
                 }
-
                 try {
                     dismiss();
                 } catch (IllegalArgumentException ignored) {}
@@ -50,7 +49,6 @@ public class FullImageDialog extends Dialog {
             public void onImageError(ImageView view, String url, Throwable error) {
                 if (!isShowing()) return;
                 mHandler.post(mImageError);
-
             }
         })) != BindResult.OK) {
             if (result == BindResult.ERROR) {
@@ -58,7 +56,6 @@ public class FullImageDialog extends Dialog {
             } else {
                 image.setVisibility(View.GONE);
             }
-
         } else {
             progress.setVisibility(View.GONE);
             image.setVisibility(View.VISIBLE);
@@ -71,7 +68,6 @@ public class FullImageDialog extends Dialog {
             if (activity != null) {
                 activity.showToast(R.string.image_load_error);
             }
-
             try {
                 dismiss();
             } catch (IllegalArgumentException ignored) {}
@@ -83,20 +79,24 @@ public class FullImageDialog extends Dialog {
         if (event.getAction() == MotionEvent.ACTION_DOWN && isOutOfBounds(event)) {
             cancel();
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     private boolean isOutOfBounds(MotionEvent event) {
-        if (mActivityRef.get() == null)
+        final ScActivity activity = mActivityRef.get();
+        if (activity != null) {
+            final int x = (int) event.getX();
+            final int y = (int) event.getY();
+            final int slop = ViewConfiguration.get(activity).getScaledWindowTouchSlop();
+            final View decorView = getWindow().getDecorView();
+            return (x < -slop) ||
+                   (y < -slop) ||
+                   (x > (decorView.getWidth() + slop)) ||
+                   (y > (decorView.getHeight() + slop));
+        } else {
             return true;
-
-        final int x = (int) event.getX();
-        final int y = (int) event.getY();
-        final int slop = ViewConfiguration.get(mActivityRef.get()).getScaledWindowTouchSlop();
-        final View decorView = getWindow().getDecorView();
-        return (x < -slop) || (y < -slop) || (x > (decorView.getWidth() + slop))
-                || (y > (decorView.getHeight() + slop));
+        }
     }
-
 }

@@ -4,21 +4,19 @@
 
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
+    <dimen name="list_icon_margin_left">5dip</dimen>
+    <dimen name="list_icon_margin_right">5dip</dimen>
     <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
 
-    <dimen name="track_list_indicator_margin_left">5dip</dimen>
-    <dimen name="track_list_text_margin_left">20dip</dimen>
+    <dimen name="list_text_margin_left">5dip</dimen>
+    <dimen name="list_text_margin_right">5dip</dimen>
     <dimen name="track_list_private_margin_top">3dip</dimen>
     <dimen name="track_list_private_margin_left">5dip</dimen>
 
-    <dimen name="rec_list_text_margin_left">5dip</dimen>
-
-    <dimen name="user_list_text_margin_left">10dip</dimen>
-
     <dimen name="user_browser_info_margin_left">0dip</dimen>
-    <dimen name="user_browser_info_username_margin_top">5dip</dimen>
+    <dimen name="user_browser_info_username_margin_top">0dip</dimen>
     <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
     <dimen name="user_browser_info_username_txt_size">15sp</dimen>
 
@@ -32,6 +30,7 @@
     <dimen name="player_time_width">80dip</dimen>
     <dimen name="player_time_text_size">10sp</dimen>
 
+    <dimen name="player_info_bar_height">90dip</dimen>
     <dimen name="player_track_info_padding_top">10dip</dimen>
     <dimen name="player_track_info_padding_left">0dip</dimen>
     <dimen name="player_track_info_padding_right">0dip</dimen>
@@ -55,5 +54,10 @@
 
     <dimen name="pull_to_refresh_img_min_height">40dip</dimen>
 
-
+    <dimen name="share_user_header_height">30dip</dimen>
+    <dimen name="share_user_header_text_size">16sp</dimen>
+    <dimen name="share_user_icon_width">32px</dimen>
+    <dimen name="share_user_icon_height">32px</dimen>
+    <dimen name="share_progress_icon_width">67px</dimen>
+    <dimen name="share_progress_icon_height">67px</dimen>
 </resources>

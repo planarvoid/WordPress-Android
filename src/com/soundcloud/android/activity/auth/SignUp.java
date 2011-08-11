@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -47,6 +48,13 @@ public class SignUp extends Activity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         build();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        app.pageTrack(Consts.TrackingEvents.SIGNUP);
     }
 
     protected void build() {
@@ -116,8 +124,11 @@ public class SignUp extends Activity {
 
             @Override
             protected void onPostExecute(final User user) {
-                // XXX proper fix
-                try { progress.dismiss(); } catch (IllegalArgumentException ignored) {}
+                if (!isFinishing()) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {}
+                }
 
                 if (user != null) {
                     // need to create user account as soon as possible, so the refresh logic in
@@ -130,6 +141,7 @@ public class SignUp extends Activity {
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
+                                app.pageTrack(Consts.TrackingEvents.LOGIN);
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
                                         .putExtra("signed_up", signedUp ? "native" : null)
                                         .putExtra("user", user)
@@ -147,15 +159,17 @@ public class SignUp extends Activity {
     }
 
     private void signupFail(String error) {
-        new AlertDialog.Builder(this)
-                .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
-                .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
+        if (!isFinishing()) {
+          new AlertDialog.Builder(this)
+                  .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)
+                  .setMessage(error != null ? error : getString(R.string.authentication_signup_error_message))
+                  .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {
+                      }
+                  })
+                  .show();
+        }
     }
 
     @Override

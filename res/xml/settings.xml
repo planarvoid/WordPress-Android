@@ -96,5 +96,10 @@
             android:title="@string/pref_dev_clear_notification"
             android:summary="@string/pref_dev_clear_notification_summary"
             android:key="dev.clearNotifications"/>
+
+        <Preference
+            android:title="@string/pref_dev_crash"
+            android:summary="@string/pref_dev_crash_summary"
+            android:key="dev.crash"/>
     </PreferenceCategory>
 </PreferenceScreen>

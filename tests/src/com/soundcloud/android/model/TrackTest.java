@@ -1,15 +1,17 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import junit.framework.Assert;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import android.content.ContentValues;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
@@ -23,11 +25,15 @@ public class TrackTest {
     @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
-        t.title = "My Ttrack";
-        t.tag_list = "punk";
         t.description = "Cool track";
+        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>"));
+    }
 
-        assertThat(t.trackInfo(), equalTo("Cool track<br/><br/>punk<br/><br/><br/><br/>"));
+    @Test
+    public void shouldAddLineBreaksToTrackInfo() throws Exception {
+        Track t = new Track();
+        t.description = "Cool\ntrack";
+        assertThat(t.trackInfo(), equalTo("Cool<br/>track<br/><br/>"));
     }
 
     @Test
@@ -75,5 +81,33 @@ public class TrackTest {
         assertThat(t.getCache().exists(), is(true));
         assertThat(t.deleteCache(), is(true));
         assertThat(t.getCache().exists(), is(false));
+    }
+
+    @Test
+    public void shouldBuildContentValuesEmpty() throws Exception{
+        Track t = new Track();
+        ContentValues v = t.buildContentValues();
+        assertNotNull(v);
+    }
+
+    @Test
+    public void shouldBuildContentValuesWithContent() throws Exception{
+        Track t = new Track();
+        t.id = 1000;
+        ContentValues v = t.buildContentValues();
+        assertNotNull(v);
+        assertThat(v.getAsLong(DatabaseHelper.Tracks.ID), is(1000L));
+    }
+
+    @Test
+    public void shouldGeneratePageTrack() throws Exception {
+        Track t = new Track();
+        User u = new User();
+        u.username = "user";
+        t.permalink = "foo";
+        t.user = u;
+        assertThat(t.pageTrack(), equalTo("/user/foo"));
+        assertThat(t.pageTrack("bar"), equalTo("/user/foo/bar"));
+        assertThat(t.pageTrack("bar", "baz"), equalTo("/user/foo/bar/baz"));
     }
 }

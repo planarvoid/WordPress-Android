@@ -4,95 +4,102 @@
               android:layout_height="fill_parent"
               android:orientation="vertical">
 
-    <LinearLayout android:background="@color/playerControlBackground"
+    <RelativeLayout android:background="@color/playerControlBackground"
                   android:layout_height="wrap_content"
+                  android:paddingBottom="5dip"
+                  android:paddingTop="5dip"
+                  android:gravity="center_vertical"
                   android:orientation="horizontal"
                   android:layout_width="fill_parent">
 
         <ImageView android:id="@+id/user_icon"
                 android:layout_width="67dip"
                 android:layout_height="67dip"
+                android:layout_marginRight="@dimen/list_icon_margin_right"
+                android:layout_marginLeft="@dimen/list_icon_margin_left"
                 android:src="@drawable/avatar_badge_large"
                 android:gravity="top"/>
-
-        <RelativeLayout android:layout_width="wrap_content"
-                        android:layout_marginLeft="@dimen/user_browser_info_margin_left"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content">
-
+        <RelativeLayout android:layout_width="0dp"
+                        android:gravity="left"
+                        android:layout_marginLeft="@dimen/list_text_margin_left"
+                        android:layout_alignTop="@id/user_icon"
+                        android:layout_alignBottom="@id/user_icon"
+                        android:layout_toRightOf="@id/user_icon"
+                        android:layout_alignParentRight="true"
+                        android:layout_height="0dp"
+                        android:paddingRight="10dip">
             <TextView android:id="@+id/username"
                       android:layout_alignParentTop="true"
                       android:layout_width="wrap_content"
                       style="@style/txt_list_main"
                       android:layout_height="wrap_content"
                       android:textSize="15sp"
-                      android:paddingLeft="5dip"
-                      android:paddingRight="5dip"
-                      android:layout_marginBottom="@dimen/user_browser_info_username_margin_bottom"
-                      android:layout_marginTop="@dimen/user_browser_info_username_margin_top"/>
+                      android:singleLine="true"
+                      android:ellipsize="end"
+                      android:layout_marginBottom="@dimen/user_browser_info_username_margin_bottom" />
 
             <TextView android:id="@+id/fullname"
                       android:layout_below="@id/username"
                       android:layout_width="wrap_content"
                       style="@style/txt_list_sub"
+                      android:singleLine="true"
+                      android:ellipsize="end"
                       android:layout_height="wrap_content"
-                      android:paddingLeft="5dip"
-                      android:paddingRight="5dip" />
-        </RelativeLayout>
-
-        <RelativeLayout android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:paddingRight="5dip">
-
+                      android:layout_alignLeft="@id/username"
+                      android:paddingRight="5dip"
+                      android:layout_toLeftOf="@+id/btn_followState"/>
+            <RelativeLayout
+                    android:id="@+id/stats"
+                    android:layout_below="@id/fullname"
+                    android:layout_width="wrap_content"
+                    android:paddingTop="3dip"
+                    android:gravity="left"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@id/fullname"
+                    android:layout_toLeftOf="@+id/btn_followState"
+                    android:layout_alignWithParentIfMissing="true">
+                <TextView android:layout_width="wrap_content"
+                          android:drawableLeft="@drawable/ic_stats_sounds_states"
+                          android:drawablePadding="3dip"
+                          android:layout_height="wrap_content"
+                          android:id="@+id/tracks"
+                          android:text="@string/track_count"
+                          android:layout_alignParentLeft="true"
+                          android:paddingLeft="0dip"
+                          android:paddingRight="5dip"
+                          style="@style/txt_list_sub_secondary"/>
+                <View android:background="@color/verticalPipe"
+                      android:layout_toRightOf="@+id/tracks"
+                      android:layout_alignBottom="@+id/tracks"
+                      android:layout_alignTop="@+id/tracks"
+                      android:layout_height="0dp"
+                      android:layout_marginRight="2dip"
+                      android:layout_marginLeft="3dip"
+                      android:layout_width="1dip"
+                      android:id="@+id/vr_stats"/>
+                <TextView android:layout_width="wrap_content"
+                          android:drawableLeft="@drawable/ic_stats_followers_states"
+                          android:drawablePadding="3dip"
+                          android:layout_height="wrap_content"
+                          android:id="@+id/followers"
+                          android:text="@string/follower_count"
+                          android:layout_toRightOf="@id/vr_stats"
+                          android:paddingRight="5dip"
+                          style="@style/txt_list_sub_secondary"/>
+            </RelativeLayout>
             <ImageButton android:id="@+id/btn_followState"
-              android:layout_centerVertical="true"
               android:background="@android:color/transparent"
+              android:layout_below="@id/username"
+              android:layout_alignParentRight="true"
               android:visibility="gone"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:src="@drawable/ic_follow_states"/>
         </RelativeLayout>
-    </LinearLayout>
-
-    <RelativeLayout android:id="@+id/tab_holder"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-
-        <TabHost android:id="@android:id/tabhost"
-                 android:layout_width="fill_parent"
-                 android:layout_height="wrap_content">
-
-            <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                <HorizontalScrollView android:id="@+id/tab_scroller"
-                                      android:scrollbars="none"
-                                      android:fadingEdgeLength="20dip"
-                                      android:layout_height="wrap_content"
-                                      android:layout_width="fill_parent"
-                                      android:fillViewport="true" >
-
-                    <TabWidget android:id="@android:id/tabs"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@color/listSeperator"/>
-                </HorizontalScrollView>
-
-                <FrameLayout android:id="@android:id/tabcontent"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        />
-            </LinearLayout>
-        </TabHost>
-
-        <com.soundcloud.android.view.WorkspaceView
-                android:id="@+id/workspace_view"
-                android:layout_below="@android:id/tabhost"
-                android:layout_alignParentBottom="true"
+    </RelativeLayout>
+    <com.soundcloud.android.view.UserlistLayout
+                android:id="@+id/userlist_browser"
+                android:layout_weight="1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
-    </RelativeLayout>
 </LinearLayout>

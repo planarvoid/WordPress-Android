@@ -18,7 +18,9 @@
                 android:id="@android:id/tabs"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/listSeperator"/>
+                android:background="@color/listSeperator"
+                android:tabStripLeft="@drawable/tab_bottom_left"
+                android:tabStripRight="@drawable/tab_bottom_right"/>
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="fill_parent"

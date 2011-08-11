@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -188,8 +189,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void hideConnectingLayout() {
         mWaveformHolder.hideConnectingLayout();
-
-
     }
 
     public void setProgress(long pos) {
@@ -230,6 +229,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mPlayingTrack = track;
         mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+
+        if (TextUtils.isEmpty(track.waveform_url)){
+            waveformResult = BindResult.ERROR;
+            mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
+            showWaveform();
+            return;
+        }
 
         if (waveformResult == BindResult.ERROR) {
             // clear loader errors so we can try to reload
@@ -504,7 +510,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mCurrentTopComments = new ArrayList<Comment>();
 
-        Collections.sort(comments, new Comment.CompareTimestamp());
+        Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);
 
         for (int i = 0; i < mCurrentComments.size(); i++){
             if (mCurrentComments.get(i).timestamp > 0 && (i == mCurrentComments.size()-1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i+1).timestamp)){
@@ -719,9 +725,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     };
 
+    public void onDestroy() {
+        if (mTouchThread != null) {
+            mTouchThread.stopped = true;
+            mTouchThread.interrupt();
+        }
+    }
+
     private class TouchThread extends Thread {
         private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
-        public boolean stopped = false;
+        private boolean stopped = false;
 
         public synchronized void feedInput(InputObject input) {
                 try {
@@ -740,13 +753,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
                         processInputObject(input);
                     }
-                } catch (InterruptedException e) {
-                    Log.e(TAG, e.getMessage(), e);
+                } catch (InterruptedException ignored) {
                 } finally {
                     if (input != null) input.returnToPool();
                 }
             }
         }
     }
-
-}
+  }

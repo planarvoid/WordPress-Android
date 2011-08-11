@@ -2,12 +2,15 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,7 +26,7 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.DisplayMetrics;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -130,11 +133,10 @@ public class ImageUtils {
         return BitmapFactory.decodeStream(input);
     }
 
-    public static boolean setImage(File imageFile, ImageView imageView, DisplayMetrics metrics) {
+    public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
         Bitmap bitmap;
         try {
-            final int viewDimension = (int) (metrics.density * 100f);
-            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewDimension, viewDimension);
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight);
 
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
@@ -147,18 +149,18 @@ public class ImageUtils {
 
             // assumes height and width are the same
             if (bitmap.getWidth() > bitmap.getHeight()) {
-                scale = (float) viewDimension / (float) bitmap.getHeight();
-                dx = (viewDimension - bitmap.getWidth() * scale) * 0.5f;
+                scale = (float) viewHeight / (float) bitmap.getHeight();
+                dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
             } else {
-                scale = (float) viewDimension / (float) bitmap.getWidth();
-                dy = (viewDimension - bitmap.getHeight() * scale) * 0.5f;
+                scale = (float) viewWidth / (float) bitmap.getWidth();
+                dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
             }
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
             int exifRotation = getExifRotation(imageFile.getAbsolutePath());
             if (exifRotation != 0) {
-                m.postRotate(exifRotation, viewDimension / 2, viewDimension / 2);
+                m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
             }
 
             imageView.setScaleType(ImageView.ScaleType.MATRIX);
@@ -234,7 +236,7 @@ public class ImageUtils {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
 
-        private Activity mActivity;
+        private final Activity mActivity;
 
         public ImagePickListener(Activity activity) {
             mActivity = activity;
@@ -250,21 +252,51 @@ public class ImageUtils {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             final File file = getFile();
                             if (file != null) {
-                                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                                mActivity.startActivityForResult(i, GALLERY_IMAGE_TAKE);
+                                Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                                try {
+                                    mActivity.startActivityForResult(i, GALLERY_IMAGE_TAKE);
+                                } catch (ActivityNotFoundException e) {
+                                    CloudUtils.showToast(mActivity, R.string.take_new_picture_error);
+                                }
                             }
                         }
                     }).setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
-                            mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
-                        }
-                    })
-                    .create()
-                    .show();
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    try {
+                        mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
+                    } catch (ActivityNotFoundException e) {
+                        CloudUtils.showToast(mActivity, R.string.use_existing_image_error);
+                    }
+                }
+            })
+            .create()
+            .show();
         }
+    }
+
+    public static String formatGraphicsUrlForList(Context c, String url){
+        return formatGraphicsUrl(url,getListItemGraphicSize(c));
+    }
+
+    public static String formatGraphicsUrl(String url, String targetSize) {
+        return url == null ? null : targetSize == Consts.GraphicsSizes.LARGE ? url : url.replace(Consts.GraphicsSizes.LARGE, targetSize);
+    }
+
+    public static String getListItemGraphicSize(Context c) {
+
+        if (CloudUtils.isScreenXL(c)) {
+            return Consts.GraphicsSizes.LARGE;
+        } else {
+            if (c.getResources().getDisplayMetrics().density > 1) {
+                return Consts.GraphicsSizes.LARGE;
+            } else {
+                return Consts.GraphicsSizes.BADGE;
+            }
+        }
+
     }
 }

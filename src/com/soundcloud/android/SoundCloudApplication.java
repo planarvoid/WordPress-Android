@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import static android.content.pm.PackageManager.*;
-import static com.soundcloud.android.utils.CloudUtils.doOnce;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
@@ -11,7 +10,6 @@ import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.LruCache;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -49,11 +47,10 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(formKey = "dF80bFFiZXRUUU9zM1lKRUlYWjBQZ1E6MQ")
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=a42a4305", formKey="")
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
@@ -66,6 +63,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker mTracker;
+    private User mLoggedInUser;
 
     protected Wrapper mCloudApi; /* protected for testing */
     public boolean playerWaitForArtwork;
@@ -114,12 +112,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }
         }
 
-        doOnce(this, "cleanup.track.cache", new Runnable() {
-            @Override public void run() {
-                TrackCache.cleanupTrackCache();
-            }
-        });
-
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
             C2DMReceiver.register(this);
@@ -130,6 +122,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
+    }
+
+    public User getLoggedInUser() {
+        if (mLoggedInUser == null && getCurrentUserId() != -1) {
+            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            if (mLoggedInUser == null) mLoggedInUser = new User(this);
+        }
+        return mLoggedInUser;
     }
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
@@ -156,6 +156,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         FollowStatus.set(null);
         Connections.set(null);
+        mLoggedInUser = null;
     }
 
     public boolean isEmailConfirmed() {
@@ -262,7 +263,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public int getAccountDataInt(String key) {
         String data = getAccountData(key);
-        return data == null ? 0 : Integer.parseInt(data);
+        return data == null ? -1 : Integer.parseInt(data);
     }
 
     public long getAccountDataLong(String key) {

@@ -1,16 +1,12 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+
+import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -18,13 +14,16 @@ import java.util.List;
 
 public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     private List<WeakReference<SectionListener>> mListeners;
-
     private int mSectionIndex = 0;
 
     public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped) {
+        this(activity, wrapped, false);
+    }
+
+    public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped, boolean autoAppend) {
         super(activity, wrapped, null);
         mListeners = new ArrayList<WeakReference<SectionListener>>();
-        mKeepOnAppending.set(false);
+        mKeepOnAppending.set(autoAppend);
     }
 
     public void addListener(SectionListener listener){
@@ -37,8 +36,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     public void addSection(SectionedAdapter.Section newSection){
         getWrappedAdapter().sections.add(newSection);
     }
-
-
 
     @Override
     public List<Parcelable> getData() {
@@ -90,10 +87,8 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    public void onPostTaskExecute(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepgoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
         mPendingView = null;
-        notifyDataSetChanged();
-
         if (responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
                 for (Parcelable newitem : newItems) {
@@ -103,17 +98,16 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             if (!TextUtils.isEmpty(nextHref)) {
                 getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
             }
-
             if (!keepgoing) {
                 nextAdapterSection();
-                return;
+            } else {
+                mKeepOnAppending.set(keepgoing);
             }
-
-            mKeepOnAppending.set(keepgoing);
         } else {
             handleResponseCode(responseCode);
             applyEmptyText();
         }
+        notifyDataSetChanged();
     }
 
     private void nextAdapterSection() {
@@ -129,8 +123,10 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
             mKeepOnAppending.set(true);
-            notifyDataSetChanged();
+        } else {
+            mKeepOnAppending.set(false);
         }
+        notifyDataSetChanged();
     }
 
 

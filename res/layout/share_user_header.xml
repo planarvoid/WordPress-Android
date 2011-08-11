@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:id="@+id/RelativeLayout01"
+                android:layout_width="fill_parent" 
+                android:layout_height="wrap_content">
+    <include layout="@layout/share_header"
+             android:id="@+id/share_header_txt" />
+    <RelativeLayout
+            android:id="@+id/share_header_user_holder"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="10dip"
+            android:layout_below="@id/share_header_txt">
+        <ImageView
+                android:layout_width="@dimen/share_user_icon_width"
+                android:layout_height="@dimen/share_user_icon_height"
+                android:layout_marginRight="5dip"
+                android:id="@+id/icon"
+                android:background="@drawable/avatar_badge" />
+        <TextView
+                android:layout_toRightOf="@+id/icon"
+                android:id="@+id/share_header_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:gravity="center_vertical"
+                style="@style/txt_share_header_username"
+                android:text="Seams"/>
+        <View
+                android:background="#ff000000"
+                android:layout_toRightOf="@id/share_header_username"
+                android:layout_alignBottom="@id/share_header_username"
+                android:layout_alignTop="@id/share_header_username"
+                android:layout_centerVertical="true"
+                android:layout_height="0dp"
+                android:layout_marginRight="3dip"
+                android:layout_marginLeft="3dip"
+                android:layout_width="1dip"
+                android:id="@+id/vr_share_user"/>
+        <TextView
+                android:id="@+id/share_header_logout_txt"
+                android:textColorLink="#FFFFFFFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/vr_share_user"
+                android:gravity="center_vertical"
+                style="@style/txt_share_header"
+                android:text="@string/share_log_out"/>
+    </RelativeLayout>
+    <View android:id="@+id/share_header_seperator"
+          android:layout_below="@id/share_header_user_holder"
+                                android:background="@color/recordUploadBorder"
+                                android:layout_width="fill_parent"
+                                android:layout_height="1dip"/>
+</RelativeLayout>

@@ -35,7 +35,7 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
 
     @Override
     protected void onPostExecute(Model result) {
-        final ScActivity activity = mActivityReference.get();
+        final ScActivity activity = mActivityReference == null ? null : mActivityReference.get();
         if (activity != null) {
             activity.setProgressBarIndeterminateVisibility(false);
         }

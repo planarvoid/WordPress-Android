@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:id="@+id/transport_bar"
-                  android:background="@color/playerControlBackground"
-                  android:paddingTop="5dip"
-                  android:paddingBottom="5dip"
-                  android:orientation="horizontal"
-                  android:gravity="center_vertical"
-                  android:layout_height="fill_parent"
-                  android:layout_width="fill_parent">
-        <RelativeLayout android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="fill_parent">
-            <ImageButton android:layout_centerInParent="true"
-                         android:id="@+id/prev"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_prev_states"/>
-        </RelativeLayout>
-        <RelativeLayout android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="fill_parent">
-            <ImageButton android:layout_centerInParent="true"
-                         android:id="@+id/pause"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_play_states"/>
-        </RelativeLayout>
-        <RelativeLayout android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="fill_parent">
-            <ImageButton android:layout_centerInParent="true"
-                         android:id="@+id/next"
-                         style="@style/btn_sc_transparent"
-                         android:src="@drawable/ic_next_states"/>
-        </RelativeLayout>
-    </LinearLayout>
-</merge>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/transport_bar"
+              android:background="@color/playerControlBackground"
+              android:paddingTop="5dip"
+              android:paddingBottom="5dip"
+              android:orientation="horizontal"
+              android:gravity="center_vertical"
+              android:layout_height="fill_parent"
+              android:layout_width="fill_parent">
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/prev"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_prev_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/pause"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_play_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/next"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_next_states"/>
+    </RelativeLayout>
+</LinearLayout>

@@ -1,14 +1,11 @@
 package com.soundcloud.android.provider;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -26,6 +23,14 @@ public class ScContentProviderTest {
         assertThat(info.table.tableName, equalTo("Users"));
         assertThat(info.id, equalTo(20L));
     }
+
+    @Test
+    public void shouldMatchUrisToTablesAndIdsNegative() throws Exception {
+        ScContentProvider.TableInfo info = ScContentProvider.getTableInfo("content://com.soundcloud.android.provider.ScContentProvider/Users/-1");
+        assertThat(info.table.tableName, equalTo("Users"));
+        assertThat(info.id, equalTo(-1L));
+    }
+
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIfUriCannotBeMatched() throws Exception {

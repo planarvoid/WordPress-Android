@@ -1,7 +1,8 @@
 package com.soundcloud.android.activity;
 
 import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -9,11 +10,10 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.ICloudCreateService;
-import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.api.Params;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,18 +42,19 @@ public class ScUploadTest implements Params.Track {
         create.onCreate(null);
     }
 
-    private Map upload() throws Exception {
+    private Upload upload() throws Exception {
         return upload(false);
     }
 
-    private Map upload(boolean share) throws Exception {
+    private Upload upload(boolean share) throws Exception {
         // 14:31:01, 15/02/2011
         File f = File.createTempFile("upload-test", "test");
         Calendar c = Calendar.getInstance();
         c.set(2001, 1, 15, 14, 31, 1);
         f.setLastModified(c.getTimeInMillis());
 
-        create.setRecording(new Recording(f));
+        Recording r = new Recording(f);
+        create.setRecording(r);
 
         if (share) {
             Connection c1 = new Connection();
@@ -62,100 +63,34 @@ public class ScUploadTest implements Params.Track {
             c1.id = 1000;
             create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
         }
+
         create.startUpload();
-        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-        verify(service).uploadTrack(captor.capture());
+
+        ArgumentCaptor<Upload> captor = ArgumentCaptor.forClass(Upload.class);
+        verify(service).startUpload(captor.capture());
         return captor.getValue();
-    }
-
-    // XXX
-    // TODO: move tests to RecordingTests where appropriate
-
-    @Test
-    public void shouldUseUserTitleIfPresent() throws Exception {
-        create.mWhatText.setText("my soundz");
-
-        Map args = upload();
-
-        assertEquals("my soundz", args.get(TITLE));
-    }
-
-    @Test
-    public void shouldUseLocationIfPresent() throws Exception {
-        create.mWhereText.setText("home");
-        Map args = upload();
-        assertEquals("Sounds from home", args.get(TITLE));
-    }
-
-    @Test
-    public void shouldUseTitleAndLocationIfPresent() throws Exception {
-        create.mWhatText.setText("my soundz");
-        create.mWhereText.setText("home");
-        Map args = upload();
-        assertEquals("my soundz at home", args.get(TITLE));
-    }
-
-    @Test
-    public void shouldGenerateANiceTitleIfNoUserInputPresent() throws Exception {
-        Map args = upload();
-        assertEquals("Sounds from Thursday afternoon", args.get(TITLE));
-    }
-
-    @Test
-    public void shouldSetFoursquareVenueMachineTagIfPresent() throws Exception {
-        create.setWhere("Foo", "123", 0.1, 0.2);
-        Map args = upload();
-
-        assertThat(args.get(TAG_LIST), not(is(nullValue())));
-
-        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-
-        assertThat(tags.contains("foursquare:venue=123"), is(true));
-    }
-
-    @Test
-    public void shouldSetGeoMachineTags() throws Exception {
-        create.setWhere("Foo", "123", 0.1, 0.2);
-        Map args = upload();
-
-        assertThat(args.get(TAG_LIST), not(is(nullValue())));
-
-        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags.contains("geo:lon=0.1"), is(true));
-        assertThat(tags.contains("geo:lat=0.2"), is(true));
-    }
-
-    @Test
-    public void shouldSetSourceMachineTag() throws Exception {
-        Map args = upload();
-
-        assertThat(args.get(TAG_LIST), not(is(nullValue())));
-        List<String> tags = Arrays.asList(args.get(TAG_LIST).toString().split("\\s+"));
-        assertThat(tags.contains("soundcloud:source=android-record"), is(true));
     }
 
 
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
-        Map args = upload();
-        assertNull("A sharing note should not be present", args.get(SHARING_NOTE));
+        Upload upload = upload();
+        assertNull("A sharing note should not be present", upload.sharing_note);
     }
 
     @Test
     public void shouldPassThroughAllRequiredTrackParams() throws Exception {
-        Map arguments = upload();
+        Upload upload = upload();
 
-        assertEquals("recording", arguments.get(TYPE));
-        assertNotNull(arguments.get(TITLE));
+        assertThat(upload.type, equalTo("recording"));
+        assertNotNull(upload.title);
 
-        assertNull(arguments.get(POST_TO));
-        assertNotNull(arguments.get(POST_TO_EMPTY));
-        assertEquals("", arguments.get(POST_TO_EMPTY));
-        assertEquals(PUBLIC, arguments.get(SHARING));
+        assertNull(upload.service_ids);
+        assertThat(upload.post_to_empty, equalTo(""));
+        assertEquals(PUBLIC, upload.sharing);
 
-        assertNotNull(arguments.get(UploadTask.Params.SOURCE_PATH));
-        //assertNotNull(arguments.get(UploadTask.Params.OGG_FILENAME));
-        assertNull(arguments.get(UploadTask.Params.ARTWORK_PATH));
+        assertNotNull(upload.trackPath);
+        assertNull(upload.artworkPath);
     }
 
     @Test
@@ -178,7 +113,7 @@ public class ScUploadTest implements Params.Track {
 
         create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1, c2, c3));
 
-        Map args = upload();
+        Map args = upload().toTrackMap();
         assertTrue(args.get(POST_TO) instanceof List);
         List ids = (List) args.get(POST_TO);
 

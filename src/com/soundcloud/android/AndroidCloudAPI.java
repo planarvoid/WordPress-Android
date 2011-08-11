@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.deserialize.EventDeserializer;
+import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
@@ -8,12 +10,12 @@ import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.map.util.StdDateFormat;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
 import android.os.Build;
@@ -25,6 +27,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    // TODO replace with EndPoint from wrapper
+    String MY_NEWS = "/me/activities/all/own";
+    String TRACK_FAVORITERS = "/tracks/%d/favoriters";
+
     URI REDIRECT_URI = URI.create("soundcloud://auth");
     String OAUTH_TOKEN_PARAMETER = "oauth_token";
 
@@ -53,6 +59,10 @@ public interface AndroidCloudAPI extends CloudAPI {
         @Override public ObjectMapper getMapper() {
             if (this.mMapper == null) {
                 mMapper = createMapper();
+                SimpleModule module = new SimpleModule("EventDeserializerModule", new Version(1, 0, 0, null))
+                    .addDeserializer(Event.class, new EventDeserializer());
+                mMapper.registerModule(module);
+
             }
             return mMapper;
         }

@@ -13,6 +13,8 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -28,7 +30,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
@@ -38,16 +39,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 
 /*
     pull-to-refresh original source: https://github.com/johannilsson/android-pulltorefresh
  */
-
 public class ScListView extends ListView implements AbsListView.OnScrollListener {
 
     @SuppressWarnings({"UnusedDeclaration"})
@@ -63,6 +60,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private static final int DONE_REFRESHING = 5;
 
     private static final int HEADER_HIDE_DURATION = 400;
+    private static final int VERTICAL_TOLERANCE_PORTRAIT = 20;
+    private static final int VERTICAL_TOLERANCE_LANDSCAPE = 5;
 
     private ScActivity mActivity;
 
@@ -87,10 +86,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private RotateAnimation mFlipAnimation;
     private RotateAnimation mReverseFlipAnimation;
 
-    private int mLastMotionY;
+    private int mTouchY;
+    private int mFakeTouchFloor;
     private int mRefreshState;
     private int mRefreshViewHeight;
     private int mRefreshOriginalTopPadding;
+    private int mRefreshVerticalTolerance;
     private long mLastUpdated;
 
     public ScListView(ScActivity activity) {
@@ -116,6 +117,14 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private void init(ScActivity activity) {
         mActivity = activity;
+        final Resources res = getResources();
+
+        setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
+        setSelector(R.drawable.list_selector_background);
+
+        mRefreshVerticalTolerance = (int) (res.getDisplayMetrics().density *
+            (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ?
+            VERTICAL_TOLERANCE_LANDSCAPE : VERTICAL_TOLERANCE_PORTRAIT));
 
         if (Build.VERSION.SDK_INT >= 9) {
             setOverScrollMode(OVER_SCROLL_NEVER);
@@ -144,7 +153,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
         mRefreshOriginalTopPadding = mRefreshView.getPaddingTop();
 
-        mPullToRefreshArrow = getResources().getDrawable(R.drawable.ic_pulltorefresh_arrow);
+        mPullToRefreshArrow = res.getDrawable(R.drawable.ic_pulltorefresh_arrow);
 
         mRefreshState = TAP_TO_REFRESH;
 
@@ -169,10 +178,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         setOnTouchListener(new FingerTracker());
     }
 
-
     @Override
     public int getSolidColor() {
-        return 0xAAFFFFFF;
+        return 0x666666;
     }
 
     public void enableLongClickListener() {
@@ -192,6 +200,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (refreshEnabled) setOnRefreshListener(adapter);
     }
 
+    @Override
     public View getEmptyView() {
         return mEmptyView;
     }
@@ -206,6 +215,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         requestLayout();
     }
 
+    @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (!hasWindowFocus) checkHeaderVisibility();
@@ -245,9 +255,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         super.setAdapter(adapter);
         setSelection(1);
     }
-
-
-
 
     @Override
     public void setOnScrollListener(AbsListView.OnScrollListener l) {
@@ -289,15 +296,15 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
      * @return
      */
     public LazyEndlessAdapter getWrapper() {
-        if (super.getAdapter() == null) return null;
-        if (HeaderViewListAdapter.class.isAssignableFrom(super.getAdapter().getClass()) &&
-                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter().getClass())) {
-            return (LazyEndlessAdapter) ((HeaderViewListAdapter) super.getAdapter()).getWrappedAdapter();
-
-        } else if (LazyEndlessAdapter.class.isAssignableFrom(super.getAdapter().getClass())) {
-            return (LazyEndlessAdapter) super.getAdapter();
-
-        } else return null;
+        final ListAdapter adapter = super.getAdapter();
+        if (adapter instanceof HeaderViewListAdapter &&
+               ((HeaderViewListAdapter) adapter).getWrappedAdapter() instanceof LazyEndlessAdapter)  {
+            return (LazyEndlessAdapter) ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+        } else if (adapter instanceof LazyEndlessAdapter) {
+            return (LazyEndlessAdapter) adapter;
+        } else {
+            return null;
+        }
     }
 
     public void prepareForRefresh() {
@@ -320,7 +327,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
             mOnRefreshListener.onRefresh();
         }
-
     }
 
     /**
@@ -330,8 +336,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (success) mLastUpdated = System.currentTimeMillis();
         resetHeader();
         if (mRefreshView.getBottom() > 0) {
-            mRefreshState = DONE_REFRESHING;
             invalidateViews();
+            if (Build.VERSION.SDK_INT < 8){
+                setSelection(1);
+            } else {
+                mRefreshState = DONE_REFRESHING;
+            }
         }
     }
 
@@ -359,47 +369,42 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
-            if (list.getAdapter().getCount() <= 0
-                    || position >= list.getAdapter().getCount())
-                return; // bad list item clicked (possibly loading item)
-
+            if (mListener == null) return;
             position -= getHeaderViewsCount();
 
             LazyBaseAdapter adp = list instanceof ScListView ?
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
 
-            if (adp.getItem(position) instanceof Track) {
+            final int count = adp.getCount();
+            if (count <= 0 || position < 0 || position >= count)
+                return; // bad list item clicked (possibly loading item)
 
+            Object item;
+            try {
+                item = adp.getItem(position);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // XXX sometimes throws ArrayIndexOutOfBoundsException
+                Log.e("ScListView", "count=" + count + " , position=" + position + ", hcount=" + getHeaderViewsCount());
+                throw e;
+            }
+
+            if (item instanceof Track) {
                 if (adp instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
                 }
-
-                if (mListener != null) {
-                    mListener.onTrackClick(adp.getData(), position);
-                }
-
-            } else if (adp.getItem(position) instanceof Event) {
-
-                if (mListener != null) {
-                    mListener.onEventClick((ArrayList<Parcelable>) adp.getData(), position);
-                }
-
-            } else if (adp.getItem(position) instanceof User || adp.getItem(position) instanceof Friend) {
-
-                if (mListener != null) {
-                    mListener.onUserClick((ArrayList<Parcelable>) adp.getData(), position);
-                }
-
-            } else if (adp.getItem(position) instanceof Recording) {
-                if (mListener != null) {
-                    mListener.onRecordingClick((Recording) adp.getItem(position));
-                }
+                mListener.onTrackClick(adp.getData(), position);
+            } else if (item instanceof Event) {
+                mListener.onEventClick(adp.getData(), position);
+            } else if (item instanceof User || item instanceof Friend) {
+                mListener.onUserClick(adp.getData(), position);
+            } else if (item instanceof Recording) {
+                mListener.onRecordingClick((Recording) item);
             }
         }
     };
 
     private final AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-
+         @Override
         public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
             if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount() || !(list instanceof ScListView)){
                 return false; // bad list item clicked (possibly loading item)
@@ -413,8 +418,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     };
     private final AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
         public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
-            if (((LazyBaseAdapter) listView.getAdapter()).submenuIndex == position) {
+            if (listView instanceof ScListView) return;
+            if (((ScListView) listView).getBaseAdapter().submenuIndex == position) {
                 listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             } else {
                 listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -439,7 +446,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-
         if (changed) {
             if (getHeight() > 0 && mEmptyView != null) {
                 mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
@@ -457,13 +463,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 && mRefreshState != REFRESHING) {
             if (firstVisibleItem == 0) {
                 mRefreshViewImage.setVisibility(View.VISIBLE);
-                if ((mRefreshView.getBottom() > mRefreshViewHeight + 20)
+                if ((mRefreshView.getBottom() > mRefreshViewHeight + mRefreshVerticalTolerance)
                         && mRefreshState != RELEASE_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_release_label);
                     mRefreshViewImage.clearAnimation();
                     mRefreshViewImage.startAnimation(mFlipAnimation);
                     mRefreshState = RELEASE_TO_REFRESH;
-                } else if (mRefreshView.getBottom() < mRefreshViewHeight + 20
+                } else if (mRefreshView.getBottom() < mRefreshViewHeight + mRefreshVerticalTolerance
                         && mRefreshState != PULL_TO_REFRESH) {
                     mRefreshViewText.setText(R.string.pull_to_refresh_pull_label);
                     if (mRefreshState != TAP_TO_REFRESH) {
@@ -517,14 +523,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
 
                 if (getFirstVisiblePosition() == 0 && mRefreshState != REFRESHING) {
-                    if (mRefreshView.getBottom() > mRefreshViewHeight
-                            || mRefreshView.getTop() >= 0
+                    if (mRefreshView.getBottom() > mRefreshViewHeight + mRefreshVerticalTolerance
                             && mRefreshState == RELEASE_TO_REFRESH) {
                         // Initiate the refresh
                         mRefreshState = REFRESHING;
                         prepareForRefresh();
                         onRefresh();
-                    } else if (mRefreshView.getBottom() < mRefreshViewHeight) {
+                    } else {
                         // Abort refresh and scroll down below the refresh view
                         resetHeader();
                         setSelection(1);
@@ -532,23 +537,25 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
                 break;
             case MotionEvent.ACTION_DOWN:
-                mLastMotionY = y;
+                mTouchY = y;
+                mFakeTouchFloor = -1;
                 break;
             case MotionEvent.ACTION_MOVE:
-                int incrementalDeltaY = mLastMotionY != Integer.MIN_VALUE ? (int) event.getY() - mLastMotionY : (int) event.getY();
-                if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH){
+                final int incrementalDeltaY = mTouchY != Integer.MIN_VALUE ? y - mTouchY : y;
+                if (mRefreshState == PULL_TO_REFRESH || mRefreshState == RELEASE_TO_REFRESH) {
                     if (Math.abs(incrementalDeltaY) >= 1) {
-                        final int topPadding = (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7);
+                        final int topPadding = Math.max(mRefreshOriginalTopPadding, (int) ((incrementalDeltaY - mRefreshViewHeight) / 1.7));
                         if (topPadding != mRefreshView.getPaddingTop()) {
                             mRefreshView.setPadding(mRefreshView.getPaddingLeft(), topPadding,
                                     mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
                         }
                     }
-                    if (getFirstVisiblePosition() == 0 && incrementalDeltaY > 0) {
-                        incrementalDeltaY = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, incrementalDeltaY);
-                        if (getChildAt(0).getTop() >= 0 && incrementalDeltaY >= 0) {
-                            return true;
-                        }
+                    if (mFakeTouchFloor != -1 && y >= mFakeTouchFloor) {
+                        return true;
+                    }
+                    if (getFirstVisiblePosition() == 0 && getChildAt(0).getTop() >= 0 && incrementalDeltaY > 0 && mFakeTouchFloor == -1) {
+                        mFakeTouchFloor = y;
+                        return true;
                     }
                 }
 
@@ -559,9 +566,16 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     }
 
+
     @Override
     protected void layoutChildren() {
-        super.layoutChildren();
+        try {
+            super.layoutChildren();
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "ise: getCount()="+getAdapter().getCount()+",adapter="+getWrapper());
+            throw e;
+        }
+
         if (getFirstVisiblePosition() == 0 && (mRefreshState == TAP_TO_REFRESH || mRefreshState == DONE_REFRESHING)) {
             // not enough views to fill list so pad with an empty view
             final int lastDataPosition = getWrapper().getCount(); // data index + header
@@ -573,6 +587,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     setSelection(1);
                     return;
                 }
+            } else if (mFooterView.getLayoutParams().height != 0){
+                mFooterView.getLayoutParams().height = 0;
             }
 
             if (mRefreshState == DONE_REFRESHING) {
@@ -581,11 +597,16 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                         scrollPastHeader();
                     }
                 });
+                resetHeader();
+            } else if (!mAutoScrolling){
+                setSelection(1);
             }
-            resetHeader();
 
+
+
+        } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
+            mFooterView.getLayoutParams().height = 0;
         }
-
     }
 
 
@@ -610,6 +631,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
 
     private void scrollPastHeader() {
+        if (getChildCount() <= 1) return;
         if (Build.VERSION.SDK_INT >= 8){
             smoothScrollBy(getChildAt(1).getTop() + 1, HEADER_HIDE_DURATION);
             mAutoScrolling = true;
@@ -668,7 +690,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (mRefreshState == TAP_TO_REFRESH && mLastUpdated != 0) {
             mRefreshViewLastUpdated.setVisibility(View.VISIBLE);
             mRefreshViewLastUpdated.setText(getResources().getString(R.string.pull_to_refresh_last_updated,
-                    CloudUtils.getElapsedTimeString(getResources(), mLastUpdated)));
+                    CloudUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));
         } else {
             mRefreshViewLastUpdated.setVisibility(View.GONE);
         }
@@ -717,10 +739,10 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
      public interface LazyListListener {
-        void onUserClick(ArrayList<Parcelable> users, int position);
+        void onUserClick(List<Parcelable> users, int position);
         void onRecordingClick(Recording recording);
         void onTrackClick(List<Parcelable> tracks, int position);
-        void onEventClick(ArrayList<Parcelable> events, int position);
+        void onEventClick(List<Parcelable> events, int position);
         void onFling();
         void onFlingDone();
      }

@@ -5,8 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.FriendFinderAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
@@ -108,11 +107,12 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public void setState(int state, boolean refresh) {
         switch (state) {
             case States.LOADING:
-                if (mFriendList == null){
+                if (mFriendList == null) {
                     mFbConnected = true;
                     createList();
                 }
-
+                mFriendList.getWrapper().setEmptyViewText(" ");
+                mFriendList.getWrapper().applyEmptyText();
                 mFriendList.prepareForRefresh();
                 mFriendList.setSelection(0);
                 break;
@@ -139,7 +139,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
                 mFriendList.getWrapper().configureViews(mFriendList);
                 if (refresh){
-                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.getWrapper().refresh(false);
                     mFriendList.prepareForRefresh();
                 }
                 mFriendList.setVisibility(View.VISIBLE);
@@ -153,7 +153,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
                 mFriendList.getWrapper().configureViews(mFriendList);
                 if (refresh){
-                    mFriendList.getWrapper().onRefresh();
+                    mFriendList.getWrapper().refresh(false);
                     mFriendList.prepareForRefresh();
                 }
                 mFriendList.setVisibility(View.VISIBLE);
@@ -178,10 +178,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     private void createList(){
         if (mFriendList != null) removeList();
-        mFriendList = mActivity.configureList(new SectionedListView(mActivity), mListAddPosition);
+        mFriendList = mActivity.configureList(new SectionedListView(mActivity), false, mListAddPosition);
         mFriendList.setOnRefreshListener(this);
+        mFriendList.setFadingEdgeLength(0);
 
-        mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity));
+        mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity));
         mAdapter.addListener(this);
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);

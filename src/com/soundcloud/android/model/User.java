@@ -1,11 +1,12 @@
 
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
@@ -14,12 +15,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends BaseObj implements Parcelable {
-    public long id;
+public class User extends ModelBase {
     public String username;
     public int track_count;
     public String discogs_name;
@@ -34,10 +35,10 @@ public class User extends BaseObj implements Parcelable {
     public String permalink;
     public String permalink_url;
     public String full_name;
-    public int followers_count;
-    public int followings_count;
-    public int public_favorites_count;
-    public int private_tracks_count;
+    public int followers_count = -1;
+    public int followings_count = -1;
+    public int public_favorites_count = -1;
+    public int private_tracks_count = -1;
     public String myspace_name;
     public String country;
     public String plan;
@@ -69,11 +70,9 @@ public class User extends BaseObj implements Parcelable {
                             User.class.getDeclaredField(aliasesOnly ? key.substring(6) : key),
                             cursor, key);
                 } catch (SecurityException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 } catch (NoSuchFieldException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                    e.printStackTrace();
+                    Log.e(TAG, "error", e);
                 }
             }
         }
@@ -109,11 +108,9 @@ public class User extends BaseObj implements Parcelable {
                             setFieldFromCursor(this, User.class.getDeclaredField(key), cursor,
                                     key);
                         } catch (SecurityException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         } catch (NoSuchFieldException e) {
-                            Log.e(getClass().getSimpleName(), "error", e);
-                            e.printStackTrace();
+                            Log.e(TAG, "error", e);
                         }
                     }
                 }
@@ -132,33 +129,24 @@ public class User extends BaseObj implements Parcelable {
         }
     };
 
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = new ContentValues();
         cv.put(Users.ID, id);
         cv.put(Users.USERNAME, username);
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);
-        cv.put(Users.CITY, city);
-        cv.put(Users.COUNTRY, country);
-        cv.put(Users.DISCOGS_NAME, discogs_name);
-        cv.put(Users.FOLLOWERS_COUNT, followers_count);
-        cv.put(Users.FOLLOWINGS_COUNT, followings_count);
-        cv.put(Users.FULL_NAME, full_name);
-        cv.put(Users.MYSPACE_NAME, myspace_name);
-        cv.put(Users.TRACK_COUNT, track_count);
-        cv.put(Users.WEBSITE, website);
-        cv.put(Users.WEBSITE_TITLE, website_title);
-        if (isCurrentUser) cv.put(Users.DESCRIPTION, description);
+        // account for partial objects, don't overwrite local full objects
+        if (city != null) cv.put(Users.CITY, city);
+        if (country != null) cv.put(Users.COUNTRY, country);
+        if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
+        if (full_name != null) cv.put(Users.FULL_NAME, full_name);
+        if (myspace_name != null) cv.put(Users.MYSPACE_NAME, myspace_name);
+        if (followers_count != -1) cv.put(Users.FOLLOWERS_COUNT, followers_count);
+        if (followings_count != -1)cv.put(Users.FOLLOWINGS_COUNT, followings_count);
+        if (track_count != -1)cv.put(Users.TRACK_COUNT, track_count);
+        if (website != null) cv.put(Users.WEBSITE, website);
+        if (website_title != null) cv.put(Users.WEBSITE_TITLE, website_title);
+        if (isCurrentUser && description != null) cv.put(Users.DESCRIPTION, description);
         return cv;
     }
 
@@ -195,24 +183,45 @@ public class User extends BaseObj implements Parcelable {
         return Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
+
+    public String getLocation() {
+        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
+            return city + ", " + country;
+        } else if (!TextUtils.isEmpty(city)) {
+            return city;
+        } else if (!TextUtils.isEmpty(country)) {
+            return country;
+        } else {
+            return "";
+        }
+    }
+
+    public String pageTrack(boolean currentUser, String... paths) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/").append(currentUser ? "you" : username);
+        for (String p : paths) {
+            sb.append("/").append(p);
+        }
+        return sb.toString();
+    }
+
     public static interface DataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";
         String EMAIL_CONFIRMED = "email_confirmed";
         String DASHBOARD_IDX = "lastDashboardIndex";
         String PROFILE_IDX = "lastProfileIndex";
+
         // legacy
         String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
         String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
 
-        String LAST_INCOMING_SYNC_EVENT_TIMESTAMP = "last_incoming_sync_event_timestamp";
+        String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
+        String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
 
-        String LAST_FOLLOWINGS_SYNC = "last_followings_sync";
-
-        String LAST_INCOMING_SYNC = "last_incoming_sync";
-        String LAST_EXCLUSIVE_SYNC = "last_exclusive_sync";
+        String NOTIFICATION_COUNT_INCOMING = "notification_count";
+        String NOTIFICATION_COUNT_OWN      = "notification_count_own";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
-        String NOTIFICATION_COUNT = "notification_count";
     }
 }

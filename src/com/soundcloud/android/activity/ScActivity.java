@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -70,6 +71,7 @@ public abstract class ScActivity extends Activity {
 
     private MenuItem menuCurrentUploadingItem;
     private boolean mIsForeground;
+    private long mCurrentUserId;
 
     boolean mIgnorePlaybackStatus;
 
@@ -77,8 +79,6 @@ public abstract class ScActivity extends Activity {
 
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
-
-
 
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
@@ -94,7 +94,6 @@ public abstract class ScActivity extends Activity {
     }
 
     protected void onServiceBound() {
-        //ImageLoader.get(ScActivity.this).pause();
         if (getApp().getToken() == null) {
             pause(true);
 
@@ -183,7 +182,6 @@ public abstract class ScActivity extends Activity {
                 l.getBaseAdapter().onDestroy();
             }
         }
-
     }
 
     @Override
@@ -202,9 +200,6 @@ public abstract class ScActivity extends Activity {
                 Log.e(TAG, "error", e);
             }
         }
-
-
-
     }
 
     /**
@@ -240,6 +235,12 @@ public abstract class ScActivity extends Activity {
         if (account == null) {
             finish();
         }
+    }
+
+    public void playTrack(Track track, boolean goToPlayer) {
+        List<Parcelable> trackList = new ArrayList<Parcelable>();
+        trackList.add(track);
+        playTrack(track.id, trackList, 0, goToPlayer);
     }
 
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
@@ -309,28 +310,13 @@ public abstract class ScActivity extends Activity {
     public boolean startUpload(Recording r) {
         if (mCreateService == null) return false;
 
-        boolean uploading;
         try {
-            uploading = mCreateService.isUploading();
+            if (mCreateService.startUpload(new Upload(r))) return true;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
-            uploading = true;
         }
 
-        if (!uploading) {
-            r.upload_status = Recording.UploadStatus.UPLOADING;
-            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
-            try {
-                mCreateService.uploadTrack(r.uploadData());
-                return true;
-            } catch (RemoteException ignored) {
-                Log.e(TAG, "error", ignored);
-            }
-
-        } else {
-            showToast(R.string.wait_for_upload_to_finish);
-        }
-
+        showToast(R.string.wait_for_upload_to_finish);
         return false;
     }
 
@@ -339,14 +325,22 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView buildList() {
-        return configureList(new ScListView(this));
+        return configureList(new ScListView(this), true);
+    }
+
+    public ScListView buildList(boolean longClickable) {
+        return configureList(new ScListView(this), longClickable);
     }
 
     public ScListView configureList(ScListView lv) {
-        return configureList(lv,mLists.size());
+        return configureList(lv,true, mLists.size());
     }
 
-    public ScListView configureList(ScListView lv, int addAtPosition) {
+    public ScListView configureList(ScListView lv, boolean longClickable) {
+        return configureList(lv,longClickable, mLists.size());
+    }
+
+    public ScListView configureList(ScListView lv, boolean longClickable, int addAtPosition) {
         lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
@@ -355,6 +349,7 @@ public abstract class ScActivity extends Activity {
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
         lv.setCacheColorHint(Color.TRANSPARENT);
+        lv.setLongClickable(longClickable);
         mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
         return lv;
     }
@@ -431,6 +426,12 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    public void safeShowDialog(Dialog dialog) {
+        if (!isFinishing()) {
+            dialog.show();
+        }
+    }
+
     protected void onDataConnectionChanged(boolean isConnected) {
         mIsConnected = isConnected;
         if (isConnected) {
@@ -484,6 +485,9 @@ public abstract class ScActivity extends Activity {
                                         removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
                                     }
                                 }).create();
+            case Consts.Dialogs.DIALOG_LOGOUT:
+                return CloudUtils.createLogoutDialog(this);
+
             default:
                 return super.onCreateDialog(which);
         }
@@ -503,10 +507,10 @@ public abstract class ScActivity extends Activity {
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
-        if (this instanceof ScCreate) {
+        /*if (this instanceof ScCreate) {
             menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
                 android.R.drawable.ic_menu_upload);
-        }
+        }*/
 
          if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
@@ -548,7 +552,7 @@ public abstract class ScActivity extends Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                pageTrack("/friend_finder");
+                pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
 
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -582,7 +586,10 @@ public abstract class ScActivity extends Activity {
     };
 
     public long getCurrentUserId() {
-        return getApp().getCurrentUserId();
+        if (mCurrentUserId == 0) {
+            mCurrentUserId = getApp().getCurrentUserId();
+        }
+        return mCurrentUserId;
     }
 
     public void pageTrack(String path) {
@@ -595,7 +602,7 @@ public abstract class ScActivity extends Activity {
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
 
         @Override
-        public void onUserClick(ArrayList<Parcelable> users, int position) {
+        public void onUserClick(List<Parcelable> users, int position) {
             Intent i = new Intent(ScActivity.this, UserBrowser.class);
 
             i.putExtra("user", users.get(position) instanceof
@@ -609,8 +616,23 @@ public abstract class ScActivity extends Activity {
         }
 
         @Override
-        public void onEventClick(ArrayList<Parcelable> events, int position) {
-            playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+        public void onEventClick(List<Parcelable> events, int position) {
+            final Event e = ((Event) events.get(position));
+            if (e == null) return;
+
+            if (Event.Types.COMMENT.contentEquals(e.type)) {
+                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
+            } else if (Event.Types.FAVORITING.contentEquals(e.type)) {
+                if (getApp().getTrackFromCache(e.getTrack().id) == null) {
+                    getApp().cacheTrack(e.getTrack());
+                }
+                Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
+                i.putExtra("track_id", e.getTrack().id);
+                startActivity(i);
+            } else {
+                playTrack(e.getTrack().id, events, position, true);
+            }
+
         }
 
         public void onFling() {

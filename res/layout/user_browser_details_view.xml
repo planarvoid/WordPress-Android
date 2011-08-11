@@ -61,14 +61,16 @@
         </LinearLayout>
     </ScrollView>
 
-    <TextView
-            android:id="@+id/txt_empty"
-            android:linksClickable="true"
-            android:autoLink="all"
-            android:text="@string/info_empty"
-            android:layout_height="fill_parent"
-            android:layout_width="fill_parent"
-            android:gravity="center"
-            style="@style/txt_empty_view"
-            android:visibility="gone"/>
+    <RelativeLayout android:layout_height="fill_parent" android:id="@+id/empty_root" android:layout_width="fill_parent">
+        <TextView android:layout_centerInParent="true"
+                  android:id="@+id/empty_txt" android:layout_height="fill_parent"
+                  android:linksClickable="true"
+                  android:autoLink="all"
+                  style="@style/txt_empty_view"
+                  android:gravity="center_horizontal"
+                  android:padding="25dip"
+                  android:visibility="gone"
+                  android:layout_width="fill_parent">
+        </TextView>
+    </RelativeLayout>
 </FrameLayout>

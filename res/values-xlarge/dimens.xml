@@ -9,12 +9,9 @@
     <dimen name="list_txt_main_size">18sp</dimen>
     <dimen name="list_txt_sub_size">16sp</dimen>
 
-    <dimen name="track_list_indicator_margin_left">10dip</dimen>
-    <dimen name="track_list_text_margin_left">30dip</dimen>
-    <dimen name="track_list_private_margin_top">5dip</dimen>
-    <dimen name="track_list_private_margin_left">6dip</dimen>
-
-    <dimen name="user_list_text_margin_left">15dip</dimen>
+    <dimen name="list_text_margin_left">5dip</dimen>
+    <dimen name="track_list_private_margin_top">3dip</dimen>
+    <dimen name="track_list_private_margin_left">5dip</dimen>
 
     <dimen name="user_browser_info_margin_left">10dip</dimen>
     <dimen name="user_browser_info_username_margin_top">10dip</dimen>

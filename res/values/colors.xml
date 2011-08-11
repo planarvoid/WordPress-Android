@@ -5,6 +5,7 @@
 	
 	
 	<color name="listTxtValue">#FF000000</color>
+    <color name="listTxtValuePressed">#88FFFFFF</color>
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	<color name="listTxtSecondaryDark">#FF969696</color>
@@ -17,6 +18,8 @@
 	<color name="activeCommentLine">#FFe36711</color>
 	
 	<color name="playerControlBackground">#FFE2E2E2</color>
+    <color name="playerControlBackgroundDark">#FFc8c8c8</color>
+
 	<color name="playerControlAlphaBackground">#AAE2E2E2</color>
 	<color name="lightGrayBackground">#FFEEEEEE</color>
 	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
@@ -71,7 +74,8 @@
 	<color name="iconGlowPressed">#ef5002</color>
 
 	<color name="listSeperator">#FF333333</color>
-	<color name="horizontalRule">#FFAAAAAA</color>
+	<color name="horizontalRule">#FFcccccc</color>
+    <color name="verticalPipe">#FFcccccc</color>
 
 	<color name="menuBackground">#7fff0000</color>
 	<color name="tabFocused">#7fff0000</color>
@@ -125,4 +129,5 @@
 	<color name="perms_dangerous_perm_color">#ddb66a</color>
 	<color name="perms_normal_grp_color">#eeeeee</color>
 	<color name="perms_normal_perm_color">#c0c0c0</color>
+
 </resources>

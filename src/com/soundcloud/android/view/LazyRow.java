@@ -43,13 +43,6 @@ public abstract class LazyRow extends FrameLayout {
         }
     }
 
-    protected Drawable getIconBgResourceId() {
-        return getResources().getDrawable(R.drawable.artwork_badge);
-    }
-
-    protected Drawable getLargeIconBgResourceId() {
-        return getResources().getDrawable(R.drawable.artwork_badge);
-    }
 
     protected abstract int getRowResourceId();
 

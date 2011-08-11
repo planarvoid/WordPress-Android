@@ -7,18 +7,24 @@
 
     <ScrollView android:id="@+id/ScrollView01"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_width="fill_parent"
                 android:paddingTop="5dip">
 
         <RelativeLayout android:id="@+id/input_layout"
                         android:layout_height="wrap_content"
                         android:layout_width="fill_parent">
+            <FrameLayout android:id="@+id/share_user_layout"
+                         android:layout_height="wrap_content"
+                         android:layout_width="fill_parent"
+                         android:layout_alignParentTop="true"
+                        android:paddingBottom="5dip"/>
 
             <FrameLayout android:id="@+id/artwork_layout"
                          android:layout_height="100dip"
                          android:layout_width="100dip"
-                         android:layout_below="@id/file_layout"
+                         android:layout_below="@id/share_user_layout"
+                         android:layout_alignWithParentIfMissing="true"
                          android:layout_marginLeft="5dip">
 
                     <TextView android:id="@+id/txt_artwork_bg"
@@ -45,9 +51,10 @@
                       android:layout_marginLeft="10dip"
                       android:layout_marginRight="10dip"
                       android:layout_width="fill_parent"
+                      android:singleLine="true"
                       android:ellipsize="end"
                       style="@style/txt_record_input"
-                      android:gravity="center"
+                      android:gravity="left"
                       android:clickable="true"
                       android:fadingEdge="horizontal"
                       android:fadeScrollbars="true"
@@ -58,12 +65,15 @@
                       android:layout_height="wrap_content"
                       android:layout_toRightOf="@+id/artwork_layout"
                       android:background="@drawable/rec_upload_text_bg"
+                      android:layout_below="@id/share_user_layout"
+                      android:layout_alignWithParentIfMissing="true"
                       android:layout_marginLeft="10dip"
                       android:layout_marginRight="10dip"
                       android:layout_width="fill_parent"
+                      android:singleLine="true"
                       android:ellipsize="end"
                       style="@style/txt_record_input"
-                      android:gravity="center"
+                      android:gravity="left"
                       android:inputType="textCapWords"
                       android:hint="What"/>
 
@@ -96,9 +106,9 @@
                       style="@style/txt_record_share_options"
                       android:gravity="left"
                       android:padding="5dip"
-                      android:text="@string/sc_upload_sharing_options"
+                      android:text="@string/sc_upload_sharing_options_public"
                       android:layout_below="@id/rdo_privacy"
-                      android:layout_height="30dip"/>
+                      android:layout_height="wrap_content"/>
 
             <View android:id="@+id/share_options_seperator"
                   android:background="@color/recordUploadBorder"
@@ -176,7 +186,7 @@
             <Button android:id="@+id/btn_cancel"
                     android:text="@string/record_another_sound"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_marginLeft="10dip"
                     android:layout_marginRight="15dip"
                     android:layout_height="fill_parent"/>
@@ -184,7 +194,7 @@
             <Button android:id="@+id/btn_upload"
                     android:text="@string/upload_and_share"
                     android:layout_weight="1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_marginLeft="15dip"
                     android:layout_marginRight="10dip"
                     android:layout_height="fill_parent"/>

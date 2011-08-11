@@ -3,18 +3,18 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
-import com.soundcloud.utils.ChangeLog;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.CloudUtils;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,9 +65,11 @@ public class Settings extends PreferenceActivity {
                             }
 
                             @Override protected void onProgressUpdate(Integer... progress) {
-                                mDeleteDialog.setIndeterminate(false);
-                                mDeleteDialog.setProgress(progress[0]);
-                                mDeleteDialog.setMax(progress[1]);
+                                if (mDeleteDialog != null) {
+                                    mDeleteDialog.setIndeterminate(false);
+                                    mDeleteDialog.setProgress(progress[0]);
+                                    mDeleteDialog.setMax(progress[1]);
+                                }
                             }
 
                             @Override protected void onPostExecute(Boolean result) {
@@ -124,6 +126,14 @@ public class Settings extends PreferenceActivity {
                             return true;
                         }
                     });
+
+            findPreference("dev.crash").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            throw new RuntimeException("developer requested crash");
+                        }
+                    });
         }
     }
 
@@ -139,7 +149,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().pageTrack("/settings");
+        getApp().pageTrack(Consts.TrackingEvents.SETTINGS);
         super.onResume();
     }
 
@@ -175,39 +185,7 @@ public class Settings extends PreferenceActivity {
                 return mDeleteDialog;
 
             case DIALOG_USER_DELETE_CONFIRM:
-                return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
-                        .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        ((SoundCloudApplication) getApplication()).clearSoundCloudAccount(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        finish();
-                                                    }
-                                                },
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        new AlertDialog.Builder(Settings.this)
-                                                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                                                .setMessage(R.string.settings_error_revoking_account_message)
-                                                                .setTitle(R.string.settings_error_revoking_account_title)
-                                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(DialogInterface dialog, int which) {
-                                                                        // finish();
-                                                                    }
-                                                                }).create().show();
-                                                    }
-                                                }
-                                        );
-                                    }
-                                }).setNegativeButton(android.R.string.cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                    }
-                                }).create();
+                return CloudUtils.createLogoutDialog(this);
         }
         return super.onCreateDialog(id);
     }

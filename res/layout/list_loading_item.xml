@@ -4,7 +4,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:padding="5dip">
-
     <ProgressBar android:id="@+id/list_loading"
                  android:indeterminateOnly="true"
                  android:layout_width="wrap_content"

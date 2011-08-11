@@ -2,8 +2,6 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.accounts.*;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -12,18 +10,23 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import com.soundcloud.utils.ChangeLog;
 
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -31,8 +34,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -120,7 +126,7 @@ public class Main extends TabActivity {
         }).execute(Request.to(Endpoints.MY_DETAILS));
     }
 
-    private Runnable addAccount = new Runnable() {
+    private final Runnable addAccount = new Runnable() {
         @Override
         public void run() {
             dismissSplash();
@@ -128,7 +134,7 @@ public class Main extends TabActivity {
         }
     };
 
-    private AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
+    private final AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
         @Override
         public void run(AccountManagerFuture<Bundle> future) {
             try {
@@ -217,15 +223,15 @@ public class Main extends TabActivity {
         TabHost.TabSpec spec;
 
         spec = host.newTabSpec("incoming").setIndicator(
-                getString(R.string.tab_incoming),
+                getString(R.string.tab_stream),
                 getResources().getDrawable(R.drawable.ic_tab_incoming));
         spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
         host.addTab(spec);
 
-        spec = host.newTabSpec("exclusive").setIndicator(
-                getString(R.string.tab_exclusive),
-                getResources().getDrawable(R.drawable.ic_tab_incoming));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "exclusive"));
+        spec = host.newTabSpec("activity").setIndicator(
+                getString(R.string.tab_activity),
+                getResources().getDrawable(R.drawable.ic_tab_news));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "activity"));
         host.addTab(spec);
 
         spec = host.newTabSpec("record").setIndicator(
@@ -247,13 +253,41 @@ public class Main extends TabActivity {
         host.addTab(spec);
 
         host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
-        CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs), CloudUtils.isScreenXL(this) ? 90 : 60, -1, false);
+        if (CloudUtils.isScreenXL(this)){
+            CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs),90, -1, false);
+        }
         CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
+
+        TabWidget tw = ((TabWidget) findViewById(android.R.id.tabs));
+
+        if (Build.VERSION.SDK_INT > 7) {
+            for (int i = 0; i < tw.getChildCount(); i++) {
+                ((View) tw.getChildAt(i)).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
+            }
+        }
+
+
+        // set record tab to just image, if tab order is changed, change the index of the following line
+        RelativeLayout relativeLayout = (RelativeLayout) tw.getChildAt(2);
+        for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+            if (relativeLayout.getChildAt(j) instanceof TextView) {
+                relativeLayout.getChildAt(j).setVisibility(View.GONE);
+            } else if (relativeLayout.getChildAt(j) instanceof ImageView) {
+                relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
+                ((RelativeLayout.LayoutParams) relativeLayout.getChildAt(j).getLayoutParams()).bottomMargin =
+                        (int) (5*getResources().getDisplayMetrics().density);
+            }
+        }
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
-            public void onTabChanged(String tabId) {
-                app.setAccountData(User.DataKeys.DASHBOARD_IDX, tabId);
+            public void onTabChanged(final String tabId) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        app.setAccountData(User.DataKeys.DASHBOARD_IDX, tabId);
+                    }
+                }.start();
             }
         });
     }

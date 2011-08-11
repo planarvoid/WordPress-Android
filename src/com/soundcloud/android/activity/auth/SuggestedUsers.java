@@ -12,11 +12,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.FriendFinderAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
-    private FriendFinderAdapter ffAdp;
+    private SectionedUserlistAdapter ffAdp;
     private SectionedEndlessAdapter ffAdpWrap;
     private Button facebookBtn;
 
@@ -42,8 +43,8 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         super.onCreate(bundle);
         setContentView(R.layout.suggested_users);
 
-        ffAdp = new FriendFinderAdapter(this);
-        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp);
+        ffAdp = new SectionedUserlistAdapter(this);
+        ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp, true);
         ffAdpWrap.addListener(this);
 
         mListView = new SectionedListView(this);
@@ -83,12 +84,15 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
+
+        // result ok no matter what
+        setResult(RESULT_OK);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack("/suggested_users");
+        pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
     }
 
 

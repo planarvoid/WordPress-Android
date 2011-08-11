@@ -71,7 +71,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public Object getItem(int location) {
-         int c = 0;
+        int c = 0;
         for (Section section : sections) {
             if (section.data.size() > 0) {
                 if (location >= c && location < c + section.data.size()) {
@@ -79,7 +79,6 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
                 }
                 c += section.data.size();
             }
-
         }
         return null;
     }
@@ -93,10 +92,9 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public void clearData(){
-          for (Section section : sections) {
-              section.clear();
-
-          }
+        for (Section section : sections) {
+            section.clear();
+        }
     }
 
     @Override
@@ -180,7 +178,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
 
     public void configurePinnedHeader(View header, int position) {
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
-        if (getSectionForPosition(position) < getSections().length){
+        if (getSectionForPosition(position) != -1 && getSectionForPosition(position) < getSections().length){
             txtHeader.setText(getSections()[getSectionForPosition(position)]);
         }
     }

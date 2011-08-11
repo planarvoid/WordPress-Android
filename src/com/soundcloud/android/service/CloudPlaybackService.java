@@ -22,9 +22,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.task.FavoriteAddTask;
@@ -35,7 +35,6 @@ import com.soundcloud.android.utils.net.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -80,7 +79,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.net.URLEncoder;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -220,7 +218,7 @@ public class CloudPlaybackService extends Service {
         mIsStagefright = CloudUtils.isStagefright();
 
         // track information about used audio engine with GA
-        getApp().pageTrack("/internal/audioEngine",
+        getApp().pageTrack(Consts.TrackingEvents.AUDIO_ENGINE,
                 "stagefright", mIsStagefright,
                 "model",   Build.MODEL,
                 "version", Build.VERSION.SDK_INT,
@@ -246,8 +244,7 @@ public class CloudPlaybackService extends Service {
         stopStreaming(null);
         gotoIdleState();
 
-        // release all MediaPlayer resources, including the native player and
-        // wakelocks
+        // release all MediaPlayer resources, including the native player and wakelocks
         mPlayer.release();
         mPlayer = null;
 
@@ -444,6 +441,7 @@ public class CloudPlaybackService extends Service {
     Thread mChangeTracksThread = null;
 
     public void openAsync(final Track track) {
+
         if (track == null) {
             return;
         }
@@ -498,17 +496,16 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.removeCallbacksAndMessages(START_NEXT_TRACK);
 
             // stop playing
-            if (mPlayer.isInitialized() || mPlayer.isAsyncOpening())
+            if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
                 mPlayer.stop();
+            }
 
             if (CloudUtils.checkThreadAlive(mDownloadThread)
                     && (continueId == null || mDownloadThread.getTrackId() != continueId)) {
                 mDownloadThread.interrupt();
                 mDownloadThread.stopDownload();
-
             }
         }
-
     }
 
     private void fileLengthUpdated(Track t, boolean changed) {
@@ -535,12 +532,13 @@ public class CloudPlaybackService extends Service {
 
     private void startNextTrack() {
         synchronized (this) {
+
             mChangeTracksThread = null;
             mCurrentDownloadAttempts = 0;
 
             if (mPlayingData.isStreamable()) {
                 notifyChange(INITIAL_BUFFERING);
-
+                initialBuffering = true;
                 if (mIsStagefright) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
@@ -582,9 +580,12 @@ public class CloudPlaybackService extends Service {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mPlayer.setDataSourceAsync(location.getValue());
+                                    if (mPlayer != null) {
+                                        mPlayer.setDataSourceAsync(location.getValue());
+                                    }
                                 }
                             });
+                            return;
                         } else {
                             Log.w(TAG, "no location header found");
                         }
@@ -594,6 +595,16 @@ public class CloudPlaybackService extends Service {
                 } catch (IOException e) {
                     Log.w(TAG, e);
                 }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // set with original url, at least we will get proper error handling
+                        if (mPlayer != null) {
+                            mPlayer.setDataSourceAsync(url);
+                        }
+                    }
+                });
+
             }
         }.start();
     }
@@ -703,15 +714,16 @@ public class CloudPlaybackService extends Service {
                         // normal buffering done
                         notifyChange(BUFFERING_COMPLETE);
 
-                        if (mIsSupposedToBePlaying)
+                        if (mIsSupposedToBePlaying && mPlayer != null) {
                             mPlayer.start();
+                        }
 
                     } else {
                         // initial buffering done
                         initialBuffering = false;
 
                         // set the media player data source
-                        if (!mPlayer.getPlayingPath()
+                        if (mPlayer != null && !mPlayer.getPlayingPath()
                                 .equalsIgnoreCase(mPlayingData.getCache().getAbsolutePath())) {
                             mPlayer.setDataSourceAsync(mPlayingData.getCache().getAbsolutePath());
                         } else {
@@ -737,7 +749,7 @@ public class CloudPlaybackService extends Service {
                     // normal time to buffer
                     if (mCurrentBuffer < PAUSE_FOR_BUFFER_MARK) {
 
-                        if (mPlayer.isInitialized()) {
+                        if (mPlayer != null && mPlayer.isInitialized()) {
                             mPlayer.pause();
                         }
 
@@ -826,7 +838,7 @@ public class CloudPlaybackService extends Service {
 
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
-        if (mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
+        if (mPlayer != null && mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
 
             if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
 
@@ -899,7 +911,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void stop(boolean remove_status_icon) {
-        if (mPlayer.isInitialized()) {
+        if (mPlayer != null && mPlayer.isInitialized()) {
             stopStreaming(null);
         }
 
@@ -1023,16 +1035,18 @@ public class CloudPlaybackService extends Service {
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         synchronized (this) {
-            if (mPlayingData.id == trackId) {
-                if (favoriteStatus)
+            if (mPlayingData != null && mPlayingData.id == trackId) {
+                if (favoriteStatus) {
                     addFavorite();
-                else
+                } else {
                     removeFavorite();
+                }
             }
         }
     }
 
     public void addFavorite() {
+        onFavoriteStatusSet(mPlayingData.id, true);
         FavoriteAddTask f = new FavoriteAddTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1051,6 +1065,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public void removeFavorite() {
+        onFavoriteStatusSet(mPlayingData.id, false);
         FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
         f.setOnFavoriteListener(new FavoriteTask.FavoriteListener() {
             @Override
@@ -1069,7 +1084,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        if (mPlayingData.id == trackId) {
+        if (mPlayingData.id == trackId && mPlayingData.user_favorite != isFavorite) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
         }
@@ -1133,7 +1148,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isBuffering() {
         synchronized (this) {
-            return pausedForBuffering;
+            return pausedForBuffering || initialBuffering;
         }
     }
 
@@ -1163,7 +1178,7 @@ public class CloudPlaybackService extends Service {
      * Returns the current playback position in milliseconds
      */
     public long position() {
-        if (mPlayer.isInitialized()) {
+        if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
         } else
             return mResumeTime; // either -1 or a valid resume time
@@ -1175,7 +1190,7 @@ public class CloudPlaybackService extends Service {
      */
     public int loadPercent() {
         synchronized (this) {
-            if (mPlayer.isInitialized()) {
+            if (mPlayer != null && mPlayer.isInitialized()) {
                 if (mIsStagefright) {
                     if (!mPlayingData.getCache().exists() || mPlayingData.filelength <= 0 || mPlayingData.filelength == 0) {
                         return 0;
@@ -1191,8 +1206,11 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return ((mIsStagefright || Build.VERSION.SDK_INT > 8) && mPlayer.isInitialized() && mPlayingData != null && !mPlayer
-                    .isAsyncOpening());
+            return ((mIsStagefright || Build.VERSION.SDK_INT > 8)
+                    && mPlayer != null
+                    && mPlayer.isInitialized()
+                    && mPlayingData != null
+                    && !mPlayer.isAsyncOpening());
         }
     }
 
@@ -1204,7 +1222,7 @@ public class CloudPlaybackService extends Service {
      */
     public long seek(long pos) {
         synchronized (this) {
-            if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
+            if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
                     && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
@@ -1226,7 +1244,7 @@ public class CloudPlaybackService extends Service {
      */
     public long getSeekResult(long pos) {
         synchronized (this) {
-            if (mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
+            if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
                     && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
 
                 if (pos <= 0) {
@@ -1348,13 +1366,15 @@ public class CloudPlaybackService extends Service {
         }
 
         public long seek(long whereto, boolean resumeSeek) {
+            if (mPlayer == null) return -1;
 
             if (mIsStagefright) {
                 mPlayer.setVolume(0);
                 whereto = (int) getSeekResult(whereto, resumeSeek);
             }
-
-            if (whereto != mPlayer.position()) mMediaPlayer.seekTo((int) whereto);
+            if (whereto != mPlayer.position()) {
+                mMediaPlayer.seekTo((int) whereto);
+            }
             return whereto;
         }
 
@@ -1363,13 +1383,14 @@ public class CloudPlaybackService extends Service {
         }
 
         public long getSeekResult(long whereto, boolean resumeSeek) {
+            if (mPlayer == null) return -1;
             long maxSeek;
-
             if (!resumeSeek) {
-                if (mPlayingData.filelength <= 0)
+                if (mPlayingData.filelength <= 0) {
                     return mPlayer.position();
-                else
+                } else {
                     maxSeek = currentMaxSeek();
+                }
 
                 // don't go before the playhead if they are trying to seek
                 // beyond, just maintain their current position
@@ -1393,7 +1414,13 @@ public class CloudPlaybackService extends Service {
         }
 
         public void setVolume(float vol) {
-            mMediaPlayer.setVolume(vol, vol);
+            if (mMediaPlayer != null) {
+                try {
+                    mMediaPlayer.setVolume(vol, vol);
+                } catch (IllegalStateException ignored) {
+                    Log.w(TAG, ignored);
+                }
+            }
         }
 
         /**
@@ -1446,7 +1473,6 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
-
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
@@ -1489,7 +1515,7 @@ public class CloudPlaybackService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
-
+                initialBuffering = false;
                 notifyChange(BUFFERING_COMPLETE);
 
                 if (!mAutoPause) {
@@ -1514,7 +1540,6 @@ public class CloudPlaybackService extends Service {
                 mMediaplayerError = true;
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
-
                 switch (what) {
 
                     default:
@@ -1766,7 +1791,7 @@ public class CloudPlaybackService extends Service {
             CloudPlaybackService svc = serviceRef.get();
             if (svc == null) return;
 
-            final long userId = svc.getApp().getCurrentUserId();
+            final User user = svc.getApp().getLoggedInUser();
 
             svc.stopStreaming(nextTrack.id);
 
@@ -1778,12 +1803,12 @@ public class CloudPlaybackService extends Service {
             if (cursor == null || cursor.getCount() == 0) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(TrackPlays.TRACK_ID, nextTrack.id);
-                contentValues.put(TrackPlays.USER_ID, userId);
+                contentValues.put(TrackPlays.USER_ID, user.id);
                 svc.getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
             }
             if (cursor != null) cursor.close();
 
-            nextTrack.updateFromDb(svc.getContentResolver(), userId);
+            nextTrack.updateFromDb(svc.getContentResolver(), user);
 
             if (svc.getApp().getTrackFromCache(nextTrack.id) == null) {
                 svc.getApp().cacheTrack(nextTrack);

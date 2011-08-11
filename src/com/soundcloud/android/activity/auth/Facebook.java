@@ -29,9 +29,8 @@ import android.webkit.WebViewClient;
 public class Facebook extends LoginActivity {
     private WebView mWebview;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+
+    protected void build() {
         setContentView(R.layout.facebook);
 
         mWebview = (WebView) findViewById(R.id.webview);
@@ -67,12 +66,12 @@ public class Facebook extends LoginActivity {
 
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                progress.show();
+                showDialog(progress);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                try { progress.dismiss(); } catch (IllegalArgumentException ignored) { }
+                dismissDialog(progress);
             }
 
             @Override
@@ -126,20 +125,24 @@ public class Facebook extends LoginActivity {
     }
 
     private void showConnectionError(final String message) {
+        if (isFinishing()) return;
+
         String error = getString(R.string.facebook_authentication_error_no_connection_message);
         if (!TextUtils.isEmpty(message)) {
             error += " ("+message+")";
         }
         new AlertDialog.Builder(this).
-                setMessage(error).
-                setTitle(R.string.authentication_error_no_connection_title).
-                setIcon(android.R.drawable.ic_dialog_alert).
-                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).create().show();
+            setMessage(error).
+            setTitle(R.string.authentication_error_no_connection_title).
+            setIcon(android.R.drawable.ic_dialog_alert).
+            setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            }).
+            create().
+            show();
     }
 
     private void removeAllCookies() {

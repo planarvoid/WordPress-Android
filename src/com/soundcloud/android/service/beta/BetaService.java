@@ -264,7 +264,7 @@ public class BetaService extends Service {
         String title   = getString(R.string.pref_beta_new_version_downloaded);
         String content = getString(R.string.pref_beta_new_version_downloaded_content,
                 apk.getVersionName(),
-                getElapsedTimeString(getResources(), apk.lastmodified));
+                getElapsedTimeString(getResources(), apk.lastmodified, true));
 
         String ticker  = getString(R.string.pref_beta_new_version_downloaded_ticker);
 

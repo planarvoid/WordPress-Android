@@ -41,6 +41,7 @@ public class Consts {
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_RESET_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
+        int DIALOG_LOGOUT = 7;
     }
 
     public interface OptionsMenu {
@@ -51,6 +52,7 @@ public class Consts {
         int INCOMING = 204;
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
+        int FILTER = 207;
     }
 
     public interface GraphicsSizes {
@@ -63,7 +65,7 @@ public class Consts {
 
     public interface ListId {
         int LIST_INCOMING = 1001;
-        int LIST_EXCLUSIVE = 1002;
+        int LIST_NEWS = 1002;
         int LIST_USER_TRACKS = 1003;
         int LIST_USER_FAVORITES = 1004;
         int LIST_USER_FOLLOWINGS = 1006;
@@ -76,7 +78,30 @@ public class Consts {
         int RECORD_NOTIFY_ID    = 0;
         int PLAYBACK_NOTIFY_ID  = 1;
         int UPLOAD_NOTIFY_ID    = 2;
-        int DASHBOARD_NOTIFY_ID    = 3;
-        int BETA_NOTIFY_ID    = 4;
+        int DASHBOARD_NOTIFY_STREAM_ID = 3;
+        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
+        int BETA_NOTIFY_ID    = 5;
+    }
+
+    public interface TrackingEvents {
+        String AUDIO_ENGINE = "/internal/audioEngine";
+        String INCOMING = "/incoming";
+        String ACTIVITY = "/activity";
+        String RECORD = "/record";
+        String RECORD_RECORDING = "/record/recording";
+        String RECORD_COMPLETE = "/record/complete";
+        String SHARE_PUBLIC = "/record/share/public";
+        String SHARE_PRIVATE = "/record/share/private";
+        String SEARCH = "/search";
+        String SEARCH_TRACKS = "/search/tracks/q=";
+        String SEARCH_USERS = "/search/users/q=";
+        String LOGGED_OUT = "/loggedout";
+        String LOGIN = "/login";
+        String SIGNUP = "/signup";
+        String SIGNUP_DETAILS = "/signup/details";
+        String PEOPLE_FINDER = "/people/finder";
+        String SETTINGS = "/settings";
+        String TRACKS_BY_TAG = "/tracks_by_tag/";
+        String TRACKS_BY_GENRE = "/tracks_by_genre/";
     }
 }

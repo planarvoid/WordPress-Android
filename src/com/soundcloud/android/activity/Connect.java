@@ -57,7 +57,7 @@ public class Connect extends Activity {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                if (url.equals(u)) progress.show();
+                if (url.equals(u) && !isFinishing()) progress.show();
             }
 
             @Override
@@ -102,15 +102,18 @@ public class Connect extends Activity {
     }
 
      private void showConnectionError(final String message) {
-        new AlertDialog.Builder(this).
-                setMessage(message).
-                setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).create().show();
+        if (!isFinishing()) {
+            new AlertDialog.Builder(this).
+                    setMessage(message).
+                    setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).create()
+                    .show();
+        }
     }
 
     @Override

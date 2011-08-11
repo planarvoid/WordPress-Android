@@ -4,37 +4,40 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.view.EventsRow;
+import com.soundcloud.android.view.IncomingRow;
 import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.android.view.NewsRow;
 
 import android.os.Parcelable;
 
 import java.util.ArrayList;
 
 public class EventsAdapter extends TracklistAdapter {
+    private boolean mIsActivityFeed;
 
-    public static final String TAG = "EventsAdapter";
-    private boolean mExclusive;
-
-    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isExclusive, Class<?> model) {
+    public EventsAdapter(ScActivity context, ArrayList<Parcelable> data, boolean isActivityFeed, Class<?> model) {
         super(context, data, model);
-        mExclusive = isExclusive;
+        mIsActivityFeed = isActivityFeed;
     }
 
-    public boolean isExclusive(){
-        return mExclusive;
+    @Override
+    public void setPlayingId(long currentTrackId, boolean isPlaying) {
+        if (!isActivityFeed()) {
+            super.setPlayingId(currentTrackId,isPlaying);
+        }
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return new EventsRow(mActivity, this);
+        return isActivityFeed() ? new NewsRow(mActivity, this) : new IncomingRow(mActivity, this);
     }
 
     @Override
     public Track getTrackAt(int index) {
-        return ((Event) getItem(index)).getTrack();
+        return ((Event) getItem(index)).track;
     }
 
-
-
+    public boolean isActivityFeed() {
+        return mIsActivityFeed;
+    }
 }

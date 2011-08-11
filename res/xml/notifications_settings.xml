@@ -5,13 +5,35 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
     <CheckBoxPreference
-            android:title="@string/pref_notifications_incoming"
-            android:summary="@string/pref_notifications_incoming_description"
-            android:key="notificationsIncoming"
-            android:defaultValue="true"/>
-    <CheckBoxPreference
-            android:title="@string/pref_notifications_exclusive"
-            android:summary="@string/pref_notifications_exclusive_description"
-            android:key="notificationsExclusive"
-            android:defaultValue="true"/>
+                android:title="@string/pref_notifications_wifi_only"
+                android:summary="@string/pref_notifications_wifi_only_description"
+                android:key="notificationsWifiOnly"
+                android:defaultValue="false"/>
+     <PreferenceCategory android:title="@string/pref_notifications_stream">
+        <CheckBoxPreference
+                android:title="@string/pref_notifications_incoming"
+                android:summary="@string/pref_notifications_incoming_description"
+                android:key="notificationsIncoming"
+                android:defaultValue="true"/>
+
+        <CheckBoxPreference
+                android:title="@string/pref_notifications_exclusive"
+                android:summary="@string/pref_notifications_exclusive_description"
+                android:key="notificationsExclusive"
+                android:defaultValue="true"/>
+    </PreferenceCategory>
+
+     <PreferenceCategory android:title="@string/pref_notifications_activity">
+        <CheckBoxPreference
+                android:title="@string/pref_notifications_favoritings"
+                android:summary="@string/pref_notifications_favoritings_description"
+                android:key="notificationsFavoritings"
+                android:defaultValue="true"/>
+
+        <CheckBoxPreference
+                android:title="@string/pref_notifications_comments"
+                android:summary="@string/pref_notifications_comments_description"
+                android:key="notificationsComments"
+                android:defaultValue="true"/>
+    </PreferenceCategory>
 </PreferenceScreen>

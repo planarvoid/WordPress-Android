@@ -3,21 +3,19 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -31,7 +29,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Spannable;
@@ -163,10 +160,10 @@ public class CloudUtils {
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
         mkdirs(newDir);
         if (deprecatedDir.exists()) {
-            for (File f : deprecatedDir.listFiles()){
+            for (File f : deprecatedDir.listFiles()) {
                 f.renameTo(new File(newDir, f.getName()));
             }
-            deprecatedDir.delete();
+            CloudUtils.deleteDir(deprecatedDir);
         }
         return newDir;
     }
@@ -341,24 +338,6 @@ public class CloudUtils {
         if (sb != null) context.getApplicationContext().unbindService(sb);
     }
 
-
-    public static String getLocationString(String city, String country) {
-        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
-            return city + ", " + country;
-        } else if (!TextUtils.isEmpty(city)) {
-            return city;
-        } else if (!TextUtils.isEmpty(country)) {
-            return country;
-        }
-
-        return "";
-
-    }
-
-    public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : url.replace("large", targetSize);
-    }
-
     @SuppressWarnings("unchecked")
     public static boolean isTaskFinished(AsyncTask lt) {
         return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;
@@ -392,8 +371,8 @@ public class CloudUtils {
         return sFormatter.format(stringFormat, arg).toString();
     }
 
-    /** @see CloudUtils.formatTimestamp() */
-    public static String makeTimeString(String durationformat, long secs) {
+    /** @see {@link CloudUtils#formatTimestamp(long)} ()} */
+    /* package */ static String makeTimeString(String durationformat, long secs) {
         // XXX global state
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
@@ -407,7 +386,7 @@ public class CloudUtils {
     }
 
     public static boolean checkThreadAlive(Thread t) {
-        return (!(t == null || !t.isAlive()));
+        return t != null && t.isAlive();
     }
 
     // Show an event in the LogCat view, for debugging
@@ -448,16 +427,6 @@ public class CloudUtils {
         return emptyView;
     }
 
-    public static void resolveListParcelable(Context c, Parcelable p, long user_id) {
-        if (p instanceof Track) {
-            ((Track)p).updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof Event && ((Event)p).getTrack() != null) {
-            ((Event)p).getTrack().updateUserPlayedFromDb(c.getContentResolver(), user_id);
-        } else if (p instanceof User) {
-            // check if they are a follower
-        }
-    }
-
     public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId){
         return buildComment(context, userId, trackId, timestamp, commentBody, replyToId, "");
     }
@@ -475,21 +444,21 @@ public class CloudUtils {
         return comment;
     }
 
-    public static CharSequence getElapsedTimeString(Resources r, long start) {
+    public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
 
         if (elapsed < 60)
-            return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
+            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
         else if (elapsed < 3600)
-            return r.getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
         else if (elapsed < 86400)
-            return r.getQuantityString(R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
         else if (elapsed < 2592000)
-            return r.getQuantityString(R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
         else if (elapsed < 31536000)
-            return r.getQuantityString(R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
         else
-            return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
 
     }
 
@@ -553,15 +522,23 @@ public class CloudUtils {
     /**
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
+     * @param view the textview
+     * @param link the link to set, or null to use the whole text
+     * @param listener the listener
+     * @param underline underline the text
+     * @return true if the link was added
      */
-    public static void clickify(TextView view, final String clickableText, final ClickSpan.OnClickListener listener, boolean underline) {
+    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
 
-        int start = string.indexOf(clickableText);
-        int end = start + clickableText.length();
-        if (start == -1) return;
+        int start = 0, end = string.length();
+        if (link != null) {
+            start = string.indexOf(link);
+            end = start + link.length();
+            if (start == -1) return false;
+        }
 
         if (text instanceof Spannable) {
             ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -570,11 +547,11 @@ public class CloudUtils {
             s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             view.setText(s);
         }
-
         MovementMethod m = view.getMovementMethod();
         if ((m == null) || !(m instanceof LinkMovementMethod)) {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
+        return true;
     }
 
     public static boolean mkdirs(File d) {
@@ -728,5 +705,52 @@ public class CloudUtils {
 
     public static boolean isScreenXL(Context context){
         return ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
+    }
+
+    public static AlertDialog createLogoutDialog(final Activity a) {
+        return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
+            .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+                                app.pageTrack(Consts.TrackingEvents.LOGGED_OUT);
+                                app.clearSoundCloudAccount(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                a.finish();
+                                            }
+                                        },
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                new AlertDialog.Builder(a)
+                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                .setMessage(R.string.settings_error_revoking_account_message)
+                                                .setPositiveButton(android.R.string.ok, null)
+                                                .create()
+                                                .show();
+                                            }
+                                        }
+                                );
+                            }
+                        })
+           .setNegativeButton(android.R.string.cancel, null)
+           .create();
+    }
+
+    public static void setStats(int stat1, TextView statTextView1, View separator1, int stat2, TextView statTextView2,
+                                View separator2, int stat3, TextView statTextView3, boolean maintainSize) {
+        statTextView1.setText(Integer.toString(stat1));
+        statTextView2.setText(Integer.toString(stat2));
+        statTextView3.setText(Integer.toString(stat3));
+
+        statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
+        separator1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
+
+        statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
+        separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
+
+        statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content">
+    <View   android:id="@+id/hr"
+            android:layout_width="fill_parent"
+              android:layout_height="1dip"
+              android:background="@color/horizontalRule"/>
+
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:background="@drawable/user_list_browser_tab_bg"
+                    android:layout_below="@id/hr"
+                    android:layout_height="30dip"
+                    android:id="@+id/label_strip">
+        <ImageView android:id="@+id/left_arrow"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_marginTop="2dp"
+                   android:layout_marginLeft="10dp"
+                   android:layout_alignParentLeft="true"
+                   android:layout_centerVertical="true"
+                   android:src="@drawable/prev_sm"/>
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_centerHorizontal="true"
+                        android:layout_toRightOf="@+id/left_arrow"
+                        android:layout_toLeftOf="@+id/right_arrow"
+                        android:gravity="center_vertical"
+                        android:layout_height="fill_parent"
+                        android:id="@+id/label_holder"/>
+        <ImageView android:id="@+id/right_arrow"
+                   android:layout_marginTop="2dp"
+                   android:layout_marginRight="10dp"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentRight="true"
+                   android:layout_centerVertical="true"
+                   android:src="@drawable/next_sm"/>
+    </RelativeLayout>
+    <com.soundcloud.android.view.WorkspaceView
+                android:id="@+id/workspace_view"
+                android:layout_below="@id/label_strip"
+                android:layout_alignParentBottom="true"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+    <View android:layout_width="fill_parent"
+                  android:layout_below="@id/label_strip"
+                  android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
+</RelativeLayout>

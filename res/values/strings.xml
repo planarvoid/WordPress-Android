@@ -1,491 +1,122 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:xliff='urn:oasis:names:tc:xliff:document:1.2'>
-    <string name='this_user'>this user</string>
-
-    <string name='changelog_full_title'>Change Log</string>
-    <string name='changelog_title'>New Updates</string>
-
-    <string name='error_loading_title'>Network error</string>
-    <string name='error_loading_message'>There was a problem contacting Soundcloud.</string>
-
-    <string name='dashboard_notifications_ticker_single'>1 new sound</string>
-    <string name='dashboard_notifications_title_single'>1 new sound</string>
-
-    <string platform="ios win7" name='dashboard_notifications_ticker'>%s new sounds</string>
-    <string name='dashboard_notifications_title'>%s new sounds</string>
-
-    <string name='dashboard_notifications_message_single_exclusive'>1 exclusive from %s</string>
-    <string name='dashboard_notifications_message_exclusive'>exclusives from %s</string>
-    <string name='dashboard_notifications_message_exclusive_2'>exclusives from %1$s and %2$s</string>
-    <string name='dashboard_notifications_message_exclusive_others'>exclusives from %1$s, %2$s and others</string>
-    <string name='dashboard_notifications_message_incoming'>from %s</string>
-    <string name='dashboard_notifications_message_incoming_2'>from %1$s and %2$s</string>
-    <string name='dashboard_notifications_message_incoming_others'>from %1$s, %2$s and others</string>
-
-    <string name='facebook_authentication_failed_title'>Hmm, we aren\'t able to connect to Facebook right now.</string>
-    <string name='facebook_authentication_failed_message'>
-        Please try again shortly or log in using your SoundCloud username and password.
+<resources xmlns:xliff="http://schemas.android.com/apk/res/android">
+    <string name='empty_news_text'>
+        <![CDATA[You have no Activity.<br/><br/>Add new sounds and Comment &amp; Like other people\'s sounds to get your Activity going!]]>
     </string>
-
-    <string name='authentication_log_in'>Log In</string>
-    <string name='authentication_sign_up'>Sign Up</string>
-    <string name='authentication_log_in_with_facebook'>Log In with Facebook</string>
-    <string name='authentication_find_friends_on_facebook'>\u0020\u0020\u0020\u0020Find Friends on Facebook</string>
-    <string name='authentication_log_in_with_facebook_ssl_error'>Error connecting to Facebook (SSL)</string>
-    <string name='authentication_your_email_address'>Your email address</string>
-    <string name='authentication_your_password'>Your password</string>
-    <string name='authentication_I_forgot_my_password'>I forgot my password</string>
-    <string name='authentication_choose_a_password'>Choose a password</string>
-    <string name='authentication_repeat_your_password'>Repeat your password</string>
-    <string name='authentication_by_signing_in_I_agree_to_the'>
-        By signing up I agree to the Terms of Use of SoundCloud.
-    </string>
-    <string name='authentication_terms_of_use'>Terms of Use</string>
-    <string name='authentication_recover_password'>Recover password</string>
-    <string name='authentication_recover_password_msg'>
-        Enter your e-mail address and we\'ll send you a link that\'ll
-        allow you to change your password. Problems? Contact support.
-    </string>
-    <string name='authentication_recover_password_success'>
-        Go check your mail! You\'ll receive an email with
-        instructions on how to reset your password shortly
-    </string>
-    <string name='authentication_recover_password_failure'>Password Recovery failed</string>
-    <string name='authentication_recover_password_failure_reason'>Password Recovery failed: %s</string>
-    <string name='authentication_support'>support</string>
-    <string name='authentication_add_info_msg'>Almost done. Now choose a username and add a photo to make your profile
-        really yours.
-    </string>
-    <string name='authentication_add_info_username_hint'>Your username</string>
-    <string name='authentication_add_info_add_image_msg'>Smile! This image will appear on your profile.</string>
-
-
-    <string name='authentication_add_info_error'>Error adding info</string>
-    <string name='authentication_add_info_error_reason'>Error adding info: %s</string>
-
-    <string name='authentication_error_invalid_email'>Please enter a valid email.</string>
-    <string name='authentication_error_incomplete_fields'>Please fill in all fields.</string>
-    <string name='authentication_error_password_mismatch'>The password and confirmation have to match.</string>
-    <string name='authentication_error_password_too_short'>Your Password must have 4 or more characters.</string>
-
-    <string name='authentication_support_uri'>http://soundcloud.com/help#contact-form</string>
-    <string name='email_confirmation_thanks_later'>
-        <u>Thanks, I will confirm it later</u>
-    </string>
-
-    <string name='authentication_recover_progress_message'>Requesting password reset</string>
-
-    <string name='authentication_signup_progress_message'>Signing you up</string>
-
-    <string name='authentication_signup_failure_title'>Could not create user</string>
-    <string name='authentication_signup_error_title'>Oops!</string>
-    <string name='authentication_signup_error_message'>
-        There seems to be a problem. Please try signing up at SoundCloud.com.
-    </string>
-
-    <string name='authentication_login_progress_message'>Logging you in</string>
-    <string name='authentication_login_error_password_message'>
-        We couldn\'t log you in. Sure you had the right email and password?
-    </string>
-
-    <string name='authentication_add_info_progress_message'>Adding your info</string>
-    <string name='authentication_error_title'>Oops!</string>
-    <string name='authentication_error_no_connection_title'>Sure you\'re hooked up to the Internet?</string>
-    <string name='facebook_authentication_error_no_connection_message'>
-        Please try again shortly or log in using your SoundCloud username and password.
-    </string>
-    <string name='authentication_error_no_connection_message'>Please check your network settings.</string>
-
-    <string name='suggested_users'>Suggested Users</string>
-
-    <string name='suggested_users_msg'>
-        Welcome! Thanks for joining SoundCloud. Feel free to add some new sounds
-        from our Suggested Users to get started.
-    </string>
-
-    <string name='suggested_users_no_friends_msg'>
-        Whoop! You\'re a trendsetter. You\'re the first of your friends to
-        join SoundCloud. Check out new sounds from our Suggested Users.
-    </string>
-
-    <string name='app_name'>SoundCloud</string>
-
-    <string name='image_load_error'>Error loading image</string>
-
-    <string name='player_not_streamable'>This track is not streamable</string>
-    <string name='player_error'>There was a playback error</string>
-
-    <string name='player_touch_bar'>Tap here to make a timed comment</string>
-    <string name='player_touch_bar_disabled'>Comments disabled. Tap to enable.</string>
-    <string name='bubble_new_instructions'>Release to enter a timed comment at</string>
-
-    <string name='cloud_upload_clear_artwork'>Hold to clear artwork</string>
-    <string name='cloud_upload_not_yet_uploaded'>not yet uploaded</string>
-    <string name='cloud_upload_upload_failed'>upload failed</string>
-    <string name='cloud_upload_currently_uploading'>Uploading, progress is in notifications</string>
-
-
-    <string name='cloud_recorder_notification_ticker'>Recording started</string>
-    <string name='cloud_recorder_event_title'>Recording in progress</string>
-    <string name='cloud_recorder_event_message'>Recording for %d seconds</string>
-
-
-    <string name='cloud_recorder_playback_notification_ticker'>Playing %s</string>
-    <string name='cloud_recorder_playback_event_title'>Playback in progress</string>
-
-    <string name='cloud_uploader_notification_ticker'>Upload Started</string>
-    <string name='cloud_uploader_event_encoding'>Encoding: %d\%%%</string>
-    <string name='cloud_uploader_event_uploading'>Uploading: %d\%%%</string>
-
-    <string name='dialog_cancel_upload_title'/>
-    <string name='dialog_cancel_upload_message'>Cancel upload?</string>
-
-    <string name='dialog_reset_recording_title'/>
-    <string name='dialog_reset_recording_message'>Reset? Recording will be deleted.</string>
-
-    <string name='dialog_confirm_delete_recording_title'/>
-    <string name='dialog_confirm_delete_recording_message'>Are you sure you want to delete this recording?</string>
-
-    <string name='dialog_unsaved_recordings_message'>Unsaved recordings found. Checked items will be saved.</string>
-
-    <string name='cloud_uploader_notification_finished_ticker'>Upload Finished</string>
-    <string name='cloud_uploader_notification_finished_title'>Upload Finished</string>
-    <string name='cloud_uploader_notification_finished_message'>%s has been uploaded</string>
-
-    <string name='cloud_uploader_notification_error_ticker'>Upload Error</string>
-    <string name='cloud_uploader_notification_error_title'>Upload Error</string>
-    <string name='cloud_uploader_notification_error_message'>There was an error uploading %s</string>
-
-    <string name='wait_for_upload_to_finish'>One upload at a time currently supported</string>
-
-    <string name='track_by'>by</string>
-
-    <string name='tracklist_error'>Unable to get tracks</string>
-    <string name='userlist_error'>Unable to get users</string>
-    <string name='commentslist_error'>Unable to get comments</string>
-
-
-    <string name='list_header_fb_friends'>Your Facebook Friends</string>
-    <string name='list_header_suggested_users'>Suggested Users</string>
 
     <string name='empty_incoming_text'>
-        Your list of incoming tracks is empty. Find new sounds from our Suggested Users tab.
-    </string>
+		 <![CDATA[Your list of sounds is empty.<br/><br/>Find new sounds from our Suggested Users tab.]]>
+	</string>
 
-    <string name='empty_exclusive_text'>
-        No one has shared any exclusive tracks with you yet.&lt;br/>&lt;br/>
-        Why not send an audio shout-out to your friends to get them to share their sounds?
-    </string>
+    <string name='tab_stream'>Stream</string>
+    <string name='tab_activity'>Activity</string>
 
-    <string name='empty_my_tracks_text'>
-        You don\'t have any tracks yet.&lt;br/>&lt;br/>
-        Why not record and share your favorite sounds?
-    </string>
+    <string name="tracklist_item_shared_with_x_people">%d People</string>
+    <string name="tracklist_item_shared_with_you">You</string>
 
-    <string name='empty_my_favorites_text'>
-        You don\'t have any favorites yet.&lt;br/>&lt;br/>
-        Find new sounds using the Suggested Users and Search tabs.
-    </string>
+    <string name='menu_stream_setting'>Stream Setting</string>
+    <string name="dashboard_filter_title">What to display in your stream</string>
+    <string name="dashboard_filter_all">All incoming tracks</string>
+    <string name="dashboard_filter_exclusive">Only exclusive tracks</string>
+    <string name="dashboard_filter_cancel">Cancel</string>
 
-    <string name='error_loading_connections'>There was an error getting your connections.</string>
-    <string name='empty_user_tracks_text'>%1$s hasn\'t uploaded any public tracks yet.</string>
-    <string name='empty_user_favorites_text'>%1$s hasn\'t chosen any favorites yet.</string>
-    <string name='empty_my_followers_text'>
-        You aren\'t being followed by anyone yet.&lt;br/>&lt;br/>
-        Why not send an audio shout-out to your friends to get them to follow you?
-    </string>
-    <string name='empty_my_followings_text'>
-        You haven\'t started following anyone yet.&lt;br/>&lt;br/>
-        Find interesting sounds from our Suggested Users tab.
-    </string>
-    <string name='empty_user_followers_text'>%1$s isn\'t being followed by anyone yet.</string>
-    <string name='empty_user_followings_text'>%1$s isn\'t following anyone yet.</string>
+    <string name='list_header_track_favoriters'>People who favorited this track</string>
+    <string name='list_header_tracks_by_tag'>Other tracks tagged with %s</string>
+    <string name='list_header_tracks_by_genre'>Other tracks with the genre %s</string>
 
-    <string name='tracklist_empty'>No tracks available</string>
-    <string name='userlist_empty'>No users available</string>
+    <string name='track_info_favoriters'>%d people favorited it</string>
 
-    <string name='info_error'>Unable to get info</string>
-    <string name='info_empty'>No info available</string>
-
-    <string name='info_empty_you'>
-        Your profile is empty. Let people know about you!
-        Go to
-        <a href='http://soundcloud.com/settings'>SoundCloud.com/settings</a>
-        to add your profile info.
-    </string>
-
-    <string name='info_empty_other'>This user hasn\'t added a profile description yet.</string>
-
-    <!-- Create/Upload control strings -->
-    <string name='delete'>Delete</string>
-    <string name='reset'>Reset</string>
-    <string name='save'>Save</string>
-    <string name='upload'>Upload</string>
-    <string name='record_another_sound'>Record another sound</string>
-    <string name='upload_and_share'>Upload &amp; Share</string>
-
-    <plurals name='elapsed_seconds'>
-        <item quantity='one'>1 second ago</item>
-        <item quantity='other'>%d seconds ago</item>
+    <plurals name='track_info_favoriters'>
+        <item quantity='one'>1 person favorited it</item>
+        <item quantity='other'>%d people favorited it</item>
     </plurals>
 
-    <plurals name='elapsed_minutes'>
-        <item quantity='one'>1 minute ago</item>
-        <item quantity='other'>%d minutes ago</item>
+    <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
+    <string name="location_picker_go_to_settings">Go to settings</string>
+
+    <string name="pref_dev_crash">Crash</string>
+    <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
+
+    <string name="comment_hint_untimed">Add a comment</string>
+    <string name="comment_hint_timed">Add comment at %s</string>
+    <string name="comment_hint_reply">Reply to %1$s at %2$s</string>
+
+    <string name='pref_notifications_favoritings'>Likes</string>
+    <string name='pref_notifications_favoritings_description'>
+        Receive updates on new likes on your sounds
+    </string>
+
+    <string name='pref_notifications_comments'>Comments</string>
+    <string name='pref_notifications_comments_description'>
+        Receive updates on new comments on your sounds
+    </string>
+
+    <string name='pref_notifications_stream'>Stream</string>
+    <string name='pref_notifications_activity'>Activity</string>
+
+    <string name='pref_notifications_wifi_only'>Wifi only notifications</string>
+    <string name='pref_notifications_wifi_only_description'>
+        Request updates only when connected via wifi
+    </string>
+
+    <!-- likes -->
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity='one'>New like</item>
+        <item quantity='other'>%d new likes</item>
     </plurals>
 
-    <plurals name='elapsed_hours'>
-        <item quantity='one'>1 hour ago</item>
-        <item quantity='other'>%d hours ago</item>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity='one'>A new like</item>
+        <item quantity='other'>%d new likes</item>
     </plurals>
 
-    <plurals name='elapsed_days'>
-        <item quantity='one'>1 day ago</item>
-        <item quantity='other'>%d days ago</item>
+    <plurals name="dashboard_notifications_activity_message_like">
+        <item quantity='one'>on %1$s</item>
+        <item quantity='two'>on %1$s and %2$s</item>
+        <item quantity='other'>on %1$s, %2$s and other sounds</item>
     </plurals>
 
-    <plurals name='elapsed_months'>
-        <item quantity='one'>1 month ago</item>
-        <item quantity='other'>%d months ago</item>
+    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
+
+
+    <!-- comments -->
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity='one'>1 new comment</item>
+        <item quantity='other'>%d new comments</item>
     </plurals>
 
-    <plurals name='elapsed_years'>
-        <item quantity='one'>1 year ago</item>
-        <item quantity='other'>%d years ago</item>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity='one'>1 new comment</item>
+        <item quantity='other'>%d new comments</item>
     </plurals>
 
-    <plurals name='seconds_available'>
-        <item quantity='one'>1 second available</item>
-        <item quantity='other'>
-            <xliff:g id='count'>%d</xliff:g>
-            seconds available
-        </item>
+    <plurals name="dashboard_notifications_activity_message_comment">
+        <item quantity='two'>Comments from %1$s and %2$s</item>
+        <item quantity='other'>Comments from %1$s, %2$s and others</item>
     </plurals>
 
-    <plurals name='minutes_available'>
-        <item quantity='one'>1 minute available</item>
-        <item quantity='other'>
-            <xliff:g id='count'>%d</xliff:g>
-            minutes available
-        </item>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track">
+        <item quantity='one'>new comment on %2$s from %3$s</item>
+        <item quantity='two'>%1$d new comments on %2$s from %3$s and %4$s</item>
+        <item quantity='other'>%1$d new comments on %2$s from %3$s, %4$s and others</item>
     </plurals>
 
-    <string name='record_instructions'>Share your Sound</string>
-    <string name='record_currently_uploading'>
-        Your track is being uploaded. Please check the status bar to see its progress.
-    </string>
+    <!-- comments + likes -->
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+         <item quantity='one'>1 new activity</item>
+         <item quantity='other'>%d new activities</item>
+     </plurals>
 
-    <string name='record_max_length_reached'>Maximum filesize reached.</string>
-    <string name='record_insert_sd_card'>Please insert an SD card to record.</string>
-    <string name='record_storage_is_full'>Storage is full</string>
+     <plurals name="dashboard_notifications_activity_title_activity">
+         <item quantity='one'>1 new activity</item>
+         <item quantity='other'>%d new activities</item>
+     </plurals>
 
+     <plurals name="dashboard_notifications_activity_message_activity">
+        <item quantity='one'>from %2$s on %1$s</item>
+        <item quantity='two'>Comments and likes from %2$s and %3$s</item>
+        <item quantity='other'>Comments and likes from %2$s, %3$s and others</item>
+    </plurals>
 
-    <string name='empty_list'>No Results</string>
-    <string name='menu_upload'>Upload</string>
-
-    <string name='tab_incoming'>Incoming</string>
-    <string name='tab_exclusive'>Exclusive</string>
-    <string name='tab_you'>You</string>
-    <string name='tab_record'>Record</string>
-    <string name='tab_search'>Search</string>
-    <string name='tab_tracks'>Tracks</string>
-    <string name='tab_favorites'>Favorites</string>
-    <string name='tab_info'>Info</string>
-
-    <string name='tab_followings'>Following</string>
-    <string name='tab_followers'>Followers</string>
-    <string name='tab_friend_finder'>Friend Finder</string>
-
-    <string name='btn_yes'>Yes</string>
-    <string name='btn_no'>No</string>
-    <string name='btn_ok'>Ok</string>
-    <string name='btn_done'>Done</string>
-
-
-    <string name='btn_login'>Log In</string>
-    <string name='btn_signup'>Sign Up</string>
-    <string name='btn_skip'>Skip</string>
-    <string name='btn_save'>Save</string>
-
-    <string name='error_recording_message'>
-        There was an error during recording.\n Your device may not support the
-        current record configuration. You can change configurations in the application settings.
-    </string>
-
-    <string name='error_unauthorized_title'>Unauthorized</string>
-    <string name='error_unauthorized_message'>
-        Soundcloud is having a problem authorizing this application to use your
-        account. If the problem persists, please logout from the settings menu to re-authorize.
-    </string>
-
-    <string name='cache_clearing'>Clearing cache</string>
-    <string name='cache_clearing_message'>Deleting cached files ...</string>
-
-    <string name='search'>Search</string>
-
-    <string name='wifi_settings'>Wi-Fi Settings</string>
-    <string name='wifi_settings_summary'>Edit your Wi-Fi settings. Use Wi-Fi for best
-        performance.
-    </string>
-
-    <string name='from'>from</string>
-
-    <!-- menu strings -->
-    <string name='menu_settings'>Settings</string>
-    <string name='menu_view_current_track'>View Player</string>
-    <string name='menu_cancel_current_upload'>Cancel Upload</string>
-    <string name='menu_refresh'>Refresh</string>
-    <string name='menu_load_more'>Load more</string>
-    <string name='menu_upload_file'>Upload file</string>
-    <string name='menu_incoming'>Incoming</string>
-    <string name='menu_friend_finder'>Find Friends</string>
-    <string name='menu_sort_by_user_name'>Sort by username</string>
-    <string name='menu_sort_by_upload_date'>Sort by upload date</string>
-    <string name='menu_sort_by_track_count'>Sort by track count</string>
-    <string name='menu_sort_by_follower_count'>Sort by follower count</string>
-    <string name='menu_sort_by_hotness'>Sort by hotness</string>
-    <string name='menu_clear_user'>Clear user data</string>
-    <string name='menu_clear_user_title'>Clear user data?</string>
-    <string name='menu_clear_user_desc'>You will have to re-connect your SoundCloud account.</string>
-    <string name='about'>About</string>
-    <string name='about_summary'>Copyright information</string>
-
-    <!-- preference strings -->
-    <string name='pref_page_size'>Default page size</string>
-    <string name='pref_page_size_desc'>The default number of items returned in a list</string>
-    <string name='pref_buffer_during_pause'>Idle caching</string>
-    <string name='pref_buffer_during_pause_desc'>Continue caching audio even when player is paused.</string>
-
-    <string name='pref_notifications'>Notifications</string>
-    <string name='pref_notifications_description'>Which updates would you like to receive?</string>
-
-    <string name='pref_notifications_incoming'>Incoming Tracks</string>
-    <string name='pref_notifications_exclusive'>Exclusive Tracks</string>
-
-    <string name='pref_notifications_incoming_description'>
-        Receive updates on new public tracks shared with you
-    </string>
-
-    <string name='pref_notifications_exclusive_description'>
-        Receive updates on new private tracks shared with you
-    </string>
-
-    <string name='pref_revoke_access'>Log Out</string>
-    <string name='pref_revoke_desc'>Revoke current user access (requires re-authentication)</string>
-
-    <string name='pref_clear_cache'>Clear Cache</string>
-    <string name='pref_clear_cache_desc'>Clear the application cache to free up memory</string>
-
-    <string name='pref_record_quality'>Recording quality</string>
-    <string name='pref_record_quality_desc'>Choose your preferred recording quality</string>
-
-    <string name='pref_change_log'>Change Log</string>
-    <string name='pref_change_log_desc'>View application updates through this release</string>
-
-    <string name='low'>Low</string>
-    <string name='high'>High</string>
-    <string name='compressed'>Compressed</string>
-    <string name='raw'>Raw</string>
-
-    <string name='pull_to_refresh_pull_label'>Pull to refresh...</string>
-    <string name='pull_to_refresh_release_label'>Release to refresh...</string>
-    <string name='pull_to_refresh_refreshing_label'>Loading...</string>
-
-    <string name='pull_to_refresh_last_updated'>updated %1$s</string>
-
-    <!--
-    This string is used as the format string in a String.format call,
-    and 5 additional arguments are available for printing:
-    1 - hours
-    2 - minutes
-    3 - minutes%60
-    4 - seconds
-    5 - second%60
-    -->
-    <skip/>
-    <!-- XXX still needed? CloudUtils.formatTimestamp() -->
-    <!-- Do not translate. Duration format for duration < 1 hour -->
-    <string name='durationformatshort' translatable='false'>
-        <xliff:g id='format'>%2$d.%5$02d</xliff:g>
-    </string>
-    <!-- Do not translate. Duration format for duration >= 1 hour -->
-    <string name='durationformatlong' translatable='false'>
-        <xliff:g id='format'>%1$d.%3$02d.%5$02d</xliff:g>
-    </string>
-
-
-    <string name='new_connection_error'>Error adding connection</string>
-    <string name='connection_list_footer'>
-        To change your default sharing options, go to your settings on SoundCloud and
-        select \'Connections\'
-    </string>
-
-    <string name='connection_list_error'>
-        Oops! There seems to be a connection problem. Please try again shortly.
-    </string>
-
-    <string name='connect_progress'>Loading</string>
-    <string name='connect_success'>Successfully connected with %1$s</string>
-    <string name='connect_failure'>Failed connecting with %1$s</string>
-
-    <string name='search_hint'>Tracks</string>
-
-    <string name='account_type'>com.soundcloud.android.account</string>
-    <string name='account_one_active'>You can only have one active account</string>
-
-    <string name='settings_error_revoking_account_title'>Error revoking access</string>
-    <string name='settings_error_revoking_account_message'>There was an error deleting the account.</string>
-    <string name='image_where'>Where would you like to get the image?</string>
-    <string name='take_new_picture'>Take a new picture</string>
-    <string name='use_existing_image'>Use existing image</string>
-    <string name='error_change_following_status'>Error changing following status</string>
-    <string name='recording_not_found'>Recording not found</string>
-
-    <string name='audio_file_picker_label'>Local file</string>
-    <string name='menu_show_all'>Show all</string>
-    <string name='menu_show_audio'>Show only audio</string>
-    <string name='audio_file_picker_empty'>No files or directories</string>
-
-
-    <string name='pref_basic_settings'>Basic settings</string>
-    <string name='pref_connection_and_data'>Connection and data</string>
-    <string name='pref_app_details'>App Details</string>
-    <string name="add_image">Add\nImage</string>
-    <string name="filename">filename</string>
-    <string name="btn_reply">Reply</string>
-    <string name="configure">Configure</string>
-
-    <string name="email_picker_clear">Clear</string>
-    <string name="email_confirmation_cant_find_it">Can\'t find it in your inbox?</string>
-    <string name="email_confirmation_resend">Resend the confirmation link</string>
-    <string name="email_confirmation_just_a_second">Just a second</string>
-    <string name="email_confirmation_confirm_later">Thanks, I will confirm it later</string>
-    <string name="email_confirmation_you_need_to_confirm">
-        To get the most out of SoundCloud you need to confirm your email address.
-    </string>
-
-    <string name="info_comments_add_comment">Add a comment</string>
-    <string name="info_comments_comments">Comments</string>
-
-
-    <string name="track">track</string>
-    <string name="user">user</string>
-    <string name="sc_upload_only_you">Only You</string>
-    <string name="sc_upload_with_access">With Access</string>
-    <string name="sc_upload_sharing_options">Sharing Options</string>
-    <string name="sc_upload_add_image">Add\nImage</string>
-    <string name="sc_upload_public">\u00A0Public</string>
-    <string name="sc_upload_private">\u00A0Private</string>
-
-    <string name="website">Website</string>
-    <string name="discogs" translatable="false">Discogs</string>
-    <string name="myspace" translatable="false">Myspace</string>
-    <string name="username">username</string>
-    <string name="track_count">track count</string>
-    <string name="follower_count">follower count</string>
-
-    <string name="sc_search_tracks">\u00A0Tracks</string>
-    <string name="sc_search_users">\u00A0Users</string>
-    <string name="comment_bubble_readon">Read on</string>
-    <string name="error_getting_recording">Error getting recording</string>
+    <string name="take_new_picture_error">Could not take picture</string>
+    <string name="use_existing_image_error">Could not use existing image</string>
 </resources>

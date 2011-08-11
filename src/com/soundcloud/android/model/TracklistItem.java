@@ -7,8 +7,6 @@ import java.util.Date;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class TracklistItem {
-    private static final String TAG = "TracklistItem";
-
     public long id;
     public String title;
     public long user_id;
@@ -22,5 +20,9 @@ public class TracklistItem {
     public String artwork_url;
     public String waveform_url;
     public String stream_url;
+    public boolean user_favorite;
 
+    public int playback_count;
+    public int comment_count;
+    public int favoritings_count;
 }

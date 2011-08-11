@@ -21,17 +21,17 @@ public class CommentBubble extends RelativeLayout {
 
     private CommentBubbleArrow mArrow;
 
-    private static int NEW_MODE_WIDTH = 180;
-    private static int NEW_MODE_HEIGHT = 100;
+    private static final int NEW_MODE_WIDTH = 180;
+    private static final int NEW_MODE_HEIGHT = 100;
 
-    private static int SHOW_MODE_WIDTH = 280;
-    private static int SHOW_MODE_HEIGHT = 145;
+    private static final int SHOW_MODE_WIDTH = 280;
+    private static final int SHOW_MODE_HEIGHT = 145;
 
     public static int HARD_WIDTH;
-    public static int CORNER_MARGIN = 20;
+    public static final int CORNER_MARGIN = 20;
 
-    public static int MODE_NEW_COMMENT = 1;
-    public static int MODE_SHOW_COMMENT = 2;
+    public static final int MODE_NEW_COMMENT = 1;
+    public static final int MODE_SHOW_COMMENT = 2;
 
     private int mRealWidth = 1;
 
@@ -40,49 +40,33 @@ public class CommentBubble extends RelativeLayout {
     public Track mTrack;
 
     private TextView mTxtNewTime;
-
     private TextView mTxtNewInstructions;
 
-    private String mDurationFormatShort;
-
-    private String mDurationFormatLong;
-
     private TextView mTxtUsername;
-
     private TextView mTxtDate;
-
     private TextView mTxtElapsed;
 
     private Button mBtnReadOn;
-
     private ImageButton mBtnClose;
 
     private TextView mTxtComment;
-
     private Button mBtnReply;
 
     private WaveformController mController;
-
     private ScPlayer mPlayer;
 
     public boolean interacted;
-
     public boolean closing;
 
     public long new_comment_timestamp;
-
     public Track new_comment_track;
-
     public Comment show_comment;
 
     public int comment_mode;
 
     public int xPos;
-
     public int yPos;
-
     public int parentWidth;
-
 
     public CommentBubble(Context context, WaveformController controller) {
 
@@ -98,9 +82,6 @@ public class CommentBubble extends RelativeLayout {
 
         mTxtNewTime = (TextView) findViewById(R.id.txt_new_time);
         mTxtNewInstructions = (TextView) findViewById(R.id.txt_new_instructions);
-
-        mDurationFormatLong = context.getString(R.string.durationformatlong);
-        mDurationFormatShort = context.getString(R.string.durationformatshort);
 
         mArrow = new CommentBubbleArrow(context);
         setDimensions(NEW_MODE_WIDTH,NEW_MODE_HEIGHT);
@@ -206,7 +187,7 @@ public class CommentBubble extends RelativeLayout {
         mTxtUsername.setText(mComment.user.username);
         mTxtDate.setText("at " + CloudUtils.formatTimestamp(mComment.timestamp));
         mTxtComment.setText(mComment.body);
-        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime()));
+        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtDate.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);
@@ -234,7 +215,6 @@ public class CommentBubble extends RelativeLayout {
     }
 
     public void updateNewCommentTime() {
-        mTxtNewTime.setText(CloudUtils.makeTimeString(new_comment_timestamp < 3600000 ? mDurationFormatShort
-                : mDurationFormatLong, new_comment_timestamp / 1000));
+        mTxtNewTime.setText(CloudUtils.formatTimestamp(new_comment_timestamp));
     }
 }

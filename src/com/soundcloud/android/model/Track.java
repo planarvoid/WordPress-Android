@@ -2,25 +2,33 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
-
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +38,10 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends BaseObj implements Parcelable {
+public class Track extends ModelBase {
     private static final String TAG = "Track";
 
     // API fields
-
-    public long id;
     public Date created_at;
     public long user_id;
     public int duration;
@@ -111,7 +117,8 @@ public class Track extends BaseObj implements Parcelable {
     public boolean info_loaded;
     @JsonIgnore
     public boolean comments_loaded;
-    private File mCacheFile;
+    protected File mCacheFile;
+    private CharSequence mElapsedTime;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -142,7 +149,7 @@ public class Track extends BaseObj implements Parcelable {
         readFromParcel(in);
     }
 
-    public Track(TracklistItem tracklistItem){
+    public Track(TracklistItem tracklistItem) {
         id = tracklistItem.id;
         title = tracklistItem.title;
         created_at = tracklistItem.created_at;
@@ -156,6 +163,10 @@ public class Track extends BaseObj implements Parcelable {
         waveform_url = tracklistItem.waveform_url;
         user = tracklistItem.user;
         stream_url = tracklistItem.stream_url;
+        playback_count = tracklistItem.playback_count;
+        comment_count = tracklistItem.comment_count;
+        favoritings_count = tracklistItem.favoritings_count;
+        user_favorite = tracklistItem.user_favorite;
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {
@@ -176,9 +187,13 @@ public class Track extends BaseObj implements Parcelable {
         }
     }
 
-    public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?", new String[] { Long.toString(id) },
-                null);
+    public void updateFromDb(ContentResolver resolver, User user) {
+        updateFromDb(resolver, user.id);
+    }
+
+    public void updateFromDb(ContentResolver resolver, long currentUserId) {
+        Cursor cursor = resolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
+                new String[] { Long.toString(id) }, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -199,27 +214,31 @@ public class Track extends BaseObj implements Parcelable {
                     }
                 }
                 if (!user_played) {
-                    this.updateUserPlayedFromDb(contentResolver, currentUserId);
+                    this.updateUserPlayedFromDb(resolver, currentUserId);
                 }
             }
             cursor.close();
         }
         if (user != null) {
-            user.updateFromDb(contentResolver, currentUserId);
+            user.updateFromDb(resolver, currentUserId);
         }
     }
 
-    public void updateUserPlayedFromDb(ContentResolver contentResolver, Long currentUserId) {
+    public boolean updateUserPlayedFromDb(ContentResolver resolver, User user) {
+        return updateUserPlayedFromDb(resolver, user.id);
+    }
+
+    public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
                 + "= ? AND " + TrackPlays.USER_ID + " = ?", new String[] {
-                Long.toString(id), Long.toString(currentUserId) }, null);
+                String.valueOf(id), String.valueOf(userId)
+        }, null);
 
         if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                user_played = true;
-            }
+            user_played = cursor.getCount() > 0;
             cursor.close();
         }
+        return user_played;
     }
 
     public void setAppFields(Track t) {
@@ -232,37 +251,28 @@ public class Track extends BaseObj implements Parcelable {
     }
 
     public boolean isStreamable() {
-        return streamable && stream_url != null;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        buildParcel(out,flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+        return stream_url != null;
     }
 
     public ContentValues buildContentValues(){
         ContentValues cv = new ContentValues();
         cv.put(Tracks.ID, id);
         cv.put(Tracks.PERMALINK, permalink);
-        cv.put(Tracks.DURATION, duration);
-        cv.put(Tracks.CREATED_AT, created_at.getTime());
-        cv.put(Tracks.TAG_LIST, tag_list);
-        cv.put(Tracks.TRACK_TYPE, track_type);
-        cv.put(Tracks.TITLE, title);
-        cv.put(Tracks.PERMALINK_URL, permalink_url);
-        cv.put(Tracks.ARTWORK_URL, artwork_url);
-        cv.put(Tracks.WAVEFORM_URL, waveform_url);
-        cv.put(Tracks.DOWNLOADABLE, downloadable);
-        cv.put(Tracks.DOWNLOAD_URL, download_url);
-        cv.put(Tracks.STREAM_URL, stream_url);
-        cv.put(Tracks.STREAMABLE, streamable);
-        cv.put(Tracks.SHARING, sharing);
-        cv.put(Tracks.USER_ID, user_id);
+        // account for partial objects, don't overwrite local full objects
+        if (title != null) cv.put(Tracks.TITLE, title);
+        if (duration != 0) cv.put(Tracks.DURATION, duration);
+        if (stream_url != null) cv.put(Tracks.STREAM_URL, stream_url);
+        if (user_id != 0) cv.put(Tracks.USER_ID, user_id);
+        if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
+        if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
+        if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
+        if (permalink_url != null) cv.put(Tracks.PERMALINK_URL, permalink_url);
+        if (artwork_url != null) cv.put(Tracks.ARTWORK_URL, artwork_url);
+        if (waveform_url != null) cv.put(Tracks.WAVEFORM_URL, waveform_url);
+        if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
+        if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
+        if (streamable) cv.put(Tracks.STREAMABLE, streamable);
+        if (sharing != null) cv.put(Tracks.SHARING, sharing);
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
         if (user_favorite) cv.put(Tracks.USER_FAVORITE, user_favorite);
@@ -270,29 +280,60 @@ public class Track extends BaseObj implements Parcelable {
         return cv;
     }
 
+    public void fillTags(FlowLayout ll, final Context context){
+        TextView txt;
+        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
+
+        final LayoutInflater inflater = LayoutInflater.from(context);
+
+        if (!TextUtils.isEmpty(genre)) {
+            txt = ((TextView) inflater.inflate(R.layout.genre_text, null));
+            txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TracksByTag.class);
+                        intent.putExtra("genre", genre);
+                        context.startActivity(intent);
+                    }
+                });
+            txt.setText(genre);
+            ll.addView(txt, flowLP);
+        }
+        for (final String t : humanTags()) {
+            if (!TextUtils.isEmpty(t)) {
+                txt = ((TextView) inflater.inflate(R.layout.tag_text, null));
+                txt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TracksByTag.class);
+                        intent.putExtra("tag", t);
+                        context.startActivity(intent);
+                    }
+                });
+                txt.setText(t);
+                ll.addView(txt, flowLP);
+            }
+        }
+
+    }
+
     public String trackInfo() {
         StringBuilder str = new StringBuilder(200);
 
         if (!TextUtils.isEmpty(description)) {
-            str.append(description).append("<br/><br/>");
-        }
-
-        for (String t : humanTags()) {
-            str.append(t).append("<br/>");
+            str.append(description.replace("\n", "<br/>")).append("<br/><br/>");
         }
 
         if (!TextUtils.isEmpty(key_signature)) {
             str.append(key_signature).append("<br/>");
         }
-        if (!TextUtils.isEmpty(genre)) {
-            str.append(genre).append("<br/>");
-        }
-
         if (bpm != 0) {
             str.append(bpm).append("<br/>");
         }
 
-        str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        if (!TextUtils.isEmpty(formattedLicense())) {
+            str.append("<br/>").append(formattedLicense()).append("<br/><br/>");
+        }
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")
@@ -383,5 +424,38 @@ public class Track extends BaseObj implements Parcelable {
                 return true;
             }
         } else return false;
+    }
+
+    public CharSequence getElapsedTime(Context c) {
+        if (mElapsedTime == null){
+            mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
+        }
+
+        return mElapsedTime;
+    }
+
+    @Override
+    public void resolve(SoundCloudApplication application) {
+        updateUserPlayedFromDb(application.getContentResolver(), application.getCurrentUserId());
+    }
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "title='" + title + '\'' +
+                ", user=" + user +
+                '}';
+    }
+
+    public String pageTrack(String... paths) {
+        StringBuilder sb = new StringBuilder();
+        if (user != null && !TextUtils.isEmpty(user.username)) {
+            sb.append("/").append(user.username).append("/");
+        }
+        sb.append(permalink);
+        for (CharSequence p : paths) {
+            sb.append("/").append(p);
+        }
+        return sb.toString();
     }
 }
