@@ -39,7 +39,7 @@ public class UserTest {
     @Test
     public void shouldPageTrack() throws Exception {
         User u = new User();
-        u.username = "username";
+        u.permalink = "username";
 
         assertThat(u.pageTrack(false, "foo"), equalTo("/username/foo"));
         assertThat(u.pageTrack(true, "foo"), equalTo("/you/foo"));

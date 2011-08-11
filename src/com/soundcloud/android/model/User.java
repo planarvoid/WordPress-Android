@@ -198,7 +198,7 @@ public class User extends ModelBase {
 
     public String pageTrack(boolean currentUser, String... paths) {
         StringBuilder sb = new StringBuilder();
-        sb.append("/").append(currentUser ? "you" : username);
+        sb.append("/").append(currentUser ? "you" : permalink);
         for (String p : paths) {
             sb.append("/").append(p);
         }
