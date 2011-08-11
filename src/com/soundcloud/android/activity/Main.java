@@ -191,9 +191,6 @@ public class Main extends TabActivity {
 
     private void handleIntent(Intent intent) {
         if (intent != null) {
-            intent.getStringExtra("dummy");
-            Log.d(TAG, "handleIntent("+intent+","+intent.getExtras()+")");
-
             final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
             if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
