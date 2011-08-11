@@ -284,6 +284,7 @@ public class Recording extends ModelBase implements PageTrackable {
         return new Upload(this);
     }
 
+    @Override
     public String pageTrack(String... params) {
          return is_private ? Consts.TrackingEvents.SHARE_PRIVATE : Consts.TrackingEvents.SHARE_PUBLIC;
     }

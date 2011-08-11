@@ -447,6 +447,7 @@ public class Track extends ModelBase implements PageTrackable {
                 '}';
     }
 
+    @Override
     public String pageTrack(String... paths) {
         StringBuilder sb = new StringBuilder();
         if (user != null && !TextUtils.isEmpty(user.permalink)) {

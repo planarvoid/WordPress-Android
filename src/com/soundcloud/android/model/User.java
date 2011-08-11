@@ -196,6 +196,7 @@ public class User extends ModelBase implements PageTrackable {
         }
     }
 
+    @Override
     public String pageTrack(String... paths) {
         return pageTrack(false, paths);
     }
