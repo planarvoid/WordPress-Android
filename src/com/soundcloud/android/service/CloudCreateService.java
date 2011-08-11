@@ -353,7 +353,6 @@ public class CloudCreateService extends Service {
         } else {
             i = (new Intent(this, ScCreate.class))
             .setData(mPlaybackLocal)
-            .addCategory(Intent.CATEGORY_LAUNCHER)
             .addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
             .setAction(Intent.ACTION_MAIN);
         }
