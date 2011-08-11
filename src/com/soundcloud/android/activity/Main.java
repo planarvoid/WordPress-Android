@@ -191,13 +191,16 @@ public class Main extends TabActivity {
 
     private void handleIntent(Intent intent) {
         if (intent != null) {
+            intent.getStringExtra("dummy");
+            Log.d(TAG, "handleIntent("+intent+","+intent.getExtras()+")");
+
             if (intent.getBooleanExtra("gotoPlayer", false)) {
                 Intent i = new Intent(this, ScPlayer.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(i);
                 intent.removeExtra("gotoPlayer");
             } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-                getTabHost().setCurrentTabByTag("search");
+                getTabHost().setCurrentTabByTag(Dashboard.Tabs.SEARCH);
                 ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
             } else if (intent.hasExtra("tabIndex")) {
                 getTabHost().setCurrentTab(intent.getIntExtra("tabIndex", 0));
@@ -210,11 +213,10 @@ public class Main extends TabActivity {
                 if (getCurrentActivity() instanceof Dashboard){
                      ((Dashboard) getCurrentActivity()).refreshIncoming();
                 }
-
                 intent.removeExtra("tabTag");
             } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after succdessful authentication");
-                getTabHost().setCurrentTabByTag("record");
+                getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);
             }
         }
     }
@@ -222,31 +224,31 @@ public class Main extends TabActivity {
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
         TabHost.TabSpec spec;
 
-        spec = host.newTabSpec("incoming").setIndicator(
+        spec = host.newTabSpec(Dashboard.Tabs.STREAM).setIndicator(
                 getString(R.string.tab_stream),
                 getResources().getDrawable(R.drawable.ic_tab_incoming));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "incoming"));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", Dashboard.Tabs.STREAM));
         host.addTab(spec);
 
-        spec = host.newTabSpec("activity").setIndicator(
+        spec = host.newTabSpec(Dashboard.Tabs.ACTIVITY).setIndicator(
                 getString(R.string.tab_activity),
                 getResources().getDrawable(R.drawable.ic_tab_news));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", "activity"));
+        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", Dashboard.Tabs.ACTIVITY));
         host.addTab(spec);
 
-        spec = host.newTabSpec("record").setIndicator(
+        spec = host.newTabSpec(Dashboard.Tabs.RECORD).setIndicator(
                 getString(R.string.tab_record),
                 getResources().getDrawable(R.drawable.ic_tab_record));
         spec.setContent(new Intent(this, ScCreate.class));
         host.addTab(spec);
 
-        spec = host.newTabSpec("profile").setIndicator(
+        spec = host.newTabSpec(Dashboard.Tabs.PROFILE).setIndicator(
                 getString(R.string.tab_you),
                 getResources().getDrawable(R.drawable.ic_tab_you));
         spec.setContent(new Intent(this, UserBrowser.class));
         host.addTab(spec);
 
-        spec = host.newTabSpec("search").setIndicator(
+        spec = host.newTabSpec(Dashboard.Tabs.SEARCH).setIndicator(
                 getString(R.string.tab_search),
                 getResources().getDrawable(R.drawable.ic_tab_search));
         spec.setContent(new Intent(this, ScSearch.class));

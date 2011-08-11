@@ -44,12 +44,12 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             ScTabView trackListView;
-            if ("incoming".equalsIgnoreCase(tab)) {
+            if ("stream".equalsIgnoreCase(tab)) {
                 trackListView = createList(getIncomingRequest(),
                         Event.class,
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_INCOMING, false);
-                mTrackingPath = Consts.TrackingEvents.INCOMING;
+                mTrackingPath = Consts.TrackingEvents.STREAM;
             } else if ("activity".equalsIgnoreCase(tab)) {
                 mNews = true;
                 trackListView = createList(Request.to(AndroidCloudAPI.MY_NEWS),
@@ -171,5 +171,13 @@ public class Dashboard extends ScActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public static interface Tabs {
+        String STREAM = "stream";
+        String ACTIVITY = "activity";
+        String RECORD = "record";
+        String PROFILE = "profile";
+        String SEARCH = "search";
     }
 }

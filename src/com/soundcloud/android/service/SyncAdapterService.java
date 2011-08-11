@@ -4,6 +4,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
@@ -155,8 +156,8 @@ public class SyncAdapterService extends Service {
             }
 
             createDashboardNotification(app, ticker, title, message,
-                    "incoming",
-                    Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+                Dashboard.Tabs.STREAM,
+                Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
         }
     }
 
