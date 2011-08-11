@@ -84,7 +84,7 @@ public class Consts {
     }
 
     public interface TrackingEvents {
-        String STREAM = "/incoming";                                  git
+        String STREAM = "/incoming";
         String ACTIVITY = "/activity";
         String RECORD = "/record";
         String RECORD_RECORDING = "/record/recording";
