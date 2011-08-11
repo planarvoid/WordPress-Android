@@ -38,7 +38,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase {
+public class Track extends ModelBase implements PageTrackable {
     private static final String TAG = "Track";
 
     // API fields

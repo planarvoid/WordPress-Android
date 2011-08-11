@@ -20,7 +20,7 @@ import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ModelBase {
+public class User extends ModelBase implements PageTrackable {
     public String username;
     public int track_count;
     public String discogs_name;
@@ -194,6 +194,10 @@ public class User extends ModelBase {
         } else {
             return "";
         }
+    }
+
+    public String pageTrack(String... paths) {
+        return pageTrack(false, paths);
     }
 
     public String pageTrack(boolean currentUser, String... paths) {
