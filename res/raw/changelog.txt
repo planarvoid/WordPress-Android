@@ -1,6 +1,12 @@
-$ 22
+$ 23
   % v current
-  _ 2011-08-04
+  _ 2011-08-xx
+  ! Maintenance release
+    * Fix for notifications going to the wrong tab
+
+$ 22
+  % v 1.4.0
+  _ 2011-08-09
   ! Notifications, sharing, and list optimizations
     * Android notifications
     * Pull-to-refresh

@@ -142,7 +142,7 @@ public class ChangeLog {
                             version = "v " + CloudUtils.getAppVersion(mContext, "unknown");
                         }
                         mSb.append("<div class='title'>").append(version).append("</div>\n");
-                    // line contains version title
+                    // line contains date
                     } else if (line.startsWith("_")) {
                         closeList();
                         mSb.append("<div class='subtitle'>").append(line.substring(1).trim()).append("</div>\n");
