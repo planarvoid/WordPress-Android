@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
-public class Recording extends ModelBase {
+public class Recording extends ModelBase implements PageTrackable {
     public long user_id;
     public long timestamp;
     public double longitude;
@@ -284,7 +284,8 @@ public class Recording extends ModelBase {
         return new Upload(this);
     }
 
-    public String pageTrack() {
+    @Override
+    public String pageTrack(String... params) {
          return is_private ? Consts.TrackingEvents.SHARE_PRIVATE : Consts.TrackingEvents.SHARE_PUBLIC;
     }
 }

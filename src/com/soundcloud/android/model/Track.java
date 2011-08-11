@@ -38,7 +38,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase {
+public class Track extends ModelBase implements PageTrackable {
     private static final String TAG = "Track";
 
     // API fields
@@ -447,10 +447,11 @@ public class Track extends ModelBase {
                 '}';
     }
 
+    @Override
     public String pageTrack(String... paths) {
         StringBuilder sb = new StringBuilder();
-        if (user != null && !TextUtils.isEmpty(user.username)) {
-            sb.append("/").append(user.username).append("/");
+        if (user != null && !TextUtils.isEmpty(user.permalink)) {
+            sb.append("/").append(user.permalink).append("/");
         }
         sb.append(permalink);
         for (CharSequence p : paths) {

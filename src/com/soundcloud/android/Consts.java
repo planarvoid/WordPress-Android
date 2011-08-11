@@ -49,7 +49,7 @@ public class Consts {
         int VIEW_CURRENT_TRACK = 201;
         int REFRESH = 202;
         int CANCEL_CURRENT_UPLOAD = 203;
-        int INCOMING = 204;
+        int STREAM = 204;
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
         int FILTER = 207;
@@ -84,7 +84,7 @@ public class Consts {
     }
 
     public interface TrackingEvents {
-        String INCOMING = "/incoming";
+        String STREAM = "/incoming";                                  git
         String ACTIVITY = "/activity";
         String RECORD = "/record";
         String RECORD_RECORDING = "/record/recording";

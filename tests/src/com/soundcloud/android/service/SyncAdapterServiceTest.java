@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.Dashboard;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
@@ -133,7 +134,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(n.info.getContentTitle().toString(),
                 equalTo("49 new sounds"));
 
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("incoming"));
+        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo(Dashboard.Tabs.STREAM));
     }
 
 
@@ -156,7 +157,7 @@ public class SyncAdapterServiceTest extends ApiTests {
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
         assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING), is(53));
-        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo("incoming"));
+        assertThat(n.getIntent().getStringExtra("tabTag"), equalTo(Dashboard.Tabs.STREAM));
     }
 
     @Test

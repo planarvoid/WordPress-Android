@@ -128,7 +128,7 @@ public class ScUpload extends ScActivity {
                 Intent i = (new Intent(ScUpload.this, Main.class))
                         .addCategory(Intent.CATEGORY_LAUNCHER)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        .putExtra("tabTag", "record");
+                        .putExtra("tabTag", Dashboard.Tabs.RECORD);
                 startActivity(i);
             }
         });

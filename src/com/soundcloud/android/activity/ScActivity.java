@@ -122,7 +122,9 @@ public abstract class ScActivity extends Activity {
     @Override
     public boolean onSearchRequested() {
         // just focus on the search tab, don't show default android search dialog
-        startActivity(new Intent(this, Main.class).putExtra("tabTag", "search").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        startActivity(new Intent(this, Main.class)
+                .putExtra("tabTag", Dashboard.Tabs.SEARCH)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         return false;
     }
 
@@ -496,7 +498,7 @@ public abstract class ScActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (getParent() == null) {
-            menu.add(menu.size(), Consts.OptionsMenu.INCOMING,
+            menu.add(menu.size(), Consts.OptionsMenu.STREAM,
                 menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
         }
 
@@ -545,10 +547,10 @@ public abstract class ScActivity extends Activity {
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
                 startActivity(new Intent(this, ScPlayer.class));
                 return true;
-            case Consts.OptionsMenu.INCOMING:
+            case Consts.OptionsMenu.STREAM:
                 intent = new Intent(this, Main.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("tabTag", "incoming");
+                intent.putExtra("tabTag", Dashboard.Tabs.ACTIVITY);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:

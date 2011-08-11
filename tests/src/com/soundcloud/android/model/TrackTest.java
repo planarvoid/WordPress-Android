@@ -103,7 +103,7 @@ public class TrackTest {
     public void shouldGeneratePageTrack() throws Exception {
         Track t = new Track();
         User u = new User();
-        u.username = "user";
+        u.permalink = "user";
         t.permalink = "foo";
         t.user = u;
         assertThat(t.pageTrack(), equalTo("/user/foo"));
