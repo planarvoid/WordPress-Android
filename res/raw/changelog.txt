@@ -1,9 +1,8 @@
 $ 23
   % v current
-  _ 2011-08-xx
+  _ 2011-08-12
   ! Maintenance release
-    * Please note: we don't recommend to install on SD card since it will forget your login details on reboot
-      (Android limitation)
+    * Please note: we don't recommend moving to SD card since the app will forget your login details on reboot (Android limitation)
     * Fixed some crashes on Android 2.1
     * Fixed: notifications opening the wrong tab
     - Fixed GA tracking
