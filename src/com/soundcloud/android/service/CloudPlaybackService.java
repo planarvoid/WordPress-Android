@@ -223,13 +223,6 @@ public class CloudPlaybackService extends Service {
                 "release", Build.VERSION.RELEASE,
                 "sc_version", CloudUtils.getAppVersion(this, "unknown"));
 
-        getApp().pageTrack(Consts.TrackingEvents.INVALID_STATUS,
-                    "model", Build.MODEL,
-                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
-                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo,
-                    "stagefright", mIsStagefright);
-
         Log.d(TAG,"::Using Stagefright Framework " + mIsStagefright);
 
 

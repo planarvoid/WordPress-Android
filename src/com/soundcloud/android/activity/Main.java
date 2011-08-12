@@ -264,6 +264,8 @@ public class Main extends TabActivity {
             for (int i = 0; i < tw.getChildCount(); i++) {
                 tw.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
+            tw.setLeftStripDrawable(R.drawable.tab_bottom_left);
+            tw.setRightStripDrawable(R.drawable.tab_bottom_right);
         }
 
         // set record tab to just image, if tab order is changed, change the index of the following line
