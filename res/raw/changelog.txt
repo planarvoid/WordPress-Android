@@ -2,11 +2,12 @@ $ 23
   % v current
   _ 2011-08-12
   ! Maintenance release
-    * Please note: we don't recommend moving to SD card since the app will forget your login details on reboot (Android limitation)
-    * Fixed some crashes on Android 2.1
-    * Fixed: notifications opening the wrong tab
+    * Please note: We do not recommend moving to SD card as login details will have to be re-entered on reboot (Android limitation)
+    * Fixed certain crash issues on Android 2.1
+    * Fixed: notifications / widgets opening the incorrect tab
     - Fixed GA tracking
     - Tracking of playback errors via ACRA/bugsense
+    - Track.createCache()
 
 $ 22
   % v 1.4.0
