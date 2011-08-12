@@ -94,8 +94,5 @@ public final class Consts {
         String TRACKS_BY_GENRE = "/tracks_by_genre/";
 
         String AUDIO_ENGINE = "/internal/audioEngine";
-        String INVALID_STATUS = "/internal/cache_invalidCode/";
-        String DOWNLOAD_EXCEPTION = "/internal/cache_exception/";
-        String MP_ERROR = "/internal/mpError/";
     }
 }

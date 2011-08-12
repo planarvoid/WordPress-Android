@@ -377,10 +377,9 @@ public class CloudPlaybackService extends Service {
         }
     };
 
-    private boolean checkNetworkStatus() {
+    private boolean isConnected() {
         if (connectivityListener == null)
             return false;
-
         mCurrentNetworkInfo = connectivityListener.getNetworkInfo();
         return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
     }
@@ -547,7 +546,7 @@ public class CloudPlaybackService extends Service {
                         mPlayingData.deleteCache();
                     }
 
-                    if (checkNetworkStatus()) {
+                    if (isConnected()) {
                         prepareDownload(mPlayingData);
                     } else {
                         mPlayListManager.commitTrackToDb(mPlayingData);
@@ -620,7 +619,7 @@ public class CloudPlaybackService extends Service {
 
             // start downloading if there is a valid connection, otherwise it
             // will happen when we regain connectivity
-            if (checkNetworkStatus()) {
+            if (isConnected()) {
                 new Thread() {
                     @Override
                     public void run() {
@@ -660,7 +659,7 @@ public class CloudPlaybackService extends Service {
                     return true;
                 else {
                     Log.i(TAG, "No Thread, No Cache, send exception");
-                    sendDownloadException();
+                    sendPlaybackException();
                     return false;
                 }
             }
@@ -734,9 +733,9 @@ public class CloudPlaybackService extends Service {
                         }
                     }
 
-                } else if (!checkNetworkStatus()) {
+                } else if (!isConnected()) {
                     Log.i(TAG,"Paused for buffering, no network, send error");
-                    sendDownloadException();
+                    sendPlaybackException();
                     return false;
                 }
 
@@ -782,12 +781,9 @@ public class CloudPlaybackService extends Service {
                     return;
             queueNextRefresh(500);
         }
-
     }
 
-
-
-    public void sendDownloadException() {
+    public void sendPlaybackException() {
         gotoIdleState();
         mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
     }
@@ -797,16 +793,17 @@ public class CloudPlaybackService extends Service {
      * next track can be buffered
      */
     private void checkBufferStatus() {
+
         synchronized (this) {
             // are we able to cache something
             if (!mAutoPause && mPlayingData != null
-                    && !CloudUtils.checkThreadAlive(mDownloadThread) && checkNetworkStatus()) {
+                    && !CloudUtils.checkThreadAlive(mDownloadThread) && isConnected()) {
                 // download thread is dead and doesn't have to be
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
                     if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS){
                         prepareDownload(mPlayingData);
                     } else if (pausedForBuffering){
-                        sendDownloadException();
+                        sendPlaybackException();
                     }
                 }
             }
@@ -1483,7 +1480,7 @@ public class CloudPlaybackService extends Service {
                     mIsInitialized = false;
                     mPlayingPath = "";
 
-                    if (checkNetworkStatus() && mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS)
+                    if (isConnected() && mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS)
                         openCurrent();
                     else {
                         notifyChange(STREAM_DIED);
@@ -1539,16 +1536,11 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                getApp().pageTrack(Consts.TrackingEvents.MP_ERROR,
-                    "model", Build.MODEL,
-                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
-                    "sc_version", CloudUtils.getAppVersion(CloudPlaybackService.this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
-                    "stagefright_what_extra", mIsStagefright + "_" + what + "_" + extra);
+                SoundCloudApplication.handleSilentException("mp error",
+                        new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
-
                     default:
                         mIsInitialized = false;
                         mPlayingPath = "";
@@ -1648,8 +1640,6 @@ public class CloudPlaybackService extends Service {
             }
         }
     };
-
-
 
     private void startAndFadeIn() {
         mMediaplayerHandler.sendEmptyMessageDelayed(FADEIN, 10);
@@ -1762,20 +1752,11 @@ public class CloudPlaybackService extends Service {
         }
 
         if (stoppableDownloadThread.statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            getApp().pageTrack(Consts.TrackingEvents.INVALID_STATUS,
-                    "model", Build.MODEL,
-                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
-                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
-                    "status_line", stoppableDownloadThread.statusLine.toString()
-                    );
+            SoundCloudApplication.handleSilentException("invalid status",
+                    new StatusException(stoppableDownloadThread.statusLine, mCurrentNetworkInfo, mIsStagefright));
         } else if (stoppableDownloadThread.exception != null) {
-            getApp().pageTrack(Consts.TrackingEvents.DOWNLOAD_EXCEPTION,
-                    "model", Build.MODEL,
-                    "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
-                    "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo.toString(),
-                    "exception", stoppableDownloadThread.exception.getMessage());
+            SoundCloudApplication.handleSilentException("io exception",
+                    new PlaybackError(stoppableDownloadThread.exception, mCurrentNetworkInfo, mIsStagefright));
         }
     }
 
@@ -1787,8 +1768,7 @@ public class CloudPlaybackService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (connectivityListener != null &&
-                        checkNetworkStatus()) {
+                    if (connectivityListener != null && isConnected()) {
                         checkBufferStatus();
                     }
                     break;
@@ -1860,7 +1840,7 @@ public class CloudPlaybackService extends Service {
         private long bytes;
         private int mode;
 
-        public Exception exception;
+        public IOException exception;
         public StatusLine statusLine;
 
         public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
@@ -2196,7 +2176,6 @@ public class CloudPlaybackService extends Service {
             if (mService.get() != null)
                 mService.get().setClearToPlay(clearToPlay);
         }
-
     }
 
     private final IBinder mBinder = new ServiceStub(this);
@@ -2204,5 +2183,62 @@ public class CloudPlaybackService extends Service {
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+
+    static class PlaybackError extends Exception {
+        private final NetworkInfo networkInfo;
+        private final boolean isStageFright;
+
+        PlaybackError(IOException ioException, NetworkInfo info, boolean isStageFright) {
+            super(ioException);
+            this.networkInfo = info;
+            this.isStageFright = isStageFright;
+        }
+
+        @Override
+        public String getMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.getMessage()).append(" ")
+              .append("networkInfo: ").append(networkInfo == null ? "" : networkInfo.toString())
+              .append(" ")
+              .append("isStageFright: ").append(isStageFright);
+            return sb.toString();
+        }
+    }
+
+    static class StatusException extends PlaybackError {
+        private final StatusLine status;
+        public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright) {
+            super(null, info, isStageFright);
+            this.status = status;
+        }
+        @Override
+        public String getMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.getMessage());
+            if (status != null) {
+                sb.append(" status: ").append(status.toString());
+            }
+            return sb.toString();
+        }
+    }
+
+    static class MediaPlayerException extends PlaybackError {
+        final int code, extra;
+        MediaPlayerException(int code, int extra, NetworkInfo info, boolean isStageFright) {
+            super(null, info, isStageFright);
+            this.code = code;
+            this.extra = extra;
+        }
+
+        @Override
+        public String getMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.getMessage())
+              .append(" ")
+              .append("code: ").append(code).append(", extra: ").append(extra);
+            return sb.toString();
+        }
     }
 }
