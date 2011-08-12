@@ -2,11 +2,12 @@ $ 23
   % v current
   _ 2011-08-xx
   ! Maintenance release
-    * Note: app will not work properly when installed on SD card
-    * Fix crashes
-    * Fix for notifications going to the wrong tab
-    - Fix GA tracking
-    - Tracking of playback errors
+    * Please note: we don't recommend to install on SD card since it will forget your login details on reboot
+      (Android limitation)
+    * Fixed some crashes on Android 2.1
+    * Fixed: notifications opening the wrong tab
+    - Fixed GA tracking
+    - Tracking of playback errors via ACRA/bugsense
 
 $ 22
   % v 1.4.0
