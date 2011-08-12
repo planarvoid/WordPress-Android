@@ -1754,7 +1754,8 @@ public class CloudPlaybackService extends Service {
 
         if (thread != null) {
             if (thread.statusLine != null &&
-                thread.statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                (thread.statusLine.getStatusCode() != HttpStatus.SC_OK ||
+                thread.statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)) {
                 SoundCloudApplication.handleSilentException("invalid status",
                         new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
             } else if (thread.exception != null) {
