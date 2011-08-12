@@ -1739,11 +1739,11 @@ public class CloudPlaybackService extends Service {
         mBufferHandler.sendMessageDelayed(msg, delay);
     }
 
-    public void onDownloadThreadDeath(StoppableDownloadThread stoppableDownloadThread) {
+    public void onDownloadThreadDeath(StoppableDownloadThread thread) {
         if (mMediaplayerHandler != null) {
             mMediaplayerHandler.sendEmptyMessageDelayed(RELEASE_WAKELOCKS, 3000);
         }
-        if (stoppableDownloadThread == mDownloadThread) mDownloadThread = null;
+        if (thread == mDownloadThread) mDownloadThread = null;
 
         if (mBufferHandler != null && keepCaching()) {
             Message msg = mBufferHandler.obtainMessage(BUFFER_FILL_CHECK);
@@ -1751,12 +1751,16 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
 
-        if (stoppableDownloadThread.statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            SoundCloudApplication.handleSilentException("invalid status",
-                    new StatusException(stoppableDownloadThread.statusLine, mCurrentNetworkInfo, mIsStagefright));
-        } else if (stoppableDownloadThread.exception != null) {
-            SoundCloudApplication.handleSilentException("io exception",
-                    new PlaybackError(stoppableDownloadThread.exception, mCurrentNetworkInfo, mIsStagefright));
+
+        if (thread != null) {
+            if (thread.statusLine != null &&
+                thread.statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                SoundCloudApplication.handleSilentException("invalid status",
+                        new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+            } else if (thread.exception != null) {
+                SoundCloudApplication.handleSilentException("io exception",
+                        new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+            }
         }
     }
 

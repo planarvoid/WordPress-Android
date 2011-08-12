@@ -463,6 +463,7 @@ public class CloudUtils {
     }
 
     public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
+        // XXX LOCALIZATION
         String note;
         if (!TextUtils.isEmpty(what)) {
             if (!TextUtils.isEmpty(where)) {
@@ -487,6 +488,7 @@ public class CloudUtils {
         final String day = DAY_FORMAT.format(cal.getTime());
         final String dayTime;
 
+        // XXX LOCALIZATION
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
             dayTime = "morning";
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
