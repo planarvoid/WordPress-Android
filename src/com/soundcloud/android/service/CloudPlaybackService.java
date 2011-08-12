@@ -617,6 +617,8 @@ public class CloudPlaybackService extends Service {
                 return;
             }
 
+            trackToCache.createCache();
+
             // start downloading if there is a valid connection, otherwise it
             // will happen when we regain connectivity
             if (isConnected()) {
