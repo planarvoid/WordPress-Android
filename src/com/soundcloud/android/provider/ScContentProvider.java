@@ -1,17 +1,16 @@
 package com.soundcloud.android.provider;
 
 import android.accounts.Account;
-import android.content.ContentResolver;
-import android.os.Build;
-import android.os.Bundle;
-import android.text.TextUtils;
-
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.text.TextUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,6 +156,13 @@ public class ScContentProvider extends ContentProvider {
 
         if (Build.VERSION.SDK_INT >= 8) {
             ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
+        }
+    }
+
+    public static void disableSyncing(Account account) {
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
+          if (Build.VERSION.SDK_INT >= 8) {
+            ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }
 }
