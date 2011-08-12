@@ -784,115 +784,133 @@ public class CloudCreateService extends Service {
 
         @Override
         public void startRecording(String path, int mode) throws RemoteException {
-            if (mService.get() != null) mService.get().startRecording(path, mode);
+            final CloudCreateService service = mService.get();
+            if (service != null) service.startRecording(path, mode);
         }
 
         @Override
         public boolean isRecording() throws RemoteException {
-            return mService.get() != null && mService.get().isRecording();
+            final CloudCreateService service = mService.get();
+            return service != null && service.isRecording();
         }
 
         @Override
         public String getRecordingPath() throws RemoteException {
-            return mService.get() != null ? mService.get().getRecordingPath() : null;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getRecordingPath() : null;
         }
 
         @Override
         public void stopRecording() throws RemoteException {
-            if (mService.get() != null) mService.get().stopRecording();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.stopRecording();
         }
 
         @Override
         public void updateRecordTicker() throws RemoteException {
-            if (mService.get() != null) mService.get().updateRecordTicker();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.updateRecordTicker();
         }
 
         @Override
         public void loadPlaybackTrack(String playbackFile) {
-            mService.get().loadPlaybackTrack(playbackFile);
+            final CloudCreateService service = mService.get();
+            if (service != null) service.loadPlaybackTrack(playbackFile);
         }
 
         @Override
         public boolean isPlayingBack() {
-            return mService.get() != null ? mService.get().isPlaying() : null;
+            final CloudCreateService service = mService.get();
+            return service != null && service.isPlaying();
         }
 
         @Override
         public void startPlayback() {
-            if (mService.get() != null) mService.get().startPlayback();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.startPlayback();
         }
 
         @Override
         public void pausePlayback() {
-            if (mService.get() != null) mService.get().pausePlayback();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.pausePlayback();
         }
 
         @Override
         public void stopPlayback() {
-            if (mService.get() != null) mService.get().stopPlayback();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.stopPlayback();
         }
 
         @Override
         public int getCurrentPlaybackPosition() {
-            return mService.get() != null ? mService.get().getCurrentPlaybackPosition() : null;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getCurrentPlaybackPosition() : 0;
         }
 
         @Override
         public int getPlaybackDuration() {
-            return mService.get() != null ? mService.get().getPlaybackDuration() : null;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getPlaybackDuration() : -1;
         }
 
         @Override
         public void seekTo(int position) {
-            if (mService.get() != null) mService.get().seekTo(position);
+            final CloudCreateService service = mService.get();
+            if (service != null) service.seekTo(position);
         }
 
         @Override
         public boolean startUpload(Upload upload) throws RemoteException {
-            return  (mService.get() != null) ? mService.get().startUpload(upload) : false;
+            final CloudCreateService service = mService.get();
+            return (service != null) && service.startUpload(upload);
 
         }
 
         @Override
         public boolean isUploading() throws RemoteException {
-            return mService.get() != null && mService.get().isUploading();
+            final CloudCreateService service = mService.get();
+            return service != null && service.isUploading();
         }
 
         @Override
         public void cancelUpload() throws RemoteException {
-            if (mService.get() != null) mService.get().cancelUpload();
+            final CloudCreateService service = mService.get();
+            if (service != null) service.cancelUpload();
         }
 
         @Override
         public void cancelUploadById(long id) throws RemoteException {
-            if (mService.get() != null) mService.get().cancelUploadById(id);
+            final CloudCreateService service = mService.get();
+            if (service != null) service.cancelUploadById(id);
         }
 
         @Override
         public String getPlaybackPath() throws RemoteException {
-            return mService.get() != null ? mService.get().getCurrentPlaybackPath() : null;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getCurrentPlaybackPath() : null;
         }
 
         @Override
         public Upload getUploadById(long id) throws RemoteException {
-            return mService.get() != null ? mService.get().getUploadById(id) : null;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getUploadById(id) : null;
         }
 
         @Override
         public long getUploadLocalId() throws RemoteException {
-            return mService.get() != null ? mService.get().getUploadLocalId() : 0;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getUploadLocalId() : 0;
         }
 
         @Override
         public long getPlaybackLocalId() throws RemoteException {
-            return mService.get() != null ? mService.get().getPlaybackLocalId() : 0;
+            final CloudCreateService service = mService.get();
+            return service != null ? service.getPlaybackLocalId() : 0;
         }
 
     }
 
-
     private final IBinder mBinder = new ServiceStub(this);
-
-
 }
 
