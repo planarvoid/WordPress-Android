@@ -628,8 +628,6 @@ public class CloudPlaybackService extends Service {
                         try {
                             if (!TrackCache.trim(trackToCache.getCache(),
                                     Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
-                                // TODO move outside of thread
-                                CloudUtils.mkdirs(Consts.EXTERNAL_CACHE_DIRECTORY);
                                 Log.w(TAG, "error trimming cache");
                             }
                         } catch (IOException ignored) {
