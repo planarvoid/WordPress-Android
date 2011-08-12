@@ -125,7 +125,7 @@ public class TrackInfoBar extends RelativeLayout {
         if (mTrack == null) return;
 
         setTrackTime(p);
-        mUser.setText(mTrack.user.username);
+        if (mTrack.user != null) mUser.setText(mTrack.user.username);
 
         if (!mTrack.isStreamable() && !mInactive) {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main_inactive);
@@ -181,7 +181,7 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     public String getTrackIcon() {
-        if (mTrack == null || (mTrack.artwork_url == null && mTrack.user.avatar_url == null)){
+        if (mTrack == null || (mTrack.artwork_url == null && (mTrack.user == null || mTrack.user.avatar_url == null))){
            return "";
         }
         return ImageUtils.formatGraphicsUrlForList(getContext(),
