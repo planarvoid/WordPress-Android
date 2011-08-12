@@ -26,32 +26,37 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_STREAM"/>
+                <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_ACTIVITY"/>
+                <action android:name="com.soundcloud.android.action.ACTIVITY"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_RECORD"/>
+                <action android:name="com.soundcloud.android.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_PROFILE"/>
+                <action android:name="com.soundcloud.android.action.PROFILE"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_SEARCH"/>
+                <action android:name="com.soundcloud.android.action.SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.ACTION_USER_BROWSER"/>
+                <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

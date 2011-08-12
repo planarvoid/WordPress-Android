@@ -554,10 +554,9 @@ public abstract class ScActivity extends Activity {
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
                 pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
-
-                intent = new Intent(this, Main.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
+                intent = new Intent(Actions.USER_BROWSER)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
