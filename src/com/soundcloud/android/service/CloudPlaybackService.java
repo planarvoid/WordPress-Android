@@ -1543,7 +1543,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(CloudPlaybackService.this, "unknown"),
-                    "network_info", mCurrentNetworkInfo,
+                    "network_info", mCurrentNetworkInfo.toString(),
                     "stagefright_what_extra", mIsStagefright + "_" + what + "_" + extra);
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
@@ -1766,7 +1766,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo,
+                    "network_info", mCurrentNetworkInfo.toString(),
                     "status_line", stoppableDownloadThread.statusLine.toString()
                     );
         } else if (stoppableDownloadThread.exception != null) {
@@ -1774,7 +1774,7 @@ public class CloudPlaybackService extends Service {
                     "model", Build.MODEL,
                     "version_release", Build.VERSION.SDK_INT + "_" + Build.VERSION.RELEASE,
                     "sc_version", CloudUtils.getAppVersion(this, "unknown"),
-                    "network_info", mCurrentNetworkInfo,
+                    "network_info", mCurrentNetworkInfo.toString(),
                     "exception", stoppableDownloadThread.exception.getMessage());
         }
     }
