@@ -121,7 +121,7 @@ public class UploadMonitor extends Activity {
 
     private void fillDataFromUpload(final Upload upload) {
         if (upload == null) {
-            throw new IllegalArgumentException("No Upload found");
+            finish();
         }
 
         mUploadId = upload.id;
