@@ -92,14 +92,13 @@ public class UploadMonitor extends Activity {
             @Override
             public void onClick(View v) {
                 if (mCreateService == null) return;
+                mControlLayout.setVisibility(View.GONE);
                 try {
                     if (mCreateService.startUpload(mUpload)) return;
                 } catch (RemoteException e) {
                     Log.e(TAG, "error", e);
                 }
-
                 Toast.makeText(UploadMonitor.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
-
             }
         });
 
@@ -122,8 +121,8 @@ public class UploadMonitor extends Activity {
     private void fillDataFromUpload(final Upload upload) {
         if (upload == null) {
             finish();
+            return;
         }
-
         mUploadId = upload.id;
 
         ((TextView) findViewById(R.id.track)).setText(upload.title);
