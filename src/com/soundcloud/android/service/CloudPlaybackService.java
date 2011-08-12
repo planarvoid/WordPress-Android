@@ -1768,7 +1768,7 @@ public class CloudPlaybackService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (connectivityListener != null && isConnected()) {
+                    if (mIsStagefright && isConnected()) {
                         checkBufferStatus();
                     }
                     break;
