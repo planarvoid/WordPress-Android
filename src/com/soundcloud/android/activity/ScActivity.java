@@ -313,7 +313,7 @@ public abstract class ScActivity extends Activity {
         if (mCreateService == null) return false;
 
         try {
-            if (mCreateService.startUpload(new Upload(r))) return true;
+            if (mCreateService.startUpload(new Upload(r, getResources()))) return true;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }

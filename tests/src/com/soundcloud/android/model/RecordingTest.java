@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.res.Resources;
+
 import java.io.File;
 import java.util.Calendar;
 
@@ -20,6 +22,7 @@ import java.util.Calendar;
 public class RecordingTest {
     Recording r;
     File f;
+    Resources res;
 
     @Before
     public void setup() throws Exception {
@@ -34,30 +37,31 @@ public class RecordingTest {
         r.timestamp = c.getTimeInMillis();
         r.service_ids = "1,2,3";
         r.duration = 86 * 1000;
+        res = Robolectric.application.getResources();
     }
 
     @Test
     public void itShouldHaveANiceSharingNote() throws Exception {
-        assertThat(r.sharingNote(), equalTo("Sounds from Thursday afternoon"));
+        assertThat(r.sharingNote(res), equalTo("Sounds from Thursday afternoon"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithLocation() throws Exception {
         r.where_text = "Mars";
-        assertThat(r.sharingNote(), equalTo("Sounds from Mars"));
+        assertThat(r.sharingNote(res), equalTo("Sounds from Mars"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
         r.what_text = "Party";
         r.where_text = "Mars";
-        assertThat(r.sharingNote(), equalTo("Party at Mars"));
+        assertThat(r.sharingNote(res), equalTo("Party at Mars"));
     }
 
     @Test
     public void shouldGenerateASharingNoteWithTitle() throws Exception {
         r.what_text = "Party";
-        assertThat(r.sharingNote(), equalTo("Party"));
+        assertThat(r.sharingNote(res), equalTo("Party"));
     }
 
 

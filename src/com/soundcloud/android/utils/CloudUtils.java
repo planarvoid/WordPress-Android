@@ -462,43 +462,35 @@ public class CloudUtils {
 
     }
 
-    public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
-        // XXX LOCALIZATION
+    public static String generateRecordingSharingNote(Resources res, CharSequence what, CharSequence where, long created_at) {
         String note;
         if (!TextUtils.isEmpty(what)) {
             if (!TextUtils.isEmpty(where)) {
-                note = String.format("%s at %s", what, where);
+                note =  res.getString(R.string.recorded_at, what, where);
             } else {
                 note = what.toString();
             }
         } else {
-            if (!TextUtils.isEmpty(where)) {
-                note = String.format("Sounds from %s", where);
-            } else {
-                note = String.format("Sounds from %s", recordingDateString(created_at));
-            }
+            note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where) ? where :
+                recordingDateString(res, created_at));
         }
         return note;
     }
 
-    public static String recordingDateString(long modified) {
+    public static String recordingDateString(Resources res, long modified) {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
-
-        final String day = DAY_FORMAT.format(cal.getTime());
-        final String dayTime;
-
-        // XXX LOCALIZATION
+        final int id;
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
-            dayTime = "morning";
+            id = R.string.recorded_morning;
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
-            dayTime = "afternoon";
+            id = R.string.recorded_afternoon;
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
-           dayTime = "evening";
+           id = R.string.recorded_evening;
         } else {
-           dayTime = "night";
+           id = R.string.recorded_night;
         }
-        return day + " " + dayTime;
+        return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
 
 

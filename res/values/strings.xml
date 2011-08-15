@@ -119,4 +119,13 @@
 
     <string name="take_new_picture_error">Could not take picture</string>
     <string name="use_existing_image_error">Could not use existing image</string>
+
+
+    <string name="recorded_morning">%s morning</string>
+    <string name="recorded_afternoon">%s afternoon</string>
+    <string name="recorded_evening">%s evening</string>
+    <string name="recorded_night">%s night</string>
+
+    <string name="recorded_at">%1$s at %2$s</string>
+    <string name="sounds_from">Sounds from %s</string>
 </resources>
