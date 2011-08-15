@@ -229,26 +229,6 @@ public class CloudUtils {
         tabHost.addTab(spec);
     }
 
-    public static void setTabText(TabWidget tabWidget, int index, String newText) {
-        // a hacky way of setting the font of the indicator texts
-
-        if (tabWidget.getChildAt(index) instanceof RelativeLayout) {
-            RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(index);
-            for (int j = 0; j < relativeLayout.getChildCount(); j++) {
-                if (relativeLayout.getChildAt(j) instanceof TextView) {
-                    ((TextView) relativeLayout.getChildAt(j)).setHorizontallyScrolling(false);
-                    ((TextView) relativeLayout.getChildAt(j)).setEllipsize(null);
-                    relativeLayout.getChildAt(j).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
-                    ((TextView) relativeLayout.getChildAt(j)).setText(newText);
-                    relativeLayout.getChildAt(j).requestLayout();
-                }
-            }
-            relativeLayout.getLayoutParams().width =  LayoutParams.WRAP_CONTENT;
-            relativeLayout.forceLayout();
-        }
-
-    }
-
 
     public static String stripProtocol(String url) {
         return url.replace("http://www.", "").replace("http://", "");
@@ -472,7 +452,7 @@ public class CloudUtils {
             }
         } else {
             note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where) ? where :
-                recordingDateString(res, created_at));
+                    recordingDateString(res, created_at));
         }
         return note;
     }
