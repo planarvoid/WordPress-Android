@@ -356,7 +356,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
-        if (child == mWaveformFrame) {
+        if (child == mWaveformHolder || child == mCurrentTime) {
             t.setAlpha((float) 0.7);
             return true;
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent" android:layout_height="wrap_content"
-                android:id="@+id/waveform_frame">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
                                                 android:layout_marginTop="@dimen/player_time_height"
@@ -49,4 +49,4 @@
                                                  android:layout_width="fill_parent"
                                                  android:layout_height="@dimen/player_avatar_bar_height"
                                                  android:background="@drawable/player_avatar_bg_portrait"/>
-</RelativeLayout>
+</merge>
