@@ -7,16 +7,22 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.animation.Transformation;
 
 import java.util.List;
 
@@ -25,7 +31,6 @@ public class PlayerAvatarBar extends View {
 
     private static final int REFRESH_AVATARS = 0;
     private static final int AVATARS_REFRESHED = 1;
-    private static final int AVATAR_WIDTH = 32;
     private static final int AVATAR_WIDTH_LARGE = 100;
 
     private long mDuration;
@@ -70,16 +75,8 @@ public class PlayerAvatarBar extends View {
         mActiveLinePaint= new Paint();
         mActiveLinePaint.setColor(getResources().getColor(com.soundcloud.android.R.color.activeCommentLine));
 
-        float mDensity = getContext().getResources().getDisplayMetrics().density;
-
         mMatrix = new Matrix();
-        if (mDensity > 1) {
-            mAvatarWidth = CloudUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : (int) (AVATAR_WIDTH* mDensity) ;
-            mAvatarScale = ((float)mAvatarWidth)/47;
-        } else {
-            mAvatarWidth = CloudUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : AVATAR_WIDTH;
-            mAvatarScale = 1.0f;
-        }
+
     }
 
     public int getAvatarWidth(){
@@ -157,7 +154,7 @@ public class PlayerAvatarBar extends View {
     }
 
     private void refreshDefaultAvatar() {
-        if (mDefaultAvatar == null || mDefaultAvatar.isRecycled()) {
+        if (mAvatarWidth > 0 && mDefaultAvatar == null || mDefaultAvatar.isRecycled()) {
             mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
                     CloudUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
@@ -169,6 +166,21 @@ public class PlayerAvatarBar extends View {
         super.onLayout(changed, l,t,r,b);
 
         if (changed){
+            float mDensity = getContext().getResources().getDisplayMetrics().density;
+            if (mDensity > 1) {
+                mAvatarWidth = CloudUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+                    mAvatarScale = ((float)mAvatarWidth)/47.0f;
+                } else {
+                    mAvatarScale = ((float)mAvatarWidth)/47.0f;
+                }
+
+            } else {
+                mAvatarWidth = CloudUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : getHeight();
+                mAvatarScale = 1.0f;
+            }
+            refreshDefaultAvatar();
+
             mUIHandler.removeMessages(REFRESH_AVATARS);
             Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
             PlayerAvatarBar.this.mUIHandler.sendMessage(msg);
@@ -268,6 +280,24 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComment != null){
             drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
+        }
+    }
+
+    public float getCurrentTransformY(){
+        if (getAnimation() == null) return 0f;
+        Transformation t = new Transformation();
+        float[] values = new float[9];
+        getAnimation().getTransformation(getDrawingTime(), t);
+        t.getMatrix().getValues(values);
+        return values[5];
+    }
+
+    public void getHitRect(Rect outRect) {
+        if (getAnimation() != null){
+            final int offsetY = (int) CloudUtils.getCurrentTransformY(this);
+            outRect.set(getLeft(), getTop() + offsetY, getRight(), getBottom() + offsetY);
+        } else {
+            super.getHitRect(outRect);
         }
     }
 }

@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -28,11 +29,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -46,23 +49,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class WaveformController extends RelativeLayout implements OnTouchListener {
+public class WaveformController extends RelativeLayout implements OnTouchListener, AnimationListener {
     private static final String TAG = "WaveformController";
 
-    private PlayerAvatarBar mPlayerAvatarBar;
-    private RelativeLayout mPlayerCommentBar;
+    protected PlayerAvatarBar mPlayerAvatarBar;
 
     private ImageView mOverlay;
     private ProgressBar mProgressBar;
-    private WaveformHolder mWaveformHolder;
+    protected WaveformHolder mWaveformHolder;
     private RelativeLayout mWaveformFrame;
+    protected RelativeLayout mPlayerCommentBar;
     private WaveformCommentLines mCommentLines;
-    private ImageButton mToggleComments;
     private TextView mCurrentTime;
+    protected ImageButton mToggleComments;
 
-    private ScPlayer mPlayer;
+    protected ScPlayer mPlayer;
     private Track mPlayingTrack;
-    private boolean mShowingComments;
+    protected boolean mShowingComments;
     private List<Comment> mCurrentComments, mCurrentTopComments;
     private Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
@@ -70,12 +73,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private Comment mAddComment, mLastAutoComment;
     private CommentBubble mCommentBubble;
     private Animation mBubbleAnimation;
+    protected Animation mShowCommentersAnimation;
+    protected Animation mHideCommentersAnimation;
 
     private ArrayBlockingQueue<InputObject> mInputObjectPool;
     private TouchThread mTouchThread;
 
     private int mWaveformErrorCount, mAvatarOffsetY, mCommentBarOffsetY, mDuration;
-    private boolean mShowBubble, mShowBubbleForceAnimation;
+    private boolean mShowBubble;
+    private boolean mShowBubbleForceAnimation;
+    protected boolean mShowingAvatars, mClearAnimationOnLayout;
 
     private float mSeekPercent;
 
@@ -97,12 +104,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
-    private boolean mLandscape;
+
 
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setWillNotDraw(false);
+
 
         mPlayer = (ScPlayer) context;
 
@@ -130,39 +138,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         findViewById(R.id.track_touch_bar).setOnTouchListener(this);
 
-        mPlayerAvatarBar =(PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-        if (mPlayerAvatarBar != null){
-            mLandscape = true;
-            mPlayerAvatarBar.setOnTouchListener(this);
-            mPlayerAvatarBar.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
+        mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
+        mPlayerAvatarBar.setOnTouchListener(this);
 
-            mPlayerCommentBar =(RelativeLayout) findViewById(R.id.new_comment_bar);
-            mPlayerCommentBar.setOnTouchListener(this);
-            if (!mShowingComments){
-                ((TextView)mPlayerCommentBar.findViewById(R.id.txt_instructions))
-                        .setText(getResources().getString(R.string.player_touch_bar_disabled));
-            }
-
-            mToggleComments = (ImageButton) findViewById(R.id.btn_toggle);
-            mToggleComments.setImageDrawable((mShowingComments) ? mPlayer.getResources()
-                    .getDrawable(R.drawable.ic_hide_comments_states) : mPlayer.getResources()
-                    .getDrawable(R.drawable.ic_show_comments_states));
-            mToggleComments.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    toggleComments();
-                }
-            });
-
-            mCommentLines = new WaveformCommentLines(mPlayer, null);
-            mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
-            mWaveformHolder.addView(mCommentLines);
-
-        } else {
-            // not landscape
-            // this will allow transparency for the progress bar
-            setStaticTransformationsEnabled(true);
-        }
+        mCommentLines = new WaveformCommentLines(mPlayer, null);
+        mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
+        mWaveformHolder.addView(mCommentLines);
 
         mOverlay.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
@@ -176,6 +157,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         File dirFile = new File(CloudUtils.getCacheDirPath(mPlayer) + "/waves/");
 
+        setStaticTransformationsEnabled(true);
         mkdirs(dirFile);
     }
 
@@ -186,11 +168,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showConnectingLayout() {
-       mWaveformHolder.showConnectingLayout(!mLandscape);
+       mWaveformHolder.showConnectingLayout(true);
+        invalidate();
     }
 
     public void hideConnectingLayout() {
         mWaveformHolder.hideConnectingLayout();
+        invalidate();
     }
 
     public void setProgress(long pos) {
@@ -199,7 +183,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
-        if (mLandscape && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
+        if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null){
                 if (mLastAutoComment != last && pos - last.timestamp < 2000){
@@ -313,7 +297,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void clearTrack(){
         if (mPlayerAvatarBar != null){
-            if (mShowingComments) mPlayerAvatarBar.setVisibility(View.INVISIBLE);
+            //if (mShowingComments) mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mPlayerAvatarBar.clearTrackData();
         }
         if (mCommentLines != null){
@@ -338,8 +322,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if (mClearAnimationOnLayout){
+            clearAnimation();
+            mClearAnimationOnLayout = false;
+        }
+
         super.onLayout(changed, l, t, r, b);
-        if (changed && mLandscape) {
+        if (changed) {
             int[] calc = new int[2];
 
             mPlayer.getCommentHolder().getLocationInWindow(calc);
@@ -358,6 +347,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 mCommentBarOffsetY = calc[1] - topOffset;
             }
         }
+
+
+
     }
 
 
@@ -515,8 +507,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void setComments(List<Comment> comments, boolean animateIn) {
         mCurrentComments = comments;
 
-        if (!mShowingComments || mCurrentComments == null)
+        if (!mShowingComments || mCurrentComments == null){
+            if (mShowingAvatars) hideCommenters(!animateIn);
             return;
+        }
+
+        if (!mShowingAvatars) {
+            showCommenters(!animateIn);
+        }
 
         mCurrentTopComments = new ArrayList<Comment>();
 
@@ -543,33 +541,83 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCommentLines.invalidate();
         }
 
-        if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE){
-            if (animateIn){
-                AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-                aa.setStartOffset(500);
-                aa.setDuration(500);
+        mCommentLines.setVisibility(View.VISIBLE);
+    }
 
-                mPlayerAvatarBar.startAnimation(aa);
-                mCommentLines.startAnimation(aa);
-            }
+    protected void hideCommenters(boolean instant){
+        hideCommenters(this,instant);
+    }
 
-            mPlayerAvatarBar.setVisibility(View.VISIBLE);
-            mCommentLines.setVisibility(View.VISIBLE);
+    protected void hideCommenters(View animateView, boolean instant){
+        mShowingAvatars = false;
+        final float fromY = animateView.getAnimation() == null ? 0 : CloudUtils.getCurrentTransformY(animateView);
+
+        mShowCommentersAnimation = null;
+        animateView.clearAnimation();
+
+        mHideCommentersAnimation = createCommentersAnimation(fromY, 0, instant);
+        animateView.startAnimation(mHideCommentersAnimation);
+    }
+
+    private Animation createCommentersAnimation(float fromY, float toY, boolean instant){
+        Animation a = new TranslateAnimation(0, 0, fromY,toY);
+        a.setDuration(instant ? 0 : 500);
+        a.setFillEnabled(true);
+        a.setFillBefore(false);
+        a.setFillAfter(true);
+        a.setInterpolator(new AccelerateDecelerateInterpolator());
+        a.setAnimationListener(this);
+        return a;
+    }
+
+    protected void showCommenters(boolean instant){
+       showCommenters(this,instant, (int) -getResources().getDimension(R.dimen.player_avatar_bar_height));
+    }
+
+     protected void showCommenters(View animateView, boolean instant, int toY){
+        mShowingAvatars = true;
+        final float fromY = animateView.getAnimation() == null ? 0 : CloudUtils.getCurrentTransformY(animateView);
+        mHideCommentersAnimation = null;
+        animateView.clearAnimation();
+
+         mShowCommentersAnimation = createCommentersAnimation(fromY,toY, instant);
+         animateView.startAnimation(mShowCommentersAnimation);
+    }
+
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        if (animation == mHideCommentersAnimation) {
+            ((LayoutParams) getLayoutParams()).bottomMargin = (int) getResources().getDimension(R.dimen.player_portrait_waveform_margin_bottom);
+            mClearAnimationOnLayout = true;
+            requestLayout();
+        } else if (animation == mShowCommentersAnimation) {
+            ((LayoutParams) getLayoutParams()).bottomMargin = (int) getResources().getDimension(R.dimen.player_portrait_waveform_margin_bottom_comments_visible);
+            mClearAnimationOnLayout = true;
+            requestLayout();
         }
     }
 
-    private void toggleComments(){
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+    }
+
+
+    protected void toggleComments(){
         mShowingComments = !mShowingComments;
         mPreferences.edit().putBoolean("playerShowingCOmments", mShowingComments).commit();
         if (mShowingComments){
             mToggleComments.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.ic_hide_comments_states));
-            mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mCommentLines.setVisibility(View.INVISIBLE);
             setComments(mCurrentComments,true);
             ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar));
         } else {
             mToggleComments.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
-            mPlayerAvatarBar.setVisibility(View.GONE);
             mCommentLines.setVisibility(View.GONE);
             ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
         }

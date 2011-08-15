@@ -232,9 +232,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                             addCommentListener);
                 }
             });
-        } else {
-            mContainer = (RelativeLayout) findViewById(R.id.container);
         }
+        mContainer = (RelativeLayout) findViewById(R.id.container);
     }
 
     public ViewGroup getCommentHolder() {
@@ -1127,9 +1126,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private void setCurrentComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
 
-        if (mLandscape) {
-            mWaveformController.setComments(mPlayingTrack.comments, animateIn);
-        } else if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
+        mWaveformController.setComments(mPlayingTrack.comments, animateIn);
+
+        if (!mLandscape && mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
             fillTrackInfoComments();
         }
     }

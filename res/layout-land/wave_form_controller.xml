@@ -6,7 +6,7 @@
                 xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
-                                                android:layout_above="@+id/player_avatar_bar"
+                                                android:layout_above="@+id/player_comment_bar"
                                                 android:background="@color/playerControlAlphaBackground"
                                                 android:layout_width="fill_parent"
                                                 android:layout_height="fill_parent">
@@ -49,16 +49,15 @@
           android:layout_above="@+id/player_avatar_bar"
           android:layout_height="5dip"
           android:background="@drawable/drop_shadow_up"/>
-
     <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
-                                                 android:layout_above="@+id/player_comment_bar"
+                                                 android:layout_alignTop="@+id/player_comment_bar"
                                                  android:layout_width="fill_parent"
-                                                 android:layout_height="@dimen/player_avatar_bar_height"
-                                                 android:visibility="invisible"/>
-
+                                                 android:layout_height="@dimen/player_avatar_bar_height_land"
+                                                 android:background="@color/playerAvatarBarBackground"/>
     <com.soundcloud.android.view.PlayerCommentBar android:id="@+id/player_comment_bar"
                                                   android:layout_alignParentBottom="true"
                                                   android:background="@drawable/comment_touch_bar"
                                                   android:layout_width="fill_parent"
                                                   android:layout_height="@dimen/player_comment_bar_height"/>
+
 </RelativeLayout>

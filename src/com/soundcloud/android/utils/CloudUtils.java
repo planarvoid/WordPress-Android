@@ -43,6 +43,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -754,5 +755,14 @@ public class CloudUtils {
         separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
 
         statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+    }
+
+    public static float getCurrentTransformY(View v){
+        if (v.getAnimation() == null) return 0f;
+        Transformation t = new Transformation();
+        float[] values = new float[9];
+        v.getAnimation().getTransformation(v.getDrawingTime(), t);
+        t.getMatrix().getValues(values);
+        return values[5];
     }
 }
