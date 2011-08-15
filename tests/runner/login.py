@@ -5,6 +5,8 @@ from com.android.monkeyrunner import MonkeyRunner, MonkeyDevice
 
 package = "com.soundcloud.android"
 activity = ".activity.Main"
+login = "aeffle"
+password = "m0nk3yz"
 apk = sys.argv[1] if len(sys.argv) > 1 else None
 
 device = MonkeyRunner.waitForConnection()
@@ -24,9 +26,9 @@ MonkeyRunner.sleep(10)
 
 device.press('KEYCODE_DPAD_DOWN', MonkeyDevice.DOWN_AND_UP)
 device.press('KEYCODE_ENTER',MonkeyDevice.DOWN_AND_UP)
-device.type("jberkel_testing")
+device.type(login)
 device.press('KEYCODE_DPAD_DOWN',MonkeyDevice.DOWN_AND_UP)
-device.type("clever")
+device.type(password)
 device.press('KEYCODE_ENTER',MonkeyDevice.DOWN_AND_UP)
 
 print "logged in"
