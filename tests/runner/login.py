@@ -33,6 +33,3 @@ device.press('KEYCODE_ENTER',MonkeyDevice.DOWN_AND_UP)
 
 print "logged in"
 MonkeyRunner.sleep(10)
-
-snap = device.takeSnapshot()
-snap.writeToFile("after_login.png")
