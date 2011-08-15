@@ -166,6 +166,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
+        mCurrentTime.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
                 R.color.white));
@@ -270,6 +271,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             case ERROR:
                 mOverlay.setVisibility(View.INVISIBLE);
                 mProgressBar.setVisibility(View.INVISIBLE);
+                mCurrentTime.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -394,6 +396,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
             mProgressBar.startAnimation(aa);
             mProgressBar.setVisibility(View.VISIBLE);
+
+            mCurrentTime.startAnimation(aa);
+            mCurrentTime.setVisibility(View.VISIBLE);
         }
     }
 
