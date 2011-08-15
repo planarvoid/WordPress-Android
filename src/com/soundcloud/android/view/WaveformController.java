@@ -58,6 +58,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private RelativeLayout mWaveformFrame;
     private WaveformCommentLines mCommentLines;
     private ImageButton mToggleComments;
+    private TextView mCurrentTime;
 
     private ScPlayer mPlayer;
     private Track mPlayingTrack;
@@ -124,7 +125,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-
+        mCurrentTime = (TextView) findViewById(R.id.currenttime);
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
         findViewById(R.id.track_touch_bar).setOnTouchListener(this);
@@ -214,6 +215,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void setSecondaryProgress(int percent) {
         mProgressBar.setSecondaryProgress(percent);
+    }
+
+    public void setCurrentTime(CharSequence s) {
+        mCurrentTime.setText(s);
     }
 
     public void updateTrack(Track track) {
