@@ -205,12 +205,17 @@ public class CloudCreateService extends Service {
             @Override
             public void run() {
                 mRecorder.prepare();
-                mRecorder.start();
-
-                if (mRecorder.getState() == CloudRecorder.State.ERROR){
+                try {
+                    mRecorder.start();
+                    if (mRecorder.getState() == CloudRecorder.State.ERROR){
+                        onRecordError();
+                    } else {
+                        mRecordStartTime = System.currentTimeMillis();
+                    }
+                } catch (RuntimeException e) {
+                    // seems to get thrown in start()
+                    Log.w(TAG, e);
                     onRecordError();
-                } else {
-                    mRecordStartTime = System.currentTimeMillis();
                 }
             }
         };
