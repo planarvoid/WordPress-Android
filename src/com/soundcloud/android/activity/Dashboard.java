@@ -104,8 +104,9 @@ public class Dashboard extends ScActivity {
     public Object onRetainNonConfigurationInstance() {
         if (mListView != null && mListView.getWrapper() != null){
             return mListView.getWrapper().saveState();
+        } else {
+            return null;
         }
-        return null;
     }
 
     // legacy action, redirect to Main
