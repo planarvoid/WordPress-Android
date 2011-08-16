@@ -356,15 +356,11 @@ public abstract class ScActivity extends Activity {
     }
 
     public int removeList(ScListView lazyListView){
-        int i = 0;
-        while (i < mLists.size()){
-            if (mLists.get(i).equals(lazyListView)){
-                mLists.remove(i);
-                return i;
-            }
-            i++;
+        int index = mLists.indexOf(lazyListView);
+        if (index != -1) {
+            mLists.remove(index);
         }
-        return -1;
+        return index;
     }
 
     public void addNewComment(final Comment comment, final AddCommentListener listener) {
