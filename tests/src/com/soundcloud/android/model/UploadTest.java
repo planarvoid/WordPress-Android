@@ -1,9 +1,9 @@
 package com.soundcloud.android.model;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Params;
@@ -58,7 +58,7 @@ public class UploadTest {
     @Test
     public void shouldAddFoursquareMachineTags() throws Exception {
         r.four_square_venue_id = "abcdef";
-        assertTrue(upload().getTags().contains("foursquare:venue=abcdef"));
+        assertThat(upload().getTags(), hasItem("foursquare:venue=abcdef"));
     }
 
     @Test
@@ -66,12 +66,13 @@ public class UploadTest {
         r.external_upload = true;
         String tags = String.valueOf(upload().toTrackMap().get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
-        assertThat(tagList.contains("soundcloud:source=android-3rdparty-upload"), is(true));
+        assertThat(tagList, hasItem("soundcloud:source=android-3rdparty-upload"));
+        assertThat(tagList, not(hasItem("soundcloud:source=android-record")));
     }
 
     @Test
     public void shouldSetSourceMachineTag() throws Exception {
-        assertThat(upload().getTags().contains("soundcloud:source=android-record"), is(true));
+        assertThat(upload().getTags(), hasItem("soundcloud:source=android-record"));
     }
 
     @Test
@@ -79,7 +80,7 @@ public class UploadTest {
         r.longitude = 0.1d;
         r.latitude = 0.2d;
         List<String> tags = upload().getTags();
-        assertThat(tags.contains("geo:lon=0.1"), is(true));
-        assertThat(tags.contains("geo:lat=0.2"), is(true));
+        assertThat(tags, hasItem("geo:lon=0.1"));
+        assertThat(tags, hasItem("geo:lat=0.2"));
     }
 }
