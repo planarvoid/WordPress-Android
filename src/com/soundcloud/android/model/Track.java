@@ -251,7 +251,7 @@ public class Track extends ModelBase implements PageTrackable {
     }
 
     public boolean isStreamable() {
-        return stream_url != null;
+        return !TextUtils.isEmpty(stream_url);
     }
 
     public ContentValues buildContentValues(){
