@@ -26,6 +26,7 @@
     <dimen name="player_portrait_time_and_wave_height">100dip</dimen>
     <dimen name="player_portrait_half_wave_height">40dip</dimen>
     <dimen name="player_portrait_waveform_margin_bottom">-40dip</dimen>
+    <dimen name="player_portrait_time_margin_bottom">-20dip</dimen>
     <dimen name="player_portrait_waveform_margin_bottom_comments_visible">-24dip</dimen>
     <!-- end of can't change one of these without change them all -->
 
@@ -48,7 +49,7 @@
     <dimen name="btn_sc_transport_margin_top">20dip</dimen>
     <dimen name="btn_sc_transport_margin_bottom">20dip</dimen>
 
-    <dimen name="player_avatar_bar_height">16dip</dimen>
+    <dimen name="player_avatar_bar_height">10dip</dimen>
     <dimen name="player_avatar_bar_height_land">32dip</dimen>
 
     <dimen name="player_comment_bar_height">35dip</dimen>
@@ -63,5 +64,6 @@
     <dimen name="share_user_icon_height">32px</dimen>
     <dimen name="share_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
+
 
 </resources>

@@ -154,7 +154,7 @@ public class PlayerAvatarBar extends View {
     }
 
     private void refreshDefaultAvatar() {
-        if (mAvatarWidth > 0 && mDefaultAvatar == null || mDefaultAvatar.isRecycled()) {
+        if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
             mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
                     CloudUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();

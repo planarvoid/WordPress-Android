@@ -656,14 +656,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             long remaining = 1000 - (pos % 1000);
 
             if (pos >= 0 && mDuration > 0) {
-                mWaveformController.setCurrentTime(new StringBuilder()
-                        .append(CloudUtils.formatTimestamp(pos))
-                        .append(" / ")
-                        .append(mCurrentDurationString));
+                mWaveformController.setCurrentTime(pos);
                 mWaveformController.setProgress(pos);
                 mWaveformController.setSecondaryProgress(mPlaybackService.loadPercent() * 10);
             } else {
-                mWaveformController.setCurrentTime("--:--/--:--");
+                mWaveformController.setCurrentTime(0);
                 mWaveformController.setProgress(0);
                 mWaveformController.setSecondaryProgress(0);
             }

@@ -42,40 +42,4 @@ public class WaveformControllerLand extends WaveformController {
         mWaveformHolder.showConnectingLayout(false);
         invalidate();
     }
-
-    @Override
-    protected void hideCommenters(boolean instant) {
-        hideCommenters(mPlayerAvatarBar, instant);
-    }
-
-    @Override
-    protected void showCommenters(boolean instant) {
-
-        showCommenters(mPlayerAvatarBar, instant, (int) -getResources().getDimension(R.dimen.player_avatar_bar_height_land));
-    }
-
-    @Override
-    public void onAnimationEnd(Animation animation) {
-        if (animation == mHideCommentersAnimation) {
-            ((LayoutParams) mPlayerAvatarBar.getLayoutParams()).topMargin = 0;
-            mClearAnimationOnLayout = true;
-            requestLayout();
-        } else if (animation == mShowCommentersAnimation) {
-            ((LayoutParams) mPlayerAvatarBar.getLayoutParams()).topMargin = (int) -getResources().getDimension(R.dimen.player_avatar_bar_height_land);
-            mClearAnimationOnLayout = true;
-            mPlayerAvatarBar.requestLayout();
-
-        }
-    }
-
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (mClearAnimationOnLayout) {
-            mPlayerAvatarBar.clearAnimation();
-            mPlayerAvatarBar.invalidate();
-            mClearAnimationOnLayout = false;
-        }
-        super.onLayout(changed, l, t, r, b);
-    }
 }

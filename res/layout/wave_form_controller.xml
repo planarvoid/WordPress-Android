@@ -4,9 +4,9 @@
                 android:id="@+id/waveform_frame">
 
     <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
-                                                android:layout_marginTop="@dimen/player_time_height"
+                                                android:layout_above="@+id/player_avatar_bar"
                                                 android:layout_width="fill_parent"
-                                                android:layout_height="@dimen/player_portrait_wave_height">
+                                                android:layout_height="@dimen/player_portrait_half_wave_height">
         <ProgressBar
                 style="@style/ScProgressBar"
                 android:id="@+id/progress_bar"
@@ -17,9 +17,9 @@
         <ImageView
                 android:id="@+id/progress_overlay"
                 android:src="@drawable/player_wave_bg"
-                android:layout_alignParentTop="true"
+                android:layout_marginBottom="@dimen/player_portrait_waveform_margin_bottom"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="@dimen/player_portrait_wave_height"
                 android:scaleType="fitXY"/>
 
         <RelativeLayout
@@ -40,12 +40,13 @@
                          android:layout_height="fill_parent"/>
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
-    <TextView android:id="@+id/currenttime"
+    <com.soundcloud.android.view.PlayerTimePortrait android:id="@+id/currenttime"
               style="@style/txt_player_time"
-              android:layout_alignParentTop="true"/>
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_above="@id/waveform_holder"/>
     <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
-                                                 android:layout_marginTop="@dimen/player_portrait_half_wave_height"
-                                                 android:layout_alignTop="@id/waveform_holder"
+                                                 android:layout_alignParentBottom="true"
                                                  android:layout_width="fill_parent"
                                                  android:layout_height="@dimen/player_avatar_bar_height"
                                                  android:background="@drawable/player_avatar_bg_portrait"/>

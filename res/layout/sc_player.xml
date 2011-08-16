@@ -85,7 +85,6 @@
                         android:id="@+id/waveform_controller"
                         android:layout_height="wrap_content"
                         android:layout_width="fill_parent"
-                        android:layout_marginBottom="@dimen/player_portrait_waveform_margin_bottom"
                         android:layout_alignParentBottom="true"/>
                 <ViewStub
                         android:id="@+id/stub_unplayable_layout"

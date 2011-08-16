@@ -226,14 +226,9 @@
 
 
     <style name="txt_player_time">
-        <item name="android:layout_width">@dimen/player_time_width</item>
-        <item name="android:layout_height">@dimen/player_time_height</item>
-        <item name="android:layout_alignParentTop">true</item>
         <item name="android:textColor">@android:color/black</item>
-        <item name="android:background">@drawable/player_time_bg</item>
         <item name="android:textSize">@dimen/player_time_text_size</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:gravity">center</item>
     </style>
     <style name="txt_player_time_land" parent="txt_player_time">
         <item name="android:background">@drawable/player_time_bg_land</item>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:id="@+id/txt_current"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:singleLine="true"
+              style="@style/txt_player_time"/>
+    <View android:background="@color/verticalPipe"
+          android:layout_toRightOf="@+id/current_txt"
+          android:layout_alignBottom="@+id/total_txt"
+          android:layout_alignTop="@+id/total_txt"
+          android:layout_height="0dp"
+          android:layout_marginRight="2dip"
+          android:layout_marginLeft="3dip"
+          android:layout_width="1dip"
+          android:id="@+id/vr"/>
+    <TextView android:id="@+id/txt_total"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:singleLine="true"
+              style="@style/txt_player_time"/>
+</merge>

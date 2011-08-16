@@ -42,8 +42,10 @@
                          android:layout_height="40dip"/>
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
-    <TextView android:id="@+id/currenttime"
+    <com.soundcloud.android.view.PlayerTime android:id="@+id/currenttime"
               style="@style/txt_player_time_land"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
               android:layout_alignParentTop="true"/>
     <View android:layout_width="fill_parent"
           android:layout_above="@+id/player_avatar_bar"
