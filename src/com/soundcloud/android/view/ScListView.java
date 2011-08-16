@@ -684,6 +684,15 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
 
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        try {
+            super.onTextChanged(s, start, before, count);
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "onTextChanged("+s+","+start+","+before+","+count+"), mActivity="+mActivity);
+            throw e;
+        }
+    }
 
     private void configureLastUpdated() {
         // can trigger a weird layout loop if done in a different state, may need to be revisited
