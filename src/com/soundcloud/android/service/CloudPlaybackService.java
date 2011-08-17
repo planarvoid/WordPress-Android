@@ -1541,6 +1541,8 @@ public class CloudPlaybackService extends Service {
                 SoundCloudApplication.handleSilentException("mp error",
                         new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
 
+                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
                     default:
@@ -1753,16 +1755,22 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
 
-
         if (thread != null) {
             if (thread.statusLine != null &&
                 (thread.statusLine.getStatusCode() != HttpStatus.SC_OK ||
                 thread.statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)) {
                 SoundCloudApplication.handleSilentException("invalid status",
                         new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+
+                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR,
+                        "status",
+                        "code",
+                        thread.statusLine.getStatusCode());
             } else if (thread.exception != null) {
                 SoundCloudApplication.handleSilentException("io exception",
                         new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+
+                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR, "ioexception");
             }
         }
     }
@@ -2191,7 +2199,6 @@ public class CloudPlaybackService extends Service {
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
-
 
     static class PlaybackError extends Exception {
         private final NetworkInfo networkInfo;
