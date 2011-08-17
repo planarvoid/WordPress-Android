@@ -79,7 +79,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
             }
             mTracker = GoogleAnalyticsTracker.getInstance();
-            mTracker.start(
+            mTracker.startNewSession(
                     getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
                     120 /* seconds */, this);
         }
