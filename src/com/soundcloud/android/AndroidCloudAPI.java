@@ -74,7 +74,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         @Override
         public String addTokenToUrl(String url) {
             if (getToken().valid()) {
-                return Request.to(url).wigth(OAUTH_TOKEN_PARAMETER, getToken().access).toUrl();
+                return Request.to(url).with(OAUTH_TOKEN_PARAMETER, getToken().access).toUrl();
             } else {
                 return url;
             }
