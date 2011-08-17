@@ -135,7 +135,7 @@ public class AddInfo extends Activity {
      @Override
     protected void onResume() {
         super.onResume();
-        ((SoundCloudApplication) getApplication()).pageTrack(Consts.TrackingEvents.SIGNUP_DETAILS);
+        ((SoundCloudApplication) getApplication()).trackPage(Consts.TrackingEvents.SIGNUP_DETAILS);
     }
 
     private void setImage(final File file) {

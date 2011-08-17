@@ -298,7 +298,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void pageTrack(String path, Object... customVars) {
+    public void trackPage(String path, Object... customVars) {
         if (mTracker != null && !TextUtils.isEmpty(path)) {
             try {
                 if (customVars.length > 0 &&
@@ -317,6 +317,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);
             }
+        }
+    }
+
+    public void trackEvent(String category, String action) {
+        trackEvent(category, action, null, 0);
+    }
+
+    public void trackEvent(String category, String action, String label, int value) {
+        if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
+            mTracker.trackEvent(category, action, label, value);
         }
     }
 

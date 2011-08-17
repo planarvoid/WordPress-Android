@@ -216,9 +216,9 @@ public class CloudPlaybackService extends Service {
         mIsStagefright = CloudUtils.isStagefright();
 
         // track information about used audio engine with GA
-        getApp().pageTrack(Consts.TrackingEvents.AUDIO_ENGINE,
+        getApp().trackPage(Consts.TrackingEvents.AUDIO_ENGINE,
                 "stagefright", mIsStagefright,
-                "model",   Build.MODEL,
+                "model", Build.MODEL,
                 "version", Build.VERSION.SDK_INT,
                 "release", Build.VERSION.RELEASE,
                 "sc_version", CloudUtils.getAppVersion(this, "unknown"));
@@ -406,8 +406,10 @@ public class CloudPlaybackService extends Service {
         i.putExtra("track", getTrackName());
         i.putExtra("user", getUserName());
         i.putExtra("isPlaying", isPlaying());
-        if (FAVORITE_SET.equals(what))
+        if (FAVORITE_SET.equals(what)) {
             i.putExtra("isFavorite", mPlayingData.user_favorite);
+        }
+
         sendBroadcast(i);
 
         if (what.equals(QUEUE_CHANGED)) {

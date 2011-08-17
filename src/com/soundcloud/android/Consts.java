@@ -74,6 +74,21 @@ public final class Consts {
     }
 
     public interface TrackingEvents {
+        interface Categories {
+            String CONNECT = "connect";
+            String TRACKS  = "tracks";
+            String SHARE   = "share";
+            String ERROR   = "error";
+            String PLAYBACK_ERROR = "playbackError";
+        }
+
+        interface Actions {
+            String TRACK_PLAY = "Track Play";
+            String TEN_PERCENT = "10percent";
+            String NINTY_FIVE_PERCENT = "95percent";
+            String TRACK_COMPLETE = "Track Complete";
+        }
+
         String STREAM = "/incoming";
         String ACTIVITY = "/activity";
         String RECORD = "/record";

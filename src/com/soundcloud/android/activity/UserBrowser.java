@@ -297,7 +297,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void trackCurrentScreen(){
-        pageTrack(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
+        trackPage(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
     }
 
     private class LoadUserTask extends LoadTask<User> {

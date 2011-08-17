@@ -136,7 +136,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 mapToRecording(mRecording);
-                pageTrack(mRecording.pageTrack());
+                trackPage(mRecording.pageTrack());
                 if (!mRecording.external_upload) {
                     getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
                 }

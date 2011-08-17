@@ -827,7 +827,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
             if (mPlayingTrack.user != null && TextUtils.isEmpty(mPlayingTrack.user.username)){
-                pageTrack(mPlayingTrack.pageTrack());
+                trackPage(mPlayingTrack.pageTrack());
             }
 
 

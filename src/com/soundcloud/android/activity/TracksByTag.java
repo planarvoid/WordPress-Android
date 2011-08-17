@@ -54,7 +54,7 @@ public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.S
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack(mTrackingPath);
+        trackPage(mTrackingPath);
     }
 
     @Override

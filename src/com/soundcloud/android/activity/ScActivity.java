@@ -548,7 +548,7 @@ public abstract class ScActivity extends Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
+                trackPage(Consts.TrackingEvents.PEOPLE_FINDER);
                 intent = new Intent(Actions.USER_BROWSER)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
@@ -587,8 +587,12 @@ public abstract class ScActivity extends Activity {
         return mCurrentUserId;
     }
 
-    public void pageTrack(String path) {
-        getApp().pageTrack(path);
+    public void trackPage(String path) {
+        getApp().trackPage(path);
+    }
+
+    public void trackEvent(String category, String action) {
+        getApp().trackEvent(category, action);
     }
 
     protected void handleRecordingClick(Recording recording) {

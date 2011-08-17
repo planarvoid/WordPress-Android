@@ -79,7 +79,7 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack(mTrackingPath);
+        trackPage(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mIsActivityTab ?

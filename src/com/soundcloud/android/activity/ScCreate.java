@@ -112,7 +112,7 @@ public class ScCreate extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        pageTrack(Consts.TrackingEvents.RECORD);
+        trackPage(Consts.TrackingEvents.RECORD);
     }
 
     @Override
@@ -411,7 +411,7 @@ public class ScCreate extends ScActivity {
     }
 
     private void startRecording() {
-        pageTrack(Consts.TrackingEvents.RECORD_RECORDING);
+        trackPage(Consts.TrackingEvents.RECORD_RECORDING);
         pause(true);
 
         mRecordErrorMessage = "";
@@ -523,7 +523,7 @@ public class ScCreate extends ScActivity {
     };
 
     private void stopRecording() {
-        pageTrack(Consts.TrackingEvents.RECORD_COMPLETE);
+        trackPage(Consts.TrackingEvents.RECORD_COMPLETE);
         if (getApp().getRecordListener() == recListener) {
             getApp().setRecordListener(null);
         }
