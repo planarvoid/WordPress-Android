@@ -25,6 +25,7 @@ device.startActivity(component=package+'/'+activity)
 MonkeyRunner.sleep(10)
 
 device.press('KEYCODE_DPAD_DOWN', MonkeyDevice.DOWN_AND_UP)
+MonkeyRunner.sleep(0.5)
 device.press('KEYCODE_ENTER',MonkeyDevice.DOWN_AND_UP)
 device.type(login)
 device.press('KEYCODE_DPAD_DOWN',MonkeyDevice.DOWN_AND_UP)
