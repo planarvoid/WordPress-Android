@@ -371,7 +371,9 @@ public class ScCreate extends ScActivity {
                         case RECORD: stopRecording(); break;
                         case PLAYBACK:
                             try {
-                                if (mCreateService.isPlayingBack()) mCreateService.pausePlayback();
+                                if (mCreateService != null && mCreateService.isPlayingBack())  {
+                                    mCreateService.pausePlayback();
+                                }
                             } catch (RemoteException e) {
                                 Log.e(TAG, "error", e);
                             }
