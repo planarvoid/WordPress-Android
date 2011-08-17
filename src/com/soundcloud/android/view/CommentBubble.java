@@ -2,10 +2,12 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
@@ -31,7 +33,6 @@ public class CommentBubble extends CommentDisplay {
 
     public long new_comment_timestamp;
     public Track new_comment_track;
-    public Comment show_comment;
 
     private int mRealWidth = 1;
 
@@ -40,23 +41,30 @@ public class CommentBubble extends CommentDisplay {
     public int parentWidth;
     public int comment_mode;
 
+    public CommentBubble(Context context) {
+        super(context);
+    }
 
-    public CommentBubble(Context context, WaveformController controller) {
-        super(context, controller);
+    @Override
+    protected void init(){
+        LayoutInflater inflater = (LayoutInflater) getContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                inflater.inflate(R.layout.comment_bubble, this);
 
         mTxtNewTime = (TextView) findViewById(R.id.txt_new_time);
         mTxtNewInstructions = (TextView) findViewById(R.id.txt_new_instructions);
 
-        mArrow = new CommentBubbleArrow(context);
+        mArrow = new CommentBubbleArrow(getContext());
         setDimensions(NEW_MODE_WIDTH,NEW_MODE_HEIGHT);
         this.addView(mArrow);
 
+        super.init();
     }
 
     public float update() {
         switch (comment_mode){
             case 1 : onNewCommentMode(new_comment_track); break;
-            case 2 : onShowCommentMode(show_comment); break;
+            case 2 : showComment(show_comment); break;
         }
         return updatePosition();
     }
@@ -78,7 +86,7 @@ public class CommentBubble extends CommentDisplay {
         setDimensions(NEW_MODE_WIDTH,NEW_MODE_HEIGHT);
 
         mTxtUsername.setVisibility(View.GONE);
-        mTxtDate.setVisibility(View.GONE);
+        mTxtTimestamp.setVisibility(View.GONE);
         mTxtElapsed.setVisibility(View.GONE);
         mBtnClose.setVisibility(View.GONE);
         mTxtComment.setVisibility(View.GONE);
@@ -92,8 +100,8 @@ public class CommentBubble extends CommentDisplay {
     }
 
     @Override
-    protected void onShowCommentMode(Comment currentShowingComment) {
-        super.onShowCommentMode(currentShowingComment);
+    protected void showComment(Comment currentShowingComment) {
+        super.showComment(currentShowingComment);
         mTxtNewTime.setVisibility(View.GONE);
         mTxtNewInstructions.setVisibility(View.GONE);
 

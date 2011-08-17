@@ -119,4 +119,6 @@
 
     <string name="take_new_picture_error">Could not take picture</string>
     <string name="use_existing_image_error">Could not use existing image</string>
+
+    <string name='at_timestamp'>at %s</string>
 </resources>

@@ -99,17 +99,8 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
-    protected void autoCloseComment(){
-            if (mCommentBubble != null && mCurrentShowingComment != null)
-            if (mCurrentShowingComment == mCommentBubble.mComment && !mCommentBubble.interacted){
-                closeComment();
-            }
-    }
-
     public void closeComment(){
-        mCurrentShowingComment = null;
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
-        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+        super.closeComment();
         removeBubble();
     }
 
@@ -128,7 +119,10 @@ public class WaveformControllerLand extends WaveformController {
             mPlayer.getCommentHolder().getLocationInWindow(calc);
             int topOffset = calc[1];
 
-            if (mCommentBubble == null) mCommentBubble = new CommentBubble(mPlayer, this);
+            if (mCommentBubble == null) {
+                mCommentDisplay = mCommentBubble = new CommentBubble(mPlayer);
+                mCommentBubble.setControllers(mPlayer, (WaveformController) this);
+            }
             mCommentBubble.parentWidth = getWidth();
 
             if (mPlayerAvatarBar != null) {

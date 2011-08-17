@@ -7,14 +7,11 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-import com.soundcloud.android.utils.CloudUtils;
 
 public class PlayerTimePortrait extends PlayerTime {
     private Paint mBgPaint;
     private Paint mLinePaint;
     private int mArc;
-
-    private int mDuration;
 
     private int mPlayheadOffset;
     private boolean mPlayheadLeft;

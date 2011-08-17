@@ -9,14 +9,20 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
 
-public class CommentPanel extends RelativeLayout {
+public class CommentPanel extends CommentDisplay {
     public CommentPanel(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+    }
+
+    @Override
+    protected void init(){
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_panel, this);
 
         final float density = getResources().getDisplayMetrics().density;
         setBackgroundColor(getResources().getColor(R.color.commentPanelBg));
         setPadding(0, (int) (5 * density), 0, (int) (15 * density));
+        super.init();
     }
 }

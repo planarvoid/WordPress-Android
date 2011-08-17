@@ -16,7 +16,7 @@ import com.soundcloud.android.utils.CloudUtils;
 public class PlayerTime extends LinearLayout {
     private TextView mCurrentTime;
     private TextView mTotalTime;
-    private int mDuration;
+    protected int mDuration;
 
     public PlayerTime(Context context, AttributeSet attrs) {
         super(context, attrs);

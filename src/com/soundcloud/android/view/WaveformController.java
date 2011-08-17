@@ -44,13 +44,15 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class WaveformController extends RelativeLayout implements OnTouchListener {
     private static final String TAG = "WaveformController";
 
+    private static final long CLOSE_COMMENT_DELAY = 5000;
+
     protected PlayerAvatarBar mPlayerAvatarBar;
 
     private ImageView mOverlay;
     private ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     private RelativeLayout mWaveformFrame;
-    protected RelativeLayout mPlayerCommentBar;
+    private View mTrackTouchBar;
     protected WaveformCommentLines mCommentLines;
     private PlayerTime mCurrentTime;
     protected ImageButton mToggleComments;
@@ -62,6 +64,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected List<Comment> mCurrentTopComments;
     protected Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
+
+    protected CommentDisplay mCommentDisplay;
+    private CommentPanel mCommentPanel;
 
     protected Comment mAddComment;
     private Comment mLastAutoComment;
@@ -81,7 +86,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_SEND_SEEK = 2;
-
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -120,7 +124,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mCurrentTime = (PlayerTime) findViewById(R.id.currenttime);
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
-        findViewById(R.id.track_touch_bar).setOnTouchListener(this);
+        mTrackTouchBar = findViewById(R.id.track_touch_bar);
+        mTrackTouchBar.setOnTouchListener(this);
 
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerAvatarBar.setOnTouchListener(this);
@@ -143,6 +148,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         setStaticTransformationsEnabled(true);
         mkdirs(dirFile);
+
+        mCommentPanel = (CommentPanel) findViewById(R.id.comment_panel);
+        if (mCommentPanel != null){
+            mCommentDisplay = mCommentPanel;
+            mCommentPanel.setControllers(mPlayer,this);
+            mCommentPanel.setVisibility(View.GONE);
+        }
     }
 
 
@@ -175,7 +187,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     if (mCurrentShowingComment == null && mPlayer.waveformVisible()){
                         mCurrentShowingComment = last;
                         showCurrentComment(true);
-                        mHandler.postDelayed(mAutoCloseComment, 3000);
+                        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
                     }
                 }
             }
@@ -271,15 +283,34 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected void showCurrentComment(boolean waitForInteraction){
+         if (mCommentPanel == null) return;
 
+        if (mCurrentShowingComment != null){
+            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
+            mCommentLines.setCurrentComment(mCurrentShowingComment);
+
+            mCommentPanel.showComment(mCurrentShowingComment);
+            mCommentPanel.interacted = !waitForInteraction;
+            mCommentPanel.setVisibility(View.VISIBLE);
+            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+            aa.setStartOffset(500);
+            aa.setDuration(500);
+            mCommentPanel.startAnimation(aa);
+        }
     }
 
-    public void closeComment(){
-
+    public void closeComment() {
+        mCurrentShowingComment = null;
+        if (mPlayerAvatarBar != null)   mPlayerAvatarBar.setCurrentComment(null);
+        if (mCommentLines != null)      mCommentLines.setCurrentComment(null);
+        if (mCommentPanel != null)      mCommentPanel.setVisibility(View.GONE);
     }
 
     protected void autoCloseComment(){
-
+            if (mCommentDisplay != null && mCurrentShowingComment != null)
+            if (mCurrentShowingComment == mCommentDisplay.getComment() && !mCommentDisplay.interacted){
+                closeComment();
+            }
     }
 
     protected void cancelAutoCloseComment(){
@@ -316,7 +347,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mCurrentTopComments = null;
         mode = TOUCH_MODE_NONE;
     }
-
 
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
@@ -447,7 +477,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected void processDownInput(InputObject input) {
-        if (input.view == mWaveformHolder) {
+        if (input.view == mTrackTouchBar) {
             mode = TOUCH_MODE_SEEK_DRAG;
             if (mPlayer != null && mPlayer.isSeekable()) {
                 mLastAutoComment = null; //reset auto comment in case they seek backward
