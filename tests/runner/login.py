@@ -18,8 +18,7 @@ if apk != None:
   device.installPackage(apk)
   print "installed package "+package
 
-  MonkeyRunner.sleep(3)
-
+MonkeyRunner.sleep(3)
 device.startActivity(component=package+'/'+activity)
 
 MonkeyRunner.sleep(10)
