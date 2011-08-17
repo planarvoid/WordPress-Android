@@ -1,7 +1,7 @@
 import sbt._
 import scala.xml.{Node, Elem, Unparsed}
 
-trait Mavenize extends DefaultProject {
+trait Mavenize extends BaseAndroidProject {
   override def pomExtra =
     <build>
       <sourceDirectory>src</sourceDirectory>
@@ -134,8 +134,14 @@ trait Mavenize extends DefaultProject {
                                                       Configurations.Test)),
                                                       pomExtra, pomPostProcess, pomIncludeRepository)
 
+    lazy val versionName =
+        manifest.attribute("http://schemas.android.com/apk/res/android", "versionName")
+                .getOrElse(error("no versionName"))
+                .text
+
     override def pomPostProcess(pom: Node): Node = pom match {
       case <artifactId>{_}</artifactId> => <artifactId>{name}</artifactId>
+      case <version>{_}</version>       => <version>{versionName}</version>
       case <packaging>{_}</packaging>   => <packaging>apk</packaging>
       case Elem(prefix, "project", attributes, scope,  c @ _*) =>
         Elem(prefix, "project", attributes, scope, c.map(pomPostProcess(_)):_*)
