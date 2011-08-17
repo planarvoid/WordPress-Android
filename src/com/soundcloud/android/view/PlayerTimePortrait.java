@@ -17,6 +17,7 @@ public class PlayerTimePortrait extends PlayerTime {
     private boolean mPlayheadLeft;
     private int mPlayheadArrowWidth;
     private int mPlayheadArrowHeight;
+    private boolean mSeeking;
 
 
     public PlayerTimePortrait(Context context, AttributeSet attrs) {
@@ -47,9 +48,16 @@ public class PlayerTimePortrait extends PlayerTime {
     }
 
 
+    @Override
+    public void setCurrentTime(long time, boolean seeking) {
+        super.setCurrentTime(time, seeking);
 
-    public void setCurrentTime(long time) {
-        super.setCurrentTime(time);
+        if (seeking && !mSeeking){
+            mSeeking = true;
+        } else if (!seeking && mSeeking){
+            mSeeking = false;
+        }
+
         final int parentWidth = ((RelativeLayout) this.getParent()).getWidth();
         final int playheadX = Math.round (parentWidth * (time / ((float) mDuration)));
         if (playheadX < getWidth() / 2) {

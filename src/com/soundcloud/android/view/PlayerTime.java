@@ -31,10 +31,8 @@ public class PlayerTime extends LinearLayout {
         setOrientation(HORIZONTAL);
     }
 
-    public void setCurrentTime(long time) {
+    public void setCurrentTime(long time, boolean seeking) {
         mCurrentTime.setText(CloudUtils.formatTimestamp(time));
-        requestLayout();
-        invalidate();
     }
 
     public void setByPercent(float seekPercent) {
