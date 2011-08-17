@@ -40,6 +40,10 @@
                          android:layout_height="fill_parent"/>
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
+    <com.soundcloud.android.view.CommentPanel android:id="@+id/commentpanel"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_above="@id/waveform_holder"/>
     <com.soundcloud.android.view.PlayerTimePortrait android:id="@+id/currenttime"
               style="@style/txt_player_time"
               android:layout_width="wrap_content"
