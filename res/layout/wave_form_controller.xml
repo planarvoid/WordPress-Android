@@ -4,7 +4,7 @@
                 android:id="@+id/waveform_frame">
 
     <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
-                                                android:layout_above="@+id/player_avatar_bar"
+                                                android:layout_above="@+id/player_avatar_bar_holder"
                                                 android:layout_width="fill_parent"
                                                 android:layout_height="@dimen/player_portrait_half_wave_height">
         <ProgressBar
@@ -41,17 +41,21 @@
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
     <com.soundcloud.android.view.CommentPanel android:id="@+id/comment_panel"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:layout_above="@id/waveform_holder"/>
+                                              android:layout_width="fill_parent"
+                                              android:layout_height="wrap_content"
+                                              android:layout_above="@id/waveform_holder"/>
     <com.soundcloud.android.view.PlayerTimePortrait android:id="@+id/currenttime"
-              style="@style/txt_player_time"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_above="@id/waveform_holder"/>
-    <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
-                                                 android:layout_alignParentBottom="true"
-                                                 android:layout_width="fill_parent"
-                                                 android:layout_height="@dimen/player_avatar_bar_height"
-                                                 android:background="@drawable/player_avatar_bg_portrait"/>
+                                                    style="@style/txt_player_time"
+                                                    android:layout_width="wrap_content"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_above="@id/waveform_holder"/>
+    <FrameLayout android:id="@+id/player_avatar_bar_holder"
+                 android:layout_width="fill_parent"
+                 android:layout_height="@dimen/player_avatar_bar_height"
+                 android:layout_alignParentBottom="true"
+                 android:background="@drawable/player_avatar_bg_portrait">
+        <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
+                                                     android:layout_width="fill_parent"
+                                                     android:layout_height="fill_parent"/>
+    </FrameLayout>
 </RelativeLayout>
