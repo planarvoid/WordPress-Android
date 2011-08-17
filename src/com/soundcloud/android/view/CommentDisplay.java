@@ -42,7 +42,6 @@ public class CommentDisplay extends RelativeLayout {
         mPlayer = (ScPlayer) context;
         mController = controller;
 
-
         LayoutInflater inflater = (LayoutInflater) context
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_bubble, this);

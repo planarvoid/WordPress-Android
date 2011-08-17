@@ -40,7 +40,7 @@
                          android:layout_height="fill_parent"/>
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
-    <com.soundcloud.android.view.CommentPanel android:id="@+id/commentpanel"
+    <com.soundcloud.android.view.CommentPanel android:id="@+id/comment_panel"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:layout_above="@id/waveform_holder"/>
