@@ -282,9 +282,7 @@ public class CloudUtils {
                             relativeLayout.removeViewAt(j);
                         }
                     }
-
                 }
-
             }
         }
     }
