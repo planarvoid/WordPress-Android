@@ -26,7 +26,7 @@
 	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
 	<color name="playerArtworkBackground">#FF666666</color>
 
-    <color name="commentPanelBg">#EEFFFFFF</color>
+    <color name="commentPanelBg">#DDFFFFFF</color>
 	
 	<color name="createBackground">#FF333333</color>
 	<color name="progressDarkAlphaBackground">#AA000000</color>
