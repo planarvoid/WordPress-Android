@@ -149,7 +149,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().trackPage(Consts.TrackingEvents.SETTINGS);
+        getApp().trackPage(Consts.Tracking.SETTINGS);
         super.onResume();
     }
 

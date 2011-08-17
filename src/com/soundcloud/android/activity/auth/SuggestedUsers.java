@@ -92,7 +92,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     @Override
     public void onResume() {
         super.onResume();
-        trackPage(Consts.TrackingEvents.PEOPLE_FINDER);
+        trackPage(Consts.Tracking.PEOPLE_FINDER);
     }
 
 

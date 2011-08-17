@@ -687,7 +687,8 @@ public class CloudUtils {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
-                                app.trackPage(Consts.TrackingEvents.LOGGED_OUT);
+                                app.trackPage(Consts.Tracking.LOGGED_OUT);
+                                app.trackEvent(Consts.TrackingEvents.Categories.AUTH, "logout");
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override

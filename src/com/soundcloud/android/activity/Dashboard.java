@@ -48,14 +48,14 @@ public class Dashboard extends ScActivity {
                         Event.class,
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_STREAM, false);
-                mTrackingPath = Consts.TrackingEvents.STREAM;
+                mTrackingPath = Consts.Tracking.STREAM;
             } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
                 mIsActivityTab = true;
                 trackListView = createList(Request.to(AndroidCloudAPI.MY_ACTIVITY),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_ACTIVITY, true);
-                mTrackingPath = Consts.TrackingEvents.ACTIVITY;
+                mTrackingPath = Consts.Tracking.ACTIVITY;
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }

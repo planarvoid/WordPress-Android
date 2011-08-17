@@ -73,12 +73,14 @@ public final class Consts {
         int BETA_NOTIFY_ID    = 5;
     }
 
-    public interface TrackingEvents {
+    public interface Tracking {
         interface Categories {
-            String CONNECT = "connect";
-            String TRACKS  = "tracks";
-            String SHARE   = "share";
-            String ERROR   = "error";
+            String AUTH      = "auth";
+            String CONNECT   = "connect";
+            String TRACKS    = "tracks";
+            String RECORDING = "recording";
+            String SHARE     = "share";
+            String ERROR     = "error";
             String PLAYBACK_ERROR = "playbackError";
         }
 
@@ -89,25 +91,25 @@ public final class Consts {
             String TRACK_COMPLETE = "Track Complete";
         }
 
-        String STREAM = "/incoming";
+        String STREAM   = "/incoming";
         String ACTIVITY = "/activity";
-        String RECORD = "/record";
-        String RECORD_RECORDING = "/record/recording";
-        String RECORD_COMPLETE = "/record/complete";
-        String SHARE_PUBLIC = "/record/share/public";
-        String SHARE_PRIVATE = "/record/share/private";
-        String SEARCH = "/search";
+        String RECORD   = "/record";
+        @Deprecated String RECORD_RECORDING = "/record/recording";
+        @Deprecated String RECORD_COMPLETE  = "/record/complete";
+        @Deprecated String SHARE_PUBLIC     = "/record/share/public";
+        @Deprecated String SHARE_PRIVATE    = "/record/share/private";
+        String SEARCH        = "/search";
         String SEARCH_TRACKS = "/search/tracks/q=";
-        String SEARCH_USERS = "/search/users/q=";
-        String LOGGED_OUT = "/loggedout";
-        String LOGIN = "/login";
-        String SIGNUP = "/signup";
-        String SIGNUP_DETAILS = "/signup/details";
-        String PEOPLE_FINDER = "/people/finder";
-        String SETTINGS = "/settings";
-        String TRACKS_BY_TAG = "/tracks_by_tag/";
-        String TRACKS_BY_GENRE = "/tracks_by_genre/";
+        String SEARCH_USERS  = "/search/users/q=";
+        @Deprecated String LOGIN    = "/login";
+        @Deprecated String LOGGED_OUT = "/loggedout";
+        @Deprecated String SIGNUP   = "/signup";
+        String SIGNUP_DETAILS       = "/signup/details";
+        String PEOPLE_FINDER        = "/people/finder";
+        String SETTINGS             = "/settings";
+        String TRACKS_BY_TAG        = "/tracks_by_tag/";
+        String TRACKS_BY_GENRE      = "/tracks_by_genre/";
 
-        String AUDIO_ENGINE = "/internal/audioEngine";
+        String AUDIO_ENGINE         = "/internal/audioEngine";
     }
 }

@@ -216,7 +216,7 @@ public class CloudPlaybackService extends Service {
         mIsStagefright = CloudUtils.isStagefright();
 
         // track information about used audio engine with GA
-        getApp().trackPage(Consts.TrackingEvents.AUDIO_ENGINE,
+        getApp().trackPage(Consts.Tracking.AUDIO_ENGINE,
                 "stagefright", mIsStagefright,
                 "model", Build.MODEL,
                 "version", Build.VERSION.SDK_INT,
@@ -1541,7 +1541,7 @@ public class CloudPlaybackService extends Service {
                 SoundCloudApplication.handleSilentException("mp error",
                         new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
 
-                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
@@ -1762,7 +1762,7 @@ public class CloudPlaybackService extends Service {
                 SoundCloudApplication.handleSilentException("invalid status",
                         new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
 
-                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR,
+                getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR,
                         "status",
                         "code",
                         thread.statusLine.getStatusCode());
@@ -1770,7 +1770,7 @@ public class CloudPlaybackService extends Service {
                 SoundCloudApplication.handleSilentException("io exception",
                         new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
 
-                getApp().trackEvent(Consts.TrackingEvents.Categories.PLAYBACK_ERROR, "ioexception");
+                getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "ioexception");
             }
         }
     }

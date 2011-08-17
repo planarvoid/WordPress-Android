@@ -137,6 +137,8 @@ public class ScUpload extends ScActivity {
             public void onClick(View v) {
                 mapToRecording(mRecording);
                 trackPage(mRecording.pageTrack());
+                trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
+
                 if (!mRecording.external_upload) {
                     getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
                 }

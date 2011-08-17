@@ -66,7 +66,8 @@ public abstract class LoginActivity extends Activity {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
-                                app.trackPage(Consts.TrackingEvents.LOGIN);
+                                app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
+                                app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
