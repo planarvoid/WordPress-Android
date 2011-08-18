@@ -97,7 +97,13 @@ public class ScUpload extends ScActivity {
         if (mRecording != null) {
             // recording exists and hasn't been uploaded
             mapToRecording(mRecording);
-            getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
+            saveRecording(mRecording);
+        }
+    }
+
+    private void saveRecording(Recording r) {
+        if (r != null && !r.external_upload) {
+            getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
         }
     }
 
@@ -138,10 +144,8 @@ public class ScUpload extends ScActivity {
                 mapToRecording(mRecording);
                 trackPage(mRecording.pageTrack());
                 trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
+                saveRecording(mRecording);
 
-                if (!mRecording.external_upload) {
-                    getContentResolver().update(mRecording.toUri(), mRecording.buildContentValues(), null, null);
-                }
                 if (startUpload()) {
                     mRecording = null;
                     setResult(RESULT_OK);

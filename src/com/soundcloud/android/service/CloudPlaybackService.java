@@ -644,7 +644,7 @@ public class CloudPlaybackService extends Service {
 
                 mCurrentDownloadAttempts++;
 
-                mDownloadThread = new StoppableDownloadThread(this, trackToCache);
+                mDownloadThread = new StoppableDownloadThread(this, trackToCache, mCurrentDownloadAttempts);
                 mDownloadThread.setPriority(Thread.MAX_PRIORITY);
                 mDownloadThread.start();
             }
@@ -1755,7 +1755,9 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
 
-        if (thread != null) {
+        if (thread != null
+                && thread.attempt >= MAX_DOWNLOAD_ATTEMPTS
+                && isConnected()) {
             if (thread.statusLine != null &&
                 (thread.statusLine.getStatusCode() != HttpStatus.SC_OK ||
                 thread.statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)) {
@@ -1856,10 +1858,14 @@ public class CloudPlaybackService extends Service {
 
         public IOException exception;
         public StatusLine statusLine;
+        public final int attempt;
 
-        public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService, Track track) {
+        public StoppableDownloadThread(CloudPlaybackService cloudPlaybackService,
+                                       Track track,
+                                       int attempt) {
             serviceRef = new WeakReference<CloudPlaybackService>(cloudPlaybackService);
             this.track = track;
+            this.attempt = attempt;
         }
 
         public long getTrackId() {
@@ -2202,9 +2208,9 @@ public class CloudPlaybackService extends Service {
         public String getMessage() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.getMessage()).append(" ")
-              .append("networkInfo: ").append(networkInfo == null ? "" : networkInfo.toString())
+              .append("networkType: ").append(networkInfo.getTypeName())
               .append(" ")
-              .append("isStageFright: ").append(isStageFright);
+              .append("isStageFrigqht: ").append(isStageFright);
             return sb.toString();
         }
     }
