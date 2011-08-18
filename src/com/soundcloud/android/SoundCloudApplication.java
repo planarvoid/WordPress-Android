@@ -125,8 +125,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public User getLoggedInUser() {
-        if (mLoggedInUser == null && getCurrentUserId() != -1) {
-            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+        if (mLoggedInUser == null) {
+            if (getCurrentUserId() != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            }
             if (mLoggedInUser == null) mLoggedInUser = new User(this);
         }
         return mLoggedInUser;
