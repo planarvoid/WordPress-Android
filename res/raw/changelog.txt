@@ -2,8 +2,9 @@ $ 24
   % v current
   _ 2011-08-18
   ! Maintenance release
-    * Fix track buffering
+    * Fix track buffering issues
     - Added event tracking
+    - Better playback error reporting
     - Upgraded GA to 1.3
 
 $ 23
