@@ -479,4 +479,26 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="txt_tour_start">
+    	<item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:shadowColor">#ff000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+    </style>
+    <style name="txt_tour_start_1" parent="txt_tour_start">
+    	<item name="android:textSize">22sp</item>
+    	<item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_tour_start_2" parent="txt_tour_start">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_tour_start_3" parent="txt_tour_start">
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

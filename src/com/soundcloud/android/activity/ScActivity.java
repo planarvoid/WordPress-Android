@@ -536,7 +536,7 @@ public abstract class ScActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.SETTINGS:
-                Intent intent = new Intent(this, Settings.class);
+                Intent intent = new Intent(this, SuggestedAvatars.class);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:

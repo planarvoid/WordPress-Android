@@ -12,6 +12,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -45,6 +47,8 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
     public LoadCollectionTask(SoundCloudApplication app) {
         mApp = app;
+
+        Request.to(Endpoints.SUGGESTED_USERS);
     }
 
     /**
