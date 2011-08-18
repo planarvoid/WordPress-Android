@@ -83,6 +83,16 @@ trait Mavenize extends BaseAndroidProject {
             </includes>
           </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+          <version>2.4.1</version>
+          <configuration>
+            <filesets>
+              <fileset> <directory>lib</directory> </fileset>
+              <fileset> <directory>tests/lib</directory> </fileset>
+            </filesets>
+          </configuration>
+      </plugin>
       </plugins>
     </build> ++
     <profiles>
