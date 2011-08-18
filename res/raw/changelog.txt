@@ -1,5 +1,13 @@
-$ 23
+$ 24
   % v current
+  _ 2011-08-18
+  ! Maintenance release
+    * Fix restarts on streaming error
+    - Added event tracking
+    - Upgraded GA to 1.3
+
+$ 23
+  % v 1.4.1
   _ 2011-08-12
   ! Maintenance release
     * Please note: We do not recommend moving to SD card as login details will have to be re-entered on reboot (Android limitation)
