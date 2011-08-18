@@ -1842,7 +1842,6 @@ public class CloudPlaybackService extends Service {
     public class StoppableDownloadThread extends Thread {
         private static final int MODE_NEW = 0;
         private static final int MODE_PARTIAL = 1;
-        private static final int MODE_CHECK_COMPLETE = 2;
 
         private HttpGet mMethod;
         protected volatile boolean mStopped;
@@ -1900,7 +1899,6 @@ public class CloudPlaybackService extends Service {
             // 2.1 only
             AndroidHttpClient cli = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
 
-            HttpGet method;
 
             HttpResponse resp;
             FileOutputStream os = null;
@@ -1920,12 +1918,10 @@ public class CloudPlaybackService extends Service {
                 }
 
                 final String streamUrl = location.getValue();
+                final HttpGet method = new HttpGet(streamUrl);
 
                 if (track.getCache().length() > 0 && track.filelength > 0) {
-
                     if (track.getCache().length() >= track.filelength) {
-                        mode = MODE_CHECK_COMPLETE;
-
                         // XXX HttpHead logs extra play
                         HttpUriRequest request = new HttpHead(streamUrl);
                         resp = cli.execute(request);
@@ -1936,7 +1932,6 @@ public class CloudPlaybackService extends Service {
                             Log.i(TAG, "invalid status received: " + statusLine.toString());
                             return;
                         }
-
                         // rare case, file length has changed for some reason
                         if (track.filelength != getContentLength(resp)) {
                             serviceRef.get().fileLengthUpdated(track, true); // tell
@@ -1947,12 +1942,10 @@ public class CloudPlaybackService extends Service {
                                 String.format(" (file: %d, track: %d)", track.getCache().length(), track.filelength));
 
                         mode = MODE_PARTIAL;
-                        method = new HttpGet(streamUrl);
                         method.setHeader("Range", "bytes=" + track.getCache().length() + "-");
                     }
                 } else {
                     mode = MODE_NEW;
-                    method = new HttpGet(streamUrl);
                 }
 
                 if (mStopped) return;
@@ -1967,10 +1960,6 @@ public class CloudPlaybackService extends Service {
 
                  statusLine = resp.getStatusLine();
 
-                if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                    Log.i(TAG, "invalid status received: " + statusLine.toString());
-                    return;
-                }
                 switch (mode) {
                     case MODE_NEW:
                         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -1997,7 +1986,6 @@ public class CloudPlaybackService extends Service {
                         }
                         break;
                 }
-
 
                 HttpEntity ent = resp.getEntity();
                 if (ent != null) {
