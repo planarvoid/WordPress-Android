@@ -611,7 +611,7 @@ public class CloudUtils {
             return false;
         }
         // check the build file, works in most cases and will catch cases for instant playback
-        boolean stageFright = false;
+        boolean stageFright = true;
         try {
             File f = new File("/system/build.prop");
             InputStream instream = new BufferedInputStream(new FileInputStream(f));
@@ -619,7 +619,7 @@ public class CloudUtils {
             BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
             while ((line = buffreader.readLine()) != null) {
                 if (line.contains("media.stagefright.enable-player")) {
-                    if (line.contains("true")) stageFright = true;
+                    if (line.contains("false")) stageFright = false;
                     break;
                 }
             }

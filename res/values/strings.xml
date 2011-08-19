@@ -157,4 +157,6 @@
     <string name="tour_you_title">You</string>
     <string name="tour_you_subject">Don\'t forget \"You\"!</string>
     <string name="tour_you_message">Explore your own sounds, favorites and info settings. See who you\'re following and being followed by.</string>
+
+    <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
 </resources>

@@ -125,8 +125,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public User getLoggedInUser() {
-        if (mLoggedInUser == null && getCurrentUserId() != -1) {
-            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+        if (mLoggedInUser == null) {
+            if (getCurrentUserId() != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            }
             if (mLoggedInUser == null) mLoggedInUser = new User(this);
         }
         return mLoggedInUser;
@@ -268,7 +270,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public long getAccountDataLong(String key) {
         String data = getAccountData(key);
-        return data == null ? 0 : Long.parseLong(data);
+        return data == null ? -1 : Long.parseLong(data);
     }
 
     public boolean getAccountDataBoolean(String key) {
@@ -276,7 +278,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return data != null && Boolean.parseBoolean(data);
     }
 
-    public long getCurrentUserId(){
+    public long getCurrentUserId()  {
         return getAccountDataLong(User.DataKeys.USER_ID);
     }
 

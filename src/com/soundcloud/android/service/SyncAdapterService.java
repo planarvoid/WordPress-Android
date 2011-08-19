@@ -100,7 +100,7 @@ public class SyncAdapterService extends Service {
                                     SyncResult syncResult) {
 
         // for initial sync, don't bother telling them about their entire dashboard
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) == 0) {
+        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
             final long now = System.currentTimeMillis();
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
