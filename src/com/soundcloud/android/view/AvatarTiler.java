@@ -34,17 +34,16 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final int MAX_AVATARS = 60;
+    private static final int MAX_AVATARS = 100;
     private static final int LOAD_AVATARS_POLL_DELAY = 100;
-    private static final int CHANGE_AVATARS_POLL_DELAY = 300;
-
-    private static final int DRAW_PERIOD = 50;
+    private static final int CHANGE_AVATARS_POLL_DELAY = 200;
 
     private static final int TILE_ROWS = 5;
     private static final int TILE_COLS = 8;
 
     private static final int MAX_TILE_TRIES = 5;
     private static final int MIN_TILE_AGE = 5000;
+    private static final int ALPHA_STEP = 5;
 
     private DrawAvatarThread mDrawThread;
 
@@ -78,14 +77,10 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private Avatar mNextAvatar;
     private int mNextAvatarPollDelay;
 
-    private Timer mDrawTimer;
-    private boolean mInitialLoad;
-
     private Paint mImagePaint;
     private Matrix mMatrix;
 
     private final Queue<Avatar> mLoadedAvatars = new ArrayBlockingQueue<Avatar>(MAX_AVATARS);
-    private final Queue<AvatarTile> mTileQueue = new ArrayBlockingQueue<AvatarTile>(40);
 
     private float mAvatarScale;
     private int mColSize;
@@ -104,7 +99,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         }
         Collections.shuffle(mAvatarTiles);
         mNextAvatarPollDelay = LOAD_AVATARS_POLL_DELAY;
-        mInitialLoad = true;
 
         getHolder().addCallback(this);
         mDrawThread = new DrawAvatarThread(getHolder(), this);
@@ -165,11 +159,25 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void onDraw(Canvas c) {
-        for (AvatarTile at : mAvatarTiles){
-            if (at.nextAvatar != null){
-                mMatrix.setScale(mAvatarScale,mAvatarScale);
-                mMatrix.postTranslate(mColSize * at.col, mRowSize * at.row);
-                c.drawBitmap(at.nextAvatar.bitmap,mMatrix,mImagePaint);
+        for (AvatarTile at : mAvatarTiles) {
+            mMatrix.setScale(mAvatarScale, mAvatarScale);
+            mMatrix.postTranslate(mColSize * at.col, mRowSize * at.row);
+            if (at.currentAvatar != null) {
+                mImagePaint.setAlpha(255);
+                c.drawBitmap(at.currentAvatar.bitmap, mMatrix, mImagePaint);
+            }
+            if (at.nextAvatar != null) {
+                mImagePaint.setAlpha(at.nextAlpha);
+                c.drawBitmap(at.nextAvatar.bitmap, mMatrix, mImagePaint);
+                at.nextAlpha = Math.min(255,at.nextAlpha + ALPHA_STEP);
+                if (at.nextAlpha == 255){
+                    if (at.currentAvatar != null) mLoadedAvatars.offer(at.currentAvatar);
+                    at.currentAvatar = at.nextAvatar;
+                    at.nextAlpha = 0;
+                    at.nextAvatar = null;
+                }
+
+
             }
 
         }
