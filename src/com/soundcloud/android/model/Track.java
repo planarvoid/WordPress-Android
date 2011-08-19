@@ -380,7 +380,9 @@ public class Track extends ModelBase implements PageTrackable {
     };
 
     public boolean createCache() {
-        if (!getCache().exists()) {
+        if (getCache().exists()) {
+            return true;
+        } else {
             CloudUtils.mkdirs(getCache().getParentFile());
             try {
                 return getCache().createNewFile();
@@ -388,7 +390,7 @@ public class Track extends ModelBase implements PageTrackable {
                 Log.w(TAG, "error creating cache "+getCache(), e);
                 return false;
             }
-        } else return false;
+        }
     }
 
     public File getCache() {

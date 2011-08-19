@@ -809,7 +809,7 @@ public class CloudPlaybackService extends Service {
                     && !CloudUtils.checkThreadAlive(mDownloadThread) && isConnected()) {
                 // download thread is dead and doesn't have to be
                 if (!checkIfTrackCached(mPlayingData) && keepCaching()) {
-                    if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS){
+                    if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS) {
                         prepareDownload(mPlayingData);
                     } else if (pausedForBuffering){
                         sendPlaybackException();
@@ -829,7 +829,8 @@ public class CloudPlaybackService extends Service {
             return false;
         } else {
             if (fillBuffer && mCurrentBuffer > HIGH_WATER_MARK) fillBuffer = false;
-            return mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI || fillBuffer;
+            return (mCurrentNetworkInfo != null && mCurrentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI)
+                    || fillBuffer;
         }
     }
 
@@ -2215,7 +2216,7 @@ public class CloudPlaybackService extends Service {
         public String getMessage() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.getMessage()).append(" ")
-              .append("networkType: ").append(networkInfo.getTypeName())
+              .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
               .append(" ")
               .append("isStageFrigqht: ").append(isStageFright);
             return sb.toString();
