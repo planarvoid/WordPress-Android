@@ -2,10 +2,7 @@ package com.soundcloud.android.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +35,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private static final int LOAD_AVATARS_POLL_DELAY = 100;
     private static final int CHANGE_AVATARS_POLL_DELAY = 200;
 
+    private static final double CHANCE_OF_EMPTY = .1;
+
     private static final int TILE_ROWS = 5;
     private static final int TILE_COLS = 8;
 
@@ -45,7 +44,9 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private static final int MIN_TILE_AGE = 5000;
     private static final int ALPHA_STEP = 5;
 
-    private DrawAvatarThread mDrawThread;
+    private static final int[] EMPTY_COLORS = {0xffd4e7fc,0xff7ab8ff,0xff3399ff,0xffff6600,0xffff3300,0xffff9a56};
+
+    private final DrawAvatarThread mDrawThread;
 
     private class AvatarTile {
         public AvatarTile(int col, int row) {
@@ -55,30 +56,34 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
         Avatar currentAvatar; // the current bitmap displayed
         Avatar nextAvatar; // transitioning to this bitmap
-        int nextColor; //transitioning to this color
         int nextAlpha; // alpha value of next bitmap
         long lastAssigned; //timestamp last transition completed
-        int row;
-        int col;
+        final int row;
+        final int col;
+        int l;
+        int t;
+        int r;
+        int b;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Avatar {
         public String avatar_url;
         public Bitmap bitmap;
+        public int fillColor;
     }
     private static class AvatarHolder extends CollectionHolder<Avatar> {}
 
-    private List<AvatarTile> mAvatarTiles;
+    private final List<AvatarTile> mAvatarTiles;
     private final HashMap<String, Avatar> mAvatars = new HashMap<String, Avatar>();
-    private LoadAvatarsTask mLoadAvatarsTask;
 
     private AvatarTile mNextTile;
     private Avatar mNextAvatar;
     private int mNextAvatarPollDelay;
 
-    private Paint mImagePaint;
-    private Matrix mMatrix;
+    private final Paint mImagePaint;
+    private final Paint mFillPaint;
+    private final Matrix mMatrix;
 
     private final Queue<Avatar> mLoadedAvatars = new ArrayBlockingQueue<Avatar>(MAX_AVATARS);
 
@@ -106,6 +111,9 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
         mImagePaint.setFilterBitmap(true);
+
+        mFillPaint = new Paint();
+        mFillPaint.setStyle(Paint.Style.FILL);
 
         mMatrix = new Matrix();
 
@@ -164,11 +172,26 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             mMatrix.postTranslate(mColSize * at.col, mRowSize * at.row);
             if (at.currentAvatar != null) {
                 mImagePaint.setAlpha(255);
-                c.drawBitmap(at.currentAvatar.bitmap, mMatrix, mImagePaint);
+                if (at.currentAvatar.bitmap == null) {
+                    mFillPaint.setColor(at.currentAvatar.fillColor);
+                    mFillPaint.setAlpha(255);
+                    c.drawRect(at.l,at.t,at.r,at.b,mFillPaint);
+                } else {
+                    c.drawBitmap(at.currentAvatar.bitmap, mMatrix, mImagePaint);
+                }
+
             }
+
             if (at.nextAvatar != null) {
-                mImagePaint.setAlpha(at.nextAlpha);
-                c.drawBitmap(at.nextAvatar.bitmap, mMatrix, mImagePaint);
+                if (at.nextAvatar.bitmap == null){
+                    mFillPaint.setColor(at.nextAvatar.fillColor);
+                    mFillPaint.setAlpha(at.nextAlpha);
+                    c.drawRect(at.l,at.t,at.r,at.b,mFillPaint);
+                } else {
+                    mImagePaint.setAlpha(at.nextAlpha);
+                    c.drawBitmap(at.nextAvatar.bitmap, mMatrix, mImagePaint);
+                }
+
                 at.nextAlpha = Math.min(255,at.nextAlpha + ALPHA_STEP);
                 if (at.nextAlpha == 255){
                     if (at.currentAvatar != null) mLoadedAvatars.offer(at.currentAvatar);
@@ -176,8 +199,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     at.nextAlpha = 0;
                     at.nextAvatar = null;
                 }
-
-
             }
 
         }
@@ -196,6 +217,13 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mColSize = width/TILE_COLS;
         mAvatarScale = ((float) mColSize)/ImageUtils.getListItemGraphicDimension(getContext());
         mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext())*mAvatarScale);
+
+        for (AvatarTile at : mAvatarTiles){
+            at.l = mColSize*at.col;
+            at.t = mRowSize*at.row;
+            at.r = mColSize*(1+at.col);
+            at.b = mRowSize*(1+at.row);
+        }
     }
 
     @Override
@@ -215,8 +243,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     class DrawAvatarThread extends Thread {
-        private SurfaceHolder mSurfaceHolder;
-        private AvatarTiler mAvatarTiler;
+        private final SurfaceHolder mSurfaceHolder;
+        private final AvatarTiler mAvatarTiler;
         private boolean _run = false;
 
         public DrawAvatarThread(SurfaceHolder surfaceHolder, AvatarTiler tiler) {
@@ -254,7 +282,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     /* Async Loading */
 
     private void loadMoreAvatars(String nextHref) {
-        mLoadAvatarsTask = new LoadAvatarsTask((SoundCloudApplication) ((Activity) getContext()).getApplication());
+        LoadAvatarsTask mLoadAvatarsTask = new LoadAvatarsTask((SoundCloudApplication) ((Activity) getContext()).getApplication());
         Request request;
         if (TextUtils.isEmpty(nextHref)) {
             request = Request.to(Endpoints.SUGGESTED_USERS);
@@ -277,6 +305,13 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     public void onImageLoaded(Bitmap mBitmap, String uri) {
                         mAvatars.get(uri).bitmap = mBitmap;
                         mLoadedAvatars.offer(mAvatars.get(uri));
+
+                        // randomly throw in a soundcloud color
+                        if (Math.random() < .15){
+                            Avatar a = new Avatar();
+                            a.fillColor = EMPTY_COLORS[((int) (Math.random() * EMPTY_COLORS.length))];
+                            mLoadedAvatars.offer(a);
+                        }
                     }
 
                     @Override
@@ -289,10 +324,10 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             if (mAvatars.size() < MAX_AVATARS && !TextUtils.isEmpty(nextHref)) {
                 loadMoreAvatars(nextHref);
             } else {
-                Log.i("asdf", "Done loading avatars, loaded a total of " + mAvatars.size());
+                Log.i(getClass().getSimpleName(), "Done loading avatars, loaded a total of " + mAvatars.size());
             }
         } else {
-            Log.i("asdf", "no avatars returned ");
+            Log.i(getClass().getSimpleName(), "no avatars returned ");
         }
     }
 
