@@ -4,6 +4,10 @@
 
     <PreferenceCategory
             android:title="@string/pref_basic_settings">
+        <Preference
+                android:title="Take the tour"
+                android:summary="Tour SoundCloud"
+                android:key="tour"/>
 
         <PreferenceScreen
                 android:title="@string/pref_notifications"

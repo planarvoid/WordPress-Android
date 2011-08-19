@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -536,7 +537,7 @@ public abstract class ScActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.SETTINGS:
-                Intent intent = new Intent(this, SuggestedAvatars.class);
+                Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:

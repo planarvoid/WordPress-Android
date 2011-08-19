@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/bottom_bar"
+              android:layout_width="fill_parent"
+              android:layout_height="@dimen/tour_bottom_bar_height"
+              android:layout_alignParentBottom="true"
+              android:background="@drawable/tour_bar_bottom_bg">
+    <RadioGroup android:id="@+id/rdo_tour_step"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+        <RadioButton android:id="@+id/rdo_tour_rec"
+                     android:checked="true"
+                     android:text=""
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/rdo_tour_share"
+                     android:text=""
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/rdo_tour_follow"
+                     android:text=""
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/rdo_tour_comment"
+                     android:text=""
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/rdo_tour_you"
+                     android:text=""
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+    </RadioGroup>
+
+    <RelativeLayout android:layout_height="fill_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center">
+        <com.soundcloud.android.view.DarkButton android:layout_width="wrap_content"
+                                                android:text="@string/tour_btn_next"
+                                                android:id="@+id/btn_next"
+                                                android:layout_height="wrap_content"
+                                                android:paddingLeft="20dip"
+                                                android:paddingRight="20dip"/>
+    </RelativeLayout>
+</LinearLayout>

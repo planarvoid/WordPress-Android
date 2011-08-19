@@ -45,6 +45,14 @@ public final class Consts {
         int FILTER = 207;
     }
 
+    public interface TourActivityIndexes {
+        int RECORD = 0;
+        int SHARE = 1;
+        int FOLLOW = 2;
+        int COMMENT = 3;
+        int YOU = 4;
+    }
+
     public interface GraphicsSizes {
         String T500 = "t500x500";
         String CROP = "crop";

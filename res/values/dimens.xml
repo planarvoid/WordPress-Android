@@ -60,4 +60,7 @@
     <dimen name="share_user_icon_height">32px</dimen>
     <dimen name="share_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
+
+    <dimen name="tour_top_bar_height">50dp</dimen>
+    <dimen name="tour_bottom_bar_height">60dp</dimen>
 </resources>

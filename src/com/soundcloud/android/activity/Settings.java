@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
@@ -39,6 +40,16 @@ public class Settings extends PreferenceActivity {
         }
 
         setClearCacheTitle();
+
+        findPreference("tour").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(Settings.this, Start.class);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
+
 
         final ChangeLog cl = new ChangeLog(this);
         findPreference("changeLog").setOnPreferenceClickListener(

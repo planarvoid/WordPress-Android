@@ -88,6 +88,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.tour.Start" />
+        <activity android:name=".activity.tour.Record" />
+        <activity android:name=".activity.tour.Share" />
+        <activity android:name=".activity.tour.Follow" />
+        <activity android:name=".activity.tour.Comment" />
+        <activity android:name=".activity.tour.You" />
+
         <activity android:name=".activity.SuggestedAvatars" />
         <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.TracksByTag" />

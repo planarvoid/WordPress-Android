@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.LinearLayout;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.CollectionHolder;
@@ -40,13 +41,15 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private static final int TILE_ROWS = 5;
     private static final int TILE_COLS = 8;
 
+    private int mCurrentRows;
+
     private static final int MAX_TILE_TRIES = 5;
     private static final int MIN_TILE_AGE = 5000;
     private static final int ALPHA_STEP = 5;
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc,0xff7ab8ff,0xff3399ff,0xffff6600,0xffff3300,0xffff9a56};
 
-    private final DrawAvatarThread mDrawThread;
+    private DrawAvatarThread mDrawThread;
 
     private class AvatarTile {
         public AvatarTile(int col, int row) {
@@ -74,7 +77,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
     private static class AvatarHolder extends CollectionHolder<Avatar> {}
 
-    private final List<AvatarTile> mAvatarTiles;
+    private List<AvatarTile> mAvatarTiles;
     private final HashMap<String, Avatar> mAvatars = new HashMap<String, Avatar>();
 
     private AvatarTile mNextTile;
@@ -96,18 +99,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     public AvatarTiler(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mAvatarTiles = new ArrayList<AvatarTile>();
-        for (int i = 0; i < TILE_ROWS; i++) {
-            for (int j = 0; j < TILE_COLS; j++) {
-                mAvatarTiles.add(new AvatarTile(j, i));
-            }
-        }
-        Collections.shuffle(mAvatarTiles);
-        mNextAvatarPollDelay = LOAD_AVATARS_POLL_DELAY;
-
-        getHolder().addCallback(this);
-        mDrawThread = new DrawAvatarThread(getHolder(), this);
-
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
         mImagePaint.setFilterBitmap(true);
@@ -118,6 +109,23 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mMatrix = new Matrix();
 
         loadMoreAvatars(null);
+
+        getHolder().addCallback(this);
+        mDrawThread = new DrawAvatarThread(getHolder(), this);
+    }
+
+    private void startDrawing(){
+         mAvatarTiles = new ArrayList<AvatarTile>();
+        for (int i = 0; i < mCurrentRows; i++) {
+            for (int j = 0; j < TILE_COLS; j++) {
+                mAvatarTiles.add(new AvatarTile(j, i));
+            }
+        }
+        Collections.shuffle(mAvatarTiles);
+        mNextAvatarPollDelay = LOAD_AVATARS_POLL_DELAY;
+
+
+
         queueNextPoll();
     }
 
@@ -167,6 +175,10 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void onDraw(Canvas c) {
+
+        c.drawColor(0xffd4e7fc);
+        if (mAvatarTiles == null) return;
+
         for (AvatarTile at : mAvatarTiles) {
             mMatrix.setScale(mAvatarScale, mAvatarScale);
             mMatrix.postTranslate(mColSize * at.col, mRowSize * at.row);
@@ -179,7 +191,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                 } else {
                     c.drawBitmap(at.currentAvatar.bitmap, mMatrix, mImagePaint);
                 }
-
             }
 
             if (at.nextAvatar != null) {
@@ -214,10 +225,23 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
         mColSize = width/TILE_COLS;
         mAvatarScale = ((float) mColSize)/ImageUtils.getListItemGraphicDimension(getContext());
         mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext())*mAvatarScale);
 
+        if (mCurrentRows == 0){
+            mCurrentRows = height/mRowSize;
+        }
+
+        if (height != mCurrentRows * mRowSize){
+            ((LinearLayout.LayoutParams)this.getLayoutParams()).weight = 0;
+            this.getLayoutParams().height = mCurrentRows * mRowSize;
+            this.forceLayout();
+            return;
+        }
+
+        startDrawing();
         for (AvatarTile at : mAvatarTiles){
             at.l = mColSize*at.col;
             at.t = mRowSize*at.row;
