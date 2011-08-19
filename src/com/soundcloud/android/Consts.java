@@ -53,6 +53,13 @@ public final class Consts {
         String SMALL = "small";
     }
 
+    public interface GraphicSizeWidths {
+        int T500 = 500;
+        int LARGE = 100;
+        int BADGE = 47;
+        int SMALL = 32;
+    }
+
     public interface ListId {
         int LIST_STREAM          = 1001;
         int LIST_ACTIVITY        = 1002;

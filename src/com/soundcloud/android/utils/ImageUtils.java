@@ -299,4 +299,19 @@ public class ImageUtils {
         }
 
     }
+
+    public static int getListItemGraphicDimension(Context c) {
+        if (CloudUtils.isScreenXL(c)) {
+            return Consts.GraphicSizeWidths.LARGE;
+        } else {
+            if (c.getResources().getDisplayMetrics().density > 1) {
+                return Consts.GraphicSizeWidths.LARGE;
+            } else {
+                return Consts.GraphicSizeWidths.BADGE;
+            }
+        }
+
+    }
+
+
 }
