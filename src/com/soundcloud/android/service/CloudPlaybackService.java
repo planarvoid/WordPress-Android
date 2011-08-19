@@ -61,6 +61,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -72,6 +73,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -611,42 +613,47 @@ public class CloudPlaybackService extends Service {
     }
 
 
-    private void prepareDownload(final Track trackToCache) {
+    private void prepareDownload(final Track track) {
         synchronized (this) {
             if (mDownloadThread != null && mDownloadThread.isAlive()
-                    && trackToCache.id == mDownloadThread.getTrackId()) {
+                    && track.id == mDownloadThread.getTrackId()) {
                 // we are already downloading this
                 return;
             }
 
-            trackToCache.createCache();
+            if (track.createCache()) {
+                // start downloading if there is a valid connection, otherwise it
+                // will happen when we regain connectivity
+                if (isConnected()) {
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (!TrackCache.trim(track.getCache(),
+                                        Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
+                                    Log.w(TAG, "error trimming cache");
+                                }
+                            } catch (IOException ignored) {
+                                Log.w(TAG, "error trimming cache", ignored);
 
-            // start downloading if there is a valid connection, otherwise it
-            // will happen when we regain connectivity
-            if (isConnected()) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (!TrackCache.trim(trackToCache.getCache(),
-                                    Consts.EXTERNAL_TRACK_CACHE_DIRECTORY)) {
-                                Log.w(TAG, "error trimming cache");
                             }
-                        } catch (IOException ignored) {
-                            Log.w(TAG, "error trimming cache", ignored);
-
+                            track.touchCache();
                         }
-                        trackToCache.touchCache();
-                    }
-                }.start();
-                mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
-                mMediaplayerHandler.sendEmptyMessage(ACQUIRE_WAKELOCKS);
+                    }.start();
+                    mMediaplayerHandler.removeMessages(RELEASE_WAKELOCKS);
+                    mMediaplayerHandler.sendEmptyMessage(ACQUIRE_WAKELOCKS);
 
-                mCurrentDownloadAttempts++;
+                    mCurrentDownloadAttempts++;
 
-                mDownloadThread = new StoppableDownloadThread(this, trackToCache, mCurrentDownloadAttempts);
-                mDownloadThread.setPriority(Thread.MAX_PRIORITY);
-                mDownloadThread.start();
+                    mDownloadThread = new StoppableDownloadThread(this, track, mCurrentDownloadAttempts);
+                    mDownloadThread.setPriority(Thread.MAX_PRIORITY);
+                    mDownloadThread.start();
+                }
+            } else {
+                Log.w(TAG, "could not create cache file: externalStorageState="+Environment.getExternalStorageState());
+                if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                    CloudUtils.showToast(this, getResources().getString(R.string.playback_error_no_sdcard));
+                }
             }
         }
     }
@@ -2018,7 +2025,7 @@ public class CloudPlaybackService extends Service {
                  * of exception that occurs during cancellation is ignored
                  * regardless as there would be no need to handle it.
                  */
-                if (!mStopped) Log.w(TAG, e);
+                if (!mStopped) Log.w(TAG, "error connecting (attempt: "+this.attempt+")",   e);
                 exception = e;
             } finally {
 

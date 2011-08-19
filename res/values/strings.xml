@@ -128,4 +128,5 @@
 
     <string name="recorded_at">%1$s at %2$s</string>
     <string name="sounds_from">Sounds from %s</string>
+    <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
 </resources>
