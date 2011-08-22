@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -725,5 +726,9 @@ public class CloudUtils {
         separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
 
         statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+    }
+
+    public static boolean isUserAMonkey() {
+        return Build.VERSION.SDK_INT >= 8 && ActivityManager.isUserAMonkey();
     }
 }
