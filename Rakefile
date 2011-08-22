@@ -117,6 +117,10 @@ def gitsha1()
   end
 end
 
+task :anr do
+  sh "adb -e pull /data/anr/traces.txt"
+end
+
 namespace :release do
   desc "tag the current release"
   task :tag do
