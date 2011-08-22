@@ -3,8 +3,7 @@ package com.soundcloud.android.model;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -109,5 +108,16 @@ public class TrackTest {
         assertThat(t.pageTrack(), equalTo("/user/foo"));
         assertThat(t.pageTrack("bar"), equalTo("/user/foo/bar"));
         assertThat(t.pageTrack("bar", "baz"), equalTo("/user/foo/bar/baz"));
+    }
+
+    @Test
+    public void testHasAvatar() throws Exception {
+        Track t = new Track();
+        assertFalse(t.hasAvatar());
+        t.user = new User();
+        t.user.avatar_url = "";
+        assertFalse(t.hasAvatar());
+        t.user.avatar_url = "http://foo.com";
+        assertTrue(t.hasAvatar());
     }
 }

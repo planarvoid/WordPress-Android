@@ -461,4 +461,8 @@ public class Track extends ModelBase implements PageTrackable {
         }
         return sb.toString();
     }
+
+    public boolean hasAvatar() {
+        return user != null && !TextUtils.isEmpty(user.avatar_url);
+    }
 }

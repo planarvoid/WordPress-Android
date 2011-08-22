@@ -898,26 +898,28 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void updateAvatar() {
-            if (TextUtils.isEmpty(mPlayingTrack.user.avatar_url)) {
-                // no artwork
-                ImageLoader.get(this).unbind(mAvatar);
-            } else {
-                // load artwork as necessary
-                if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
-                    if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
-                            mAvatar,
-                            ImageUtils.formatGraphicsUrlForList(this,mPlayingTrack.user.avatar_url),
-                            new ImageViewCallback() {
-                                @Override
-                                public void onImageError(ImageView view, String url, Throwable error) {
-                                    mCurrentAvatarBindResult = BindResult.ERROR;
-                                }
+        if (mPlayingTrack.hasAvatar()) {
+            // load artwork as necessary
+            if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
+                if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
+                        mAvatar,
+                        ImageUtils.formatGraphicsUrlForList(this, mPlayingTrack.user.avatar_url),
+                        new ImageViewCallback() {
+                            @Override
+                            public void onImageError(ImageView view, String url, Throwable error) {
+                                mCurrentAvatarBindResult = BindResult.ERROR;
+                            }
 
-                                @Override public void onImageLoaded(ImageView view, String url) {}
-                            })) != BindResult.OK) {
-                    }
+                            @Override
+                            public void onImageLoaded(ImageView view, String url) {
+                            }
+                        })) != BindResult.OK) {
                 }
             }
+        } else {
+            // no artwork
+            ImageLoader.get(this).unbind(mAvatar);
+        }
     }
 
     private void onArtworkSet(){
