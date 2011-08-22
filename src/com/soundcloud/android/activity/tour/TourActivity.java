@@ -33,6 +33,8 @@ public class TourActivity extends Activity {
             public void onClick(View v) {
                 if (tourIndex < mTourOrder.length - 1) {
                     startActivity(new Intent(TourActivity.this, mTourOrder[tourIndex + 1]));
+                } else {
+                    startActivity(new Intent(TourActivity.this, Finish.class));
                 }
                 finish();
 
