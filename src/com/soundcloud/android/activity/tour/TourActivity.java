@@ -22,7 +22,6 @@ public class TourActivity extends Activity {
     }
 
     protected void init(String title, final int tourIndex) {
-        Log.i("asdf", "Panel is " + findViewById(R.id.content_layout));
         if (findViewById(R.id.content_layout) != null) {
             AnimUtils.setLayoutAnim_fadeIn(((LinearLayout) findViewById(R.id.content_layout)), this);
         }

@@ -312,13 +312,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         loadDefaults();
         queueNextPoll();
 
-        /*if (height != mCurrentRows * mRowSize) {
-            Log.i("asdf","setting dimensions, forcing");
-            ((LinearLayout.LayoutParams) this.getLayoutParams()).weight = 0;
-            this.getLayoutParams().height = mCurrentRows * mRowSize;
-            this.forceLayout();
-            return;
-        } */
     }
 
     @Override
