@@ -6,6 +6,13 @@
               android:layout_height="@dimen/tour_bottom_bar_height"
               android:layout_alignParentBottom="true"
               android:background="@drawable/tour_bar_bottom_bg">
+    <ImageView android:layout_weight="1"
+               android:layout_width="0dp"
+               android:layout_height="fill_parent"
+               android:padding="5dp"
+               android:scaleType="centerInside"
+               android:gravity="center"
+               android:src="@drawable/small_cloud"/>
     <RadioGroup android:id="@+id/rdo_tour_step"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
@@ -34,16 +41,12 @@
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"/>
     </RadioGroup>
+    <com.soundcloud.android.view.DarkButton android:layout_width="0dp"
+                                            android:layout_weight="1"
+                                            android:layout_margin="5dp"
+                                            android:singleLine="true"
+                                            android:text="@string/tour_btn_next"
+                                            android:id="@+id/btn_next"
+                                            android:layout_height="wrap_content"  />
 
-    <RelativeLayout android:layout_height="fill_parent"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center">
-        <com.soundcloud.android.view.DarkButton android:layout_width="wrap_content"
-                                                android:text="@string/tour_btn_next"
-                                                android:id="@+id/btn_next"
-                                                android:layout_height="wrap_content"
-                                                android:paddingLeft="20dip"
-                                                android:paddingRight="20dip"/>
-    </RelativeLayout>
 </LinearLayout>
