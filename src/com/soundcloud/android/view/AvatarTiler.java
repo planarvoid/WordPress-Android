@@ -160,7 +160,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         int mLastAvatarIndex = 0;
         Collections.shuffle(Arrays.asList(DEFAULT_AVATARS));
         for (AvatarTile at : mAvatarTiles) {
-            if (Math.random() < .15) {
+            if (Math.random() < .25) {
                 Avatar a = new Avatar();
                 a.fillColor = EMPTY_COLORS[((int) (Math.random() * EMPTY_COLORS.length))];
                 at.currentAvatar = a;
