@@ -52,7 +52,7 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             return SoundCloudApplication.DALVIK && Build.VERSION.SDK_INT >= 8 ?
-                    SSLCertificateSocketFactory.getHttpSocketFactory(Http.TIMEOUT, new SSLSessionCache(mContext)) :
+                    SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT, new SSLSessionCache(mContext)) :
                     super.getSSLSocketFactory();
         }
 
