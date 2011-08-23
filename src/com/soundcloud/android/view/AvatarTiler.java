@@ -157,14 +157,16 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void loadDefaults() {
-
+        int mLastAvatarIndex = 0;
+        Collections.shuffle(Arrays.asList(DEFAULT_AVATARS));
         for (AvatarTile at : mAvatarTiles) {
             if (Math.random() < .15) {
                 Avatar a = new Avatar();
                 a.fillColor = EMPTY_COLORS[((int) (Math.random() * EMPTY_COLORS.length))];
                 at.currentAvatar = a;
             } else {
-                at.currentAvatar = DEFAULT_AVATARS[((int) (Math.random() * DEFAULT_AVATARS.length))];
+                at.currentAvatar = DEFAULT_AVATARS[mLastAvatarIndex%DEFAULT_AVATARS.length];
+                mLastAvatarIndex++;
             }
         }
     }
@@ -307,9 +309,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             at.r = mColSize * (1 + at.col);
             at.b = mRowSize * (1 + at.row);
         }
-
-        Collections.shuffle(mAvatarTiles);
         loadDefaults();
+        Collections.shuffle(mAvatarTiles);
         queueNextPoll();
 
     }
