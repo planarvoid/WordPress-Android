@@ -866,7 +866,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void updateArtwork() {
-        if (!mLandscape)
+        if (!mLandscape) {
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
@@ -895,6 +895,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     }
                 }
             }
+        }
     }
 
     private void updateAvatar() {
