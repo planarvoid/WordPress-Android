@@ -1376,7 +1376,6 @@ public class CloudPlaybackService extends Service {
             if (mPlayer == null) return -1;
 
             if (mIsStagefright) {
-                mPlayer.setVolume(0);
                 whereto = (int) getSeekResult(whereto, resumeSeek);
             }
             if (whereto != mPlayer.position()) {
@@ -1463,9 +1462,6 @@ public class CloudPlaybackService extends Service {
                     play();
                     startAndFadeIn();
                 } else {
-                    // checkBufferStatus();
-                    mPlayer.setVolume(0);
-                    startAndFadeIn();
                     assertBufferCheck();
                 }
 
@@ -1794,6 +1790,7 @@ public class CloudPlaybackService extends Service {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
                     if (mIsStagefright && isConnected()) {
+                        mCurrentDownloadAttempts = 0;
                         checkBufferStatus();
                     }
                     break;
