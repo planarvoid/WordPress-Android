@@ -50,8 +50,7 @@
                 android:layout_marginTop="19dp"
                 android:paddingLeft="20dip"
                 android:paddingRight="20dip"
-                app:idleMult="#FF000000"
-                app:idleAdd="#FF3B5998"
+                app:idleMult="#FF4185f4"
                 app:idleText="#FFFFFFFF"/>
     </RelativeLayout>
     <RelativeLayout android:id="@+id/bottom_bar"

@@ -30,7 +30,6 @@
 
     <declare-styleable name="ColoredButton">
         <attr name="idleMult" format="color" />
-        <attr name="idleAdd" format="color" />
         <attr name="idleText" format="color" />
     </declare-styleable>
     

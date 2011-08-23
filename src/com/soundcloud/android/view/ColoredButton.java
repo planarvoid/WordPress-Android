@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,7 +19,6 @@ public class ColoredButton extends Button {
     private boolean mDown = false;
 
     private int mIdleMult;
-    private int mIdleAdd;
     private int mIdleText;
 
     private ColorStateList mDefaultTextColors;
@@ -44,7 +44,6 @@ public class ColoredButton extends Button {
     private void init(AttributeSet attrs){
         TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.ColoredButton);
         mIdleMult = a.getInt(R.styleable.ColoredButton_idleMult, 0xFF494949);
-        mIdleAdd = a.getInt(R.styleable.ColoredButton_idleAdd, 0xFF000000);
         mIdleText = a.getInt(R.styleable.ColoredButton_idleText, 0xFFFFFFFF);
         a.recycle();
 
@@ -59,7 +58,7 @@ public class ColoredButton extends Button {
             getBackground().setColorFilter(null);
             setTextColor(mDefaultTextColors);
         } else {
-            getBackground().setColorFilter(new LightingColorFilter(mIdleMult, mIdleAdd));
+            getBackground().setColorFilter(mIdleMult, PorterDuff.Mode.MULTIPLY);
             setTextColor(mIdleText);
         }
         super.drawableStateChanged();
