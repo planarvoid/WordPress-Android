@@ -105,15 +105,18 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
-            app.useAccount(account);
-            // how many have they already been notified about, don't create repeat notifications for no new tracks
-            try {
-                syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
-                if (isActivitySyncEnabled(app)) {
-                    syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+            if (app.useAccount(account).valid()) {
+                // how many have they already been notified about, don't create repeat notifications for no new tracks
+                try {
+                    syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
+                    if (isActivitySyncEnabled(app)) {
+                        syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, "i/o", e);
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "i/o", e);
+            } else {
+                Log.w(TAG, "no valid token, skip sync");
             }
         }
     }

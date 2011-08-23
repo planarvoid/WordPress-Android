@@ -256,8 +256,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return created;
     }
 
-    public void useAccount(Account account) {
-        mCloudApi.setToken(getToken(account));
+    public Token useAccount(Account account) {
+        Token token = getToken(account);
+        mCloudApi.setToken(token);
+        return token;
     }
 
     public String getAccountData(String key) {
