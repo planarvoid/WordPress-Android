@@ -17,6 +17,7 @@ import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,6 +40,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEvents() throws Exception {
+        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
@@ -50,6 +52,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetOwnEvents() throws Exception {
+        addPendingHttpResponse(200, resource("own_0.json"));
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
 
@@ -61,6 +64,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testWithSince() throws Exception {
+        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
@@ -69,6 +73,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         assertThat(events.size(), is(1));
 
+        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
@@ -140,6 +145,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
+        addPendingHttpResponse(200, resource("exclusives_0.json"));
         addPendingHttpResponse(200, resource("exclusives_1.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
 
@@ -162,6 +168,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void shouldSendTwoSeparateNotifications() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("own_0.json"));
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
 

@@ -200,7 +200,7 @@ public class SyncAdapterService extends Service {
         boolean caughtUp = false;
         String cursor = null;
         List<Event> events = new ArrayList<Event>();
-        int limit = 1;
+        int limit = 1; // start reading just 1 event
         do {
             Request request = Request.to(resource).add("limit", limit);
             if (cursor != null) {
@@ -216,7 +216,7 @@ public class SyncAdapterService extends Service {
                     caughtUp = true; // nothing new
                 } else {
                     for (Event evt : activities) {
-                        if (evt.created_at.getTime() >= since) {
+                        if (evt.created_at.getTime() > since) {
                             events.add(evt);
                         } else {
                             caughtUp = true;
@@ -224,12 +224,11 @@ public class SyncAdapterService extends Service {
                         }
                     }
                 }
+                limit = 20;
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
                 throw new IOException(response.getStatusLine().toString());
             }
-
-            limit = 20;
         } while (!caughtUp
                 && events.size() < NOTIFICATION_MAX
                 && !TextUtils.isEmpty(cursor));
