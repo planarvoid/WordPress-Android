@@ -135,10 +135,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mImagePaint.setAntiAlias(false);
         mImagePaint.setFilterBitmap(true);
 
-        final int[] colors = {getResources().getColor(R.color.blue_gradient_1), getResources().getColor(R.color.blue_gradient_2)};
-        mBgGradient = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
-        mBgGradient.setGradientType(GradientDrawable.LINEAR_GRADIENT);
-
         mFillPaint = new Paint();
         mFillPaint.setStyle(Paint.Style.FILL);
 
@@ -285,13 +281,20 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
+        final int color1 = getResources().getColor(R.color.blue_gradient_1);
+        final int color2 = getResources().getColor(R.color.blue_gradient_half);
+
+        final int[] colors = {color1, color2};
+        mBgGradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+        mBgGradient.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+
         mColSize = width / TILE_COLS;
         mAvatarScale = ((float) mColSize) / ImageUtils.getListItemGraphicDimension(getContext());
         mDefaultAvatarScale = ((float) mColSize) / 100;
         mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext()) * mAvatarScale);
 
         if (mCurrentRows == 0) {
-            mCurrentRows = (int) (getResources().getDimension(R.dimen.follower_matrix_height) / mRowSize);
+            mCurrentRows = (int) (height / mRowSize);
         }
 
         if (mAvatarTiles == null) {
