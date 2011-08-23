@@ -6,7 +6,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
-import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.ssl.SSLSocketFactory;
