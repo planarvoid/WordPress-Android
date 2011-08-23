@@ -95,7 +95,7 @@
                       android:layout_alignParentBottom="false"
                       android:layout_centerInParent="true">
 
-            <com.soundcloud.android.view.DarkButton android:id="@+id/btn_reset"
+            <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_reset"
                                                     android:text="@string/reset"
                                                     android:layout_weight="1"
                                                     android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
                                                     android:layout_marginLeft="10dip"
                                                     android:layout_marginRight="15dip"/>
 
-            <com.soundcloud.android.view.DarkButton android:id="@+id/btn_save"
+            <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_save"
                                                     android:text="@string/save"
                                                     android:padding="15dip"
                                                     android:layout_weight="1"
