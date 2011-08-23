@@ -220,7 +220,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void onDraw(Canvas c) {
 
-        mBgGradient.setBounds(c.getClipBounds());
+
         mBgGradient.draw(c);
 
         if (mAvatarTiles == null) return;
@@ -287,6 +287,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         final int[] colors = {color1, color2};
         mBgGradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
         mBgGradient.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        mBgGradient.setBounds(new Rect(0,0,width,height));
 
         mColSize = width / TILE_COLS;
         mAvatarScale = ((float) mColSize) / ImageUtils.getListItemGraphicDimension(getContext());

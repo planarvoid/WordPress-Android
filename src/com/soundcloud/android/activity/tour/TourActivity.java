@@ -22,10 +22,6 @@ public class TourActivity extends Activity {
     }
 
     protected void init(String title, final int tourIndex) {
-        if (findViewById(R.id.content_layout) != null) {
-            AnimUtils.setLayoutAnim_fadeIn(((LinearLayout) findViewById(R.id.content_layout)), this);
-        }
-
         ((TextView) findViewById(R.id.txt_title)).setText(title);
         ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(tourIndex)).setChecked(true);
         findViewById(R.id.btn_next).setOnClickListener(new View.OnClickListener() {

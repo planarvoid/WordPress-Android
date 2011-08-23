@@ -106,6 +106,8 @@ public class Start extends AccountAuthenticatorActivity {
                     result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                     setAccountAuthenticatorResult(result);
                     if (signed_up != null) {
+                        Intent i = new Intent(this, SuggestedUsers.class);
+                        i.putExtra("facebook_connected",signed_up == "facebook");
                         startActivityForResult(new Intent(this, SuggestedUsers.class), SUGGESTED_USERS);
                     } else {
                         finish();
