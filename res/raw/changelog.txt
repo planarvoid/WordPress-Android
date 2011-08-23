@@ -1,5 +1,11 @@
-$ 24
+$ 25
   % v current
+  _ 2011-08-xx
+  ! Onboarding
+    * Foo
+
+$ 24
+  % v 1.4.2
   _ 2011-08-18
   ! Maintenance release
     * Fix track buffering issues

@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -77,11 +78,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
+
+                mTracker = GoogleAnalyticsTracker.getInstance();
+                mTracker.startNewSession(
+                        getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
+                        120 /* seconds */, this);
             }
-            mTracker = GoogleAnalyticsTracker.getInstance();
-            mTracker.startNewSession(
-                    getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
-                    120 /* seconds */, this);
         }
 
         createImageLoaders();

@@ -13,6 +13,7 @@ import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -63,10 +64,14 @@ public class Settings extends PreferenceActivity {
         findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
+                        if (!CloudUtils.isUserAMonkey()) {
+                            // don't let the monkey log out
+                            safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
+                        }
                         return true;
                     }
                 });
+
         findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -142,7 +147,11 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            throw new RuntimeException("developer requested crash");
+                            if (!CloudUtils.isUserAMonkey()) {
+                                throw new RuntimeException("developer requested crash");
+                            } else {
+                                return true;
+                            }
                         }
                     });
         }
