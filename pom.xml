@@ -4,7 +4,7 @@
     <groupId>com.soundcloud</groupId>
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
-    <version>1.4.3-SNAPSHOT</version>
+    <version>1.4.3</version>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests/src</testSourceDirectory>
