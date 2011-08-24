@@ -17,7 +17,6 @@ import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -285,6 +284,8 @@ public class SyncAdapterServiceTest extends ApiTests {
         if (!firstTime) {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         }
+
+        // TODO: assert SyncResult
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),

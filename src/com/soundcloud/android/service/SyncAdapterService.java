@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -111,11 +112,15 @@ public class SyncAdapterService extends Service {
                     if (isActivitySyncEnabled(app)) {
                         syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
                     }
+                } catch (CloudAPI.InvalidTokenException e) {
+                    if (syncResult != null) syncResult.stats.numAuthExceptions++;
                 } catch (IOException e) {
                     Log.w(TAG, "i/o", e);
+                    if (syncResult != null) syncResult.stats.numIoExceptions++;
                 }
             } else {
                 Log.w(TAG, "no valid token, skip sync");
+                if (syncResult != null) syncResult.stats.numAuthExceptions++;
             }
         }
     }
@@ -199,9 +204,8 @@ public class SyncAdapterService extends Service {
         boolean caughtUp = false;
         String cursor = null;
         List<Event> events = new ArrayList<Event>();
-        int limit = 1; // start reading just 1 event
         do {
-            Request request = Request.to(resource).add("limit", limit);
+            Request request = Request.to(resource).add("limit", cursor == null ? 1 : 20);
             if (cursor != null) {
                 request.add("cursor", cursor);
             }
@@ -223,10 +227,15 @@ public class SyncAdapterService extends Service {
                         }
                     }
                 }
-                limit = 20;
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
-                throw new IOException(response.getStatusLine().toString());
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                     throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
+                             response.getStatusLine().getReasonPhrase());
+                } else {
+                    throw new IOException(response.getStatusLine().toString());
+                }
             }
         } while (!caughtUp
                 && events.size() < NOTIFICATION_MAX
