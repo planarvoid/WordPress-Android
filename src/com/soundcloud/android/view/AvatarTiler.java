@@ -147,9 +147,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         loadMoreAvatars(null);
-
+        mDrawThread = new DrawAvatarThread(getHolder(), this);
         getHolder().addCallback(this);
-
     }
 
     private void loadDefaults() {
@@ -274,7 +273,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mDrawThread = new DrawAvatarThread(getHolder(), this);
         mDrawThread.setRunning(true);
         mDrawThread.start();
     }
