@@ -216,7 +216,10 @@ public class Main extends TabActivity {
                 Log.d(TAG, "activity start after successful authentication");
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);
             }
+            intent.setAction("");
+            intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         }
+
     }
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
