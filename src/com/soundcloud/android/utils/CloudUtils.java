@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.view.ScTabView;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -230,26 +231,6 @@ public class CloudUtils {
         tabHost.addTab(spec);
     }
 
-    public static void setTabText(TabWidget tabWidget, int index, String newText) {
-        // a hacky way of setting the font of the indicator texts
-
-        if (tabWidget.getChildAt(index) instanceof RelativeLayout) {
-            RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(index);
-            for (int j = 0; j < relativeLayout.getChildCount(); j++) {
-                if (relativeLayout.getChildAt(j) instanceof TextView) {
-                    ((TextView) relativeLayout.getChildAt(j)).setHorizontallyScrolling(false);
-                    ((TextView) relativeLayout.getChildAt(j)).setEllipsize(null);
-                    relativeLayout.getChildAt(j).getLayoutParams().width = LayoutParams.WRAP_CONTENT;
-                    ((TextView) relativeLayout.getChildAt(j)).setText(newText);
-                    relativeLayout.getChildAt(j).requestLayout();
-                }
-            }
-            relativeLayout.getLayoutParams().width =  LayoutParams.WRAP_CONTENT;
-            relativeLayout.forceLayout();
-        }
-
-    }
-
 
     public static String stripProtocol(String url) {
         return url.replace("http://www.", "").replace("http://", "");
@@ -303,9 +284,7 @@ public class CloudUtils {
                             relativeLayout.removeViewAt(j);
                         }
                     }
-
                 }
-
             }
         }
     }
@@ -463,43 +442,35 @@ public class CloudUtils {
 
     }
 
-    public static String generateRecordingSharingNote(CharSequence what, CharSequence where, long created_at) {
-        // XXX LOCALIZATION
+    public static String generateRecordingSharingNote(Resources res, CharSequence what, CharSequence where, long created_at) {
         String note;
         if (!TextUtils.isEmpty(what)) {
             if (!TextUtils.isEmpty(where)) {
-                note = String.format("%s at %s", what, where);
+                note =  res.getString(R.string.recorded_at, what, where);
             } else {
                 note = what.toString();
             }
         } else {
-            if (!TextUtils.isEmpty(where)) {
-                note = String.format("Sounds from %s", where);
-            } else {
-                note = String.format("Sounds from %s", recordingDateString(created_at));
-            }
+            note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where) ? where :
+                    recordingDateString(res, created_at));
         }
         return note;
     }
 
-    public static String recordingDateString(long modified) {
+    public static String recordingDateString(Resources res, long modified) {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(modified);
-
-        final String day = DAY_FORMAT.format(cal.getTime());
-        final String dayTime;
-
-        // XXX LOCALIZATION
+        final int id;
         if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
-            dayTime = "morning";
+            id = R.string.recorded_morning;
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
-            dayTime = "afternoon";
+            id = R.string.recorded_afternoon;
         } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
-           dayTime = "evening";
+           id = R.string.recorded_evening;
         } else {
-           dayTime = "night";
+           id = R.string.recorded_night;
         }
-        return day + " " + dayTime;
+        return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
 
 
@@ -716,7 +687,8 @@ public class CloudUtils {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
-                                app.pageTrack(Consts.TrackingEvents.LOGGED_OUT);
+                                app.trackPage(Consts.Tracking.LOGGED_OUT);
+                                app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override
@@ -764,5 +736,9 @@ public class CloudUtils {
         v.getAnimation().getTransformation(v.getDrawingTime(), t);
         t.getMatrix().getValues(values);
         return values[5];
+    }
+
+    public static boolean isUserAMonkey() {
+        return Build.VERSION.SDK_INT >= 8 && ActivityManager.isUserAMonkey();
     }
 }

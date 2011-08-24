@@ -133,4 +133,8 @@
 	<color name="perms_normal_grp_color">#eeeeee</color>
 	<color name="perms_normal_perm_color">#c0c0c0</color>
 
+    <color name="blue_gradient_1">#d4e7fc</color>
+    <color name="blue_gradient_half">#f0f6fe</color>
+    <color name="blue_gradient_2">#ffffff</color>
+
 </resources>

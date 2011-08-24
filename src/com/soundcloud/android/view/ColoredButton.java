@@ -1,32 +1,65 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.Button;
+import com.soundcloud.android.R;
 
-public class DarkButton extends Button {
+public class ColoredButton extends Button {
 
     private Context mContext;
     private boolean mDown = false;
 
-    public DarkButton(Context context, AttributeSet attrs) {
+    private int mIdleMult;
+    private int mIdleText;
+
+    private ColorStateList mDefaultTextColors;
+
+
+    public ColoredButton(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        init(attrs);
         mContext = context;
         refreshDrawableState();
+
+    }
+
+    public ColoredButton(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+
+        init(attrs);
+        mContext = context;
+        refreshDrawableState();
+    }
+
+    private void init(AttributeSet attrs){
+        TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.ColoredButton);
+        mIdleMult = a.getInt(R.styleable.ColoredButton_idleMult, 0xFF494949);
+        mIdleText = a.getInt(R.styleable.ColoredButton_idleText, 0xFFFFFFFF);
+        a.recycle();
+
+        mDefaultTextColors = getTextColors();
     }
 
 
     @Override
     protected void drawableStateChanged() {
+
         if (mDown){
             getBackground().setColorFilter(null);
-            setTextColor(0xFF000000);
+            setTextColor(mDefaultTextColors);
         } else {
-            getBackground().setColorFilter(new LightingColorFilter(0xFF494949, 0xFF000000));
-            setTextColor(0xFFFFFFFF);
+            getBackground().setColorFilter(mIdleMult, PorterDuff.Mode.MULTIPLY);
+            setTextColor(mIdleText);
         }
         super.drawableStateChanged();
     }

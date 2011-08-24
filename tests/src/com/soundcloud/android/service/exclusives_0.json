@@ -1,0 +1,69 @@
+{
+  "collection": [
+    {
+      "type": "track-sharing",
+      "created_at": "2011\/03\/09 22:02:26 +0000",
+      "origin": {
+        "track": {
+          "id": 11714073,
+          "created_at": "2011\/03\/09 19:59:25 +0000",
+          "user_id": 3090821,
+          "duration": 3475,
+          "commentable": true,
+          "state": "finished",
+          "sharing": "private",
+          "tag_list": "soundcloud:source=android-record foursquare:venue=4adf72d6f964a520ab7a21e3 geo:lat=52.52758434000001 geo:long=13.402754829999997",
+          "permalink": "soundcloud-hq",
+          "description": null,
+          "streamable": true,
+          "downloadable": false,
+          "genre": null,
+          "release": null,
+          "purchase_url": null,
+          "label_id": null,
+          "label_name": null,
+          "isrc": null,
+          "video_url": null,
+          "track_type": "recording",
+          "key_signature": null,
+          "bpm": null,
+          "title": "SoundCloud HQ",
+          "release_year": null,
+          "release_month": null,
+          "release_day": null,
+          "original_format": "ogg",
+          "license": "all-rights-reserved",
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/11714073",
+          "permalink_url": "http:\/\/soundcloud.com\/jberkel_testing\/soundcloud-hq",
+          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000005430935-m81y2n-large.jpg?a1786a9",
+          "waveform_url": "http:\/\/w1.sndcdn.com\/5AxJn5dU8Hwq_m.png",
+          "user": {
+            "id": 3090821,
+            "permalink": "jberkel_testing",
+            "username": "jberkel_testing",
+            "uri": "https:\/\/api.soundcloud.com\/users\/3090821",
+            "permalink_url": "http:\/\/soundcloud.com\/jberkel_testing",
+            "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000004240909-llokgt-large.jpg?a1786a9"
+          },
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/11714073\/stream",
+          "shared_to_count": 1,
+          "user_playback_count": 1,
+          "user_favorite": false,
+          "playback_count": 16,
+          "download_count": 0,
+          "favoritings_count": 1,
+          "comment_count": 6,
+          "created_with": {
+            "id": 3152,
+            "name": "SoundCloud Android",
+            "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
+            "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          },
+          "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/11714073\/attachments"
+        }
+      },
+      "tags": "exclusive, first"
+    }
+  ],
+  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/all\/exclusives?cursor=254f19b6-7c58-11e0-89af-da40bafef417&limit=10"
+}

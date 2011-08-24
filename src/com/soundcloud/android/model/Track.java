@@ -251,7 +251,7 @@ public class Track extends ModelBase implements PageTrackable {
     }
 
     public boolean isStreamable() {
-        return stream_url != null;
+        return !TextUtils.isEmpty(stream_url);
     }
 
     public ContentValues buildContentValues(){
@@ -380,7 +380,9 @@ public class Track extends ModelBase implements PageTrackable {
     };
 
     public boolean createCache() {
-        if (!getCache().exists()) {
+        if (getCache().exists()) {
+            return true;
+        } else {
             CloudUtils.mkdirs(getCache().getParentFile());
             try {
                 return getCache().createNewFile();
@@ -388,7 +390,7 @@ public class Track extends ModelBase implements PageTrackable {
                 Log.w(TAG, "error creating cache "+getCache(), e);
                 return false;
             }
-        } else return false;
+        }
     }
 
     public File getCache() {
@@ -458,5 +460,9 @@ public class Track extends ModelBase implements PageTrackable {
             sb.append("/").append(p);
         }
         return sb.toString();
+    }
+
+    public boolean hasAvatar() {
+        return user != null && !TextUtils.isEmpty(user.avatar_url);
     }
 }

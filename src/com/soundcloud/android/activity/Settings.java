@@ -6,12 +6,14 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -40,6 +42,16 @@ public class Settings extends PreferenceActivity {
 
         setClearCacheTitle();
 
+        findPreference("tour").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(Settings.this, Start.class);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
+
+
         final ChangeLog cl = new ChangeLog(this);
         findPreference("changeLog").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -52,10 +64,14 @@ public class Settings extends PreferenceActivity {
         findPreference("revokeAccess").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
+                        if (!CloudUtils.isUserAMonkey()) {
+                            // don't let the monkey log out
+                            safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
+                        }
                         return true;
                     }
                 });
+
         findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -131,7 +147,11 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            throw new RuntimeException("developer requested crash");
+                            if (!CloudUtils.isUserAMonkey()) {
+                                throw new RuntimeException("developer requested crash");
+                            } else {
+                                return true;
+                            }
                         }
                     });
         }
@@ -149,7 +169,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().pageTrack(Consts.TrackingEvents.SETTINGS);
+        getApp().trackPage(Consts.Tracking.SETTINGS);
         super.onResume();
     }
 

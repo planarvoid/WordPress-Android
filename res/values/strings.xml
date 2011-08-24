@@ -120,5 +120,55 @@
     <string name="take_new_picture_error">Could not take picture</string>
     <string name="use_existing_image_error">Could not use existing image</string>
 
+    <string name="recorded_morning">%s morning</string>
+    <string name="recorded_afternoon">%s afternoon</string>
+    <string name="recorded_evening">%s evening</string>
+    <string name="recorded_night">%s night</string>
+
+    <string name="recorded_at">%1$s at %2$s</string>
+    <string name="sounds_from">Sounds from %s</string>
+
+    <string name="tour_start_title">Welcome to SoundCloud</string>
+    <string name="tour_start_hello">Hello!</string>
+    <string name="tour_start_welcome">Welcome to SoundCloud</string>
+    <string name="tour_start_message">You\'re all signed up so let\'s start creating and sharing sounds.</string>
+    <string name="tour_start_btn_enter">Start The Tour</string>
+    <string name="tour_start_btn_skip">Skip the tour</string>
+
+    <string name="tour_btn_next">Next</string>
+
+    <string name="tour_record_title">The Record Button</string>
+    <string name="tour_record_subject">Record Your Sounds</string>
+    <string name="tour_record_message">First up, meet your new best friend the Record button. Capture a song idea, podcast or voice memo in an instant.</string>
+
+    <string name="tour_share_title">Share Your Sounds</string>
+    <string name="tour_share_subject">Share Your Sounds</string>
+    <string name="tour_share_message">Share sounds publicly and to Facebook, Twitter and Tumblr, or share them privately to a few special people. </string>
+
+    <string name="tour_follow_title">Find &amp; Follow People</string>
+    <string name="tour_follow_subject">Find &amp; Follow People</string>
+    <string name="tour_follow_message">Make connections by finding your Facebook friends on SoundCloud and following Suggested People.</string>
+
+    <string name="tour_comment_title">Add Activity</string>
+    <string name="tour_comment_subject">Comment &amp; Favorite</string>
+    <string name="tour_comment_message">Favorite sounds and comment on the ones you like. Check out comments on your own sounds too!</string>
+
+    <string name="tour_you_title">You</string>
+    <string name="tour_you_subject">Don\'t forget You!</string>
+    <string name="tour_you_message">Explore your own sounds, favorites and info settings. See who you\'re following and being followed by.</string>
+
+    <string name="tour_finish_title">Start Sharing</string>
+    <string name="tour_finish_enjoy">Enjoy SoundCloud</string>
+    <string name="tour_btn_lets_party">Let\'s Go!</string>
+    <string name="tour_finish_message">
+        <![CDATA[It\'s really that simple. If you need more help try our <a href="http://soundcloud.com/101">101s</a>. Have fun creating and sharing sounds!]]>
+    </string>
+
+    <string name='pref_take_tour'>SoundCloud tour</string>
+	<string name='pref_take_tour_desc'>Take a quick tour of the app</string>
+
+    <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
+
     <string name='at_timestamp'>at %s</string>
+
 </resources>

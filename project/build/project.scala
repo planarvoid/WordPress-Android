@@ -29,14 +29,14 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
     val acra = "org.acra" % "acra" % "4.2.3"
     val jackson_core = "org.codehaus.jackson" % "jackson-core-asl" % "1.7.1"
     val jackson_mapper = "org.codehaus.jackson" % "jackson-mapper-asl" % "1.7.1"
-    val java_wrapper = "com.soundcloud" % "java-api-wrapper" % "1.0.1"
+    val java_wrapper = "com.soundcloud" % "java-api-wrapper" % "1.0.2-SNAPSHOT"
     val filecache = "com.google.android" % "filecache" % "r153"
-    val analytics = "com.google.android" % "libGoogleAnalytics" % "1.2"
+    val analytics = "com.google.android" % "libGoogleAnalytics" % "1.3"
     var wrapper   = "com.commonsware" % "CWAC-AdapterWrapper" % "0.4"
     val vorbis    = "org.xiph" % "libvorbis" % "1.0.0-beta"
 
     // test dependencies
-    val robolectric = "com.pivotallabs" % "robolectric" % "1.0-RC2-SNAPSHOT-jar-with-dependencies-with-patch" % "test"
+    val robolectric = "com.pivotallabs" % "robolectric" % "1.0-RC5-SNAPSHOT" % "test" classifier "jar-with-dependencies"
     val junit       = "junit" % "junit-dep" % "4.9b2" % "test"
     val mockitoCore = "org.mockito" % "mockito-core" % "1.8.5" % "test"
     val hamcrest    = "org.hamcrest" % "hamcrest-core" % "1.1" % "test"

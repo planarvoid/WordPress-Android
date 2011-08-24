@@ -6,7 +6,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
-import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -27,10 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
-    // TODO replace with EndPoint from wrapper
-    String MY_ACTIVITY = "/me/activities/all/own";
-    String TRACK_FAVORITERS = "/tracks/%d/favoriters";
-
     URI REDIRECT_URI = URI.create("soundcloud://auth");
     String OAUTH_TOKEN_PARAMETER = "oauth_token";
 
@@ -52,12 +47,12 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             return SoundCloudApplication.DALVIK && Build.VERSION.SDK_INT >= 8 ?
-                    SSLCertificateSocketFactory.getHttpSocketFactory(Http.TIMEOUT, new SSLSessionCache(mContext)) :
+                    SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT, new SSLSessionCache(mContext)) :
                     super.getSSLSocketFactory();
         }
 
         @Override public ObjectMapper getMapper() {
-            if (this.mMapper == null) {
+            if (mMapper == null) {
                 mMapper = createMapper();
                 SimpleModule module = new SimpleModule("EventDeserializerModule", new Version(1, 0, 0, null))
                     .addDeserializer(Event.class, new EventDeserializer());

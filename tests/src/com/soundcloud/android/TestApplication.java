@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.api.Env;
+import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 
@@ -9,10 +10,16 @@ import java.util.Map;
 
 public class TestApplication extends SoundCloudApplication {
     public Account account;
-    public Map<String, String> accountData = new HashMap<String, String>();
+    public final Map<String, String> accountData = new HashMap<String, String>();
+    public final Token token;
 
     public TestApplication() {
-        mCloudApi = new Wrapper(null, "id", "secret", null, null, Env.LIVE);
+        this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
+    }
+
+    public TestApplication(Token token) {
+        this.token = token;
+        mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
     }
 
     @Override
@@ -21,8 +28,9 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    public void useAccount(Account account) {
+    public Token useAccount(Account account) {
         this.account = account;
+        return token;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -55,7 +56,7 @@ public class Upload extends ModelBase {
         int UPLOADED            = 2;
     }
 
-    public Upload(Map<String,?> uploadData) {
+    public Upload(Map<String, ?> uploadData) {
 
         id = System.currentTimeMillis();
 
@@ -88,7 +89,7 @@ public class Upload extends ModelBase {
 
     }
 
-    public Upload(Recording r) {
+    public Upload(Recording r, Resources res) {
         id = System.currentTimeMillis();
 
         // defaults
@@ -98,7 +99,7 @@ public class Upload extends ModelBase {
         trackPath = r.audio_path.getAbsolutePath();
         if (r.artwork_path != null) artworkPath = r.artwork_path.getAbsolutePath();
 
-        title = r.sharingNote();
+        title = r.sharingNote(res);
         type = "recording";
         local_recording_id = r.id;
         sharing = r.is_private ? Params.Track.PRIVATE : Params.Track.PUBLIC;
@@ -115,7 +116,7 @@ public class Upload extends ModelBase {
             }
 
             if (!serviceIds.isEmpty()) {
-                sharing_note = r.sharingNote();
+                sharing_note = r.sharingNote(res);
                 service_ids = TextUtils.join(",", serviceIds);
             } else {
                 post_to_empty = "";

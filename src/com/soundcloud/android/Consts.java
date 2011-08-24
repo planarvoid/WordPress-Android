@@ -45,12 +45,27 @@ public final class Consts {
         int FILTER = 207;
     }
 
+    public interface TourActivityIndexes {
+        int RECORD = 0;
+        int SHARE = 1;
+        int FOLLOW = 2;
+        int COMMENT = 3;
+        int YOU = 4;
+    }
+
     public interface GraphicsSizes {
         String T500 = "t500x500";
         String CROP = "crop";
         String LARGE = "large";
         String BADGE = "badge";
         String SMALL = "small";
+    }
+
+    public interface GraphicSizeWidths {
+        int T500 = 500;
+        int LARGE = 100;
+        int BADGE = 47;
+        int SMALL = 32;
     }
 
     public interface ListId {
@@ -73,26 +88,43 @@ public final class Consts {
         int BETA_NOTIFY_ID    = 5;
     }
 
-    public interface TrackingEvents {
-        String STREAM = "/incoming";
-        String ACTIVITY = "/activity";
-        String RECORD = "/record";
-        String RECORD_RECORDING = "/record/recording";
-        String RECORD_COMPLETE = "/record/complete";
-        String SHARE_PUBLIC = "/record/share/public";
-        String SHARE_PRIVATE = "/record/share/private";
-        String SEARCH = "/search";
-        String SEARCH_TRACKS = "/search/tracks/q=";
-        String SEARCH_USERS = "/search/users/q=";
-        String LOGGED_OUT = "/loggedout";
-        String LOGIN = "/login";
-        String SIGNUP = "/signup";
-        String SIGNUP_DETAILS = "/signup/details";
-        String PEOPLE_FINDER = "/people/finder";
-        String SETTINGS = "/settings";
-        String TRACKS_BY_TAG = "/tracks_by_tag/";
-        String TRACKS_BY_GENRE = "/tracks_by_genre/";
+    public interface Tracking {
+        interface Categories {
+            String AUTH      = "auth";
+            String CONNECT   = "connect";
+            String TRACKS    = "tracks";
+            String RECORDING = "recording";
+            String SHARE     = "share";
+            String ERROR     = "error";
+            String PLAYBACK_ERROR = "playbackError";
+        }
 
-        String AUDIO_ENGINE = "/internal/audioEngine";
+        interface Actions {
+            String TRACK_PLAY = "Track Play";
+            String TEN_PERCENT = "10percent";
+            String NINTY_FIVE_PERCENT = "95percent";
+            String TRACK_COMPLETE = "Track Complete";
+        }
+
+        String STREAM   = "/incoming";
+        String ACTIVITY = "/activity";
+        String RECORD   = "/record";
+        @Deprecated String RECORD_RECORDING = "/record/recording";
+        @Deprecated String RECORD_COMPLETE  = "/record/complete";
+        @Deprecated String SHARE_PUBLIC     = "/record/share/public";
+        @Deprecated String SHARE_PRIVATE    = "/record/share/private";
+        String SEARCH        = "/search";
+        String SEARCH_TRACKS = "/search/tracks/q=";
+        String SEARCH_USERS  = "/search/users/q=";
+        @Deprecated String LOGIN    = "/login";
+        @Deprecated String LOGGED_OUT = "/loggedout";
+        @Deprecated String SIGNUP   = "/signup";
+        String SIGNUP_DETAILS       = "/signup/details";
+        String PEOPLE_FINDER        = "/people/finder";
+        String SETTINGS             = "/settings";
+        String TRACKS_BY_TAG        = "/tracks_by_tag/";
+        String TRACKS_BY_GENRE      = "/tracks_by_genre/";
+
+        String AUDIO_ENGINE         = "/internal/audioEngine";
     }
 }

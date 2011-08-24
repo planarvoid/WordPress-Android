@@ -1,7 +1,6 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,6 +9,7 @@ import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -100,20 +100,27 @@ public class SyncAdapterService extends Service {
                                     SyncResult syncResult) {
 
         // for initial sync, don't bother telling them about their entire dashboard
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) == 0) {
+        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
             final long now = System.currentTimeMillis();
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
-            app.useAccount(account);
-            // how many have they already been notified about, don't create repeat notifications for no new tracks
-            try {
-                syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
-                if (isActivitySyncEnabled(app)) {
-                    syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+            if (app.useAccount(account).valid()) {
+                // how many have they already been notified about, don't create repeat notifications for no new tracks
+                try {
+                    syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
+                    if (isActivitySyncEnabled(app)) {
+                        syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                    }
+                } catch (CloudAPI.InvalidTokenException e) {
+                    if (syncResult != null) syncResult.stats.numAuthExceptions++;
+                } catch (IOException e) {
+                    Log.w(TAG, "i/o", e);
+                    if (syncResult != null) syncResult.stats.numIoExceptions++;
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "i/o", e);
+            } else {
+                Log.w(TAG, "no valid token, skip sync");
+                if (syncResult != null) syncResult.stats.numAuthExceptions++;
             }
         }
     }
@@ -188,43 +195,51 @@ public class SyncAdapterService extends Service {
 
     /* package */ static Activities getOwnEvents(SoundCloudApplication application, long since)
             throws IOException {
-        return getEvents(application, since, AndroidCloudAPI.MY_ACTIVITY);
+        return getEvents(application, since, Endpoints.MY_NEWS);
     }
 
     /* package */
     static Activities getEvents(SoundCloudApplication app, final long since, final String resource)
             throws IOException {
         boolean caughtUp = false;
-        Activities activities = null;
+        String cursor = null;
         List<Event> events = new ArrayList<Event>();
         do {
-            Request request = Request.to(resource).add("limit", 20);
-            if (activities != null) {
-                request.add("cursor", activities.getCursor());
+            Request request = Request.to(resource).add("limit", cursor == null ? 1 : 20);
+            if (cursor != null) {
+                request.add("cursor", cursor);
             }
 
             HttpResponse response = app.get(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                Activities activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                cursor = activities.getCursor();
+
                 if (activities.includes(since)) {
                     caughtUp = true; // nothing new
                 } else {
                     for (Event evt : activities) {
-                        if (evt.created_at.getTime() <= since) {
+                        if (evt.created_at.getTime() > since) {
+                            events.add(evt);
+                        } else {
                             caughtUp = true;
                             break;
-                        } else {
-                            events.add(evt);
                         }
                     }
                 }
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
-                throw new IOException(response.getStatusLine().toString());
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                     throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
+                             response.getStatusLine().getReasonPhrase());
+                } else {
+                    throw new IOException(response.getStatusLine().toString());
+                }
             }
         } while (!caughtUp
                 && events.size() < NOTIFICATION_MAX
-                && !TextUtils.isEmpty(activities.next_href));
+                && !TextUtils.isEmpty(cursor));
 
         return new Activities(events);
     }

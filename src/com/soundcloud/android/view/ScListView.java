@@ -248,8 +248,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
          }
     }
 
-
-
     @Override
     public void setAdapter(ListAdapter adapter) {
         super.setAdapter(adapter);
@@ -441,8 +439,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         checkHeaderVisibility();
     }
 
-
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
@@ -513,7 +509,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mCurrentScrollState = scrollState;
     }
 
-     @Override
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int y = (int) event.getY();
         switch (event.getAction()) {
@@ -601,18 +597,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             } else if (!mAutoScrolling){
                 setSelection(1);
             }
-
-
-
         } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
             mFooterView.getLayoutParams().height = 0;
         }
     }
 
-
-
-
-     @Override
+    @Override
     protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
                                    int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
         return false; // no traditional overscrolling
@@ -628,7 +618,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             });
         }
     }
-
 
     private void scrollPastHeader() {
         if (getChildCount() <= 1) return;
@@ -683,8 +672,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         child.measure(childWidthSpec, childHeightSpec);
     }
 
-
-
     private void configureLastUpdated() {
         // can trigger a weird layout loop if done in a different state, may need to be revisited
         if (mRefreshState == TAP_TO_REFRESH && mLastUpdated != 0) {
@@ -703,7 +690,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 onRefresh();
             }
         }
-
     }
 
     private class FingerTracker implements View.OnTouchListener {
@@ -717,7 +703,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             return false;
         }
     }
-
 
     private class ScrollHandler extends Handler {
         @Override
@@ -746,5 +731,4 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         void onFling();
         void onFlingDone();
      }
-
 }

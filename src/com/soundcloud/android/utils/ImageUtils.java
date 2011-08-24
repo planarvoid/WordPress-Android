@@ -283,7 +283,7 @@ public class ImageUtils {
     }
 
     public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : targetSize == Consts.GraphicsSizes.LARGE ? url : url.replace(Consts.GraphicsSizes.LARGE, targetSize);
+        return url == null ? null : targetSize.equals(Consts.GraphicsSizes.LARGE) ? url : url.replace(Consts.GraphicsSizes.LARGE, targetSize);
     }
 
     public static String getListItemGraphicSize(Context c) {
@@ -299,4 +299,19 @@ public class ImageUtils {
         }
 
     }
+
+    public static int getListItemGraphicDimension(Context c) {
+        if (CloudUtils.isScreenXL(c)) {
+            return Consts.GraphicSizeWidths.LARGE;
+        } else {
+            if (c.getResources().getDisplayMetrics().density > 1) {
+                return Consts.GraphicSizeWidths.LARGE;
+            } else {
+                return Consts.GraphicSizeWidths.BADGE;
+            }
+        }
+
+    }
+
+
 }

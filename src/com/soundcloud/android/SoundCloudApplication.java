@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -77,11 +78,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
+
+                mTracker = GoogleAnalyticsTracker.getInstance();
+                mTracker.startNewSession(
+                        getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
+                        120 /* seconds */, this);
             }
-            mTracker = GoogleAnalyticsTracker.getInstance();
-            mTracker.start(
-                    getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
-                    120 /* seconds */, this);
         }
 
         createImageLoaders();
@@ -125,8 +127,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public User getLoggedInUser() {
-        if (mLoggedInUser == null && getCurrentUserId() != -1) {
-            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+        if (mLoggedInUser == null) {
+            if (getCurrentUserId() != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            }
             if (mLoggedInUser == null) mLoggedInUser = new User(this);
         }
         return mLoggedInUser;
@@ -252,8 +256,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return created;
     }
 
-    public void useAccount(Account account) {
-        mCloudApi.setToken(getToken(account));
+    public Token useAccount(Account account) {
+        Token token = getToken(account);
+        mCloudApi.setToken(token);
+        return token;
     }
 
     public String getAccountData(String key) {
@@ -268,7 +274,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public long getAccountDataLong(String key) {
         String data = getAccountData(key);
-        return data == null ? 0 : Long.parseLong(data);
+        return data == null ? -1 : Long.parseLong(data);
     }
 
     public boolean getAccountDataBoolean(String key) {
@@ -276,7 +282,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return data != null && Boolean.parseBoolean(data);
     }
 
-    public long getCurrentUserId(){
+    public long getCurrentUserId()  {
         return getAccountDataLong(User.DataKeys.USER_ID);
     }
 
@@ -298,7 +304,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void pageTrack(String path, Object... customVars) {
+    public void trackPage(String path, Object... customVars) {
         if (mTracker != null && !TextUtils.isEmpty(path)) {
             try {
                 if (customVars.length > 0 &&
@@ -317,6 +323,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);
             }
+        }
+    }
+
+    public void trackEvent(String category, String action) {
+        trackEvent(category, action, null, 0);
+    }
+
+    public void trackEvent(String category, String action, String label, int value) {
+        if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
+            mTracker.trackEvent(category, action, label, value);
         }
     }
 

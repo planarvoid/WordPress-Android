@@ -205,12 +205,17 @@ public class CloudCreateService extends Service {
             @Override
             public void run() {
                 mRecorder.prepare();
-                mRecorder.start();
-
-                if (mRecorder.getState() == CloudRecorder.State.ERROR){
+                try {
+                    mRecorder.start();
+                    if (mRecorder.getState() == CloudRecorder.State.ERROR){
+                        onRecordError();
+                    } else {
+                        mRecordStartTime = System.currentTimeMillis();
+                    }
+                } catch (RuntimeException e) {
+                    // seems to get thrown in start()
+                    Log.w(TAG, e);
                     onRecordError();
-                } else {
-                    mRecordStartTime = System.currentTimeMillis();
                 }
             }
         };
@@ -299,15 +304,14 @@ public class CloudCreateService extends Service {
                     String.valueOf(cursor.getLong(cursor.getColumnIndex(Recordings.ID)))).build();
 
             mPlaybackTitle = CloudUtils.generateRecordingSharingNote(
+                    getResources(),
                     cursor.getString(cursor.getColumnIndex(Recordings.WHAT_TEXT)),
                     cursor.getString(cursor.getColumnIndex(Recordings.WHERE_TEXT)),
                     mPlaybackFile.lastModified());
         } else {
-            mPlaybackTitle = CloudUtils.generateRecordingSharingNote(null, null, mPlaybackFile.lastModified());
+            mPlaybackTitle = CloudUtils.generateRecordingSharingNote(getResources(), null, null, mPlaybackFile.lastModified());
         }
         if (cursor != null) cursor.close();
-
-
 
         try {
             FileInputStream fis = new FileInputStream(playbackPath);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/top_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/tour_top_bar_height"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/tour_bar_top_bg">
+    <TextView android:id="@+id/txt_title"
+              android:text="@string/tour_start_title"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerInParent="true"
+              style="@style/txt_tour_title"
+              android:layout_centerHorizontal="true"/>
+</RelativeLayout>

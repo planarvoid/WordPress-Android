@@ -72,6 +72,19 @@ public class AnimUtils {
 
     }
 
+    public static void setLayoutAnim_fadeIn(ViewGroup panel, Context ctx) {
+
+        AnimationSet set = new AnimationSet(true);
+
+        Animation animation = new AlphaAnimation(0.0f, 1.0f);
+        animation.setDuration(200);
+        set.addAnimation(animation);
+
+        LayoutAnimationController controller = new LayoutAnimationController(set, 0.25f);
+        panel.setLayoutAnimation(controller);
+
+    }
+
     public static Animation runFadeInAnimationOn(Activity ctx, View target) {
         Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_in);
         target.startAnimation(animation);

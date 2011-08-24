@@ -180,6 +180,7 @@ public class ImageLoader {
 
 
     public Bitmap getBitmap(String uri, BitmapCallback callback, Options options) {
+        if (options == null) options = new Options();
         Bitmap memoryBmp = getBitmap(uri);
         if (getBitmap(uri) != null){
             if (callback != null) {

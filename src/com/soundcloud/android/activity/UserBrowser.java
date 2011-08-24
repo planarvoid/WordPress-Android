@@ -297,7 +297,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void trackCurrentScreen(){
-        pageTrack(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
+        trackPage(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
     }
 
     private class LoadUserTask extends LoadTask<User> {
@@ -602,7 +602,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         new AlertDialog.Builder(this)
             .setInverseBackgroundForced(true)
-            .setTitle(recording.sharingNote())
+            .setTitle(recording.sharingNote(getResources()))
             .setNegativeButton(getString(android.R.string.cancel), null)
             .setItems(curr_items, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
