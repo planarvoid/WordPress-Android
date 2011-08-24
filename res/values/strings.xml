@@ -148,18 +148,18 @@
 
     <string name="tour_follow_title">Find &amp; Follow People</string>
     <string name="tour_follow_subject">Find &amp; Follow People</string>
-    <string name="tour_follow_message">Make connections by finding more Facebook friends to follow and explore Suggested People for new.</string>
+    <string name="tour_follow_message">Make connections by finding your Facebook friends on SoundCloud and following Suggested People.</string>
 
     <string name="tour_comment_title">Add Activity</string>
     <string name="tour_comment_subject">Comment &amp; Favorite</string>
     <string name="tour_comment_message">Add comments on or favorite any waveform. Check out comments on your own sounds!</string>
 
     <string name="tour_you_title">You</string>
-    <string name="tour_you_subject">Don\'t forget \"You\"!</string>
+    <string name="tour_you_subject">Don\'t forget You!</string>
     <string name="tour_you_message">Explore your own sounds, favorites and info settings. See who you\'re following and being followed by.</string>
 
-    <string name="tour_finish_title">Enjoy SoundCloud</string>
-    <string name="tour_finish_all_done">All done!</string>
+    <string name="tour_finish_title">Share Your Sounds</string>
+    <string name="tour_finish_all_done">Start Sharing</string>
     <string name="tour_finish_enjoy">Enjoy SoundCloud</string>
     <string name="tour_btn_lets_party">Let\'s Party!</string>
     <string name="tour_finish_message">
