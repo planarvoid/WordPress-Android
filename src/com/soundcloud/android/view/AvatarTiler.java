@@ -53,7 +53,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int MAX_TILE_TRIES = 5;
     private static final int MIN_TILE_AGE = 5000;
-    private static final int ALPHA_STEP = 5;
+    private static final int ALPHA_STEP = 10;
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc, 0xff7ab8ff, 0xff3399ff, 0xffff6600, 0xffff3300, 0xffff9a56};
     private static final Avatar[] DEFAULT_AVATARS = {
@@ -380,6 +380,11 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     if (c != null) {
                         mSurfaceHolder.unlockCanvasAndPost(c);
                     }
+                }
+
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ignored) {
                 }
             }
         }
