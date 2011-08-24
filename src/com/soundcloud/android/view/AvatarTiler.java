@@ -104,12 +104,17 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             isDefault = true;
         }
 
-        public boolean isDefault;
         public long id;
-        public int resource_id;
         public String avatar_url;
+
+        public boolean isDefault;
+        public int resource_id;
         public Bitmap bitmap;
         public int fillColor;
+
+        public String getAvatarUrl(Context context) {
+            return ImageUtils.formatGraphicsUrlForList(context, avatar_url);
+        }
     }
 
     private static class AvatarHolder extends CollectionHolder<Avatar> {
@@ -171,17 +176,21 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void loadAvatarImage(Avatar a) {
-        a.avatar_url = ImageUtils.formatGraphicsUrlForList(getContext(), a.avatar_url);
-        ImageLoader.get(getContext()).getBitmap(a.avatar_url, new ImageLoader.BitmapCallback() {
-            @Override
-            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                mAvatars.get(uri).bitmap = mBitmap;
-                mLoadedAvatars.offer(mAvatars.get(uri));
-            }
 
-            @Override
-            public void onImageError(String uri, Throwable error) {
-            }
+        ImageLoader.get(getContext()).getBitmap(a.getAvatarUrl(getContext()),
+            new ImageLoader.BitmapCallback() {
+                @Override
+                public void onImageLoaded(Bitmap mBitmap, String uri) {
+                    Avatar avatar = mAvatars.get(uri);
+                    if (avatar != null) {
+                        avatar.bitmap = mBitmap;
+                        mLoadedAvatars.offer(avatar);
+                    }
+                }
+
+                @Override
+                public void onImageError(String uri, Throwable error) {
+                }
         }, null);
     }
 
@@ -394,9 +403,9 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void onAvatarTaskComplete(List<Avatar> avatars, String nextHref) {
-        if (avatars.size() > 0) {
+        if (!avatars.isEmpty()) {
             for (Avatar a : avatars) {
-                mAvatars.put(a.avatar_url, a);
+                mAvatars.put(a.getAvatarUrl(getContext()), a);
                 loadAvatarImage(a);
             }
 
@@ -409,7 +418,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             Log.d(getClass().getSimpleName(), "no avatars returned ");
         }
     }
-
 
     private class LoadAvatarsTask extends AsyncTask<Request, Parcelable, Boolean> {
         private final SoundCloudApplication mApp;
