@@ -45,21 +45,21 @@ import java.util.concurrent.ArrayBlockingQueue;
 class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int MAX_AVATARS = 100;
-    private static final int CHANGE_AVATARS_POLL_DELAY = 200;
+    private static final int CHANGE_AVATARS_POLL_DELAY = 400;
 
     private static final int TILE_COLS = 8;
 
     private int mCurrentRows;
 
-    private static final int MAX_TILE_TRIES = 5;
+    private static final int MAX_TILE_TRIES = 3;
     private static final int MIN_TILE_AGE = 10000;
-    private static final int ALPHA_STEP = 5;
+    private static final int ALPHA_STEP = 10;
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc, 0xff7ab8ff, 0xff3399ff, 0xffff6600, 0xffff3300, 0xffff9a56};
     private static final Avatar[] DEFAULT_AVATARS = {
             new Avatar(372, R.drawable.avatars_hunee),
             new Avatar(43654, R.drawable.avatars_thebeatbroker),
-            new Avatar(188783, R.drawable.avatars_thebeatbroker),
+            new Avatar(188783, R.drawable.avatars_aeroplane),
             new Avatar(749489, R.drawable.avatars_esp_institute),
             new Avatar(218538, R.drawable.avatars_stevemoore),
             new Avatar(627054, R.drawable.avatars_warp),
@@ -173,7 +173,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         int mLastAvatarIndex = 0;
         Collections.shuffle(Arrays.asList(DEFAULT_AVATARS));
         for (AvatarTile at : mAvatarTiles) {
-            if (Math.random() < .25) {
+            if (Math.random() < .15) {
                 Avatar a = new Avatar();
                 a.fillColor = EMPTY_COLORS[((int) (Math.random() * EMPTY_COLORS.length))];
                 at.currentAvatar = a;
