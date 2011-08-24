@@ -45,18 +45,26 @@ import java.util.concurrent.ArrayBlockingQueue;
 class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int MAX_AVATARS = 100;
-    private static final int CHANGE_AVATARS_POLL_DELAY = 100;
+    private static final int CHANGE_AVATARS_POLL_DELAY = 200;
 
     private static final int TILE_COLS = 8;
 
     private int mCurrentRows;
 
     private static final int MAX_TILE_TRIES = 5;
-    private static final int MIN_TILE_AGE = 5000;
-    private static final int ALPHA_STEP = 10;
+    private static final int MIN_TILE_AGE = 10000;
+    private static final int ALPHA_STEP = 5;
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc, 0xff7ab8ff, 0xff3399ff, 0xffff6600, 0xffff3300, 0xffff9a56};
     private static final Avatar[] DEFAULT_AVATARS = {
+            new Avatar(372, R.drawable.avatars_hunee),
+            new Avatar(43654, R.drawable.avatars_thebeatbroker),
+            new Avatar(188783, R.drawable.avatars_thebeatbroker),
+            new Avatar(749489, R.drawable.avatars_esp_institute),
+            new Avatar(218538, R.drawable.avatars_stevemoore),
+            new Avatar(627054, R.drawable.avatars_warp),
+            new Avatar(4448449, R.drawable.avatars_donuts),
+            new Avatar(518564, R.drawable.avatars_darklord),
             new Avatar(4420810, R.drawable.avatars_newyorker),
             new Avatar(4225846, R.drawable.avatars_marihuertas),
             new Avatar(511721, R.drawable.avatars_max_richter),
@@ -68,6 +76,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             new Avatar(5510726, R.drawable.avatars_herring1967),
             new Avatar(422725, R.drawable.avatars_thenextweb),
             new Avatar(34424, R.drawable.avatars_thommyc)
+
     };
 
 
@@ -373,6 +382,9 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     synchronized (mSurfaceHolder) {
                         mAvatarTiler.onDraw(c);
                     }
+                    Thread.sleep(40);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 } finally {
                     // do this in a finally so that if an exception is thrown
                     // during the above, we don't leave the Surface in an
