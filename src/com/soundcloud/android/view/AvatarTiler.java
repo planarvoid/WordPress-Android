@@ -273,8 +273,12 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mDrawThread.setRunning(true);
-        mDrawThread.start();
+        // TODO something better
+        try {
+            mDrawThread.setRunning(true);
+            mDrawThread.start();
+        } catch (IllegalThreadStateException ex){ /*nothing*/}
+
     }
 
     @Override
