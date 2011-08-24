@@ -1,8 +1,12 @@
 $ 25
   % v current
-  _ 2011-08-xx
-  ! Onboarding
-    * Foo
+  _ 2011-08-24
+  ! New tour
+    * New tour
+    - SyncAdapter: poll interval set to 1h
+    - SyncAdapter: set error stats
+    - SyncAdapter: only fetch 1 item initially
+    - Java API Wrapper 1.0.2-SNAPSHOT
 
 $ 24
   % v 1.4.2
