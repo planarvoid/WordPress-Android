@@ -1,21 +1,7 @@
 package com.soundcloud.android.view;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.*;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.LinearLayout;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -27,19 +13,39 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int MAX_AVATARS = 100;
     private static final int CHANGE_AVATARS_POLL_DELAY = 100;
-
-    private static final double CHANCE_OF_EMPTY = .1;
 
     private static final int TILE_COLS = 8;
 
@@ -126,8 +132,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private int mColSize;
     private int mRowSize;
 
-    private int mDisplayIndex;
-
     public AvatarTiler(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -212,7 +216,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                 return at;
             }
         }
-
         return null;
     }
 
@@ -298,7 +301,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext()) * mAvatarScale);
 
         if (mCurrentRows == 0) {
-            mCurrentRows = (int) (height / mRowSize);
+            mCurrentRows = height / mRowSize;
         }
 
         if (mAvatarTiles == null) {
@@ -319,7 +322,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         loadDefaults();
         Collections.shuffle(mAvatarTiles);
         queueNextPoll();
-
     }
 
     @Override
@@ -398,24 +400,21 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                 loadAvatarImage(a);
             }
 
-
             if (mAvatars.size() < MAX_AVATARS && !TextUtils.isEmpty(nextHref)) {
                 loadMoreAvatars(nextHref);
             } else {
-                Log.i(getClass().getSimpleName(), "Done loading avatars, loaded a total of " + mAvatars.size());
+                Log.d(getClass().getSimpleName(), "Done loading avatars, loaded a total of " + mAvatars.size());
             }
         } else {
-            Log.i(getClass().getSimpleName(), "no avatars returned ");
+            Log.d(getClass().getSimpleName(), "no avatars returned ");
         }
     }
 
 
     private class LoadAvatarsTask extends AsyncTask<Request, Parcelable, Boolean> {
         private final SoundCloudApplication mApp;
-        ArrayList<Avatar> newAvatars = new ArrayList<Avatar>();
-
+        List<Avatar> newAvatars = new ArrayList<Avatar>();
         String mNextHref;
-        int mResponseCode;
 
         public LoadAvatarsTask(SoundCloudApplication app) {
             mApp = app;
@@ -431,9 +430,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             if (req == null) return false;
             try {
                 HttpResponse resp = mApp.get(req);
-
-                mResponseCode = resp.getStatusLine().getStatusCode();
-                if (mResponseCode != HttpStatus.SC_OK) {
+                int responseCode = resp.getStatusLine().getStatusCode();
+                if (responseCode != HttpStatus.SC_OK) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());
                 }
 
@@ -447,15 +445,13 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     }
                     mNextHref = holder.next_href;
                     return true;
+                } else {
+                    return false;
                 }
-
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
+                return false;
             }
-            return false;
-
         }
-
-
     }
 }
