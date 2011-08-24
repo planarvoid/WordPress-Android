@@ -1,21 +1,7 @@
 package com.soundcloud.android.view;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.*;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.LinearLayout;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -27,30 +13,58 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int MAX_AVATARS = 100;
-    private static final int CHANGE_AVATARS_POLL_DELAY = 100;
-
-    private static final double CHANCE_OF_EMPTY = .1;
+    private static final int CHANGE_AVATARS_POLL_DELAY = 400;
 
     private static final int TILE_COLS = 8;
 
     private int mCurrentRows;
 
-    private static final int MAX_TILE_TRIES = 5;
-    private static final int MIN_TILE_AGE = 5000;
-    private static final int ALPHA_STEP = 5;
+    private static final int MAX_TILE_TRIES = 3;
+    private static final int MIN_TILE_AGE = 10000;
+    private static final int ALPHA_STEP = 10;
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc, 0xff7ab8ff, 0xff3399ff, 0xffff6600, 0xffff3300, 0xffff9a56};
     private static final Avatar[] DEFAULT_AVATARS = {
+            new Avatar(372, R.drawable.avatars_hunee),
+            new Avatar(43654, R.drawable.avatars_thebeatbroker),
+            new Avatar(188783, R.drawable.avatars_aeroplane),
+            new Avatar(749489, R.drawable.avatars_esp_institute),
+            new Avatar(218538, R.drawable.avatars_stevemoore),
+            new Avatar(627054, R.drawable.avatars_warp),
+            new Avatar(4448449, R.drawable.avatars_donuts),
+            new Avatar(518564, R.drawable.avatars_darklord),
             new Avatar(4420810, R.drawable.avatars_newyorker),
             new Avatar(4225846, R.drawable.avatars_marihuertas),
             new Avatar(511721, R.drawable.avatars_max_richter),
@@ -62,6 +76,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             new Avatar(5510726, R.drawable.avatars_herring1967),
             new Avatar(422725, R.drawable.avatars_thenextweb),
             new Avatar(34424, R.drawable.avatars_thommyc)
+
     };
 
 
@@ -98,12 +113,17 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             isDefault = true;
         }
 
-        public boolean isDefault;
         public long id;
-        public int resource_id;
         public String avatar_url;
+
+        public boolean isDefault;
+        public int resource_id;
         public Bitmap bitmap;
         public int fillColor;
+
+        public String getAvatarUrl(Context context) {
+            return ImageUtils.formatGraphicsUrlForList(context, avatar_url);
+        }
     }
 
     private static class AvatarHolder extends CollectionHolder<Avatar> {
@@ -125,8 +145,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     private float mDefaultAvatarScale;
     private int mColSize;
     private int mRowSize;
-
-    private int mDisplayIndex;
 
     public AvatarTiler(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -155,7 +173,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         int mLastAvatarIndex = 0;
         Collections.shuffle(Arrays.asList(DEFAULT_AVATARS));
         for (AvatarTile at : mAvatarTiles) {
-            if (Math.random() < .25) {
+            if (Math.random() < .15) {
                 Avatar a = new Avatar();
                 a.fillColor = EMPTY_COLORS[((int) (Math.random() * EMPTY_COLORS.length))];
                 at.currentAvatar = a;
@@ -167,17 +185,21 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void loadAvatarImage(Avatar a) {
-        a.avatar_url = ImageUtils.formatGraphicsUrlForList(getContext(), a.avatar_url);
-        ImageLoader.get(getContext()).getBitmap(a.avatar_url, new ImageLoader.BitmapCallback() {
-            @Override
-            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                mAvatars.get(uri).bitmap = mBitmap;
-                mLoadedAvatars.offer(mAvatars.get(uri));
-            }
 
-            @Override
-            public void onImageError(String uri, Throwable error) {
-            }
+        ImageLoader.get(getContext()).getBitmap(a.getAvatarUrl(getContext()),
+            new ImageLoader.BitmapCallback() {
+                @Override
+                public void onImageLoaded(Bitmap mBitmap, String uri) {
+                    Avatar avatar = mAvatars.get(uri);
+                    if (avatar != null) {
+                        avatar.bitmap = mBitmap;
+                        mLoadedAvatars.offer(avatar);
+                    }
+                }
+
+                @Override
+                public void onImageError(String uri, Throwable error) {
+                }
         }, null);
     }
 
@@ -212,7 +234,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                 return at;
             }
         }
-
         return null;
     }
 
@@ -255,9 +276,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     at.nextAvatar = null;
                 }
             }
-
         }
-
     }
 
     public Matrix getAvatarMatrix(Avatar a, int col, int row) {
@@ -269,7 +288,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mMatrix.postTranslate(col, row);
         return mMatrix;
     }
-
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -298,7 +316,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext()) * mAvatarScale);
 
         if (mCurrentRows == 0) {
-            mCurrentRows = (int) (height / mRowSize);
+            mCurrentRows = height / mRowSize;
         }
 
         if (mAvatarTiles == null) {
@@ -319,7 +337,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         loadDefaults();
         Collections.shuffle(mAvatarTiles);
         queueNextPoll();
-
     }
 
     @Override
@@ -370,6 +387,11 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                         mSurfaceHolder.unlockCanvasAndPost(c);
                     }
                 }
+
+                try {
+                    Thread.sleep(40);
+                } catch (InterruptedException ignored) {
+                }
             }
         }
     }
@@ -392,30 +414,26 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void onAvatarTaskComplete(List<Avatar> avatars, String nextHref) {
-        if (avatars.size() > 0) {
+        if (!avatars.isEmpty()) {
             for (Avatar a : avatars) {
-                mAvatars.put(a.avatar_url, a);
+                mAvatars.put(a.getAvatarUrl(getContext()), a);
                 loadAvatarImage(a);
             }
-
 
             if (mAvatars.size() < MAX_AVATARS && !TextUtils.isEmpty(nextHref)) {
                 loadMoreAvatars(nextHref);
             } else {
-                Log.i(getClass().getSimpleName(), "Done loading avatars, loaded a total of " + mAvatars.size());
+                Log.d(getClass().getSimpleName(), "Done loading avatars, loaded a total of " + mAvatars.size());
             }
         } else {
-            Log.i(getClass().getSimpleName(), "no avatars returned ");
+            Log.d(getClass().getSimpleName(), "no avatars returned ");
         }
     }
 
-
     private class LoadAvatarsTask extends AsyncTask<Request, Parcelable, Boolean> {
         private final SoundCloudApplication mApp;
-        ArrayList<Avatar> newAvatars = new ArrayList<Avatar>();
-
+        List<Avatar> newAvatars = new ArrayList<Avatar>();
         String mNextHref;
-        int mResponseCode;
 
         public LoadAvatarsTask(SoundCloudApplication app) {
             mApp = app;
@@ -431,9 +449,8 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             if (req == null) return false;
             try {
                 HttpResponse resp = mApp.get(req);
-
-                mResponseCode = resp.getStatusLine().getStatusCode();
-                if (mResponseCode != HttpStatus.SC_OK) {
+                int responseCode = resp.getStatusLine().getStatusCode();
+                if (responseCode != HttpStatus.SC_OK) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());
                 }
 
@@ -447,15 +464,13 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     }
                     mNextHref = holder.next_href;
                     return true;
+                } else {
+                    return false;
                 }
-
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
+                return false;
             }
-            return false;
-
         }
-
-
     }
 }
