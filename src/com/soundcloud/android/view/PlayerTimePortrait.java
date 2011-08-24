@@ -6,9 +6,15 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.RelativeLayout;
+import com.soundcloud.android.R;
 
 public class PlayerTimePortrait extends PlayerTime {
+
+    private int mDefaultWidth;
+    private int mDragWidth;
+
     private Paint mBgPaint;
     private Paint mLinePaint;
     private int mArc;
@@ -20,8 +26,13 @@ public class PlayerTimePortrait extends PlayerTime {
     private boolean mSeeking;
 
 
+
+
     public PlayerTimePortrait(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mDefaultWidth = (int) context.getResources().getDimension(R.dimen.player_time_width);
+        mDragWidth = (int) context.getResources().getDimension(R.dimen.player_time_drag_width);
 
         mBgPaint = new Paint();
         mBgPaint.setColor(0xFFFFFFFF);
@@ -39,11 +50,21 @@ public class PlayerTimePortrait extends PlayerTime {
 
         final int pad = (int) (5 * getResources().getDisplayMetrics().density);
         setPadding(pad, 0, pad, mPlayheadArrowHeight);
-        setOrientation(HORIZONTAL);
+        setGravity(Gravity.CENTER_HORIZONTAL);
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp.bottomMargin = -mPlayheadArrowHeight;
+        lp.width = mDefaultWidth;
+        lp.height = mDefaultWidth;
         setLayoutParams(lp);
+    }
+
+    @Override
+    public void setWaveHeight(int height) {
+        if (getPaddingBottom() != height){
+            final int pad = (int) (5 * getResources().getDisplayMetrics().density);
+            setPadding(pad,0,pad,height);
+            requestLayout();
+        }
 
     }
 
@@ -52,22 +73,26 @@ public class PlayerTimePortrait extends PlayerTime {
     public void setCurrentTime(long time, boolean seeking) {
         super.setCurrentTime(time, seeking);
 
+        final int width = seeking ? mDragWidth : mDefaultWidth;
         if (seeking && !mSeeking){
             mSeeking = true;
+            ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
         } else if (!seeking && mSeeking){
             mSeeking = false;
+            ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
         }
 
         final int parentWidth = ((RelativeLayout) this.getParent()).getWidth();
         final int playheadX = Math.round (parentWidth * (time / ((float) mDuration)));
-        if (playheadX < getWidth() / 2) {
+
+        if (playheadX < width / 2) {
             mPlayheadOffset = playheadX;
             mPlayheadLeft = true;
-        } else if (playheadX > parentWidth - getWidth() / 2) {
-            mPlayheadOffset = playheadX - (parentWidth - getWidth());
+        } else if (playheadX > parentWidth - width / 2) {
+            mPlayheadOffset = playheadX - (parentWidth - width);
             mPlayheadLeft = false;
         } else {
-            mPlayheadOffset = (int) (.5 * getWidth());
+            mPlayheadOffset = (int) (.5 * width);
             mPlayheadLeft = true;
         }
 
@@ -106,7 +131,7 @@ public class PlayerTimePortrait extends PlayerTime {
         final int Ex = mPlayheadLeft ? mPlayheadArrowWidth + mPlayheadOffset : mPlayheadOffset;
         final int Ey = h;
         final int Fx = mPlayheadOffset;
-        final int Fy = h + mPlayheadArrowHeight;
+        final int Fy = h + (mSeeking ? mPlayheadArrowHeight : 150);
         final int Gx = mPlayheadLeft ? mPlayheadOffset : mPlayheadOffset - mPlayheadArrowWidth;
         final int Gy = h;
         final int Hx = 0;

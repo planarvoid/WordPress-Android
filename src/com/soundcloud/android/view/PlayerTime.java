@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
 
-public class PlayerTime extends LinearLayout {
+public class PlayerTime extends RelativeLayout {
     private TextView mCurrentTime;
     private TextView mTotalTime;
     protected int mDuration;
@@ -28,15 +28,15 @@ public class PlayerTime extends LinearLayout {
 
         final int pad = (int) (5 * getResources().getDisplayMetrics().density);
         setPadding(pad, 0, pad, pad);
-        setOrientation(HORIZONTAL);
+
     }
 
     public void setCurrentTime(long time, boolean seeking) {
         mCurrentTime.setText(CloudUtils.formatTimestamp(time));
     }
 
-    public void setByPercent(float seekPercent) {
-        setCurrentTime((long) (mDuration * seekPercent), true);
+    public void setByPercent(float seekPercent, boolean seeking) {
+        setCurrentTime((long) (mDuration * seekPercent), seeking);
     }
 
     public void setDuration(int time) {
@@ -46,4 +46,6 @@ public class PlayerTime extends LinearLayout {
     }
 
 
+    public void setWaveHeight(int height) {
+    }
 }

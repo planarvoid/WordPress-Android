@@ -157,7 +157,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        mCurrentTime.setWaveHeight(mWaveformHolder.getHeight());
+    }
 
     public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
@@ -520,13 +524,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     setProgress(mPlayer.setSeekMarker(mSeekPercent));
-                    mCurrentTime.setByPercent(mSeekPercent);
+                    mCurrentTime.setByPercent(mSeekPercent, true);
                     mWaveformHolder.invalidate();
                     break;
 
                 case UI_SEND_SEEK:
                     if (mPlayer != null)
                         mPlayer.sendSeek(mSeekPercent);
+                    mCurrentTime.setByPercent(mSeekPercent, false);
                     break;
             }
         }
