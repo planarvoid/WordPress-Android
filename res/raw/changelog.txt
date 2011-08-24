@@ -2,7 +2,7 @@ $ 25
   % v current
   _ 2011-08-24
   ! New tour
-    * New tour
+    * New tour (Settings - SoundCloud tour)
     - SyncAdapter: poll interval set to 1h
     - SyncAdapter: set error stats
     - SyncAdapter: only fetch 1 item initially
