@@ -36,7 +36,7 @@ public class PlayerTime extends LinearLayout {
     }
 
     public void setByPercent(float seekPercent) {
-        setCurrentTime((long) (mDuration * seekPercent));
+        setCurrentTime((long) (mDuration * seekPercent), true);
     }
 
     public void setDuration(int time) {

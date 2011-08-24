@@ -199,7 +199,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void setCurrentTime(long time) {
-        mCurrentTime.setCurrentTime(time);
+        if (mode != TOUCH_MODE_SEEK_DRAG){
+            mCurrentTime.setCurrentTime(time, false);
+        }
     }
 
     public void updateTrack(Track track) {
