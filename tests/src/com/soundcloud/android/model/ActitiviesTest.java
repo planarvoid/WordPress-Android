@@ -1,9 +1,9 @@
 package com.soundcloud.android.model;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -91,6 +91,14 @@ public class ActitiviesTest {
             assertThat(entry.getValue().isEmpty(), is(false));
             //System.err.println("track: "+entry.getKey()+ "==>"+entry.getValue());
         }
+    }
+
+    @Test
+    public void testGetCursor() throws Exception {
+        Activities activities = new Activities();
+        assertThat(activities.getCursor(), is(nullValue()));
+        activities.next_href = "http://foo.com?cursor=dada";
+        assertThat(activities.getCursor(), equalTo("dada"));
     }
 
     private Activities getActivities() throws IOException {

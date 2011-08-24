@@ -105,15 +105,18 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
-            app.useAccount(account);
-            // how many have they already been notified about, don't create repeat notifications for no new tracks
-            try {
-                syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
-                if (isActivitySyncEnabled(app)) {
-                    syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+            if (app.useAccount(account).valid()) {
+                // how many have they already been notified about, don't create repeat notifications for no new tracks
+                try {
+                    syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
+                    if (isActivitySyncEnabled(app)) {
+                        syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, "i/o", e);
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "i/o", e);
+            } else {
+                Log.w(TAG, "no valid token, skip sync");
             }
         }
     }
@@ -195,36 +198,40 @@ public class SyncAdapterService extends Service {
     static Activities getEvents(SoundCloudApplication app, final long since, final String resource)
             throws IOException {
         boolean caughtUp = false;
-        Activities activities = null;
+        String cursor = null;
         List<Event> events = new ArrayList<Event>();
+        int limit = 1; // start reading just 1 event
         do {
-            Request request = Request.to(resource).add("limit", 20);
-            if (activities != null) {
-                request.add("cursor", activities.getCursor());
+            Request request = Request.to(resource).add("limit", limit);
+            if (cursor != null) {
+                request.add("cursor", cursor);
             }
 
             HttpResponse response = app.get(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                Activities activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+                cursor = activities.getCursor();
+
                 if (activities.includes(since)) {
                     caughtUp = true; // nothing new
                 } else {
                     for (Event evt : activities) {
-                        if (evt.created_at.getTime() <= since) {
+                        if (evt.created_at.getTime() > since) {
+                            events.add(evt);
+                        } else {
                             caughtUp = true;
                             break;
-                        } else {
-                            events.add(evt);
                         }
                     }
                 }
+                limit = 20;
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
                 throw new IOException(response.getStatusLine().toString());
             }
         } while (!caughtUp
                 && events.size() < NOTIFICATION_MAX
-                && !TextUtils.isEmpty(activities.next_href));
+                && !TextUtils.isEmpty(cursor));
 
         return new Activities(events);
     }

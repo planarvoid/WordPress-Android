@@ -60,10 +60,12 @@ public class Activities implements Iterable<Event> {
     }
 
     public String getCursor() {
-        List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
-        for (NameValuePair param : params) {
-            if (param.getName().equalsIgnoreCase("cursor")) {
-                return param.getValue();
+        if (next_href != null) {
+            List<NameValuePair> params = URLEncodedUtils.parse(URI.create(next_href), "UTF-8");
+            for (NameValuePair param : params) {
+                if (param.getName().equalsIgnoreCase("cursor")) {
+                    return param.getValue();
+                }
             }
         }
         return null;

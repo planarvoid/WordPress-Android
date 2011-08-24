@@ -370,7 +370,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             }
         } else {
             reset();
-
         }
 
         mRefreshTask = new RefreshTask(mActivity.getApp()) {
