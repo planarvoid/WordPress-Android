@@ -276,9 +276,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     at.nextAvatar = null;
                 }
             }
-
         }
-
     }
 
     public Matrix getAvatarMatrix(Avatar a, int col, int row) {
@@ -290,7 +288,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mMatrix.postTranslate(col, row);
         return mMatrix;
     }
-
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -382,9 +379,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                     synchronized (mSurfaceHolder) {
                         mAvatarTiler.onDraw(c);
                     }
-                    Thread.sleep(40);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 } finally {
                     // do this in a finally so that if an exception is thrown
                     // during the above, we don't leave the Surface in an
@@ -395,7 +389,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(40);
                 } catch (InterruptedException ignored) {
                 }
             }
