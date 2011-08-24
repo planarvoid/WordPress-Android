@@ -26,10 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public interface AndroidCloudAPI extends CloudAPI {
-    // TODO replace with EndPoint from wrapper
-    String MY_ACTIVITY = "/me/activities/all/own";
-    String TRACK_FAVORITERS = "/tracks/%d/favoriters";
-
     URI REDIRECT_URI = URI.create("soundcloud://auth");
     String OAUTH_TOKEN_PARAMETER = "oauth_token";
 

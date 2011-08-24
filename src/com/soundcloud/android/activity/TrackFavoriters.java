@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -63,7 +62,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
         userAdapter.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
-                        User.class, new ArrayList<Parcelable>(), Request.to(AndroidCloudAPI.TRACK_FAVORITERS, mTrack.id)));
+                        User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.TRACK_FAVORITERS, mTrack.id)));
 
         if (!mTrack.info_loaded) {
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {

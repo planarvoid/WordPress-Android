@@ -1,7 +1,6 @@
 package com.soundcloud.android.service;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -191,7 +190,7 @@ public class SyncAdapterService extends Service {
 
     /* package */ static Activities getOwnEvents(SoundCloudApplication application, long since)
             throws IOException {
-        return getEvents(application, since, AndroidCloudAPI.MY_ACTIVITY);
+        return getEvents(application, since, Endpoints.MY_NEWS);
     }
 
     /* package */

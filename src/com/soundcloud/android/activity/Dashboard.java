@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -51,7 +50,7 @@ public class Dashboard extends ScActivity {
                 mTrackingPath = Consts.Tracking.STREAM;
             } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
                 mIsActivityTab = true;
-                trackListView = createList(Request.to(AndroidCloudAPI.MY_ACTIVITY),
+                trackListView = createList(Request.to(Endpoints.MY_NEWS),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_ACTIVITY, true);
