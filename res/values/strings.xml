@@ -166,6 +166,9 @@
         <![CDATA[It\'s really that simple. If you need more help try our <a href="http://soundcloud.com/101">101s</a>. Have fun creating and sharing sounds!]]>
     </string>
 
+    <string name='pref_take_tour'>SoundCloud tour</string>
+	<string name='pref_take_tour_desc'>Take a quick tour of the app</string>
+
     <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
 
 </resources>
