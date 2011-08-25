@@ -1,14 +1,17 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -35,6 +38,15 @@ public class CommentPanel extends CommentDisplay {
         setPadding(0, (int) (5 * density), 0, (int) (25 * density));
 
         mIcon = (ImageView) findViewById(R.id.icon);
+        mIcon.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                intent.putExtra("user", mComment.user);
+                mPlayer.startActivity(intent);
+            }
+
+        });
 
         super.init();
     }
