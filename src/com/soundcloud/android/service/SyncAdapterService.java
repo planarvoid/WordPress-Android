@@ -127,8 +127,6 @@ public class SyncAdapterService extends Service {
 
     /* package */ static void syncIncoming(SoundCloudApplication app, long lastSeen)
             throws IOException {
-        final int count = Math.max(0,app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING));
-
         Activities incomingEvents = getNewIncomingEvents(app, lastSeen);
         Activities exclusiveEvents = getNewExclusiveEvents(app, lastSeen);
 
@@ -139,10 +137,8 @@ public class SyncAdapterService extends Service {
 
         final boolean hasIncoming  = !incomingEvents.isEmpty();
         final boolean hasExclusive = !exclusiveEvents.isEmpty();
-        final boolean showNotification = totalUnseen > count;
-        if ((hasIncoming || hasExclusive) && showNotification) {
+        if (hasIncoming || hasExclusive) {
             final CharSequence title, message, ticker;
-            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_INCOMING, totalUnseen);
 
             if (totalUnseen == 1) {
                 ticker = app.getString(R.string.dashboard_notifications_ticker_single);
@@ -169,12 +165,8 @@ public class SyncAdapterService extends Service {
 
     /* package */ static void syncOwn(SoundCloudApplication app, long lastSeen)
             throws IOException {
-        final int count = Math.max(0, app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN));
         Activities events = getOwnEvents(app, lastSeen);
-
-        if (!events.isEmpty() && events.size() > count) {
-            app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
-
+        if (!events.isEmpty()) {
             Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
@@ -339,8 +331,6 @@ public class SyncAdapterService extends Service {
         app.setAccountData(User.DataKeys.INCOMING_FUTURE_HREF, null);
         app.setAccountData(User.DataKeys.EXCLUSIVE_FUTURE_HREF, null);
 
-        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_INCOMING, null);
-        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, null);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 

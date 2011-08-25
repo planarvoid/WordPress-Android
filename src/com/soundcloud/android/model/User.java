@@ -228,9 +228,6 @@ public class User extends ModelBase implements PageTrackable {
         String EXCLUSIVE_FUTURE_HREF = "exclusive_future_href";
         String OWN_FUTURE_HREF       = "own_future_href";
 
-        String NOTIFICATION_COUNT_INCOMING = "notification_count";
-        String NOTIFICATION_COUNT_OWN      = "notification_count_own";
-
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
     }
 }

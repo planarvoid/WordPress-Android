@@ -179,7 +179,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(n.info.getContentText().toString(),
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
-        assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING), is(53));
         assertThat(n.getIntent().getAction(), equalTo(Actions.STREAM));
     }
 
@@ -329,7 +328,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
-        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, 0l);
         List<NotificationInfo> notifications = doPerformSync(app, false);
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
