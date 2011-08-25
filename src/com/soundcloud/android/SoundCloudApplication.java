@@ -51,7 +51,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=fbf228b0", formKey="")
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=fbf228b0", formKey="", checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
@@ -521,9 +521,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static Thread handleSilentException(String msg, Exception e) {
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);
-           ErrorReporter.getInstance().putCustomData("message", msg);
+           ACRA.getErrorReporter().putCustomData("message", msg);
         }
-        return ErrorReporter.getInstance().handleSilentException(e);
+        return ACRA.getErrorReporter().handleSilentException(e);
     }
 
 
