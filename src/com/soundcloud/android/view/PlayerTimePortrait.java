@@ -1,19 +1,22 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.CloudUtils;
 
 public class PlayerTimePortrait extends PlayerTime {
 
     private int mDefaultWidth;
-    private int mDragWidth;
+    private int mCommentingWidth;
+
+    private int mDefaultHeight;
+    private int mCommentingHeight;
 
     private Paint mBgPaint;
     private Paint mLinePaint;
@@ -23,24 +26,33 @@ public class PlayerTimePortrait extends PlayerTime {
     private boolean mPlayheadLeft;
     private int mPlayheadArrowWidth;
     private int mPlayheadArrowHeight;
-    private boolean mSeeking;
+    private boolean mCommenting;
+
+    private TextView mCommentInstructions;
 
 
     public PlayerTimePortrait(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        mCommentInstructions = (TextView) findViewById(R.id.txt_comment_instructions);
+
         mDefaultWidth = (int) context.getResources().getDimension(R.dimen.player_time_width);
-        mDragWidth = (int) context.getResources().getDimension(R.dimen.player_time_drag_width);
+        mCommentingWidth = (int) context.getResources().getDimension(R.dimen.player_time_comment_width);
+
+        mDefaultHeight = (int) context.getResources().getDimension(R.dimen.player_time_height);
+        mCommentingHeight = (int) context.getResources().getDimension(R.dimen.player_time_comment_height);
 
         mBgPaint = new Paint();
         mBgPaint.setColor(0xFFFFFFFF);
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
+        //mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, 1, 1 },0.9f, 10, 1f));
+        mBgPaint.setMaskFilter(new BlurMaskFilter(1, BlurMaskFilter.Blur.INNER));
+        //mBgPaint.setShadowLayer(-2, -2, 2, Color.BLACK);
 
         mLinePaint = new Paint();
-        mLinePaint.setColor(0xFF000000);
-        mLinePaint.setAntiAlias(true);
-        mLinePaint.setStyle(Paint.Style.FILL);
+        mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+        mLinePaint.setStyle(Paint.Style.STROKE);
 
         mArc = (int) (getResources().getDisplayMetrics().density * 10);
         mPlayheadArrowWidth = (int) (getResources().getDisplayMetrics().density * 10);
@@ -57,7 +69,7 @@ public class PlayerTimePortrait extends PlayerTime {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = -mPlayheadArrowHeight;
         lp.width = mDefaultWidth;
-        lp.height = mDefaultWidth;
+        lp.height = mDefaultHeight;
         setLayoutParams(lp);
     }
 
@@ -67,16 +79,22 @@ public class PlayerTimePortrait extends PlayerTime {
 
 
     @Override
-    public void setCurrentTime(long time, boolean seeking) {
-        super.setCurrentTime(time, seeking);
+    public void setCurrentTime(long time, boolean commenting) {
+        super.setCurrentTime(time, commenting);
 
-        final int width = seeking ? mDragWidth : mDefaultWidth;
-        if (seeking && !mSeeking) {
-            mSeeking = true;
-            ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
-        } else if (!seeking && mSeeking) {
-            mSeeking = false;
-            ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
+        final int width = commenting ? mCommentingWidth : mDefaultWidth;
+        if (commenting && !mCommenting) {
+            mCommenting = true;
+            getLayoutParams().width = width;
+            getLayoutParams().height = mCommentingHeight;
+            mCurrentTime.setTextColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+            mCommentInstructions.setVisibility(View.VISIBLE);
+        } else if (!commenting && mCommenting) {
+            mCommenting = false;
+            getLayoutParams().width = width;
+            getLayoutParams().height = mDefaultHeight;
+            mCurrentTime.setTextColor(getResources().getColor(R.color.black));
+            mCommentInstructions.setVisibility(View.GONE);
         }
 
         final int parentWidth = ((RelativeLayout) this.getParent()).getWidth();
@@ -142,16 +160,19 @@ public class PlayerTimePortrait extends PlayerTime {
         ctx.arcTo(new RectF(Bx, By, Cx, Cy), 270, 90); //B-C arc
 
         ctx.lineTo(Dx, Dy);
-        if (!mSeeking) {
-            ctx.lineTo(Ex, Ey);
-            ctx.lineTo(Fx, Fy);
-            ctx.lineTo(Gx, Gy);
-        }
+        ctx.lineTo(Ex, Ey);
+        ctx.lineTo(Fx, Fy);
+        ctx.lineTo(Gx, Gy);
 
         ctx.lineTo(Hx, Hy);
         ctx.lineTo(Ix, Iy);
         ctx.arcTo(new RectF(Ax - mArc, Ay, Ix + mArc, Iy), 180, 90); //F-A arc
         canvas.drawPath(ctx, mBgPaint);
+
+        if (mCommenting){
+            canvas.drawLine(mPlayheadOffset,h,mPlayheadOffset,h+mPlayheadOffset,mLinePaint);
+        }
+
         super.dispatchDraw(canvas);
     }
 

@@ -22,7 +22,7 @@
                 android:layout_height="@dimen/player_portrait_wave_height"
                 android:scaleType="fitXY"/>
 
-        <RelativeLayout
+        <com.soundcloud.android.view.PlayerTouchBar
                 android:id="@+id/track_touch_bar"
                 android:background="#00000000"
                 android:layout_gravity="top"
@@ -40,10 +40,10 @@
                          android:layout_height="fill_parent"/>
         </RelativeLayout>
     </com.soundcloud.android.view.WaveformHolder>
-    <com.soundcloud.android.view.CommentPanel android:id="@+id/comment_panel"
-                                              android:layout_width="fill_parent"
-                                              android:layout_height="wrap_content"
-                                              android:layout_above="@id/waveform_holder"/>
+
+    <View android:layout_width="fill_parent"
+                      android:layout_above="@+id/waveform_holder" android:layout_height="2dip"
+                      android:background="@drawable/drop_shadow_up"/>
     <com.soundcloud.android.view.PlayerTimePortrait android:id="@+id/currenttime"
                                                     style="@style/txt_player_time"
                                                     android:layout_width="@dimen/player_time_width"

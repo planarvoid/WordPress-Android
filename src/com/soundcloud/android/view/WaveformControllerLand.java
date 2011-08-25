@@ -213,10 +213,6 @@ public class WaveformControllerLand extends WaveformController {
       return null;
     }
 
-    private long stampFromPosition(int x){
-        return (long) (Math.min(Math.max(.001, (((float)x)/getWidth())),1) * mPlayingTrack.duration);
-    }
-
     void queueCommentUnique(int what){
         if (!mCommentHandler.hasMessages(what)) mCommentHandler.sendEmptyMessage(what);
     }
@@ -248,6 +244,7 @@ public class WaveformControllerLand extends WaveformController {
                 }
                 mShowBubble = false;
                 queueCommentUnique(UI_UPDATE_BUBBLE);
+                mode = TOUCH_MODE_NONE;
                 break;
         }
         super.processUpInput(input);

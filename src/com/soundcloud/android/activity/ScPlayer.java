@@ -82,6 +82,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private static final int REFRESH = 1;
 
     private boolean mIsPlaying = false;
+    private boolean mIsCommenting = false;
     private ImageButton mPauseButton;
     private boolean mLandscape;
 
@@ -135,6 +136,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     protected TrackInfoBar mTrackInfoBar;
     protected ImageView mAvatar;
+    private ImageButton mCommentButton;
 
     static {
         initializeRemoteControlRegistrationMethods();
@@ -224,16 +226,27 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
             mArtwork.setVisibility(View.INVISIBLE);
 
-            ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
-            mCommentsButton.setOnClickListener(new View.OnClickListener() {
+            mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
+            mCommentButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(
+                    toggleCommentMode();
+                    /*addNewComment(
                             CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id, -1, "", 0),
-                            addCommentListener);
+                            addCommentListener);*/
                 }
             });
         }
         mContainer = (RelativeLayout) findViewById(R.id.container);
+    }
+
+    public void toggleCommentMode() {
+        mIsCommenting = !mIsCommenting;
+        mWaveformController.setCommentMode(mIsCommenting);
+        if (mIsCommenting){
+            mCommentButton.setImageResource(R.drawable.ic_commenting_states);
+        } else {
+            mCommentButton.setImageResource(R.drawable.ic_comment_states);
+        }
     }
 
     public ViewGroup getCommentHolder() {
@@ -1144,7 +1157,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mPlayingTrack.comments.add(c);
             getApp().cacheTrack(mPlayingTrack);
             setCurrentComments(true);
-
+            mWaveformController.showComment(c);
         }
 
         @Override

@@ -14,7 +14,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
 
 public class PlayerTime extends RelativeLayout {
-    private TextView mCurrentTime;
+    protected TextView mCurrentTime;
     private TextView mTotalTime;
     protected int mDuration;
 
@@ -31,12 +31,12 @@ public class PlayerTime extends RelativeLayout {
 
     }
 
-    public void setCurrentTime(long time, boolean seeking) {
+    public void setCurrentTime(long time, boolean commenting) {
         mCurrentTime.setText(CloudUtils.formatTimestamp(time));
     }
 
-    public void setByPercent(float seekPercent, boolean seeking) {
-        setCurrentTime((long) (mDuration * seekPercent), seeking);
+    public void setByPercent(float seekPercent, boolean commenting) {
+        setCurrentTime((long) (mDuration * seekPercent), commenting);
     }
 
     public void setDuration(int time) {

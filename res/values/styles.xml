@@ -250,6 +250,10 @@
     <style name="txt_player_time_land" parent="txt_player_time">
         <item name="android:background">@drawable/player_time_bg_land</item>
     </style>
+    <style name="txt_player_time_instructrions">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">@dimen/player_time_text_instructions_size</item>
+    </style>
 
     <style name="txt_player_track_info_stats">
         <item name="android:layout_width">wrap_content</item>
