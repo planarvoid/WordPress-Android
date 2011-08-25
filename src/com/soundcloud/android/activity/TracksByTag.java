@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     private String mTrackingPath;
+    private ScListView mListView;
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -29,13 +30,13 @@ public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.S
         SectionedEndlessAdapter adpWrap = new SectionedEndlessAdapter(this, adp, true);
         adpWrap.addListener(this);
 
-        ScListView listView = new SectionedListView(this);
-        configureList(listView);
-        ((ViewGroup) findViewById(R.id.listHolder)).addView(listView);
+        mListView = new SectionedListView(this);
+        configureList(mListView);
+        ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
-        adpWrap.configureViews(listView);
+        adpWrap.configureViews(mListView);
         adpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
-        listView.setAdapter(adpWrap, true);
+        mListView.setAdapter(adpWrap, true);
 
         Intent i = getIntent();
         if (i.hasExtra("tag")) {
@@ -49,6 +50,19 @@ public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.S
                     Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
             mTrackingPath = Consts.Tracking.TRACKS_BY_GENRE + i.getStringExtra("genre");
         } else throw new IllegalArgumentException("No tag or genre supplied with intent");
+
+        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        if (mPreviousState != null) {
+            mListView.getWrapper().restoreState(mPreviousState);
+        }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        if (mListView != null) {
+            return  mListView.getWrapper().saveState();
+        }
+        return null;
     }
 
     @Override
