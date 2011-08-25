@@ -125,12 +125,12 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static void syncIncoming(SoundCloudApplication app, long lastSync)
+    /* package */ static void syncIncoming(SoundCloudApplication app, long lastSeen)
             throws IOException {
         final int count = Math.max(0,app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING));
 
-        Activities incomingEvents = getNewIncomingEvents(app, lastSync);
-        Activities exclusiveEvents = getNewExclusiveEvents(app, lastSync);
+        Activities incomingEvents = getNewIncomingEvents(app, lastSeen);
+        Activities exclusiveEvents = getNewExclusiveEvents(app, lastSeen);
 
         Set<Long> ids = new HashSet<Long>(incomingEvents.size());
         for (Event e : incomingEvents) ids.add(e.origin_id);
@@ -167,10 +167,10 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static void syncOwn(SoundCloudApplication app, long lastSync)
+    /* package */ static void syncOwn(SoundCloudApplication app, long lastSeen)
             throws IOException {
-        final int count = Math.max(0,app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN));
-        Activities events = getOwnEvents(app, lastSync);
+        final int count = Math.max(0, app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_OWN));
+        Activities events = getOwnEvents(app, lastSeen);
 
         if (!events.isEmpty() && events.size() > count) {
             app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, events.size());
