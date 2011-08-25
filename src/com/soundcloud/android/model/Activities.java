@@ -1,9 +1,12 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +21,12 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activities implements Iterable<Event> {
     public List<Event> collection;
+
+    /* the next page for the collection */
     public String next_href;
+
+    /* use this URL to poll for updates */
+    public String future_href;
 
     public static final Activities EMPTY = new Activities();
 
@@ -28,6 +36,11 @@ public class Activities implements Iterable<Event> {
 
     public Activities(List<Event> collection) {
         this.collection = collection;
+    }
+
+    public Activities(List<Event> collection, String future_href) {
+        this.collection = collection;
+        this.future_href = future_href;
     }
 
     public Activities(Event... events) {
@@ -44,6 +57,7 @@ public class Activities implements Iterable<Event> {
         return "Activities{" +
                 "collection=" + collection +
                 ", next_href='" + next_href + '\'' +
+                ", future_href='" + future_href + '\'' +
                 '}';
     }
 
@@ -144,5 +158,17 @@ public class Activities implements Iterable<Event> {
         return new AndroidCloudAPI.Wrapper(null, null, null, null, null, null)
                 .getMapper()
                 .readValue(is, Activities.class);
+    }
+
+    public boolean hasMore() {
+        return !TextUtils.isEmpty(next_href);
+    }
+
+    public Request getNextRequest() {
+        if (!hasMore()) {
+            throw new IllegalStateException("next_href is null");
+        } else {
+            return new Request(URI.create(next_href));
+        }
     }
 }

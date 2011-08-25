@@ -32,10 +32,10 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -189,31 +189,51 @@ public class SyncAdapterService extends Service {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return getEvents(app, since, exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES);
+            return getEventsWithFutureHref(app, exclusive ?
+                    User.DataKeys.EXCLUSIVE_FUTURE_HREF :
+                    User.DataKeys.INCOMING_FUTURE_HREF,
+                    Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES),
+                    since);
         }
     }
 
-    /* package */ static Activities getOwnEvents(SoundCloudApplication application, long since)
+    /* package */ static Activities getOwnEvents(SoundCloudApplication app, long since) throws IOException {
+        return getEventsWithFutureHref(app, User.DataKeys.OWN_FUTURE_HREF, Request.to(Endpoints.MY_NEWS), since);
+
+    }
+
+    /* package */ static Activities getEventsWithFutureHref(SoundCloudApplication app, String href, Request fallback, long since)
             throws IOException {
-        return getEvents(application, since, Endpoints.MY_NEWS);
+        Request request = fallback;
+        String futureHref = app.getAccountData(href);
+        if (futureHref != null) {
+            request = new Request(URI.create(futureHref));
+        }
+
+        Activities activities = getEvents(app, since, request);
+
+        if (activities.future_href != null) {
+            app.setAccountData(href, activities.future_href);
+        }
+        return activities;
     }
 
     /* package */
-    static Activities getEvents(SoundCloudApplication app, final long since, final String resource)
+    static Activities getEvents(SoundCloudApplication app, final long since, final Request resource)
             throws IOException {
         boolean caughtUp = false;
-        String cursor = null;
+        String future_href = null;
         List<Event> events = new ArrayList<Event>();
-        do {
-            Request request = Request.to(resource).add("limit", cursor == null ? 1 : 20);
-            if (cursor != null) {
-                request.add("cursor", cursor);
-            }
 
+        Request request = resource.add("limit", 20);
+        do {
             HttpResponse response = app.get(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Activities activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-                cursor = activities.getCursor();
+                request = activities.hasMore() ? activities.getNextRequest() : null;
+                if (future_href == null) {
+                    future_href = activities.future_href;
+                }
 
                 if (activities.includes(since)) {
                     caughtUp = true; // nothing new
@@ -239,9 +259,9 @@ public class SyncAdapterService extends Service {
             }
         } while (!caughtUp
                 && events.size() < NOTIFICATION_MAX
-                && !TextUtils.isEmpty(cursor));
+                && request != null);
 
-        return new Activities(events);
+        return new Activities(events, future_href);
     }
 
 
@@ -314,6 +334,10 @@ public class SyncAdapterService extends Service {
     public static void requestNewSync(SoundCloudApplication app) {
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
+
+        app.setAccountData(User.DataKeys.OWN_FUTURE_HREF, null);
+        app.setAccountData(User.DataKeys.INCOMING_FUTURE_HREF, null);
+        app.setAccountData(User.DataKeys.EXCLUSIVE_FUTURE_HREF, null);
 
         app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_INCOMING, null);
         app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, null);
