@@ -26,8 +26,6 @@ public class PlayerTimePortrait extends PlayerTime {
     private boolean mSeeking;
 
 
-
-
     public PlayerTimePortrait(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -49,10 +47,15 @@ public class PlayerTimePortrait extends PlayerTime {
         mPlayheadArrowHeight = (int) (getResources().getDisplayMetrics().density * 10);
 
         final int pad = (int) (5 * getResources().getDisplayMetrics().density);
-        setPadding(pad, 0, pad, mPlayheadArrowHeight);
+        setPadding((int) (5 * getResources().getDisplayMetrics().density),
+                0,
+                (int) (5 * getResources().getDisplayMetrics().density),
+                mPlayheadArrowHeight + (int) (3 * getResources().getDisplayMetrics().density));
+
         setGravity(Gravity.CENTER_HORIZONTAL);
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = -mPlayheadArrowHeight;
         lp.width = mDefaultWidth;
         lp.height = mDefaultWidth;
         setLayoutParams(lp);
@@ -60,12 +63,6 @@ public class PlayerTimePortrait extends PlayerTime {
 
     @Override
     public void setWaveHeight(int height) {
-        if (getPaddingBottom() != height){
-            final int pad = (int) (5 * getResources().getDisplayMetrics().density);
-            setPadding(pad,0,pad,height);
-            requestLayout();
-        }
-
     }
 
 
@@ -74,16 +71,16 @@ public class PlayerTimePortrait extends PlayerTime {
         super.setCurrentTime(time, seeking);
 
         final int width = seeking ? mDragWidth : mDefaultWidth;
-        if (seeking && !mSeeking){
+        if (seeking && !mSeeking) {
             mSeeking = true;
             ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
-        } else if (!seeking && mSeeking){
+        } else if (!seeking && mSeeking) {
             mSeeking = false;
             ((RelativeLayout.LayoutParams) getLayoutParams()).width = width;
         }
 
         final int parentWidth = ((RelativeLayout) this.getParent()).getWidth();
-        final int playheadX = Math.round (parentWidth * (time / ((float) mDuration)));
+        final int playheadX = Math.round(parentWidth * (time / ((float) mDuration)));
 
         if (playheadX < width / 2) {
             mPlayheadOffset = playheadX;
@@ -97,7 +94,7 @@ public class PlayerTimePortrait extends PlayerTime {
         }
 
         if (mDuration > 0) {
-            ((RelativeLayout.LayoutParams) getLayoutParams()).leftMargin = Math.round (parentWidth * (time / ((float) mDuration))) - mPlayheadOffset;
+            ((RelativeLayout.LayoutParams) getLayoutParams()).leftMargin = Math.round(parentWidth * (time / ((float) mDuration))) - mPlayheadOffset;
         } else {
             ((RelativeLayout.LayoutParams) getLayoutParams()).leftMargin = 0;
         }
@@ -131,7 +128,7 @@ public class PlayerTimePortrait extends PlayerTime {
         final int Ex = mPlayheadLeft ? mPlayheadArrowWidth + mPlayheadOffset : mPlayheadOffset;
         final int Ey = h;
         final int Fx = mPlayheadOffset;
-        final int Fy = h + (mSeeking ? mPlayheadArrowHeight : 150);
+        final int Fy = h + mPlayheadArrowHeight;
         final int Gx = mPlayheadLeft ? mPlayheadOffset : mPlayheadOffset - mPlayheadArrowWidth;
         final int Gy = h;
         final int Hx = 0;
@@ -145,9 +142,12 @@ public class PlayerTimePortrait extends PlayerTime {
         ctx.arcTo(new RectF(Bx, By, Cx, Cy), 270, 90); //B-C arc
 
         ctx.lineTo(Dx, Dy);
-        ctx.lineTo(Ex, Ey);
-        ctx.lineTo(Fx, Fy);
-        ctx.lineTo(Gx, Gy);
+        if (!mSeeking) {
+            ctx.lineTo(Ex, Ey);
+            ctx.lineTo(Fx, Fy);
+            ctx.lineTo(Gx, Gy);
+        }
+
         ctx.lineTo(Hx, Hy);
         ctx.lineTo(Ix, Iy);
         ctx.arcTo(new RectF(Ax - mArc, Ay, Ix + mArc, Iy), 180, 90); //F-A arc

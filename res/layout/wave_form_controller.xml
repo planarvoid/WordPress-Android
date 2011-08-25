@@ -48,7 +48,7 @@
                                                     style="@style/txt_player_time"
                                                     android:layout_width="@dimen/player_time_width"
                                                     android:layout_height="@dimen/player_time_height"
-                                                    android:layout_alignParentBottom="true"/>
+                                                    android:layout_above="@id/waveform_holder"/>
     <FrameLayout android:id="@+id/player_avatar_bar_holder"
                  android:layout_width="fill_parent"
                  android:layout_height="@dimen/player_avatar_bar_height"
