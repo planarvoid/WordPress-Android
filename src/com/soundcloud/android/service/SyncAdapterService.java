@@ -201,12 +201,8 @@ public class SyncAdapterService extends Service {
         if (futureHref != null) {
             request = new Request(URI.create(futureHref));
         }
-
         Activities activities = getEvents(app, since, request);
-
-        if (activities.future_href != null) {
-            app.setAccountData(href, activities.future_href);
-        }
+        app.setAccountData(href, activities.future_href);
         return activities;
     }
 
