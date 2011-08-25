@@ -56,8 +56,7 @@ public class WorkspaceView extends ViewGroup {
      * The user needs to drag at least this much for it to be considered a fling gesture. This
      * reduces the chance of a random twitch sending the user to the next screen.
      */
-    // TODO: refactor
-    private static final int MIN_LENGTH_FOR_FLING = 100;
+    private int mMinLengthForAFling = 100;
 
     private boolean mFirstLayout = true;
     private boolean mHasLaidOut = false;
@@ -149,6 +148,8 @@ public class WorkspaceView extends ViewGroup {
 
         mPagingTouchSlop = ReflectionUtils.callWithDefault(configuration,
                 "getScaledPagingTouchSlop", mTouchSlop * 2);
+
+        mMinLengthForAFling -= mTouchSlop;
     }
 
     /**
@@ -612,7 +613,8 @@ public class WorkspaceView extends ViewGroup {
                     final View lastChild = getChildAt(getChildCount() - 1);
                     final int maxScrollX = lastChild.getRight() - getWidth();
                     scrollTo(Math.max(0, Math.min(maxScrollX,
-                            (int)(mDownScrollX + mDownMotionX - x
+                            (int)(mDownScrollX + mDownMotionX -
+                                    (mDownMotionX > x ? x + mPagingTouchSlop : x - mPagingTouchSlop)
                             ))), 0);
                     if (mOnScrollListener != null) {
                         mOnScrollListener.onScroll(getCurrentScreenFraction());
@@ -667,7 +669,7 @@ public class WorkspaceView extends ViewGroup {
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                     //TODO(minsdk8): int velocityX = (int) MotionEventUtils.getXVelocity(velocityTracker, activePointerId);
                     int velocityX = (int) velocityTracker.getXVelocity();
-                    boolean isFling = Math.abs(mDownMotionX - x) > MIN_LENGTH_FOR_FLING;
+                    boolean isFling = Math.abs(mDownMotionX - x) > mMinLengthForAFling;
 
                     final float scrolledPos = getCurrentScreenFraction();
                     final int whichScreen = Math.round(scrolledPos);
