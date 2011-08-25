@@ -2,6 +2,7 @@ $ 26
   % v current
   _ 2011-08-xx
   ! New stuff
+    - Upgraded to ACRA 4.3-SNAPSHOT
 
 $ 25
   % v 1.4.3
