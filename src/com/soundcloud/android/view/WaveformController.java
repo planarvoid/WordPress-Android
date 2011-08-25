@@ -2,6 +2,8 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import android.content.res.Configuration;
+import android.view.ViewGroup;
 import android.view.animation.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -62,8 +64,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
 
-    protected CommentDisplay mCommentDisplay;
-    private CommentPanel mCommentPanel;
+    protected CommentDisplay mCurrentCommentDisplay;
 
     protected Comment mAddComment;
     private Comment mLastAutoComment;
@@ -149,15 +150,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         setStaticTransformationsEnabled(true);
         mkdirs(dirFile);
+        mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
-        mCommentPanel = (CommentPanel) findViewById(R.id.comment_panel);
-        if (mCommentPanel != null) {
-            mCommentDisplay = mCommentPanel;
-            mCommentPanel.setControllers(mPlayer, this);
-            mCommentPanel.setVisibility(View.GONE);
-        } else {
-            mPlayerTouchBar.setLandscape(true);
-        }
     }
 
     private void createCommentPanel(){
@@ -214,10 +208,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
                     mLastAutoComment = last;
-                    if (mCurrentShowingComment == null && mPlayer.waveformVisible()) {
-                        mCurrentShowingComment = last;
-                        showCurrentComment(true);
-                        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+                    autoCloseComment();
+                    cancelAutoCloseComment();
+                    if (mPlayer.waveformVisible()) {
+                        if (mCurrentShowingComment == null){
+                            mCurrentShowingComment = last;
+                            showCurrentComment(true);
+                            mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+                        }
+
                     }
                 }
             }
@@ -317,18 +316,25 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected void showCurrentComment(boolean waitForInteraction) {
-        if (mCommentPanel == null) return;
+
 
         if (mCurrentShowingComment != null) {
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
             mCommentLines.setCurrentComment(mCurrentShowingComment);
 
-            mCommentPanel.showComment(mCurrentShowingComment);
-            mCommentPanel.interacted = !waitForInteraction;
-            mCommentPanel.setVisibility(View.VISIBLE);
+            CommentPanel commentPanel = new CommentPanel(mPlayer);
+            commentPanel.setControllers(mPlayer, this);
+            commentPanel.showComment(mCurrentShowingComment);
+            commentPanel.interacted = !waitForInteraction;
+            mCurrentCommentDisplay = commentPanel;
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                    LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+            lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
+
+            mWaveformFrame.addView(commentPanel, 0, lp);
+
 
             AnimationSet set = new AnimationSet(true);
-
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
             animation.setDuration(500);
             set.addAnimation(animation);
@@ -339,7 +345,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             animation.setDuration(500);
             set.addAnimation(animation);
 
-            mCommentPanel.startAnimation(set);
+            commentPanel.startAnimation(set);
         }
     }
 
@@ -347,12 +353,19 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mCurrentShowingComment = null;
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
-        if (mCommentPanel != null) mCommentPanel.setVisibility(View.GONE);
+
+        if (mCurrentCommentDisplay != null) {
+            Animation animation = new AlphaAnimation(1.0f, 0.0f);
+            animation.setDuration(500);
+            mCurrentCommentDisplay.setAnimation(animation);
+            mWaveformFrame.removeView(mCurrentCommentDisplay);
+            mCurrentCommentDisplay = null;
+        }
     }
 
     protected void autoCloseComment() {
-        if (mCommentDisplay != null && mCurrentShowingComment != null)
-            if (mCurrentShowingComment == mCommentDisplay.getComment() && !mCommentDisplay.interacted) {
+        if (mCurrentCommentDisplay != null && mCurrentShowingComment != null)
+            if (mCurrentShowingComment == mCurrentCommentDisplay.getComment() && !mCurrentCommentDisplay.interacted) {
                 closeComment();
             }
     }
@@ -619,7 +632,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showComment(Comment c) {
-        if (mCommentDisplay != null && mCurrentShowingComment != null) closeComment();
+        if (mCurrentCommentDisplay != null && mCurrentShowingComment != null) closeComment();
         mCurrentShowingComment = c;
         showCurrentComment(true);
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);

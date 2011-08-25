@@ -17,9 +17,12 @@ public class CommentPanel extends CommentDisplay {
 
     ImageView mIcon;
 
+    public CommentPanel(Context context) {
+        super(context);
+    }
+
     public CommentPanel(Context context, AttributeSet attrs) {
         super(context, attrs);
-
     }
 
     @Override
@@ -29,7 +32,7 @@ public class CommentPanel extends CommentDisplay {
 
         final float density = getResources().getDisplayMetrics().density;
         setBackgroundColor(getResources().getColor(R.color.commentPanelBg));
-        setPadding(0, (int) (5 * density), 0, (int) (15 * density));
+        setPadding(0, (int) (5 * density), 0, (int) (25 * density));
 
         mIcon = (ImageView) findViewById(R.id.icon);
 

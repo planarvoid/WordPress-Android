@@ -120,7 +120,7 @@ public class WaveformControllerLand extends WaveformController {
             int topOffset = calc[1];
 
             if (mCommentBubble == null) {
-                mCommentDisplay = mCommentBubble = new CommentBubble(mPlayer);
+                mCurrentCommentDisplay = mCommentBubble = new CommentBubble(mPlayer);
                 mCommentBubble.setControllers(mPlayer, (WaveformController) this);
             }
             mCommentBubble.parentWidth = getWidth();

@@ -5,6 +5,11 @@ import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -46,11 +51,11 @@ public class CommentDisplay extends RelativeLayout {
     }
 
     public CommentDisplay(Context context, AttributeSet attr) {
-       super(context,attr);
+        super(context, attr);
         init();
     }
 
-    protected void init(){
+    protected void init() {
 
         at_timestamp = getResources().getString(R.string.at_timestamp);
 
@@ -63,27 +68,27 @@ public class CommentDisplay extends RelativeLayout {
         mBtnReply = (Button) findViewById(R.id.btn_reply);
 
         if (mBtnReply != null)
-        mBtnReply.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
-                        mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
-            }
+            mBtnReply.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
+                            mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
+                }
 
-        });
+            });
 
         if (mBtnReadOn != null)
-        mBtnReadOn.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                mController.nextCommentInThread();
-            }
+            mBtnReadOn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mController.nextCommentInThread();
+                }
 
-        });
+            });
 
         mTxtUsername.setFocusable(true);
         mTxtUsername.setClickable(true);
-        mTxtUsername.setOnClickListener(new OnClickListener(){
+        mTxtUsername.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mPlayer, UserBrowser.class);
@@ -94,14 +99,14 @@ public class CommentDisplay extends RelativeLayout {
         });
 
         if (mBtnClose != null)
-        mBtnClose.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                mController.closeComment();
-            }
-        });
+            mBtnClose.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mController.closeComment();
+                }
+            });
 
-        setOnClickListener(new OnClickListener(){
+        setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 interacted = true;
@@ -112,7 +117,7 @@ public class CommentDisplay extends RelativeLayout {
         closing = false;
     }
 
-    protected void setControllers(ScPlayer player, WaveformController controller){
+    protected void setControllers(ScPlayer player, WaveformController controller) {
         mPlayer = player;
         mController = controller;
     }
@@ -121,9 +126,9 @@ public class CommentDisplay extends RelativeLayout {
         mComment = currentShowingComment;
 
         mTxtUsername.setText(mComment.user.username);
-        mTxtTimestamp.setText(String.format(at_timestamp,CloudUtils.formatTimestamp(mComment.timestamp)));
+        mTxtTimestamp.setText(String.format(at_timestamp, CloudUtils.formatTimestamp(mComment.timestamp)));
         mTxtComment.setText(mComment.body);
-        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(),mComment.created_at.getTime(), true));
+        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(), mComment.created_at.getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtTimestamp.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);
@@ -131,11 +136,11 @@ public class CommentDisplay extends RelativeLayout {
 
         if (mBtnReply != null) mBtnReply.setVisibility(View.VISIBLE);
         if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
-        if (mBtnReadOn != null){
+        if (mBtnReadOn != null) {
             if (currentShowingComment.nextComment != null)
-                        mBtnReadOn.setVisibility(View.VISIBLE);
-                    else
-                        mBtnReadOn.setVisibility(View.GONE);
+                mBtnReadOn.setVisibility(View.VISIBLE);
+            else
+                mBtnReadOn.setVisibility(View.GONE);
 
         }
 
