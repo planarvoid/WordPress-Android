@@ -80,6 +80,7 @@ import java.util.List;
 public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
+    public static final int REFRESH_DELAY = 500;
 
     private boolean mIsPlaying = false;
     private boolean mIsCommenting = false;
@@ -659,14 +660,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private long refreshNow() {
         try {
             if (mPlaybackService == null)
-                return 500;
+                return REFRESH_DELAY;
 
             if (mPlaybackService.loadPercent() > 0 && !mIsPlaying) {
                 mIsPlaying = true;
             }
 
             long pos = mPlaybackService.position();
-            long remaining = 1000 - (pos % 1000);
+            long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
 
             if (pos >= 0 && mDuration > 0) {
                 mWaveformController.setCurrentTime(pos);
@@ -680,12 +681,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
             // return the number of milliseconds until the next full second, so
             // the counter can be updated at just the right time
-            return !mPlaybackService.isPlaying() ? 1000 : remaining;
+            return !mPlaybackService.isPlaying() ? REFRESH_DELAY : remaining;
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-        return 500;
+        return REFRESH_DELAY;
     }
 
     private final Handler mHandler = new Handler() {
