@@ -1,37 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.ParcelCache;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.FriendFinderView;
-import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserlistLayout;
-import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -46,12 +14,26 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.*;
 import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.model.*;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.*;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +65,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
+    private ScTabView mMyTracksView;
 
     public interface TabTags {
         String tracks = "tracks";
@@ -171,15 +154,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 loadYou();
             }
 
-            for (ScListView list : mLists) {
-                if (LazyEndlessAdapter.class.isAssignableFrom(list.getWrapper().getClass()))
-                    list.onRefresh();
-            }
-
             if (isMe()) {
                 Connections.get().requestUpdate(getApp(), false, this);
             }
         }
+
+        mMyTracksView.onVisible();
+        ((ScTabView) mUserlistBrowser.getCurrentWorkspaceView()).onVisible();
         loadDetails();
     }
 
@@ -328,7 +309,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUser.id));
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUser.id), false);
         if (isOtherUser()) {
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -340,12 +321,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
         }
 
-        ScTabView tracksView = new ScTabView(this);
-        tracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
+        mMyTracksView = new ScTabView(this);
+        mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
         // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"));
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"), false);
         if (isOtherUser()) {
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -362,7 +343,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id));
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
 
         if (isOtherUser()) {
             if (mUser != null) {
@@ -380,7 +361,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id));
+        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
 
         if (isOtherUser()) {
             if (mUser != null) {
@@ -412,7 +393,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
-        mUserlistBrowser.addView(tracksView, "Tracks", TabTags.tracks);
+        mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
         mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
         mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
         mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
@@ -426,6 +407,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 }
             }
             @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
+
+            @Override
+            public void onNextScreenVisible(View newScreen, int newScreenIndex) {
+                ((ScTabView) newScreen).onVisible();
+            }
         });
 
         if (isMe()) {

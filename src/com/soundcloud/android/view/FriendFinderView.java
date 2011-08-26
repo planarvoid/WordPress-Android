@@ -19,7 +19,6 @@ import com.soundcloud.api.Request;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -37,6 +36,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private int mCurrentState;
     private boolean mFbConnected;
     private SectionedAdapter.Section mFriendsSection;
+
+    private List<Connection> mConnections;
+    private boolean mSeen;
 
     public interface States {
         int LOADING = 1;
@@ -77,9 +79,13 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         mHeaderLayout.findViewById(R.id.suggested_users_msg_txt).setVisibility(View.GONE);
         ((TextView) mHeaderLayout.findViewById(R.id.suggested_users_msg_txt)).setText(R.string.suggested_users_no_friends_msg);
+
+        setState(States.LOADING, false);
     }
 
     public void onConnections(List<Connection> connections, boolean refresh) {
+        mConnections = connections;
+
         if (connections == null) {
             setState(States.CONNECTION_ERROR, refresh);
         } else {
@@ -167,7 +173,17 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     }
 
-
+    public void onVisible() {
+        if (!mSeen) {
+            mSeen = true;
+            if (mCurrentState == States.LOADING) {
+                onRefresh();
+            } else {
+                mFriendList.onResume();
+                mFriendList.getWrapper().allowInitialLoading();
+            }
+        }
+    }
 
     private void removeList() {
         //mAdapter.clearEmptyView();
@@ -182,7 +198,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mFriendList.setOnRefreshListener(this);
         mFriendList.setFadingEdgeLength(0);
 
-        mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity));
+        mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity), false);
         mAdapter.addListener(this);
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
