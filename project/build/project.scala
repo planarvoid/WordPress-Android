@@ -26,7 +26,7 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
 
 
     // core dependencies
-    val acra = "org.acra" % "acra" % "4.2.3"
+    val acra = "org.acra" % "acra" % "4.3.0-SNAPSHOT"
     val jackson_core = "org.codehaus.jackson" % "jackson-core-asl" % "1.7.1"
     val jackson_mapper = "org.codehaus.jackson" % "jackson-mapper-asl" % "1.7.1"
     val java_wrapper = "com.soundcloud" % "java-api-wrapper" % "1.0.2-SNAPSHOT"

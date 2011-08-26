@@ -39,7 +39,6 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEvents() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
@@ -47,11 +46,30 @@ public class SyncAdapterServiceTest extends ApiTests {
                 DefaultTestRunner.application, 0l, false);
 
         assertThat(events.size(), is(100));
+        assertThat(events.future_href,
+                equalTo("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+
+        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.INCOMING_FUTURE_HREF),
+                equalTo(events.future_href));
     }
 
     @Test
+    public void testGetNewIncomingEventsExclusive() throws Exception {
+        addPendingHttpResponse(200, resource("exclusives_1.json"));
+
+        Activities events = SyncAdapterService.getNewIncomingEvents(
+                DefaultTestRunner.application, 0l, true);
+
+        assertThat(events.size(), is(4));
+        assertThat(events.future_href,
+                equalTo("https://api.soundcloud.com/me/activities/tracks/exclusive?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.EXCLUSIVE_FUTURE_HREF),
+                equalTo(events.future_href));
+    }
+
+
+    @Test
     public void testGetOwnEvents() throws Exception {
-        addPendingHttpResponse(200, resource("own_0.json"));
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
 
@@ -59,11 +77,15 @@ public class SyncAdapterServiceTest extends ApiTests {
                 DefaultTestRunner.application, 0l);
 
         assertThat(events.size(), is(42));
+        assertThat(events.future_href,
+                equalTo("https://api.soundcloud.com/me/activities/all/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+
+        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.OWN_FUTURE_HREF),
+                equalTo(events.future_href));
     }
 
     @Test
     public void testWithSince() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
@@ -72,7 +94,6 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         assertThat(events.size(), is(1));
 
-        addPendingHttpResponse(200, resource("incoming_0.json"));
         addPendingHttpResponse(200, resource("incoming_1.json"));
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
@@ -144,7 +165,6 @@ public class SyncAdapterServiceTest extends ApiTests {
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
-        addPendingHttpResponse(200, resource("exclusives_0.json"));
         addPendingHttpResponse(200, resource("exclusives_1.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
 
@@ -159,7 +179,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(n.info.getContentText().toString(),
                 equalTo("exclusives from jberkel_testing, xla and others"));
 
-        assertThat(app.getAccountDataInt(User.DataKeys.NOTIFICATION_COUNT_INCOMING), is(53));
         assertThat(n.getIntent().getAction(), equalTo(Actions.STREAM));
     }
 
@@ -167,7 +186,6 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void shouldSendTwoSeparateNotifications() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("own_0.json"));
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
 
@@ -310,7 +328,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
-        app.setAccountData(User.DataKeys.NOTIFICATION_COUNT_OWN, 0l);
         List<NotificationInfo> notifications = doPerformSync(app, false);
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);

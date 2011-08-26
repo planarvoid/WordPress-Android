@@ -239,12 +239,9 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void onDraw(Canvas c) {
-
+        if (mBgGradient == null || mAvatarTiles == null) return;
 
         mBgGradient.draw(c);
-
-        if (mAvatarTiles == null) return;
-
         for (AvatarTile at : mAvatarTiles) {
 
             if (at.currentAvatar != null) {

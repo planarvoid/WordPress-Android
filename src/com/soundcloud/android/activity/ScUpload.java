@@ -141,10 +141,12 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapToRecording(mRecording);
-                trackPage(mRecording.pageTrack());
-                trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
-                saveRecording(mRecording);
+                if (mRecording != null) {
+                    mapToRecording(mRecording);
+                    trackPage(mRecording.pageTrack());
+                    trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
+                    saveRecording(mRecording);
+                }
 
                 if (startUpload()) {
                     mRecording = null;

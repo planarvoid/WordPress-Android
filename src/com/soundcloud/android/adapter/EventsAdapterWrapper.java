@@ -25,8 +25,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
-        final String counter     = getWrappedAdapter().isActivityFeed() ?
-                User.DataKeys.NOTIFICATION_COUNT_OWN : User.DataKeys.NOTIFICATION_COUNT_INCOMING;
 
         if (newItems != null && !newItems.isEmpty()) {
             SoundCloudApplication app = mActivity.getApp();
@@ -36,7 +34,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
             if (lastSeen < first.created_at.getTime()) {
                 app.setAccountData(lastSeenKey, first.created_at.getTime());
-                app.setAccountData(counter, 0);
             }
         }
         super.onPostTaskExecute(newItems,nextHref,responseCode,keepgoing);
