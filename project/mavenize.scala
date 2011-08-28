@@ -1,8 +1,10 @@
 import sbt._
+import Keys._
+import AndroidKeys._
 import scala.xml.{Node, Elem, Unparsed}
 
-trait Mavenize extends BaseAndroidProject {
-  override def pomExtra =
+object Mavenizer {
+  val pom =
     <build>
       <sourceDirectory>src</sourceDirectory>
       <testSourceDirectory>tests/src</testSourceDirectory>
@@ -138,30 +140,41 @@ trait Mavenize extends BaseAndroidProject {
         </profile>
       </profiles>
 
-    override def makePomConfiguration = new MakePomConfiguration(deliverProjectDependencies,
-                                            Some(List(Configurations.Compile,
-                                                      Configurations.Provided,
-                                                      Configurations.Test)),
-                                                      pomExtra, pomPostProcess, pomIncludeRepository)
+    def doPomPostProcess(pom: Node, name: String, version: String): Node = pom match {
+      case <artifactId>{_}</artifactId> => <artifactId>{name}</artifactId>
+      case <version>{_}</version>       => <version>{version}</version>
+      case <packaging>{_}</packaging>   => <packaging>apk</packaging>
+      case Elem(prefix, "project", attributes, scope,  c @ _*) =>
+        Elem(prefix, "project", attributes, scope, c.map(doPomPostProcess(_, name, version)):_*)
+      case other => other
+    }
 
+    val mavenize = TaskKey[File]("mavenize", "mavenizes the project")
+
+    lazy val settings:Seq[Setting[_]] = Seq(
+      pomExtra := pom,
+      pomPostProcess <<= (version) apply { (v) => { (node: scala.xml.Node) =>
+        doPomPostProcess(node, "soundcloud-android", v)
+      }},
+      makePomConfiguration <<= (artifactPath in makePom, pomExtra,
+                                pomPostProcess, pomIncludeRepository,
+                                pomAllRepositories) {
+         (file, extra, process, include, all) =>
+          new MakePomConfiguration(file, Some(List(Configurations.Compile,
+                                                   Configurations.Provided,
+                                                   Configurations.Test)), extra, process, include, all)
+      },
+      mavenize <<= (makePom, baseDirectory, target) map { (pom, d, outputPath) =>
+        val pomPath = d / "pom.xml"
+        IO.copyFile(pom, pomPath)
+        pomPath
+      }
+    )
+
+    /*
     lazy val versionName =
         manifest.attribute("http://schemas.android.com/apk/res/android", "versionName")
                 .getOrElse(error("no versionName"))
                 .text
-
-    override def pomPostProcess(pom: Node): Node = pom match {
-      case <artifactId>{_}</artifactId> => <artifactId>{name}</artifactId>
-      case <version>{_}</version>       => <version>{versionName}</version>
-      case <packaging>{_}</packaging>   => <packaging>apk</packaging>
-      case Elem(prefix, "project", attributes, scope,  c @ _*) =>
-        Elem(prefix, "project", attributes, scope, c.map(pomPostProcess(_)):_*)
-      case other => other
-    }
-
-    lazy val mavenize = task {
-      val pomPath = info.projectPath / "pom.xml"
-      FileUtilities.touch(pomPath, log)
-      (outputPath ** "*.pom").get.foreach(FileUtilities.copyFile(_, pomPath, log))
-      None
-    } dependsOn(makePom)
+    */
 }
