@@ -170,17 +170,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     @Override
     protected void onResume() {
-        trackCurrentScreen();
-        super.onResume();
-    }
-
-    @Override
-    protected void onStart() {
         if (getApp().getAccount() != null && mAdapterStates != null){
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
-        super.onStart();
+        trackCurrentScreen();
+        super.onResume();
     }
 
     @Override
