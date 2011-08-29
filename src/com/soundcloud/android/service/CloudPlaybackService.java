@@ -1477,7 +1477,6 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
 
-                Log.i("asdf","Media Playback complete " + mIsInitialized + " " + isSeekable() + " " + (getDuration() - mMediaPlayer.getCurrentPosition()));
                 // check for premature track end
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
@@ -1533,10 +1532,10 @@ public class CloudPlaybackService extends Service {
                 }
 
                 if (mResumeId == mPlayingData.id) {
-                        mPlayer.seek(mResumeTime);
-                        mResumeTime = -1;
-                        mResumeId = -1;
-                    }
+                    mPlayer.seek(mResumeTime);
+                    mResumeTime = -1;
+                    mResumeId = -1;
+                }
             }
         };
 
