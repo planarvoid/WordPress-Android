@@ -73,7 +73,6 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class CloudPlaybackService extends Service {
     public static final String META_CHANGED = "com.soundcloud.android.metachanged";
     public static final String QUEUE_CHANGED = "com.soundcloud.android.queuechanged";
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
-    public static final String TRACK_ERROR = "com.soundcloud.android.trackerror";
+    public static final String PLAYBACK_ERROR = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED = "com.soundcloud.android.streamdied";
     public static final String COMMENTS_LOADED = "com.soundcloud.android.commentsloaded";
     public static final String FAVORITE_SET = "com.soundcloud.android.favoriteset";
@@ -127,6 +126,8 @@ public class CloudPlaybackService extends Service {
     private static final int ACQUIRE_WAKELOCKS = 6;
     private static final int RELEASE_WAKELOCKS = 7;
     private static final int CLEAR_LAST_SEEK = 8;
+    private static final int STREAM_EXCEPTION = 9;
+
 
     private MultiPlayer mPlayer;
     private int mLoadPercent = 0;
@@ -670,7 +671,7 @@ public class CloudPlaybackService extends Service {
                     return true;
                 else {
                     Log.i(TAG, "No Thread, No Cache, send exception");
-                    sendPlaybackException();
+                    sendStreamException();
                     return false;
                 }
             }
@@ -746,7 +747,7 @@ public class CloudPlaybackService extends Service {
 
                 } else if (!isConnected()) {
                     Log.i(TAG,"Paused for buffering, no network, send error");
-                    sendPlaybackException();
+                    sendStreamException();
                     return false;
                 }
 
@@ -794,9 +795,13 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    public void sendPlaybackException() {
+    public void sendStreamException() {
+        sendStreamException(1000);
+    }
+
+    public void sendStreamException(long delay) {
         gotoIdleState();
-        mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(TRACK_EXCEPTION));
+        mMediaplayerHandler.sendMessageDelayed(mMediaplayerHandler.obtainMessage(STREAM_EXCEPTION), delay);
     }
 
     /*
@@ -814,7 +819,7 @@ public class CloudPlaybackService extends Service {
                     if (mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS) {
                         prepareDownload(mPlayingData);
                     } else if (pausedForBuffering){
-                        sendPlaybackException();
+                        sendStreamException();
                     }
                 }
             }
@@ -1218,10 +1223,7 @@ public class CloudPlaybackService extends Service {
     public boolean isSeekable() {
         synchronized (this) {
             return ((mIsStagefright || Build.VERSION.SDK_INT > 8)
-                    && mPlayer != null
-                    && mPlayer.isInitialized()
-                    && mPlayingData != null
-                    && !mPlayer.isAsyncOpening());
+                    && mPlayingData != null);
         }
     }
 
@@ -1241,6 +1243,10 @@ public class CloudPlaybackService extends Service {
                 }
 
                 return mPlayer.seek(pos);
+            } else if (mIsStagefright && pausedForBuffering && mResumeTime > -1 && pos < mResumeTime){
+                mResumeTime = pos;
+                assertBufferCheck();
+                return mResumeTime;
             }
             return -1;
         }
@@ -1495,8 +1501,7 @@ public class CloudPlaybackService extends Service {
                     if (isConnected() && mCurrentDownloadAttempts < MAX_DOWNLOAD_ATTEMPTS)
                         openCurrent();
                     else {
-                        notifyChange(STREAM_DIED);
-                        gotoIdleState();
+                        mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(STREAM_EXCEPTION));
                     }
 
                     return;
@@ -1536,7 +1541,7 @@ public class CloudPlaybackService extends Service {
                 }
 
                 if (mResumeId == mPlayingData.id) {
-                    mPlayer.seek(mResumeTime);
+                    mPlayer.seek(mResumeTime, true);
                     mResumeTime = -1;
                     mResumeId = -1;
                 }
@@ -1559,7 +1564,8 @@ public class CloudPlaybackService extends Service {
                         mIsInitialized = false;
                         mPlayingPath = "";
                         mMediaPlayer.reset();
-                        mHandler.sendMessage(mHandler.obtainMessage(TRACK_EXCEPTION));
+                        mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(isConnected() ?
+                                TRACK_EXCEPTION : STREAM_EXCEPTION));
                         break;
                 }
                 return true;
@@ -1697,7 +1703,13 @@ public class CloudPlaybackService extends Service {
                     break;
                 case TRACK_EXCEPTION:
                     gotoIdleState();
-                    notifyChange(TRACK_ERROR);
+                    notifyChange(PLAYBACK_ERROR);
+                    notifyChange(PLAYBACK_COMPLETE);
+                    break;
+
+                case STREAM_EXCEPTION:
+                    gotoIdleState();
+                    notifyChange(STREAM_DIED);
                     notifyChange(PLAYBACK_COMPLETE);
                     break;
                 case TRACK_ENDED:
