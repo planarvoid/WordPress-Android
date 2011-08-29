@@ -198,6 +198,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
         if (refreshEnabled) setOnRefreshListener(adapter);
+        setSelection(1);
     }
 
     @Override
