@@ -236,8 +236,11 @@ public class CloudPlaybackService extends Service {
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
         mAutoPause = true;
-        mPlayListManager.reloadQueue();
+        mResumeTime = mPlayListManager.reloadQueue();
         mPlayingData = mPlayListManager.getCurrentTrack();
+        if (mPlayingData != null && mResumeTime > 0){
+            mResumeId = mPlayingData.id;
+        }
     }
 
 
@@ -343,7 +346,7 @@ public class CloudPlaybackService extends Service {
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlayListManager.saveQueue(true);
+        mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
 
         if (isPlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
@@ -374,7 +377,7 @@ public class CloudPlaybackService extends Service {
                     || mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
                 return;
             }
-            mPlayListManager.saveQueue(true);
+            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
             stopSelf(mServiceStartId);
         }
     };
@@ -415,9 +418,9 @@ public class CloudPlaybackService extends Service {
         sendBroadcast(i);
 
         if (what.equals(QUEUE_CHANGED)) {
-            mPlayListManager.saveQueue(true);
+            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
         } else {
-            mPlayListManager.saveQueue(false);
+            mPlayListManager.saveQueue(false, mPlayingData == null ? 0 : mPlayer.position());
         }
 
         // Share this notification directly with our widgets
