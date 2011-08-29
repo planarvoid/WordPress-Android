@@ -26,6 +26,8 @@ import java.util.ArrayList;
 public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapter.SectionListener, LoadTrackInfoTask.LoadTrackInfoListener {
 
     Track mTrack;
+    SectionedListView mListView;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -50,15 +52,15 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
         SectionedEndlessAdapter userAdapterWrapper = new SectionedEndlessAdapter(this, userAdapter, true);
         userAdapterWrapper.addListener(this);
 
-        ScListView listView = new SectionedListView(this);
-        configureList(listView);
-        listView.setFadingEdgeLength(0);
-        ((ViewGroup) findViewById(R.id.listHolder)).addView(listView);
+        mListView = new SectionedListView(this);
+        configureList(mListView);
+        mListView.setFadingEdgeLength(0);
+        ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
 
-        userAdapterWrapper.configureViews(listView);
+        userAdapterWrapper.configureViews(mListView);
         userAdapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
-        listView.setAdapter(userAdapterWrapper, true);
+        mListView.setAdapter(userAdapterWrapper, true);
 
         userAdapter.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
@@ -74,6 +76,19 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
                 mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
             }
         }
+
+        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        if (mPreviousState != null) {
+            mListView.getWrapper().restoreState(mPreviousState);
+        }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        if (mListView != null) {
+            return  mListView.getWrapper().saveState();
+        }
+        return null;
     }
 
     @Override

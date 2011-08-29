@@ -16,9 +16,6 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.MotionEventUtils;
-import com.soundcloud.android.utils.ReflectionUtils;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -27,13 +24,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.view.*;
 import android.widget.Scroller;
+import com.soundcloud.android.task.LoadSuggestedUsersTask;
+import com.soundcloud.android.utils.MotionEventUtils;
+import com.soundcloud.android.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 
@@ -112,10 +107,14 @@ public class WorkspaceView extends ViewGroup {
     private boolean mIgnoreChildFocusRequests;
 
     private boolean mIsVerbose = false;
+    private float mLastScreenFraction;
+    private int mLastLow;
+    private int mLastHigh;
 
     public interface OnScreenChangeListener {
         void onScreenChanged(View newScreen, int newScreenIndex);
         void onScreenChanging(View newScreen, int newScreenIndex);
+        void onNextScreenVisible(View newScreen, int newScreenIndex);
     }
 
     public interface OnScrollListener {
@@ -140,7 +139,7 @@ public class WorkspaceView extends ViewGroup {
      */
     public void initWorkspace(int initialScreen) {
         mScroller = new Scroller(getContext());
-        mCurrentScreen = initialScreen;
+        mLastLow = mLastHigh = mCurrentScreen = initialScreen;
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
@@ -211,6 +210,8 @@ public class WorkspaceView extends ViewGroup {
         }
     }
 
+
+
     /**
      * Registers the specified listener on each screen contained in this workspace.
      *
@@ -227,6 +228,26 @@ public class WorkspaceView extends ViewGroup {
 
     @Override
     public void computeScroll() {
+        // see if we are looking at a new screen, if so notify that it is now visible
+        if (mOnScreenChangeListener != null) {
+            final float screenFraction = getCurrentScreenFraction();
+            if (screenFraction != mLastScreenFraction) {
+                mLastScreenFraction = screenFraction;
+
+                final int low = (int) screenFraction;
+                final int high = (int) Math.ceil(screenFraction);
+                if (low < mLastLow || high > mLastHigh){
+                    if (low < mLastLow) {
+                        mOnScreenChangeListener.onNextScreenVisible(getScreenAt(low), low);
+                    } else {
+                        mOnScreenChangeListener.onNextScreenVisible(getScreenAt(high), high);
+                    }
+                    mLastLow = low;
+                    mLastHigh = high;
+                }
+            }
+        }
+
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             if (mOnScrollListener != null) {

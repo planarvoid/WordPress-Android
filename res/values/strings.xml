@@ -168,6 +168,7 @@
 	<string name='pref_take_tour_desc'>Take a quick tour of the app</string>
 
     <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
+    <string name='player_stream_error'>There was a problem connecting to the stream</string>
 
     <string name='at_timestamp'>at %s</string>
 

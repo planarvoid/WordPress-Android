@@ -49,15 +49,23 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private Request mRequest;
     private String mNextHref;
     private RefreshTask mRefreshTask;
+    private boolean mAllowInitialLoading;
 
     private static final int ITEM_TYPE_LOADING = -1;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
+        this(activity,wrapped,request,true);
+    }
+
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
         mRequest = request;
         wrapped.setWrapper(this);
+
+        mAllowInitialLoading = autoAppend;
+        mKeepOnAppending.set(autoAppend);
     }
 
     /**
@@ -229,7 +237,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public int getCount() {
-        if (mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
+        if (mAllowInitialLoading && mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1;
         } else {
             return super.getCount();
@@ -450,6 +458,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return false;
     }
 
+    public void allowInitialLoading(){
+        mAllowInitialLoading = true;
+        if (mRefreshTask == null && !mKeepOnAppending.get()){
+            mKeepOnAppending.set(true);
+        }
+    }
+
     public boolean needsRefresh() {
         return (getWrappedAdapter().getCount() == 0 && mKeepOnAppending.get()) && CloudUtils.isTaskFinished(mRefreshTask);
     }
@@ -475,5 +490,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 ", mActivity=" + mActivity +
                 ", mListView=" + mListView +
                 '}';
+    }
+
+    public boolean isAllowingLoading() {
+        return mAllowInitialLoading;
     }
 }

@@ -1,12 +1,12 @@
 
 package com.soundcloud.android.view;
 
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-
+import android.view.View;
+import android.widget.FrameLayout;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 
-import android.widget.FrameLayout;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 public class ScTabView extends FrameLayout {
     public ScListView mListView;
@@ -40,4 +40,11 @@ public class ScTabView extends FrameLayout {
         return lv;
     }
 
+    public void onVisible() {
+        if (mListView != null){
+            mListView.setVisibility(View.VISIBLE);
+            mListView.getWrapper().allowInitialLoading();
+            mListView.onResume();
+        }
+    }
 }

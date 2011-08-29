@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.utils.play;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceScreen;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
@@ -179,7 +181,7 @@ public class PlayListManager {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    public void saveQueue(boolean full) {
+    public void saveQueue(boolean full, long seekPos) {
         Editor ed = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).edit();
         if (mPlayListCache != null){
             // never finishing committing playlist to db, so don't remember the playlist, it might not all be stored
@@ -218,14 +220,15 @@ public class PlayListManager {
 
         }
         ed.putInt("curpos", mPlayPos);
+        ed.putLong("seekpos", seekPos);
         ed.commit();
 
         Log.i("@@@@ service", "saved state in " + (System.currentTimeMillis() - start) + " ms");
     }
 
-    public void reloadQueue() {
-        String q = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).getString(
-                "queue", "");
+    public long reloadQueue() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mPlaybackService);
+        String q = prefs.getString("queue", "");
 
         int qlen = q != null ? q.length() : 0;
         if (qlen > 1) {
@@ -256,14 +259,15 @@ public class PlayListManager {
             }
             mPlayListLen = plen;
 
-            int pos = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).getInt(
-                    "curpos", 0);
+            int pos = prefs.getInt("curpos", 0);
             if (pos < 0 || pos >= mPlayListLen) {
                 // The saved playlist is bogus, discard it
                 mPlayListLen = 0;
-                return;
+                return 0;
             }
             mPlayPos = pos;
+            return prefs.getLong("seekpos", 0);
         }
+        return 0;
     }
 }

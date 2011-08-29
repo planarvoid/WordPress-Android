@@ -104,7 +104,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private RelativeLayout mTrackInfo;
     private FlowLayout mTrackTags;
 
-    private boolean mCurrentTrackError;
+    private int mCurrentTrackError;
     private BindResult mCurrentArtBindResult;
     private BindResult mCurrentAvatarBindResult;
 
@@ -141,6 +141,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     static {
         initializeRemoteControlRegistrationMethods();
+    }
+
+    private interface PlayerError {
+        int PLAYBACK_ERROR = 0;
+        int STREAM_ERROR = 1;
     }
 
     @Override
@@ -708,7 +713,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                mCurrentTrackError = false;
+                mCurrentTrackError = -1;
 
                 updateTrackInfo();
                 setPauseButtonImage();
@@ -721,7 +726,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 if (intent.getBooleanExtra("isPlaying", false)) {
                     hideUnplayable();
                     updateTrackInfo();
-                    mCurrentTrackError = false;
+                    mCurrentTrackError = -1;
                 }
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
                 if (mPlayingTrack != null && mPlayingTrack.id == intent.getLongExtra("id", -1)){
@@ -730,7 +735,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     updateTrackInfo();
                 }
             } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
-                mCurrentTrackError = false;
+                mCurrentTrackError = -1;
                 hideUnplayable();
                 mWaveformController.showConnectingLayout();
             } else if (action.equals(CloudPlaybackService.BUFFERING)) {
@@ -739,13 +744,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
                 // clearSeekVars();
                 mWaveformController.hideConnectingLayout();
-            } else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
-                mCurrentTrackError = true;
+            } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
+                mCurrentTrackError = PlayerError.PLAYBACK_ERROR;
                 mWaveformController.hideConnectingLayout();
                 showUnplayable();
             } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
+                mCurrentTrackError = PlayerError.STREAM_ERROR;
                 mWaveformController.hideConnectingLayout();
-                setPauseButtonImage();
+                showUnplayable();
             } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
                 updateTrackInfo();
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
@@ -761,7 +767,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
         if (mPlayingTrack == null || mPlayingTrack.isStreamable()) {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                    .setText(R.string.player_error);
+                    .setText(mCurrentTrackError == 0 ? R.string.player_error : R.string.player_stream_error);
         } else {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_not_streamable);
@@ -845,7 +851,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 onTrackInfoFlip();
             }
 
-            if (mCurrentTrackError)
+            if (mCurrentTrackError >= 0)
                 return;
 
             if (mPlayingTrack.isStreamable()) {
@@ -1013,7 +1019,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.TRACK_ERROR);
+        f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
         f.addAction(CloudPlaybackService.STREAM_DIED);
         f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         f.addAction(CloudPlaybackService.BUFFERING);
@@ -1062,14 +1068,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         super.onSaveInstanceState(state);
 
         state.putBoolean("paused", mPaused);
-        state.putBoolean("currentTrackError", mCurrentTrackError);
+        state.putInt("currentTrackError", mCurrentTrackError);
 
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        mCurrentTrackError = state.getBoolean("currentTrackError");
+        mCurrentTrackError = state.getInt("currentTrackError");
         mPaused = state.getBoolean("paused");
         super.onRestoreInstanceState(state);
     }
