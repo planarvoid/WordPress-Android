@@ -707,6 +707,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 mCurrentTrackError = -1;
@@ -1019,6 +1020,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         f.addAction(CloudPlaybackService.STREAM_DIED);
         f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         f.addAction(CloudPlaybackService.BUFFERING);
+        f.addAction(CloudPlaybackService.INITIAL_BUFFERING);
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
