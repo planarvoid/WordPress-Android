@@ -346,7 +346,7 @@ public class CloudPlaybackService extends Service {
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
+        mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : position());
 
         if (isPlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
@@ -377,7 +377,7 @@ public class CloudPlaybackService extends Service {
                     || mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
                 return;
             }
-            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
+            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : position());
             stopSelf(mServiceStartId);
         }
     };
@@ -418,9 +418,9 @@ public class CloudPlaybackService extends Service {
         sendBroadcast(i);
 
         if (what.equals(QUEUE_CHANGED)) {
-            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : mPlayer.position());
+            mPlayListManager.saveQueue(true, mPlayingData == null ? 0 : position());
         } else {
-            mPlayListManager.saveQueue(false, mPlayingData == null ? 0 : mPlayer.position());
+            mPlayListManager.saveQueue(false, mPlayingData == null ? 0 : position());
         }
 
         // Share this notification directly with our widgets
@@ -463,7 +463,6 @@ public class CloudPlaybackService extends Service {
 
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id == track.id) {
-
             mChangeTracksThread = new ChangeTracksAsync(this, mPlayingData);
             mChangeTracksThread.setPriority(Thread.MAX_PRIORITY);
             mChangeTracksThread.start();
@@ -844,6 +843,7 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
+
         boolean wasPlaying = mIsSupposedToBePlaying;
         mIsSupposedToBePlaying = true;
 
@@ -1190,8 +1190,9 @@ public class CloudPlaybackService extends Service {
     public long position() {
         if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
-        } else
+        } else if (mResumeId == mPlayingData.id) {
             return mResumeTime; // either -1 or a valid resume time
+        } else return 0;
     }
 
     /*
