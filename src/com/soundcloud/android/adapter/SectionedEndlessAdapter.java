@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.api.Request;
@@ -128,6 +129,15 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         notifyDataSetChanged();
     }
 
+    @Override
+    protected void setNewEtag(String eTag){
+
+    }
+
+    @Override
+    protected String getCurrentEtag(){
+        return "";
+    }
 
     @Override
     protected void onEmptyRefresh(){

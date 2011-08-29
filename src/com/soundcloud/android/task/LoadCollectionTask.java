@@ -14,6 +14,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -44,6 +45,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     public Class<?> loadModel;
 
     public int pageSize;
+    public String eTag;
 
     public LoadCollectionTask(SoundCloudApplication app) {
         mApp = app;
@@ -75,6 +77,10 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
+            final String newEtag = Http.etag(resp);
+            if (newEtag.equalsIgnoreCase(eTag)) return false;
+
+            eTag = newEtag;
             InputStream is = resp.getEntity().getContent();
 
             CollectionHolder holder = null;

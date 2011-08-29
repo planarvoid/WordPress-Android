@@ -50,6 +50,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private String mNextHref;
     private RefreshTask mRefreshTask;
     private boolean mAllowInitialLoading;
+    private String mFirstPageEtag;
 
     private static final int ITEM_TYPE_LOADING = -1;
 
@@ -330,14 +331,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
+    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
         if (responseCode != HttpStatus.SC_OK) {
             handleResponseCode(responseCode);
         } else if (newItems != null && newItems.size() > 0) {
-            // false for notify of change, we can only notify after resetting listview
+            setNewEtag(eTag);
             reset(true, false);
             onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
-        } else {
+        } else if (!eTag.equalsIgnoreCase(mFirstPageEtag)){
             onEmptyRefresh();
         }
 
@@ -348,6 +349,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (mListView != null) {
             mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
         }
+    }
+
+    protected void setNewEtag(String eTag){
+        mFirstPageEtag = eTag;
+    }
+
+    protected String getCurrentEtag(){
+        return mFirstPageEtag;
     }
 
     protected void onEmptyRefresh(){
@@ -384,6 +393,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             {
                 loadModel = getLoadModel(false);
                 pageSize  = getPageSize();
+                eTag = getCurrentEtag();
                 setAdapter(LazyEndlessAdapter.this);
                 execute(buildRequest(true));
             }

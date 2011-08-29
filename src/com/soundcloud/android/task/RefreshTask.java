@@ -37,7 +37,7 @@ public class RefreshTask extends LoadCollectionTask {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
         if (adapter != null) {
-            adapter.onPostRefresh(newItems, mNextHref, mResponseCode, keepGoing);
+            adapter.onPostRefresh(newItems, mNextHref, mResponseCode, keepGoing, eTag);
         }
     }
 }
