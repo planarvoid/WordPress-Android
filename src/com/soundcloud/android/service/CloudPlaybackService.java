@@ -583,7 +583,7 @@ public class CloudPlaybackService extends Service {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (mPlayer != null) {
+                                    if (mPlayer != null && mPlayingData != null && mPlayingData.stream_url.equalsIgnoreCase(url)) {
                                         mPlayer.setDataSourceAsync(location.getValue());
                                     }
                                 }
@@ -602,7 +602,7 @@ public class CloudPlaybackService extends Service {
                     @Override
                     public void run() {
                         // set with original url, at least we will get proper error handling
-                        if (mPlayer != null) {
+                        if (mPlayer != null && mPlayingData.stream_url.equalsIgnoreCase(url)) {
                             mPlayer.setDataSourceAsync(url);
                         }
                     }
@@ -1476,10 +1476,13 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
             public void onCompletion(MediaPlayer mp) {
+
+                Log.i("asdf","Media Playback complete " + mIsInitialized + " " + isSeekable() + " " + (getDuration() - mMediaPlayer.getCurrentPosition()));
                 // check for premature track end
-                if (mIsInitialized && mPlayingData != null
+                if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
 
+                    mResumeId = mPlayingData.id;
                     mResumeTime = mMediaPlayer.getCurrentPosition();
 
                     mMediaPlayer.reset();
@@ -1527,13 +1530,13 @@ public class CloudPlaybackService extends Service {
                         play();
                         startAndFadeIn();
                     }
-                } else {
-                    if (mResumeId == mPlayingData.id) {
+                }
+
+                if (mResumeId == mPlayingData.id) {
                         mPlayer.seek(mResumeTime);
                         mResumeTime = -1;
                         mResumeId = -1;
                     }
-                }
             }
         };
 
