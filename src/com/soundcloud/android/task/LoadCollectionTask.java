@@ -45,7 +45,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     public Class<?> loadModel;
 
     public int pageSize;
-    public String eTag;
+    protected String eTag;
 
     public LoadCollectionTask(SoundCloudApplication app) {
         mApp = app;
@@ -73,14 +73,13 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             HttpResponse resp = mApp.get(req);
 
             mResponseCode = resp.getStatusLine().getStatusCode();
-            if (mResponseCode != HttpStatus.SC_OK) {
+            if (mResponseCode == HttpStatus.SC_NOT_MODIFIED){
+                return false;
+            } else if (mResponseCode != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
+            eTag = Http.etag(resp);
 
-            final String newEtag = Http.etag(resp);
-            if (newEtag.equalsIgnoreCase(eTag)) return false;
-
-            eTag = newEtag;
             InputStream is = resp.getEntity().getContent();
 
             CollectionHolder holder = null;

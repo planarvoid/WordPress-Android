@@ -296,9 +296,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 "defaultPageSize", "20")));
     }
 
-    protected void handleResponseCode(int responseCode) {
+    protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
             case HttpStatus.SC_OK: // do nothing
+            case HttpStatus.SC_NOT_MODIFIED:
                 mError = false;
                 break;
             case HttpStatus.SC_UNAUTHORIZED:
@@ -310,6 +311,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 mKeepOnAppending.set(false);
                 break;
         }
+        return !mError;
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
@@ -332,14 +334,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
-        if (responseCode != HttpStatus.SC_OK) {
-            handleResponseCode(responseCode);
-        } else if (newItems != null && newItems.size() > 0) {
-            setNewEtag(eTag);
-            reset(true, false);
-            onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
-        } else if (!eTag.equalsIgnoreCase(mFirstPageEtag)){
-            onEmptyRefresh();
+        if (handleResponseCode(responseCode)) {
+            if (newItems != null && newItems.size() > 0) {
+                setNewEtag(eTag);
+                reset(true, false);
+                onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+            } else if (eTag != null){
+                onEmptyRefresh();
+            }
         }
 
         applyEmptyText();
@@ -393,7 +395,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             {
                 loadModel = getLoadModel(false);
                 pageSize  = getPageSize();
-                eTag = getCurrentEtag();
                 setAdapter(LazyEndlessAdapter.this);
                 execute(buildRequest(true));
             }
@@ -447,6 +448,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (request != null) {
             request.add("linked_partitioning", "1");
             request.add("limit", getPageSize());
+            if (refresh && getCurrentEtag() != null) request.ifNoneMatch(getCurrentEtag());
         }
         return request;
     }
