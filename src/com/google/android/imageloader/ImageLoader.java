@@ -169,13 +169,19 @@ public class ImageLoader {
     public static class Options {
 
         public Options() {
-            loadRemotelyIfNecessary = true;
-            decodeInSampleSize = 1;
+            this.loadRemotelyIfNecessary = true;
+            this.decodeInSampleSize = 1;
+        }
+
+        public Options(boolean loadRemotelyIfNecessary) {
+            this.loadRemotelyIfNecessary = loadRemotelyIfNecessary;
+            this.decodeInSampleSize = 1;
         }
 
         public boolean loadRemotelyIfNecessary;
         public int decodeInSampleSize;
         public int cornerRadius;
+        public WeakReference<Bitmap> temporaryBitmapRef;
     }
 
 
@@ -529,7 +535,13 @@ public class ImageLoader {
             // Clear the ImageView by default.
             // The caller can set their own placeholder
             // based on the return value.
-            view.setImageDrawable(null);
+            final Bitmap temporaryBitmap = options.temporaryBitmapRef != null ? options.temporaryBitmapRef.get() : null;
+            if (temporaryBitmap != null) {
+                view.setImageBitmap(temporaryBitmap);
+            } else {
+                view.setImageDrawable(null);
+            }
+
 
             if (error != null) {
                 Log.e(TAG, "error", error);
@@ -589,7 +601,13 @@ public class ImageLoader {
             // Clear the ImageView by default.
             // The caller can set their own placeholder
             // based on the return value.
-            view.setImageDrawable(null);
+            final Bitmap temporaryBitmap = options.temporaryBitmapRef != null ? options.temporaryBitmapRef.get() : null;
+            Log.i("asdf","TTEEMMPP " + temporaryBitmap + " " + options.temporaryBitmapRef);
+            if (temporaryBitmap != null) {
+                view.setImageBitmap(temporaryBitmap);
+            } else {
+                view.setImageDrawable(null);
+            }
 
             if (error != null) {
                 return BindResult.ERROR;

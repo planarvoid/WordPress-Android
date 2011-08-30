@@ -17,8 +17,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
-
 public class TracklistRow extends LazyRow {
     private Track mTrack;
 
@@ -190,7 +188,7 @@ public class TracklistRow extends LazyRow {
         if (mTrack == null || (mTrack.artwork_url == null && mTrack.user.avatar_url == null)){
            return "";
         }
-        return ImageUtils.formatGraphicsUrlForList(mActivity,
+        return ImageUtils.formatGraphicsUriForList(mActivity,
                 mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
 }

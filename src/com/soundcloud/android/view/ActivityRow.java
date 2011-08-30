@@ -107,7 +107,7 @@ public class ActivityRow extends LazyRow {
         if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null)
             return "";
 
-        return ImageUtils.formatGraphicsUrlForList(mActivity, mEvent.getUser().avatar_url);
+        return ImageUtils.formatGraphicsUriForList(mActivity, mEvent.getUser().avatar_url);
     }
 
     @Override

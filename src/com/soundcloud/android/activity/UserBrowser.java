@@ -109,7 +109,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        ImageUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
+                        ImageUtils.formatGraphicsUri(mIconURL, Consts.GraphicSize.CROP)
                     ).show();
                 }
 
@@ -471,7 +471,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+            String remoteUrl = ImageUtils.formatGraphicsUri(user.avatar_url, Consts.GraphicSize.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR

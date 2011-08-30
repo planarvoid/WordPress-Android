@@ -882,20 +882,21 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             } else {
                 // load artwork as necessary
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
-                    if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
+                    if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
+                            this,
                             mArtwork,
-                            ImageUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    Consts.GraphicsSizes.T500), new ImageViewCallback() {
-                                @Override
-                                public void onImageError(ImageView view, String url, Throwable error) {
-                                    mCurrentArtBindResult = BindResult.ERROR;
-                                }
+                            mPlayingTrack.artwork_url,
+                            Consts.GraphicSize.T500, new ImageViewCallback() {
+                        @Override
+                        public void onImageError(ImageView view, String url, Throwable error) {
+                            mCurrentArtBindResult = BindResult.ERROR;
+                        }
 
-                                @Override
-                                public void onImageLoaded(ImageView view, String url) {
-                                    onArtworkSet();
-                                }
-                            })) != BindResult.OK) {
+                        @Override
+                        public void onImageLoaded(ImageView view, String url) {
+                            onArtworkSet();
+                        }
+                    }, null)) != BindResult.OK) {
                         mArtwork.setVisibility(View.INVISIBLE);
                     } else {
                         onArtworkSet();
@@ -911,7 +912,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
                 if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
                         mAvatar,
-                        ImageUtils.formatGraphicsUrlForList(this, mPlayingTrack.user.avatar_url),
+                        ImageUtils.formatGraphicsUriForList(this, mPlayingTrack.user.avatar_url),
                         new ImageViewCallback() {
                             @Override
                             public void onImageError(ImageView view, String url, Throwable error) {
