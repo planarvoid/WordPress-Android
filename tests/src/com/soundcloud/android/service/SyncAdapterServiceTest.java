@@ -26,6 +26,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SyncResult;
 import android.content.TestIntentSender;
 
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("empty_events.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false);
+        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
         assertThat(n.info.getContentText().toString(),
@@ -169,7 +170,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("empty_events.json"));
 
         SoundCloudApplication app = DefaultTestRunner.application;
-        List<NotificationInfo> notifications = doPerformSync(app, false);
+        List<NotificationInfo> notifications = doPerformSync(app, false).notifications;
 
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
@@ -189,7 +190,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("own_1.json"));
         addPendingHttpResponse(200, resource("own_2.json"));
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false);
+        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(2));
 
         assertThat(notifications.get(0).info.getContentTitle().toString(),
@@ -276,7 +277,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("exclusives_1.json"));
         addPendingHttpResponse(200, resource("empty_events.json"));
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false);
+        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
         assertThat(n.info.getContentTitle().toString(),
@@ -285,29 +286,45 @@ public class SyncAdapterServiceTest extends ApiTests {
 
 
     @Test
-    public void shouldNotSyncWhenTokenIsInvalid() throws Exception {
+    public void shouldNotSyncWhenTokenIsInvalidAndFlagError() throws Exception {
         // will throw if actually syncing
-        doPerformSync(new TestApplication(new Token(null, null, null)), false);
+        SyncResult result = doPerformSync(new TestApplication(new Token(null, null, null)), false).result;
+        assertThat(result.hasError(), is(true));
+        assertThat(result.hasHardError(), is(true));
+        assertThat(result.hasSoftError(), is(false));
+    }
+
+    @Test
+    public void shouldFlagSoftErrorWhenIOError() throws Exception {
+        addPendingHttpResponse(500, "errors");
+        SyncResult result = doPerformSync(DefaultTestRunner.application, false).result;
+        assertThat(result.hasHardError(), is(false));
+        assertThat(result.hasSoftError(), is(true));
     }
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
-        assertThat(doPerformSync(DefaultTestRunner.application, true).size(), is(0));
+        assertThat(doPerformSync(DefaultTestRunner.application, true).notifications.size(), is(0));
     }
 
-    private static List<NotificationInfo> doPerformSync(SoundCloudApplication app, boolean firstTime)
+    static class SyncOutcome {
+        List<NotificationInfo> notifications;
+        SyncResult result;
+    }
+
+    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime)
             throws OperationCanceledException {
 
         if (!firstTime) {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         }
 
-        // TODO: assert SyncResult
+        SyncResult result = new SyncResult();
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                null, null, null);
+                null, null, result);
 
         ShadowNotificationManager m =shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
@@ -316,8 +333,10 @@ public class SyncAdapterServiceTest extends ApiTests {
         for (Notification n : m.getAllNotifications()) {
             list.add(new NotificationInfo(n, shadowOf(n).getLatestEventInfo()));
         }
-
-        return list;
+        SyncOutcome outcome = new SyncOutcome();
+        outcome.notifications = list;
+        outcome.result = result;
+        return outcome;
     }
 
     private void assertNotification(String resource, String ticker, String title, String content) throws Exception {
@@ -328,7 +347,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
-        List<NotificationInfo> notifications = doPerformSync(app, false);
+        List<NotificationInfo> notifications = doPerformSync(app, false).notifications;
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
         assertThat(n.n.tickerText.toString(), equalTo(ticker));

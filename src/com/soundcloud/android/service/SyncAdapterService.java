@@ -113,21 +113,21 @@ public class SyncAdapterService extends Service {
                         syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
                     }
                 } catch (CloudAPI.InvalidTokenException e) {
-                    if (syncResult != null) syncResult.stats.numAuthExceptions++;
+                    syncResult.stats.numAuthExceptions++;
                 } catch (IOException e) {
                     Log.w(TAG, "i/o", e);
-                    if (syncResult != null) syncResult.stats.numIoExceptions++;
+                    syncResult.stats.numIoExceptions++;
                 }
             } else {
                 Log.w(TAG, "no valid token, skip sync");
-                if (syncResult != null) syncResult.stats.numAuthExceptions++;
+                syncResult.stats.numAuthExceptions++;
             }
         }
     }
 
     /* package */ static void syncIncoming(SoundCloudApplication app, long lastSeen)
             throws IOException {
-        Activities incomingEvents = getNewIncomingEvents(app, lastSeen);
+        Activities incomingEvents  = getNewIncomingEvents(app, lastSeen);
         Activities exclusiveEvents = getNewExclusiveEvents(app, lastSeen);
 
         Set<Long> ids = new HashSet<Long>(incomingEvents.size());
@@ -191,7 +191,6 @@ public class SyncAdapterService extends Service {
 
     /* package */ static Activities getOwnEvents(SoundCloudApplication app, long since) throws IOException {
         return getEventsWithFutureHref(app, User.DataKeys.OWN_FUTURE_HREF, Request.to(Endpoints.MY_NEWS), since);
-
     }
 
     /* package */ static Activities getEventsWithFutureHref(SoundCloudApplication app, String href, Request fallback, long since)
