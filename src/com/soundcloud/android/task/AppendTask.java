@@ -30,7 +30,7 @@ import java.util.List;
 public class AppendTask extends LoadCollectionTask {
 
     public AppendTask(SoundCloudApplication app) {
-        super(app);
+        super(app, null);
     }
 
     /**

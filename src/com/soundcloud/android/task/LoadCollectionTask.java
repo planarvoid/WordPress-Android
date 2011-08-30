@@ -47,9 +47,9 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     public int pageSize;
     protected String eTag;
 
-    public LoadCollectionTask(SoundCloudApplication app) {
+    public LoadCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
         mApp = app;
-
+        this.loadModel = loadModel;
         Request.to(Endpoints.SUGGESTED_USERS);
     }
 
@@ -82,40 +82,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
             InputStream is = resp.getEntity().getContent();
 
-            CollectionHolder holder = null;
-            if (Track.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
-                if (holder.size() > 0){
-                    newItems = new ArrayList<Parcelable>();
-                    for (TracklistItem t : (TracklistItemHolder) holder){
-                        newItems.add(new Track(t));
-                    }
-                }
-            } else if (User.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
-                if (holder.size() > 0){
-                    newItems = new ArrayList<Parcelable>();
-                    for (UserlistItem u : (UserlistItemHolder) holder){
-                        newItems.add(new User(u));
-                    }
-                }
-            } else if (Event.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, EventsHolder.class);
-                if (holder.size() > 0){
-                    newItems = new ArrayList<Parcelable>();
-                    for (Event e : (EventsHolder) holder){
-                        newItems.add(e);
-                    }
-                }
-            } else if (Friend.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, FriendHolder.class);
-                if (holder.size() > 0){
-                    newItems = new ArrayList<Parcelable>();
-                    for (Friend f : (FriendHolder) holder){
-                        newItems.add(f);
-                    }
-                }
-            }
+            CollectionHolder holder = getCollection(is);
             mNextHref = holder == null ? null : holder.next_href;
 
             if (newItems != null) {
@@ -130,6 +97,44 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             Log.e(TAG, "error", e);
             return false;
         }
+    }
+
+    /* package */ CollectionHolder getCollection(InputStream is) throws IOException {
+        CollectionHolder holder = null;
+        if (Track.class.equals(loadModel)) {
+            holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
+            if (holder.size() > 0){
+                newItems = new ArrayList<Parcelable>();
+                for (TracklistItem t : (TracklistItemHolder) holder){
+                    newItems.add(new Track(t));
+                }
+            }
+        } else if (User.class.equals(loadModel)) {
+            holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
+            if (holder.size() > 0){
+                newItems = new ArrayList<Parcelable>();
+                for (UserlistItem u : (UserlistItemHolder) holder){
+                    newItems.add(new User(u));
+                }
+            }
+        } else if (Event.class.equals(loadModel)) {
+            holder = mApp.getMapper().readValue(is, EventsHolder.class);
+            if (holder.size() > 0){
+                newItems = new ArrayList<Parcelable>();
+                for (Event e : (EventsHolder) holder){
+                    newItems.add(e);
+                }
+            }
+        } else if (Friend.class.equals(loadModel)) {
+            holder = mApp.getMapper().readValue(is, FriendHolder.class);
+            if (holder.size() > 0){
+                newItems = new ArrayList<Parcelable>();
+                for (Friend f : (FriendHolder) holder){
+                    newItems.add(f);
+                }
+            }
+        }
+        return holder;
     }
 
     public static class EventsHolder extends CollectionHolder<Event> {}
