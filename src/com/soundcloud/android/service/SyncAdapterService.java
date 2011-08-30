@@ -131,8 +131,8 @@ public class SyncAdapterService extends Service {
         Activities exclusiveEvents = getNewExclusiveEvents(app, lastSeen);
 
         Set<Long> ids = new HashSet<Long>(incomingEvents.size());
-        for (Event e : incomingEvents) ids.add(e.origin_id);
-        for (Event e : exclusiveEvents) ids.add(e.origin_id);
+        for (Event e : incomingEvents)  { if (e.getTrack() != null) ids.add(e.getTrack().id); }
+        for (Event e : exclusiveEvents) { if (e.getTrack() != null) ids.add(e.getTrack().id); }
         final int totalUnseen = ids.size();
 
         final boolean hasIncoming  = !incomingEvents.isEmpty();
@@ -276,7 +276,7 @@ public class SyncAdapterService extends Service {
         if (activities.size() == 1) {
             return String.format(
                     app.getString(R.string.dashboard_notifications_message_single_exclusive),
-                    activities.get(0).track.user.username);
+                    activities.get(0).getTrack().user.username);
 
         } else {
             List<User> users = activities.getUniqueUsers();
@@ -380,8 +380,8 @@ public class SyncAdapterService extends Service {
 
                 if (tracks.size() == 1 && favoritings.size() == 1) {
                     message = res.getString(R.string.dashboard_notifications_activity_message_likes,
-                            favoritings.get(0).user.username,
-                            favoritings.get(0).track.title);
+                            favoritings.get(0).getUser().username,
+                            favoritings.get(0).getTrack().title);
                 } else {
                     message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_like,
                             tracks.size(),
@@ -409,8 +409,8 @@ public class SyncAdapterService extends Service {
                             comments.size(),
                             comments.size(),
                             tracks.get(0).title,
-                            comments.get(0).user.username,
-                            comments.size() > 1 ? comments.get(1).user.username : null);
+                            comments.get(0).getUser().username,
+                            comments.size() > 1 ? comments.get(1).getUser().username : null);
                 } else {
                     message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_comment,
                                     users.size(),

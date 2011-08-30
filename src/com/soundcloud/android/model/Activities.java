@@ -1,10 +1,12 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.text.TextUtils;
 
@@ -18,14 +20,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Activities implements Iterable<Event> {
+    @JsonProperty @JsonView(Views.Default.class)
     public List<Event> collection;
 
     /* the next page for the collection */
+    @JsonProperty @JsonView(Views.Default.class)
     public String next_href;
 
     /* use this URL to poll for updates */
+    @JsonProperty @JsonView(Views.Default.class)
     public String future_href;
 
     public static final Activities EMPTY = new Activities();
@@ -92,8 +96,8 @@ public class Activities implements Iterable<Event> {
     public List<User> getUniqueUsers() {
         List<User> users = new ArrayList<User>();
         for (Event e : this) {
-            if (e.user != null && !users.contains(e.user)) {
-                users.add(e.user);
+            if (e.getUser() != null && !users.contains(e.getUser())) {
+                users.add(e.getUser());
             }
         }
         return users;
@@ -102,8 +106,8 @@ public class Activities implements Iterable<Event> {
     public List<Track> getUniqueTracks() {
         List<Track> tracks = new ArrayList<Track>();
         for (Event e : this) {
-            if (e.track != null && !tracks.contains(e.track)) {
-                tracks.add(e.track);
+            if (e.getTrack() != null && !tracks.contains(e.getTrack())) {
+                tracks.add(e.getTrack());
             }
         }
         return tracks;
@@ -139,10 +143,10 @@ public class Activities implements Iterable<Event> {
         Map<Track,Activities> grouped = new HashMap<Track, Activities>();
 
         for (Event e : this) {
-            Activities evts = grouped.get(e.track);
+            Activities evts = grouped.get(e.getTrack());
             if (evts == null) {
                 evts = new Activities();
-                grouped.put(e.track, evts);
+                grouped.put(e.getTrack(), evts);
             }
             evts.add(e);
         }
@@ -155,9 +159,15 @@ public class Activities implements Iterable<Event> {
 
     // used for testing
     /* package */ static Activities fromJSON(InputStream is) throws IOException {
-        return new AndroidCloudAPI.Wrapper(null, null, null, null, null, null)
-                .getMapper()
-                .readValue(is, Activities.class);
+        return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
+    }
+
+    /* package */ static Activities fromJSON(String is) throws IOException {
+        return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
+    }
+
+    public String toJSON() throws IOException {
+        return AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValueAsString(this);
     }
 
     public boolean hasMore() {

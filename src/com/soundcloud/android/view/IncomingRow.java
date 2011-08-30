@@ -15,6 +15,6 @@ public class IncomingRow extends TracklistRow {
 
     @Override
     protected Track getTrackFromParcelable(Parcelable p) {
-        return ((Event) p).track;
+        return ((Event) p).getTrack();
     }
 }

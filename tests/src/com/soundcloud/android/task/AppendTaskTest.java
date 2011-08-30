@@ -81,16 +81,16 @@ public class AppendTaskTest {
         Event e = (Event) task.newItems.get(0);
         assertThat(e.created_at, not(nullValue()));
         // origin=comment
-        assertThat(e.comment.id, is(21266451L));
+        assertThat(e.getComment().id, is(21266451L));
         // origin=favoriting
         Event e2 = (Event) task.newItems.get(2);
-        assertThat(e2.track.id, is(12725662L));
+        assertThat(e2.getTrack().id, is(12725662L));
         // origin=track_sharing
         Event e3 = (Event) task.newItems.get(3);
-        assertThat(e3.track.id, is(19321606L));
+        assertThat(e3.getTrack().id, is(19321606L));
         // origin=track
         Event e4 = (Event) task.newItems.get(4);
-        assertThat(e4.track.id, is(19318826L));
+        assertThat(e4.getTrack().id, is(19318826L));
     }
 
     private String slurp(String res) throws IOException {

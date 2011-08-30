@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -68,10 +69,10 @@ public class ActivityRow extends LazyRow {
         mSpanBuilder.append("  ");
         mSpanBuilder.append(mEvent.getTrack().title);
 
-        if (mEvent.type.contentEquals(Event.Types.COMMENT)){
+        if (mEvent.origin instanceof Comment){
             mSpanBuilder.append(": ");
             mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mSpanBuilder.append("\"").append(mEvent.comment.body).append("\"");
+            mSpanBuilder.append("\"").append(((Comment)mEvent.origin).body).append("\"");
         } else {
             mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }

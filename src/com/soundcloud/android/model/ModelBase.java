@@ -3,6 +3,8 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -17,7 +19,7 @@ import java.lang.reflect.Modifier;
 import java.util.Date;
 
 public abstract class ModelBase implements Parcelable {
-    public long id = -1;
+    @JsonView(Views.Mini.class) public long id = -1;
 
     public ModelBase() {
     }

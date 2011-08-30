@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -15,6 +16,8 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -38,18 +41,18 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase implements PageTrackable {
+public class Track extends ModelBase implements PageTrackable, Origin {
     private static final String TAG = "Track";
 
     // API fields
     public Date created_at;
-    public long user_id;
+    @JsonView(Views.Mini.class) public long user_id;
     public int duration;
     public boolean commentable;
     public String state;
     public String sharing;
     public String tag_list;
-    public String permalink;
+    @JsonView(Views.Mini.class) public String permalink;
     public String description;
     public boolean streamable;
     public boolean downloadable;
@@ -70,7 +73,7 @@ public class Track extends ModelBase implements PageTrackable {
     public int comment_count;
     public int favoritings_count;
 
-    public String title;
+    @JsonView(Views.Mini.class) public String title;
 
     public String release_year;
     public String release_month;
@@ -79,14 +82,15 @@ public class Track extends ModelBase implements PageTrackable {
     public String original_format;
     public String license;
 
-    public String uri;
-    public String permalink_url;
+    @JsonView(Views.Mini.class) public String uri;
+    @JsonView(Views.Mini.class) public String user_uri;
+    @JsonView(Views.Mini.class) public String permalink_url;
     public String artwork_url;
     public String waveform_url;
 
     public User user;
 
-    public String stream_url;
+    @JsonView(Views.Mini.class) public String stream_url;
 
     public int user_playback_count;
     public boolean user_favorite;
@@ -133,6 +137,16 @@ public class Track extends ModelBase implements PageTrackable {
 
     public Uri toUri() {
         return Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
+    }
+
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return this;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
     }
 
     public static class CreatedWith {

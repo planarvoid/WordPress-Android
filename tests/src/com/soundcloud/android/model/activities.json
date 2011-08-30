@@ -1164,5 +1164,7 @@
       },
       "tags": "own, affiliated"
     }
-  ]
+  ],
+  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738",
+  "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
 }
