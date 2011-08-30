@@ -11,12 +11,15 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +118,51 @@ public class FileCache extends FileResponseCache {
                 file = files[i];
                 if (!file.delete()) Log.w(TAG, "could not delete file "+file);
                 publishProgress(i, files.length);
+            }
+            return true;
+        }
+    }
+
+    public static class TrimCacheTask extends AsyncTask<File, Integer, Boolean> {
+        public long maxCacheSize = 1024 * 1024;
+        @Override
+        protected Boolean doInBackground(File... params) {
+            final File dir = params[0];
+
+            final long dirSize = dirSize(dir);
+            if (dirSize < maxCacheSize) return false;
+
+            long toTrim = dirSize - maxCacheSize;
+
+            File[] files = dir.listFiles();
+            Arrays.sort(files, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return compare((File) o1, (File) o2);
+                }
+                private int compare(File f1, File f2) {
+                    long result = f2.lastModified() - f1.lastModified();
+                    if (result > 0) {
+                        return 1;
+                    } else if (result < 0) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+
+
+            int i = 0;
+            while (toTrim > 0 && i < files.length){
+                final File file = files[i];
+                final long filesize = file.length();
+                if (!file.delete()) {
+                    Log.w(TAG, "could not delete file " + file);
+                } else {
+                    toTrim -= filesize;
+                }
+                publishProgress(i, files.length);
+                i++;
             }
             return true;
         }

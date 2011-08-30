@@ -124,6 +124,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
+
+         new FileCache.TrimCacheTask() {
+            {
+                this.maxCacheSize = Consts.MAX_IMAGE_CACHE;
+            }
+        }.execute(FileCache.getCacheDir(SoundCloudApplication.this));
     }
 
     public User getLoggedInUser() {
