@@ -311,17 +311,41 @@ public class ImageUtils {
         if (options == null) options = new ImageLoader.Options();
         Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
         if (targetBitmap != null){
-            return imageLoader.bind(imageView,uri,callback,options);
+            return imageLoader.bind(imageView,targetUri,callback,options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
                 if (tempBitmap != null) {
                     options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
-                    imageLoader.bind(imageView,targetUri,null,options);
+                    imageLoader.bind(imageView,targetUri,callback,options);
                     return ImageLoader.BindResult.OK;
                 }
             }
             return imageLoader.bind(imageView,targetUri,callback,options);
+        }
+    }
+
+    public static Bitmap getBitmapSubstitute(Context c, String uri, Consts.GraphicSize targetSize, ImageLoader.BitmapCallback callback, ImageLoader.Options options){
+        final String targetUri = formatGraphicsUri(uri, targetSize);
+        final ImageLoader imageLoader = ImageLoader.get(c);
+        if (options == null) options = new ImageLoader.Options();
+
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
+        if (targetBitmap != null){
+            return imageLoader.getBitmap(uri,callback,options);
+        } else {
+            for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
+                final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
+                if (tempBitmap != null) {
+                    if (callback != null) {
+                        callback.onImageLoaded(tempBitmap, uri);
+                    }
+                    // get the normal one anyway, will be handled by the callback
+                    imageLoader.getBitmap(targetUri,callback,options);
+                    return tempBitmap;
+                }
+            }
+            return imageLoader.getBitmap(targetUri,callback,options);
         }
     }
 

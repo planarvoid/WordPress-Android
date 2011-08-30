@@ -1,7 +1,9 @@
 package com.soundcloud.android.view;
 
+import android.text.TextUtils;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.CloudUtils;
@@ -17,6 +19,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import com.soundcloud.android.utils.ImageUtils;
 
 import java.util.List;
 
@@ -34,14 +37,14 @@ public class PlayerAvatarBar extends View {
     private Comment mCurrentComment;
 
     private Matrix mMatrix;
-    private Float mAvatarScale = (float) 1;
     private Float mDefaultAvatarScale = (float) 1;
+    private int mAvatarWidth;
 
     private Paint mImagePaint;
     private Paint mLinePaint;
     private Paint mActiveLinePaint;
 
-    private int mAvatarWidth;
+    private Consts.GraphicSize mTargetSize;
 
     private Thread mAvatarRefreshThread;
 
@@ -73,12 +76,12 @@ public class PlayerAvatarBar extends View {
         float mDensity = getContext().getResources().getDisplayMetrics().density;
 
         mMatrix = new Matrix();
-        if (mDensity > 1) {
-            mAvatarWidth = CloudUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : (int) (AVATAR_WIDTH* mDensity) ;
-            mAvatarScale = ((float)mAvatarWidth)/47;
+        if (CloudUtils.isScreenXL(mContext)){
+            mTargetSize = Consts.GraphicSize.LARGE;
+            mAvatarWidth = (int) (AVATAR_WIDTH_LARGE* mDensity);
         } else {
-            mAvatarWidth = CloudUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : AVATAR_WIDTH;
-            mAvatarScale = 1.0f;
+            mTargetSize = Consts.GraphicSize.BADGE;
+            mAvatarWidth = (int) (AVATAR_WIDTH* mDensity);
         }
     }
 
@@ -89,7 +92,9 @@ public class PlayerAvatarBar extends View {
     public void onStop(){
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelLoading(c.getAvatarBarGraphicUrl(mContext));
+                if (!TextUtils.isEmpty(c.user.avatar_url)){
+                    mBitmapLoader.cancelLoading(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
+                }
             }
         }
     }
@@ -100,7 +105,7 @@ public class PlayerAvatarBar extends View {
 
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelLoading(c.getAvatarBarGraphicUrl(mContext));
+                mBitmapLoader.cancelLoading(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
                 if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
@@ -137,21 +142,22 @@ public class PlayerAvatarBar extends View {
         if (!CloudUtils.checkIconShouldLoad(c.user.avatar_url))
             return;
 
-        mBitmapLoader.getBitmap(c.getAvatarBarGraphicUrl(mContext), new BitmapCallback() {
+
+        ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, c.getAvatarBarGraphicSize(mContext), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;
-                if (c.topLevelComment){
-                    if (!mUIHandler.hasMessages(REFRESH_AVATARS)){
+                if (c.topLevelComment) {
+                    if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
-                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg,100);
+                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 100);
                     }
                 }
             }
 
             @Override
             public void onImageError(String uri, Throwable error) {
-                Log.i(TAG,"Avatar Loading Error " + uri + " " + error.toString());
+                Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
             }
         }, new ImageLoader.Options());
     }
@@ -246,7 +252,8 @@ public class PlayerAvatarBar extends View {
             if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
 
         } else if (comment.avatar != null) {
-            mMatrix.setScale(mAvatarScale, mAvatarScale);
+            final float drawScale = ((float) mAvatarWidth)/comment.avatar.getHeight();
+            mMatrix.setScale(drawScale, drawScale);
             mMatrix.postTranslate(comment.xPos, 0);
             canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);

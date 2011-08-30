@@ -47,13 +47,13 @@ public class Comment extends ModelBase {
         readFromParcel(in);
     }
 
-    public String getAvatarBarGraphicUrl(Context c){
+    public Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
         if (CloudUtils.isScreenXL(c)) {
-              return ImageUtils.formatGraphicsUri(user.avatar_url, Consts.GraphicSize.LARGE);
+            return Consts.GraphicSize.LARGE;
         } else {
             return c.getResources().getDisplayMetrics().density > 1 ?
-                        ImageUtils.formatGraphicsUri(user.avatar_url, Consts.GraphicSize.BADGE) :
-                            ImageUtils.formatGraphicsUri(user.avatar_url, Consts.GraphicSize.SMALL);
+                    Consts.GraphicSize.BADGE :
+                    Consts.GraphicSize.SMALL;
         }
 
     }

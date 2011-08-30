@@ -877,7 +877,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
-                mArtwork.setScaleType(ScaleType.CENTER_CROP);
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 // load artwork as necessary
@@ -932,22 +931,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void onArtworkSet(){
-        AnimUtils.runFadeInAnimationOn(this, mArtwork);
-        mArtwork.setVisibility(View.VISIBLE);
-
-        if (mArtwork.getWidth() == 0)
-            return;
-
-        Matrix m = new Matrix();
-        float scale;
-        if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
-            scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
-        } else {
-            scale = ((float)mArtwork.getHeight())/((float) mArtwork.getDrawable().getMinimumHeight());
+        if (mArtwork.getVisibility() == View.INVISIBLE || mArtwork.getVisibility() == View.GONE) {
+            AnimUtils.runFadeInAnimationOn(this, mArtwork);
+            mArtwork.setVisibility(View.VISIBLE);
         }
-        m.setScale(scale,scale);
-        m.setTranslate((mArtwork.getWidth() - mArtwork.getDrawable().getMinimumHeight()*scale)/2, mArtwork.getDrawable().getMinimumHeight()*scale - mArtwork.getHeight());
-        mArtwork.setScaleType(ScaleType.MATRIX);
+
     }
 
     public boolean isSeekable() {

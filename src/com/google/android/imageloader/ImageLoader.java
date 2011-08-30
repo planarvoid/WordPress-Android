@@ -602,7 +602,6 @@ public class ImageLoader {
             // The caller can set their own placeholder
             // based on the return value.
             final Bitmap temporaryBitmap = options.temporaryBitmapRef != null ? options.temporaryBitmapRef.get() : null;
-            Log.i("asdf","TTEEMMPP " + temporaryBitmap + " " + options.temporaryBitmapRef);
             if (temporaryBitmap != null) {
                 view.setImageBitmap(temporaryBitmap);
             } else {
@@ -947,8 +946,6 @@ public class ImageLoader {
          * {@inheritDoc}
          */
         public void run() {
-
-
             if (mAdapterReference != null) {
                 BaseAdapter adapter = mAdapterReference.get();
                 if (adapter != null && !adapter.isEmpty()) {
