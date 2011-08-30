@@ -10,9 +10,13 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Parcelable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -20,12 +24,14 @@ public class LoadCollectionTaskTest {
     @Test
     public void shouldDeserializeTracks() throws Exception {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Track.class);
-        task.getCollection(getClass().getResourceAsStream("tracks.json"));
 
-        assertThat(task.newItems, not(nullValue()));
-        assertThat(task.newItems.size(), equalTo(11));
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        task.getCollection(getClass().getResourceAsStream("tracks.json"), items);
 
-        Track t = (Track) task.newItems.get(0);
+        assertThat(items, not(nullValue()));
+        assertThat(items.size(), equalTo(11));
+
+        Track t = (Track) items.get(0);
         assertThat(t.description, is(nullValue()));
         assertThat(t.id, is(10853436L));
         assertThat(t.user_id, is(3135930L));
@@ -37,38 +43,38 @@ public class LoadCollectionTaskTest {
     @Test
     public void shouldDeserializeUsers() throws Exception {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, User.class);
-        task.getCollection(getClass().getResourceAsStream("users.json"));
 
-        assertThat(task.newItems, not(nullValue()));
-        assertThat(task.newItems.size(), equalTo(1));
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        task.getCollection(getClass().getResourceAsStream("users.json"), items);
 
-        User u = (User) task.newItems.get(0);
+        assertThat(items, not(nullValue()));
+        assertThat(items.size(), equalTo(1));
+
+        User u = (User) items.get(0);
         assertThat(u.description, is(nullValue()));
         assertThat(u.id, is(3135930L));
     }
 
     @Test
-
-
     public void shouldDeserializeEvents() throws Exception {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Event.class);
-        task.getCollection(getClass().getResourceAsStream("events.json"));
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        task.getCollection(getClass().getResourceAsStream("events.json"), items);
 
-        assertThat(task.newItems, not(nullValue()));
-        assertThat(task.newItems.size(), equalTo(50));
+        assertThat(items.size(), equalTo(50));
 
-        Event e = (Event) task.newItems.get(0);
+        Event e = (Event) items.get(0);
         assertThat(e.created_at, not(nullValue()));
         // origin=comment
         assertThat(e.getComment().id, is(21266451L));
         // origin=favoriting
-        Event e2 = (Event) task.newItems.get(2);
+        Event e2 = (Event) items.get(2);
         assertThat(e2.getTrack().id, is(12725662L));
         // origin=track_sharing
-        Event e3 = (Event) task.newItems.get(3);
+        Event e3 = (Event) items.get(3);
         assertThat(e3.getTrack().id, is(19321606L));
         // origin=track
-        Event e4 = (Event) task.newItems.get(4);
+        Event e4 = (Event) items.get(4);
         assertThat(e4.getTrack().id, is(19318826L));
     }
 }

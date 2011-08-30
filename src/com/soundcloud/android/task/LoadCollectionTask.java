@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> {
     private SoundCloudApplication mApp;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
-    /* package */ ArrayList<Parcelable> newItems = new ArrayList<Parcelable>();
+    /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
 
     protected String mNextHref;
     protected int mResponseCode;
@@ -82,11 +82,11 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
             InputStream is = resp.getEntity().getContent();
 
-            CollectionHolder holder = getCollection(is);
+            CollectionHolder holder = getCollection(is, mNewItems);
             mNextHref = holder == null ? null : holder.next_href;
 
-            if (newItems != null) {
-                for (Parcelable p : newItems) {
+            if (mNewItems != null) {
+                for (Parcelable p : mNewItems) {
                     ((ModelBase)p).resolve(mApp);
                 }
                 return !TextUtils.isEmpty(mNextHref);
@@ -99,39 +99,27 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
         }
     }
 
-    /* package */ CollectionHolder getCollection(InputStream is) throws IOException {
+    /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
         CollectionHolder holder = null;
         if (Track.class.equals(loadModel)) {
             holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
-            if (holder.size() > 0){
-                newItems = new ArrayList<Parcelable>();
-                for (TracklistItem t : (TracklistItemHolder) holder){
-                    newItems.add(new Track(t));
-                }
+            for (TracklistItem t : (TracklistItemHolder) holder) {
+                items.add(new Track(t));
             }
         } else if (User.class.equals(loadModel)) {
             holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
-            if (holder.size() > 0){
-                newItems = new ArrayList<Parcelable>();
-                for (UserlistItem u : (UserlistItemHolder) holder){
-                    newItems.add(new User(u));
-                }
+            for (UserlistItem u : (UserlistItemHolder) holder) {
+                items.add(new User(u));
             }
         } else if (Event.class.equals(loadModel)) {
             holder = mApp.getMapper().readValue(is, EventsHolder.class);
-            if (holder.size() > 0){
-                newItems = new ArrayList<Parcelable>();
-                for (Event e : (EventsHolder) holder){
-                    newItems.add(e);
-                }
+            for (Event e : (EventsHolder) holder) {
+                items.add(e);
             }
         } else if (Friend.class.equals(loadModel)) {
             holder = mApp.getMapper().readValue(is, FriendHolder.class);
-            if (holder.size() > 0){
-                newItems = new ArrayList<Parcelable>();
-                for (Friend f : (FriendHolder) holder){
-                    newItems.add(f);
-                }
+            for (Friend f : (FriendHolder) holder) {
+                items.add(f);
             }
         }
         return holder;

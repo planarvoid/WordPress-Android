@@ -333,7 +333,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
         if (handleResponseCode(responseCode)) {
             if (newItems != null && newItems.size() > 0) {
                 setNewEtag(eTag);
