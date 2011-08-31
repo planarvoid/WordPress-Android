@@ -1,22 +1,5 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.AuthenticatorService;
-import com.soundcloud.android.task.AsyncApiTask;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
-
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -27,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,19 +19,35 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TabHost;
-import android.widget.TabWidget;
-import android.widget.TextView;
+import android.widget.*;
+import com.soundcloud.android.*;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.AuthenticatorService;
+import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.task.LoadUserInfoTask;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 
 import java.io.IOException;
+import java.util.List;
 
-public class Main extends TabActivity {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfoListener, LoadUserInfoTask.LoadUserInfoListener {
     private View mSplash;
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
+    private LoadTrackInfoTask mLoadTrackTask;
+    private LoadUserInfoTask mLoadUserTask;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -74,6 +74,15 @@ public class Main extends TabActivity {
 
         buildTabHost(getApp(), getTabHost());
         handleIntent(getIntent());
+
+        Object[] previousState = (Object[]) getLastNonConfigurationInstance();
+        if (previousState != null){
+            mLoadTrackTask = (LoadTrackInfoTask) previousState[0];
+            if (mLoadTrackTask != null) mLoadTrackTask.setListener(this);
+
+            mLoadUserTask = (LoadUserInfoTask) previousState[0];
+            if (mLoadUserTask != null) mLoadUserTask.setListener(this);
+        }
     }
 
     private boolean showSplash(Bundle state) {
@@ -192,6 +201,31 @@ public class Main extends TabActivity {
     private void handleIntent(Intent intent) {
         if (intent != null) {
             final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
+
+            Uri data = intent.getData();
+            if (data != null) {
+                String scheme = data.getScheme();
+                String host = data.getHost();
+                List<String> params = data.getPathSegments();
+                if (scheme.equalsIgnoreCase(Consts.SOUNDCLOUD_SCHEME) &&
+                        host.equalsIgnoreCase(Consts.SOUNDCLOUD_HOST) &&
+                        params.size() > 0) {
+                    if (params.size() == 1) {
+                        mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
+                        mLoadUserTask.setListener(this);
+                        //TODO : real endpoint
+                        mLoadUserTask.execute(Request.to("/users/" + params.get(0)));
+                    } else {
+                        mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
+                        mLoadTrackTask.setListener(this);
+                        //TODO : real endpoint
+                        mLoadTrackTask.execute(Request.to("/tracks/" + params.get(1)));
+                    }
+
+                }
+            }
+
+
             if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
                 if (getCurrentActivity() instanceof Dashboard) {
@@ -217,6 +251,7 @@ public class Main extends TabActivity {
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);
             }
             intent.setAction("");
+            intent.setData(null);
             intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         }
 
@@ -378,5 +413,38 @@ public class Main extends TabActivity {
                 }
             }
         }.execute(oldAccessToken);
+    }
+
+   @Override
+    public Object onRetainNonConfigurationInstance() {
+        return new Object[]{
+                super.onRetainNonConfigurationInstance(),
+                mLoadTrackTask,
+                mLoadUserTask
+        };
+    }
+
+    @Override
+    public void onTrackInfoLoaded(Track track) {
+        startService(new Intent(this, CloudPlaybackService.class).setAction(CloudPlaybackService.ONE_SHOT_PLAY).putExtra("track", track));
+        startActivity(new Intent(this,ScPlayer.class));
+    }
+
+    @Override
+    public void onTrackInfoError(long trackId) {
+        Toast.makeText(this,getString(R.string.error_loading_sound),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onUserInfoLoaded(User user) {
+        Intent i = new Intent(this, UserBrowser.class);
+        i.putExtra("user", user);
+        i.putExtra("updateInfo", false);
+        startActivity(i);
+    }
+
+    @Override
+    public void onUserInfoError(long trackId) {
+        Toast.makeText(this,getString(R.string.error_loading_user),Toast.LENGTH_LONG).show();
     }
 }

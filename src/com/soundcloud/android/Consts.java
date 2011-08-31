@@ -29,6 +29,9 @@ public final class Consts {
 
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
 
+    public static final String SOUNDCLOUD_SCHEME = "http";
+    public static final String SOUNDCLOUD_HOST = "soundcloud.com";
+
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;

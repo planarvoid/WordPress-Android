@@ -55,6 +55,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadDetailsTask;
+    private boolean mUpdateInfo;
 
     private User mUser;
 
@@ -127,10 +128,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowDrawable = getResources().getDrawable(R.drawable.ic_follow_states);
         mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
 
+        Intent intent = getIntent();
+        mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
+
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
             mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
-            mLoadDetailsTask.setActivity(this);
+            if (mLoadDetailsTask != null) mLoadDetailsTask.setActivity(this);
 
             setUser((User) mPreviousState[2]);
 
@@ -146,7 +150,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 mFriendFinderView.setState(Integer.parseInt(mPreviousState[5].toString()), false);
 
         } else {
-            Intent intent = getIntent();
+
             if (intent != null && intent.hasExtra("user")) {
                 loadUserByObject((User) intent.getParcelableExtra("user"));
             } else if (intent != null && intent.hasExtra("userId")) {
@@ -259,6 +263,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
 
     private void loadDetails() {
+        if (!mUpdateInfo) return;
+
         if (mLoadDetailsTask == null) {
             mLoadDetailsTask = new LoadUserTask(getApp());
             mLoadDetailsTask.setActivity(this);

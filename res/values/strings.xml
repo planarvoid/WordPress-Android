@@ -171,4 +171,7 @@
     <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
     <string name='player_stream_error'>There was a problem connecting to the stream</string>
 
+    <string name='error_loading_sound'>There was a problem loading that sound</string>
+    <string name='error_loading_user'>There was a problem loading that user</string>
+
 </resources>
