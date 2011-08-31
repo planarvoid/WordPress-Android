@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
@@ -471,12 +472,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = ImageUtils.formatGraphicsUri(user.avatar_url, Consts.GraphicSize.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
-                || !remoteUrl.substring(0, remoteUrl.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
-                mIconURL = remoteUrl;
+                || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
+                mIconURL = user.avatar_url;
                 reloadAvatar();
             }
         }
@@ -563,7 +563,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageLoader.get(this).bind(mIcon, mIconURL, null)) != BindResult.OK) {
+            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.ImageViewCallback() {
+                @Override
+                public void onImageLoaded(ImageView view, String url) {}
+
+                @Override
+                public void onImageError(ImageView view, String url, Throwable error) {
+                    avatarResult = BindResult.ERROR;
+                }
+            }, null)) != BindResult.OK) {
                 mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
             }
         }
