@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.sync;
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
