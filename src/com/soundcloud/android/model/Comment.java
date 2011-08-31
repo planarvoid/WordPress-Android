@@ -20,9 +20,7 @@ public class Comment extends ModelBase implements Origin {
     @JsonView(Views.Mini.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Mini.class) public long track_id;
-
-    @JsonView(Views.Mini.class) @JsonDeserialize() public long timestamp; // should be null (non-timed comment)
-
+    @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
     @JsonView(Views.Mini.class) public Track track;
 
     public long reply_to_id;
