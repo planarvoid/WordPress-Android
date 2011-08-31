@@ -12,9 +12,12 @@ import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -157,18 +160,18 @@ public class Activities implements Iterable<Event> {
         collection.add(e);
     }
 
-    // used for testing
-    /* package */ static Activities fromJSON(InputStream is) throws IOException {
+    public static Activities fromJSON(InputStream is) throws IOException {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
     }
 
-    /* package */ static Activities fromJSON(String is) throws IOException {
+    public static Activities fromJSON(String is) throws IOException {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
     }
 
     public String toJSON() throws IOException {
         return AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValueAsString(this);
     }
+
 
     public boolean hasMore() {
         return !TextUtils.isEmpty(next_href);
@@ -180,5 +183,30 @@ public class Activities implements Iterable<Event> {
         } else {
             return new Request(URI.create(next_href));
         }
+    }
+
+    public Activities merge(Activities old) {
+        Activities merged = new Activities(new ArrayList<Event>(collection));
+        merged.future_href = future_href;
+        merged.next_href = next_href;
+
+        for (Event e : old) {
+            if (!merged.collection.contains(e)) {
+                merged.collection.add(e);
+            }
+        }
+        return merged;
+    }
+
+    public Activities filter(Date d) {
+        return filter(d.getTime());
+    }
+
+    public Activities filter(long timestamp) {
+        Iterator<Event> it = collection.iterator();
+        while (it.hasNext()) {
+            if (it.next().created_at.getTime() < timestamp) it.remove();
+        }
+        return this;
     }
 }

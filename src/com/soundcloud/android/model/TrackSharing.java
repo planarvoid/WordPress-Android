@@ -11,9 +11,28 @@ public class TrackSharing implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
-    static class SharingNote {
+    public static class SharingNote {
         public String text;
         public Date created_at;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            SharingNote that = (SharingNote) o;
+
+            return !(created_at != null ? !created_at.equals(that.created_at) : that.created_at != null)
+                && !(text != null ? !text.equals(that.text) : that.text != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = text != null ? text.hashCode() : 0;
+            result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
+            return result;
+        }
     }
 
     @Override  @JsonIgnore
@@ -24,5 +43,24 @@ public class TrackSharing implements Origin {
     @Override @JsonIgnore
     public User getUser() {
         return track.user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TrackSharing that = (TrackSharing) o;
+
+        return !(sharing_note != null ? !sharing_note.equals(that.sharing_note) : that.sharing_note != null)
+            && !(track != null ? !track.equals(that.track) : that.track != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = track != null ? track.hashCode() : 0;
+        result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
+        return result;
     }
 }

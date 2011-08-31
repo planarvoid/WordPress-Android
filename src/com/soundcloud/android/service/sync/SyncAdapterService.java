@@ -12,8 +12,6 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import android.accounts.Account;
 import android.app.Notification;
@@ -34,9 +32,9 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +43,8 @@ public class SyncAdapterService extends Service {
     private static final String TAG = "ScSyncAdapterService";
     private ScSyncAdapter mSyncAdapter;
 
-    private static final int NOTIFICATION_MAX = 100;
-    private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
+    public static final int NOTIFICATION_MAX = 100;
+    public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
     @Override
     public void onCreate() {
@@ -108,9 +106,9 @@ public class SyncAdapterService extends Service {
             if (app.useAccount(account).valid()) {
                 // how many have they already been notified about, don't create repeat notifications for no new tracks
                 try {
-                    syncIncoming(app, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
+                    syncIncoming(app, account, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
                     if (isActivitySyncEnabled(app)) {
-                        syncOwn(app, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                        syncOwn(app, account, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
                     }
                 } catch (CloudAPI.InvalidTokenException e) {
                     syncResult.stats.numAuthExceptions++;
@@ -125,10 +123,10 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static void syncIncoming(SoundCloudApplication app, long lastSeen)
+    /* package */ static void syncIncoming(SoundCloudApplication app, Account account, long lastSeen)
             throws IOException {
-        Activities incomingEvents  = getNewIncomingEvents(app, lastSeen);
-        Activities exclusiveEvents = getNewExclusiveEvents(app, lastSeen);
+        Activities incomingEvents  = getNewIncomingEvents(app, account, lastSeen, false);
+        Activities exclusiveEvents = getNewIncomingEvents(app, account, lastSeen, true);
 
         Set<Long> ids = new HashSet<Long>(incomingEvents.size());
         for (Event e : incomingEvents)  { if (e.getTrack() != null) ids.add(e.getTrack().id); }
@@ -162,10 +160,15 @@ public class SyncAdapterService extends Service {
                 Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
         }
     }
+    static Activities getOwnEvents(SoundCloudApplication app, Account account, long lastSeen) throws IOException {
+        return ActivitiesCache.get(app, account, lastSeen, Request.to(Endpoints.MY_NEWS));
+    }
 
-    /* package */ static void syncOwn(SoundCloudApplication app, long lastSeen)
+    /* package */ static void syncOwn(SoundCloudApplication app, Account account, long lastSeen)
             throws IOException {
-        Activities events = getOwnEvents(app, lastSeen);
+
+        Activities events = getOwnEvents(app, account, lastSeen);
+
         if (!events.isEmpty()) {
             Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
@@ -176,85 +179,21 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, long since, boolean exclusive)
+    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, Account account,
+                                                         long since, boolean exclusive)
             throws IOException {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return getEventsWithFutureHref(app, exclusive ?
-                    User.DataKeys.EXCLUSIVE_FUTURE_HREF :
-                    User.DataKeys.INCOMING_FUTURE_HREF,
-                    Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES),
-                    since);
+            return ActivitiesCache.get(app, account, since,
+                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
         }
     }
-
-    /* package */ static Activities getOwnEvents(SoundCloudApplication app, long since) throws IOException {
-        return getEventsWithFutureHref(app, User.DataKeys.OWN_FUTURE_HREF, Request.to(Endpoints.MY_NEWS), since);
-    }
-
-    /* package */ static Activities getEventsWithFutureHref(SoundCloudApplication app, String href, Request fallback, long since)
-            throws IOException {
-        Request request = fallback;
-        String futureHref = app.getAccountData(href);
-        if (futureHref != null) {
-            request = new Request(URI.create(futureHref));
-        }
-        Activities activities = getEvents(app, since, request);
-        app.setAccountData(href, activities.future_href);
-        return activities;
-    }
-
-    /* package */
-    static Activities getEvents(SoundCloudApplication app, final long since, final Request resource)
-            throws IOException {
-        boolean caughtUp = false;
-        String future_href = null;
-        List<Event> events = new ArrayList<Event>();
-
-        Request request = resource.add("limit", 20);
-        do {
-            HttpResponse response = app.get(request);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Activities activities = app.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-                request = activities.hasMore() ? activities.getNextRequest() : null;
-                if (future_href == null) {
-                    future_href = activities.future_href;
-                }
-
-                if (activities.includes(since)) {
-                    caughtUp = true; // nothing new
-                } else {
-                    for (Event evt : activities) {
-                        if (evt.created_at.getTime() > since) {
-                            events.add(evt);
-                        } else {
-                            caughtUp = true;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                Log.w(TAG, "unexpected status code: " + response.getStatusLine());
-
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-                     throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                             response.getStatusLine().getReasonPhrase());
-                } else {
-                    throw new IOException(response.getStatusLine().toString());
-                }
-            }
-        } while (!caughtUp
-                && events.size() < NOTIFICATION_MAX
-                && request != null);
-
-        return new Activities(events, future_href);
-    }
-
 
     /* package */ static String getIncomingMessaging(SoundCloudApplication app, Activities activites) {
         List<User> users = activites.getUniqueUsers();
         switch (users.size()) {
+            case 0: return null;
             case 1:
                 return String.format(
                         app.getString(R.string.dashboard_notifications_message_incoming),
@@ -321,11 +260,7 @@ public class SyncAdapterService extends Service {
     public static void requestNewSync(SoundCloudApplication app) {
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-
-        app.setAccountData(User.DataKeys.OWN_FUTURE_HREF, null);
-        app.setAccountData(User.DataKeys.INCOMING_FUTURE_HREF, null);
-        app.setAccountData(User.DataKeys.EXCLUSIVE_FUTURE_HREF, null);
-
+        ActivitiesCache.clear(app);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
@@ -351,14 +286,6 @@ public class SyncAdapterService extends Service {
 
     public static boolean isCommentsEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsComments", true);
-    }
-
-    private static Activities getNewIncomingEvents(SoundCloudApplication app, long since) throws IOException {
-        return getNewIncomingEvents(app, since, false);
-    }
-
-    private static Activities getNewExclusiveEvents(SoundCloudApplication app, long since) throws IOException {
-        return getNewIncomingEvents(app, since, true);
     }
 
     private static class Message {

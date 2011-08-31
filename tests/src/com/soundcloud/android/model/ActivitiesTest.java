@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
@@ -56,7 +57,7 @@ public class ActivitiesTest {
     @Test
     public void testFromJSON() throws Exception {
         Activities a = getActivities();
-        assertThat(a.size(), is(42));
+        assertThat(a.size(), is(41));
         assertThat(a.getUniqueTracks().size(), is(19));
         assertThat(a.getUniqueUsers().size(), is(29));
     }
@@ -64,7 +65,7 @@ public class ActivitiesTest {
     @Test
     public void testFavoritings() throws Exception {
         Activities favoritings = getActivities().favoritings();
-        assertThat(favoritings.size(), is(27));
+        assertThat(favoritings.size(), is(26));
     }
 
     @Test
@@ -143,5 +144,29 @@ public class ActivitiesTest {
         String json = getActivities().toJSON();
         JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
         assertThat(original, equalTo(copy));
+    }
+
+    @Test
+    public void testMerge() throws Exception {
+        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
+        Activities all = Activities.fromJSON(getClass().getResourceAsStream("activities.json"));
+
+        Activities merged = a2.merge(a1);
+        assertThat(merged.size(), is(all.size()));
+
+        assertThat(merged.future_href, equalTo("https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href"));
+        assertThat(merged.next_href, equalTo("https://api.soundcloud.com/me/activities/tracks?cursor=new_href"));
+        assertTrue(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at));
+    }
+
+    @Test
+    public void testFilter() throws Exception {
+        Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
+        Date start = AndroidCloudAPI.CloudDateFormat.fromString("2011/07/29 15:36:44 +0000");
+
+        Activities filtered = a2.filter(start);
+        assertThat(filtered.size(), is(1));
+        assertTrue(filtered.get(0).created_at.after(start));
     }
 }

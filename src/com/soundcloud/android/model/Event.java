@@ -147,7 +147,6 @@ public class Event extends ModelBase implements Origin {
         return Types.PLAYLIST.equals(type);
     }
 
-
     @Override
     public String toString() {
         return "Event{" +
@@ -155,5 +154,32 @@ public class Event extends ModelBase implements Origin {
                 ", track=" + (getTrack() == null ? "" : getTrack().title) +
                 ", user="  + (getUser() == null ? "" : getUser().username) +
                 '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Event event = (Event) o;
+
+        if (created_at != null ? !created_at.equals(event.created_at) : event.created_at != null) return false;
+        if (origin != null ? !origin.equals(event.origin) : event.origin != null) return false;
+        if (tags != null ? !tags.equals(event.tags) : event.tags != null) return false;
+        if (type != null ? !type.equals(event.type) : event.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        result = 31 * result + (origin != null ? origin.hashCode() : 0);
+        return result;
     }
 }

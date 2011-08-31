@@ -176,7 +176,7 @@
                        android:resource="@xml/authenticator"/>
         </service>
 
-        <service android:name=".service.SyncAdapterService" android:exported="true">
+        <service android:name=".service.sync.SyncAdapterService" android:exported="true">
            <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>

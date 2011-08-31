@@ -2,8 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.Actions;
@@ -13,11 +12,11 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,14 +44,11 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0l, false);
+                DefaultTestRunner.application, null, 0l, false);
 
         assertThat(events.size(), is(100));
         assertThat(events.future_href,
                 equalTo("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
-
-        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.INCOMING_FUTURE_HREF),
-                equalTo(events.future_href));
     }
 
     @Test
@@ -60,13 +56,11 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("exclusives_1.json"));
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0l, true);
+                DefaultTestRunner.application, null, 0l, true);
 
         assertThat(events.size(), is(4));
         assertThat(events.future_href,
                 equalTo("https://api.soundcloud.com/me/activities/tracks/exclusive?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
-        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.EXCLUSIVE_FUTURE_HREF),
-                equalTo(events.future_href));
     }
 
 
@@ -76,14 +70,11 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("own_2.json"));
 
         Activities events = SyncAdapterService.getOwnEvents(
-                DefaultTestRunner.application, 0l);
+                DefaultTestRunner.application, null, 0l);
 
         assertThat(events.size(), is(42));
         assertThat(events.future_href,
                 equalTo("https://api.soundcloud.com/me/activities/all/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
-
-        assertThat(DefaultTestRunner.application.getAccountData(User.DataKeys.OWN_FUTURE_HREF),
-                equalTo(events.future_href));
     }
 
     @Test
@@ -91,6 +82,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_1.json"));
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
+                null,
                 1310462679000l
                 , false);
 
@@ -99,6 +91,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_1.json"));
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
+                null,
                 1310462016000l
                 , false);
 
@@ -110,7 +103,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0l, false);
+                DefaultTestRunner.application, null, 0l, false);
         assertThat(events.size(), is(50));
 
         List<User> users = events.getUniqueUsers();
@@ -126,7 +119,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addPendingHttpResponse(200, resource("incoming_2.json"));
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0l, false);
+                DefaultTestRunner.application, null, 0l, false);
 
         String message = SyncAdapterService.getIncomingMessaging(
                 DefaultTestRunner.application, events);
@@ -138,7 +131,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     public void testExclusiveMessaging() throws Exception {
         addPendingHttpResponse(200, resource("incoming_2.json"));
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, 0l, false);
+                DefaultTestRunner.application, null, 0l, false);
 
         String message = SyncAdapterService.getExclusiveMessaging(
                 DefaultTestRunner.application, events);
@@ -155,6 +148,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(1));
         NotificationInfo n = notifications.get(0);
+        assertThat(n.info.getContentText(), not(nullValue()));
         assertThat(n.info.getContentText().toString(),
                 equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
         assertThat(n.info.getContentTitle().toString(),

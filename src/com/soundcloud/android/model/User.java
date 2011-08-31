@@ -227,10 +227,6 @@ public class User extends ModelBase implements PageTrackable {
         String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
         String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
 
-        String INCOMING_FUTURE_HREF  = "incoming_future_href";
-        String EXCLUSIVE_FUTURE_HREF = "exclusive_future_href";
-        String OWN_FUTURE_HREF       = "own_future_href";
-
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
     }
 }

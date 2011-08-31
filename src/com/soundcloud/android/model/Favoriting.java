@@ -20,4 +20,21 @@ public class Favoriting implements Origin {
     public User getUser() {
         return user;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Favoriting that = (Favoriting) o;
+        return !(track != null ? !track.equals(that.track) : that.track != null)
+                && !(user != null ? !user.equals(that.user) : that.user != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = track != null ? track.hashCode() : 0;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        return result;
+    }
 }

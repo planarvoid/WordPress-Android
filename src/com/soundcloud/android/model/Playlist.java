@@ -7,12 +7,11 @@ import org.codehaus.jackson.map.annotate.JsonView;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Playlist extends ModelBase implements Origin {
-    @JsonView(Views.Mini.class) public Track track;
     @JsonView(Views.Mini.class) public User user;
 
     @Override @JsonIgnore
     public Track getTrack() {
-        return track;
+        return null;
     }
 
     @Override @JsonIgnore

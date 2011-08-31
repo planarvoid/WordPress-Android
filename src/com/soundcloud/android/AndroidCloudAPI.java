@@ -24,6 +24,7 @@ import android.os.Build;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -89,7 +90,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
     }
 
-    static class CloudDateFormat extends StdDateFormat {
+    public static class CloudDateFormat extends StdDateFormat {
         /** Used by the SoundCloud API */
         public static final DateFormat CLOUDDATEFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
 
@@ -98,6 +99,14 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         public static final DateFormat INSTANCE = new CloudDateFormat();
+
+        public static Date fromString(String s) {
+            try {
+                return INSTANCE.parse(s);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         private CloudDateFormat() {}
 
