@@ -4,12 +4,14 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DatabaseHelper.Events;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -25,7 +27,7 @@ public class Event extends ModelBase implements Origin {
     @JsonProperty public String type;
     @JsonProperty public String tags;
 
-    @JsonIgnore public Origin origin;
+    public Origin origin;
 
     private CharSequence mElapsedTime;
 
@@ -108,22 +110,41 @@ public class Event extends ModelBase implements Origin {
         String TRACK_SHARING = "track-sharing";
         String COMMENT = "comment";
         String FAVORITING = "favoriting";
+        String PLAYLIST = "playlist";
     }
 
-    public boolean isTrack() {
+    public Class<? extends Origin> getOriginClass() {
+        if (isTrack()) {
+            return Track.class;
+        } else if (isTrackSharing()) {
+            return TrackSharing.class;
+        } else if (isComment()) {
+            return Comment.class;
+        } else if (isFavoriting()) {
+            return Favoriting.class;
+        } else if (isPlaylist()) {
+         return Playlist.class;
+        } throw new IllegalStateException("unknown type:" +type);
+    }
+
+    /* package */ boolean isTrack() {
         return Types.TRACK.equals(type);
     }
 
-    public boolean isTrackSharing() {
+    /* package */ boolean isTrackSharing() {
         return Types.TRACK_SHARING.equals(type);
     }
 
-    public boolean isComment() {
+    /* package */ boolean isComment() {
         return Types.COMMENT.equals(type);
     }
 
-    public boolean isFavoriting() {
+    /* package */ boolean isFavoriting() {
         return Types.FAVORITING.equals(type);
+    }
+
+    /* package */ boolean isPlaylist() {
+        return Types.PLAYLIST.equals(type);
     }
 
 

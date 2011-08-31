@@ -1,10 +1,12 @@
 package com.soundcloud.android.model;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.codehaus.jackson.JsonNode;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
-public class ActitiviesTest {
+public class ActivitiesTest {
 
     @Test
     public void testIsEmpty() throws Exception {
@@ -115,15 +117,7 @@ public class ActitiviesTest {
     @Test
     public void testSubTypes() throws Exception {
         for (Event a : getActivities()) {
-            if (a.isFavoriting()) {
-                assertTrue(a.origin instanceof Favoriting);
-            } else if (a.isComment()) {
-                assertTrue(a.origin instanceof Comment);
-            } else if (a.isTrack()) {
-                assertTrue(a.origin instanceof Track);
-            } else if (a.isTrackSharing()) {
-                assertTrue(a.origin instanceof TrackSharing);
-            }
+            assertTrue(a.origin.getClass().equals(a.getOriginClass()));
         }
     }
 
@@ -141,5 +135,13 @@ public class ActitiviesTest {
         assertThat(initial.size(), equalTo(other.size()));
         assertThat(initial.future_href, equalTo(other.future_href));
         assertThat(initial.next_href, equalTo(other.next_href));
+    }
+
+    @Test
+    public void testToJsonEqualsOriginal() throws Exception {
+        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities.json"));
+        String json = getActivities().toJSON();
+        JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
+        assertThat(original, equalTo(copy));
     }
 }

@@ -5,13 +5,30 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerFactory;
 import org.codehaus.jackson.map.SerializerProvider;
-import org.codehaus.jackson.map.ser.BeanSerializerFactory;
 import org.codehaus.jackson.map.ser.CustomSerializerFactory;
+import org.codehaus.jackson.map.ser.ScalarSerializerBase;
 
 import java.io.IOException;
 
 public class EventSerializer extends JsonSerializer<Event> {
-    private static final SerializerFactory FACTORY = new CustomSerializerFactory();
+    private static final SerializerFactory FACTORY = new CustomSerializerFactory() {
+        {
+            final JsonSerializer<Long> longSerializer = new ScalarSerializerBase<Long>(Long.class) {
+                @Override
+                public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    // assume 0 == null for now
+                    if (value == null || value == 0) {
+                        jgen.writeNull();
+                    } else {
+                        jgen.writeNumber(value);
+                    }
+                }
+            };
+            _concrete.put(Long.class.getName(), longSerializer);
+            _concrete.put(Long.TYPE.getName(), longSerializer);
+        }
+    };
+
 
     @Override
     public void serialize(Event event, JsonGenerator jgen, SerializerProvider provider) throws IOException {

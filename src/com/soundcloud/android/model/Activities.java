@@ -21,15 +21,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Activities implements Iterable<Event> {
-    @JsonProperty @JsonView(Views.Default.class)
+    @JsonProperty @JsonView(Views.Mini.class)
     public List<Event> collection;
 
     /* the next page for the collection */
-    @JsonProperty @JsonView(Views.Default.class)
+    @JsonProperty @JsonView(Views.Mini.class)
     public String next_href;
 
     /* use this URL to poll for updates */
-    @JsonProperty @JsonView(Views.Default.class)
+    @JsonProperty @JsonView(Views.Mini.class)
     public String future_href;
 
     public static final Activities EMPTY = new Activities();

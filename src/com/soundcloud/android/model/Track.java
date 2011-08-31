@@ -17,6 +17,7 @@ import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
@@ -85,7 +86,8 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String user_uri;
     @JsonView(Views.Mini.class) public String permalink_url;
-    public String artwork_url;
+    @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) public String artwork_url;
+
     public String waveform_url;
 
     public User user;
