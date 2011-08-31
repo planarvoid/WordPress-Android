@@ -26,26 +26,27 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.AuthenticatorService;
 import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.task.AsyncApiTask;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.task.LoadTrackInfoTask;
-import com.soundcloud.android.task.LoadUserInfoTask;
+import com.soundcloud.android.task.*;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfoListener, LoadUserInfoTask.LoadUserInfoListener {
+public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfoListener, LoadUserInfoTask.LoadUserInfoListener, ResolveTask.ResolveListener {
     private View mSplash;
 
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
+
+    private ResolveTask mResolveTask;
     private LoadTrackInfoTask mLoadTrackTask;
     private LoadUserInfoTask mLoadUserTask;
 
@@ -77,10 +78,13 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
         Object[] previousState = (Object[]) getLastNonConfigurationInstance();
         if (previousState != null){
-            mLoadTrackTask = (LoadTrackInfoTask) previousState[0];
+            mResolveTask = (ResolveTask) previousState[0];
+            if (mResolveTask != null) mResolveTask.setListener(this);
+
+            mLoadTrackTask = (LoadTrackInfoTask) previousState[1];
             if (mLoadTrackTask != null) mLoadTrackTask.setListener(this);
 
-            mLoadUserTask = (LoadUserInfoTask) previousState[0];
+            mLoadUserTask = (LoadUserInfoTask) previousState[2];
             if (mLoadUserTask != null) mLoadUserTask.setListener(this);
         }
     }
@@ -204,24 +208,11 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
             Uri data = intent.getData();
             if (data != null) {
-                String scheme = data.getScheme();
-                String host = data.getHost();
                 List<String> params = data.getPathSegments();
-                if (scheme.equalsIgnoreCase(Consts.SOUNDCLOUD_SCHEME) &&
-                        host.equalsIgnoreCase(Consts.SOUNDCLOUD_HOST) &&
-                        params.size() > 0) {
-                    if (params.size() == 1) {
-                        mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
-                        mLoadUserTask.setListener(this);
-                        //TODO : real endpoint
-                        mLoadUserTask.execute(Request.to("/users/" + params.get(0)));
-                    } else {
-                        mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
-                        mLoadTrackTask.setListener(this);
-                        //TODO : real endpoint
-                        mLoadTrackTask.execute(Request.to("/tracks/" + params.get(1)));
-                    }
-
+                if (params.size() > 0) {
+                    mResolveTask = new ResolveTask(getApp());
+                    mResolveTask.setListener(this);
+                    mResolveTask.execute(data);
                 }
             }
 
@@ -419,9 +410,31 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
                 super.onRetainNonConfigurationInstance(),
+                mResolveTask,
                 mLoadTrackTask,
                 mLoadUserTask
         };
+    }
+
+    @Override
+    public void onUrlResolved(Uri uri) {
+        List<String> params = uri.getPathSegments();
+        if (params.size() >= 2) {
+            if (params.get(0).equalsIgnoreCase("tracks")) {
+                mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
+                mLoadTrackTask.setListener(this);
+                mLoadTrackTask.execute(Request.to(uri.getPath())); //TODO : real endpoint
+            } else if (params.get(0).equalsIgnoreCase("users")) {
+                mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
+                mLoadUserTask.setListener(this);
+                mLoadUserTask.execute(Request.to(uri.getPath())); //TODO : real endpoint
+            }
+        }
+    }
+
+    @Override
+    public void onUrlError() {
+        Toast.makeText(this,getString(R.string.error_resolving_url),Toast.LENGTH_LONG).show();
     }
 
     @Override
