@@ -1,11 +1,13 @@
 package com.soundcloud.android.service.sync;
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.clearPendingHttpResponses;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Activities;
@@ -16,7 +18,6 @@ import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,7 +38,6 @@ import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncAdapterServiceTest extends ApiTests {
-
     @Test
     public void testGetNewIncomingEvents() throws Exception {
         addPendingHttpResponse(200, resource("incoming_1.json"));
@@ -206,17 +206,24 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     @Test
-    public void shouldNotifyAboutActivityFavoriting() throws Exception {
+    public void shouldNotifyAboutActivityFavoritingOne() throws Exception {
         assertNotification("own_one_favoriting.json",
                 "New like",
                 "A new like",
                 "Paul Ko likes P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityFavoritingTwo() throws Exception {
         assertNotification("own_two_favoritings.json",
                 "2 new likes",
                 "2 new likes",
                 "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
+    }
 
+
+    @Test
+    public void shouldNotifyAboutActivityFavoritingMultiple() throws Exception {
         assertNotification("own_multi_favoritings.json",
                 "3 new likes",
                 "3 new likes",
@@ -225,22 +232,31 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     @Test
-    public void shouldNotifyAboutActivityCommenting() throws Exception {
+    public void shouldNotifyAboutActivityCommentingSingle() throws Exception {
         assertNotification("own_one_comment.json",
                 "1 new comment",
                 "1 new comment",
                 "new comment on Autotune at MTV from fronx");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityCommentingTwo() throws Exception {
         assertNotification("own_two_comments.json",
                 "2 new comments",
                 "2 new comments",
                 "2 new comments on Autotune at MTV from fronx and bronx");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityCommentingThree() throws Exception {
         assertNotification("own_three_comments.json",
                 "3 new comments",
                 "3 new comments",
                 "3 new comments on Autotune at MTV from fronx, bronx and others");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityCommentingFour() throws Exception {
         assertNotification("own_four_comments_different_tracks.json",
                 "4 new comments",
                 "4 new comments",
@@ -248,17 +264,23 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     @Test
-    public void shouldNotifyAboutActivityCommentingAndFavoriting() throws Exception {
+    public void shouldNotifyAboutActivityCommentingAndFavoritingTwoUsers() throws Exception {
         assertNotification("own_comment_favoriting_same_track.json",
                 "2 new activities",
                 "2 new activities",
                 "from fronx on Autotune at MTV");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityCommentingAndFavoritingTwoDifferentUsers() throws Exception {
         assertNotification("own_comment_favoriting_different_tracks_two_users.json",
                 "5 new activities",
                 "5 new activities",
                 "Comments and likes from fronx and bronx");
+    }
 
+    @Test
+    public void shouldNotifyAboutActivityCommentingAndFavoritingMultipleDifferentUsers() throws Exception {
         assertNotification("own_comment_favoriting_different_tracks.json",
                 "5 new activities",
                 "5 new activities",
@@ -292,6 +314,8 @@ public class SyncAdapterServiceTest extends ApiTests {
     @Test
     public void shouldFlagSoftErrorWhenIOError() throws Exception {
         addPendingHttpResponse(500, "errors");
+        addPendingHttpResponse(500, "errors");
+
         SyncResult result = doPerformSync(DefaultTestRunner.application, false).result;
         assertThat(result.hasHardError(), is(false));
         assertThat(result.hasSoftError(), is(true));
@@ -303,9 +327,69 @@ public class SyncAdapterServiceTest extends ApiTests {
         assertThat(doPerformSync(DefaultTestRunner.application, true).notifications.size(), is(0));
     }
 
+    @Test
+    public void shouldUseCachedActivitiesToUpdateNotifications() throws Exception {
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("activities_1.json"));
+        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(first.getTicker(), equalTo("39 new activities"));
+        assertThat(first.getInfo().getContentTitle().toString(), equalTo(first.getTicker()));
+        assertThat(first.getInfo().getContentText().toString(), equalTo("Comments and likes from EddieSongWriter, changmangoo and others"));
+
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("activities_2.json"));
+        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(second.getTicker(), equalTo("41 new activities"));
+        assertThat(second.getInfo().getContentTitle().toString(), equalTo(second.getTicker()));
+        assertThat(second.getInfo().getContentText().toString(), equalTo("Comments and likes from Paul Ko, jensnikolaus and others"));
+
+    }
+
+    @Test
+    public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("activities_1.json"));
+        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(first.getTicker(), equalTo("39 new activities"));
+        assertThat(first.getInfo().getContentTitle().toString(), equalTo(first.getTicker()));
+        assertThat(first.getInfo().getContentText().toString(), equalTo("Comments and likes from EddieSongWriter, changmangoo and others"));
+
+        // user has already seen some stuff
+        DefaultTestRunner.application.setAccountData(
+            User.DataKeys.LAST_OWN_SEEN,
+            AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
+        );
+
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("empty_events.json"));
+        addPendingHttpResponse(200, resource("activities_2.json"));
+        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(second.getTicker(), equalTo("3 new activities"));
+        assertThat(second.getInfo().getContentTitle().toString(), equalTo(second.getTicker()));
+        assertThat(second.getInfo().getContentText().toString(), equalTo("Comments and likes from Paul Ko, jensnikolaus and others"));
+    }
+
     static class SyncOutcome {
         List<NotificationInfo> notifications;
         SyncResult result;
+
+
+        ShadowNotification.LatestEventInfo getInfo() {
+            assertThat(notifications.size(), is(1));
+            return notifications.get(0).info;
+
+        }
+        String getTicker() {
+            assertThat(notifications.size(), is(1));
+            return notifications.get(0).n.tickerText.toString();
+        }
     }
 
     private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime)
@@ -321,7 +405,7 @@ public class SyncAdapterServiceTest extends ApiTests {
                 new Account("foo", "bar"),
                 null, null, result);
 
-        ShadowNotificationManager m =shadowOf((NotificationManager)
+        ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
 
         List<NotificationInfo> list = new ArrayList<NotificationInfo>();

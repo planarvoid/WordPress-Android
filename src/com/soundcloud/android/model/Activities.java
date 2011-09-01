@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.text.TextUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -164,6 +165,10 @@ public class Activities implements Iterable<Event> {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
     }
 
+    public static Activities fromJSON(File f) throws IOException {
+        return AndroidCloudAPI.Mapper.readValue(f, Activities.class);
+    }
+
     public static Activities fromJSON(String is) throws IOException {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
     }
@@ -172,6 +177,9 @@ public class Activities implements Iterable<Event> {
         return AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValueAsString(this);
     }
 
+    public void toJSON(File f) throws IOException {
+        AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValue(f, this);
+    }
 
     public boolean hasMore() {
         return !TextUtils.isEmpty(next_href);

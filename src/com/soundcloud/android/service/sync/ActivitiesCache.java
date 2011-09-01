@@ -16,11 +16,8 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,51 +29,38 @@ public class ActivitiesCache {
                           long lastSeen,
                           final Request request) throws IOException {
 
-        final String cachedFile = PREFIX+md5(account == null ? "" : account.name+request.toUrl())+".json";
+        final File cachedFile = new File(context.getCacheDir(),
+                PREFIX+md5(account == null ? "" : account.name+request.toUrl())+".json");
+
         Activities activities;
         try {
-            InputStream is = context.openFileInput(cachedFile);
-            Activities cached = Activities.fromJSON(is).filter(lastSeen);
-            String future_href = cached.future_href;
+            if (cachedFile.exists()) {
+                Activities cached = Activities.fromJSON(cachedFile).filter(lastSeen);
+                String future_href = cached.future_href;
 
-            Log.d(TAG, "read from activities cache "+cachedFile+
-                    ", requesting updates from " +future_href);
+                Log.d(TAG, "read from activities cache "+cachedFile+
+                        ", requesting updates from " +(future_href == null ? request.toUrl() : future_href));
 
-            if (future_href != null) {
-                activities = getEvents(context, lastSeen, Request.to(future_href)).merge(cached);
+                if (future_href != null) {
+                    Activities updates = getEvents(context, lastSeen, Request.to(future_href));
+                    activities = updates.merge(cached);
+                } else {
+                    activities = cached;
+                }
             } else {
-                activities = cached;
+              activities = getEvents(context, lastSeen, request);
             }
-        } catch (FileNotFoundException e) {
-            // expected, don't log anything
-            activities = getEvents(context, lastSeen, request);
         } catch (IOException e) {
             Log.w(TAG, "error", e);
             // fallback, load events from normal resource
             activities = getEvents(context, lastSeen, request);
         }
 
-        if (write(activities, context, cachedFile)) {
-            Log.d(TAG, "cached activities to "+cachedFile);
-        }
+        activities.toJSON(cachedFile);
+        Log.d(TAG, "cached activities to "+cachedFile);
         return activities;
     }
 
-    public static boolean write(Activities activities, Context context, String name) throws IOException {
-        if (!SoundCloudApplication.DALVIK) return false;
-
-        OutputStream os = null;
-        try {
-            os = context.openFileOutput(name, 0);
-            os.write(activities.toJSON().getBytes("UTF-8"));
-            os.close();
-            return true;
-        } finally {
-            if (os != null) os.close();
-        }
-    }
-
-    /* package */
     private static Activities getEvents(SoundCloudApplication app, final long since, final Request resource)
             throws IOException {
         boolean caughtUp = false;
