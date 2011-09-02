@@ -20,9 +20,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Activities implements Iterable<Event> {
     @JsonProperty @JsonView(Views.Mini.class)
@@ -220,5 +222,15 @@ public class Activities implements Iterable<Event> {
             if (it.next().created_at.getTime() <= timestamp) it.remove();
         }
         return this;
+    }
+
+    public static int getUniqueTrackCount(Activities... activities) {
+        Set<Long> ids = new HashSet<Long>(10);
+        for (Activities a : activities) {
+            for (Event e : a) {
+                if (e.getTrack() != null) ids.add(e.getTrack().id);
+            }
+        }
+        return ids.size();
     }
 }

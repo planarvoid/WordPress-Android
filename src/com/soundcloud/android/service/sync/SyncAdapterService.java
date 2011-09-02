@@ -5,7 +5,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -32,12 +31,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SyncAdapterService extends Service {
     private static final String TAG = "ScSyncAdapterService";
@@ -125,16 +120,13 @@ public class SyncAdapterService extends Service {
 
     /* package */ static void syncIncoming(SoundCloudApplication app, Account account, long lastSeen)
             throws IOException {
-        Activities incomingEvents  = getNewIncomingEvents(app, account, lastSeen, false);
-        Activities exclusiveEvents = getNewIncomingEvents(app, account, lastSeen, true);
+        Activities incoming = getNewIncomingEvents(app, account, lastSeen, false);
+        Activities exclusive = getNewIncomingEvents(app, account, lastSeen, true);
 
-        Set<Long> ids = new HashSet<Long>(incomingEvents.size());
-        for (Event e : incomingEvents)  { if (e.getTrack() != null) ids.add(e.getTrack().id); }
-        for (Event e : exclusiveEvents) { if (e.getTrack() != null) ids.add(e.getTrack().id); }
-        final int totalUnseen = ids.size();
+        final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
 
-        final boolean hasIncoming  = !incomingEvents.isEmpty();
-        final boolean hasExclusive = !exclusiveEvents.isEmpty();
+        final boolean hasIncoming  = !incoming.isEmpty();
+        final boolean hasExclusive = !exclusive.isEmpty();
         if (hasIncoming || hasExclusive) {
             final CharSequence title, message, ticker;
 
@@ -150,9 +142,9 @@ public class SyncAdapterService extends Service {
             }
 
             if (hasExclusive) {
-                message = getExclusiveMessaging(app, exclusiveEvents);
+                message = getExclusiveMessaging(app, exclusive);
             } else {
-                message = getIncomingMessaging(app, incomingEvents);
+                message = getIncomingMessaging(app, incoming);
             }
 
             createDashboardNotification(app, ticker, title, message,
@@ -258,6 +250,8 @@ public class SyncAdapterService extends Service {
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
+
+
         nm.notify(id, n);
     }
 
