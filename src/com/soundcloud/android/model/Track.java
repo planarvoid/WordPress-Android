@@ -172,6 +172,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
+
+        public boolean isEmpty() {
+            return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
+        }
     }
 
     public Track() {
@@ -360,7 +364,13 @@ public class Track extends ModelBase implements PageTrackable, Origin {
             str.append(key_signature).append("<br/>");
         }
         if (bpm != 0) {
-            str.append(bpm).append("<br/>");
+            str.append(" ");
+            if (Math.floor(bpm) == bpm) {
+                str.append((int) bpm);
+            } else {
+                str.append(bpm);
+            }
+            str.append(" BPM <br/>");
         }
 
         if (!TextUtils.isEmpty(formattedLicense())) {
@@ -376,6 +386,16 @@ public class Track extends ModelBase implements PageTrackable, Origin {
             }
             str.append("<br />");
         }
+
+        if (created_with != null && !created_with.isEmpty()) {
+            str.append("Created with <a href=\"")
+               .append(created_with.permalink_url)
+               .append("\">")
+               .append(created_with.name)
+               .append("</a>")
+               .append("<br/>");
+        }
+
         return str.toString();
     }
 
