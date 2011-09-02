@@ -23,7 +23,7 @@ public class Finish extends TourActivity {
         findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getApp().trackEvent(Consts.Tracking.Categories.AUTH, "tourCompleted");
+                getApp().trackEvent(Consts.Tracking.Categories.TOUR, "completed");
                 finish();
             }
         });
