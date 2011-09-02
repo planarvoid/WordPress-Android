@@ -120,6 +120,7 @@ public final class Consts {
             String SHARE     = "share";
             String ERROR     = "error";
             String PLAYBACK_ERROR = "playbackError";
+            String TOUR      = "tour";
         }
 
         interface Actions {

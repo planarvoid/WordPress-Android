@@ -161,6 +161,8 @@ namespace :beta do
     end
   end
 
+  task :push => :upload
+
   desc "upload beta to s3"
   task :upload => :verify do
     metadata = {

@@ -7,10 +7,11 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
-public class Finish extends Activity {
-
+public class Finish extends TourActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -22,10 +23,9 @@ public class Finish extends Activity {
         findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getApp().trackEvent(Consts.Tracking.Categories.AUTH, "tourCompleted");
                 finish();
             }
         });
-
-
     }
 }
