@@ -890,6 +890,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {
                             mCurrentArtBindResult = BindResult.ERROR;
+                            Log.e(TAG,"Error loading artwork " + error);
                         }
 
                         @Override
