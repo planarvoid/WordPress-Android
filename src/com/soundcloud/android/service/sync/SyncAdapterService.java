@@ -192,8 +192,9 @@ public class SyncAdapterService extends Service {
 
     /* package */ static String getIncomingMessaging(SoundCloudApplication app, Activities activites) {
         List<User> users = activites.getUniqueUsers();
+        assert !users.isEmpty();
+
         switch (users.size()) {
-            case 0: return null;
             case 1:
                 return String.format(
                         app.getString(R.string.dashboard_notifications_message_incoming),
@@ -218,6 +219,8 @@ public class SyncAdapterService extends Service {
 
         } else {
             List<User> users = activities.getUniqueUsers();
+            assert !users.isEmpty();
+
             switch (users.size()) {
                 case 1:
                     return String.format(
@@ -228,6 +231,8 @@ public class SyncAdapterService extends Service {
                             app.getString(R.string.dashboard_notifications_message_exclusive_2),
                             users.get(0).username, users.get(1).username);
                 default:
+
+
                     return String.format(app
                             .getString(R.string.dashboard_notifications_message_exclusive_others),
                             users.get(0).username, users.get(1).username);
@@ -257,10 +262,12 @@ public class SyncAdapterService extends Service {
     }
 
     // only used for debugging
-    public static void requestNewSync(SoundCloudApplication app) {
-        app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
-        app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-        ActivitiesCache.clear(app);
+    public static void requestNewSync(SoundCloudApplication app, boolean clear) {
+        if (clear) {
+            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
+            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
+            ActivitiesCache.clear(app);
+        }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 

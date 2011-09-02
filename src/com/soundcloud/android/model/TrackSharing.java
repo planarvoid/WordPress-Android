@@ -12,8 +12,8 @@ public class TrackSharing implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
     public static class SharingNote {
-        public String text;
-        public Date created_at;
+        @JsonProperty @JsonView(Views.Mini.class) public String text;
+        @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
 
         @Override
         public boolean equals(Object o) {

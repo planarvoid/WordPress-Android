@@ -174,10 +174,14 @@ public class Activities implements Iterable<Event> {
     }
 
     public String toJSON() throws IOException {
-        return AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValueAsString(this);
+        return toJSON(Views.Mini.class);
     }
 
-    public void toJSON(File f) throws IOException {
+    public String toJSON(Class<?> view) throws IOException {
+        return AndroidCloudAPI.Mapper.viewWriter(view).writeValueAsString(this);
+    }
+
+    public void toJSON(File f, Class<?> view) throws IOException {
         AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValue(f, this);
     }
 
@@ -213,7 +217,7 @@ public class Activities implements Iterable<Event> {
     public Activities filter(long timestamp) {
         Iterator<Event> it = collection.iterator();
         while (it.hasNext()) {
-            if (it.next().created_at.getTime() < timestamp) it.remove();
+            if (it.next().created_at.getTime() <= timestamp) it.remove();
         }
         return this;
     }

@@ -105,6 +105,14 @@ public class Event extends ModelBase implements Origin {
         return mElapsedTime;
     }
 
+    public Class<?> getView(Class<?> defaultView) {
+        if (isTrack() || isTrackSharing()) {
+            return Views.Full.class;
+        } else {
+            return defaultView;
+        }
+    }
+
     public interface Types {
         String TRACK = "track";
         String TRACK_SHARING = "track-sharing";

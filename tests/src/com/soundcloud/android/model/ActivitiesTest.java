@@ -8,9 +8,12 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.codehaus.jackson.JsonNode;
 import org.hamcrest.CoreMatchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -138,13 +141,29 @@ public class ActivitiesTest {
         assertThat(initial.next_href, equalTo(other.next_href));
     }
 
-    @Test
-    public void testToJsonEqualsOriginal() throws Exception {
+    @Test @Ignore
+    // set to ignored because mutually exclusive annotation
+    // @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public void testToJsonEqualsOriginal1() throws Exception {
         JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities.json"));
-        String json = getActivities().toJSON();
+        String json = Activities.fromJSON(getClass().getResourceAsStream("activities.json")).toJSON();
         JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
         assertThat(original, equalTo(copy));
     }
+
+    @Test
+    public void testToJsonEqualsOriginal2() throws Exception {
+        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("incoming_1.json"));
+        String json = Activities.fromJSON(getClass().getResourceAsStream("incoming_1.json")).toJSON();
+
+        FileOutputStream fos = new FileOutputStream(new File("out.json"));
+        fos.write(json.getBytes("UTF-8"));
+        fos.close();
+
+        JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
+        assertThat(original, equalTo(copy));
+    }
+
 
     @Test
     public void testMerge() throws Exception {

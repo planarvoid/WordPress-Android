@@ -103,6 +103,11 @@
             android:key="dev.clearNotifications"/>
 
         <Preference
+            android:title="@string/pref_dev_sync_now"
+            android:summary="@string/pref_dev_sync_now_summary"
+            android:key="dev.syncNow"/>
+
+        <Preference
             android:title="@string/pref_dev_crash"
             android:summary="@string/pref_dev_crash_summary"
             android:key="dev.crash"/>

@@ -137,10 +137,20 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp());
+                            SyncAdapterService.requestNewSync(getApp(), true);
                             return true;
                         }
                     });
+
+            findPreference("dev.syncNow").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            SyncAdapterService.requestNewSync(getApp(), false);
+                            return true;
+                        }
+                    });
+
 
             findPreference("dev.crash").setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {

@@ -5,4 +5,5 @@ public class Views {
 
     /** Mini-representation of objects - used by activities feed */
     public static class Mini extends Default {}
+    public static class Full extends Mini {}
 }

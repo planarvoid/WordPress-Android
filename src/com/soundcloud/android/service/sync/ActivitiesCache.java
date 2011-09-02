@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.md5;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.api.CloudAPI;
@@ -56,7 +57,7 @@ public class ActivitiesCache {
             activities = getEvents(context, lastSeen, request);
         }
 
-        activities.toJSON(cachedFile);
+        activities.toJSON(cachedFile, Views.Mini.class);
         Log.d(TAG, "cached activities to "+cachedFile);
         return activities;
     }
@@ -107,7 +108,7 @@ public class ActivitiesCache {
     }
 
     public static void clear(Context c) {
-        File[] cached = c.getFilesDir().listFiles(new FilenameFilter() {
+        File[] cached = c.getCacheDir().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File file, String s) {
                 return s.startsWith(ActivitiesCache.PREFIX);
