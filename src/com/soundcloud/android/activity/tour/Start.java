@@ -1,10 +1,10 @@
 package com.soundcloud.android.activity.tour;
 
-import android.app.Activity;
+import com.soundcloud.android.R;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import com.soundcloud.android.R;
 
 public class Start extends TourActivity {
 

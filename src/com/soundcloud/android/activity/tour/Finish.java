@@ -1,15 +1,13 @@
 package com.soundcloud.android.activity.tour;
 
-import android.app.Activity;
-import android.content.Intent;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 
 public class Finish extends TourActivity {
     @Override
