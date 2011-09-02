@@ -179,7 +179,7 @@ public class SyncAdapterService extends Service {
                 createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
 
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, events.getTimestamp());
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, events.getTimestamp());
             }
         }
     }
