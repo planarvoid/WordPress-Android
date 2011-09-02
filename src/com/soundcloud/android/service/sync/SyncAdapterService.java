@@ -273,6 +273,8 @@ public class SyncAdapterService extends Service {
         if (clear) {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
+            app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, 1);
+            app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, 1);
             ActivitiesCache.clear(app);
         }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
