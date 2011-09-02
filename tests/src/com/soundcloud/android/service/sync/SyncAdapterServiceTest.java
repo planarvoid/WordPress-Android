@@ -1,9 +1,9 @@
 package com.soundcloud.android.service.sync;
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.clearPendingHttpResponses;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.Actions;
@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +41,10 @@ import java.util.Set;
 public class SyncAdapterServiceTest extends ApiTests {
     @Test
     public void testGetNewIncomingEvents() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_1.json"));
-        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addCannedEvents(
+            "incoming_1.json",
+            "incoming_2.json"
+        );
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, 0l, false);
@@ -53,7 +56,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEventsExclusive() throws Exception {
-        addPendingHttpResponse(200, resource("exclusives_1.json"));
+        addCannedEvents("exclusives_1.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, 0l, true);
@@ -66,8 +69,10 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetOwnEvents() throws Exception {
-        addPendingHttpResponse(200, resource("own_1.json"));
-        addPendingHttpResponse(200, resource("own_2.json"));
+        addCannedEvents(
+            "own_1.json",
+            "own_2.json"
+        );
 
         Activities events = SyncAdapterService.getOwnEvents(
                 DefaultTestRunner.application, null, 0l);
@@ -79,7 +84,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testWithSince() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_1.json"));
+        addCannedEvents("incoming_1.json");
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 null,
@@ -88,7 +93,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         assertThat(events.size(), is(1));
 
-        addPendingHttpResponse(200, resource("incoming_1.json"));
+        addCannedEvents("incoming_1.json");
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 null,
@@ -100,7 +105,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetUniqueUsersFromEvents() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addCannedEvents("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, 0l, false);
@@ -116,7 +121,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testIncomingMessaging() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addCannedEvents("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, 0l, false);
@@ -129,7 +134,8 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testExclusiveMessaging() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addCannedEvents("incoming_2.json");
+
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, 0l, false);
 
@@ -141,28 +147,52 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
+        addCannedEvents(
+            "incoming_2.json",
+            "empty_events.json",
+            "empty_events.json"
+        );
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
-        assertThat(notifications.size(), is(1));
-        NotificationInfo n = notifications.get(0);
-        assertThat(n.info.getContentText(), not(nullValue()));
-        assertThat(n.info.getContentText().toString(),
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(result.getInfo().getContentText().toString(),
                 equalTo("from All Tomorrows Parties, DominoRecordCo and others"));
-        assertThat(n.info.getContentTitle().toString(),
+        assertThat(result.getInfo().getContentTitle().toString(),
                 equalTo("49 new sounds"));
+        assertThat(result.getIntent().getAction(), equalTo(Actions.STREAM));
+    }
 
-        assertThat(n.getIntent().getAction(), equalTo(Actions.STREAM));
+    @Test
+    public void shouldNotRepeatNotification() throws Exception {
+        addCannedEvents(
+            "incoming_2.json",
+            "empty_events.json",
+            "own_2.json"
+        );
+
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(result.notifications.size(), is(2));
+
+        addCannedEvents(
+            "empty_events.json",
+            "empty_events.json",
+            "empty_events.json"
+        );
+
+        result = doPerformSync(DefaultTestRunner.application, false);
+
+        assertThat(result.notifications.size(), is(0));
     }
 
 
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
-        addPendingHttpResponse(200, resource("exclusives_1.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
+        addCannedEvents(
+            "incoming_2.json",
+            "exclusives_1.json",
+            "empty_events.json"
+        );
 
         SoundCloudApplication app = DefaultTestRunner.application;
         List<NotificationInfo> notifications = doPerformSync(app, false).notifications;
@@ -180,10 +210,12 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldSendTwoSeparateNotifications() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("own_1.json"));
-        addPendingHttpResponse(200, resource("own_2.json"));
+        addCannedEvents(
+            "incoming_2.json",
+            "empty_events.json",
+            "own_1.json",
+            "own_2.json"
+        );
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(2));
@@ -289,10 +321,11 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotify99PlusItems() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_1.json"));
-        addPendingHttpResponse(200, resource("incoming_2.json"));
-        addPendingHttpResponse(200, resource("exclusives_1.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
+        addCannedEvents(
+            "incoming_1.json",
+            "incoming_2.json",
+            "exclusives_1.json",
+            "empty_events.json");
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         assertThat(notifications.size(), is(1));
@@ -323,24 +356,20 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
-        addPendingHttpResponse(200, resource("incoming_2.json"));
+        addCannedEvents("incoming_2.json");
         assertThat(doPerformSync(DefaultTestRunner.application, true).notifications.size(), is(0));
     }
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotifications() throws Exception {
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("activities_1.json"));
+        addCannedEvents("empty_events.json", "empty_events.json", "activities_1.json");
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
 
         assertThat(first.getTicker(), equalTo("39 new activities"));
         assertThat(first.getInfo().getContentTitle().toString(), equalTo(first.getTicker()));
         assertThat(first.getInfo().getContentText().toString(), equalTo("Comments and likes from EddieSongWriter, changmangoo and others"));
 
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("activities_2.json"));
+        addCannedEvents("empty_events.json", "empty_events.json", "activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
 
         assertThat(second.getTicker(), equalTo("41 new activities"));
@@ -351,9 +380,12 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("activities_1.json"));
+        addCannedEvents(
+            "empty_events.json",
+            "empty_events.json",
+            "activities_1.json"
+        );
+
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
 
         assertThat(first.getTicker(), equalTo("39 new activities"));
@@ -366,9 +398,11 @@ public class SyncAdapterServiceTest extends ApiTests {
             AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
         );
 
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("activities_2.json"));
+       addCannedEvents(
+            "empty_events.json",
+            "empty_events.json",
+            "activities_2.json"
+        );
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
 
         assertThat(second.getTicker(), equalTo("3 new activities"));
@@ -380,6 +414,10 @@ public class SyncAdapterServiceTest extends ApiTests {
         List<NotificationInfo> notifications;
         SyncResult result;
 
+        Intent getIntent() {
+            assertThat(notifications.size(), is(1));
+            return notifications.get(0).getIntent();
+        }
 
         ShadowNotification.LatestEventInfo getInfo() {
             assertThat(notifications.size(), is(1));
@@ -399,14 +437,17 @@ public class SyncAdapterServiceTest extends ApiTests {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         }
 
+        ShadowNotificationManager m = shadowOf((NotificationManager)
+                Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
+
+        m.cancelAll();
+
         SyncResult result = new SyncResult();
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
                 null, null, result);
 
-        ShadowNotificationManager m = shadowOf((NotificationManager)
-                Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
 
         List<NotificationInfo> list = new ArrayList<NotificationInfo>();
         for (Notification n : m.getAllNotifications()) {
@@ -419,9 +460,11 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     private void assertNotification(String resource, String ticker, String title, String content) throws Exception {
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource("empty_events.json"));
-        addPendingHttpResponse(200, resource(resource));
+         addCannedEvents(
+                 "empty_events.json",
+                 "empty_events.json",
+                 resource
+         );
 
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
@@ -448,6 +491,12 @@ public class SyncAdapterServiceTest extends ApiTests {
 
         public Intent getIntent() {
             return ((TestIntentSender) n.contentIntent.getIntentSender()).intent;
+        }
+    }
+
+    void addCannedEvents(String... resources) throws IOException {
+        for (String r : resources) {
+            addPendingHttpResponse(200, resource(r));
         }
     }
 }

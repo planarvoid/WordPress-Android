@@ -78,7 +78,7 @@ public class ActivitiesCache {
                     future_href = activities.future_href;
                 }
 
-                if (activities.includes(since)) {
+                if (activities.olderThan(since)) {
                     caughtUp = true; // nothing new
                 } else {
                     for (Event evt : activities) {

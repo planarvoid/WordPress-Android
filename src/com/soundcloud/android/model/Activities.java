@@ -95,8 +95,12 @@ public class Activities implements Iterable<Event> {
         return null;
     }
 
-    public boolean includes(long timestamp) {
+    public boolean olderThan(long timestamp) {
         return !isEmpty() && collection.get(0).created_at.getTime() <= timestamp;
+    }
+
+    public boolean newerThan(long timestamp) {
+        return !isEmpty() && collection.get(0).created_at.getTime() > timestamp;
     }
 
     public List<User> getUniqueUsers() {
@@ -222,6 +226,14 @@ public class Activities implements Iterable<Event> {
             if (it.next().created_at.getTime() <= timestamp) it.remove();
         }
         return this;
+    }
+
+    public long getTimestamp() {
+        if (collection.isEmpty()) {
+            return 0;
+        } else {
+            return collection.get(0).created_at.getTime();
+        }
     }
 
     public static int getUniqueTrackCount(Activities... activities) {

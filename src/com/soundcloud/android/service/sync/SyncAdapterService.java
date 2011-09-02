@@ -147,9 +147,17 @@ public class SyncAdapterService extends Service {
                 message = getIncomingMessaging(app, incoming);
             }
 
-            createDashboardNotification(app, ticker, title, message,
-                Actions.STREAM,
-                Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+
+            if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED)) ||
+                exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED))) {
+
+                createDashboardNotification(app, ticker, title, message,
+                    Actions.STREAM,
+                    Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED,
+                        Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
+            }
         }
     }
     static Activities getOwnEvents(SoundCloudApplication app, Account account, long lastSeen) throws IOException {
@@ -166,8 +174,13 @@ public class SyncAdapterService extends Service {
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
             Message msg = new Message(app.getResources(), events, favoritings, comments);
-            createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
+
+            if (events.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED))) {
+                createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
+
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, events.getTimestamp());
+            }
         }
     }
 
