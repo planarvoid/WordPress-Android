@@ -1,6 +1,6 @@
 $ 26
   % v current
-  _ 2011-08-xx
+  _ 2011-09-05
   ! New stuff
     * Open http://soundcloud.com links in app
     * Reduce background syncing overhead
