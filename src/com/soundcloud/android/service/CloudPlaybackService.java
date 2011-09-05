@@ -1211,7 +1211,7 @@ public class CloudPlaybackService extends Service {
     public long position() {
         if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
-        } else if (mResumeId == mPlayingData.id) {
+        } else if (mPlayingData != null && mResumeId == mPlayingData.id) {
             return mResumeTime; // either -1 or a valid resume time
         } else return 0;
     }
