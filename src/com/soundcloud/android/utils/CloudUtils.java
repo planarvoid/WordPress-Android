@@ -729,6 +729,15 @@ public class CloudUtils {
     }
 
     public static boolean isUserAMonkey() {
-        return Build.VERSION.SDK_INT >= 8 && ActivityManager.isUserAMonkey();
+        if (Build.VERSION.SDK_INT >= 8) {
+            try {
+                return ActivityManager.isUserAMonkey();
+            } catch (RuntimeException e) {
+                // java.lang.RuntimeException: Unknown exception code: 1 msg null
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 }
