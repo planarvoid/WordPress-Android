@@ -153,6 +153,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public Uri toUri() {
+        return toUri(id);
+    }
+
+    public static Uri toUri(long id) {
         return Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
