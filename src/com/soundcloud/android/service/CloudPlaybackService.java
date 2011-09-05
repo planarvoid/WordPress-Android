@@ -16,6 +16,7 @@
 
 package com.soundcloud.android.service;
 
+import android.text.TextUtils;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -601,7 +602,7 @@ public class CloudPlaybackService extends Service {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (mPlayer != null && mPlayingData != null && mPlayingData.stream_url.equalsIgnoreCase(url)) {
+                                    if (mPlayer != null && mPlayingData != null && !TextUtils.isEmpty(mPlayingData.stream_url) && mPlayingData.stream_url.equalsIgnoreCase(url)) {
                                         mPlayer.setDataSourceAsync(location.getValue());
                                     }
                                 }
