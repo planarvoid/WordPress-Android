@@ -106,7 +106,6 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
-                if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
         }
