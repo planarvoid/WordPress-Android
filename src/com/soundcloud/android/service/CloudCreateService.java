@@ -249,7 +249,7 @@ public class CloudCreateService extends Service {
         return mRecordFile.getAbsolutePath();
     }
 
-    private void onRecordError(){
+    public void onRecordError(){
         sendBroadcast(new Intent(RECORD_ERROR));
 
         //already in an error state, so just call these in case

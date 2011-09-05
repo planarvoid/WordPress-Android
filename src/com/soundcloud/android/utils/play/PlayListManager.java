@@ -88,14 +88,20 @@ public class PlayListManager {
 
     }
 
-    public void loadCachedPlaylist(List<Parcelable> playlistCache, int playPos) {
-        // cache a new tracklist
-        mPlayListCache = new Track[playlistCache.size()];
+    public void oneShotTrack(Track track) {
+        mPlayList = new long[]{track.id};
+        mPlayPos = 0;
+        mPlayListLen = 1;
+    }
 
-        mPlayList = new long[playlistCache.size()];
+    public void loadPlaylist(List<Parcelable> playlist, int playPos) {
+        // cache a new tracklist
+        mPlayListCache = new Track[playlist.size()];
+
+        mPlayList = new long[playlist.size()];
 
         int i = 0;
-        for (Parcelable p : playlistCache){
+        for (Parcelable p : playlist){
             if (p instanceof Track) {
                 mPlayListCache[i] = (Track) p;
             } else if (p instanceof Event) {

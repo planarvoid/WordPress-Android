@@ -4,10 +4,13 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+import org.junit.matchers.JUnitMatchers;
 import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
@@ -54,6 +57,28 @@ public class TrackTest {
         assertThat(t.formattedLicense(), equalTo("No Rights Reserved"));
     }
 
+    @Test
+    public void shouldShowBpm() throws Exception {
+        Track t = new Track();
+        t.bpm = 122.3f;
+
+        assertThat(t.trackInfo(), containsString("122.3 BPM"));
+
+        t.bpm = 122.0f;
+        assertThat(t.trackInfo(), containsString("122 BPM"));
+    }
+
+
+    @Test
+    public void shouldDisplayRecordWith() throws Exception {
+        Track t = new Track();
+        t.created_with = new Track.CreatedWith();
+        t.created_with.name = "FooMaster 3000";
+        t.created_with.permalink_url = "http://foomaster.com/";
+
+        assertThat(t.trackInfo(),
+                containsString("Created with <a href=\"http://foomaster.com/\">FooMaster 3000</a>"));
+    }
 
     @Test
     public void shouldHaveCacheFile() throws Exception {

@@ -2,33 +2,34 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.Comparator;
 
-public class Comment extends ModelBase {
-    public Date created_at;
-
-    public long user_id;
-    public long track_id;
-    public long timestamp;
-
-    public Track track;
+public class Comment extends ModelBase implements Origin {
+    @JsonView(Views.Mini.class) public Date created_at;
+    @JsonView(Views.Mini.class) public long user_id;
+    @JsonView(Views.Mini.class) public long track_id;
+    @JsonView(Views.Mini.class) public long timestamp; // should be null (non-timed comment)
+    @JsonView(Views.Mini.class) public Track track;
 
     public long reply_to_id;
     public String reply_to_username;
 
-    public String body;
-    public String uri;
+    @JsonView(Views.Mini.class) public String body;
+    @JsonView(Views.Mini.class) public String uri;
 
-    public User user;
+    @JsonView(Views.Mini.class) public User user;
 
     public int xPos = -1;
     public boolean topLevelComment = false;
@@ -47,13 +48,13 @@ public class Comment extends ModelBase {
         readFromParcel(in);
     }
 
-    public String getAvatarBarGraphicUrl(Context c){
+    public Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
         if (CloudUtils.isScreenXL(c)) {
-              return ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
+            return Consts.GraphicSize.LARGE;
         } else {
             return c.getResources().getDisplayMetrics().density > 1 ?
-                        ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.BADGE) :
-                            ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.SMALL);
+                    Consts.GraphicSize.BADGE :
+                    Consts.GraphicSize.SMALL;
         }
 
     }
@@ -67,6 +68,16 @@ public class Comment extends ModelBase {
             return new Comment[size];
         }
     };
+
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return track;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
+    }
 
     public static class CompareTimestamp implements Comparator<Comment> {
         public static final Comparator<Comment> INSTANCE = new CompareTimestamp();

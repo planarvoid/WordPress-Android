@@ -131,6 +131,7 @@ public class CloudRecorder {
                 }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                setMediaRecorderErrorListener();
                 break;
             case Profile.ENCODED_LOW:
                 mRecorder = new MediaRecorder();
@@ -141,11 +142,23 @@ public class CloudRecorder {
                 }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                setMediaRecorderErrorListener();
                 break;
         }
 
         mFilepath = null;
         mState = State.INITIALIZING;
+    }
+
+    private void setMediaRecorderErrorListener() {
+        mRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
+            @Override
+            public void onError(MediaRecorder mediaRecorder, int i, int i1) {
+                if (service != null && mState == State.RECORDING) {
+                    service.onRecordError();
+                }
+            }
+        });
     }
 
     /**
@@ -330,7 +343,10 @@ public class CloudRecorder {
 
 
             } else {
-                mRecorder.stop();
+                try {
+                    mRecorder.stop();
+                }catch (RuntimeException ignored) { } // thrown when calling stop after record error that prevented recording from starting
+
             }
 
             refreshHandler.removeMessages(REFRESH);

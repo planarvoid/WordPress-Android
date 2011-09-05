@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
@@ -54,6 +55,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadDetailsTask;
+    private boolean mUpdateInfo;
 
     private User mUser;
 
@@ -109,7 +111,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        ImageUtils.formatGraphicsUrl(mIconURL, Consts.GraphicsSizes.CROP)
+                        ImageUtils.formatGraphicsUri(mIconURL, Consts.GraphicSize.CROP)
                     ).show();
                 }
 
@@ -126,10 +128,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowDrawable = getResources().getDrawable(R.drawable.ic_follow_states);
         mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
 
+        Intent intent = getIntent();
+        mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
+
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
             mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
-            mLoadDetailsTask.setActivity(this);
+            if (mLoadDetailsTask != null) mLoadDetailsTask.setActivity(this);
 
             setUser((User) mPreviousState[2]);
 
@@ -145,7 +150,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 mFriendFinderView.setState(Integer.parseInt(mPreviousState[5].toString()), false);
 
         } else {
-            Intent intent = getIntent();
+
             if (intent != null && intent.hasExtra("user")) {
                 loadUserByObject((User) intent.getParcelableExtra("user"));
             } else if (intent != null && intent.hasExtra("userId")) {
@@ -258,6 +263,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
 
     private void loadDetails() {
+        if (!mUpdateInfo) return;
+
         if (mLoadDetailsTask == null) {
             mLoadDetailsTask = new LoadUserTask(getApp());
             mLoadDetailsTask.setActivity(this);
@@ -471,12 +478,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            String remoteUrl = ImageUtils.formatGraphicsUrl(user.avatar_url, Consts.GraphicsSizes.LARGE);
 
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
-                || !remoteUrl.substring(0, remoteUrl.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
-                mIconURL = remoteUrl;
+                || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
+                mIconURL = user.avatar_url;
                 reloadAvatar();
             }
         }
@@ -563,7 +569,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageLoader.get(this).bind(mIcon, mIconURL, null)) != BindResult.OK) {
+            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.ImageViewCallback() {
+                @Override
+                public void onImageLoaded(ImageView view, String url) {}
+
+                @Override
+                public void onImageError(ImageView view, String url, Throwable error) {
+                    avatarResult = BindResult.ERROR;
+                }
+            }, null)) != BindResult.OK) {
                 mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
             }
         }

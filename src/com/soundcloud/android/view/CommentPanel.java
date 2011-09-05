@@ -60,7 +60,7 @@ public class CommentPanel extends CommentDisplay {
         }
 
         ImageLoader.get(getContext()).bind(mIcon,
-                ImageUtils.formatGraphicsUrlForList(getContext(), currentShowingComment.user.avatar_url),
+                ImageUtils.formatGraphicsUriForList(getContext(), currentShowingComment.user.avatar_url),
                 new ImageLoader.ImageViewCallback() {
             @Override public void onImageLoaded(ImageView view, String url) {}
             @Override public void onImageError(ImageView view, String url, Throwable error) {}

@@ -3,6 +3,8 @@ package com.soundcloud.android;
 import android.os.Environment;
 
 import java.io.File;
+import java.security.Key;
+import java.util.EnumSet;
 
 public final class Consts {
     public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
@@ -24,6 +26,11 @@ public final class Consts {
 
     public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
     public static final long TRACK_MIN_CACHE = 20 * 1024  * 1024; // 20  MB
+
+    public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
+
+    public static final String SOUNDCLOUD_SCHEME = "http";
+    public static final String SOUNDCLOUD_HOST = "soundcloud.com";
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
@@ -53,19 +60,35 @@ public final class Consts {
         int YOU = 4;
     }
 
-    public interface GraphicsSizes {
-        String T500 = "t500x500";
-        String CROP = "crop";
-        String LARGE = "large";
-        String BADGE = "badge";
-        String SMALL = "small";
-    }
+    public enum GraphicSize {
+        T500("t500x500", 500, 500),
+        CROP("crop", 400, 400),
+        T300("t300x300", 300, 400),
+        LARGE("large", 100, 100),
+        T67("t67x67", 67, 67),
+        BADGE("badge", 47, 47),
+        SMALL("small", 100, 100),
+        TINY_ARTWORK("tiny", 20, 20),
+        TINY_AVATAR("tiny", 18, 18),
+        MINI("mini", 16, 16),
+        Unknown("large", 100, 100);
 
-    public interface GraphicSizeWidths {
-        int T500 = 500;
-        int LARGE = 100;
-        int BADGE = 47;
-        int SMALL = 32;
+        public final int width;
+        public final int height;
+        public final String key;
+
+
+        GraphicSize(String key, int width, int height) {
+            this.key = key;
+            this.width = width;
+            this.height = height;
+        }
+        static GraphicSize fromString(String s) {
+            for (GraphicSize gs : EnumSet.allOf(GraphicSize.class)) {
+                if (gs.key.equalsIgnoreCase(s)) return gs;
+            }
+            return Unknown;
+        }
     }
 
     public interface ListId {
@@ -97,6 +120,7 @@ public final class Consts {
             String SHARE     = "share";
             String ERROR     = "error";
             String PLAYBACK_ERROR = "playbackError";
+            String TOUR      = "tour";
         }
 
         interface Actions {

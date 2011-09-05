@@ -78,6 +78,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -118,6 +119,7 @@ public class CloudPlaybackService extends Service {
     public static final String PAUSE_ACTION = "com.soundcloud.android.musicservicecommand.pause";
     public static final String PREVIOUS_ACTION = "com.soundcloud.android.musicservicecommand.previous";
     public static final String NEXT_ACTION = "com.soundcloud.android.musicservicecommand.next";
+    public static final String ONE_SHOT_PLAY = "com.soundcloud.android.musicservicecommand.oneshotplay";
 
     private static final int TRACK_ENDED = 1;
     private static final int SERVER_DIED = 3;
@@ -332,6 +334,8 @@ public class CloudPlaybackService extends Service {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
+            } else if (ONE_SHOT_PLAY.equals(action)) {
+                oneShotPlay(intent.<Track>getParcelableExtra("track"));
             }
         }
 
@@ -428,9 +432,20 @@ public class CloudPlaybackService extends Service {
         mAppWidgetProvider.notifyChange(this, what);
     }
 
+    private void oneShotPlay(Track track){
+        if (track == null) return;
+         synchronized (this) {
+            mPlayListManager.oneShotTrack(track);
+            stopStreaming(null);
+            openCurrent();
+            mIsSupposedToBePlaying = true;
+            setPlayingStatus();
+        }
+    }
+
     public void playFromAppCache(int playPos) {
         synchronized (this) {
-            mPlayListManager.loadCachedPlaylist(getApp().flushCachePlaylist(), playPos);
+            mPlayListManager.loadPlaylist(getApp().flushCachePlaylist(), playPos);
             stopStreaming(null);
             openCurrent();
             mIsSupposedToBePlaying = true;
@@ -1222,8 +1237,12 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         synchronized (this) {
-            return ((mIsStagefright || Build.VERSION.SDK_INT > 8)
-                    && mPlayingData != null);
+            return (mIsStagefright ||
+                    (Build.VERSION.SDK_INT > 8
+                            && mPlayer != null
+                            && mPlayer.isInitialized()
+                            && !mPlayer.isAsyncOpening()
+                            && mPlayingData != null));
         }
     }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.deserialize.EventDeserializer;
+import com.soundcloud.android.json.EventDeserializer;
+import com.soundcloud.android.json.EventSerializer;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
@@ -11,6 +12,7 @@ import com.soundcloud.api.Token;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.map.util.StdDateFormat;
 
@@ -21,11 +23,15 @@ import android.os.Build;
 
 import java.net.URI;
 import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    public static final ObjectMapper Mapper = Wrapper.Mapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
     String OAUTH_TOKEN_PARAMETER = "oauth_token";
 
@@ -33,7 +39,13 @@ public interface AndroidCloudAPI extends CloudAPI {
     String addTokenToUrl(String url);
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
-        private ObjectMapper mMapper;
+        public static final ObjectMapper Mapper = createMapper();
+        static {
+            Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null))
+                .addDeserializer(Event.class, new EventDeserializer())
+                .addSerializer(Event.class, new EventSerializer()));
+        }
+
         private Context mContext;
         private String userAgent;
 
@@ -52,14 +64,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @Override public ObjectMapper getMapper() {
-            if (mMapper == null) {
-                mMapper = createMapper();
-                SimpleModule module = new SimpleModule("EventDeserializerModule", new Version(1, 0, 0, null))
-                    .addDeserializer(Event.class, new EventDeserializer());
-                mMapper.registerModule(module);
-
-            }
-            return mMapper;
+            return Mapper;
         }
 
         @Override protected String getUserAgent() {
@@ -78,16 +83,30 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static ObjectMapper createMapper() {
             return new ObjectMapper() {
                 {
-                    getDeserializationConfig().setDateFormat(CloudDateFormat.INSTANCE);
+                    configure(SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false);
+                    setDateFormat(CloudDateFormat.INSTANCE);
                 }
             };
         }
     }
 
-    static class CloudDateFormat extends StdDateFormat {
+    public static class CloudDateFormat extends StdDateFormat {
         /** Used by the SoundCloud API */
         public static final DateFormat CLOUDDATEFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+
+        static {
+            CLOUDDATEFMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
+
         public static final DateFormat INSTANCE = new CloudDateFormat();
+
+        public static Date fromString(String s) {
+            try {
+                return INSTANCE.parse(s);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         private CloudDateFormat() {}
 
@@ -101,6 +120,11 @@ public interface AndroidCloudAPI extends CloudAPI {
         public Date parse(String dateStr, ParsePosition pos) {
             final Date d = CLOUDDATEFMT.parse(dateStr, pos);
             return (d == null) ? super.parse(dateStr, pos) : d;
+        }
+
+        @Override
+        public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
+            return CLOUDDATEFMT.format(date, toAppendTo, fieldPosition);
         }
     }
 }

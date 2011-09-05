@@ -172,4 +172,11 @@
 
     <string name='at_timestamp'>at %s</string>
 
+    <string name='error_resolving_url'>There was a problem resolving the url</string>
+    <string name='error_loading_sound'>There was a problem loading that sound</string>
+    <string name='error_loading_user'>There was a problem loading that user</string>
+
+    <string name="pref_dev_sync_now">Sync now</string>
+    <string name="pref_dev_sync_now_summary">Request a sync</string>
+
 </resources>

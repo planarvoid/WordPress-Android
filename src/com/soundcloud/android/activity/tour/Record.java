@@ -1,10 +1,9 @@
 package com.soundcloud.android.activity.tour;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+
+import android.os.Bundle;
 
 public class Record extends TourActivity {
 

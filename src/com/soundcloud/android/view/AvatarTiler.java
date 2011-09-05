@@ -122,7 +122,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         public int fillColor;
 
         public String getAvatarUrl(Context context) {
-            return ImageUtils.formatGraphicsUrlForList(context, avatar_url);
+            return ImageUtils.formatGraphicsUriForList(context, avatar_url);
         }
     }
 
@@ -308,9 +308,10 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mBgGradient.setBounds(new Rect(0,0,width,height));
 
         mColSize = width / TILE_COLS;
-        mAvatarScale = ((float) mColSize) / ImageUtils.getListItemGraphicDimension(getContext());
+        final int graphicWidth = ImageUtils.getListItemGraphicSize(getContext()).width;
+        mAvatarScale = ((float) mColSize) / graphicWidth;
         mDefaultAvatarScale = ((float) mColSize) / 100;
-        mRowSize = (int) (ImageUtils.getListItemGraphicDimension(getContext()) * mAvatarScale);
+        mRowSize = (int) (graphicWidth * mAvatarScale);
 
         if (mCurrentRows == 0) {
             mCurrentRows = height / mRowSize;

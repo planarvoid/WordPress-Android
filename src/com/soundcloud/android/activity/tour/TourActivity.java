@@ -2,23 +2,24 @@ package com.soundcloud.android.activity.tour;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.SoundCloudApplication;
 
 public class TourActivity extends Activity {
+    final static Class<?>[] ORDER = { Record.class, Share.class, Follow.class, Comment.class, You.class };
 
-    Class<?>[] mTourOrder = {Record.class, Share.class, Follow.class, Comment.class, You.class};
+    protected SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
 
     @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
+    protected void onResume() {
+        super.onResume();
+        getApp().trackPage("/tour/" + getClass().getSimpleName().toLowerCase());
     }
 
     protected void init(String title, final int tourIndex) {
@@ -27,14 +28,12 @@ public class TourActivity extends Activity {
         findViewById(R.id.btn_next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tourIndex < mTourOrder.length - 1) {
-                    startActivity(new Intent(TourActivity.this, mTourOrder[tourIndex + 1]));
+                if (tourIndex < ORDER.length - 1) {
+                    startActivity(new Intent(TourActivity.this, ORDER[tourIndex + 1]));
                 } else {
                     startActivity(new Intent(TourActivity.this, Finish.class));
                 }
                 finish();
-
-
             }
         });
 
@@ -65,6 +64,5 @@ public class TourActivity extends Activity {
                 }
             }
         });
-
     }
 }

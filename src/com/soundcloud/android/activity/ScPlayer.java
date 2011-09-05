@@ -613,8 +613,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             spanEndIndex = commentText.length();
             commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            if (comment.timestamp > 0)
+            if (comment.timestamp > 0) {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
+            }
 
             spanStartIndex = commentText.length();
             commentText.append(" said ").append(CloudUtils.getTimeElapsed(getResources(), comment.created_at.getTime()));
@@ -711,6 +712,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 mCurrentTrackError = -1;
@@ -880,25 +882,26 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
-                mArtwork.setScaleType(ScaleType.CENTER_CROP);
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 // load artwork as necessary
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
-                    if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
+                    if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
+                            this,
                             mArtwork,
-                            ImageUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    Consts.GraphicsSizes.T500), new ImageViewCallback() {
-                                @Override
-                                public void onImageError(ImageView view, String url, Throwable error) {
-                                    mCurrentArtBindResult = BindResult.ERROR;
-                                }
+                            mPlayingTrack.artwork_url,
+                            Consts.GraphicSize.T500, new ImageViewCallback() {
+                        @Override
+                        public void onImageError(ImageView view, String url, Throwable error) {
+                            mCurrentArtBindResult = BindResult.ERROR;
+                            Log.e(TAG,"Error loading artwork " + error);
+                        }
 
-                                @Override
-                                public void onImageLoaded(ImageView view, String url) {
-                                    onArtworkSet();
-                                }
-                            })) != BindResult.OK) {
+                        @Override
+                        public void onImageLoaded(ImageView view, String url) {
+                            onArtworkSet();
+                        }
+                    }, null)) != BindResult.OK) {
                         mArtwork.setVisibility(View.INVISIBLE);
                     } else {
                         onArtworkSet();
@@ -914,7 +917,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
                 if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
                         mAvatar,
-                        ImageUtils.formatGraphicsUrlForList(this, mPlayingTrack.user.avatar_url),
+                        ImageUtils.formatGraphicsUriForList(this, mPlayingTrack.user.avatar_url),
                         new ImageViewCallback() {
                             @Override
                             public void onImageError(ImageView view, String url, Throwable error) {
@@ -934,22 +937,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void onArtworkSet(){
-        AnimUtils.runFadeInAnimationOn(this, mArtwork);
-        mArtwork.setVisibility(View.VISIBLE);
-
-        if (mArtwork.getWidth() == 0)
-            return;
-
-        Matrix m = new Matrix();
-        float scale;
-        if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
-            scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
-        } else {
-            scale = ((float)mArtwork.getHeight())/((float) mArtwork.getDrawable().getMinimumHeight());
+        if (mArtwork.getVisibility() == View.INVISIBLE || mArtwork.getVisibility() == View.GONE) {
+            AnimUtils.runFadeInAnimationOn(this, mArtwork);
+            mArtwork.setVisibility(View.VISIBLE);
         }
-        m.setScale(scale,scale);
-        m.setTranslate((mArtwork.getWidth() - mArtwork.getDrawable().getMinimumHeight()*scale)/2, mArtwork.getDrawable().getMinimumHeight()*scale - mArtwork.getHeight());
-        mArtwork.setScaleType(ScaleType.MATRIX);
+
     }
 
     public boolean isSeekable() {
@@ -1023,6 +1015,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         f.addAction(CloudPlaybackService.STREAM_DIED);
         f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         f.addAction(CloudPlaybackService.BUFFERING);
+        f.addAction(CloudPlaybackService.INITIAL_BUFFERING);
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);

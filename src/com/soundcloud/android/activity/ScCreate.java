@@ -318,6 +318,8 @@ public class ScCreate extends ScActivity {
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = getResources().getString(R.string.error_recording_message);
+        if (mRecordFile.exists()) mRecordFile.delete();
+        mRecordFile = null;
         mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
     }

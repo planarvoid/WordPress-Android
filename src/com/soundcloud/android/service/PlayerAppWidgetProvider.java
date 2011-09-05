@@ -89,7 +89,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     what.equals(CloudPlaybackService.INITIAL_BUFFERING) ||
                     what.equals(CloudPlaybackService.BUFFERING) ||
                     what.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
-                    what.equals(CloudPlaybackService.TRACK_ERROR) ||
+                    what.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
                     what.equals(CloudPlaybackService.FAVORITE_SET)) {
                 performUpdate(service, null, what);
             }

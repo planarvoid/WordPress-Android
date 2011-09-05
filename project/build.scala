@@ -21,10 +21,11 @@ object General {
 }
 
 object AndroidBuild extends Build {
+  val jacksonVersion = "1.8.5"
   val coreDependencies = Seq(
     "org.acra" % "acra" % "4.3.0-SNAPSHOT",
-    "org.codehaus.jackson" % "jackson-core-asl" % "1.7.1",
-    "org.codehaus.jackson" % "jackson-mapper-asl" % "1.7.1",
+    "org.codehaus.jackson" % "jackson-core-asl" % jacksonVersion,
+    "org.codehaus.jackson" % "jackson-mapper-asl" % jacksonVersion,
     "com.soundcloud" % "java-api-wrapper" % "1.0.2-SNAPSHOT",
     "com.google.android" % "filecache" % "r153",
     "com.google.android" % "libGoogleAnalytics" % "1.3",

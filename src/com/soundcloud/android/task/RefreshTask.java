@@ -10,7 +10,7 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
  */
 public class RefreshTask extends LoadCollectionTask {
     public RefreshTask(SoundCloudApplication app) {
-        super(app);
+        super(app, null);
     }
 
     /**
@@ -37,7 +37,7 @@ public class RefreshTask extends LoadCollectionTask {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
         if (adapter != null) {
-            adapter.onPostRefresh(newItems, mNextHref, mResponseCode, keepGoing);
+            adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing, eTag);
         }
     }
 }

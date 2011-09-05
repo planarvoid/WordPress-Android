@@ -8,12 +8,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.service.SyncAdapterService;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
-import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -138,10 +137,20 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp());
+                            SyncAdapterService.requestNewSync(getApp(), true);
                             return true;
                         }
                     });
+
+            findPreference("dev.syncNow").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            SyncAdapterService.requestNewSync(getApp(), false);
+                            return true;
+                        }
+                    });
+
 
             findPreference("dev.crash").setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
