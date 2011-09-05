@@ -32,8 +32,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -216,7 +214,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 }
             }
 
-
             if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
                 if (getCurrentActivity() instanceof Dashboard) {
@@ -245,7 +242,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             intent.setData(null);
             intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         }
-
     }
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
