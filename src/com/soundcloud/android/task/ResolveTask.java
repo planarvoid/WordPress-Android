@@ -1,12 +1,16 @@
 package com.soundcloud.android.task;
 
-import android.net.Uri;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+
+import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -37,12 +41,16 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
     protected void onPostExecute(HttpResponse response) {
         ResolveListener listener = mListener != null ? mListener.get() : null;
         if (listener == null) return;
-
         if (response != null) {
-            final Header location = response.getFirstHeader("Location");
-            if (location != null && location.getValue() != null) {
-                listener.onUrlResolved(Uri.parse(location.getValue()));
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                final Header location = response.getFirstHeader("Location");
+                if (location != null && location.getValue() != null) {
+                    listener.onUrlResolved(Uri.parse(location.getValue()));
+                } else {
+                    listener.onUrlError();
+                }
             } else {
+                warn("unexpected status code: "+response.getStatusLine());
                 listener.onUrlError();
             }
         } else {
@@ -50,7 +58,6 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         }
     }
 
-    // Define our custom Listener interface
     public interface ResolveListener {
         void onUrlResolved(Uri uri);
         void onUrlError();

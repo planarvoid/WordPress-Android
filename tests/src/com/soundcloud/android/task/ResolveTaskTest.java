@@ -25,7 +25,7 @@ public class ResolveTaskTest {
         ResolveTask task = new ResolveTask(DefaultTestRunner.application);
 
         addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
-                new TestHttpResponse(304, "", new BasicHeader("Location", "http://foo.com")));
+                new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
 
         final Uri[] result = {null};
         listener = new ResolveTask.ResolveListener() {
