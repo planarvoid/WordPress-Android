@@ -1573,10 +1573,13 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                SoundCloudApplication.handleSilentException("mp error",
-                        new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
-
-                getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                    if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                        SoundCloudApplication.handleSilentException("mp error",
+                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
+                    }
+                    getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                }
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
@@ -1797,22 +1800,29 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
 
-        if (thread != null
+        if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS
+                && thread != null
                 && thread.attempt >= MAX_DOWNLOAD_ATTEMPTS
                 && isConnected()) {
             if (thread.statusLine != null &&
                 (thread.statusLine.getStatusCode() != HttpStatus.SC_OK &&
                  thread.statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)) {
-                SoundCloudApplication.handleSilentException("invalid status",
-                        new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                    SoundCloudApplication.handleSilentException("invalid status",
+                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+                }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR,
                         "status",
                         "code",
                         thread.statusLine.getStatusCode());
+
             } else if (thread.exception != null) {
-                SoundCloudApplication.handleSilentException("io exception",
-                        new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                    SoundCloudApplication.handleSilentException("io exception",
+                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "ioexception");
             }

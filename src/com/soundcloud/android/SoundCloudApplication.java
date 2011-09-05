@@ -51,21 +51,23 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=fbf228b0", formKey="", checkReportSender = true)
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=4d60f01a", formKey="", checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
+    public static final boolean REPORT_PLAYBACK_ERRORS = true;
+    public static final boolean REPORT_PLAYBACK_ERRORS_BUGSENSE = false;
     public static final boolean API_PRODUCTION = true;
-    public static boolean DEV_MODE, BETA_MODE;
 
+    public static boolean DEV_MODE, BETA_MODE;
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker mTracker;
-    private User mLoggedInUser;
 
+    private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
     public boolean playerWaitForArtwork;
 
