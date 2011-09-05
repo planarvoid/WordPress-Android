@@ -100,8 +100,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     private RelativeLayout mTrackInfo;
     private FlowLayout mTrackTags;
-    private RelativeLayout mPlayableLayout;
-
     private FrameLayout mUnplayableLayout;
 
     private int mCurrentTrackError;
@@ -109,8 +107,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private BindResult mCurrentAvatarBindResult;
 
     private String mCurrentDurationString;
-
-    private TextView mCurrentTime;
 
     private TextView mFavoritersTxt;
 
@@ -175,7 +171,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         mProgress.setMax(1000);
         mProgress.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        mCurrentTime = (TextView) findViewById(R.id.currenttime);
         ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
 
         mAvatar = (ImageView) findViewById(R.id.icon);
@@ -199,8 +194,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         mPauseButton.setOnClickListener(mPauseListener);
         ImageButton mNextButton = (ImageButton) findViewById(R.id.next);
         mNextButton.setOnClickListener(mNextListener);
-
-        mPlayableLayout = (RelativeLayout) findViewById(R.id.playable_layout);
 
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
@@ -668,15 +661,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             long pos = mPlaybackService.position();
             long remaining = 1000 - (pos % 1000);
 
-            if (pos >= 0 && mDuration > 0) {
-                mCurrentTime.setText(new StringBuilder()
+           if (pos >= 0 && mDuration > 0) {
+                mWaveformController.setCurrentTime(new StringBuilder()
                         .append(CloudUtils.formatTimestamp(pos))
                         .append(" / ")
                         .append(mCurrentDurationString));
                 mWaveformController.setProgress(pos);
                 mWaveformController.setSecondaryProgress(mPlaybackService.loadPercent() * 10);
             } else {
-                mCurrentTime.setText("--:--/--:--");
+                mWaveformController.setCurrentTime("--:--/--:--");
                 mWaveformController.setProgress(0);
                 mWaveformController.setSecondaryProgress(0);
             }
@@ -771,13 +764,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     .setText(R.string.player_not_streamable);
         }
 
-        mPlayableLayout.setVisibility(View.GONE);
+        mWaveformController.setVisibility(View.GONE);
         mUnplayableLayout.setVisibility(View.VISIBLE);
 
     }
 
     private void hideUnplayable() {
-        mPlayableLayout.setVisibility(View.VISIBLE);
+        mWaveformController.setVisibility(View.VISIBLE);
         if (mUnplayableLayout != null) mUnplayableLayout.setVisibility(View.GONE);
     }
 
@@ -799,9 +792,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             }
         } catch (RemoteException ignored) {}
 
-        if (mPlayingTrack == null) {
+        if (mPlayingTrack == null || mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
-            return;
+            if (mPlayingTrack == null) return;
         }
 
         mWaveformController.updateTrack(mPlayingTrack);

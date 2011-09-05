@@ -58,6 +58,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private RelativeLayout mWaveformFrame;
     private WaveformCommentLines mCommentLines;
     private ImageButton mToggleComments;
+    private TextView mCurrentTime;
 
     private ScPlayer mPlayer;
     private Track mPlayingTrack;
@@ -124,7 +125,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-
+        mCurrentTime = (TextView) findViewById(R.id.currenttime);
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
         findViewById(R.id.track_touch_bar).setOnTouchListener(this);
@@ -165,6 +166,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
+        mCurrentTime.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
                 R.color.white));
@@ -216,6 +218,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressBar.setSecondaryProgress(percent);
     }
 
+    public void setCurrentTime(CharSequence s) {
+        mCurrentTime.setText(s);
+    }
+
     public void updateTrack(Track track) {
         if (mPlayingTrack != null &&
                 mPlayingTrack.id == track.id
@@ -223,7 +229,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
-        if (mPlayingTrack != track){
+        if (mPlayingTrack != track) {
+            mOverlay.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
+            mCurrentTime.setVisibility(View.INVISIBLE);
             ImageLoader.get(mPlayer).unbind(mOverlay);
         }
 
@@ -263,8 +272,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             case OK:      showWaveform(); break;
             case LOADING:
             case ERROR:
-                mOverlay.setVisibility(View.INVISIBLE);
-                mProgressBar.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -358,7 +365,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
         if (child == mWaveformFrame) {
-            t.setAlpha((float) 0.7);
+            t.setAlpha((float) 0.8);
             return true;
         }
         return ret;
@@ -380,15 +387,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private void showWaveform(){
         mPlayer.onWaveformLoaded();
+
+        AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+        aa.setDuration(500);
+
         if (mOverlay.getVisibility() == View.INVISIBLE){
-            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-            aa.setDuration(500);
 
             mOverlay.startAnimation(aa);
             mOverlay.setVisibility(View.VISIBLE);
 
             mProgressBar.startAnimation(aa);
             mProgressBar.setVisibility(View.VISIBLE);
+
+            mCurrentTime.startAnimation(aa);
+            mCurrentTime.setVisibility(View.VISIBLE);
         }
     }
 
