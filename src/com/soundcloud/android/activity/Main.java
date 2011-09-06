@@ -75,7 +75,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         handleIntent(getIntent());
 
         Object[] previousState = (Object[]) getLastNonConfigurationInstance();
-        if (previousState != null){
+        if (previousState != null) {
             mResolveTask = (ResolveTask) previousState[0];
             if (mResolveTask != null) mResolveTask.setListener(this);
 
@@ -204,17 +204,9 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         if (intent != null) {
             final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
 
-            Uri data = intent.getData();
-            if (data != null) {
-                List<String> params = data.getPathSegments();
-                if (params.size() > 0) {
-                    mResolveTask = new ResolveTask(getApp());
-                    mResolveTask.setListener(this);
-                    mResolveTask.execute(data);
-                }
-            }
-
-            if (tab != null) {
+            if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
+                // already handled
+            } else if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
                 if (getCurrentActivity() instanceof Dashboard) {
                      ((Dashboard) getCurrentActivity()).refreshIncoming();
@@ -241,6 +233,19 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             intent.setAction("");
             intent.setData(null);
             intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        }
+    }
+
+
+    private boolean handleViewUrl(Intent intent) {
+        final Uri data = intent.getData();
+        if (data != null && !data.getPathSegments().isEmpty()) {
+            mResolveTask = new ResolveTask(getApp()) ;
+            mResolveTask.setListener(this);
+            mResolveTask.execute(data);
+            return true;
+        } else {
+            return false;
         }
     }
 
