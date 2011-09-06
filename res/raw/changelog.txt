@@ -1,6 +1,6 @@
 $ 26
   % v current
-  _ 2011-09-06git
+  _ 2011-09-06
   ! New stuff
     * Open soundcloud.com & snd.sc links in app
     * Playback fixes
