@@ -33,7 +33,7 @@ public class WaveformHolder extends RelativeLayout {
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
         if (child == mConnectingBar){
-            t.setAlpha((float) 0.5);
+            t.setAlpha(0.5f);
             return true;
         }
         return ret;

@@ -365,7 +365,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
         if (child == mWaveformFrame) {
-            t.setAlpha((float) 0.8);
+            t.setAlpha(0.8f);
             return true;
         }
         return ret;
@@ -404,9 +404,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-
     private long stampFromPosition(int x){
-        return (long) (Math.min(Math.max(.001, (((float)x)/getWidth())),1) * mPlayingTrack.duration);
+        return (long) (Math.min(Math.max(.001f, (((float)x)/getWidth())), 1f) * mPlayingTrack.duration);
     }
 
     private void showBubble(float offsetX){
@@ -426,7 +425,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mBubbleAnimation != null && Build.VERSION.SDK_INT > 7)
                 mBubbleAnimation.cancel();
 
-            mBubbleAnimation = new ScaleAnimation((float).6, (float)1.0, (float).6, (float)1.0, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, (float) 1.0);
+            mBubbleAnimation = new ScaleAnimation(.6f, 1f, .6f, 1f, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, 1f);
             mBubbleAnimation.setFillAfter(true);
             mBubbleAnimation.setDuration(100);
             mBubbleAnimation.setAnimationListener(new AnimationListener(){
@@ -450,7 +449,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     private void removeBubble(){
-        if (mCommentBubble != null && mCommentBubble.getParent() != null){
+        if (mCommentBubble != null && mCommentBubble.getParent() != null) {
             ((ViewGroup) mCommentBubble.getParent()).removeView(mCommentBubble);
         }
     }

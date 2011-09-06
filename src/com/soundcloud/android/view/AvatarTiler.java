@@ -310,7 +310,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
         mColSize = width / TILE_COLS;
         final int graphicWidth = ImageUtils.getListItemGraphicSize(getContext()).width;
         mAvatarScale = ((float) mColSize) / graphicWidth;
-        mDefaultAvatarScale = ((float) mColSize) / 100;
+        mDefaultAvatarScale = ((float) mColSize) / 100f;
         mRowSize = (int) (graphicWidth * mAvatarScale);
 
         if (mCurrentRows == 0) {

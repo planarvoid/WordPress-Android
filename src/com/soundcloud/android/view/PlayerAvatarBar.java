@@ -37,7 +37,7 @@ public class PlayerAvatarBar extends View {
     private Comment mCurrentComment;
 
     private Matrix mMatrix;
-    private Float mDefaultAvatarScale = (float) 1;
+    private float mDefaultAvatarScale = 1f;
     private int mAvatarWidth;
 
     private Paint mImagePaint;
