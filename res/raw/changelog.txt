@@ -5,8 +5,8 @@ $ 26
     * Open soundcloud.com & snd.sc links in app
     * Playback fixes
     * Progressive image loading
-    * Optimised user browser loading
-    * Reduce background syncing overhead
+    * Faster user browser loading
+    - Reduce background syncing overhead
     - Upgraded to ACRA 4.3-SNAPSHOT
 
 $ 25
