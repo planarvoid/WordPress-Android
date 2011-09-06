@@ -169,7 +169,7 @@ public class CloudPlaybackService extends Service {
     private boolean ignoreBuffer;
     private boolean pausedForBuffering;
     private boolean fillBuffer;
-    private boolean initialBuffering = true;
+    private boolean initialBuffering;
     private long mCurrentBuffer;
     private NetworkInfo mCurrentNetworkInfo;
     private boolean mIsStagefright;
