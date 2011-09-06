@@ -142,15 +142,14 @@ public class FileCache extends FileResponseCache {
                 private int compare(File f1, File f2) {
                     long result = f2.lastModified() - f1.lastModified();
                     if (result > 0) {
-                        return 1;
-                    } else if (result < 0) {
                         return -1;
+                    } else if (result < 0) {
+                        return 1;
                     } else {
                         return 0;
                     }
                 }
             });
-
 
             int i = 0;
             while (toTrim > 0 && i < files.length){
