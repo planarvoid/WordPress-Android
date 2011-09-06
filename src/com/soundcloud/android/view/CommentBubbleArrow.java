@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -64,7 +65,9 @@ public class CommentBubbleArrow extends View {
 
 
     public void setPosition(float x) {
+
         x = Math.min(Math.max(CommentBubble.CORNER_MARGIN + LEFT_ARROW_MARGIN, x), CommentBubble.HARD_WIDTH - RIGHT_ARROW_MARGIN - 5);
+        Log.i("asdf", "Set Position " + x + " " + CommentBubble.CORNER_MARGIN + " " + LEFT_ARROW_MARGIN + " " + CommentBubble.HARD_WIDTH + " " + x);
 
         if (x > CommentBubble.HARD_WIDTH/2 - RIGHT_ARROW_MARGIN){
             if (mRightArrow.isRecycled()) refreshRightArrow();

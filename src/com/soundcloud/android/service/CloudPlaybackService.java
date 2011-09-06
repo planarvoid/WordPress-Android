@@ -152,6 +152,7 @@ public class CloudPlaybackService extends Service {
     private boolean mIsSupposedToBePlaying = false;
     private boolean mWaitingForArtwork = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
+    private long mSeekPos;
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
@@ -1409,6 +1410,7 @@ public class CloudPlaybackService extends Service {
                 whereto = (int) getSeekResult(whereto, resumeSeek);
             }
             if (whereto != mPlayer.position()) {
+                mSeekPos = whereto;
                 mMediaPlayer.seekTo((int) whereto);
             }
             return whereto;
@@ -1508,11 +1510,12 @@ public class CloudPlaybackService extends Service {
             public void onCompletion(MediaPlayer mp) {
 
                 // check for premature track end
+                final long targetPosition = (mSeekPos == 0 || mIsStagefright) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
                 if (mIsInitialized && mPlayingData != null && isSeekable()
-                        && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
+                        && getDuration() - targetPosition > 3000) {
 
                     mResumeId = mPlayingData.id;
-                    mResumeTime = mMediaPlayer.getCurrentPosition();
+                    mResumeTime = targetPosition;
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
@@ -1745,6 +1748,9 @@ public class CloudPlaybackService extends Service {
                 case RELEASE_WAKELOCKS:
                     if (mWakeLock.isHeld()) mWakeLock.release();
                     if (mWifiLock.isHeld()) mWifiLock.release();
+                    break;
+                case CLEAR_LAST_SEEK:
+                    mSeekPos = 0;
                     break;
                 default:
                     break;
