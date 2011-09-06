@@ -152,7 +152,7 @@ public class CloudPlaybackService extends Service {
     private boolean mIsSupposedToBePlaying = false;
     private boolean mWaitingForArtwork = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
-    private long mSeekPos;
+    private long mSeekPos = -1;
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
@@ -1510,7 +1510,7 @@ public class CloudPlaybackService extends Service {
             public void onCompletion(MediaPlayer mp) {
 
                 // check for premature track end
-                final long targetPosition = (mSeekPos == 0 || mIsStagefright) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
+                final long targetPosition = (mSeekPos == -1 || mIsStagefright) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - targetPosition > 3000) {
 
@@ -1750,7 +1750,7 @@ public class CloudPlaybackService extends Service {
                     if (mWifiLock.isHeld()) mWifiLock.release();
                     break;
                 case CLEAR_LAST_SEEK:
-                    mSeekPos = 0;
+                    mSeekPos = -1;
                     break;
                 default:
                     break;
