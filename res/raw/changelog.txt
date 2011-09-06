@@ -1,12 +1,12 @@
 $ 26
   % v current
-  _ 2011-09-05
+  _ 2011-09-06git
   ! New stuff
-    * Open http://soundcloud.com links in app
-    * Reduce background syncing overhead
+    * Open soundcloud.com & snd.sc links in app
+    * Playback fixes
     * Progressive image loading
     * Optimised user browser loading
-    * Playback fixes
+    * Reduce background syncing overhead
     - Upgraded to ACRA 4.3-SNAPSHOT
 
 $ 25
