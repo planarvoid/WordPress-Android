@@ -1,4 +1,4 @@
-$ 26
+$ 27
   % v current
   _ 2011-09-06
   ! New stuff
@@ -8,6 +8,7 @@ $ 26
     * Faster user browser loading
     - Reduce background syncing overhead
     - Upgraded to ACRA 4.3-SNAPSHOT
+    - Added tracking to tour
 
 $ 25
   % v 1.4.3
