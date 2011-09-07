@@ -27,14 +27,15 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="soundcloud"/>
+                <data android:scheme="http" android:host="snd.sc"/>
             </intent-filter>
 
+            <!-- soundcloud:users/12345 | soundcloud:tracks/12345 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="snd.sc"/>
+                <data android:scheme="soundcloud"/>
             </intent-filter>
 
             <intent-filter>
