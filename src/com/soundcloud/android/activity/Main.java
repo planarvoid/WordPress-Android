@@ -243,7 +243,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             final String scheme = data.getScheme();
 
             if ("soundcloud".equals(scheme)) {
-                return ResolveTask.resolveSoundCloudURI(data, this) != null;
+                return ResolveTask.resolveSoundCloudURI(data, getApp().getEnv(), this) != null;
             } else if ("http".equalsIgnoreCase(scheme)
                     || "https".equalsIgnoreCase(scheme) &&
                     !data.getPathSegments().isEmpty()) {

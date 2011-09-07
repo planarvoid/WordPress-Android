@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -63,8 +64,8 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         void onUrlError();
     }
 
-    public static Uri resolveSoundCloudURI(Uri uri, ResolveListener listener) {
-        Uri resolved = resolveSoundCloudURI(uri);
+    public static Uri resolveSoundCloudURI(Uri uri, Env env, ResolveListener listener) {
+        Uri resolved = resolveSoundCloudURI(uri, env);
         if (listener != null) {
             if (resolved != null) {
                 listener.onUrlResolved(resolved);
@@ -75,7 +76,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         return resolved;
     }
 
-    public static Uri resolveSoundCloudURI(Uri uri) {
+    public static Uri resolveSoundCloudURI(Uri uri, Env env) {
         if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split("/", 2);
@@ -84,8 +85,8 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
                 final String id = components[1];
 
                 return new Uri.Builder()
-                    .scheme("https")
-                    .authority("api.soundcloud.com")
+                    .scheme(env.sslResourceHost.getSchemeName())
+                    .authority(env.sslResourceHost.getHostName())
                     .appendPath(type)
                     .appendPath(id).build();
             } else {

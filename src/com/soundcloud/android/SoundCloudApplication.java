@@ -462,6 +462,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
+    public Env getEnv() {
+        return mCloudApi.env;
+    }
+
     @Override
     public Token onTokenInvalid(final Token expired) {
         try {

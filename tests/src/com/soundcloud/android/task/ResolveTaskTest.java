@@ -1,5 +1,6 @@
 package com.soundcloud.android.task;
 
+import com.soundcloud.api.Env;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -43,25 +44,36 @@ public class ResolveTaskTest {
 
     @Test
     public void resolveSoundCloudUri() throws Exception {
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users/1234")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:users/1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/users/1234")));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks/1234")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:users/1234"), Env.SANDBOX),
+                equalTo(Uri.parse("https://api.sandbox-soundcloud.com/users/1234")));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:tracks/1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("SOUNDCLOUD:tracks/1234")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("SOUNDCLOUD:tracks/1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:tracks"), Env.LIVE),
                 is(nullValue()));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:users"), Env.LIVE),
                 is(nullValue()));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("http://soundcloud.com/1234")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("http://soundcloud.com/1234"), Env.LIVE),
                 is(nullValue()));
 
-        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("foobar:blaz")),
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("foobar:blaz"), Env.LIVE),
                 is(nullValue()));
     }
 }
