@@ -49,6 +49,9 @@ public class ResolveTaskTest {
         assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks/1234")),
                 equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
 
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("SOUNDCLOUD:tracks/1234")),
+                equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
+
         assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks")),
                 is(nullValue()));
 

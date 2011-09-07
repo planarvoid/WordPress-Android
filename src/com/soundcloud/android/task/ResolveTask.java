@@ -76,7 +76,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
     }
 
     public static Uri resolveSoundCloudURI(Uri uri) {
-        if (uri != null && "soundcloud".equals(uri.getScheme())) {
+        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
             final String[] components = specific.split("/", 2);
             if (components != null && components.length == 2) {
