@@ -62,4 +62,37 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         void onUrlResolved(Uri uri);
         void onUrlError();
     }
+
+    public static Uri resolveSoundCloudURI(Uri uri, ResolveListener listener) {
+        Uri resolved = resolveSoundCloudURI(uri);
+        if (listener != null) {
+            if (resolved != null) {
+                listener.onUrlResolved(resolved);
+            } else {
+                listener.onUrlError();
+            }
+        }
+        return resolved;
+    }
+
+    public static Uri resolveSoundCloudURI(Uri uri) {
+        if (uri != null && "soundcloud".equals(uri.getScheme())) {
+            final String specific = uri.getSchemeSpecificPart();
+            final String[] components = specific.split("/", 2);
+            if (components != null && components.length == 2) {
+                final String type = components[0];
+                final String id = components[1];
+
+                return new Uri.Builder()
+                    .scheme("https")
+                    .authority("api.soundcloud.com")
+                    .appendPath(type)
+                    .appendPath(id).build();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }

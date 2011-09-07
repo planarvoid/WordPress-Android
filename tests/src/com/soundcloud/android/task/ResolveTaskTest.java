@@ -40,4 +40,25 @@ public class ResolveTaskTest {
         task.execute(Uri.parse("http://soundcloud.com/foo/bar"));
         assertThat(result[0], equalTo(Uri.parse("http://foo.com")));
     }
+
+    @Test
+    public void resolveSoundCloudUri() throws Exception {
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users/1234")),
+                equalTo(Uri.parse("https://api.soundcloud.com/users/1234")));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks/1234")),
+                equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:tracks")),
+                is(nullValue()));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users")),
+                is(nullValue()));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("http://soundcloud.com/1234")),
+                is(nullValue()));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(Uri.parse("foobar:blaz")),
+                is(nullValue()));
+    }
 }
