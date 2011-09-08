@@ -336,7 +336,7 @@ public class ImageUtils {
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
-                if (tempBitmap != null) {
+                if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {
                         callback.onImageLoaded(tempBitmap, uri);
                     }

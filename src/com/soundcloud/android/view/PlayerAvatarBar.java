@@ -33,7 +33,7 @@ public class PlayerAvatarBar extends View {
     private Comment mCurrentComment;
 
     private Matrix mMatrix;
-    private Float mDefaultAvatarScale = (float) 1;
+    private float mDefaultAvatarScale = 1f;
     private int mAvatarWidth;
 
     private Paint mImagePaint;
@@ -102,7 +102,6 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelLoading(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
-                if (c.avatar != null) c.avatar.recycle();
                 c.avatar = null;
             }
         }

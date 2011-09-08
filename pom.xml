@@ -4,7 +4,7 @@
     <groupId>com.soundcloud</groupId>
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests/src</testSourceDirectory>
@@ -246,7 +246,7 @@
         <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
-            <version>1.0-RC5-SNAPSHOT</version>
+            <version>1.0-RC5-SOUNDCLOUD</version>
             <scope>test</scope>
             <classifier>jar-with-dependencies</classifier>
         </dependency>

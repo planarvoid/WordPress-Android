@@ -441,7 +441,7 @@ public class CloudRecorder {
                             mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .8);
                         }
 
-                        service.onRecordFrameUpdate((float) Math.max(.1,
+                        service.onRecordFrameUpdate((float) Math.max(.1f,
                                 ((float) Math.log(mCurrentAdjustedMaxAmplitude) - 4)
                                 / MAX_ADJUSTED_AMPLITUDE));
                     }
@@ -465,6 +465,4 @@ public class CloudRecorder {
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
     }
-
-
 }

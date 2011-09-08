@@ -138,8 +138,8 @@ public final class Consts {
         @Deprecated String SHARE_PUBLIC     = "/record/share/public";
         @Deprecated String SHARE_PRIVATE    = "/record/share/private";
         String SEARCH        = "/search";
-        String SEARCH_TRACKS = "/search/tracks/q=";
-        String SEARCH_USERS  = "/search/users/q=";
+        String SEARCH_TRACKS = "/search?type=users&q=";
+        String SEARCH_USERS  = "/search?type=tracks&q=";
         @Deprecated String LOGIN    = "/login";
         @Deprecated String LOGGED_OUT = "/loggedout";
         @Deprecated String SIGNUP   = "/signup";

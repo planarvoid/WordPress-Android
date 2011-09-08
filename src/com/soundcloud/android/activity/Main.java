@@ -32,8 +32,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -77,7 +75,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         handleIntent(getIntent());
 
         Object[] previousState = (Object[]) getLastNonConfigurationInstance();
-        if (previousState != null){
+        if (previousState != null) {
             mResolveTask = (ResolveTask) previousState[0];
             if (mResolveTask != null) mResolveTask.setListener(this);
 
@@ -206,18 +204,9 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         if (intent != null) {
             final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
 
-            Uri data = intent.getData();
-            if (data != null) {
-                List<String> params = data.getPathSegments();
-                if (params.size() > 0) {
-                    mResolveTask = new ResolveTask(getApp());
-                    mResolveTask.setListener(this);
-                    mResolveTask.execute(data);
-                }
-            }
-
-
-            if (tab != null) {
+            if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
+                // already handled
+            } else if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
                 if (getCurrentActivity() instanceof Dashboard) {
                      ((Dashboard) getCurrentActivity()).refreshIncoming();
@@ -245,7 +234,30 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             intent.setData(null);
             intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         }
+    }
 
+
+    private boolean handleViewUrl(Intent intent) {
+        final Uri data = intent.getData();
+        if (data != null) {
+            final String scheme = data.getScheme();
+
+            if ("soundcloud".equalsIgnoreCase(scheme)) {
+                return ResolveTask.resolveSoundCloudURI(data, getApp().getEnv(), this) != null;
+            } else if ("http".equalsIgnoreCase(scheme)
+                    || "https".equalsIgnoreCase(scheme) &&
+                    !data.getPathSegments().isEmpty()) {
+                // need to resolve url
+                mResolveTask = new ResolveTask(getApp()) ;
+                mResolveTask.setListener(this);
+                mResolveTask.execute(data);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
@@ -408,8 +420,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
    @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[]{
-                super.onRetainNonConfigurationInstance(),
+        return new Object[] {
                 mResolveTask,
                 mLoadTrackTask,
                 mLoadUserTask
@@ -423,11 +434,11 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             if (params.get(0).equalsIgnoreCase("tracks")) {
                 mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
                 mLoadTrackTask.setListener(this);
-                mLoadTrackTask.execute(Request.to(uri.getPath())); //TODO : real endpoint
+                mLoadTrackTask.execute(Request.to(uri.getPath()));
             } else if (params.get(0).equalsIgnoreCase("users")) {
                 mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
                 mLoadUserTask.setListener(this);
-                mLoadUserTask.execute(Request.to(uri.getPath())); //TODO : real endpoint
+                mLoadUserTask.execute(Request.to(uri.getPath()));
             }
         }
     }

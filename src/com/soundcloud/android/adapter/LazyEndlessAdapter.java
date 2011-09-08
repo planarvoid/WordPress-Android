@@ -150,7 +150,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
-                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && !isRefreshing() ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
                 mListView == null ? null : mListView.getChildAt(0) == null ||
                         mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop()
         };

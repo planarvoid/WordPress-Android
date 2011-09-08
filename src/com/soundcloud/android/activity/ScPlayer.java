@@ -803,9 +803,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             }
         } catch (RemoteException ignored) {}
 
-        if (mPlayingTrack == null) {
+        if (mPlayingTrack == null || mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
-            return;
+            if (mPlayingTrack == null) return;
         }
 
         mWaveformController.updateTrack(mPlayingTrack);

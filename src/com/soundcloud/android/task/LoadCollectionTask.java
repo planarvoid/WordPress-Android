@@ -73,7 +73,7 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             HttpResponse resp = mApp.get(req);
 
             mResponseCode = resp.getStatusLine().getStatusCode();
-            if (mResponseCode == HttpStatus.SC_NOT_MODIFIED){
+            if (mResponseCode == HttpStatus.SC_NOT_MODIFIED) {
                 return false;
             } else if (mResponseCode != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());

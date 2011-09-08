@@ -16,6 +16,7 @@
 
 package com.soundcloud.android.service;
 
+import android.text.TextUtils;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -151,6 +152,7 @@ public class CloudPlaybackService extends Service {
     private boolean mIsSupposedToBePlaying = false;
     private boolean mWaitingForArtwork = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
+    private long mSeekPos = -1;
 
     // interval after which we stop the service when idle
     private static final int IDLE_DELAY = 60000;
@@ -168,7 +170,7 @@ public class CloudPlaybackService extends Service {
     private boolean ignoreBuffer;
     private boolean pausedForBuffering;
     private boolean fillBuffer;
-    private boolean initialBuffering = true;
+    private boolean initialBuffering;
     private long mCurrentBuffer;
     private NetworkInfo mCurrentNetworkInfo;
     private boolean mIsStagefright;
@@ -601,7 +603,7 @@ public class CloudPlaybackService extends Service {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (mPlayer != null && mPlayingData != null && mPlayingData.stream_url.equalsIgnoreCase(url)) {
+                                    if (mPlayer != null && mPlayingData != null && !TextUtils.isEmpty(mPlayingData.stream_url) && mPlayingData.stream_url.equalsIgnoreCase(url)) {
                                         mPlayer.setDataSourceAsync(location.getValue());
                                     }
                                 }
@@ -1210,7 +1212,7 @@ public class CloudPlaybackService extends Service {
     public long position() {
         if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
-        } else if (mResumeId == mPlayingData.id) {
+        } else if (mPlayingData != null && mResumeId == mPlayingData.id) {
             return mResumeTime; // either -1 or a valid resume time
         } else return 0;
     }
@@ -1408,6 +1410,7 @@ public class CloudPlaybackService extends Service {
                 whereto = (int) getSeekResult(whereto, resumeSeek);
             }
             if (whereto != mPlayer.position()) {
+                mSeekPos = whereto;
                 mMediaPlayer.seekTo((int) whereto);
             }
             return whereto;
@@ -1507,11 +1510,12 @@ public class CloudPlaybackService extends Service {
             public void onCompletion(MediaPlayer mp) {
 
                 // check for premature track end
+                final long targetPosition = (mSeekPos == -1 || mIsStagefright) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
                 if (mIsInitialized && mPlayingData != null && isSeekable()
-                        && getDuration() - mMediaPlayer.getCurrentPosition() > 3000) {
+                        && getDuration() - targetPosition > 3000) {
 
                     mResumeId = mPlayingData.id;
-                    mResumeTime = mMediaPlayer.getCurrentPosition();
+                    mResumeTime = targetPosition;
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
@@ -1572,10 +1576,13 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                SoundCloudApplication.handleSilentException("mp error",
-                        new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
-
-                getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                    if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                        SoundCloudApplication.handleSilentException("mp error",
+                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
+                    }
+                    getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                }
 
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
@@ -1742,6 +1749,9 @@ public class CloudPlaybackService extends Service {
                     if (mWakeLock.isHeld()) mWakeLock.release();
                     if (mWifiLock.isHeld()) mWifiLock.release();
                     break;
+                case CLEAR_LAST_SEEK:
+                    mSeekPos = -1;
+                    break;
                 default:
                     break;
             }
@@ -1796,22 +1806,29 @@ public class CloudPlaybackService extends Service {
             mBufferHandler.sendMessageDelayed(msg, 100);
         }
 
-        if (thread != null
+        if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS
+                && thread != null
                 && thread.attempt >= MAX_DOWNLOAD_ATTEMPTS
                 && isConnected()) {
             if (thread.statusLine != null &&
                 (thread.statusLine.getStatusCode() != HttpStatus.SC_OK &&
                  thread.statusLine.getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)) {
-                SoundCloudApplication.handleSilentException("invalid status",
-                        new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                    SoundCloudApplication.handleSilentException("invalid status",
+                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+                }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR,
                         "status",
                         "code",
                         thread.statusLine.getStatusCode());
+
             } else if (thread.exception != null) {
-                SoundCloudApplication.handleSilentException("io exception",
-                        new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                    SoundCloudApplication.handleSilentException("io exception",
+                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "ioexception");
             }
