@@ -75,9 +75,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -179,6 +177,8 @@ public class CloudPlaybackService extends Service {
     protected int plugState;
     protected boolean mHeadphonePluggedState;
 
+    private StringBuilder mBuildPropMedia;
+
     public CloudPlaybackService() {
     }
 
@@ -220,7 +220,29 @@ public class CloudPlaybackService extends Service {
         WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wm.createWifiLock("wifilock");
 
+        /*** create build.prop debug string **/
+        mBuildPropMedia = new StringBuilder();
+        File f = new File("/system/build.prop");
+        InputStream instream = null;
+        try {
+            instream = new BufferedInputStream(new FileInputStream(f));
+            String line;
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            while ((line = buffreader.readLine()) != null) {
+                if (line.contains("media.stagefright")) {
+                    mBuildPropMedia.append(line);
+                    mBuildPropMedia.append(" ");
+                }
+            }
+            instream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*** create build.prop debug string **/
+
+
         mIsStagefright = CloudUtils.isStagefright();
+
 
         // track information about used audio engine with GA
         getApp().trackPage(Consts.Tracking.AUDIO_ENGINE,
@@ -1577,10 +1599,10 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                if (isConnected() && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
                     if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                         SoundCloudApplication.handleSilentException("mp error",
-                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
+                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                     }
                     getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
                 }
@@ -1817,7 +1839,7 @@ public class CloudPlaybackService extends Service {
 
                 if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                     SoundCloudApplication.handleSilentException("invalid status",
-                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                 }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR,
@@ -1828,7 +1850,7 @@ public class CloudPlaybackService extends Service {
             } else if (thread.exception != null) {
                 if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                     SoundCloudApplication.handleSilentException("io exception",
-                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                 }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "ioexception");
@@ -2266,28 +2288,32 @@ public class CloudPlaybackService extends Service {
     static class PlaybackError extends Exception {
         private final NetworkInfo networkInfo;
         private final boolean isStageFright;
+        private final StringBuilder buildPropMedia;
 
-        PlaybackError(IOException ioException, NetworkInfo info, boolean isStageFright) {
+        PlaybackError(IOException ioException, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
             super(ioException);
             this.networkInfo = info;
             this.isStageFright = isStageFright;
+            this.buildPropMedia = buildPropMedia;
         }
 
         @Override
         public String getMessage() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.getMessage()).append(" ")
-              .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
-              .append(" ")
-              .append("isStageFrigqht: ").append(isStageFright);
+                    .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
+                    .append(" ")
+                    .append("isStageFright: ").append(isStageFright)
+                    .append(" ")
+                    .append("build.prop: ").append(buildPropMedia);
             return sb.toString();
         }
     }
 
     static class StatusException extends PlaybackError {
         private final StatusLine status;
-        public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright) {
-            super(null, info, isStageFright);
+        public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
+            super(null, info, isStageFright, buildPropMedia);
             this.status = status;
         }
         @Override
@@ -2303,8 +2329,8 @@ public class CloudPlaybackService extends Service {
 
     static class MediaPlayerException extends PlaybackError {
         final int code, extra;
-        MediaPlayerException(int code, int extra, NetworkInfo info, boolean isStageFright) {
-            super(null, info, isStageFright);
+        MediaPlayerException(int code, int extra, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
+            super(null, info, isStageFright, buildPropMedia);
             this.code = code;
             this.extra = extra;
         }
