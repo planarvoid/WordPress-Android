@@ -239,22 +239,11 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private boolean handleViewUrl(Intent intent) {
         final Uri data = intent.getData();
-        if (data != null) {
-            final String scheme = data.getScheme();
-
-            if ("soundcloud".equalsIgnoreCase(scheme)) {
-                return ResolveTask.resolveSoundCloudURI(data, getApp().getEnv(), this) != null;
-            } else if ("http".equalsIgnoreCase(scheme)
-                    || "https".equalsIgnoreCase(scheme) &&
-                    !data.getPathSegments().isEmpty()) {
-                // need to resolve url
-                mResolveTask = new ResolveTask(getApp()) ;
-                mResolveTask.setListener(this);
-                mResolveTask.execute(data);
-                return true;
-            } else {
-                return false;
-            }
+        if (data != null && !data.getPathSegments().isEmpty()) {
+            mResolveTask = new ResolveTask(getApp()) ;
+            mResolveTask.setListener(this);
+            mResolveTask.execute(data);
+            return true;
         } else {
             return false;
         }
@@ -420,7 +409,8 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
    @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[] {
+        return new Object[]{
+                super.onRetainNonConfigurationInstance(),
                 mResolveTask,
                 mLoadTrackTask,
                 mLoadUserTask

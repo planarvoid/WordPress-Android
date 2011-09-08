@@ -16,11 +16,13 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
+import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -49,11 +51,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=4d60f01a",
-        formKey= "",
-        checkReportVersion = true,
-        checkReportSender = true)
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=4d60f01a", formKey="", checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
@@ -340,12 +338,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         trackEvent(category, action, null, 0);
     }
 
-    public void setCustomVar(int slot, String name, String value, int scope) {
-        if (mTracker != null) {
-            mTracker.setCustomVar(slot, name, value, scope);
-        }
-    }
-
     public void trackEvent(String category, String action, String label, int value) {
         if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
             mTracker.trackEvent(category, action, label, value);
@@ -466,10 +458,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static interface RecordListener {
         void onFrameUpdate(float maxAmplitude, long elapsed);
-    }
-
-    public Env getEnv() {
-        return mCloudApi.env;
     }
 
     @Override

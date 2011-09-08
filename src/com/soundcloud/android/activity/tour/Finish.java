@@ -10,13 +10,6 @@ import android.view.View;
 import android.widget.TextView;
 
 public class Finish extends TourActivity {
-
-    @Override
-    protected void onResume() {
-        getApp().setCustomVar(1, "tour", "finished", 1);
-        super.onResume();
-    }
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
