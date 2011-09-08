@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -12,9 +13,7 @@ import com.soundcloud.android.utils.CloudUtils;
 
 public class PlayerTimePortrait extends PlayerTime {
 
-    private int mDefaultWidth;
     private int mCommentingWidth;
-
     private int mDefaultHeight;
     private int mCommentingHeight;
 
@@ -35,8 +34,6 @@ public class PlayerTimePortrait extends PlayerTime {
         super(context, attrs);
 
         mCommentInstructions = (TextView) findViewById(R.id.txt_comment_instructions);
-
-        mDefaultWidth = (int) context.getResources().getDimension(R.dimen.player_time_width);
         mCommentingWidth = (int) context.getResources().getDimension(R.dimen.player_time_comment_width);
 
         mDefaultHeight = (int) context.getResources().getDimension(R.dimen.player_time_height);
@@ -68,7 +65,6 @@ public class PlayerTimePortrait extends PlayerTime {
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = -mPlayheadArrowHeight;
-        lp.width = mDefaultWidth;
         lp.height = mDefaultHeight;
         setLayoutParams(lp);
     }
@@ -82,7 +78,7 @@ public class PlayerTimePortrait extends PlayerTime {
     public void setCurrentTime(long time, boolean commenting) {
         super.setCurrentTime(time, commenting);
 
-        final int width = commenting ? mCommentingWidth : mDefaultWidth;
+        final int width = commenting ? mCommentingWidth : mMeasuredMaxWidth;
         if (commenting && !mCommenting) {
             mCommenting = true;
             getLayoutParams().width = width;

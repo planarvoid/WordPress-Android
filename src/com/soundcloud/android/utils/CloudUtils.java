@@ -442,6 +442,14 @@ public class CloudUtils {
 
     }
 
+    public static int getDigitsFromSeconds(int secs) {
+        if (secs < 600) return 3;
+        if (secs < 3600) return 4;
+        if (secs < 36000) return 5;
+        return 6;
+    }
+
+
     public static String generateRecordingSharingNote(Resources res, CharSequence what, CharSequence where, long created_at) {
         String note;
         if (!TextUtils.isEmpty(what)) {

@@ -46,7 +46,7 @@
                       android:background="@drawable/drop_shadow_up"/>
     <com.soundcloud.android.view.PlayerTimePortrait android:id="@+id/currenttime"
                                                     style="@style/txt_player_time"
-                                                    android:layout_width="@dimen/player_time_width"
+                                                    android:layout_width="wrap_content"
                                                     android:layout_height="@dimen/player_time_height"
                                                     android:layout_above="@id/waveform_holder"/>
     <FrameLayout android:id="@+id/player_avatar_bar_holder"

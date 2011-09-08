@@ -33,7 +33,6 @@
     <dimen name="player_portrait_waveform_margin_bottom_comments_visible">-24dip</dimen>
     <!-- end of can't change one of these without change them all -->
 
-    <dimen name="player_time_width">90dip</dimen>
     <dimen name="player_time_text_size">10sp</dimen>
     <dimen name="player_time_text_instructions_size">12sp</dimen>
 
