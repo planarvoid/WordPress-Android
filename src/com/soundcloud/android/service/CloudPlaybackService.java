@@ -1363,7 +1363,7 @@ public class CloudPlaybackService extends Service {
         }
 
         public void start() {
-            mMediaPlayer.start();
+            if (mMediaPlayer != null) mMediaPlayer.start();
         }
 
         public void stop() {
