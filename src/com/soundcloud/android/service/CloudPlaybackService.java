@@ -2110,7 +2110,16 @@ public class CloudPlaybackService extends Service {
 
 
     private long getContentLength(HttpResponse resp) {
-        return Long.parseLong(resp.getFirstHeader("Content-Length").getValue());
+        Header h = resp.getFirstHeader("Content-Length");
+        if (h != null) {
+            try {
+                return Long.parseLong(h.getValue());
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
     }
 
     /*
