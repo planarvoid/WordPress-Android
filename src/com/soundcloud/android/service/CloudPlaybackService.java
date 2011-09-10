@@ -585,6 +585,7 @@ public class CloudPlaybackService extends Service {
                     setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
             } else {
+                sendStreamException(0);
                 gotoIdleState();
             }
         }
