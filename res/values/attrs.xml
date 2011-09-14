@@ -27,6 +27,11 @@
         <attr name="transitionTextColorUp" format="color" />
         <attr name="transitionTextColorDown" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="ColoredButton">
+        <attr name="idleMult" format="color" />
+        <attr name="idleText" format="color" />
+    </declare-styleable>
     
     
 </resources>

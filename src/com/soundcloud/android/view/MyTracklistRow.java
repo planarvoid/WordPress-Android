@@ -42,7 +42,7 @@ public class MyTracklistRow extends TracklistRow {
     public void display(int position) {
         Recording recording = ((Recording) mAdapter.getItem(position));
 
-        mTitle.setText(recording.sharingNote());
+        mTitle.setText(recording.sharingNote(getResources()));
 
         if (recording.is_private) {
             mTitle.setCompoundDrawablesWithIntrinsicBounds(null,null,getPrivateDrawable(),null);

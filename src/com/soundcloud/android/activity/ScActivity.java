@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -313,7 +314,7 @@ public abstract class ScActivity extends Activity {
         if (mCreateService == null) return false;
 
         try {
-            if (mCreateService.startUpload(new Upload(r))) return true;
+            if (mCreateService.startUpload(new Upload(r, getResources()))) return true;
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
@@ -347,7 +348,6 @@ public abstract class ScActivity extends Activity {
         lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
         lv.setFastScrollEnabled(false);
-        lv.setTextFilterEnabled(true);
         lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.setDividerHeight(1);
         lv.setCacheColorHint(Color.TRANSPARENT);
@@ -357,15 +357,11 @@ public abstract class ScActivity extends Activity {
     }
 
     public int removeList(ScListView lazyListView){
-        int i = 0;
-        while (i < mLists.size()){
-            if (mLists.get(i).equals(lazyListView)){
-                mLists.remove(i);
-                return i;
-            }
-            i++;
+        int index = mLists.indexOf(lazyListView);
+        if (index != -1) {
+            mLists.remove(index);
         }
-        return -1;
+        return index;
     }
 
     public void addNewComment(final Comment comment, final AddCommentListener listener) {
@@ -553,7 +549,7 @@ public abstract class ScActivity extends Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
+                trackPage(Consts.Tracking.PEOPLE_FINDER);
                 intent = new Intent(Actions.USER_BROWSER)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
@@ -592,8 +588,12 @@ public abstract class ScActivity extends Activity {
         return mCurrentUserId;
     }
 
-    public void pageTrack(String path) {
-        getApp().pageTrack(path);
+    public void trackPage(String path) {
+        getApp().trackPage(path);
+    }
+
+    public void trackEvent(String category, String action) {
+        getApp().trackEvent(category, action);
     }
 
     protected void handleRecordingClick(Recording recording) {

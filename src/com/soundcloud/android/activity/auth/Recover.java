@@ -85,7 +85,10 @@ public class Recover extends Activity {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (!isFinishing() && progressDialog != null) {
-                    progressDialog.dismiss();
+                    try {
+                        progressDialog.dismiss();
+                    } catch (IllegalArgumentException ignored) {
+                    }
                 }
                 setResult(RESULT_OK, new Intent()
                         .putExtra("success", success)

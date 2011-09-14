@@ -3,6 +3,8 @@ package com.soundcloud.android;
 import android.os.Environment;
 
 import java.io.File;
+import java.security.Key;
+import java.util.EnumSet;
 
 public final class Consts {
     public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
@@ -25,6 +27,11 @@ public final class Consts {
     public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
     public static final long TRACK_MIN_CACHE = 20 * 1024  * 1024; // 20  MB
 
+    public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
+
+    public static final String SOUNDCLOUD_SCHEME = "http";
+    public static final String SOUNDCLOUD_HOST = "soundcloud.com";
+
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
@@ -45,12 +52,43 @@ public final class Consts {
         int FILTER = 207;
     }
 
-    public interface GraphicsSizes {
-        String T500 = "t500x500";
-        String CROP = "crop";
-        String LARGE = "large";
-        String BADGE = "badge";
-        String SMALL = "small";
+    public interface TourActivityIndexes {
+        int RECORD = 0;
+        int SHARE = 1;
+        int FOLLOW = 2;
+        int COMMENT = 3;
+        int YOU = 4;
+    }
+
+    public enum GraphicSize {
+        T500("t500x500", 500, 500),
+        CROP("crop", 400, 400),
+        T300("t300x300", 300, 400),
+        LARGE("large", 100, 100),
+        T67("t67x67", 67, 67),
+        BADGE("badge", 47, 47),
+        SMALL("small", 100, 100),
+        TINY_ARTWORK("tiny", 20, 20),
+        TINY_AVATAR("tiny", 18, 18),
+        MINI("mini", 16, 16),
+        Unknown("large", 100, 100);
+
+        public final int width;
+        public final int height;
+        public final String key;
+
+
+        GraphicSize(String key, int width, int height) {
+            this.key = key;
+            this.width = width;
+            this.height = height;
+        }
+        static GraphicSize fromString(String s) {
+            for (GraphicSize gs : EnumSet.allOf(GraphicSize.class)) {
+                if (gs.key.equalsIgnoreCase(s)) return gs;
+            }
+            return Unknown;
+        }
     }
 
     public interface ListId {
@@ -73,26 +111,44 @@ public final class Consts {
         int BETA_NOTIFY_ID    = 5;
     }
 
-    public interface TrackingEvents {
-        String STREAM = "/incoming";
-        String ACTIVITY = "/activity";
-        String RECORD = "/record";
-        String RECORD_RECORDING = "/record/recording";
-        String RECORD_COMPLETE = "/record/complete";
-        String SHARE_PUBLIC = "/record/share/public";
-        String SHARE_PRIVATE = "/record/share/private";
-        String SEARCH = "/search";
-        String SEARCH_TRACKS = "/search/tracks/q=";
-        String SEARCH_USERS = "/search/users/q=";
-        String LOGGED_OUT = "/loggedout";
-        String LOGIN = "/login";
-        String SIGNUP = "/signup";
-        String SIGNUP_DETAILS = "/signup/details";
-        String PEOPLE_FINDER = "/people/finder";
-        String SETTINGS = "/settings";
-        String TRACKS_BY_TAG = "/tracks_by_tag/";
-        String TRACKS_BY_GENRE = "/tracks_by_genre/";
+    public interface Tracking {
+        interface Categories {
+            String AUTH      = "auth";
+            String CONNECT   = "connect";
+            String TRACKS    = "tracks";
+            String RECORDING = "recording";
+            String SHARE     = "share";
+            String ERROR     = "error";
+            String PLAYBACK_ERROR = "playbackError";
+            String TOUR      = "tour";
+        }
 
-        String AUDIO_ENGINE = "/internal/audioEngine";
+        interface Actions {
+            String TRACK_PLAY = "Track Play";
+            String TEN_PERCENT = "10percent";
+            String NINTY_FIVE_PERCENT = "95percent";
+            String TRACK_COMPLETE = "Track Complete";
+        }
+
+        String STREAM   = "/incoming";
+        String ACTIVITY = "/activity";
+        String RECORD   = "/record";
+        @Deprecated String RECORD_RECORDING = "/record/recording";
+        @Deprecated String RECORD_COMPLETE  = "/record/complete";
+        @Deprecated String SHARE_PUBLIC     = "/record/share/public";
+        @Deprecated String SHARE_PRIVATE    = "/record/share/private";
+        String SEARCH        = "/search";
+        String SEARCH_TRACKS = "/search?type=users&q=";
+        String SEARCH_USERS  = "/search?type=tracks&q=";
+        @Deprecated String LOGIN    = "/login";
+        @Deprecated String LOGGED_OUT = "/loggedout";
+        @Deprecated String SIGNUP   = "/signup";
+        String SIGNUP_DETAILS       = "/signup/details";
+        String PEOPLE_FINDER        = "/people/finder";
+        String SETTINGS             = "/settings";
+        String TRACKS_BY_TAG        = "/tracks_by_tag/";
+        String TRACKS_BY_GENRE      = "/tracks_by_genre/";
+
+        String AUDIO_ENGINE         = "/internal/audioEngine";
     }
 }

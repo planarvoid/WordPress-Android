@@ -82,6 +82,23 @@
         <item name="android:textStyle">italic</item>
     </style>
 
+    <style name="txt_comment_panel_user">
+        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textSize">@dimen/comment_panel_main_size</item>
+    </style>
+    <style name="txt_comment_panel_timestamp" parent="txt_comment_panel_user">
+        <item name="android:paddingLeft">3dip</item>
+        <item name="android:textColor">#ffe36711</item>
+    </style>
+    <style name="txt_comment_panel_created_at" parent="txt_comment_panel_user">
+        <item name="android:paddingLeft">3dip</item>
+        <item name="android:textSize">@dimen/comment_panel_created_at_size</item>
+    </style>
+    <style name="txt_comment_panel_body">
+        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textSize">@dimen/comment_panel_main_size</item>
+    </style>
+
     <style name="txt_auth_title" parent="@android:style/TextAppearance.Large">
         <item name="android:paddingTop">10dip</item>
         <item name="android:paddingBottom">10dip</item>
@@ -226,17 +243,16 @@
 
 
     <style name="txt_player_time">
-        <item name="android:layout_width">@dimen/player_time_width</item>
-        <item name="android:layout_height">@dimen/player_time_height</item>
-        <item name="android:layout_alignParentTop">true</item>
         <item name="android:textColor">@android:color/black</item>
-        <item name="android:background">@drawable/player_time_bg</item>
         <item name="android:textSize">@dimen/player_time_text_size</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:gravity">center</item>
     </style>
     <style name="txt_player_time_land" parent="txt_player_time">
         <item name="android:background">@drawable/player_time_bg_land</item>
+    </style>
+    <style name="txt_player_time_instructrions">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">@dimen/player_time_text_instructions_size</item>
     </style>
 
     <style name="txt_player_track_info_stats">
@@ -479,4 +495,41 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="txt_tour_title" parent="txt_tour_start">
+    	<item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="txt_tour_start">
+    	<item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:shadowColor">#dd222222</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:paddingLeft">25dp</item>
+        <item name="android:paddingRight">25dp</item>
+    </style>
+    <style name="txt_tour_start_1" parent="txt_tour_start">
+    	<item name="android:textSize">22sp</item>
+    	<item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_tour_start_2" parent="txt_tour_start">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="txt_tour_start_3" parent="txt_tour_start">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="txt_tour_subject">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="txt_tour_message">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:paddingLeft">25dp</item>
+        <item name="android:paddingRight">25dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 </resources>

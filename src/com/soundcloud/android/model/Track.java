@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
@@ -15,6 +16,8 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -38,85 +41,103 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase implements PageTrackable {
+public class Track extends ModelBase implements PageTrackable, Origin {
     private static final String TAG = "Track";
 
     // API fields
-    public Date created_at;
-    public long user_id;
-    public int duration;
-    public boolean commentable;
-    public String state;
-    public String sharing;
-    public String tag_list;
-    public String permalink;
-    public String description;
-    public boolean streamable;
-    public boolean downloadable;
-    public String genre;
-    public String release;
-    public String purchase_url;
-    public String label_id;
-    public User label;
-    public String label_name;
-    public String isrc;
-    public String video_url;
-    public String track_type;
-    public String key_signature;
+    @JsonView(Views.Full.class) public Date created_at;
+    @JsonView(Views.Mini.class) public long user_id;
+    @JsonView(Views.Full.class) public int duration;
+    @JsonView(Views.Full.class) public boolean commentable;
+    @JsonView(Views.Full.class) public String state;
+    @JsonView(Views.Full.class) public String sharing;
+    @JsonView(Views.Full.class) public String tag_list;
+    @JsonView(Views.Mini.class) public String permalink;
+    @JsonView(Views.Full.class) public String description;
+    @JsonView(Views.Full.class) public boolean streamable;
+    @JsonView(Views.Full.class) public boolean downloadable;
+    @JsonView(Views.Full.class) public String genre;
+    @JsonView(Views.Full.class) public String release;
+    @JsonView(Views.Full.class) public String purchase_url;
+    @JsonView(Views.Full.class) public Integer label_id;
+    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) public User label;
+    @JsonView(Views.Full.class) public String label_name;
+    @JsonView(Views.Full.class) public String isrc;
+    @JsonView(Views.Full.class) public String video_url;
+    @JsonView(Views.Full.class) public String track_type;
+    @JsonView(Views.Full.class) public String key_signature;
+    @JsonView(Views.Full.class)
     public float bpm;
 
-    public int playback_count;
-    public int download_count;
-    public int comment_count;
-    public int favoritings_count;
+    @JsonView(Views.Full.class) public int playback_count;
+    @JsonView(Views.Full.class) public int download_count;
+    @JsonView(Views.Full.class) public int comment_count;
+    @JsonView(Views.Full.class) public int favoritings_count;
 
-    public String title;
+    @JsonView(Views.Mini.class) public String title;
 
-    public String release_year;
-    public String release_month;
-    public String release_day;
+    @JsonView(Views.Full.class)
+    public Integer release_year;
+    @JsonView(Views.Full.class)
+    public Integer release_month;
+    @JsonView(Views.Full.class)
+    public Integer release_day;
 
-    public String original_format;
-    public String license;
+    @JsonView(Views.Full.class) public String original_format;
+    @JsonView(Views.Full.class) public String license;
 
-    public String uri;
-    public String permalink_url;
+    @JsonView(Views.Mini.class) public String uri;
+    @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public String user_uri;
+    @JsonView(Views.Mini.class) public String permalink_url;
+    @JsonView(Views.Mini.class)
     public String artwork_url;
-    public String waveform_url;
 
-    public User user;
+    @JsonView(Views.Full.class) public String waveform_url;
 
-    public String stream_url;
+    @JsonView(Views.Full.class) public User user;
 
-    public int user_playback_count;
-    public boolean user_favorite;
+    @JsonView(Views.Mini.class) public String stream_url;
 
+    @JsonView(Views.Full.class) public int user_playback_count;
+    @JsonView(Views.Full.class) public boolean user_favorite;
+
+    @JsonView(Views.Full.class)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public CreatedWith created_with;
-    public String attachments_uri;
 
+    @JsonView(Views.Full.class)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public TrackSharing.SharingNote sharing_note;
+
+    @JsonView(Views.Full.class) public String attachments_uri;
+
+    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String download_url;  // if track downloadable or current user = owner
 
     // only shown to owner of track
+    @JsonView(Views.Full.class)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int downloads_remaining;
+
+    @JsonView(Views.Full.class)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String secret_token;
+    @JsonView(Views.Full.class)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String secret_uri;
-    public int shared_to_count;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+    @JsonView(Views.Full.class) public int shared_to_count;
 
     // Fields used by app
-    @JsonIgnore
-    public List<Comment> comments;
-    @JsonIgnore
-    public long filelength;
-    @JsonIgnore
-    public boolean user_played;
-    @JsonIgnore
-    public LoadTrackInfoTask load_info_task;
-    @JsonIgnore
-    public LoadCommentsTask load_comments_task;
-    @JsonIgnore
-    public boolean info_loaded;
-    @JsonIgnore
-    public boolean comments_loaded;
+    @JsonIgnore public List<Comment> comments;
+    @JsonIgnore public long filelength;
+    @JsonIgnore public boolean user_played;
+    @JsonIgnore public LoadTrackInfoTask load_info_task;
+    @JsonIgnore public LoadCommentsTask load_comments_task;
+    @JsonIgnore public boolean info_loaded;
+    @JsonIgnore public boolean comments_loaded;
+
     protected File mCacheFile;
     private CharSequence mElapsedTime;
 
@@ -132,14 +153,32 @@ public class Track extends ModelBase implements PageTrackable {
     }
 
     public Uri toUri() {
+        return toUri(id);
+    }
+
+    public static Uri toUri(long id) {
         return Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
+    @Override @JsonIgnore
+    public Track getTrack() {
+        return this;
+    }
+
+    @Override @JsonIgnore
+    public User getUser() {
+        return user;
+    }
+
     public static class CreatedWith {
-        public long id;
-        public String name;
-        public String uri;
-        public String permalink_url;
+        @JsonView(Views.Full.class) public long id;
+        @JsonView(Views.Full.class) public String name;
+        @JsonView(Views.Full.class) public String uri;
+        @JsonView(Views.Full.class) public String permalink_url;
+
+        public boolean isEmpty() {
+            return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
+        }
     }
 
     public Track() {
@@ -250,8 +289,8 @@ public class Track extends ModelBase implements PageTrackable {
         comments_loaded = t.comments_loaded;
     }
 
-    public boolean isStreamable() {
-        return stream_url != null;
+    @JsonIgnore public boolean isStreamable() {
+        return !TextUtils.isEmpty(stream_url);
     }
 
     public ContentValues buildContentValues(){
@@ -328,7 +367,13 @@ public class Track extends ModelBase implements PageTrackable {
             str.append(key_signature).append("<br/>");
         }
         if (bpm != 0) {
-            str.append(bpm).append("<br/>");
+            str.append(" ");
+            if (Math.floor(bpm) == bpm) {
+                str.append((int) bpm);
+            } else {
+                str.append(bpm);
+            }
+            str.append(" BPM <br/>");
         }
 
         if (!TextUtils.isEmpty(formattedLicense())) {
@@ -339,11 +384,21 @@ public class Track extends ModelBase implements PageTrackable {
             str.append("<b>Released By</b><br/>")
                .append(label_name).append("<br/>");
 
-            if (!TextUtils.isEmpty(release_year)) {
+            if (release_day != null &&  release_day != 0) {
                 str.append(release_year).append("<br/>");
             }
             str.append("<br />");
         }
+
+        if (created_with != null && !created_with.isEmpty()) {
+            str.append("Created with <a href=\"")
+               .append(created_with.permalink_url)
+               .append("\">")
+               .append(created_with.name)
+               .append("</a>")
+               .append("<br/>");
+        }
+
         return str.toString();
     }
 
@@ -380,7 +435,9 @@ public class Track extends ModelBase implements PageTrackable {
     };
 
     public boolean createCache() {
-        if (!getCache().exists()) {
+        if (getCache().exists()) {
+            return true;
+        } else {
             CloudUtils.mkdirs(getCache().getParentFile());
             try {
                 return getCache().createNewFile();
@@ -388,7 +445,7 @@ public class Track extends ModelBase implements PageTrackable {
                 Log.w(TAG, "error creating cache "+getCache(), e);
                 return false;
             }
-        } else return false;
+        }
     }
 
     public File getCache() {
@@ -458,5 +515,9 @@ public class Track extends ModelBase implements PageTrackable {
             sb.append("/").append(p);
         }
         return sb.toString();
+    }
+
+    public boolean hasAvatar() {
+        return user != null && !TextUtils.isEmpty(user.avatar_url);
     }
 }

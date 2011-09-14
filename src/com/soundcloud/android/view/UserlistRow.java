@@ -1,20 +1,17 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IUserlistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -114,7 +111,7 @@ public class UserlistRow extends LazyRow {
     public String getIconRemoteUri() {
         if (mUser.avatar_url == null)
             return "";
-        return ImageUtils.formatGraphicsUrlForList(mActivity,mUser.avatar_url);
+        return ImageUtils.formatGraphicsUriForList(mActivity, mUser.avatar_url);
     }
 
     protected void setTrackCount() {

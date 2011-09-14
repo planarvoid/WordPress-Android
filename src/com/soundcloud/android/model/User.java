@@ -4,10 +4,13 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -21,19 +24,19 @@ import android.util.Log;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends ModelBase implements PageTrackable {
-    public String username;
+    @JsonView(Views.Mini.class) public String username;
     public int track_count;
     public String discogs_name;
     public String city;
-    public String uri;
-    public String avatar_url;
+    @JsonView(Views.Mini.class) public String uri;
+    @JsonView(Views.Mini.class) public String avatar_url;
     public String local_avatar_url;
     public String website_title;
     public String website;
     public String description;
     public String online;
-    public String permalink;
-    public String permalink_url;
+    @JsonView(Views.Mini.class) public String permalink;
+    @JsonView(Views.Mini.class) public String permalink_url;
     public String full_name;
     public int followers_count = -1;
     public int followings_count = -1;
@@ -224,8 +227,8 @@ public class User extends ModelBase implements PageTrackable {
         String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
         String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
 
-        String NOTIFICATION_COUNT_INCOMING = "notification_count";
-        String NOTIFICATION_COUNT_OWN      = "notification_count_own";
+        String LAST_INCOMING_NOTIFIED = "last_incoming_notified_timestamp";
+        String LAST_OWN_NOTIFIED      = "last_own_notified_timestamp";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
     }

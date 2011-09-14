@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
@@ -36,10 +37,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.util.EnumSet;
 
 public class ImageUtils {
 
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
+
+
 
     public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
             int targetHeight) throws IOException {
@@ -278,25 +283,71 @@ public class ImageUtils {
         }
     }
 
-    public static String formatGraphicsUrlForList(Context c, String url){
-        return formatGraphicsUrl(url,getListItemGraphicSize(c));
+    public static String formatGraphicsUriForList(Context c, String url){
+        return formatGraphicsUri(url, getListItemGraphicSize(c));
     }
 
-    public static String formatGraphicsUrl(String url, String targetSize) {
-        return url == null ? null : targetSize == Consts.GraphicsSizes.LARGE ? url : url.replace(Consts.GraphicsSizes.LARGE, targetSize);
+    public static String formatGraphicsUri(String url, Consts.GraphicSize targetSize) {
+        return url == null ? null : targetSize.equals(Consts.GraphicSize.LARGE) ? url : url.replace(Consts.GraphicSize.LARGE.key, targetSize.key);
     }
 
-    public static String getListItemGraphicSize(Context c) {
+    public static Consts.GraphicSize getListItemGraphicSize(Context c) {
 
         if (CloudUtils.isScreenXL(c)) {
-            return Consts.GraphicsSizes.LARGE;
+            return Consts.GraphicSize.LARGE;
         } else {
             if (c.getResources().getDisplayMetrics().density > 1) {
-                return Consts.GraphicsSizes.LARGE;
+                return Consts.GraphicSize.LARGE;
             } else {
-                return Consts.GraphicsSizes.BADGE;
+                return Consts.GraphicSize.BADGE;
             }
         }
 
     }
+
+    public static ImageLoader.BindResult loadImageSubstitute(Context c, ImageView imageView, String uri, Consts.GraphicSize targetSize, ImageLoader.ImageViewCallback callback, ImageLoader.Options options){
+        final String targetUri = formatGraphicsUri(uri, targetSize);
+        final ImageLoader imageLoader = ImageLoader.get(c);
+        if (options == null) options = new ImageLoader.Options();
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
+        if (targetBitmap != null){
+            return imageLoader.bind(imageView,targetUri,callback,options);
+        } else {
+            for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
+                final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
+                if (tempBitmap != null) {
+                    options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
+                    imageLoader.bind(imageView,targetUri,callback,options);
+                    return ImageLoader.BindResult.OK;
+                }
+            }
+            return imageLoader.bind(imageView,targetUri,callback,options);
+        }
+    }
+
+    public static Bitmap getBitmapSubstitute(Context c, String uri, Consts.GraphicSize targetSize, ImageLoader.BitmapCallback callback, ImageLoader.Options options){
+        final String targetUri = formatGraphicsUri(uri, targetSize);
+        final ImageLoader imageLoader = ImageLoader.get(c);
+        if (options == null) options = new ImageLoader.Options();
+
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
+        if (targetBitmap != null){
+            return imageLoader.getBitmap(uri,callback,options);
+        } else {
+            for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
+                final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
+                if (tempBitmap != null && !tempBitmap.isRecycled()) {
+                    if (callback != null) {
+                        callback.onImageLoaded(tempBitmap, uri);
+                    }
+                    // get the normal one anyway, will be handled by the callback
+                    imageLoader.getBitmap(targetUri,callback,options);
+                    return tempBitmap;
+                }
+            }
+            return imageLoader.getBitmap(targetUri,callback,options);
+        }
+    }
+
+
 }

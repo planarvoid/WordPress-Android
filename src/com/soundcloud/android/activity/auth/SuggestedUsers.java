@@ -17,6 +17,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.tour.*;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -87,12 +88,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
         // result ok no matter what
         setResult(RESULT_OK);
+
+        startActivity(new Intent(this, com.soundcloud.android.activity.tour.Start.class));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack(Consts.TrackingEvents.PEOPLE_FINDER);
+        trackPage(Consts.Tracking.PEOPLE_FINDER);
     }
 
 

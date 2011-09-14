@@ -22,7 +22,6 @@ public class UploadTaskTest extends ApiTests {
     @Before
     public void setup() {
         super.setup();
-
         task = new UploadTask(mockedApi);
     }
 
@@ -32,7 +31,7 @@ public class UploadTaskTest extends ApiTests {
         Upload upload = new Upload(new HashMap<String, Object>());
         UploadTask.Params params = new UploadTask.Params(upload);
 
-        task.execute(params);
+        task.doInBackground(params);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -44,7 +43,7 @@ public class UploadTaskTest extends ApiTests {
         Upload u = new Upload(map);
         UploadTask.Params params = new UploadTask.Params(u);
 
-        task.execute(params);
+        task.doInBackground(params);
     }
 
 

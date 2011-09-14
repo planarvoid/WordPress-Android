@@ -30,7 +30,7 @@ import java.util.List;
 public class AppendTask extends LoadCollectionTask {
 
     public AppendTask(SoundCloudApplication app) {
-        super(app);
+        super(app, null);
     }
 
     /**
@@ -53,7 +53,7 @@ public class AppendTask extends LoadCollectionTask {
         LazyEndlessAdapter adapter = mAdapterReference.get();
 
         if (adapter != null) {
-            adapter.onPostTaskExecute(newItems, mNextHref, mResponseCode, keepGoing);
+            adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing);
         }
     }
 }

@@ -1,5 +1,35 @@
-$ 23
+$ 26
   % v current
+  _ 2011-09-06
+  ! New stuff
+    * Open soundcloud.com & snd.sc links in app
+    * Playback fixes
+    * Progressive image loading
+    * Faster user browser loading
+    - Reduce background syncing overhead
+    - Upgraded to ACRA 4.3-SNAPSHOT
+
+$ 25
+  % v 1.4.3
+  _ 2011-08-24
+  ! New tour
+    * New tour (Settings - SoundCloud tour)
+    - SyncAdapter: poll interval set to 1h
+    - SyncAdapter: set error stats
+    - SyncAdapter: only fetch 1 item initially
+    - Java API Wrapper 1.0.2-SNAPSHOT
+
+$ 24
+  % v 1.4.2
+  _ 2011-08-18
+  ! Maintenance release
+    * Fix track buffering issues
+    - Added event tracking
+    - Better playback error reporting
+    - Upgraded GA to 1.3
+
+$ 23
+  % v 1.4.1
   _ 2011-08-12
   ! Maintenance release
     * Please note: We do not recommend moving to SD card as login details will have to be re-entered on reboot (Android limitation)

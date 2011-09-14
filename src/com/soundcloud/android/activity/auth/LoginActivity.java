@@ -53,8 +53,10 @@ public abstract class LoginActivity extends Activity {
 
             @Override
             protected void onPreExecute() {
-                progress = ProgressDialog.show(LoginActivity.this, "",
-                        LoginActivity.this.getString(R.string.authentication_login_progress_message));
+                if (!isFinishing()) {
+                    progress = ProgressDialog.show(LoginActivity.this, "",
+                            LoginActivity.this.getString(R.string.authentication_login_progress_message));
+                }
             }
 
             @Override
@@ -64,8 +66,9 @@ public abstract class LoginActivity extends Activity {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
-                                app.pageTrack(Consts.TrackingEvents.LOGIN);
-                                dismissProgress();
+                                app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
+                                app.trackPage(Consts.Tracking.LOGIN);
+                                dismissDialog(progress);
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
                                 setResult(RESULT_OK,
                                         new Intent().putExtras(data)
@@ -79,15 +82,8 @@ public abstract class LoginActivity extends Activity {
                         }
                     }.execute(Request.to(Endpoints.MY_DETAILS));
                 } else { // no tokens obtained
-                    dismissProgress();
+                    dismissDialog(progress);
                     showError(mException);
-                }
-            }
-
-            private void dismissProgress() {
-                if (!isFinishing()) try {
-                    progress.dismiss();
-                } catch (IllegalArgumentException ignored) {
                 }
             }
         }.execute(data);
@@ -118,7 +114,7 @@ public abstract class LoginActivity extends Activity {
     }
 
     protected void dismissDialog(Dialog d) {
-        if (!isFinishing()) {
+        if (!isFinishing() && d != null) {
             try {
                 d.dismiss();
             } catch (IllegalArgumentException ignored) {

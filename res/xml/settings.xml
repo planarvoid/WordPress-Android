@@ -62,6 +62,11 @@
                 android:title="@string/pref_app_details">
 
         <Preference
+                android:title="@string/pref_take_tour"
+                android:summary="@string/pref_take_tour_desc"
+                android:key="tour"/>
+
+        <Preference
                 android:title="@string/pref_change_log"
                 android:summary="@string/pref_change_log_desc"
                 android:key="changeLog"/>
@@ -96,6 +101,11 @@
             android:title="@string/pref_dev_clear_notification"
             android:summary="@string/pref_dev_clear_notification_summary"
             android:key="dev.clearNotifications"/>
+
+        <Preference
+            android:title="@string/pref_dev_sync_now"
+            android:summary="@string/pref_dev_sync_now_summary"
+            android:key="dev.syncNow"/>
 
         <Preference
             android:title="@string/pref_dev_crash"

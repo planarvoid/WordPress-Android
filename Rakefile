@@ -117,6 +117,10 @@ def gitsha1()
   end
 end
 
+task :anr do
+  sh "adb -e pull /data/anr/traces.txt"
+end
+
 namespace :release do
   desc "tag the current release"
   task :tag do
@@ -156,6 +160,8 @@ namespace :beta do
       raise "Wrong signature"
     end
   end
+
+  task :push => :upload
 
   desc "upload beta to s3"
   task :upload => :verify do

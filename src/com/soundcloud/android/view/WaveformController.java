@@ -1,8 +1,10 @@
-
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
+import android.content.res.Configuration;
+import android.view.ViewGroup;
+import android.view.animation.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
@@ -16,8 +18,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
-import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -28,20 +28,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.Transformation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,8 +40,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class WaveformController extends RelativeLayout implements OnTouchListener, AnimationListener {
+public class WaveformController extends RelativeLayout implements OnTouchListener {
     private static final String TAG = "WaveformController";
+
+    private static final long CLOSE_COMMENT_DELAY = 5000;
 
     protected PlayerAvatarBar mPlayerAvatarBar;
 
@@ -58,52 +51,49 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     private RelativeLayout mWaveformFrame;
-    protected RelativeLayout mPlayerCommentBar;
-    private WaveformCommentLines mCommentLines;
-    private TextView mCurrentTime;
+    private PlayerTouchBar mPlayerTouchBar;
+    protected WaveformCommentLines mCommentLines;
+    private PlayerTime mCurrentTimeDisplay;
     protected ImageButton mToggleComments;
 
     protected ScPlayer mPlayer;
-    private Track mPlayingTrack;
-    protected boolean mShowingComments;
-    private List<Comment> mCurrentComments, mCurrentTopComments;
-    private Comment mCurrentShowingComment;
+    protected Track mPlayingTrack;
+    protected boolean mShowingComments, mSuspendTimeDisplay;
+    protected List<Comment> mCurrentComments;
+    protected List<Comment> mCurrentTopComments;
+    protected Comment mCurrentShowingComment;
     public ImageLoader.BindResult waveformResult;
 
-    private Comment mAddComment, mLastAutoComment;
-    private CommentBubble mCommentBubble;
-    private Animation mBubbleAnimation;
-    protected Animation mShowCommentersAnimation;
-    protected Animation mHideCommentersAnimation;
+    protected CommentDisplay mCurrentCommentDisplay;
+
+    protected Comment mAddComment;
+    private Comment mLastAutoComment;
 
     private ArrayBlockingQueue<InputObject> mInputObjectPool;
     private TouchThread mTouchThread;
 
-    private int mWaveformErrorCount, mAvatarOffsetY, mCommentBarOffsetY, mDuration;
-    private boolean mShowBubble;
-    private boolean mShowBubbleForceAnimation;
-    protected boolean mShowingAvatars, mClearAnimationOnLayout;
+    private int mWaveformErrorCount, mDuration;
 
     private float mSeekPercent;
 
     private SharedPreferences mPreferences;
-    private final Handler mHandler = new Handler();
+    protected final Handler mHandler = new Handler();
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
     private static final int INPUT_QUEUE_SIZE = 20;
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_SEND_SEEK = 2;
-    private static final int UI_UPDATE_BUBBLE = 3;
-    private static final int UI_UPDATE_BUBBLE_NEW_COMMENT = 4;
-    private static final int UI_SHOW_CURRENT_COMMENT = 5;
-    private static final int UI_ADD_COMMENT = 6;
-    private static final int UI_TOGGLE_COMMENTS = 7;
+    private static final int UI_UPDATE_COMMENT_POSITION = 3;
+    private static final int UI_ADD_COMMENT = 4;
+    private static final int UI_TOGGLE_COMMENTS = 5;
+
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
+    private long mCurrentTime;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -133,10 +123,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mCurrentTime = (TextView) findViewById(R.id.currenttime);
+        mCurrentTimeDisplay = (PlayerTime) findViewById(R.id.currenttime);
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
-        findViewById(R.id.track_touch_bar).setOnTouchListener(this);
+        mPlayerTouchBar = (PlayerTouchBar) findViewById(R.id.track_touch_bar);
+        mPlayerTouchBar.setOnTouchListener(this);
 
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerAvatarBar.setOnTouchListener(this);
@@ -147,10 +138,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mOverlay.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
-        mCurrentTime.setVisibility(View.INVISIBLE);
+        mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
-                R.color.white));
+                R.color.playerControlBackground));
         mOverlay.setBackgroundColor(Color.TRANSPARENT);
         mOverlay.setColorFilter(lcf);
         mOverlay.setScaleType(ScaleType.FIT_XY);
@@ -159,16 +150,31 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         setStaticTransformationsEnabled(true);
         mkdirs(dirFile);
+        mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
+
     }
 
+    private void createCommentPanel(){
 
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        mCurrentTimeDisplay.setWaveHeight(mWaveformHolder.getHeight());
+        if (mCurrentComments != null && mDuration > 0){
+            for (Comment c : mCurrentComments){
+                c.calculateXPos(getWidth(), mDuration);
+            }
+        }
+    }
 
     public void onStop() {
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
     public void showConnectingLayout() {
-       mWaveformHolder.showConnectingLayout(true);
+        mWaveformHolder.showConnectingLayout(true);
         invalidate();
     }
 
@@ -177,21 +183,40 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         invalidate();
     }
 
+    public void setCommentMode(boolean commenting) {
+        if (commenting) {
+            mSuspendTimeDisplay = true;
+            mode = TOUCH_MODE_COMMENT_DRAG;
+            mPlayerTouchBar.setSeekPosition((int) ((((float) mCurrentTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
+            mCurrentTimeDisplay.setByPercent((((float) mCurrentTime) / mDuration), true);
+        } else {
+            mSuspendTimeDisplay = false;
+            mode = TOUCH_MODE_NONE;
+            mPlayerTouchBar.clearSeek();
+            setCurrentTime(mCurrentTime);
+        }
+    }
+
     public void setProgress(long pos) {
         if (mDuration == 0)
             return;
 
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
-        if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
+        if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             Comment last = lastCommentBeforeTimestamp(pos);
-            if (last != null){
-                if (mLastAutoComment != last && pos - last.timestamp < 2000){
+            if (last != null) {
+                if (mLastAutoComment != last && pos - last.timestamp < 2000) {
                     mLastAutoComment = last;
-                    if (mCurrentShowingComment == null && mPlayer.waveformVisible()){
-                        mCurrentShowingComment = last;
-                        showCurrentComment(true);
-                        mHandler.postDelayed(mAutoCloseBubble, 3000);
+                    autoCloseComment();
+                    cancelAutoCloseComment();
+                    if (mPlayer.waveformVisible()) {
+                        if (mCurrentShowingComment == null){
+                            mCurrentShowingComment = last;
+                            showCurrentComment(true);
+                            mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+                        }
+
                     }
                 }
             }
@@ -202,8 +227,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressBar.setSecondaryProgress(percent);
     }
 
-    public void setCurrentTime(CharSequence s) {
-        mCurrentTime.setText(s);
+    public void setCurrentTime(long time) {
+        mCurrentTime = time;
+        if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
+            mCurrentTimeDisplay.setCurrentTime(time, false);
+        }
     }
 
     public void updateTrack(Track track) {
@@ -213,14 +241,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
-        if (mPlayingTrack != track){
+        if (mPlayingTrack != track) {
             ImageLoader.get(mPlayer).unbind(mOverlay);
         }
 
         mPlayingTrack = track;
         mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+        mCurrentTimeDisplay.setDuration(mDuration);
 
-        if (TextUtils.isEmpty(track.waveform_url)){
+        if (TextUtils.isEmpty(track.waveform_url)) {
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform();
@@ -248,14 +277,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 });
 
 
-
         switch (waveformResult) {
-            case OK:      showWaveform(); break;
+            case OK:
+                showWaveform();
+                break;
             case LOADING:
             case ERROR:
                 mOverlay.setVisibility(View.INVISIBLE);
                 mProgressBar.setVisibility(View.INVISIBLE);
-                mCurrentTime.setVisibility(View.INVISIBLE);
+                mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -281,93 +311,114 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         return true; // indicate event was handled
     }
 
-    public void closeComment(){
+    protected void showCurrentComment() {
+        showCurrentComment(false);
+    }
+
+    protected void showCurrentComment(boolean waitForInteraction) {
+
+
+        if (mCurrentShowingComment != null) {
+            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
+            mCommentLines.setCurrentComment(mCurrentShowingComment);
+
+            CommentPanel commentPanel = new CommentPanel(mPlayer);
+            commentPanel.setControllers(mPlayer, this);
+            commentPanel.showComment(mCurrentShowingComment);
+            commentPanel.interacted = !waitForInteraction;
+            mCurrentCommentDisplay = commentPanel;
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                    LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+            lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
+
+            mWaveformFrame.addView(commentPanel, 0, lp);
+
+
+            AnimationSet set = new AnimationSet(true);
+            Animation animation = new AlphaAnimation(0.0f, 1.0f);
+            animation.setDuration(500);
+            set.addAnimation(animation);
+
+            animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f);
+            animation.setDuration(500);
+            set.addAnimation(animation);
+
+            commentPanel.startAnimation(set);
+        }
+    }
+
+    public void closeComment() {
         mCurrentShowingComment = null;
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
-        removeBubble();
+
+        if (mCurrentCommentDisplay != null) {
+            Animation animation = new AlphaAnimation(1.0f, 0.0f);
+            animation.setDuration(500);
+            mCurrentCommentDisplay.setAnimation(animation);
+            mWaveformFrame.removeView(mCurrentCommentDisplay);
+            mCurrentCommentDisplay = null;
+        }
     }
 
-    public void nextCommentInThread(){
-        if (mCurrentShowingComment.nextComment != null){
+    protected void autoCloseComment() {
+        if (mCurrentCommentDisplay != null && mCurrentShowingComment != null)
+            if (mCurrentShowingComment == mCurrentCommentDisplay.getComment() && !mCurrentCommentDisplay.interacted) {
+                closeComment();
+            }
+    }
+
+    protected void cancelAutoCloseComment() {
+        mHandler.removeCallbacks(mAutoCloseComment);
+    }
+
+    final Runnable mAutoCloseComment = new Runnable() {
+        public void run() {
+            autoCloseComment();
+        }
+    };
+
+    public void nextCommentInThread() {
+        if (mCurrentShowingComment.nextComment != null) {
             mCurrentShowingComment = mCurrentShowingComment.nextComment;
             showCurrentComment();
         }
     }
 
-    public void clearTrack(){
-        if (mPlayerAvatarBar != null){
-            //if (mShowingComments) mPlayerAvatarBar.setVisibility(View.INVISIBLE);
+    public void clearTrack() {
+        cancelAutoCloseComment();
+        closeComment();
+
+        if (mPlayerAvatarBar != null) {
+            if (mShowingComments) mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mPlayerAvatarBar.clearTrackData();
         }
-        if (mCommentLines != null){
+        if (mCommentLines != null) {
             if (mShowingComments) mCommentLines.setVisibility(View.INVISIBLE);
             mCommentLines.clearTrackData();
         }
 
-
         mCurrentComments = null;
         mCurrentTopComments = null;
-
-        mHandler.removeCallbacks(mAutoCloseBubble);
-        if (mCurrentShowingComment != null){
-            mCurrentShowingComment = null;
-        }
-
         mode = TOUCH_MODE_NONE;
-        removeBubble();
-
     }
-
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (mClearAnimationOnLayout){
-            clearAnimation();
-            mClearAnimationOnLayout = false;
-        }
-
-        super.onLayout(changed, l, t, r, b);
-        if (changed) {
-            int[] calc = new int[2];
-
-            mPlayer.getCommentHolder().getLocationInWindow(calc);
-            int topOffset = calc[1];
-
-            if (mCommentBubble == null) mCommentBubble = new CommentBubble(mPlayer, this);
-            mCommentBubble.parentWidth = getWidth();
-
-            if (mPlayerAvatarBar != null) {
-                mPlayerAvatarBar.getLocationInWindow(calc);
-                mAvatarOffsetY = calc[1] - topOffset;
-            }
-
-            if (mPlayerCommentBar != null) {
-                mPlayerCommentBar.getLocationInWindow(calc);
-                mCommentBarOffsetY = calc[1] - topOffset;
-            }
-        }
-
-
-
-    }
-
 
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
-        if (child == mWaveformHolder || child == mCurrentTime) {
-            t.setAlpha((float) 0.7);
+        if (child == mWaveformFrame) {
+            t.setAlpha((float) 0.95);
             return true;
         }
         return ret;
     }
 
 
-
-    private void onWaveformError(){
+    private void onWaveformError() {
         mWaveformErrorCount++;
-        if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES){
+        if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES) {
             updateTrack(mPlayingTrack);
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
@@ -377,9 +428,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
 
-    private void showWaveform(){
+    private void showWaveform() {
         mPlayer.onWaveformLoaded();
-        if (mOverlay.getVisibility() == View.INVISIBLE){
+        if (mOverlay.getVisibility() == View.INVISIBLE) {
             AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
             aa.setDuration(500);
 
@@ -389,113 +440,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mProgressBar.startAnimation(aa);
             mProgressBar.setVisibility(View.VISIBLE);
 
-            mCurrentTime.startAnimation(aa);
-            mCurrentTime.setVisibility(View.VISIBLE);
+            mCurrentTimeDisplay.startAnimation(aa);
+            mCurrentTimeDisplay.setVisibility(View.VISIBLE);
         }
     }
 
 
-    private long stampFromPosition(int x){
-        return (long) (Math.min(Math.max(.001, (((float)x)/getWidth())),1) * mPlayingTrack.duration);
-    }
-
-    private void showBubble(float offsetX){
-
-        if (mCommentBubble == null) {
-            return;
-        }
-
-        mCommentBubble.closing = false;
-
-        if (mCommentBubble.getParent() != mPlayer.getCommentHolder() || mShowBubbleForceAnimation){
-            if (mCommentBubble.getParent() != mPlayer.getCommentHolder()){
-                    mPlayer.getCommentHolder().addView(mCommentBubble);
-                    offsetX = mCommentBubble.update();
-            }
-
-            if (mBubbleAnimation != null && Build.VERSION.SDK_INT > 7)
-                mBubbleAnimation.cancel();
-
-            mBubbleAnimation = new ScaleAnimation((float).6, (float)1.0, (float).6, (float)1.0, Animation.RELATIVE_TO_SELF, offsetX,Animation.RELATIVE_TO_SELF, (float) 1.0);
-            mBubbleAnimation.setFillAfter(true);
-            mBubbleAnimation.setDuration(100);
-            mBubbleAnimation.setAnimationListener(new AnimationListener(){
-
-                @Override
-                public void onAnimationEnd(Animation arg0) {
-                    mBubbleAnimation = null;
-                    if (mode == TOUCH_MODE_NONE && mCurrentShowingComment == null)
-                        removeBubble();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation arg0) { }
-
-                @Override
-                public void onAnimationStart(Animation arg0) {
-
-                }});
-            mCommentBubble.startAnimation(mBubbleAnimation);
-        }
-    }
-
-    private void removeBubble(){
-        if (mCommentBubble != null && mCommentBubble.getParent() != null){
-            ((ViewGroup) mCommentBubble.getParent()).removeView(mCommentBubble);
-        }
-    }
-
-
-    private void showCurrentComment(){
-        showCurrentComment(false);
-    }
-
-    private void showCurrentComment(boolean waitForInteraction){
-        if (mCommentBubble == null) return;
-
-        if (mCurrentShowingComment != null){
-
-            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
-            mCommentLines.setCurrentComment(mCurrentShowingComment);
-
-            mCommentBubble.comment_mode = CommentBubble.MODE_SHOW_COMMENT;
-            mCommentBubble.show_comment = mCurrentShowingComment;
-            mCommentBubble.interacted = !waitForInteraction;
-            mCommentBubble.xPos = mCurrentShowingComment.xPos;
-            mCommentBubble.yPos = mAvatarOffsetY;
-
-            mShowBubbleForceAnimation = false;
-            showBubble(mCommentBubble.update());
-
-        }
-    }
-
-    final Runnable mAutoCloseBubble = new Runnable() {
-        public void run() {
-            if (mCommentBubble != null && mCurrentShowingComment != null)
-            if (mCurrentShowingComment == mCommentBubble.mComment && !mCommentBubble.interacted){
-                closeComment();
-            }
-        }
-    };
-
-    private boolean isHitting(Comment c, float xPos){
-        return (c.xPos < xPos && c.xPos + mPlayerAvatarBar.getAvatarWidth() > xPos);
-    }
-
-    private Comment isHitting(float xPos, Comment skipComment){
-       for (int i = mCurrentTopComments.size()-1; i >= 0; i-- ){
-          if (mCurrentTopComments.get(i).xPos > 0 && isHitting(mCurrentTopComments.get(i),xPos) && (skipComment == null || skipComment.xPos < mCurrentTopComments.get(i).xPos)){
-                  return mCurrentTopComments.get(i);
-          } else if (mCurrentTopComments.get(i).xPos > xPos)
-              break;
-       }
-
-      return null;
-    }
-
-
-    private Comment lastCommentBeforeTimestamp(long timestamp){
+    private Comment lastCommentBeforeTimestamp(long timestamp) {
         for (Comment comment : mCurrentTopComments)
             if (comment.timestamp < timestamp)
                 return comment;
@@ -507,240 +458,131 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void setComments(List<Comment> comments, boolean animateIn) {
         mCurrentComments = comments;
 
-        if (!mShowingComments || mCurrentComments == null){
-            if (mShowingAvatars) hideCommenters(!animateIn);
+        if (!mShowingComments || mCurrentComments == null)
             return;
-        }
-
-        if (!mShowingAvatars) {
-            showCommenters(!animateIn);
-        }
 
         mCurrentTopComments = new ArrayList<Comment>();
 
         Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);
 
-        for (int i = 0; i < mCurrentComments.size(); i++){
-            if (mCurrentComments.get(i).timestamp > 0 && (i == mCurrentComments.size()-1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i+1).timestamp)){
+        for (int i = 0; i < mCurrentComments.size(); i++) {
+            if (mCurrentComments.get(i).timestamp > 0 && (i == mCurrentComments.size() - 1 || mCurrentComments.get(i).timestamp != mCurrentComments.get(i + 1).timestamp)) {
                 mCurrentComments.get(i).topLevelComment = true;
                 mCurrentTopComments.add(mCurrentComments.get(i));
-            }else if (mCurrentComments.get(i).timestamp > 0)
-                mCurrentComments.get(i+1).nextComment = mCurrentComments.get(i);
+            } else if (mCurrentComments.get(i).timestamp > 0)
+                mCurrentComments.get(i + 1).nextComment = mCurrentComments.get(i);
 
-            if (getWidth() > 0 &&  mDuration > 0 && mCurrentComments.get(i).xPos == -1)
+            if (getWidth() == 0 && mDuration <= 0) {
+                mCurrentComments.get(i).xPos = -1;
+            } else if (mCurrentComments.get(i).xPos == -1) {
                 mCurrentComments.get(i).calculateXPos(getWidth(), mDuration);
+            }
+
+
         }
 
-        if (mPlayerAvatarBar != null){
+        if (mPlayerAvatarBar != null) {
             mPlayerAvatarBar.setTrackData(mDuration, comments);
             mPlayerAvatarBar.invalidate();
         }
 
-        if (mCommentLines != null){
-            mCommentLines.setTrackData(mDuration,comments);
+        if (mCommentLines != null) {
+            mCommentLines.setTrackData(mDuration, comments);
             mCommentLines.invalidate();
         }
 
-        mCommentLines.setVisibility(View.VISIBLE);
-    }
+        if (mPlayerAvatarBar != null && mPlayerAvatarBar.getVisibility() == View.INVISIBLE) {
+            if (animateIn) {
+                AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+                aa.setStartOffset(500);
+                aa.setDuration(500);
 
-    protected void hideCommenters(boolean instant){
-        hideCommenters(this,instant);
-    }
+                mPlayerAvatarBar.startAnimation(aa);
+                mCommentLines.startAnimation(aa);
+            }
 
-    protected void hideCommenters(View animateView, boolean instant){
-        mShowingAvatars = false;
-        final float fromY = animateView.getAnimation() == null ? 0 : CloudUtils.getCurrentTransformY(animateView);
-
-        mShowCommentersAnimation = null;
-        animateView.clearAnimation();
-
-        mHideCommentersAnimation = createCommentersAnimation(fromY, 0, instant);
-        animateView.startAnimation(mHideCommentersAnimation);
-    }
-
-    private Animation createCommentersAnimation(float fromY, float toY, boolean instant){
-        Animation a = new TranslateAnimation(0, 0, fromY,toY);
-        a.setDuration(instant ? 0 : 500);
-        a.setFillEnabled(true);
-        a.setFillBefore(false);
-        a.setFillAfter(true);
-        a.setInterpolator(new AccelerateDecelerateInterpolator());
-        a.setAnimationListener(this);
-        return a;
-    }
-
-    protected void showCommenters(boolean instant){
-       showCommenters(this,instant, (int) -getResources().getDimension(R.dimen.player_avatar_bar_height));
-    }
-
-     protected void showCommenters(View animateView, boolean instant, int toY){
-        mShowingAvatars = true;
-        final float fromY = animateView.getAnimation() == null ? 0 : CloudUtils.getCurrentTransformY(animateView);
-        mHideCommentersAnimation = null;
-        animateView.clearAnimation();
-
-         mShowCommentersAnimation = createCommentersAnimation(fromY,toY, instant);
-         animateView.startAnimation(mShowCommentersAnimation);
-    }
-
-
-    @Override
-    public void onAnimationStart(Animation animation) {
-
-    }
-
-    @Override
-    public void onAnimationEnd(Animation animation) {
-        if (animation == mHideCommentersAnimation) {
-            ((LayoutParams) getLayoutParams()).bottomMargin = (int) getResources().getDimension(R.dimen.player_portrait_waveform_margin_bottom);
-            mClearAnimationOnLayout = true;
-            requestLayout();
-        } else if (animation == mShowCommentersAnimation) {
-            ((LayoutParams) getLayoutParams()).bottomMargin = (int) getResources().getDimension(R.dimen.player_portrait_waveform_margin_bottom_comments_visible);
-            mClearAnimationOnLayout = true;
-            requestLayout();
+            mPlayerAvatarBar.setVisibility(View.VISIBLE);
+            mCommentLines.setVisibility(View.VISIBLE);
         }
     }
 
-    @Override
-    public void onAnimationRepeat(Animation animation) {
-    }
 
-
-    protected void toggleComments(){
+    protected void toggleComments() {
         mShowingComments = !mShowingComments;
         mPreferences.edit().putBoolean("playerShowingCOmments", mShowingComments).commit();
-        if (mShowingComments){
-            mToggleComments.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.ic_hide_comments_states));
+        if (mShowingComments) {
             mCommentLines.setVisibility(View.INVISIBLE);
-            setComments(mCurrentComments,true);
-            ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar));
+            setComments(mCurrentComments, true);
         } else {
-            mToggleComments.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.ic_show_comments_states));
             mCommentLines.setVisibility(View.GONE);
-            ((TextView) mPlayerCommentBar.findViewById(R.id.txt_instructions)).setText(getResources().getString(R.string.player_touch_bar_disabled));
         }
 
     }
 
-    private void processInputObject(InputObject input){
+    private void processInputObject(InputObject input) {
         switch (input.action) {
             case InputObject.ACTION_TOUCH_DOWN:
-                if (input.view == mPlayerAvatarBar) {
-                    if (mCommentBubble == null) return;
-                    if (mCurrentComments != null) {
-                        mode = TOUCH_MODE_AVATAR_DRAG;
-                        mCommentBubble.comment_mode = CommentBubble.MODE_SHOW_COMMENT;
-                        calcAvatarHit(input.x, true);
-                    }
-                } else if (input.view == mPlayerCommentBar){
-                    if (!mShowingComments){
-                        queueUnique(UI_TOGGLE_COMMENTS);
-                        return;
-                    }
-
-                    if (mCommentBubble == null) return;
-
-                    mode = TOUCH_MODE_COMMENT_DRAG;
-                    mCurrentShowingComment = null;
-                    mCommentBubble.new_comment_track = mPlayingTrack;
-                    mCommentBubble.new_comment_timestamp = stampFromPosition(input.x);
-                    mCommentBubble.comment_mode = CommentBubble.MODE_NEW_COMMENT;
-                    mCommentBubble.xPos = input.x;
-                    mCommentBubble.yPos = mCommentBarOffsetY;
-
-                    mShowBubble = true;
-                    mShowBubbleForceAnimation = true;
-
-                    queueUnique(UI_UPDATE_BUBBLE);
-
-                } else {
-                    mode = TOUCH_MODE_SEEK_DRAG;
-                    if (mPlayer != null && mPlayer.isSeekable()) {
-                        mLastAutoComment = null; //reset auto comment in case they seek backward
-                        mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-                        queueUnique(UI_UPDATE_SEEK);
-                    }
-
-                }
+                processDownInput(input);
                 break;
 
             case InputObject.ACTION_TOUCH_MOVE:
-                switch (mode){
-                    case TOUCH_MODE_SEEK_DRAG :
-                        if (mPlayer != null && mPlayer.isSeekable()) {
-                            mLastAutoComment = null; //reset auto comment in case they seek backward
-                            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-                            queueUnique(UI_UPDATE_SEEK);
-                        }
-                        break;
-                    case TOUCH_MODE_COMMENT_DRAG :
-                        mCommentBubble.new_comment_timestamp = stampFromPosition(input.x);
-                        mCommentBubble.xPos = input.x;
-                        queueUnique(UI_UPDATE_BUBBLE_NEW_COMMENT);
-                        break;
-
-                    case TOUCH_MODE_AVATAR_DRAG :
-                        calcAvatarHit(input.x, false);
-                        break;
-                }
+                processMoveInput(input);
                 break;
             case InputObject.ACTION_TOUCH_UP:
-                switch (mode){
-                    case TOUCH_MODE_SEEK_DRAG :
-                        queueUnique(UI_SEND_SEEK);
-                        break;
-                    case TOUCH_MODE_COMMENT_DRAG :
-                        if (mBubbleAnimation == null){
-                            if (Math.abs(mPlayerCommentBar.getTop() - input.y) < 200){
-                                mAddComment = CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(),
-                                        mPlayingTrack.id, stampFromPosition(input.x), "", 0);
-                                queueUnique(UI_ADD_COMMENT);
-                            }
-                        }
-                        mShowBubble = false;
-                        queueUnique(UI_UPDATE_BUBBLE);
-                        break;
-                }
-                    mode = TOUCH_MODE_NONE;
+                processUpInput(input);
                 break;
         }
     }
 
-    private void queueUnique(int what){
-        if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
-    }
-
-    private void calcAvatarHit(float xPos, boolean down){
-        Comment skipComment = null;
-        if (mCurrentShowingComment != null){
-            if (isHitting(mCurrentShowingComment,xPos)){
-                if (down)
-                    skipComment = mCurrentShowingComment;
-                else
-                    return;
-            } else {
-                if (!mCommentBubble.closing){
-                    mCommentBubble.interacted = false;
-                    mHandler.postDelayed(mAutoCloseBubble, 500);
-                }
+    protected void processDownInput(InputObject input) {
+        if (mode == TOUCH_MODE_COMMENT_DRAG) {
+            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+            queueUnique(UI_UPDATE_COMMENT_POSITION);
+        } else if (input.view == mPlayerTouchBar) {
+            mode = TOUCH_MODE_SEEK_DRAG;
+            if (mPlayer != null && mPlayer.isSeekable()) {
+                mLastAutoComment = null; //reset auto comment in case they seek backward
+                mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                queueUnique(UI_UPDATE_SEEK);
             }
         }
-        Comment c = isHitting(xPos, skipComment);
-        if (c != null){
-            mCurrentShowingComment = c;
-            mCommentBubble.show_comment = mCurrentShowingComment;
-            mShowBubble = true;
-            queueUnique(UI_SHOW_CURRENT_COMMENT);
-        } else if (skipComment == null){
-            mCommentBubble.show_comment = null;
-            mShowBubble = false;
-            queueUnique(UI_UPDATE_BUBBLE);
+    }
+
+    protected void processMoveInput(InputObject input) {
+        switch (mode) {
+            case TOUCH_MODE_COMMENT_DRAG:
+                mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                queueUnique(UI_UPDATE_COMMENT_POSITION);
+                break;
+            case TOUCH_MODE_SEEK_DRAG:
+                if (mPlayer != null && mPlayer.isSeekable()) {
+                    mLastAutoComment = null; //reset auto comment in case they seek backward
+                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    queueUnique(UI_UPDATE_SEEK);
+                }
+                break;
         }
     }
 
+    protected void processUpInput(InputObject input) {
+        switch (mode) {
+            case TOUCH_MODE_COMMENT_DRAG:
+                if (Math.abs(mPlayerTouchBar.getTop() - input.y) < 200) {
+                    mAddComment = CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(),
+                            mPlayingTrack.id, stampFromPosition(input.x), "", 0);
+                    queueUnique(UI_ADD_COMMENT);
+                }
+                break;
+            case TOUCH_MODE_SEEK_DRAG:
+                queueUnique(UI_SEND_SEEK);
+                break;
+        }
+        mode = TOUCH_MODE_NONE;
+    }
 
+    protected void queueUnique(int what) {
+        if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
+    }
 
     Handler mTouchHandler = new Handler() {
         @Override
@@ -748,46 +590,52 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     setProgress(mPlayer.setSeekMarker(mSeekPercent));
+                    mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mWaveformHolder.invalidate();
                     break;
 
                 case UI_SEND_SEEK:
                     if (mPlayer != null)
                         mPlayer.sendSeek(mSeekPercent);
+                    mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
+                    mPlayerTouchBar.clearSeek();
                     break;
 
-                case UI_UPDATE_BUBBLE:
-                    if (mShowBubble)
-                        showBubble(mCommentBubble.update());
-                    else
-                        removeBubble();
-                    break;
-
-                case UI_UPDATE_BUBBLE_NEW_COMMENT:
-                    mCommentBubble.updatePosition();
-                    mCommentBubble.updateNewCommentTime();
-                    break;
-                case UI_SHOW_CURRENT_COMMENT:
-                    showCurrentComment();
+                case UI_UPDATE_COMMENT_POSITION:
+                    mCurrentTimeDisplay.setByPercent(mSeekPercent, true);
+                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight());
                     break;
 
                 case UI_ADD_COMMENT:
                     mPlayer.addNewComment(mAddComment, mPlayer.addCommentListener);
+                    mPlayer.toggleCommentMode();
                     break;
-
-                case UI_TOGGLE_COMMENTS:
-                    toggleComments();
-                    break;
-
             }
         }
     };
 
     public void onDestroy() {
+        if (mCurrentComments != null) {
+            for (Comment c : mCurrentComments) {
+                c.xPos = -1;
+            }
+        }
+
         if (mTouchThread != null) {
             mTouchThread.stopped = true;
             mTouchThread.interrupt();
         }
+    }
+
+    protected long stampFromPosition(int x) {
+        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mPlayingTrack.duration);
+    }
+
+    public void showComment(Comment c) {
+        if (mCurrentCommentDisplay != null && mCurrentShowingComment != null) closeComment();
+        mCurrentShowingComment = c;
+        showCurrentComment(true);
+        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 
     private class TouchThread extends Thread {
@@ -795,11 +643,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         private boolean stopped = false;
 
         public synchronized void feedInput(InputObject input) {
-                try {
-                    inputQueue.put(input);
-                } catch (InterruptedException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
+            try {
+                inputQueue.put(input);
+            } catch (InterruptedException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
         }
 
         @Override
@@ -818,4 +666,4 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }
         }
     }
-  }
+}

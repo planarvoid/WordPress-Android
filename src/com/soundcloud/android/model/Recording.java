@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -210,8 +211,9 @@ public class Recording extends ModelBase implements PageTrackable {
                 extension);
     }
 
-    public String sharingNote() {
+    public String sharingNote(Resources res) {
         return CloudUtils.generateRecordingSharingNote(
+                res,
                 what_text,
                 where_text,
                 timestamp);
@@ -225,7 +227,7 @@ public class Recording extends ModelBase implements PageTrackable {
                 .build();
     }
 
-    public String getStatus(android.content.res.Resources resources) {
+    public String getStatus(Resources resources) {
         if (upload_status == 1) {
             return resources.getString(R.string.cloud_upload_currently_uploading);
         } else {
@@ -279,13 +281,8 @@ public class Recording extends ModelBase implements PageTrackable {
                 '}';
     }
 
-
-    public Upload toUpload() {
-        return new Upload(this);
-    }
-
     @Override
     public String pageTrack(String... params) {
-         return is_private ? Consts.TrackingEvents.SHARE_PRIVATE : Consts.TrackingEvents.SHARE_PUBLIC;
+         return is_private ? Consts.Tracking.SHARE_PRIVATE : Consts.Tracking.SHARE_PUBLIC;
     }
 }

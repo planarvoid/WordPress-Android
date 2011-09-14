@@ -54,7 +54,7 @@ public class SignUp extends Activity {
     protected void onResume() {
         super.onResume();
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        app.pageTrack(Consts.TrackingEvents.SIGNUP);
+        app.trackPage(Consts.Tracking.SIGNUP);
     }
 
     protected void build() {
@@ -124,6 +124,8 @@ public class SignUp extends Activity {
 
             @Override
             protected void onPostExecute(final User user) {
+                app.trackEvent(Consts.Tracking.Categories.AUTH, "signup");
+
                 if (!isFinishing()) {
                     try {
                         progress.dismiss();
@@ -141,7 +143,7 @@ public class SignUp extends Activity {
                     new GetTokensTask(mApi) {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
-                                app.pageTrack(Consts.TrackingEvents.LOGIN);
+                                app.trackPage(Consts.Tracking.LOGIN);
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
                                         .putExtra("signed_up", signedUp ? "native" : null)
                                         .putExtra("user", user)

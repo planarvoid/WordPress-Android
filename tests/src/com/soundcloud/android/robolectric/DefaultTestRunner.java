@@ -14,7 +14,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 
 public class DefaultTestRunner extends RobolectricTestRunner {
-    public static SoundCloudApplication application;
+    public static TestApplication application;
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
         super(testClass, new RobolectricConfig(new File(".")) {
@@ -26,7 +26,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     @Override
     public void beforeTest(Method method) {
-        application = (SoundCloudApplication) Robolectric.application;
+        application = (TestApplication) Robolectric.application;
     }
 
     @Override

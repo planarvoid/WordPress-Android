@@ -123,8 +123,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         setSelector(R.drawable.list_selector_background);
 
         mRefreshVerticalTolerance = (int) (res.getDisplayMetrics().density *
-            (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ?
-            VERTICAL_TOLERANCE_LANDSCAPE : VERTICAL_TOLERANCE_PORTRAIT));
+                (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ?
+                        VERTICAL_TOLERANCE_LANDSCAPE : VERTICAL_TOLERANCE_PORTRAIT));
 
         if (Build.VERSION.SDK_INT >= 9) {
             setOverScrollMode(OVER_SCROLL_NEVER);
@@ -198,6 +198,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
         if (refreshEnabled) setOnRefreshListener(adapter);
+        setSelection(1);
     }
 
     @Override
@@ -226,7 +227,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (getWrapper() != null) {
             getWrapper().notifyDataSetChanged();
         }
-
         if (mOnRefreshListener != null) {
             if (mOnRefreshListener.isRefreshing()) {
                 prepareForRefresh();
@@ -235,6 +235,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 }
             } else if (mOnRefreshListener.needsRefresh()) {
                 onRefresh();
+                setSelection(0);
             } else {
                 checkHeaderVisibility();
             }
@@ -242,13 +243,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public void onConnected(boolean isForeground) {
-         if (mOnRefreshListener != null) {
-             mOnRefreshListener.onConnected();
-             if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh();
-         }
+        if (mOnRefreshListener != null) {
+            mOnRefreshListener.onConnected();
+            if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh();
+        }
     }
-
-
 
     @Override
     public void setAdapter(ListAdapter adapter) {
@@ -276,6 +275,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     /**
      * Get the data adapter. Could possibly be wrapped twice
+     *
      * @return
      */
     public LazyBaseAdapter getBaseAdapter() {
@@ -293,12 +293,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     /**
      * Get the endless adapter. Could be wrapped once by a Header/Footer Listview
+     *
      * @return
      */
     public LazyEndlessAdapter getWrapper() {
         final ListAdapter adapter = super.getAdapter();
         if (adapter instanceof HeaderViewListAdapter &&
-               ((HeaderViewListAdapter) adapter).getWrappedAdapter() instanceof LazyEndlessAdapter)  {
+                ((HeaderViewListAdapter) adapter).getWrappedAdapter() instanceof LazyEndlessAdapter) {
             return (LazyEndlessAdapter) ((HeaderViewListAdapter) adapter).getWrappedAdapter();
         } else if (adapter instanceof LazyEndlessAdapter) {
             return (LazyEndlessAdapter) adapter;
@@ -337,7 +338,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         resetHeader();
         if (mRefreshView.getBottom() > 0) {
             invalidateViews();
-            if (Build.VERSION.SDK_INT < 8){
+            if (Build.VERSION.SDK_INT < 8) {
                 setSelection(1);
             } else {
                 mRefreshState = DONE_REFRESHING;
@@ -404,9 +405,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     };
 
     private final AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-         @Override
+        @Override
         public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
-            if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount() || !(list instanceof ScListView)){
+            if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount() || !(list instanceof ScListView)) {
                 return false; // bad list item clicked (possibly loading item)
             }
 
@@ -440,8 +441,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         super.onAttachedToWindow();
         checkHeaderVisibility();
     }
-
-
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -502,7 +501,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
         if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
             final Handler handler = mScrollHandler;
-            final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS,mActivity);
+            final Message message = handler.obtainMessage(MESSAGE_UPDATE_LIST_ICONS, mActivity);
             handler.removeMessages(MESSAGE_UPDATE_LIST_ICONS);
             handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_LIST_ICONS);
 
@@ -513,7 +512,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mCurrentScrollState = scrollState;
     }
 
-     @Override
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int y = (int) event.getY();
         switch (event.getAction()) {
@@ -572,7 +571,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         try {
             super.layoutChildren();
         } catch (IllegalStateException e) {
-            Log.e(TAG, "ise: getCount()="+getAdapter().getCount()+",adapter="+getWrapper());
+            Log.e(TAG, "ise: getCount()=" + getAdapter().getCount() + ",adapter=" + getWrapper());
             throw e;
         }
 
@@ -587,39 +586,34 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     setSelection(1);
                     return;
                 }
-            } else if (mFooterView.getLayoutParams().height != 0){
+            } else if (mFooterView.getLayoutParams().height != 0) {
                 mFooterView.getLayoutParams().height = 0;
             }
 
             if (mRefreshState == DONE_REFRESHING) {
                 post(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         scrollPastHeader();
                     }
                 });
                 resetHeader();
-            } else if (!mAutoScrolling){
+            } else if (!mAutoScrolling) {
                 setSelection(1);
             }
-
-
-
-        } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0){
+        } else if (getLastVisiblePosition() < getWrapper().getCount() && mFooterView.getLayoutParams().height != 0) {
             mFooterView.getLayoutParams().height = 0;
         }
     }
 
-
-
-
-     @Override
+    @Override
     protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
                                    int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
         return false; // no traditional overscrolling
     }
 
-    private void checkHeaderVisibility() {
-        if (getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH && mSelectionRunnable == null) {
+    public void checkHeaderVisibility() {
+        if (getWrapper() != null && getWrapper().isAllowingLoading() && getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH && mSelectionRunnable == null) {
             post(new Runnable() {
                 @Override
                 public void run() {
@@ -629,14 +623,14 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         }
     }
 
-
     private void scrollPastHeader() {
         if (getChildCount() <= 1) return;
-        if (Build.VERSION.SDK_INT >= 8){
+        if (Build.VERSION.SDK_INT >= 8) {
             smoothScrollBy(getChildAt(1).getTop() + 1, HEADER_HIDE_DURATION);
             mAutoScrolling = true;
             postDelayed(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     mAutoScrolling = false;
                     checkHeaderVisibility();
                 }
@@ -647,8 +641,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     private void resetHeaderPadding() {
-        mRefreshView.setPadding(mRefreshView.getPaddingLeft(),mRefreshOriginalTopPadding,
-                mRefreshView.getPaddingRight(),mRefreshView.getPaddingBottom());
+        mRefreshView.setPadding(mRefreshView.getPaddingLeft(), mRefreshOriginalTopPadding,
+                mRefreshView.getPaddingRight(), mRefreshView.getPaddingBottom());
     }
 
     private void resetHeader() {
@@ -683,8 +677,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         child.measure(childWidthSpec, childHeightSpec);
     }
 
-
-
     private void configureLastUpdated() {
         // can trigger a weird layout loop if done in a different state, may need to be revisited
         if (mRefreshState == TAP_TO_REFRESH && mLastUpdated != 0) {
@@ -703,7 +695,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 onRefresh();
             }
         }
-
     }
 
     private class FingerTracker implements View.OnTouchListener {
@@ -717,7 +708,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             return false;
         }
     }
-
 
     private class ScrollHandler extends Handler {
         @Override
@@ -733,18 +723,25 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     public interface OnRefreshListener {
         void onRefresh();
+
         void onConnected();
+
         boolean needsRefresh();
+
         boolean isRefreshing();
     }
 
-     public interface LazyListListener {
+    public interface LazyListListener {
         void onUserClick(List<Parcelable> users, int position);
-        void onRecordingClick(Recording recording);
-        void onTrackClick(List<Parcelable> tracks, int position);
-        void onEventClick(List<Parcelable> events, int position);
-        void onFling();
-        void onFlingDone();
-     }
 
+        void onRecordingClick(Recording recording);
+
+        void onTrackClick(List<Parcelable> tracks, int position);
+
+        void onEventClick(List<Parcelable> events, int position);
+
+        void onFling();
+
+        void onFlingDone();
+    }
 }

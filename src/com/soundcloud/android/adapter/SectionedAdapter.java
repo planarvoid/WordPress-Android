@@ -28,6 +28,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         public final List<Parcelable> data;
         public final Request request;
         public String nextHref;
+        public String currentEtag;
 
         public Section(String label, Class<?> model, List<Parcelable> data, Request request) {
             this.label = label;
@@ -46,6 +47,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
             data.clear();
             nextHref = null;
         }
+
     }
 
     public SectionedAdapter(ScActivity context) {

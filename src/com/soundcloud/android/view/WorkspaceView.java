@@ -16,9 +16,6 @@
 
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.MotionEventUtils;
-import com.soundcloud.android.utils.ReflectionUtils;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -27,13 +24,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.view.*;
 import android.widget.Scroller;
+import com.soundcloud.android.task.LoadSuggestedUsersTask;
+import com.soundcloud.android.utils.MotionEventUtils;
+import com.soundcloud.android.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 
@@ -56,8 +51,7 @@ public class WorkspaceView extends ViewGroup {
      * The user needs to drag at least this much for it to be considered a fling gesture. This
      * reduces the chance of a random twitch sending the user to the next screen.
      */
-    // TODO: refactor
-    private static final int MIN_LENGTH_FOR_FLING = 100;
+    private int mMinLengthForAFling = 100;
 
     private boolean mFirstLayout = true;
     private boolean mHasLaidOut = false;
@@ -113,10 +107,14 @@ public class WorkspaceView extends ViewGroup {
     private boolean mIgnoreChildFocusRequests;
 
     private boolean mIsVerbose = false;
+    private float mLastScreenFraction;
+    private int mLastLow;
+    private int mLastHigh;
 
     public interface OnScreenChangeListener {
         void onScreenChanged(View newScreen, int newScreenIndex);
         void onScreenChanging(View newScreen, int newScreenIndex);
+        void onNextScreenVisible(View newScreen, int newScreenIndex);
     }
 
     public interface OnScrollListener {
@@ -141,7 +139,7 @@ public class WorkspaceView extends ViewGroup {
      */
     public void initWorkspace(int initialScreen) {
         mScroller = new Scroller(getContext());
-        mCurrentScreen = initialScreen;
+        mLastLow = mLastHigh = mCurrentScreen = initialScreen;
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
@@ -149,6 +147,8 @@ public class WorkspaceView extends ViewGroup {
 
         mPagingTouchSlop = ReflectionUtils.callWithDefault(configuration,
                 "getScaledPagingTouchSlop", mTouchSlop * 2);
+
+        mMinLengthForAFling -= mTouchSlop;
     }
 
     /**
@@ -210,6 +210,8 @@ public class WorkspaceView extends ViewGroup {
         }
     }
 
+
+
     /**
      * Registers the specified listener on each screen contained in this workspace.
      *
@@ -226,6 +228,26 @@ public class WorkspaceView extends ViewGroup {
 
     @Override
     public void computeScroll() {
+        // see if we are looking at a new screen, if so notify that it is now visible
+        if (mOnScreenChangeListener != null) {
+            final float screenFraction = getCurrentScreenFraction();
+            if (screenFraction != mLastScreenFraction) {
+                mLastScreenFraction = screenFraction;
+
+                final int low = (int) screenFraction;
+                final int high = (int) Math.ceil(screenFraction);
+                if (low < mLastLow || high > mLastHigh){
+                    if (low < mLastLow) {
+                        mOnScreenChangeListener.onNextScreenVisible(getScreenAt(low), low);
+                    } else {
+                        mOnScreenChangeListener.onNextScreenVisible(getScreenAt(high), high);
+                    }
+                    mLastLow = low;
+                    mLastHigh = high;
+                }
+            }
+        }
+
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             if (mOnScrollListener != null) {
@@ -612,7 +634,8 @@ public class WorkspaceView extends ViewGroup {
                     final View lastChild = getChildAt(getChildCount() - 1);
                     final int maxScrollX = lastChild.getRight() - getWidth();
                     scrollTo(Math.max(0, Math.min(maxScrollX,
-                            (int)(mDownScrollX + mDownMotionX - x
+                            (int)(mDownScrollX + mDownMotionX -
+                                    (mDownMotionX > x ? x + mPagingTouchSlop : x - mPagingTouchSlop)
                             ))), 0);
                     if (mOnScrollListener != null) {
                         mOnScrollListener.onScroll(getCurrentScreenFraction());
@@ -667,7 +690,7 @@ public class WorkspaceView extends ViewGroup {
                     velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                     //TODO(minsdk8): int velocityX = (int) MotionEventUtils.getXVelocity(velocityTracker, activePointerId);
                     int velocityX = (int) velocityTracker.getXVelocity();
-                    boolean isFling = Math.abs(mDownMotionX - x) > MIN_LENGTH_FOR_FLING;
+                    boolean isFling = Math.abs(mDownMotionX - x) > mMinLengthForAFling;
 
                     final float scrolledPos = getCurrentScreenFraction();
                     final int whichScreen = Math.round(scrolledPos);

@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -50,21 +51,23 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=a42a4305", formKey="")
+@ReportsCrashes(formUri = "https://bugsense.appspot.com/api/acra?api_key=4d60f01a", formKey="", checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
+    public static final boolean REPORT_PLAYBACK_ERRORS = true;
+    public static final boolean REPORT_PLAYBACK_ERRORS_BUGSENSE = false;
     public static final boolean API_PRODUCTION = true;
-    public static boolean DEV_MODE, BETA_MODE;
 
+    public static boolean DEV_MODE, BETA_MODE;
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
     private List<Parcelable> mPlaylistCache;
     private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
     private GoogleAnalyticsTracker mTracker;
-    private User mLoggedInUser;
 
+    private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
     public boolean playerWaitForArtwork;
 
@@ -77,11 +80,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
+
+                mTracker = GoogleAnalyticsTracker.getInstance();
+                mTracker.startNewSession(
+                        getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
+                        120 /* seconds */, this);
             }
-            mTracker = GoogleAnalyticsTracker.getInstance();
-            mTracker.start(
-                    getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
-                    120 /* seconds */, this);
         }
 
         createImageLoaders();
@@ -122,11 +126,19 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
+
+         new FileCache.TrimCacheTask() {
+            {
+                this.maxCacheSize = Consts.MAX_IMAGE_CACHE;
+            }
+        }.execute(FileCache.getCacheDir(SoundCloudApplication.this));
     }
 
     public User getLoggedInUser() {
-        if (mLoggedInUser == null && getCurrentUserId() != -1) {
-            mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+        if (mLoggedInUser == null) {
+            if (getCurrentUserId() != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            }
             if (mLoggedInUser == null) mLoggedInUser = new User(this);
         }
         return mLoggedInUser;
@@ -252,8 +264,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return created;
     }
 
-    public void useAccount(Account account) {
-        mCloudApi.setToken(getToken(account));
+    public Token useAccount(Account account) {
+        Token token = getToken(account);
+        mCloudApi.setToken(token);
+        return token;
     }
 
     public String getAccountData(String key) {
@@ -268,7 +282,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public long getAccountDataLong(String key) {
         String data = getAccountData(key);
-        return data == null ? 0 : Long.parseLong(data);
+        return data == null ? -1 : Long.parseLong(data);
     }
 
     public boolean getAccountDataBoolean(String key) {
@@ -276,7 +290,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return data != null && Boolean.parseBoolean(data);
     }
 
-    public long getCurrentUserId(){
+    public long getCurrentUserId()  {
         return getAccountDataLong(User.DataKeys.USER_ID);
     }
 
@@ -298,7 +312,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void pageTrack(String path, Object... customVars) {
+    public void trackPage(String path, Object... customVars) {
         if (mTracker != null && !TextUtils.isEmpty(path)) {
             try {
                 if (customVars.length > 0 &&
@@ -317,6 +331,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);
             }
+        }
+    }
+
+    public void trackEvent(String category, String action) {
+        trackEvent(category, action, null, 0);
+    }
+
+    public void trackEvent(String category, String action, String label, int value) {
+        if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
+            mTracker.trackEvent(category, action, label, value);
         }
     }
 
@@ -505,9 +529,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static Thread handleSilentException(String msg, Exception e) {
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);
-           ErrorReporter.getInstance().putCustomData("message", msg);
+           ACRA.getErrorReporter().putCustomData("message", msg);
         }
-        return ErrorReporter.getInstance().handleSilentException(e);
+        return ACRA.getErrorReporter().handleSilentException(e);
     }
 
 

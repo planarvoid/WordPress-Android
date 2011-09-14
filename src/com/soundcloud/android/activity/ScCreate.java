@@ -112,7 +112,7 @@ public class ScCreate extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        pageTrack(Consts.TrackingEvents.RECORD);
+        trackPage(Consts.Tracking.RECORD);
     }
 
     @Override
@@ -318,6 +318,8 @@ public class ScCreate extends ScActivity {
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = getResources().getString(R.string.error_recording_message);
+        if (mRecordFile.exists()) mRecordFile.delete();
+        mRecordFile = null;
         mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
     }
@@ -371,7 +373,9 @@ public class ScCreate extends ScActivity {
                         case RECORD: stopRecording(); break;
                         case PLAYBACK:
                             try {
-                                if (mCreateService.isPlayingBack()) mCreateService.pausePlayback();
+                                if (mCreateService != null && mCreateService.isPlayingBack())  {
+                                    mCreateService.pausePlayback();
+                                }
                             } catch (RemoteException e) {
                                 Log.e(TAG, "error", e);
                             }
@@ -409,7 +413,9 @@ public class ScCreate extends ScActivity {
     }
 
     private void startRecording() {
-        pageTrack(Consts.TrackingEvents.RECORD_RECORDING);
+        trackPage(Consts.Tracking.RECORD_RECORDING);
+        trackEvent(Consts.Tracking.Categories.RECORDING, "start");
+
         pause(true);
 
         mRecordErrorMessage = "";
@@ -521,7 +527,9 @@ public class ScCreate extends ScActivity {
     };
 
     private void stopRecording() {
-        pageTrack(Consts.TrackingEvents.RECORD_COMPLETE);
+        trackPage(Consts.Tracking.RECORD_COMPLETE);
+        trackEvent(Consts.Tracking.Categories.RECORDING, "stop");
+
         if (getApp().getRecordListener() == recListener) {
             getApp().setRecordListener(null);
         }

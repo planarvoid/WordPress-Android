@@ -49,15 +49,24 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private Request mRequest;
     private String mNextHref;
     private RefreshTask mRefreshTask;
+    private boolean mAllowInitialLoading;
+    private String mFirstPageEtag;
 
     private static final int ITEM_TYPE_LOADING = -1;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
+        this(activity,wrapped,request,true);
+    }
+
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
         mRequest = request;
         wrapped.setWrapper(this);
+
+        mAllowInitialLoading = autoAppend;
+        mKeepOnAppending.set(autoAppend);
     }
 
     /**
@@ -141,7 +150,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
-                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && !isRefreshing() ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
                 mListView == null ? null : mListView.getChildAt(0) == null ||
                         mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop()
         };
@@ -229,7 +238,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public int getCount() {
-        if (mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
+        if (mAllowInitialLoading && mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1;
         } else {
             return super.getCount();
@@ -287,9 +296,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 "defaultPageSize", "20")));
     }
 
-    protected void handleResponseCode(int responseCode) {
+    protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
             case HttpStatus.SC_OK: // do nothing
+            case HttpStatus.SC_NOT_MODIFIED:
                 mError = false;
                 break;
             case HttpStatus.SC_UNAUTHORIZED:
@@ -301,6 +311,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 mKeepOnAppending.set(false);
                 break;
         }
+        return !mError;
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
@@ -322,15 +333,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(ArrayList<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
-        if (responseCode != HttpStatus.SC_OK) {
-            handleResponseCode(responseCode);
-        } else if (newItems != null && newItems.size() > 0) {
-            // false for notify of change, we can only notify after resetting listview
-            reset(true, false);
-            onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
-        } else {
-            onEmptyRefresh();
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
+        if (handleResponseCode(responseCode)) {
+            if (newItems != null && newItems.size() > 0) {
+                setNewEtag(eTag);
+                reset(true, false);
+                onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+            } else if (eTag != null){
+                onEmptyRefresh();
+            }
         }
 
         applyEmptyText();
@@ -340,6 +351,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (mListView != null) {
             mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
         }
+    }
+
+    protected void setNewEtag(String eTag){
+        mFirstPageEtag = eTag;
+    }
+
+    protected String getCurrentEtag(){
+        return mFirstPageEtag;
     }
 
     protected void onEmptyRefresh(){
@@ -370,7 +389,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             }
         } else {
             reset();
-
         }
 
         mRefreshTask = new RefreshTask(mActivity.getApp()) {
@@ -430,6 +448,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (request != null) {
             request.add("linked_partitioning", "1");
             request.add("limit", getPageSize());
+            if (refresh && getCurrentEtag() != null) request.ifNoneMatch(getCurrentEtag());
         }
         return request;
     }
@@ -449,6 +468,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public boolean isEmpty(){
         return false;
+    }
+
+    public void allowInitialLoading(){
+        mAllowInitialLoading = true;
+        if (mRefreshTask == null && !mKeepOnAppending.get()){
+            mKeepOnAppending.set(true);
+        }
     }
 
     public boolean needsRefresh() {
@@ -476,5 +502,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 ", mActivity=" + mActivity +
                 ", mListView=" + mListView +
                 '}';
+    }
+
+    public boolean isAllowingLoading() {
+        return mAllowInitialLoading;
     }
 }

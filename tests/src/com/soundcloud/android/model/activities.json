@@ -1011,32 +1011,6 @@
       "tags": "own, affiliated"
     },
     {
-      "type": "favoriting",
-      "created_at": "2010\/09\/28 14:46:16 +0000",
-      "origin": {
-        "track": {
-          "id": 5611941,
-          "permalink": "cloud-sculptors-of-coral-d",
-          "title": "Cloud Sculptors Of Coral D",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5611941",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/cloud-sculptors-of-coral-d",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5611941\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000002453567-7xlyd7-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 9031,
-          "permalink": "stigi",
-          "username": "stigi",
-          "uri": "https:\/\/api.soundcloud.com\/users\/9031",
-          "permalink_url": "http:\/\/soundcloud.com\/stigi",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002637008-u1sudg-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
       "type": "comment",
       "created_at": "2010\/04\/26 20:56:50 +0000",
       "origin": {
@@ -1164,5 +1138,7 @@
       },
       "tags": "own, affiliated"
     }
-  ]
+  ],
+  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738",
+  "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
 }

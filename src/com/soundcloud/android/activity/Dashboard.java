@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
@@ -40,8 +39,6 @@ public class Dashboard extends ScActivity {
 
         CloudUtils.checkState(this);
 
-        setContentView(R.layout.dashboard);
-
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             ScTabView trackListView;
@@ -50,14 +47,14 @@ public class Dashboard extends ScActivity {
                         Event.class,
                         R.string.empty_incoming_text,
                         Consts.ListId.LIST_STREAM, false);
-                mTrackingPath = Consts.TrackingEvents.STREAM;
+                mTrackingPath = Consts.Tracking.STREAM;
             } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
                 mIsActivityTab = true;
-                trackListView = createList(Request.to(AndroidCloudAPI.MY_ACTIVITY),
+                trackListView = createList(Request.to(Endpoints.MY_NEWS),
                         Event.class,
                         R.string.empty_news_text,
                         Consts.ListId.LIST_ACTIVITY, true);
-                mTrackingPath = Consts.TrackingEvents.ACTIVITY;
+                mTrackingPath = Consts.Tracking.ACTIVITY;
             } else {
                 throw new IllegalArgumentException("no valid tab extra");
             }
@@ -81,7 +78,7 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
-        pageTrack(mTrackingPath);
+        trackPage(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mIsActivityTab ?
@@ -106,8 +103,9 @@ public class Dashboard extends ScActivity {
     public Object onRetainNonConfigurationInstance() {
         if (mListView != null && mListView.getWrapper() != null){
             return mListView.getWrapper().saveState();
+        } else {
+            return null;
         }
-        return null;
     }
 
     // legacy action, redirect to Main

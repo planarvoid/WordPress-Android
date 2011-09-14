@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(-?\\d+))?$");
-    public static final long DEFAULT_POLL_FREQUENCY = 600l;
+    public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
 
     private DatabaseHelper dbHelper;
 

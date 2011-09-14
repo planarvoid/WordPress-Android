@@ -80,8 +80,10 @@ import java.util.List;
 public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
+    public static final int REFRESH_DELAY = 500;
 
     private boolean mIsPlaying = false;
+    private boolean mIsCommenting = false;
     private ImageButton mPauseButton;
     private boolean mLandscape;
 
@@ -102,7 +104,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private RelativeLayout mTrackInfo;
     private FlowLayout mTrackTags;
 
-    private boolean mCurrentTrackError;
+    private int mCurrentTrackError;
     private BindResult mCurrentArtBindResult;
     private BindResult mCurrentAvatarBindResult;
 
@@ -135,9 +137,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     protected TrackInfoBar mTrackInfoBar;
     protected ImageView mAvatar;
+    private ImageButton mCommentButton;
 
     static {
         initializeRemoteControlRegistrationMethods();
+    }
+
+    private interface PlayerError {
+        int PLAYBACK_ERROR = 0;
+        int STREAM_ERROR = 1;
     }
 
     @Override
@@ -224,16 +232,27 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
             mArtwork.setVisibility(View.INVISIBLE);
 
-            ImageButton mCommentsButton = (ImageButton) findViewById(R.id.btn_comment);
-            mCommentsButton.setOnClickListener(new View.OnClickListener() {
+            mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
+            mCommentButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    addNewComment(
+                    toggleCommentMode();
+                    /*addNewComment(
                             CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id, -1, "", 0),
-                            addCommentListener);
+                            addCommentListener);*/
                 }
             });
         }
         mContainer = (RelativeLayout) findViewById(R.id.container);
+    }
+
+    public void toggleCommentMode() {
+        mIsCommenting = !mIsCommenting;
+        mWaveformController.setCommentMode(mIsCommenting);
+        if (mIsCommenting){
+            mCommentButton.setImageResource(R.drawable.ic_commenting_states);
+        } else {
+            mCommentButton.setImageResource(R.drawable.ic_comment_states);
+        }
     }
 
     public ViewGroup getCommentHolder() {
@@ -594,8 +613,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             spanEndIndex = commentText.length();
             commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            if (comment.timestamp > 0)
+            if (comment.timestamp > 0) {
                 commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
+            }
 
             spanStartIndex = commentText.length();
             commentText.append(" said ").append(CloudUtils.getTimeElapsed(getResources(), comment.created_at.getTime()));
@@ -646,36 +666,33 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private long refreshNow() {
         try {
             if (mPlaybackService == null)
-                return 500;
+                return REFRESH_DELAY;
 
             if (mPlaybackService.loadPercent() > 0 && !mIsPlaying) {
                 mIsPlaying = true;
             }
 
             long pos = mPlaybackService.position();
-            long remaining = 1000 - (pos % 1000);
+            long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
 
             if (pos >= 0 && mDuration > 0) {
-                mWaveformController.setCurrentTime(new StringBuilder()
-                        .append(CloudUtils.formatTimestamp(pos))
-                        .append(" / ")
-                        .append(mCurrentDurationString));
+                mWaveformController.setCurrentTime(pos);
                 mWaveformController.setProgress(pos);
                 mWaveformController.setSecondaryProgress(mPlaybackService.loadPercent() * 10);
             } else {
-                mWaveformController.setCurrentTime("--:--/--:--");
+                mWaveformController.setCurrentTime(0);
                 mWaveformController.setProgress(0);
                 mWaveformController.setSecondaryProgress(0);
             }
 
             // return the number of milliseconds until the next full second, so
             // the counter can be updated at just the right time
-            return !mPlaybackService.isPlaying() ? 1000 : remaining;
+            return !mPlaybackService.isPlaying() ? REFRESH_DELAY : remaining;
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-        return 500;
+        return REFRESH_DELAY;
     }
 
     private final Handler mHandler = new Handler() {
@@ -695,9 +712,10 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                mCurrentTrackError = false;
+                mCurrentTrackError = -1;
 
                 updateTrackInfo();
                 setPauseButtonImage();
@@ -710,7 +728,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 if (intent.getBooleanExtra("isPlaying", false)) {
                     hideUnplayable();
                     updateTrackInfo();
-                    mCurrentTrackError = false;
+                    mCurrentTrackError = -1;
                 }
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
                 if (mPlayingTrack != null && mPlayingTrack.id == intent.getLongExtra("id", -1)){
@@ -719,7 +737,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     updateTrackInfo();
                 }
             } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
-                mCurrentTrackError = false;
+                mCurrentTrackError = -1;
                 hideUnplayable();
                 mWaveformController.showConnectingLayout();
             } else if (action.equals(CloudPlaybackService.BUFFERING)) {
@@ -728,13 +746,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
                 // clearSeekVars();
                 mWaveformController.hideConnectingLayout();
-            } else if (action.equals(CloudPlaybackService.TRACK_ERROR)) {
-                mCurrentTrackError = true;
+            } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
+                mCurrentTrackError = PlayerError.PLAYBACK_ERROR;
                 mWaveformController.hideConnectingLayout();
                 showUnplayable();
             } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
+                mCurrentTrackError = PlayerError.STREAM_ERROR;
                 mWaveformController.hideConnectingLayout();
-                setPauseButtonImage();
+                showUnplayable();
             } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
                 updateTrackInfo();
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
@@ -750,7 +769,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
         if (mPlayingTrack == null || mPlayingTrack.isStreamable()) {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                    .setText(R.string.player_error);
+                    .setText(mCurrentTrackError == 0 ? R.string.player_error : R.string.player_stream_error);
         } else {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_not_streamable);
@@ -784,9 +803,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             }
         } catch (RemoteException ignored) {}
 
-        if (mPlayingTrack == null) {
+        if (mPlayingTrack == null || mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
-            return;
+            if (mPlayingTrack == null) return;
         }
 
         mWaveformController.updateTrack(mPlayingTrack);
@@ -820,7 +839,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
             if (mPlayingTrack.user != null && TextUtils.isEmpty(mPlayingTrack.user.username)){
-                pageTrack(mPlayingTrack.pageTrack());
+                trackPage(mPlayingTrack.pageTrack());
             }
 
 
@@ -834,7 +853,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 onTrackInfoFlip();
             }
 
-            if (mCurrentTrackError)
+            if (mCurrentTrackError >= 0)
                 return;
 
             if (mPlayingTrack.isStreamable()) {
@@ -859,77 +878,70 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void updateArtwork() {
-        if (!mLandscape)
+        if (!mLandscape) {
             if (TextUtils.isEmpty(mPlayingTrack.artwork_url)) {
                 // no artwork
                 ImageLoader.get(this).unbind(mArtwork);
-                mArtwork.setScaleType(ScaleType.CENTER_CROP);
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 // load artwork as necessary
                 if (mPlayingTrack.id != mCurrentTrackId || mCurrentArtBindResult == BindResult.ERROR) {
-                    if ((mCurrentArtBindResult = ImageLoader.get(this).bind(
+                    if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
+                            this,
                             mArtwork,
-                            ImageUtils.formatGraphicsUrl(mPlayingTrack.artwork_url,
-                                    Consts.GraphicsSizes.T500), new ImageViewCallback() {
-                                @Override
-                                public void onImageError(ImageView view, String url, Throwable error) {
-                                    mCurrentArtBindResult = BindResult.ERROR;
-                                }
+                            mPlayingTrack.artwork_url,
+                            Consts.GraphicSize.T500, new ImageViewCallback() {
+                        @Override
+                        public void onImageError(ImageView view, String url, Throwable error) {
+                            mCurrentArtBindResult = BindResult.ERROR;
+                            Log.e(TAG,"Error loading artwork " + error);
+                        }
 
-                                @Override
-                                public void onImageLoaded(ImageView view, String url) {
-                                    onArtworkSet();
-                                }
-                            })) != BindResult.OK) {
+                        @Override
+                        public void onImageLoaded(ImageView view, String url) {
+                            onArtworkSet();
+                        }
+                    }, null)) != BindResult.OK) {
                         mArtwork.setVisibility(View.INVISIBLE);
                     } else {
                         onArtworkSet();
                     }
                 }
             }
+        }
     }
 
     private void updateAvatar() {
-            if (TextUtils.isEmpty(mPlayingTrack.user.avatar_url)) {
-                // no artwork
-                ImageLoader.get(this).unbind(mAvatar);
-            } else {
-                // load artwork as necessary
-                if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
-                    if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
-                            mAvatar,
-                            ImageUtils.formatGraphicsUrlForList(this,mPlayingTrack.user.avatar_url),
-                            new ImageViewCallback() {
-                                @Override
-                                public void onImageError(ImageView view, String url, Throwable error) {
-                                    mCurrentAvatarBindResult = BindResult.ERROR;
-                                }
+        if (mPlayingTrack.hasAvatar()) {
+            // load artwork as necessary
+            if (mPlayingTrack.id != mCurrentTrackId || mCurrentAvatarBindResult == BindResult.ERROR) {
+                if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
+                        mAvatar,
+                        ImageUtils.formatGraphicsUriForList(this, mPlayingTrack.user.avatar_url),
+                        new ImageViewCallback() {
+                            @Override
+                            public void onImageError(ImageView view, String url, Throwable error) {
+                                mCurrentAvatarBindResult = BindResult.ERROR;
+                            }
 
-                                @Override public void onImageLoaded(ImageView view, String url) {}
-                            })) != BindResult.OK) {
-                    }
+                            @Override
+                            public void onImageLoaded(ImageView view, String url) {
+                            }
+                        })) != BindResult.OK) {
                 }
             }
+        } else {
+            // no artwork
+            ImageLoader.get(this).unbind(mAvatar);
+        }
     }
 
     private void onArtworkSet(){
-        AnimUtils.runFadeInAnimationOn(this, mArtwork);
-        mArtwork.setVisibility(View.VISIBLE);
-
-        if (mArtwork.getWidth() == 0)
-            return;
-
-        Matrix m = new Matrix();
-        float scale;
-        if ( ((float)mArtwork.getWidth())/mArtwork.getHeight() > ((float) mArtwork.getDrawable().getMinimumWidth())/mArtwork.getDrawable().getMinimumHeight()){
-            scale = ((float)mArtwork.getWidth())/((float) mArtwork.getDrawable().getMinimumWidth());
-        } else {
-            scale = ((float)mArtwork.getHeight())/((float) mArtwork.getDrawable().getMinimumHeight());
+        if (mArtwork.getVisibility() == View.INVISIBLE || mArtwork.getVisibility() == View.GONE) {
+            AnimUtils.runFadeInAnimationOn(this, mArtwork);
+            mArtwork.setVisibility(View.VISIBLE);
         }
-        m.setScale(scale,scale);
-        m.setTranslate((mArtwork.getWidth() - mArtwork.getDrawable().getMinimumHeight()*scale)/2, mArtwork.getDrawable().getMinimumHeight()*scale - mArtwork.getHeight());
-        mArtwork.setScaleType(ScaleType.MATRIX);
+
     }
 
     public boolean isSeekable() {
@@ -999,10 +1011,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
-        f.addAction(CloudPlaybackService.TRACK_ERROR);
+        f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
         f.addAction(CloudPlaybackService.STREAM_DIED);
         f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         f.addAction(CloudPlaybackService.BUFFERING);
+        f.addAction(CloudPlaybackService.INITIAL_BUFFERING);
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
@@ -1048,14 +1061,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         super.onSaveInstanceState(state);
 
         state.putBoolean("paused", mPaused);
-        state.putBoolean("currentTrackError", mCurrentTrackError);
+        state.putInt("currentTrackError", mCurrentTrackError);
 
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        mCurrentTrackError = state.getBoolean("currentTrackError");
+        mCurrentTrackError = state.getInt("currentTrackError");
         mPaused = state.getBoolean("paused");
         super.onRestoreInstanceState(state);
     }
@@ -1144,7 +1157,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mPlayingTrack.comments.add(c);
             getApp().cacheTrack(mPlayingTrack);
             setCurrentComments(true);
-
+            mWaveformController.showComment(c);
         }
 
         @Override

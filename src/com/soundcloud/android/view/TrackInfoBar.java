@@ -184,7 +184,7 @@ public class TrackInfoBar extends RelativeLayout {
         if (mTrack == null || (mTrack.artwork_url == null && (mTrack.user == null || mTrack.user.avatar_url == null))){
            return "";
         }
-        return ImageUtils.formatGraphicsUrlForList(getContext(),
+        return ImageUtils.formatGraphicsUriForList(getContext(),
                 mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
 }

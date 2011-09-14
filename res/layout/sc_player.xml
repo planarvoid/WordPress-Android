@@ -85,7 +85,6 @@
                         android:id="@+id/waveform_controller"
                         android:layout_height="wrap_content"
                         android:layout_width="fill_parent"
-                        android:layout_marginBottom="@dimen/player_portrait_waveform_margin_bottom"
                         android:layout_alignParentBottom="true"/>
                 <ViewStub
                         android:id="@+id/stub_unplayable_layout"
@@ -96,9 +95,6 @@
                 <View android:layout_width="fill_parent"
                       android:layout_below="@id/track_menu" android:layout_height="5dip"
                       android:background="@drawable/drop_shadow_down"/>
-                <View android:layout_width="fill_parent"
-                      android:layout_alignParentBottom="true" android:layout_height="5dip"
-                      android:background="@drawable/drop_shadow_up"/>
             </RelativeLayout>
             <ViewStub
                     android:id="@+id/stub_info"
