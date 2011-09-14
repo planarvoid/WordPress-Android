@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,7 @@ public class LoadTrackInfoTaskTest {
         final Track[] track = {null};
         listener = new LoadTrackInfoTask.LoadTrackInfoListener() {
             @Override
-            public void onTrackInfoLoaded(Track t) {
+            public void onTrackInfoLoaded(Track t, String action) {
                 track[0] = t;
             }
             @Override

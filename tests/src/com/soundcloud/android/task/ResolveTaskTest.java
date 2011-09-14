@@ -1,18 +1,15 @@
 package com.soundcloud.android.task;
 
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Env;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-
-import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 
 import android.net.Uri;
 
@@ -30,7 +27,7 @@ public class ResolveTaskTest {
 
         final Uri[] result = {null};
         listener = new ResolveTask.ResolveListener() {
-            @Override public void onUrlResolved(Uri uri) {
+            @Override public void onUrlResolved(Uri uri, String action) {
                 result[0] = uri;
             }
             @Override public void onUrlError() {
@@ -45,19 +42,27 @@ public class ResolveTaskTest {
     @Test
     public void resolveSoundCloudUri() throws Exception {
         assertThat(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("soundcloud:users/1234"), Env.LIVE),
+                Uri.parse("soundcloud:users:1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/users/1234")));
 
         assertThat(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("soundcloud:users/1234"), Env.SANDBOX),
+                Uri.parse("soundcloud:users:1234"), Env.SANDBOX),
                 equalTo(Uri.parse("https://api.sandbox-soundcloud.com/users/1234")));
 
         assertThat(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("soundcloud:tracks/1234"), Env.LIVE),
+                Uri.parse("soundcloud:users:1234#show"), Env.SANDBOX),
+                equalTo(Uri.parse("https://api.sandbox-soundcloud.com/users/1234")));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("soundcloud:tracks:1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
 
         assertThat(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("SOUNDCLOUD:tracks/1234"), Env.LIVE),
+                Uri.parse("soundcloud:tracks:1234#play"), Env.LIVE),
+                equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
+
+        assertThat(ResolveTask.resolveSoundCloudURI(
+                Uri.parse("SOUNDCLOUD:tracks:1234"), Env.LIVE),
                 equalTo(Uri.parse("https://api.soundcloud.com/tracks/1234")));
 
         assertThat(ResolveTask.resolveSoundCloudURI(
@@ -75,5 +80,24 @@ public class ResolveTaskTest {
         assertThat(ResolveTask.resolveSoundCloudURI(
                 Uri.parse("foobar:blaz"), Env.LIVE),
                 is(nullValue()));
+    }
+
+
+    @Test
+    public void shouldResolveWithAction() throws Exception {
+        final Uri[] uri = {null};
+        final String[] action = {null};
+
+        listener = new ResolveTask.ResolveListener() {
+            @Override public void onUrlResolved(Uri _uri, String _action) {
+                uri[0] = _uri;
+                action[0] = _action;
+            }
+            @Override public void onUrlError() {
+            }
+        };
+        ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users:1234#show"), Env.LIVE, listener);
+        assertThat(uri[0], equalTo(Uri.parse("https://api.soundcloud.com/users/1234")));
+        assertThat(action[0], equalTo("show"));
     }
 }

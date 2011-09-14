@@ -428,12 +428,13 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     }
 
     @Override
-    public void onUrlResolved(Uri uri) {
+    public void onUrlResolved(Uri uri, String action) {
         List<String> params = uri.getPathSegments();
         if (params.size() >= 2) {
             if (params.get(0).equalsIgnoreCase("tracks")) {
                 mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
                 mLoadTrackTask.setListener(this);
+                mLoadTrackTask.action = action;
                 mLoadTrackTask.execute(Request.to(uri.getPath()));
             } else if (params.get(0).equalsIgnoreCase("users")) {
                 mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
@@ -449,9 +450,12 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     }
 
     @Override
-    public void onTrackInfoLoaded(Track track) {
-        startService(new Intent(this, CloudPlaybackService.class).setAction(CloudPlaybackService.ONE_SHOT_PLAY).putExtra("track", track));
-        startActivity(new Intent(this,ScPlayer.class));
+    public void onTrackInfoLoaded(Track track, String action) {
+        startService(new Intent(this, CloudPlaybackService.class)
+                .setAction(CloudPlaybackService.ONE_SHOT_PLAY)
+                .putExtra("track", track));
+
+        startActivity(new Intent(this, ScPlayer.class));
     }
 
     @Override

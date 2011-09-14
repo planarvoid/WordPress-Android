@@ -30,7 +30,7 @@
                 <data android:scheme="http" android:host="snd.sc"/>
             </intent-filter>
 
-            <!-- soundcloud:users/12345 | soundcloud:tracks/12345 -->
+            <!-- soundcloud:users:12345#show | soundcloud:tracks:12345#play -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

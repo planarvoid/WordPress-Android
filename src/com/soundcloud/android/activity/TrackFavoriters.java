@@ -104,7 +104,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
     }
 
     @Override
-    public void onTrackInfoLoaded(Track track) {
+    public void onTrackInfoLoaded(Track track, String action) {
         ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false);
     }
 

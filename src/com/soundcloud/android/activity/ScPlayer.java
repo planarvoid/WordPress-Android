@@ -30,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -1093,7 +1092,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         if (mPlayingTrack == null)
             return;
 
-        Track track = mPlayingTrack;
         mFavoriteButton.setEnabled(false);
         try {
             if (mPlayingTrack.user_favorite) {
@@ -1236,7 +1234,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     @Override
-    public void onTrackInfoLoaded(Track track) {
+    public void onTrackInfoLoaded(Track track, String action) {
         if (track.id != mPlayingTrack.id) return;
         updateTrackInfo();
         if (mTrackInfo != null) {
