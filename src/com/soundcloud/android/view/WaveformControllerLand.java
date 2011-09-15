@@ -5,6 +5,7 @@ import android.os.Message;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
@@ -19,6 +20,10 @@ public class WaveformControllerLand extends WaveformController {
 
     private int mAvatarOffsetY, mCommentBarOffsetY;
     private CommentPanel mCommentPanel;
+
+    private static final int COMMENT_ANIMATE_DURATION = 300;
+
+    private boolean mCommentsVisible;
 
     private final Handler mCommentHandler = new Handler() {
         @Override
@@ -74,18 +79,23 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
-     private void calcAvatarHit(float xPos, boolean down){
+    private void calcAvatarHit(float xPos, boolean down) {
         Comment skipComment = null;
-        if (mCurrentShowingComment != null){
-            if (isHitting(mCurrentShowingComment,xPos)){
+        if (mCurrentShowingComment != null) {
+            if (isHitting(mCurrentShowingComment, xPos)) {
                 if (down)
                     skipComment = mCurrentShowingComment;
                 else
                     return;
+            } else {
+                if (mCommentPanel != null && !mCommentPanel.closing) {
+                    mCommentPanel.interacted = false;
+                    mHandler.postDelayed(mAutoCloseComment, 100);
+                }
             }
         }
         Comment c = isHitting(xPos, skipComment);
-        if (c != null){
+        if (c != null) {
             mCurrentShowingComment = c;
             queueCommentUnique(UI_SHOW_CURRENT_COMMENT);
         }
@@ -146,28 +156,59 @@ public class WaveformControllerLand extends WaveformController {
                 lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 addView(mCommentPanel, lp);
 
-
-                Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f);
-                animation.setDuration(500);
-                mCommentPanel.startAnimation(animation);
-
-                animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.5f);
-                animation.setFillEnabled(true);
-                animation.setFillAfter(true);
-                animation.setDuration(500);
-                mWaveformHolder.startAnimation(animation);
+                toggleCommentVisibility(true, true);
             }
 
             mCommentPanel.showComment(mCurrentShowingComment);
         }
     }
 
+    private void toggleCommentVisibility(boolean visible, boolean animatePanel){
+
+        if (visible && !mCommentsVisible) {
+            mCommentsVisible = true;
+            Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+            animation.setFillEnabled(true);
+            animation.setFillAfter(true);
+            animation.setDuration(COMMENT_ANIMATE_DURATION);
+            mWaveformHolder.startAnimation(animation);
+            if (animatePanel && mCommentPanel != null) {
+                animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
+                        Animation.RELATIVE_TO_SELF, 0.0f);
+                animation.setDuration(COMMENT_ANIMATE_DURATION);
+                mCommentPanel.startAnimation(animation);
+            }
+        } else if (!visible && mCommentsVisible) {
+            mCommentsVisible = false;
+            Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.0f);
+            animation.setFillEnabled(true);
+            animation.setFillAfter(true);
+            animation.setDuration(COMMENT_ANIMATE_DURATION);
+            mWaveformHolder.startAnimation(animation);
+
+            if (mCommentPanel != null) {
+                if (mCommentPanel.getParent() == this && animatePanel) {
+                    animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                            Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                            Animation.RELATIVE_TO_SELF, -1.0f);
+                    animation.setDuration(COMMENT_ANIMATE_DURATION);
+                    mCommentPanel.setAnimation(animation);
+                    removeView(mCommentPanel);
+                }
+                mCommentPanel = null;
+            }
+
+        }
+    }
+
     @Override
     public void closeComment() {
-
+        super.closeComment();
+        toggleCommentVisibility(false, true);
     }
 }
