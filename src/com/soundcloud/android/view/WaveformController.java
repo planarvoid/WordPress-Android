@@ -48,10 +48,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private ImageView mOverlay;
     protected ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
-    private RelativeLayout mWaveformFrame;
+    protected RelativeLayout mWaveformFrame;
     private PlayerTouchBar mPlayerTouchBar;
     protected WaveformCommentLines mCommentLines;
-    private PlayerTime mCurrentTimeDisplay;
+    protected PlayerTime mCurrentTimeDisplay;
 
     protected ScPlayer mPlayer;
     protected Track mPlayingTrack;

@@ -5,11 +5,12 @@ import android.os.Message;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
@@ -23,7 +24,8 @@ public class WaveformControllerLand extends WaveformController {
 
     private static final int COMMENT_ANIMATE_DURATION = 300;
 
-    private boolean mCommentsVisible;
+    private boolean mWaveformHalf;
+    private boolean mCommentPanelVisible;
 
     private final Handler mCommentHandler = new Handler() {
         @Override
@@ -156,17 +158,18 @@ public class WaveformControllerLand extends WaveformController {
                 lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 addView(mCommentPanel, lp);
 
-                toggleCommentVisibility(true, true);
+                toggleWaveformHalf(true);
+                toggleCommentsPanelVisibility(true);
             }
 
             mCommentPanel.showComment(mCurrentShowingComment);
         }
     }
 
-    private void toggleCommentVisibility(boolean visible, boolean animatePanel){
+    private void toggleWaveformHalf(boolean half){
 
-        if (visible && !mCommentsVisible) {
-            mCommentsVisible = true;
+        if (half && !mWaveformHalf) {
+            mWaveformHalf = true;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.5f);
@@ -174,15 +177,9 @@ public class WaveformControllerLand extends WaveformController {
             animation.setFillAfter(true);
             animation.setDuration(COMMENT_ANIMATE_DURATION);
             mWaveformHolder.startAnimation(animation);
-            if (animatePanel && mCommentPanel != null) {
-                animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f);
-                animation.setDuration(COMMENT_ANIMATE_DURATION);
-                mCommentPanel.startAnimation(animation);
-            }
-        } else if (!visible && mCommentsVisible) {
-            mCommentsVisible = false;
+
+        } else if (!half && mWaveformHalf) {
+            mWaveformHalf = false;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0.0f);
@@ -190,25 +187,55 @@ public class WaveformControllerLand extends WaveformController {
             animation.setFillAfter(true);
             animation.setDuration(COMMENT_ANIMATE_DURATION);
             mWaveformHolder.startAnimation(animation);
+        }
+    }
 
-            if (mCommentPanel != null) {
-                if (mCommentPanel.getParent() == this && animatePanel) {
-                    animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                            Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
-                            Animation.RELATIVE_TO_SELF, -1.0f);
-                    animation.setDuration(COMMENT_ANIMATE_DURATION);
-                    mCommentPanel.setAnimation(animation);
-                    removeView(mCommentPanel);
-                }
-                mCommentPanel = null;
-            }
+    private void toggleCommentsPanelVisibility(boolean visible) {
+        if (mCommentPanel == null) return;
 
+        if (visible && !mCommentPanelVisible) {
+            if (mCommentPanel.getParent() != this) addView(mCommentPanel);
+            Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f);
+            animation.setDuration(COMMENT_ANIMATE_DURATION);
+            mCommentPanel.startAnimation(animation);
+        } else if (!visible && mCommentPanelVisible && mCommentPanel.getParent() == this) {
+            Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, -1.0f);
+            animation.setDuration(COMMENT_ANIMATE_DURATION);
+            mCommentPanel.setAnimation(animation);
+            removeView(mCommentPanel);
         }
     }
 
     @Override
     public void closeComment() {
         super.closeComment();
-        toggleCommentVisibility(false, true);
+        toggleWaveformHalf(false);
+        toggleCommentsPanelVisibility(false);
+        mCommentPanel = null;
+    }
+
+    @Override
+    public void setCommentMode(boolean commenting) {
+
+        if (commenting){
+            toggleWaveformHalf(true);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,0);
+            mCurrentTimeDisplay.setCommentingHeight(mWaveformHolder.getHeight()/2);
+            mCurrentTimeDisplay.setRoundTop(false);
+            mCurrentTimeDisplay.setShowArrow(true);
+
+        } else {
+            toggleWaveformHalf(false);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,mPlayerAvatarBar.getId());
+            mCurrentTimeDisplay.setRoundTop(true);
+            mCurrentTimeDisplay.setShowArrow(false);
+        }
+        super.setCommentMode(commenting);
     }
 }

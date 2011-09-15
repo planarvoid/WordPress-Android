@@ -43,12 +43,13 @@ public class PlayerTime extends RelativeLayout {
 
     private TextView mCommentInstructions;
     private boolean mShowArrow;
+    private boolean mRoundTop = true;
 
 
     public PlayerTime(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init(attrs);
+
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.player_time, this);
@@ -78,34 +79,42 @@ public class PlayerTime extends RelativeLayout {
         mPlayheadArrowWidth = (int) (getResources().getDisplayMetrics().density * 10);
         mPlayheadArrowHeight = (int) (getResources().getDisplayMetrics().density * 10);
 
-        setShowArrow(false);
         setGravity(Gravity.CENTER_HORIZONTAL);
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        final int pad = (int) (5 * getResources().getDisplayMetrics().density);
-
-        if (mShowArrow) {
-            setPadding(pad, 0, pad, mPlayheadArrowHeight + (int) (3 * getResources().getDisplayMetrics().density));
-            lp.height = mDefaultHeight + mPlayheadArrowHeight;
-            mBottomMargin = -mPlayheadArrowHeight;
-        } else {
-            setPadding(pad, 0, pad, (int) (3 * getResources().getDisplayMetrics().density));
-            lp.height = mDefaultHeight;
-        }
-
         setLayoutParams(lp);
+        init(attrs);
 
     }
 
     private void init(AttributeSet attrs){
         TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.PlayerTime);
-        mShowArrow = a.getBoolean(R.styleable.PlayerTime_show_arrow, false);
+        setShowArrow(a.getBoolean(R.styleable.PlayerTime_show_arrow, false));
         a.recycle();
     }
 
+    public void setRoundTop(boolean roundTop){
+        mRoundTop = roundTop;
+        invalidate();
+    }
+
+    public void setCommentingHeight(int commentingHeight){
+        mCommentingHeight = commentingHeight;
+        invalidate();
+    }
+
     public void setShowArrow(boolean showArrow){
-
-
+        mShowArrow = showArrow;
+        final int pad = (int) (5 * getResources().getDisplayMetrics().density);
+        if (mShowArrow) {
+            setPadding(pad, 0, pad, mPlayheadArrowHeight + (int) (3 * getResources().getDisplayMetrics().density));
+            mBottomMargin = -mPlayheadArrowHeight;
+        } else {
+            setPadding(pad, 0, pad, (int) (3 * getResources().getDisplayMetrics().density));
+            mBottomMargin = 0;
+        }
+        requestLayout();
+        invalidate();
     }
 
     public void setCurrentTime(long time, boolean commenting) {
@@ -113,7 +122,7 @@ public class PlayerTime extends RelativeLayout {
         final RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
 
         final int width = commenting ? mCommentingWidth : mMeasuredMaxWidth;
-        final int height = commenting ? mCommentingHeight : mDefaultHeight;
+        final int height = (commenting ? mCommentingHeight : mDefaultHeight) ;
         if (commenting && !mCommenting) {
             mCommenting = true;
             mCurrentTime.setTextColor(getResources().getColor(R.color.portraitPlayerCommentLine));
@@ -157,7 +166,8 @@ public class PlayerTime extends RelativeLayout {
     protected void dispatchDraw(Canvas canvas) {
         drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
                 mShowArrow ? getMeasuredHeight() - mPlayheadArrowHeight : getMeasuredHeight(),
-                mArc, mShowArrow ? mPlayheadArrowWidth : 0, mPlayheadArrowHeight, mPlayheadOffset);
+                mRoundTop ? mArc : 0, mShowArrow ? mPlayheadArrowWidth : 0, mPlayheadArrowHeight, mPlayheadOffset);
+
         super.dispatchDraw(canvas);
     }
 
@@ -215,7 +225,6 @@ public class PlayerTime extends RelativeLayout {
             c.drawLine(arrowOffset,height,arrowOffset,height+arrowOffset,linePaint);
         }
     }
-
 
     public void setByPercent(float seekPercent, boolean commenting) {
         setCurrentTime((long) (mDuration * seekPercent), commenting);
