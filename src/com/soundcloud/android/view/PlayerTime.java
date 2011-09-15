@@ -89,7 +89,7 @@ public class PlayerTime extends RelativeLayout {
             lp.height = mDefaultHeight + mPlayheadArrowHeight;
             mBottomMargin = -mPlayheadArrowHeight;
         } else {
-            setPadding(pad, 0, pad, pad);
+            setPadding(pad, 0, pad, (int) (3 * getResources().getDisplayMetrics().density));
             lp.height = mDefaultHeight;
         }
 
