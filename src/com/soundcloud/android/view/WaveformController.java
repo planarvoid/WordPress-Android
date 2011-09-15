@@ -48,13 +48,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected PlayerAvatarBar mPlayerAvatarBar;
 
     private ImageView mOverlay;
-    private ProgressBar mProgressBar;
+    protected ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     private RelativeLayout mWaveformFrame;
     private PlayerTouchBar mPlayerTouchBar;
     protected WaveformCommentLines mCommentLines;
     private PlayerTime mCurrentTimeDisplay;
-    protected ImageButton mToggleComments;
 
     protected ScPlayer mPlayer;
     protected Track mPlayingTrack;
@@ -161,7 +160,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        mCurrentTimeDisplay.setWaveHeight(mWaveformHolder.getHeight());
         if (mCurrentComments != null && mDuration > 0){
             for (Comment c : mCurrentComments){
                 c.calculateXPos(getWidth(), mDuration);
@@ -243,6 +241,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         if (mPlayingTrack != track) {
             ImageLoader.get(mPlayer).unbind(mOverlay);
+            // TODO best place to do this?
+            if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
         mPlayingTrack = track;
@@ -330,7 +330,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
             lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
+            commentPanel.invalidate();
 
+            // npe??
             mWaveformFrame.addView(commentPanel, 0, lp);
 
 

@@ -14,7 +14,7 @@
                android:layout_marginLeft="@dimen/list_icon_margin_left"
                android:layout_marginRight="@dimen/list_icon_margin_right"
                android:background="@drawable/avatar_badge"
-               android:scaleType="centerCrop"/>
+               android:scaleType="center"/>
     <TableLayout android:id="@+id/comment_header"
                   android:layout_height="wrap_content"
                   android:layout_width="0dp"

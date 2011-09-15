@@ -24,7 +24,7 @@
     <dimen name="user_browser_info_username_txt_size">15sp</dimen>
 
     <!-- can't change one of these without change them all -->
-    <dimen name="player_time_height">30dip</dimen>
+    <dimen name="player_time_height">20dip</dimen>
     <dimen name="player_portrait_wave_height">80dp</dimen>
     <dimen name="player_portrait_time_and_wave_height">100dip</dimen>
     <dimen name="player_portrait_half_wave_height">40dip</dimen>

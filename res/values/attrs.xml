@@ -32,6 +32,10 @@
         <attr name="idleMult" format="color" />
         <attr name="idleText" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="PlayerTime">
+        <attr name="show_arrow" format="boolean" />
+    </declare-styleable>
     
     
 </resources>
