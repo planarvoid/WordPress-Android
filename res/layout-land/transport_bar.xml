@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/transport_bar"
+              android:background="@color/playerControlBackground"
+              android:paddingTop="5dip"
+              android:paddingBottom="5dip"
+              android:orientation="horizontal"
+              android:gravity="center_vertical"
+              android:layout_height="fill_parent"
+              android:layout_width="fill_parent">
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/prev"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_prev_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/pause"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_play_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent">
+        <ImageButton android:layout_centerInParent="true"
+                     android:id="@+id/next"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_next_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+        <View android:background="@color/verticalPipe"
+              android:layout_marginTop="5dip"
+              android:layout_marginBottom="5dip"
+              android:layout_alignParentLeft="true"
+              android:layout_height="fill_parent"
+              android:layout_width="1dip"
+              android:id="@+id/vr_play_count"/>
+        <ImageButton android:id="@+id/btn_favorite"
+                     android:layout_centerHorizontal="true"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_favorite_states"/>
+    </RelativeLayout>
+    <RelativeLayout android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+        <ImageButton android:id="@+id/btn_comment"
+                     android:layout_centerHorizontal="true"
+                     style="@style/btn_sc_transparent"
+                     android:src="@drawable/ic_comment_states"/>
+    </RelativeLayout>
+</LinearLayout>

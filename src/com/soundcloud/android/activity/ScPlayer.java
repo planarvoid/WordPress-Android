@@ -200,15 +200,21 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
         mTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
-        if (!mLandscape) {
-            mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
-            if (mFavoriteButton == null) return;// failsafe for orientation check failure
-            mFavoriteButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    toggleFavorite();
-                }
-            });
+        mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
+        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleFavorite();
+            }
+        });
 
+        mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
+        mCommentButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleCommentMode();
+            }
+        });
+
+        if (!mLandscape) {
             findViewById(R.id.btn_info).setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     onTrackInfoFlip();
@@ -230,16 +236,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mArtwork = (ImageView) findViewById(R.id.artwork);
             mArtwork.setScaleType(ScaleType.CENTER_CROP);
             mArtwork.setVisibility(View.INVISIBLE);
-
-            mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
-            mCommentButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    toggleCommentMode();
-                    /*addNewComment(
-                            CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id, -1, "", 0),
-                            addCommentListener);*/
-                }
-            });
         }
         mContainer = (RelativeLayout) findViewById(R.id.container);
     }
