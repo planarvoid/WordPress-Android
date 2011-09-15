@@ -94,7 +94,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
     @Override
     public void onResume() {
         super.onResume();
-        if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
+        if (mTrack != null && mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
             trackPage(mTrack.pageTrack("favorites"));
         }
     }
@@ -104,7 +104,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
     }
 
     @Override
-    public void onTrackInfoLoaded(Track track) {
+    public void onTrackInfoLoaded(Track track, String action) {
         ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false);
     }
 

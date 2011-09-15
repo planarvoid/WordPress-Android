@@ -585,6 +585,7 @@ public class CloudPlaybackService extends Service {
                     setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
             } else {
+                sendStreamException(0);
                 gotoIdleState();
             }
         }
@@ -1363,7 +1364,7 @@ public class CloudPlaybackService extends Service {
         }
 
         public void start() {
-            mMediaPlayer.start();
+            if (mMediaPlayer != null) mMediaPlayer.start();
         }
 
         public void stop() {
@@ -2110,7 +2111,16 @@ public class CloudPlaybackService extends Service {
 
 
     private long getContentLength(HttpResponse resp) {
-        return Long.parseLong(resp.getFirstHeader("Content-Length").getValue());
+        Header h = resp.getFirstHeader("Content-Length");
+        if (h != null) {
+            try {
+                return Long.parseLong(h.getValue());
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
     }
 
     /*

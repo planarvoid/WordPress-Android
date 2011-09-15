@@ -246,7 +246,7 @@
         <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
-            <version>1.0-RC5-SOUNDCLOUD</version>
+            <version>1.0-RC5-SNAPSHOT</version>
             <scope>test</scope>
             <classifier>jar-with-dependencies</classifier>
         </dependency>

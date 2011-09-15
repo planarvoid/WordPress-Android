@@ -135,6 +135,7 @@ end
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
+  CURRENT="s3://#{BUCKET}/#{package}-current.apk"
   APK = "bin/soundcloud-release.apk"
   REG_IDS  = 'reg_ids.yaml'
   ACRA_CSV = '1.3.4-BETA3.csv'
@@ -178,6 +179,8 @@ namespace :beta do
        }.join(' ') +
        (ENV['DRYRUN'] ? ' --dry-run ' : ' ') +
        DEST
+
+   sh "s3cmd cp --acl-public #{DEST} #{CURRENT}"
   end
 
   desc "list beta bucket contents"

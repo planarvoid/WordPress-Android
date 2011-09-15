@@ -6,8 +6,6 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Track;
 
-import android.util.Log;
-
 import java.lang.ref.WeakReference;
 
 public class LoadTrackInfoTask extends LoadTask<Track> {
@@ -16,6 +14,8 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
     private boolean mWriteToDB;
     private long mTrackId;
     private WeakReference<LoadTrackInfoListener> mListenerWeakReference;
+
+    public String action;
 
     public LoadTrackInfoTask(SoundCloudApplication app, long trackId, boolean cacheResult, boolean writeToDb) {
         super(app, Track.class);
@@ -50,7 +50,7 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
 
             if (listener != null){
-                listener.onTrackInfoLoaded(result);
+                listener.onTrackInfoLoaded(result, action);
             }
 
         } else if (listener != null){
@@ -60,7 +60,7 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
 
     // Define our custom Listener interface
     public interface LoadTrackInfoListener {
-        void onTrackInfoLoaded(Track track);
+        void onTrackInfoLoaded(Track track, String action);
         void onTrackInfoError(long trackId);
     }
 }
