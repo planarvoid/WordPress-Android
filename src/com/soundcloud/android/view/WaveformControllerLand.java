@@ -1,24 +1,15 @@
 package com.soundcloud.android.view;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
-import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
@@ -146,19 +137,18 @@ public class WaveformControllerLand extends WaveformController {
             mCommentLines.setCurrentComment(mCurrentShowingComment);
 
             if (mCommentPanel == null){
-                mCommentPanel = new CommentPanel(mPlayer);
+                mCommentPanel = new CommentPanel(mPlayer, true);
                 mCommentPanel.setControllers(mPlayer, this);
                 mCommentPanel.interacted = !waitForInteraction;
-                mCurrentCommentDisplay = mCommentPanel;
+                mCurrentCommentPanel = mCommentPanel;
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                         LayoutParams.FILL_PARENT, mWaveformHolder.getHeight()/2);
-                lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
-
+                lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 addView(mCommentPanel, lp);
 
 
                 Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.ABSOLUTE, -mWaveformHolder.getHeight()/2,
+                        Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, -1.0f,
                         Animation.RELATIVE_TO_SELF, 0.0f);
                 animation.setDuration(500);
                 mCommentPanel.startAnimation(animation);

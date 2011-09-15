@@ -2,10 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:id="@+id/comment_panel"
        android:layout_width="fill_parent"
-       android:layout_height="wrap_content"
-       android:paddingBottom="5dip"
-       android:paddingTop="5dip"
-       android:background="@color/playerControlAlphaBackground">
+       android:layout_height="wrap_content">
     <ImageView android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"

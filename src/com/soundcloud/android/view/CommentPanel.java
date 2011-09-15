@@ -5,37 +5,59 @@ import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
-public class CommentPanel extends CommentDisplay {
+public class CommentPanel extends RelativeLayout {
 
-    ImageView mIcon;
+    private ImageView mIcon;
+    protected Comment mComment;
+    protected Track mTrack;
 
-    public CommentPanel(Context context) {
+    protected TextView mTxtUsername;
+    protected TextView mTxtTimestamp;
+    protected TextView mTxtElapsed;
+
+    protected Button mBtnReadOn;
+    protected ImageButton mBtnClose;
+    protected TextView mTxtComment;
+    protected Button mBtnReply;
+
+    protected WaveformController mController;
+    protected ScPlayer mPlayer;
+
+    public Comment show_comment;
+
+    protected boolean interacted;
+    protected boolean closing;
+
+    private String at_timestamp;
+
+    private boolean mIsLandscape;
+
+
+    public CommentPanel(Context context, boolean isLandscape) {
         super(context);
-    }
 
-    public CommentPanel(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @Override
-    protected void init(){
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_panel, this);
 
         final float density = getResources().getDisplayMetrics().density;
         setBackgroundColor(getResources().getColor(R.color.commentPanelBg));
-        setPadding(0, (int) (5 * density), 0, (int) (25 * density));
+        setPadding(0, (int) (5 * density), 0, isLandscape ? (int) (5 * density) : (int) (25 * density));
 
         mIcon = (ImageView) findViewById(R.id.icon);
         mIcon.setOnClickListener(new OnClickListener() {
@@ -48,13 +70,94 @@ public class CommentPanel extends CommentDisplay {
 
         });
 
-        super.init();
+        at_timestamp = getResources().getString(R.string.at_timestamp);
+
+        mTxtUsername = (TextView) findViewById(R.id.txt_username);
+        mTxtTimestamp = (TextView) findViewById(R.id.txt_timestamp);
+        mTxtElapsed = (TextView) findViewById(R.id.txt_elapsed);
+        mBtnClose = (ImageButton) findViewById(R.id.btn_close);
+        mBtnReadOn = (Button) findViewById(R.id.btn_read_on);
+        mTxtComment = (TextView) findViewById(R.id.txt_comment);
+        mBtnReply = (Button) findViewById(R.id.btn_reply);
+
+        if (mBtnReply != null)
+            mBtnReply.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
+                            mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
+                }
+
+            });
+
+        if (mBtnReadOn != null)
+            mBtnReadOn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mController.nextCommentInThread();
+                }
+
+            });
+
+        mTxtUsername.setFocusable(true);
+        mTxtUsername.setClickable(true);
+        mTxtUsername.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                intent.putExtra("user", mComment.user);
+                mPlayer.startActivity(intent);
+            }
+
+        });
+
+        if (mBtnClose != null)
+            mBtnClose.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mController.closeComment();
+                }
+            });
+
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                interacted = true;
+            }
+        });
+
+        interacted = false;
+        closing = false;
+    }
+
+    protected void setControllers(ScPlayer player, WaveformController controller) {
+        mPlayer = player;
+        mController = controller;
     }
 
     protected void showComment(Comment currentShowingComment) {
-        super.showComment(currentShowingComment);
+        mComment = currentShowingComment;
 
-        if (currentShowingComment.user.avatar_url == null){
+        mTxtUsername.setText(mComment.user.username);
+        mTxtTimestamp.setText(String.format(at_timestamp, CloudUtils.formatTimestamp(mComment.timestamp)));
+        mTxtComment.setText(mComment.body);
+        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(), mComment.created_at.getTime(), true));
+        mTxtUsername.setVisibility(View.VISIBLE);
+        mTxtTimestamp.setVisibility(View.VISIBLE);
+        mTxtElapsed.setVisibility(View.VISIBLE);
+        mTxtComment.setVisibility(View.VISIBLE);
+
+        if (mBtnReply != null) mBtnReply.setVisibility(View.VISIBLE);
+        if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
+        if (mBtnReadOn != null) {
+            if (currentShowingComment.nextComment != null)
+                mBtnReadOn.setVisibility(View.VISIBLE);
+            else
+                mBtnReadOn.setVisibility(View.GONE);
+
+        }
+
+        if (currentShowingComment.user.avatar_url == null) {
             ImageLoader.get(getContext()).unbind(mIcon);
             return;
         }
@@ -62,8 +165,19 @@ public class CommentPanel extends CommentDisplay {
         ImageLoader.get(getContext()).bind(mIcon,
                 ImageUtils.formatGraphicsUriForList(getContext(), currentShowingComment.user.avatar_url),
                 new ImageLoader.ImageViewCallback() {
-            @Override public void onImageLoaded(ImageView view, String url) {}
-            @Override public void onImageError(ImageView view, String url, Throwable error) {}
-        });
+                    @Override
+                    public void onImageLoaded(ImageView view, String url) {
+                    }
+
+                    @Override
+                    public void onImageError(ImageView view, String url, Throwable error) {
+                    }
+                });
+
     }
+
+    public Comment getComment() {
+        return mComment;
+    }
+
 }
