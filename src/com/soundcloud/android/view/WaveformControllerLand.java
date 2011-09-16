@@ -19,12 +19,14 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
+
     private static final int UI_SHOW_CURRENT_COMMENT = 3;
     private static final int UI_ADD_COMMENT = 4;
     private static final int UI_TOGGLE_COMMENTS = 5;
 
     private int mAvatarOffsetY, mCommentBarOffsetY;
     private CommentPanel mCommentPanel;
+
 
     private static final int COMMENT_ANIMATE_DURATION = 500;
 
@@ -103,7 +105,12 @@ public class WaveformControllerLand extends WaveformController {
         Comment c = isHitting(xPos, skipComment);
         if (c != null) {
             mCurrentShowingComment = c;
+            mShowComment = true;
             queueCommentUnique(UI_SHOW_CURRENT_COMMENT);
+        } else if (skipComment == null){
+            mCommentPanel.show_comment = null;
+            mShowComment = false;
+            queueUnique(UI_UPDATE_COMMENT);
         }
     }
 
@@ -149,6 +156,7 @@ public class WaveformControllerLand extends WaveformController {
 
 
         if (mCurrentShowingComment != null) {
+            cancelAutoCloseComment();
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
             mCommentLines.setCurrentComment(mCurrentShowingComment);
 

@@ -84,6 +84,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private static final int UI_UPDATE_COMMENT_POSITION = 3;
     private static final int UI_ADD_COMMENT = 4;
     private static final int UI_TOGGLE_COMMENTS = 5;
+    protected static final int UI_UPDATE_COMMENT = 6;
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -91,6 +92,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
     private long mCurrentTime;
+
+    protected boolean mShowComment;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -609,6 +612,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 case UI_ADD_COMMENT:
                     mPlayer.addNewComment(mAddComment, mPlayer.addCommentListener);
                     mPlayer.toggleCommentMode();
+                    break;
+
+                case UI_UPDATE_COMMENT:
+                    if (mShowComment)
+                        showCurrentComment();
+                    else
+                        closeComment();
                     break;
             }
         }
