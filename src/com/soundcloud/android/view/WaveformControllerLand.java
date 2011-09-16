@@ -107,7 +107,7 @@ public class WaveformControllerLand extends WaveformController {
             mCurrentShowingComment = c;
             mShowComment = true;
             queueCommentUnique(UI_SHOW_CURRENT_COMMENT);
-        } else if (skipComment == null){
+        } else if (skipComment == null && mCommentPanel != null){
             mCommentPanel.show_comment = null;
             mShowComment = false;
             queueUnique(UI_UPDATE_COMMENT);

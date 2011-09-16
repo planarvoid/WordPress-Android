@@ -88,9 +88,13 @@ public abstract class ScActivity extends Activity {
 
     public boolean isConnected() {
         if (mIsConnected == null) {
-            // mIsConnected not set yet
-            NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-            mIsConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
+            if (connectivityListener == null) {
+                mIsConnected = true;
+            } else {
+                // mIsConnected not set yet
+                NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+                mIsConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
+            }
         }
         return mIsConnected;
     }
@@ -466,10 +470,10 @@ public abstract class ScActivity extends Activity {
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
                                 R.string.menu_settings, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startActivity(new Intent(ScActivity.this, Settings.class));
-                                    }
-                                }).setPositiveButton(
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(ScActivity.this, Settings.class));
+                            }
+                        }).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
