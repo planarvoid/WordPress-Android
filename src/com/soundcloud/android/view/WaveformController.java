@@ -41,7 +41,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class WaveformController extends RelativeLayout implements OnTouchListener {
     private static final String TAG = "WaveformController";
 
-    private static final long CLOSE_COMMENT_DELAY = 5000;
+    protected static final long CLOSE_COMMENT_DELAY = 5000;
 
     protected PlayerAvatarBar mPlayerAvatarBar;
 
@@ -206,20 +206,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    mLastAutoComment = last;
-                    autoCloseComment();
                     cancelAutoCloseComment();
-                    if (mPlayer.waveformVisible()) {
-                        if (mCurrentShowingComment == null){
-                            mCurrentShowingComment = last;
-                            showCurrentComment(true);
-                            mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
-                        }
-
+                    if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || mCurrentShowingComment == mLastAutoComment)) {
+                        mCurrentShowingComment = last;
+                        autoShowComment(last);
                     }
+                    mLastAutoComment = last;
                 }
             }
         }
+    }
+
+    protected void autoShowComment(Comment c) {
+        showCurrentComment(true);
+        mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 
     public void setSecondaryProgress(int percent) {
@@ -453,6 +453,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         for (Comment comment : mCurrentTopComments)
             if (comment.timestamp < timestamp)
                 return comment;
+
+        return null;
+    }
+
+    protected Comment nextCommentAfterTimestamp(long timestamp) {
+        for (int i = mCurrentTopComments.size() -1; i >= 0; i--){
+            if (mCurrentTopComments.get(i).timestamp > timestamp)
+                return mCurrentTopComments.get(i);
+        }
 
         return null;
     }

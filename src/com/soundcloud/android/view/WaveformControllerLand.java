@@ -27,8 +27,8 @@ public class WaveformControllerLand extends WaveformController {
     private int mAvatarOffsetY, mCommentBarOffsetY;
     private CommentPanel mCommentPanel;
 
-
     private static final int COMMENT_ANIMATE_DURATION = 500;
+    private static final long MAX_AUTO_COMMENT_DISPLAY_TIME = 30000;
 
     private boolean mWaveformHalf;
     private boolean mCommentPanelVisible;
@@ -186,7 +186,7 @@ public class WaveformControllerLand extends WaveformController {
             if (mWaveformHolder.getAnimation() != null && !mWaveformHolder.getAnimation().hasEnded()){
                 //calculate new distances and durations based on unfinished animation
                 final float transY =getAnimationTransY(mWaveformHolder.getAnimation());
-                final long duration = (long) Math.max(0,(mWaveformHolder.getHeight()/2-transY)/(mWaveformHolder.getHeight()/2) * COMMENT_ANIMATE_DURATION);
+                final long duration = (long) Math.max(0, (mWaveformHolder.getHeight() / 2 - transY) / (mWaveformHolder.getHeight() / 2) * COMMENT_ANIMATE_DURATION);
 
                 mWaveformHolder.clearAnimation();
                 Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
@@ -301,5 +301,14 @@ public class WaveformControllerLand extends WaveformController {
             mCurrentTimeDisplay.setShowArrow(false);
         }
         super.setCommentMode(commenting);
+    }
+
+    @Override
+    protected void autoShowComment(Comment c) {
+        showCurrentComment(true);
+        final Comment nextComment = nextCommentAfterTimestamp(c.timestamp);
+        if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME){
+            mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+        }
     }
 }
