@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/transport_bar"
-              android:background="@color/playerControlBackground"
+              android:background="@drawable/black_transport_bar_gradient"
               android:paddingTop="5dip"
               android:paddingBottom="5dip"
               android:orientation="horizontal"
@@ -45,7 +45,7 @@
         <ImageButton android:id="@+id/btn_favorite"
                      android:layout_centerHorizontal="true"
                      style="@style/btn_sc_transparent"
-                     android:src="@drawable/ic_favorite_states"/>
+                     android:src="@drawable/ic_like_states"/>
     </RelativeLayout>
     <RelativeLayout android:layout_width="0dp"
                     android:layout_weight="1"

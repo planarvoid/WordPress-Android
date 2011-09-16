@@ -1086,11 +1086,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
         if (mPlayingTrack.user_favorite) {
             if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(
-                    R.drawable.ic_favorited_states);
+                    mLandscape ? R.drawable.ic_liked_states : R.drawable.ic_liked_states_v1);
             mFavoriteButton.setImageDrawable(mFavoritedDrawable);
         } else {
             if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(
-                    R.drawable.ic_favorite_states);
+                    mLandscape ? R.drawable.ic_like_states : R.drawable.ic_like_states_v1);
             mFavoriteButton.setImageDrawable(mFavoriteDrawable);
         }
     }

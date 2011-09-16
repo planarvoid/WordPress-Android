@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/transport_bar"
-              android:background="@color/playerControlBackground"
+              android:background="@drawable/black_transport_bar_gradient"
               android:paddingTop="5dip"
               android:paddingBottom="5dip"
               android:orientation="horizontal"

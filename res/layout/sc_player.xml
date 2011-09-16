@@ -39,7 +39,7 @@
                 <ImageButton android:id="@+id/btn_favorite"
                              android:layout_centerHorizontal="true"
                              style="@style/btn_sc_transparent"
-                             android:src="@drawable/ic_favorite_states"/>
+                             android:src="@drawable/ic_like_states_v1"/>
             </RelativeLayout>
             <RelativeLayout android:layout_width="0dp"
                             android:layout_weight="1"
@@ -47,7 +47,7 @@
                 <ImageButton android:id="@+id/btn_comment"
                              android:layout_centerHorizontal="true"
                              style="@style/btn_sc_transparent"
-                             android:src="@drawable/ic_comment_states"/>
+                             android:src="@drawable/ic_comment_states_v1"/>
             </RelativeLayout>
             <RelativeLayout android:layout_width="0dp"
                             android:layout_weight="1"

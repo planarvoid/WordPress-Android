@@ -139,10 +139,10 @@ public class TracklistRow extends LazyRow {
 
         if (mTrack.user_favorite) {
             mFavoriteBtn.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_favorited_states));
+                    R.drawable.ic_liked_states_v1));
         } else {
             mFavoriteBtn.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_favorite_states));
+                    R.drawable.ic_like_states_v1));
         }
     }
 
