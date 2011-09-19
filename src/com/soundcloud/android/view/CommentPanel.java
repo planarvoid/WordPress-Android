@@ -159,7 +159,7 @@ public class CommentPanel extends RelativeLayout {
 
         }
 
-        if (currentShowingComment.user.avatar_url == null) {
+        if (currentShowingComment.user == null || !CloudUtils.checkIconShouldLoad(currentShowingComment.user.avatar_url)) {
             ImageLoader.get(getContext()).unbind(mIcon);
             return;
         }

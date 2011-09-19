@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
@@ -206,9 +207,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    cancelAutoCloseComment();
+
+
+
+
                     if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || mCurrentShowingComment == mLastAutoComment)) {
-                        mCurrentShowingComment = last;
+
                         autoShowComment(last);
                     }
                     mLastAutoComment = last;
@@ -218,7 +222,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected void autoShowComment(Comment c) {
+        autoCloseComment();
+        cancelAutoCloseComment();
+
+        mCurrentShowingComment = c;
         showCurrentComment(true);
+
+        final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
+        if (nextComment != null) nextComment.prefetchAvatar(getContext());
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 

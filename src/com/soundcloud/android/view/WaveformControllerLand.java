@@ -14,8 +14,11 @@ import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
@@ -304,9 +307,14 @@ public class WaveformControllerLand extends WaveformController {
     }
 
     @Override
-    protected void autoShowComment(Comment c) {
+     protected void autoShowComment(Comment c) {
+        cancelAutoCloseComment();
+
+        mCurrentShowingComment = c;
         showCurrentComment(true);
-        final Comment nextComment = nextCommentAfterTimestamp(c.timestamp);
+
+        final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
+        if (nextComment != null) nextComment.prefetchAvatar(getContext());
         if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME){
             mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
         }

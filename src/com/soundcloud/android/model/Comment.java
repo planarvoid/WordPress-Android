@@ -1,9 +1,11 @@
 
 package com.soundcloud.android.model;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -77,6 +79,12 @@ public class Comment extends ModelBase implements Origin {
     @Override @JsonIgnore
     public User getUser() {
         return user;
+    }
+
+    public void prefetchAvatar(Context c){
+        if (user != null && CloudUtils.checkIconShouldLoad(user.avatar_url)) {
+            ImageLoader.get(c).prefetch(ImageUtils.formatGraphicsUriForList(c, nextComment.user.avatar_url));
+        }
     }
 
     public static class CompareTimestamp implements Comparator<Comment> {
