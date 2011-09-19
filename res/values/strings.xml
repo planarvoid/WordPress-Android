@@ -179,4 +179,6 @@
     <string name="pref_dev_sync_now">Sync now</string>
     <string name="pref_dev_sync_now_summary">Request a sync</string>
 
+    <string name='comment_panel_read_on'><![CDATA[<u>Read on</u>]]></string>
+
 </resources>

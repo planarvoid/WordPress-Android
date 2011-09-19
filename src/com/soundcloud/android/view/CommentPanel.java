@@ -2,13 +2,12 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.AttributeSet;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -31,7 +30,7 @@ public class CommentPanel extends RelativeLayout {
     protected TextView mTxtTimestamp;
     protected TextView mTxtElapsed;
 
-    protected Button mBtnReadOn;
+    protected TextView mTxtReadOn;
     protected ImageButton mBtnClose;
     protected TextView mTxtComment;
     protected Button mBtnReply;
@@ -76,9 +75,11 @@ public class CommentPanel extends RelativeLayout {
         mTxtTimestamp = (TextView) findViewById(R.id.txt_timestamp);
         mTxtElapsed = (TextView) findViewById(R.id.txt_elapsed);
         mBtnClose = (ImageButton) findViewById(R.id.btn_close);
-        mBtnReadOn = (Button) findViewById(R.id.btn_read_on);
+        mTxtReadOn = (TextView) findViewById(R.id.txt_read_on);
         mTxtComment = (TextView) findViewById(R.id.txt_comment);
         mBtnReply = (Button) findViewById(R.id.btn_reply);
+
+        mTxtReadOn.setText(Html.fromHtml(getResources().getString(R.string.comment_panel_read_on)));
 
         if (mBtnReply != null)
             mBtnReply.setOnClickListener(new OnClickListener() {
@@ -90,8 +91,8 @@ public class CommentPanel extends RelativeLayout {
 
             });
 
-        if (mBtnReadOn != null)
-            mBtnReadOn.setOnClickListener(new OnClickListener() {
+        if (mTxtReadOn != null)
+            mTxtReadOn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mController.nextCommentInThread();
@@ -149,11 +150,12 @@ public class CommentPanel extends RelativeLayout {
 
         if (mBtnReply != null) mBtnReply.setVisibility(View.VISIBLE);
         if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
-        if (mBtnReadOn != null) {
+        if (mTxtReadOn != null) {
+
             if (currentShowingComment.nextComment != null)
-                mBtnReadOn.setVisibility(View.VISIBLE);
+                mTxtReadOn.setVisibility(View.VISIBLE);
             else
-                mBtnReadOn.setVisibility(View.GONE);
+                mTxtReadOn.setVisibility(View.GONE);
 
         }
 
