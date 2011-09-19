@@ -41,7 +41,7 @@ public class WaveformControllerLand extends WaveformController {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UI_SHOW_CURRENT_COMMENT:
-                    showCurrentComment();
+                    showCurrentComment(true);
                     break;
 
                 case UI_ADD_COMMENT:
@@ -150,36 +150,32 @@ public class WaveformControllerLand extends WaveformController {
         invalidate();
     }
 
-    @Override
-    protected void showCurrentComment(){
-        showCurrentComment(false);
-    }
+   protected void showCurrentComment(boolean userTriggered) {
 
-     protected void showCurrentComment(boolean waitForInteraction) {
+       if (mCurrentShowingComment != null) {
+           if (userTriggered && !mShowingComments) {
+               toggleComments();
+           }
 
+           cancelAutoCloseComment();
+           mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
+           mCommentLines.setCurrentComment(mCurrentShowingComment);
 
-        if (mCurrentShowingComment != null) {
-            cancelAutoCloseComment();
-            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
-            mCommentLines.setCurrentComment(mCurrentShowingComment);
+           if (mCommentPanel == null) {
+               mCommentPanel = new CommentPanel(mPlayer, true);
+               mCommentPanel.setControllers(mPlayer, this);
+               mCommentPanel.interacted = userTriggered;
+               mCurrentCommentPanel = mCommentPanel;
+               RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                       LayoutParams.FILL_PARENT, mWaveformHolder.getHeight() / 2);
+               lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+               addView(mCommentPanel, lp);
+           }
 
-            if (mCommentPanel == null){
-                mCommentPanel = new CommentPanel(mPlayer, true);
-                mCommentPanel.setControllers(mPlayer, this);
-                mCommentPanel.interacted = !waitForInteraction;
-                mCurrentCommentPanel = mCommentPanel;
-                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                        LayoutParams.FILL_PARENT, mWaveformHolder.getHeight()/2);
-                lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                addView(mCommentPanel, lp);
-
-
-            }
-
-            toggleWaveformHalf(true);
-            toggleCommentsPanelVisibility(true);
-            mCommentPanel.showComment(mCurrentShowingComment);
-        }
+           toggleWaveformHalf(true);
+           toggleCommentsPanelVisibility(true);
+           mCommentPanel.showComment(mCurrentShowingComment);
+       }
     }
 
     private void toggleWaveformHalf(boolean half){
@@ -275,10 +271,14 @@ public class WaveformControllerLand extends WaveformController {
     }
 
     @Override
-    public void closeComment() {
+    public void closeComment(boolean userTriggered) {
+        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mShowingComments) {
+            toggleComments();
+        }
+
         mCurrentShowingComment = null;
-                if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
-                if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
+        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
 
         toggleWaveformHalf(false);
         toggleCommentsPanelVisibility(false);
@@ -308,6 +308,8 @@ public class WaveformControllerLand extends WaveformController {
 
     @Override
      protected void autoShowComment(Comment c) {
+        if (!mShowingComments) return;
+
         cancelAutoCloseComment();
 
         mCurrentShowingComment = c;

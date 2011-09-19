@@ -116,7 +116,7 @@ public class CommentPanel extends RelativeLayout {
             mBtnClose.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mController.closeComment();
+                    mController.closeComment(true);
                 }
             });
 

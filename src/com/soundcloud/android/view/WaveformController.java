@@ -65,7 +65,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected CommentPanel mCurrentCommentPanel;
 
     protected Comment mAddComment;
-    private Comment mLastAutoComment;
+    protected Comment mLastAutoComment;
 
     private ArrayBlockingQueue<InputObject> mInputObjectPool;
     private TouchThread mTouchThread;
@@ -134,7 +134,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mPlayerAvatarBar.setOnTouchListener(this);
 
         mCommentLines = new WaveformCommentLines(mPlayer, null);
-        mCommentLines.setVisibility(mShowingComments ? View.INVISIBLE : View.GONE);
         mWaveformHolder.addView(mCommentLines);
 
         mOverlay.setVisibility(View.INVISIBLE);
@@ -226,7 +225,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         cancelAutoCloseComment();
 
         mCurrentShowingComment = c;
-        showCurrentComment(true);
+        showCurrentComment(false);
 
         final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
         if (nextComment != null) nextComment.prefetchAvatar(getContext());
@@ -323,11 +322,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         return true; // indicate event was handled
     }
 
-    protected void showCurrentComment() {
-        showCurrentComment(false);
-    }
-
-    protected void showCurrentComment(boolean waitForInteraction) {
+    protected void showCurrentComment(boolean userTriggered) {
 
 
         if (mCurrentShowingComment != null) {
@@ -337,7 +332,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             CommentPanel commentPanel = new CommentPanel(mPlayer, false);
             commentPanel.setControllers(mPlayer, this);
             commentPanel.showComment(mCurrentShowingComment);
-            commentPanel.interacted = !waitForInteraction;
+            commentPanel.interacted = userTriggered;
             mCurrentCommentPanel = commentPanel;
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
@@ -363,7 +358,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void closeComment() {
+    public void closeComment(boolean userTriggered) {
+
         mCurrentShowingComment = null;
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
@@ -374,13 +370,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCurrentCommentPanel.setAnimation(animation);
             mWaveformFrame.removeView(mCurrentCommentPanel);
             mCurrentCommentPanel = null;
+
+
+
         }
     }
 
     protected void autoCloseComment() {
         if (mCurrentCommentPanel != null && mCurrentShowingComment != null)
             if (mCurrentShowingComment == mCurrentCommentPanel.getComment() && !mCurrentCommentPanel.interacted) {
-                closeComment();
+                closeComment(false);
             }
     }
 
@@ -397,20 +396,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void nextCommentInThread() {
         if (mCurrentShowingComment.nextComment != null) {
             mCurrentShowingComment = mCurrentShowingComment.nextComment;
-            showCurrentComment();
+            showCurrentComment(true);
         }
     }
 
     public void clearTrack() {
         cancelAutoCloseComment();
-        closeComment();
+        closeComment(false);
 
         if (mPlayerAvatarBar != null) {
-            if (mShowingComments) mPlayerAvatarBar.setVisibility(View.INVISIBLE);
+            mPlayerAvatarBar.setVisibility(View.INVISIBLE);
             mPlayerAvatarBar.clearTrackData();
         }
         if (mCommentLines != null) {
-            if (mShowingComments) mCommentLines.setVisibility(View.INVISIBLE);
+            mCommentLines.setVisibility(View.INVISIBLE);
             mCommentLines.clearTrackData();
         }
 
@@ -481,7 +480,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void setComments(List<Comment> comments, boolean animateIn) {
         mCurrentComments = comments;
 
-        if (!mShowingComments || mCurrentComments == null)
+        if (mCurrentComments == null)
             return;
 
         mCurrentTopComments = new ArrayList<Comment>();
@@ -533,13 +532,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void toggleComments() {
         mShowingComments = !mShowingComments;
         mPreferences.edit().putBoolean("playerShowingCOmments", mShowingComments).commit();
-        if (mShowingComments) {
-            mCommentLines.setVisibility(View.INVISIBLE);
-            setComments(mCurrentComments, true);
-        } else {
-            mCommentLines.setVisibility(View.GONE);
-        }
-
     }
 
     private void processInputObject(InputObject input) {
@@ -636,9 +628,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 case UI_UPDATE_COMMENT:
                     if (mShowComment)
-                        showCurrentComment();
+                        showCurrentComment(true);
                     else
-                        closeComment();
+                        closeComment(false);
                     break;
             }
         }
@@ -661,10 +653,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mPlayingTrack.duration);
     }
 
-    public void showComment(Comment c) {
-        if (mCurrentCommentPanel != null && mCurrentShowingComment != null) closeComment();
+    public void showNewComment(Comment c) {
+        if (mCurrentCommentPanel != null && mCurrentShowingComment != null) closeComment(false);
         mCurrentShowingComment = c;
-        showCurrentComment(true);
+        showCurrentComment(false);
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 

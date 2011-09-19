@@ -475,7 +475,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     private void onTrackInfoFlip() {
         if (mTrackFlipper.getDisplayedChild() == 0) {
-            mWaveformController.closeComment();
+            mWaveformController.closeComment(false);
 
             if (mTrackInfo == null) {
                 mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
@@ -1151,7 +1151,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mPlayingTrack.comments.add(c);
             getApp().cacheTrack(mPlayingTrack);
             setCurrentComments(true);
-            mWaveformController.showComment(c);
+            mWaveformController.showNewComment(c);
         }
 
         @Override
