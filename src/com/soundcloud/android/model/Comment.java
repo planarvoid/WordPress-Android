@@ -83,7 +83,7 @@ public class Comment extends ModelBase implements Origin {
 
     public void prefetchAvatar(Context c){
         if (user != null && CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            ImageLoader.get(c).prefetch(ImageUtils.formatGraphicsUriForList(c, nextComment.user.avatar_url));
+            ImageLoader.get(c).prefetch(ImageUtils.formatGraphicsUriForList(c, user.avatar_url));
         }
     }
 
