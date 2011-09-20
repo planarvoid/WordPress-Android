@@ -336,7 +336,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCurrentCommentPanel = commentPanel;
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = (int) -(getResources().getDisplayMetrics().density * 10);
             lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
             commentPanel.invalidate();
 
