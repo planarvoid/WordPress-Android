@@ -236,10 +236,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressBar.setSecondaryProgress(percent);
     }
 
-    public void setCurrentTime(long time) {
+    public void setCurrentTime(final long time) {
         mCurrentTime = time;
         if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
-            mCurrentTimeDisplay.setCurrentTime(time, false);
+            if (getWidth() == 0){
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCurrentTimeDisplay.setCurrentTime(time, false);
+                    }
+                });
+            } else {
+                mCurrentTimeDisplay.setCurrentTime(time, false);
+            }
+
         }
     }
 
