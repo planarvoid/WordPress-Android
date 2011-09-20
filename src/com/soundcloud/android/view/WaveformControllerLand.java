@@ -300,7 +300,7 @@ public class WaveformControllerLand extends WaveformController {
         } else {
             toggleWaveformHalf(false);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,mPlayerAvatarBar.getId());
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,R.id.player_avatar_bar_holder);
             mCurrentTimeDisplay.setRoundTop(true);
             mCurrentTimeDisplay.setShowArrow(false);
         }

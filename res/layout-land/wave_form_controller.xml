@@ -7,7 +7,7 @@
                 xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android">
 
     <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
-                                                android:layout_above="@+id/player_avatar_bar"
+                                                android:layout_above="@+id/player_avatar_bar_holder"
                                                 android:background="@color/playerControlAlphaBackground"
                                                 android:layout_width="fill_parent"
                                                 android:layout_height="fill_parent">
@@ -45,7 +45,7 @@
     </com.soundcloud.android.view.WaveformHolder>
 
     <View android:layout_width="fill_parent"
-          android:layout_above="@+id/player_avatar_bar"
+          android:layout_above="@+id/player_avatar_bar_holder"
           android:layout_height="5dip"
           android:background="@drawable/drop_shadow_up"/>
     <FrameLayout android:id="@+id/player_avatar_bar_holder"
@@ -61,6 +61,6 @@
                                                     style="@style/txt_player_time"
                                                     android:layout_width="wrap_content"
                                                     android:layout_height="@dimen/player_time_height"
-                                                    android:layout_above="@+id/player_avatar_bar"
+                                                    android:layout_above="@+id/player_avatar_bar_holder"
                                                     app:show_arrow="false"/>/>
 </RelativeLayout>
