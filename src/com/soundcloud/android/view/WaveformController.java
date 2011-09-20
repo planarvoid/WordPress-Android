@@ -203,16 +203,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
-            Comment last = lastCommentBeforeTimestamp(pos);
+            final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-
-
-
-
                     if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || mCurrentShowingComment == mLastAutoComment)) {
-
-                        autoShowComment(last);
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                autoShowComment(last);
+                            }
+                        });
                     }
                     mLastAutoComment = last;
                 }
