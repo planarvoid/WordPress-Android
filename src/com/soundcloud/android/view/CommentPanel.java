@@ -2,7 +2,11 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BlurMaskFilter;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -47,15 +51,33 @@ public class CommentPanel extends RelativeLayout {
 
     private boolean mIsLandscape;
 
+    private Paint mBgPaint;
+    private Paint mLinePaint;
+    private int mPlayheadOffset;
+    private boolean mPlayheadLeft;
+    private int mPlayheadArrowWidth;
+    private int mPlayheadArrowHeight;
+
 
     public CommentPanel(Context context, boolean isLandscape) {
         super(context);
 
+        mIsLandscape = isLandscape;
+
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_panel, this);
 
+        mBgPaint = new Paint();
+        mBgPaint.setColor(getResources().getColor(R.color.white));
+        mBgPaint.setAntiAlias(true);
+        mBgPaint.setStyle(Paint.Style.FILL);
+        mBgPaint.setMaskFilter(new BlurMaskFilter(1, BlurMaskFilter.Blur.INNER));
+
+        mLinePaint = new Paint();
+        mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+        mLinePaint.setStyle(Paint.Style.STROKE);
+
         final float density = getResources().getDisplayMetrics().density;
-        setBackgroundColor(getResources().getColor(R.color.commentPanelBg));
         setPadding(0, (int) (5 * density), 0, isLandscape ? (int) (5 * density) : (int) (25 * density));
 
         mIcon = (ImageView) findViewById(R.id.icon);
@@ -68,6 +90,9 @@ public class CommentPanel extends RelativeLayout {
             }
 
         });
+
+        mPlayheadArrowWidth = (int) (getResources().getDisplayMetrics().density * 10);
+        mPlayheadArrowHeight = (int) (getResources().getDisplayMetrics().density * 10);
 
         at_timestamp = getResources().getString(R.string.at_timestamp);
 
@@ -176,10 +201,28 @@ public class CommentPanel extends RelativeLayout {
                     }
                 });
 
+        mPlayheadOffset = mComment.xPos;
+        if (mComment.xPos < getMeasuredWidth() / 2) {
+            mPlayheadLeft = true;
+        } else {
+            mPlayheadLeft = false;
+        }
+
     }
 
     public Comment getComment() {
         return mComment;
     }
 
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        if (mIsLandscape && mComment.xPos > -1) {
+            CloudUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
+                    mPlayheadArrowWidth, mPlayheadArrowHeight, mPlayheadOffset);
+        } else {
+            canvas.drawRect(0, getMeasuredHeight(), getMeasuredWidth(), 0, mBgPaint);
+        }
+
+        super.dispatchDraw(canvas);
+    }
 }

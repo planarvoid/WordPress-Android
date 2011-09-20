@@ -49,8 +49,6 @@ public class PlayerTime extends RelativeLayout {
     public PlayerTime(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-
-
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.player_time, this);
 
@@ -164,67 +162,14 @@ public class PlayerTime extends RelativeLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
+        CloudUtils.drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
                 mShowArrow ? getMeasuredHeight() - mPlayheadArrowHeight : getMeasuredHeight(),
                 mRoundTop ? mArc : 0, mShowArrow ? mPlayheadArrowWidth : 0, mPlayheadArrowHeight, mPlayheadOffset);
 
         super.dispatchDraw(canvas);
     }
 
-    private static void drawBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arc, int arrowWidth, int arrowHeight, int arrowOffset){
 
-        /*
-             A ---- B
-           I          C
-           H ----G-E- D
-                 F
-
-         */
-
-        final boolean arrowLeft = arrowOffset <= width/2;
-
-        final int Ax = arc;
-        final int Ay = 0;
-        final int Bx = width - arc;
-        final int By = 0;
-        final int Cx = width;
-        final int Cy = arc;
-        final int Dx = width;
-        final int Dy = height;
-        final int Ex = arrowLeft ? arrowWidth + arrowOffset : arrowOffset;
-        final int Ey = height;
-        final int Fx = arrowOffset;
-        final int Fy = height + arrowHeight;
-        final int Gx = arrowLeft ? arrowOffset : arrowOffset - arrowWidth;
-        final int Gy = height;
-        final int Hx = 0;
-        final int Hy = height;
-        final int Ix = 0;
-        final int Iy = arc;
-
-        Path ctx = new Path();
-        ctx.moveTo(Ax, Ay);
-        ctx.lineTo(Bx, By);
-        ctx.arcTo(new RectF(Bx, By, Cx, Cy), 270, 90); //B-C arc
-
-        ctx.lineTo(Dx, Dy);
-
-        if (arrowWidth > 0){
-            ctx.lineTo(Ex, Ey);
-            ctx.lineTo(Fx, Fy);
-            ctx.lineTo(Gx, Gy);
-        }
-
-
-        ctx.lineTo(Hx, Hy);
-        ctx.lineTo(Ix, Iy);
-        ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
-        c.drawPath(ctx, bgPaint);
-
-        if (linePaint != null){
-            c.drawLine(arrowOffset,height,arrowOffset,height+arrowOffset,linePaint);
-        }
-    }
 
     public void setByPercent(float seekPercent, boolean commenting) {
         setCurrentTime((long) (mDuration * seekPercent), commenting);

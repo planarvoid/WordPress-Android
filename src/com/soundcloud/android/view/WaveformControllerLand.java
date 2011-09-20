@@ -166,8 +166,9 @@ public class WaveformControllerLand extends WaveformController {
                mCommentPanel.setControllers(mPlayer, this);
                mCommentPanel.interacted = userTriggered;
                mCurrentCommentPanel = mCommentPanel;
-               RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                       LayoutParams.FILL_PARENT, mWaveformHolder.getHeight() / 2);
+               RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,
+                       (int) (mWaveformHolder.getHeight() / 2 + (getResources().getDisplayMetrics().density * 10)));
+               lp.bottomMargin = (int) -(getResources().getDisplayMetrics().density * 10);
                lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                addView(mCommentPanel, lp);
            }
@@ -317,6 +318,7 @@ public class WaveformControllerLand extends WaveformController {
 
         final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
         if (nextComment != null) nextComment.prefetchAvatar(getContext());
+
         if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME){
             mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
         }
