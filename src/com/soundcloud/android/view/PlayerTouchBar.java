@@ -41,7 +41,7 @@ public class PlayerTouchBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);    //To change body of overridden methods use File | Settings | File Templates.
-        if (!mLandscape && mSeeking) {
+        if (mSeeking) {
             canvas.drawColor(0xAAFFFFFF);
             canvas.drawRect(mMarkerRect, mMarkerPaint);
         }
