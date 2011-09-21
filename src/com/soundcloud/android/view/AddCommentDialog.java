@@ -12,6 +12,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -106,6 +107,15 @@ public class AddCommentDialog extends Dialog {
         final View decorView = getWindow().getDecorView();
         return (x < -slop) || (y < -slop) || (x > (decorView.getWidth() + slop))
                 || (y > (decorView.getHeight() + slop));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }
