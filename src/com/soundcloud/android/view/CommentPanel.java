@@ -105,16 +105,14 @@ public class CommentPanel extends RelativeLayout {
         mBtnReply = (Button) findViewById(R.id.btn_reply);
 
         mTxtReadOn.setText(Html.fromHtml(getResources().getString(R.string.comment_panel_read_on)));
-
-        if (mBtnReply != null)
-            mBtnReply.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
                     mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
                             mComment.timestamp, "", mComment.id, mComment.user.username));
-                }
-
-            });
+                return true;
+            }
+        });
 
         if (mTxtReadOn != null)
             mTxtReadOn.setOnClickListener(new OnClickListener() {
