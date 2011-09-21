@@ -10,6 +10,7 @@ import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.LruCache;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -69,7 +70,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
+
     public boolean playerWaitForArtwork;
+    public Comment pendingComment;
 
     @Override
     public void onCreate() {

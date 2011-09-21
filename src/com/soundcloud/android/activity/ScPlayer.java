@@ -11,7 +11,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
-import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
+import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
@@ -565,7 +565,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                         @Override
                         public void onClick(View v) {
                             addNewComment(CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id,
-                                    -1, "", 0), addCommentListener);
+                                    -1, "", 0));
                         }
                     });
         } else {
@@ -753,6 +753,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 updateTrackInfo();
             } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
                 // setPauseButtonImage();
+            }  else if (action.equals(Consts.IntentActions.COMMENT_ADDED)) {
+                final Comment c = intent.getParcelableExtra("comment");
+                if (c.track_id == mPlayingTrack.id) {
+                    setCurrentComments(true);
+                    mWaveformController.showNewComment(c);
+                }
             }
         }
     };
@@ -1015,6 +1021,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
+        f.addAction(Consts.IntentActions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
@@ -1132,33 +1139,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     private void setCurrentComments(boolean animateIn){
         mTrackInfoCommentsFilled = false;
-
         mWaveformController.setComments(mPlayingTrack.comments, animateIn);
-
         if (!mLandscape && mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
             fillTrackInfoComments();
         }
     }
-
-    public AddCommentListener addCommentListener = new AddCommentListener(){
-        @Override
-        public void onCommentAdd(boolean success, Comment c) {
-            if (c.track_id != mPlayingTrack.id || !success)
-            return;
-
-            if (mPlayingTrack.comments == null) mPlayingTrack.comments = new ArrayList<Comment>();
-
-            mPlayingTrack.comments.add(c);
-            getApp().cacheTrack(mPlayingTrack);
-            setCurrentComments(true);
-            mWaveformController.showNewComment(c);
-        }
-
-        @Override
-        public void onException(Comment c, Exception e) {
-            handleException(e);
-        }
-    };
 
     // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
     private static void initializeRemoteControlRegistrationMethods() {

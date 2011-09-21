@@ -79,7 +79,7 @@ public class TracklistRow extends LazyRow {
                         mActivity,
                         mActivity.getCurrentUserId(),
                         mTrack.id, -1, "",
-                        0), null);
+                        0));
             }
         });
 

@@ -11,7 +11,6 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
@@ -502,8 +501,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             } else if (mCurrentComments.get(i).xPos == -1) {
                 mCurrentComments.get(i).calculateXPos(getWidth(), mDuration);
             }
-
-
         }
 
         if (mPlayerAvatarBar != null) {
@@ -625,7 +622,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     break;
 
                 case UI_ADD_COMMENT:
-                    mPlayer.addNewComment(mAddComment, mPlayer.addCommentListener);
+                    mPlayer.addNewComment(mAddComment);
                     mPlayer.toggleCommentMode();
                     break;
 
@@ -657,6 +654,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void showNewComment(Comment c) {
+        if (c.xPos == -1){
+            if (getWidth() == 0 || mDuration <= 0) return;
+            c.calculateXPos(getWidth(), mDuration);
+        }
         if (mCurrentCommentPanel != null && mCurrentShowingComment != null) closeComment(false);
         mCurrentShowingComment = c;
         showCurrentComment(false);

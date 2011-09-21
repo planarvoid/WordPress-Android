@@ -21,7 +21,7 @@ import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.AddCommentTask.AddCommentListener;
+import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
@@ -74,7 +74,6 @@ public abstract class ScActivity extends Activity {
     private MenuItem menuCurrentUploadingItem;
     private boolean mIsForeground;
     private long mCurrentUserId;
-
     boolean mIgnorePlaybackStatus;
 
     protected static final int CONNECTIVITY_MSG = 0;
@@ -173,6 +172,10 @@ public abstract class ScActivity extends Activity {
         playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+
+        IntentFilter generalIntentFilter = new IntentFilter();
+        generalIntentFilter.addAction(Consts.IntentActions.CONNECTION_ERROR);
+        registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
         mLists = new ArrayList<ScListView>();
     }
@@ -368,20 +371,18 @@ public abstract class ScActivity extends Activity {
         return index;
     }
 
-    public void addNewComment(final Comment comment, final AddCommentListener listener) {
-        final AddCommentDialog dialog = new AddCommentDialog(this, comment, listener);
-        dialog.show();
-        dialog.getWindow().setGravity(Gravity.TOP);
+    public void addNewComment(final Comment comment) {
+        getApp().pendingComment = comment;
+        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
 
-    public AddCommentListener mAddCommentListener = new AddCommentListener(){
+    private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
         @Override
-        public void onCommentAdd(boolean success, Comment c) {
-        }
-
-        @Override
-        public void onException(Comment c, Exception e) {
-            handleException(e);
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Consts.IntentActions.CONNECTION_ERROR)) {
+                safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
+            }
         }
     };
 
@@ -415,9 +416,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public void handleException(Exception e) {
-        if (e instanceof UnknownHostException
-                || e instanceof SocketException
-                || e instanceof JSONException) {
+        if (CloudUtils.isConnectionException(e)) {
             safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
         }
     }
@@ -490,6 +489,10 @@ public abstract class ScActivity extends Activity {
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return CloudUtils.createLogoutDialog(this);
 
+            case Consts.Dialogs.DIALOG_ADD_COMMENT:
+                final AddCommentDialog dialog = new AddCommentDialog(this);
+                dialog.getWindow().setGravity(Gravity.TOP);
+                return dialog;
             default:
                 return super.onCreateDialog(which);
         }

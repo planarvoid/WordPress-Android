@@ -6,19 +6,13 @@ import android.os.Message;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
-import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.InputObject;
 
 public class WaveformControllerLand extends WaveformController {
@@ -45,7 +39,7 @@ public class WaveformControllerLand extends WaveformController {
                     break;
 
                 case UI_ADD_COMMENT:
-                    mPlayer.addNewComment(mAddComment, mPlayer.addCommentListener);
+                    mPlayer.addNewComment(mAddComment);
                     break;
 
                 case UI_TOGGLE_COMMENTS:
@@ -300,7 +294,7 @@ public class WaveformControllerLand extends WaveformController {
         } else {
             toggleWaveformHalf(false);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,R.id.player_avatar_bar_holder);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE, R.id.player_avatar_bar_holder);
             mCurrentTimeDisplay.setRoundTop(true);
             mCurrentTimeDisplay.setShowArrow(false);
         }

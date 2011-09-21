@@ -6,14 +6,8 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -117,7 +111,7 @@ public class CommentPanel extends RelativeLayout {
                 @Override
                 public void onClick(View v) {
                     mPlayer.addNewComment(CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
-                            mComment.timestamp, "", mComment.id, mComment.user.username), mPlayer.addCommentListener);
+                            mComment.timestamp, "", mComment.id, mComment.user.username));
                 }
 
             });

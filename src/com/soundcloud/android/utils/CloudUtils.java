@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.view.ScTabView;
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -64,6 +65,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -861,5 +865,11 @@ public class CloudUtils {
         if (linePaint != null) {
             c.drawLine(arrowOffset, height, arrowOffset, height + arrowOffset, linePaint);
         }
+    }
+
+    public static boolean isConnectionException(Exception e){
+        return (e instanceof UnknownHostException
+                || e instanceof SocketException
+                || e instanceof JSONException);
     }
 }
