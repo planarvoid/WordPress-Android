@@ -9,6 +9,11 @@ import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,18 +31,18 @@ import com.soundcloud.android.utils.ImageUtils;
 
 public class CommentPanel extends RelativeLayout {
 
-    private ImageView mIcon;
+    private final ImageView mIcon;
     protected Comment mComment;
     protected Track mTrack;
 
-    protected TextView mTxtUsername;
-    protected TextView mTxtTimestamp;
-    protected TextView mTxtElapsed;
+    protected final TextView mTxtUsername;
+    protected final TextView mTxtTimestamp;
+    protected final TextView mTxtElapsed;
 
-    protected TextView mTxtReadOn;
-    protected ImageButton mBtnClose;
-    protected TextView mTxtComment;
-    protected Button mBtnReply;
+    protected final TextView mTxtReadOn;
+    protected final ImageButton mBtnClose;
+    protected final TextView mTxtComment;
+    protected final Button mBtnReply;
 
     protected WaveformController mController;
     protected ScPlayer mPlayer;
@@ -45,18 +50,19 @@ public class CommentPanel extends RelativeLayout {
     public Comment show_comment;
 
     protected boolean interacted;
-    protected boolean closing;
+    protected final boolean closing;
 
-    private String at_timestamp;
+    private final String at_timestamp;
 
-    private boolean mIsLandscape;
+    private final boolean mIsLandscape;
+    private boolean mAnimatedIn;
 
-    private Paint mBgPaint;
-    private Paint mLinePaint;
+    private final Paint mBgPaint;
+    private final Paint mLinePaint;
     private int mPlayheadOffset;
     private boolean mPlayheadLeft;
-    private int mPlayheadArrowWidth;
-    private int mPlayheadArrowHeight;
+    private final int mPlayheadArrowWidth;
+    private final int mPlayheadArrowHeight;
 
 
     public CommentPanel(Context context, boolean isLandscape) {
@@ -216,13 +222,13 @@ public class CommentPanel extends RelativeLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        if (mIsLandscape && mComment.xPos > -1) {
+        if (mIsLandscape || mAnimatedIn){
             CloudUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
                     mPlayheadArrowWidth, mPlayheadArrowHeight, mPlayheadOffset);
         } else {
-            canvas.drawRect(0, getMeasuredHeight(), getMeasuredWidth(), 0, mBgPaint);
+            canvas.drawRect(0,0,getMeasuredWidth(),getMeasuredHeight(),mBgPaint);
         }
-
         super.dispatchDraw(canvas);
     }
+
 }

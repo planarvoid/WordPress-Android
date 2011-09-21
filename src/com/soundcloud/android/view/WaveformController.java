@@ -333,8 +333,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected void showCurrentComment(boolean userTriggered) {
-
-
         if (mCurrentShowingComment != null) {
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
             mCommentLines.setCurrentComment(mCurrentShowingComment);
@@ -347,23 +345,18 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
             lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
-            commentPanel.invalidate();
-
-            // npe??
-            mWaveformFrame.addView(commentPanel, 0, lp);
-
+            mWaveformFrame.addView(commentPanel, indexOfChild(mCurrentTimeDisplay), lp);
 
             AnimationSet set = new AnimationSet(true);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
-            animation.setDuration(500);
+            animation.setDuration(300);
             set.addAnimation(animation);
 
             animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.3f,
                     Animation.RELATIVE_TO_SELF, 0.0f);
-            animation.setDuration(500);
+            animation.setDuration(300);
             set.addAnimation(animation);
-
             commentPanel.startAnimation(set);
         }
     }
@@ -376,7 +369,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         if (mCurrentCommentPanel != null) {
             Animation animation = new AlphaAnimation(1.0f, 0.0f);
-            animation.setDuration(500);
+            animation.setDuration(300);
             mCurrentCommentPanel.setAnimation(animation);
             mWaveformFrame.removeView(mCurrentCommentPanel);
             mCurrentCommentPanel = null;
