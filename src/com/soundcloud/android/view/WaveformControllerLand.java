@@ -281,7 +281,6 @@ public class WaveformControllerLand extends WaveformController {
 
     @Override
     public void setCommentMode(boolean commenting) {
-
         if (commenting){
             toggleWaveformHalf(true);
             toggleCommentsPanelVisibility(false);

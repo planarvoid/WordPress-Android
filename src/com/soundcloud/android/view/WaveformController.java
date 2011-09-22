@@ -184,6 +184,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void setCommentMode(boolean commenting) {
         if (commenting) {
+            if (mCurrentShowingComment != null) closeComment(false);
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
             mPlayerTouchBar.setSeekPosition((int) ((((float) mCurrentTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
