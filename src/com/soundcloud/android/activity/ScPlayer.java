@@ -244,9 +244,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         mIsCommenting = !mIsCommenting;
         mWaveformController.setCommentMode(mIsCommenting);
         if (mIsCommenting){
-            mCommentButton.setImageResource(R.drawable.ic_commenting_states);
+            mCommentButton.setImageResource(mLandscape ? R.drawable.ic_commenting_states : R.drawable.ic_commenting_states_v1);
         } else {
-            mCommentButton.setImageResource(R.drawable.ic_comment_states);
+            mCommentButton.setImageResource(mLandscape ? R.drawable.ic_comment_states : R.drawable.ic_comment_states_v1);
         }
     }
 
