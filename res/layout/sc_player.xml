@@ -96,12 +96,6 @@
                       android:layout_below="@id/track_menu" android:layout_height="5dip"
                       android:background="@drawable/drop_shadow_down"/>
             </RelativeLayout>
-            <ViewStub
-                    android:id="@+id/stub_info"
-                    android:inflatedId="@+id/track_info"
-                    android:layout="@layout/track_info"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"/>
         </com.soundcloud.android.view.SafeViewFlipper>
         <FrameLayout android:layout_weight="1"
                      android:layout_width="fill_parent"

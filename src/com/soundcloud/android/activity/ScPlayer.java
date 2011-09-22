@@ -11,14 +11,13 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
-import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.android.view.PlayerTrackInfo;
 import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.api.Endpoints;
@@ -37,34 +36,23 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.text.Html;
 import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -72,14 +60,12 @@ import android.widget.ViewFlipper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
-    public static final int REFRESH_DELAY = 500;
+    private static final int REFRESH_DELAY = 500;
 
     private boolean mIsPlaying = false;
     private boolean mIsCommenting = false;
@@ -100,7 +86,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     private ViewFlipper mTrackFlipper;
 
-    private RelativeLayout mTrackInfo;
+    private PlayerTrackInfo mTrackInfo;
     private FlowLayout mTrackTags;
 
     private int mCurrentTrackError;
@@ -116,8 +102,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private boolean mWaveformLoaded;
 
     private boolean mPaused;
-    private boolean mTrackInfoFilled;
-    private boolean mTrackInfoCommentsFilled;
 
     private RelativeLayout mContainer;
 
@@ -134,8 +118,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private static Method mUnregisterMediaButtonEventReceiver;
     private Drawable mPlayState, mPauseState, mFavoriteDrawable, mFavoritedDrawable;
 
-    protected TrackInfoBar mTrackInfoBar;
-    protected ImageView mAvatar;
+    private TrackInfoBar mTrackInfoBar;
+    private ImageView mAvatar;
     private ImageButton mCommentButton;
 
     static {
@@ -386,7 +370,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         return false;
     }
 
-    Handler mLabelScroller = new Handler() {
+    private final Handler mLabelScroller = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             TextView tv = (TextView) msg.obj;
@@ -402,13 +386,13 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         }
     };
 
-    private View.OnClickListener mPauseListener = new View.OnClickListener() {
+    private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
             doPauseResume();
         }
     };
 
-    private View.OnClickListener mPrevListener = new View.OnClickListener() {
+    private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService == null) {
                 return;
@@ -428,7 +412,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         }
     };
 
-    private View.OnClickListener mNextListener = new View.OnClickListener() {
+    private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService != null) {
                 try {
@@ -478,26 +462,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             mWaveformController.closeComment(false);
 
             if (mTrackInfo == null) {
-                mTrackInfo = (RelativeLayout) ((ViewStub) findViewById(R.id.stub_info)).inflate();
-                mTrackTags = (FlowLayout) mTrackInfo.findViewById(R.id.tags_holder);
-                mFavoritersTxt = (TextView) mTrackInfo.findViewById(R.id.favoriters_txt);
-                mFavoritersTxt.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mPlayingTrack != null) {
-                            Intent i = new Intent(ScPlayer.this, TrackFavoriters.class);
-                            i.putExtra("track_id", mPlayingTrack.id);
-                            startActivity(i);
-                        }
-                    }
-                });
+                mTrackInfo = new PlayerTrackInfo(this);
+                mTrackInfo.setPlayingTrack(mPlayingTrack);
+                mTrackFlipper.addView(mTrackInfo);
             }
 
-            if (!mTrackInfoFilled) {
-                fillTrackDetails();
-            } else if (!mTrackInfoCommentsFilled){
-                fillTrackInfoComments();
-            }
+            if (!mTrackInfo.getIsTrackInfoFilled()) mTrackInfo.fillTrackDetails();
+            if (!mTrackInfo.getIsTrackInfoCommentsFilled()) mTrackInfo.fillTrackInfoComments();
+
 
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -510,133 +482,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
 
-    private void fillTrackDetails() {
-        if (mPlayingTrack == null) return;
 
-        if (!mPlayingTrack.info_loaded) {
-            if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
-                mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-            } else {
-                mTrackInfo.findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-            }
 
-            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
 
-            if (mTrackInfo.findViewById(android.R.id.empty) != null) {
-                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
-            }
-        } else {
-
-            if (mPlayingTrack.favoritings_count == 0) {
-                mFavoritersTxt.setVisibility(View.GONE);
-            } else {
-                mFavoritersTxt.setVisibility(View.VISIBLE);
-                mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
-                        mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
-            }
-
-            mTrackTags.removeAllViews();
-            mPlayingTrack.fillTags(mTrackTags, this);
-
-            TextView txtInfo = (TextView) mTrackInfo.findViewById(R.id.txtInfo);
-            txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
-            Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
-
-            // for some reason this needs to be set to support links
-            // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
-            MovementMethod mm = txtInfo.getMovementMethod();
-            if (!(mm instanceof LinkMovementMethod)) {
-                txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
-            }
-            fillTrackInfoComments();
-            mTrackInfoFilled = true;
-        }
-    }
-
-    private void fillTrackInfoComments() {
-        if (mTrackInfo == null) return;
-
-        LinearLayout commentsList;
-        if (mTrackInfo.findViewById(R.id.comments_list) == null) {
-            commentsList = (LinearLayout) ((ViewStub) mTrackInfo
-                    .findViewById(R.id.stub_comments_list)).inflate();
-            commentsList.findViewById(R.id.btn_info_comment).setOnClickListener(
-                    new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            addNewComment(CloudUtils.buildComment(ScPlayer.this, getCurrentUserId(), mPlayingTrack.id,
-                                    -1, "", 0));
-                        }
-                    });
-        } else {
-            commentsList = (LinearLayout) mTrackInfo.findViewById(R.id.comments_list);
-            while (commentsList.getChildCount() > 1) {
-                commentsList.removeViewAt(1);
-            }
-        }
-
-        if (mPlayingTrack.comments == null) return;
-
-        //sort by created date descending for this list
-        Collections.sort(mPlayingTrack.comments, Comment.CompareCreatedAt.INSTANCE);
-
-        final SpannableStringBuilder commentText = new SpannableStringBuilder();
-        final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.commentGray));
-        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
-
-        int spanStartIndex;
-        int spanEndIndex;
-
-        for (final Comment comment : mPlayingTrack.comments){
-            commentText.clear();
-
-            View v = new View(this);
-            v.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,1));
-            v.setBackgroundColor(R.color.background_dark);
-            commentsList.addView(v);
-
-            TextView tv = new TextView(this);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
-            tv.setPadding(10, 5, 10, 5);
-            tv.setTextSize(14);
-            tv.setLineSpacing(5, 1);
-
-            if (comment.user != null && comment.user.username != null) {
-                commentText.append(comment.user.username).append(' ');
-            }
-
-            spanEndIndex = commentText.length();
-            commentText.setSpan(bss, 0, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            if (comment.timestamp > 0) {
-                commentText.append(" ").append(CloudUtils.formatTimestamp(comment.timestamp)).append(" ");
-            }
-
-            spanStartIndex = commentText.length();
-            commentText.append(" said ").append(CloudUtils.getTimeElapsed(getResources(), comment.created_at.getTime()));
-
-            spanEndIndex = commentText.length();
-            commentText.setSpan(fcs, spanStartIndex, spanEndIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            commentText.append("\n").append(comment.body);
-
-            tv.setText(commentText);
-            commentsList.addView(tv);
-
-            if (comment.user != null && comment.user.username != null) {
-                tv.setLinkTextColor(0xFF000000);
-                CloudUtils.clickify(tv, comment.user.username, new ClickSpan.OnClickListener(){
-                    @Override
-                    public void onClick() {
-                        Intent intent = new Intent(ScPlayer.this, UserBrowser.class);
-                        intent.putExtra("user", comment.user);
-                        startActivity(intent);
-                    }
-                }, false);
-            }
-        }
-        //restore default sort
-        Collections.sort(mPlayingTrack.comments, Comment.CompareTimestamp.INSTANCE);
-    }
 
     private void setPauseButtonImage() {
         try {
@@ -704,7 +552,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         }
     };
 
-    private BroadcastReceiver mStatusListener = new BroadcastReceiver() {
+    private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -811,6 +659,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
         mWaveformController.updateTrack(mPlayingTrack);
         mTrackInfoBar.display(mPlayingTrack,false,-1, true);
+        if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mPlayingTrack);
         updateArtwork();
         updateAvatar();
 
@@ -837,7 +686,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         if (mPlayingTrack.id != mCurrentTrackId) {
             mWaveformController.clearTrack();
             mCurrentTrackId = mPlayingTrack.id;
-            mTrackInfoFilled = mTrackInfoCommentsFilled = mWaveformLoaded = false;
 
             if (mPlayingTrack.user != null && TextUtils.isEmpty(mPlayingTrack.user.username)){
                 trackPage(mPlayingTrack.pageTrack());
@@ -1080,7 +928,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         return new Object[] {mPlayingTrack};
     }
 
-    protected void restoreState() {
+    void restoreState() {
         // restore state
         Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
@@ -1119,7 +967,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         }
     }
 
-    public void refreshComments() {
+    void refreshComments() {
         if (mPlayingTrack == null) return;
         if (CloudUtils.isTaskFinished(mPlayingTrack.load_comments_task)) {
             mPlayingTrack.load_comments_task =
@@ -1138,11 +986,14 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void setCurrentComments(boolean animateIn){
-        mTrackInfoCommentsFilled = false;
         mWaveformController.setComments(mPlayingTrack.comments, animateIn);
-        if (!mLandscape && mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-            fillTrackInfoComments();
+        if (mTrackInfo != null) {
+            mTrackInfo.clearIsTrackInfoCommentsFilled();
+            if (!mLandscape && mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
+                mTrackInfo.fillTrackInfoComments();
+            }
         }
+
     }
 
     // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
@@ -1209,13 +1060,12 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 mPlayingTrack.info_loaded = false;
                 mPlayingTrack.comments_loaded = false;
                 mPlayingTrack.comments = null;
-                mTrackInfoFilled = false;
-                mTrackInfoCommentsFilled = false;
 
-                //TODO check this logic
                 if (mTrackInfo != null) {
-                    fillTrackInfoComments();
-                    fillTrackDetails();
+                    mTrackInfo.clearIsTrackInfoFilled();
+                    mTrackInfo.clearIsTrackInfoCommentsFilled();
+                    mTrackInfo.fillTrackDetails();
+                    mTrackInfo.fillTrackInfoComments();
                 }
                 refreshComments();
                 return true;
@@ -1230,32 +1080,15 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         if (track.id != mPlayingTrack.id) return;
         updateTrackInfo();
         if (mTrackInfo != null) {
-            fillTrackDetails();
-            if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
-                mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
-            }
-            if (mTrackInfo.findViewById(android.R.id.empty) != null) {
-                mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.GONE);
-            }
-            mTrackInfo.findViewById(R.id.info_view).setVisibility(View.VISIBLE);
+            mTrackInfo.onInfoLoadSuccess();
         }
     }
 
     @Override
     public void onTrackInfoError(long trackId) {
         if (trackId != mPlayingTrack.id) return;
-        if (mTrackInfo == null) return;
-        if (mTrackInfo.findViewById(R.id.loading_layout) != null) {
-            mTrackInfo.findViewById(R.id.loading_layout).setVisibility(View.GONE);
+        if (mTrackInfo != null){
+            mTrackInfo.onInfoLoadError();
         }
-
-        if (mTrackInfo.findViewById(android.R.id.empty) != null) {
-            mTrackInfo.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-        } else {
-            mTrackInfo.addView(CloudUtils.buildEmptyView(ScPlayer.this,
-                    getResources().getString(R.string.info_error)), mTrackInfo.getChildCount() - 2);
-        }
-        mTrackInfo.findViewById(R.id.info_view).setVisibility(View.GONE);
-
     }
 }
