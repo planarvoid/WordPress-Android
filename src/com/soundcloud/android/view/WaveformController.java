@@ -94,6 +94,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private long mCurrentTime;
 
     protected boolean mShowComment;
+    private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -205,15 +206,17 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || mCurrentShowingComment == mLastAutoComment)) {
+                    if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || (mCurrentShowingComment == mLastAutoComment &&
+                            (last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME)))) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 autoShowComment(last);
                             }
                         });
+                        mLastAutoComment = last;
                     }
-                    mLastAutoComment = last;
+
                 }
             }
         }

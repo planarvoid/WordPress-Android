@@ -65,7 +65,7 @@ import java.util.List;
 public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
-    private static final int REFRESH_DELAY = 500;
+    private static final int REFRESH_DELAY = 1000;
 
     private boolean mIsPlaying = false;
     private boolean mIsCommenting = false;
