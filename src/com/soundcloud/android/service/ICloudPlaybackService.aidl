@@ -31,4 +31,5 @@ interface ICloudPlaybackService
     void setQueuePosition(int index);
     boolean getDownloadable();
     void setClearToPlay(boolean clearToPlay);
+    void setAutoAdvance(boolean autoAdvance);
 }

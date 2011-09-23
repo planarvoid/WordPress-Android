@@ -177,6 +177,7 @@ public class CloudPlaybackService extends Service {
     protected int batteryLevel;
     protected int plugState;
     protected boolean mHeadphonePluggedState;
+    public boolean mAutoAdvance = true;
 
     public CloudPlaybackService() {
     }
@@ -1721,7 +1722,7 @@ public class CloudPlaybackService extends Service {
                     }
                     break;
                 case SERVER_DIED:
-                    if (mIsSupposedToBePlaying) {
+                    if (mIsSupposedToBePlaying && mAutoAdvance){
                         next();
                     } else {
                         // the server died when we were idle, so just
@@ -1743,7 +1744,11 @@ public class CloudPlaybackService extends Service {
                     notifyChange(PLAYBACK_COMPLETE);
                     break;
                 case TRACK_ENDED:
-                    next();
+                    if (mAutoAdvance){
+                        next();
+                    } else {
+                        gotoIdleState();
+                    }
                     break;
                 case ACQUIRE_WAKELOCKS:
                     if (!mWakeLock.isHeld()) mWakeLock.acquire();
@@ -2261,6 +2266,15 @@ public class CloudPlaybackService extends Service {
             if (mService.get() != null)
                 mService.get().setClearToPlay(clearToPlay);
         }
+
+        public void setAutoAdvance(boolean autoAdvance) throws RemoteException {
+            if (mService.get() != null)
+                mService.get().setAutoAdvance(autoAdvance);
+        }
+    }
+
+    private void setAutoAdvance(boolean autoAdvance) {
+        mAutoAdvance = autoAdvance;
     }
 
     private final IBinder mBinder = new ServiceStub(this);
