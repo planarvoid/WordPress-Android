@@ -161,7 +161,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private Runnable mSmoothProgress = new Runnable() {
         public void run() {
-            setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
+            if (mode != TOUCH_MODE_SEEK_DRAG){
+                setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
+            }
             mHandler.postDelayed(this, mProgressPeriod);
         }
     };
@@ -225,6 +227,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void setProgress(long pos) {
+        if (pos < 0) return;
+
         lastProgressTimestamp = System.currentTimeMillis();
         lastTrackTime = pos;
 
@@ -662,8 +666,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     break;
 
                 case UI_SEND_SEEK:
-                    if (mPlayer != null)
-                        mPlayer.sendSeek(mSeekPercent);
+                    if (mPlayer != null){
+                        setProgress(mPlayer.sendSeek(mSeekPercent));
+                    }
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mPlayerTouchBar.clearSeek();
                     break;

@@ -842,17 +842,18 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         return 0;
     }
 
-    public void sendSeek(float seekPercent) {
+    public long sendSeek(float seekPercent) {
         try {
             if (mPlaybackService == null || !mPlaybackService.isSeekable()) {
-                return;
+                return -1;
             }
-
-            mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
             mSeekPos = -1;
+            return mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
+
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
+        return -1;
     }
 
 
