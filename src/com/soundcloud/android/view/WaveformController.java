@@ -91,10 +91,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
-    private long mCurrentTime;
 
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
+    private boolean mPlaying;
+    private static final long MINIMUM_PROGRESS_PERIOD = 30;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -154,21 +155,48 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     }
 
-    private void createCommentPanel(){
+    private long mProgressPeriod = 500;
+    private long lastProgressTimestamp;
+    private long lastTrackTime;
+
+    private Runnable mSmoothProgress = new Runnable() {
+        public void run() {
+            setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
+            mHandler.postDelayed(this, mProgressPeriod);
+        }
+    };
+
+    public void setPlaybackStatus(boolean isPlaying, long pos){
+        if (mPlaying != isPlaying){
+            mPlaying = isPlaying;
+            mHandler.removeCallbacks(mSmoothProgress);
+            if (isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
+                lastProgressTimestamp = System.currentTimeMillis();
+                lastTrackTime = pos;
+                mHandler.postDelayed(mSmoothProgress, 0);
+            }
+        }
 
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        if (mCurrentComments != null && mDuration > 0){
-            for (Comment c : mCurrentComments){
-                c.calculateXPos(getWidth(), mDuration);
+        if (changed && getWidth()  > 0) {
+            if (mCurrentComments != null && mDuration > 0) {
+                for (Comment c : mCurrentComments) {
+                    c.calculateXPos(getWidth(), mDuration);
+                }
+            }
+            if (mPlayingTrack != null) {
+                determineProgressInterval();
             }
         }
+
     }
 
     public void onStop() {
+        mHandler.removeCallbacks(mSmoothProgress);
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
@@ -187,20 +215,28 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mCurrentShowingComment != null) closeComment(false);
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
-            mPlayerTouchBar.setSeekPosition((int) ((((float) mCurrentTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
-            mCurrentTimeDisplay.setByPercent((((float) mCurrentTime) / mDuration), true);
+            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
+            mCurrentTimeDisplay.setByPercent((((float) lastTrackTime) / mDuration), true);
         } else {
             mSuspendTimeDisplay = false;
             mode = TOUCH_MODE_NONE;
             mPlayerTouchBar.clearSeek();
-            setCurrentTime(mCurrentTime);
+            setCurrentTime(lastTrackTime);
         }
     }
 
     public void setProgress(long pos) {
+        lastProgressTimestamp = System.currentTimeMillis();
+        lastTrackTime = pos;
+
+        setProgressInternal(pos);
+    }
+
+    protected void setProgressInternal(long pos) {
         if (mDuration == 0)
             return;
 
+        setCurrentTime(pos);
         mProgressBar.setProgress((int) (1000 * pos / mDuration));
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
@@ -223,6 +259,23 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    private void setCurrentTime(final long pos){
+        if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
+            if (getWidth() == 0){
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCurrentTimeDisplay.setCurrentTime(pos, false);
+                    }
+                });
+            } else {
+                mCurrentTimeDisplay.setCurrentTime(pos, false);
+            }
+
+        }
+    }
+
+
     protected void autoShowComment(Comment c) {
         autoCloseComment();
         cancelAutoCloseComment();
@@ -239,21 +292,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressBar.setSecondaryProgress(percent);
     }
 
-    public void setCurrentTime(final long time) {
-        mCurrentTime = time;
-        if (mode != TOUCH_MODE_SEEK_DRAG && !mSuspendTimeDisplay) {
-            if (getWidth() == 0){
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCurrentTimeDisplay.setCurrentTime(time, false);
-                    }
-                });
-            } else {
-                mCurrentTimeDisplay.setCurrentTime(time, false);
-            }
-
+    private void determineProgressInterval(){
+        if (getWidth() == 0) return;
+        mProgressPeriod = Math.max(MINIMUM_PROGRESS_PERIOD,mDuration/getWidth());
+        if (mProgressPeriod >= ScPlayer.REFRESH_DELAY){
+            // don't bother with the extra refreshes, will happen at the regular intervals anyways
+            mHandler.removeCallbacks(mSmoothProgress);
         }
+        Log.d("asdf", "INTERVAL IS " + mProgressPeriod);
     }
 
     public void updateTrack(Track track) {
@@ -264,6 +310,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
 
         if (mPlayingTrack != track) {
+            mHandler.removeCallbacks(mSmoothProgress);
+            determineProgressInterval();
             ImageLoader.get(mPlayer).unbind(mOverlay);
             // TODO best place to do this?
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
@@ -608,7 +656,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
-                    setProgress(mPlayer.setSeekMarker(mSeekPercent));
+                    setProgressInternal(mPlayer.setSeekMarker(mSeekPercent));
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mWaveformHolder.invalidate();
                     break;

@@ -65,7 +65,7 @@ import java.util.List;
 public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
-    private static final int REFRESH_DELAY = 1000;
+    public static final int REFRESH_DELAY = 1000;
 
     private boolean mIsPlaying = false;
     private boolean mIsCommenting = false;
@@ -427,7 +427,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     private void doPauseResume() {
         try {
             if (mPlaybackService != null) {
-                if (mPlaybackService.isPlaying()) {
+                if (mPlaybackService.isSupposedToBePlaying()) {
                     mPlaybackService.pause();
                 } else {
                     mPlaybackService.play();
@@ -483,12 +483,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
 
 
-
-
-
     private void setPauseButtonImage() {
         try {
-            if (mPlaybackService != null && mPlaybackService.isPlaying()) {
+            if (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying()) {
                 mPauseButton.setImageDrawable(mPauseState);
             } else {
                 mPauseButton.setImageDrawable(mPlayState);
@@ -519,11 +516,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
 
             if (pos >= 0 && mDuration > 0) {
-                mWaveformController.setCurrentTime(pos);
                 mWaveformController.setProgress(pos);
                 mWaveformController.setSecondaryProgress(mPlaybackService.loadPercent() * 10);
             } else {
-                mWaveformController.setCurrentTime(0);
                 mWaveformController.setProgress(0);
                 mWaveformController.setSecondaryProgress(0);
             }
@@ -568,7 +563,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 setPauseButtonImage();
             } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                 setPauseButtonImage();
-                if (intent.getBooleanExtra("isPlaying", false)) {
+                if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                     hideUnplayable();
                     updateTrackInfo();
                     mCurrentTrackError = -1;
@@ -587,7 +582,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 hideUnplayable();
                 mWaveformController.showConnectingLayout();
             } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
-                // clearSeekVars();
                 mWaveformController.hideConnectingLayout();
             } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
                 mCurrentTrackError = PlayerError.PLAYBACK_ERROR;
@@ -608,8 +602,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     mWaveformController.showNewComment(c);
                 }
             }
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
         }
     };
+
+
 
     private void showUnplayable() {
         if (mUnplayableLayout == null) {
@@ -658,6 +655,11 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
         }
 
         mWaveformController.updateTrack(mPlayingTrack);
+        try {
+            mWaveformController.setPlaybackStatus(mPlaybackService.isPlaying(),mPlaybackService.position());
+        } catch (RemoteException ignored) {}
+
+
         mTrackInfoBar.display(mPlayingTrack,false,-1, true);
         if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mPlayingTrack);
         updateArtwork();

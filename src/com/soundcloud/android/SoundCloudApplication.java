@@ -45,6 +45,7 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.animation.Animation;
 
 import java.io.IOException;
 import java.net.ContentHandler;

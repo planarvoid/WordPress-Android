@@ -7,6 +7,7 @@ interface ICloudPlaybackService
     int getQueuePosition();
     boolean isSeekable();
     boolean isPlaying();
+    boolean isSupposedToBePlaying();
     void stop();
     void pause();
     void forcePause();

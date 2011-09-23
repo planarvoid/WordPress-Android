@@ -106,7 +106,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     void performUpdate(CloudPlaybackService service, int[] appWidgetIds, String what) {
         final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.appwidget_player);
 
-        final boolean playing = service.isPlaying();
+        final boolean playing = service.isSupposedToBePlaying();
         views.setImageViewResource(R.id.pause,
                 playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
 
