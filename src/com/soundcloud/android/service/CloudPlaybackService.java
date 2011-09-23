@@ -1511,7 +1511,6 @@ public class CloudPlaybackService extends Service {
 
                 // check for premature track end
                 final long targetPosition = (mSeekPos == -1 || mIsStagefright) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
-                Log.i("asdf","Target Positionnn " + targetPosition + " " + mSeekPos + " " + getDuration());
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - targetPosition > 3000) {
 
@@ -1554,7 +1553,6 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
                 initialBuffering = false;
-                Log.i("asdf","ON PREPARED");
                 if (!mAutoPause) {
                     if (mIsSupposedToBePlaying) {
                         mPlayer.setVolume(0);
@@ -1601,7 +1599,7 @@ public class CloudPlaybackService extends Service {
         };
 
         public boolean isPlaying() {
-            return mMediaPlayer != null && mMediaPlayer.isPlaying();
+            return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
         }
     }
 

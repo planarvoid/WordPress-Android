@@ -554,19 +554,21 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 mCurrentTrackError = -1;
-
                 updateTrackInfo();
                 setPauseButtonImage();
                 mWaveformController.showConnectingLayout();
                 queueNextRefresh(1);
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
+                mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
             } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                 setPauseButtonImage();
                 if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                     hideUnplayable();
                     updateTrackInfo();
                     mCurrentTrackError = -1;
+                } else {
+                    mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
                 }
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
                 if (mPlayingTrack != null && mPlayingTrack.id == intent.getLongExtra("id", -1)){
@@ -583,13 +585,16 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 mWaveformController.showConnectingLayout();
             } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
                 mWaveformController.hideConnectingLayout();
+                mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
                 mCurrentTrackError = PlayerError.PLAYBACK_ERROR;
                 mWaveformController.hideConnectingLayout();
+                mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
                 showUnplayable();
             } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
                 mCurrentTrackError = PlayerError.STREAM_ERROR;
                 mWaveformController.hideConnectingLayout();
+                mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
                 showUnplayable();
             } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
                 updateTrackInfo();
@@ -602,7 +607,6 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                     mWaveformController.showNewComment(c);
                 }
             }
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
         }
     };
 

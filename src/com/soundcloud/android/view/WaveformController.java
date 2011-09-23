@@ -170,9 +170,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mPlaying != isPlaying){
             mPlaying = isPlaying;
             mHandler.removeCallbacks(mSmoothProgress);
+            setProgress(pos);
             if (isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
-                lastProgressTimestamp = System.currentTimeMillis();
-                lastTrackTime = pos;
                 mHandler.postDelayed(mSmoothProgress, 0);
             }
         }
@@ -299,7 +298,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             // don't bother with the extra refreshes, will happen at the regular intervals anyways
             mHandler.removeCallbacks(mSmoothProgress);
         }
-        Log.d("asdf", "INTERVAL IS " + mProgressPeriod);
     }
 
     public void updateTrack(Track track) {
@@ -309,7 +307,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
-        if (mPlayingTrack != track) {
+        final boolean changed = mPlayingTrack != track;
+        mPlayingTrack = track;
+        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+        mCurrentTimeDisplay.setDuration(mDuration);
+
+        if (changed) {
             mHandler.removeCallbacks(mSmoothProgress);
             determineProgressInterval();
             ImageLoader.get(mPlayer).unbind(mOverlay);
@@ -317,9 +320,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        mPlayingTrack = track;
-        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
-        mCurrentTimeDisplay.setDuration(mDuration);
 
         if (TextUtils.isEmpty(track.waveform_url)) {
             waveformResult = BindResult.ERROR;
