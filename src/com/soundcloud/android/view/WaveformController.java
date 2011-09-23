@@ -94,8 +94,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
-    private boolean mPlaying;
-    private static final long MINIMUM_PROGRESS_PERIOD = 30;
+    private boolean mShowingProgress;
+    private static final long MINIMUM_PROGRESS_PERIOD = 40;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -169,8 +169,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     public void setPlaybackStatus(boolean isPlaying, long pos){
-        if (mPlaying != isPlaying){
-            mPlaying = isPlaying;
+        if (mShowingProgress != isPlaying){
+            mShowingProgress = isPlaying;
             mHandler.removeCallbacks(mSmoothProgress);
             setProgress(pos);
             if (isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
@@ -198,6 +198,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void onStop() {
         mHandler.removeCallbacks(mSmoothProgress);
+        mShowingProgress = false;
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
