@@ -400,7 +400,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
             lp.addRule(RelativeLayout.ABOVE, mWaveformHolder.getId());
-            mWaveformFrame.addView(commentPanel, indexOfChild(mCurrentTimeDisplay), lp);
+            mWaveformFrame.addView(commentPanel, mWaveformFrame.indexOfChild(mCurrentTimeDisplay), lp);
 
             AnimationSet set = new AnimationSet(true);
             Animation animation = new AlphaAnimation(0.0f, 1.0f);
