@@ -349,6 +349,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+                        waveformResult = BindResult.OK;
                         showWaveform();
                     }
                 });
@@ -429,9 +430,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mCurrentCommentPanel.setAnimation(animation);
             mWaveformFrame.removeView(mCurrentCommentPanel);
             mCurrentCommentPanel = null;
-
-
-
         }
     }
 
