@@ -877,9 +877,10 @@ public class CloudPlaybackService extends Service {
 
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
-        if (mPlayer != null && mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
-
-            if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
+        //if (mPlayer != null && mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
+        if (mPlayer != null && mPlayer.isInitialized()) {
+             mPlayer.start();
+            /*if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
 
                 if (mIsStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
@@ -906,7 +907,7 @@ public class CloudPlaybackService extends Service {
                 pausedForBuffering = true;
                 notifyChange(BUFFERING);
                 assertBufferCheck();
-            }
+            }*/
         } else {
             // must have been a playback error
             this.restart();
