@@ -80,7 +80,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Provides "background" audio playback capabilities, allowing the user to
@@ -89,7 +88,7 @@ import java.util.List;
  */
 public class CloudPlaybackService extends Service {
 
-    private static final String TAG = "CloudPlaybackService";
+    public static final String TAG = "CloudPlaybackService";
 
     public static final int PLAYBACKSERVICE_STATUS = 1;
     public static final int BUFFER_CHECK = 0;
@@ -222,7 +221,7 @@ public class CloudPlaybackService extends Service {
         WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wm.createWifiLock("wifilock");
 
-        mIsStagefright = CloudUtils.isStagefright();
+        mIsStagefright =  false; // CloudUtils.isStagefright();
 
         // track information about used audio engine with GA
         getApp().trackPage(Consts.Tracking.AUDIO_ENGINE,
@@ -586,7 +585,9 @@ public class CloudPlaybackService extends Service {
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
                     // need to resolve stream url, because f***ing mediaplayer doesn't handle https
-                    setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
+
+                    mPlayer.setDataSourceAsync(mPlayingData.stream_url);
+                    //setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
             } else {
                 sendStreamException(0);
@@ -1339,18 +1340,12 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
-                // TODO : 3rd conditional for caching enabled
-                if (mIsStagefright) {
-                    //mPlayingPath = mPlayingData.getCache().getAbsolutePath();
-                     if (proxy == null) {
-                        proxy = new StreamProxy();
-                        proxy.init();
-                        proxy.start();
-                    }
-                    mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
-                } else {
-                    mPlayingPath = path;
+                if (proxy == null) {
+                    proxy = new StreamProxy(getApp());
+                    proxy.init();
+                    proxy.start();
                 }
+                mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
 
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
@@ -1407,6 +1402,7 @@ public class CloudPlaybackService extends Service {
             try {
                 return mMediaPlayer.getCurrentPosition();
             } catch (Exception e) {
+                Log.w(TAG, e);
                 return 0;
             }
 
