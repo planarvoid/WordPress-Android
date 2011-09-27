@@ -2251,6 +2251,14 @@ public class CloudPlaybackService extends Service {
             return mService.get().getTrack();
         }
 
+        public Track getNextTrack() throws RemoteException {
+            return mService.get().mPlayListManager.getNextTrack();
+        }
+
+        public Track getPrevTrack() throws RemoteException {
+            return mService.get().mPlayListManager.getPrevTrack();
+        }
+
         @Override
         public void playFromAppCache(int playPos) throws RemoteException {
             if (mService.get() != null)

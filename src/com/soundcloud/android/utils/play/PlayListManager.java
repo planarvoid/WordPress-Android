@@ -136,6 +136,34 @@ public class PlayListManager {
         }.start();
     }
 
+    public Track getPrevTrack() {
+         if (mPlayPos > 0) {
+            return getTrackAt(mPlayPos - 1);
+        }
+        return null;
+    }
+
+    public Track getNextTrack() {
+         if (mPlayPos < mPlayListLen - 1) {
+            return getTrackAt(mPlayPos + 1);
+        }
+        return null;
+    }
+
+    public long getPrevTrackId() {
+         if (mPlayPos > 0) {
+            return mPlayList[mPlayPos - 1];
+        }
+        return -1;
+    }
+
+    public long getNextTrackId() {
+         if (mPlayPos < mPlayListLen - 1) {
+            return mPlayList[mPlayPos + 1];
+        }
+        return -1;
+    }
+
     public class CommitPlaylistTask extends CommitTracksTask {
         private long[] currentPlaylist;
 

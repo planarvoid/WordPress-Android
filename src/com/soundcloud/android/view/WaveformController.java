@@ -410,7 +410,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             set.addAnimation(animation);
 
             animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.3f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.2f,
                     Animation.RELATIVE_TO_SELF, 0.0f);
             animation.setDuration(300);
             set.addAnimation(animation);

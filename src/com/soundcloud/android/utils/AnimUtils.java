@@ -85,13 +85,13 @@ public class AnimUtils {
 
     }
 
-    public static Animation runFadeInAnimationOn(Activity ctx, View target) {
+    public static Animation runFadeInAnimationOn(Context ctx, View target) {
         Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_in);
         target.startAnimation(animation);
         return animation;
     }
 
-    public static Animation runFadeOutAnimationOn(Activity ctx, View target) {
+    public static Animation runFadeOutAnimationOn(Context ctx, View target) {
         Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_out);
         target.startAnimation(animation);
         return animation;
