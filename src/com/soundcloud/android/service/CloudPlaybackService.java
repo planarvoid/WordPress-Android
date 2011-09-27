@@ -32,6 +32,7 @@ import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
+import com.soundcloud.android.utils.play.StreamProxy;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
@@ -178,6 +179,7 @@ public class CloudPlaybackService extends Service {
     protected int batteryLevel;
     protected int plugState;
     protected boolean mHeadphonePluggedState;
+    private StreamProxy proxy;
 
     public CloudPlaybackService() {
     }
@@ -562,7 +564,9 @@ public class CloudPlaybackService extends Service {
             if (mPlayingData.isStreamable()) {
                 notifyChange(INITIAL_BUFFERING);
                 initialBuffering = true;
-                if (mIsStagefright) {
+                //if (mIsStagefright) {
+                // TODO : instead of isStagefright, isCachingEnabled
+                if (false) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
 
@@ -1334,8 +1338,15 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
+                // TODO : 3rd conditional for caching enabled
                 if (mIsStagefright) {
-                    mPlayingPath = mPlayingData.getCache().getAbsolutePath();
+                    //mPlayingPath = mPlayingData.getCache().getAbsolutePath();
+                     if (proxy == null) {
+                        proxy = new StreamProxy();
+                        proxy.init();
+                        proxy.start();
+                    }
+                    mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
                 } else {
                     mPlayingPath = path;
                 }
