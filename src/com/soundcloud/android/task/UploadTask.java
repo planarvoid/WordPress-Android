@@ -3,8 +3,10 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 
 import org.apache.http.HttpResponse;
@@ -35,6 +37,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public File trackFile;
         public boolean encode;
         public File resizedFile;
+        public boolean is_native_recording;
 
         public String get(String s) {
             return map.get(s).toString();
@@ -45,6 +48,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
             encode = upload.encode;
             trackFile = new File(upload.trackPath);
             encodedFile = upload.encodedFile;
+            is_native_recording = upload.is_native_recording;
             if (!TextUtils.isEmpty(upload.artworkPath)) artworkFile = new File(upload.artworkPath);
         }
 
@@ -62,7 +66,6 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                    artworkFile != null ? artworkFile : null;
         }
 
-
         public Request getRequest(File file, Request.TransferProgressListener listener) {
             final Request request = new Request(Endpoints.TRACKS);
             for (Map.Entry<String, ?> entry : map.entrySet()) {
@@ -74,7 +77,19 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                     request.add(entry.getKey(), entry.getValue().toString());
                  }
             }
-            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file)
+
+
+            final String fileName;
+            if (is_native_recording) {
+                final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
+                                     map.get(com.soundcloud.api.Params.Track.TITLE).toString();
+
+                fileName = String.format("%s.%s", title, encode ? "ogg" : "mp4");
+            } else {
+                fileName = file.getName();
+            }
+
+            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file, fileName)
                           .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile())
                           .setProgressListener(listener);
         }
