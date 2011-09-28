@@ -67,7 +67,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private int mTouchSlop;
 
     private int mCurrentTrackError;
-    private String mCurrentPath;
     private String mCurrentDurationString;
     private ImageLoader.BindResult mCurrentAvatarBindResult;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
@@ -89,8 +88,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
-        mArtwork = new ImageView(player);
-        mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mArtwork = (ImageView) findViewById(R.id.artwork);
         mArtwork.setVisibility(View.INVISIBLE);
 
         mAvatar = (ImageView) findViewById(R.id.icon);
@@ -195,6 +193,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             }
 
             if (changed) {
+                updateArtwork();
                 mWaveformController.clearTrackComments();
 
                 if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
@@ -258,7 +257,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
     private void updateArtwork() {
-        if (TextUtils.isEmpty(mCurrentPath)) {
+        if (TextUtils.isEmpty(mTrack.artwork_url)) {
             // no artwork
             ImageLoader.get(getContext()).unbind(mArtwork);
             mArtwork.setVisibility(View.INVISIBLE);
@@ -267,7 +266,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
                     getContext(),
                     mArtwork,
-                    mCurrentPath,
+                    mTrack.artwork_url,
                     Consts.GraphicSize.T500, new ImageLoader.ImageViewCallback() {
                 @Override
                 public void onImageError(ImageView view, String url, Throwable error) {

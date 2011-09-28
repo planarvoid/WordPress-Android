@@ -65,6 +65,15 @@
                                                  android:layout_height="0dp">
         <RelativeLayout android:layout_width="fill_parent"
                         android:layout_height="fill_parent">
+            <FrameLayout android:layout_width="fill_parent"
+                         android:layout_height="fill_parent"
+                         android:layout_alignParentTop="true"
+                         android:background="@drawable/artwork_player"
+                         android:gravity="top"
+                         android:layout_centerHorizontal="true">
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/artwork"/>
+            </FrameLayout>
             <com.soundcloud.android.view.WaveformController
                     android:id="@+id/waveform_controller"
                     android:layout_height="wrap_content"
