@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+    <FrameLayout android:id="@+id/info_bar_holder"
+                 android:background="@color/playerControlBackground"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content">
+        <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
+                                                  android:layout_height="wrap_content"
+                                                  android:id="@+id/track_info_bar"/>
+    </FrameLayout>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:background="@color/playerControlBackground">
+        <View android:layout_width="fill_parent"
+              android:layout_height="1dip"
+              android:layout_marginLeft="10dip"
+              android:background="@color/horizontalRule"
+              android:layout_marginRight="10dip"/>
+    </RelativeLayout>
+    <LinearLayout android:id="@+id/track_menu"
+                  android:stretchColumns="*"
+                  android:background="@color/playerControlBackground"
+                  android:layout_height="wrap_content"
+                  android:layout_width="fill_parent"
+                  android:paddingTop="5dip"
+                  android:paddingBottom="5dip">
+        <RelativeLayout android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
+            <ImageButton android:id="@+id/btn_favorite"
+                         android:layout_centerHorizontal="true"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_like_states_v1"/>
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
+            <ImageButton android:id="@+id/btn_comment"
+                         android:layout_centerHorizontal="true"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_comment_states_v1"/>
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
+            <ImageButton android:id="@+id/btn_share"
+                         android:layout_centerHorizontal="true"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_share_states"/>
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
+            <ImageButton android:id="@+id/btn_info"
+                         android:layout_centerHorizontal="true"
+                         style="@style/btn_sc_transparent"
+                         android:src="@drawable/ic_info_states"/>
+        </RelativeLayout>
+    </LinearLayout>
+    <com.soundcloud.android.view.SafeViewFlipper android:id="@+id/vfTrackInfo"
+                                                 android:layout_weight="1"
+                                                 android:layout_width="fill_parent"
+                                                 android:layout_height="0dp">
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_height="fill_parent">
+            <com.soundcloud.android.view.WaveformController
+                    android:id="@+id/waveform_controller"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:layout_alignParentBottom="true"/>
+            <ViewStub
+                    android:id="@+id/stub_unplayable_layout"
+                    android:inflatedId="@+id/unplayable_layout"
+                    android:layout="@layout/unplayable_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dip" android:layout_alignParentBottom="true"/>
+            <View android:layout_width="fill_parent"
+                  android:layout_below="@id/track_menu" android:layout_height="5dip"
+                  android:background="@drawable/drop_shadow_down"/>
+        </RelativeLayout>
+    </com.soundcloud.android.view.SafeViewFlipper>
+</LinearLayout>

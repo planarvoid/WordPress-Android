@@ -8,10 +8,11 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LoadCommentsTask extends LoadJsonTask<Comment> {
-    private WeakReference<ScPlayer> mPlayerRef;
+    private List<WeakReference<LoadCommentsListener>> mListenerRefs;
     private SoundCloudApplication mApp;
 
     private long mTrackId;
@@ -20,10 +21,14 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
         super(app);
         mApp = app;
         mTrackId = trackId;
+        mListenerRefs = new ArrayList<WeakReference<LoadCommentsListener>>();
     }
 
-    public void setPlayer(ScPlayer player) {
-        mPlayerRef = new WeakReference<ScPlayer>(player);
+    public void addListener(LoadCommentsListener listener) {
+        for (WeakReference<LoadCommentsListener> listenerRef : mListenerRefs){
+            if (listener != null && listenerRef.get() != null && listenerRef.get() == listener) return;
+        }
+        mListenerRefs.add(new WeakReference<LoadCommentsListener>(listener));
     }
 
     @Override
@@ -39,12 +44,18 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
             if (cached != null) {
                 cached.comments = comments;
                 cached.comments_loaded = true;
+            }
 
-                ScPlayer player = mPlayerRef == null ? null : mPlayerRef.get();
-                if (player != null) {
-                    player.onCommentsLoaded(mTrackId, comments);
+            for (WeakReference<LoadCommentsListener> listenerRef : mListenerRefs){
+                if (listenerRef != null && listenerRef.get() != null){
+                    listenerRef.get().onCommentsLoaded(mTrackId,comments);
                 }
             }
         }
+    }
+
+     // Define our custom Listener interface
+    public interface LoadCommentsListener {
+        void onCommentsLoaded(long track_id, List<Comment> comments);
     }
 }

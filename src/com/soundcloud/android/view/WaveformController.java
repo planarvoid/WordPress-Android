@@ -96,6 +96,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
     private boolean mShowingProgress;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
+    private PlayerTrackView mPlayerTrackView;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -247,7 +248,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    if (mPlayer.waveformVisible() && (mCurrentShowingComment == null || (mCurrentShowingComment == mLastAutoComment &&
+                    if (mPlayerTrackView != null && mPlayerTrackView.waveformVisible() && (mCurrentShowingComment == null || (mCurrentShowingComment == mLastAutoComment &&
                             (last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME)))) {
                         mHandler.post(new Runnable() {
                             @Override
@@ -457,7 +458,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void clearTrack() {
+    public void clearTrackComments() {
         cancelAutoCloseComment();
         closeComment(false);
 
@@ -679,7 +680,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 case UI_ADD_COMMENT:
                     mPlayer.addNewComment(mAddComment);
-                    mPlayer.toggleCommentMode();
+                    mPlayerTrackView.toggleCommentMode();
                     break;
 
                 case UI_UPDATE_COMMENT:
@@ -718,6 +719,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mCurrentShowingComment = c;
         showCurrentComment(false);
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+    }
+
+    public void setPlayerTrackView(PlayerTrackView playerTrackView) {
+        mPlayerTrackView = playerTrackView;
     }
 
     private class TouchThread extends Thread {
