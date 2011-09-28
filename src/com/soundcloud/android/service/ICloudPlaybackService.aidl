@@ -32,8 +32,7 @@ interface ICloudPlaybackService
     boolean getDownloadable();
     void setClearToPlay(boolean clearToPlay);
     void setAutoAdvance(boolean autoAdvance);
-    long getPrevTrackId();
-    long getNextTrackId();
-    Track getPrevTrack();
-    Track getNextTrack();
+    int getQueueLength();
+    Track getTrackAt(int pos);
+    long getTrackIdAt(int pos);
 }

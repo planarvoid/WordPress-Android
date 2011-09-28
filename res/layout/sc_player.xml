@@ -11,7 +11,7 @@
         <com.soundcloud.android.view.WorkspaceView
                         android:id="@+id/track_view"
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="6"/>
         <FrameLayout android:layout_weight="1"
                      android:layout_width="fill_parent"

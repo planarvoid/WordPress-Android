@@ -2251,20 +2251,16 @@ public class CloudPlaybackService extends Service {
             return mService.get().getTrack();
         }
 
-        public Track getNextTrack() throws RemoteException {
-            return mService.get().mPlayListManager.getNextTrack();
+        public Track getTrackAt(int pos) throws RemoteException {
+            return mService.get().mPlayListManager.getTrackAt(pos);
         }
 
-        public Track getPrevTrack() throws RemoteException {
-            return mService.get().mPlayListManager.getPrevTrack();
+        public long getTrackIdAt(int pos) throws RemoteException {
+            return mService.get().mPlayListManager.getTrackIdAt(pos);
         }
 
-        public long getNextTrackId() throws RemoteException {
-            return mService.get().mPlayListManager.getNextTrackId();
-        }
-
-        public long getPrevTrackId() throws RemoteException {
-            return mService.get().mPlayListManager.getPrevTrackId();
+        public int getQueueLength() throws RemoteException {
+            return mService.get().mPlayListManager.getCurrentLength();
         }
 
         @Override

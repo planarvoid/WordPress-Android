@@ -164,6 +164,13 @@ public class PlayListManager {
         return -1;
     }
 
+    public long getTrackIdAt(int pos) {
+        if (pos >= 0 && pos < mPlayListLen - 1) {
+            return mPlayList[pos];
+        }
+        return -1;
+    }
+
     public class CommitPlaylistTask extends CommitTracksTask {
         private long[] currentPlaylist;
 

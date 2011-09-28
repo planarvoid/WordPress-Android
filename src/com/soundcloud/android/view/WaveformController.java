@@ -104,7 +104,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         setWillNotDraw(false);
 
-
         mPlayer = (ScPlayer) context;
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(mPlayer);

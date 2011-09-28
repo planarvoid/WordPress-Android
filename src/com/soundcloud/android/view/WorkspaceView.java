@@ -1059,6 +1059,12 @@ public class WorkspaceView extends ViewGroup {
                 };
     }
 
+    public void addViewAtPosition(View v, int pos) {
+        if (pos <= mCurrentScreen) mCurrentScreen++;
+        addView(v, pos);
+    }
+
+
     public void addViewToFront(View v) {
         mCurrentScreen++;
         addView(v, 0);

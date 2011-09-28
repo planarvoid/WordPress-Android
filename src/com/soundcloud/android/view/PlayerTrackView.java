@@ -16,15 +16,16 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.os.RemoteException;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -33,13 +34,14 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.util.List;
 
-public class PlayerTrackView extends FrameLayout implements View.OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener, LoadCommentsTask.LoadCommentsListener {
+public class PlayerTrackView extends LinearLayout implements View.OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener, LoadCommentsTask.LoadCommentsListener {
 
     private ScPlayer mPlayer;
 
@@ -76,6 +78,11 @@ public class PlayerTrackView extends FrameLayout implements View.OnTouchListener
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
+
+        LayoutInflater inflater = (LayoutInflater) player.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.player_track, this);
+
+         setOrientation(LinearLayout.VERTICAL);
 
         mPlayer = player;
 
@@ -147,7 +154,8 @@ public class PlayerTrackView extends FrameLayout implements View.OnTouchListener
         mPlayer.toggleCommentMode(mPlayPos);
     }
 
-    public void setTrack(Track track, boolean forceUpdate) {
+    public void setTrack(Track track, int queuePosition, boolean forceUpdate) {
+        mPlayPos = queuePosition;
 
         if (forceUpdate || (mTrack == null || track == null || track.id != mTrack.id)) {
 
@@ -470,7 +478,7 @@ public class PlayerTrackView extends FrameLayout implements View.OnTouchListener
     public void onTrackInfoLoaded(Track track, String action) {
         if (track.id != mTrack.id) return;
 
-        setTrack(track, true);
+        setTrack(track, mPlayPos, true);
         if (mTrackInfo != null) {
             mTrackInfo.onInfoLoadSuccess();
         }

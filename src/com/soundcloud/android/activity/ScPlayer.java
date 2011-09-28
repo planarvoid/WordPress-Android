@@ -4,18 +4,12 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
-import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.LoadTrackInfoTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -29,7 +23,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +33,6 @@ import android.widget.TextView;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener {
     private static final String TAG = "ScPlayer";
@@ -112,6 +104,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         ImageButton mNextButton = (ImageButton) findViewById(R.id.next);
         mNextButton.setOnClickListener(mNextListener);
 
+        mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
+        mTrackWorkspace.setOnScreenChangeListener(this);
+
         mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
         if (mCommentButton != null) {
             mLandscape = true;
@@ -130,9 +125,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     }
                 }
             });
-
-            mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
-            mTrackWorkspace.setOnScreenChangeListener(this);
         }
 
 
@@ -185,7 +177,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         try {
             if (mPlaybackService.getTrackId() != -1) {
-                updateTracksView();
+                updateTrackDisplay();
                 setPauseButtonImage();
                 long next = refreshNow();
                 queueNextRefresh(next);
@@ -343,7 +335,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             final int queuePos = intent.getIntExtra("queuePos", mTrackWorkspace.getCurrentScreen());
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                updateTracksView();
+                updateTrackDisplay();
                 setPauseButtonImage();
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
@@ -358,7 +350,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPauseButtonImage();
                 }
-                getTrackView(queuePos).handleStatusIntent(intent);
+                if (getTrackView(queuePos) != null) getTrackView(queuePos).handleStatusIntent(intent);
             }
         }
     };
@@ -366,24 +358,21 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
+        if (newScreen == null) return;
         try {
             final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
             if (newQueuePos != mQueuePos) {
                 mPlaybackService.setQueuePosition(newQueuePos);
             }
 
-            final long prevTrackId = mPlaybackService.getPrevTrackId();
-            final long nextTrackId = mPlaybackService.getNextTrackId();
+            final long prevTrackId = newQueuePos > 0
+                    ? mPlaybackService.getTrackIdAt(newQueuePos -1) : -1;
+            final long nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 2
+                    ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
 
             PlayerTrackView ptv;
             if (newScreenIndex == 0 && prevTrackId != -1) {
-
-                if (getApp().getTrackFromCache(prevTrackId) == null) {
-                    Track t = SoundCloudDB.getTrackById(getContentResolver(), prevTrackId, getCurrentUserId());
-                    getApp().cacheTrack(t != null ? t : mPlaybackService.getPrevTrack());
-                }
-
-                final Track prevTrack = getApp().getTrackFromCache(prevTrackId);
+                final Track prevTrack = getAndCacheTrack(prevTrackId, newQueuePos -1);
                 if (prevTrack != null){
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(2);
@@ -392,16 +381,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                         ptv = new PlayerTrackView(this);
                     }
                     mTrackWorkspace.addViewToFront(ptv);
-                    ptv.setTrack(prevTrack,false);
+                    ptv.setTrack(prevTrack, mQueuePos - 1, false);
                 }
 
             } else if (newScreenIndex == mTrackWorkspace.getChildCount() - 1 && nextTrackId != -1) {
-                 if (getApp().getTrackFromCache(nextTrackId) == null) {
-                    Track t = SoundCloudDB.getTrackById(getContentResolver(), nextTrackId, getCurrentUserId());
-                    getApp().cacheTrack(t != null ? t : mPlaybackService.getNextTrack());
-                }
-
-                final Track nextTrack = getApp().getTrackFromCache(prevTrackId);
+                final Track nextTrack = getAndCacheTrack(nextTrackId, newQueuePos + 1);
                 if (nextTrack != null){
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(0);
@@ -410,7 +394,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                         ptv = new PlayerTrackView(this);
                     }
                     mTrackWorkspace.addViewToBack(ptv);
-                    ptv.setTrack(nextTrack,false);
+                    ptv.setTrack(nextTrack, mQueuePos - 1, false);
                 }
 
             }
@@ -428,59 +412,61 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     public void onNextScreenVisible(View newScreen, int newScreenIndex) {
     }
 
-    private void updateTracksView() {
+    private Track getAndCacheTrack(long trackId, int queuePos) {
+        if (getApp().getTrackFromCache(trackId) == null) {
+            Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
+            try {
+                getApp().cacheTrack(t != null ? t : mPlaybackService.getTrackAt(queuePos - 1));
+            } catch (RemoteException ignored) {
+            }
+        }
+        return getApp().getTrackFromCache(trackId);
+    }
+
+    private void updateTrackDisplay() {
+
         if (mPlaybackService == null)
             return;
 
         try {
-            final int currentQueuePos = mPlaybackService.getQueuePosition();
-            if (currentQueuePos != mQueuePos){
-                boolean found = false;
-                int i;
-                for (i = 0; i < mTrackWorkspace.getChildCount(); i++){
-                    if (((PlayerTrackView) mTrackWorkspace.getChildAt(i)).getPlayPosition() == currentQueuePos){
-                        found = true;
-                        break;
-                    }
-                }
+            final long trackId = mPlaybackService.getTrackId();
 
-
-                if (found){
-                    mTrackWorkspace.setCurrentScreen(i);
-                } else {
-
-                }
-
-                PlayerTrackView ptv;
-                if (i == 0){
-
-                    }
-
-                if (currentQueuePos == mQueuePos + 1){
-                    // next track
-
-
-                } else if (currentQueuePos == mQueuePos - 1){
-                    // prev track
-                } else {
-                    // not next or previous, refresh view
-
-
-                }
-                mQueuePos = currentQueuePos;
-            }
-
-            long trackId = mPlaybackService.getTrackId();
             if (trackId == -1) {
                 mPlayingTrack = null;
-            } else {
-                if (getApp().getTrackFromCache(trackId) == null) {
-                    Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
-                    getApp().cacheTrack(t != null ? t : mPlaybackService.getTrack());
-                }
-
-                mPlayingTrack = getApp().getTrackFromCache(trackId);
+                return;
             }
+
+            mQueuePos = mPlaybackService.getQueuePosition();
+            mPlayingTrack = getAndCacheTrack(trackId,mQueuePos);
+            final boolean first = mTrackWorkspace.getChildCount() == 0;
+
+            int workspaceIndex = 0;
+            final int queueLength = mPlaybackService.getQueueLength();
+            for (int pos = mQueuePos -1; pos < mQueuePos + 2; pos++){
+                if (pos >= 0 && pos < queueLength){
+                    PlayerTrackView ptv;
+                    if (mTrackWorkspace.getChildCount() > workspaceIndex){
+                        ptv = ((PlayerTrackView) mTrackWorkspace.getChildAt(workspaceIndex));
+                    } else {
+                        ptv = new PlayerTrackView(this);
+                        mTrackWorkspace.addViewAtPosition(ptv, workspaceIndex);
+                    }
+                    ptv.setTrack(getAndCacheTrack(mPlaybackService.getTrackIdAt(pos),pos), pos, false);
+
+                    workspaceIndex++;
+                }
+            }
+
+            for (int i = 0; i < mTrackWorkspace.getChildCount() - workspaceIndex; i++){
+                mTrackWorkspace.removeViewFromBack();
+            }
+
+            if (first){
+                mTrackWorkspace.initWorkspace(mQueuePos > 0 ? 1 : 0);
+            } else {
+                mTrackWorkspace.setCurrentScreenNow(mQueuePos > 0 ? 1 : 0, false);
+            }
+
         } catch (RemoteException ignored) {}
 
     }
@@ -587,7 +573,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         registerHeadphoneRemoteControl();
 
-        updateTracksView();
+        updateTrackDisplay();
         setPauseButtonImage();
 
         long next = refreshNow();
