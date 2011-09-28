@@ -335,7 +335,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             final int queuePos = intent.getIntExtra("queuePos", mTrackWorkspace.getCurrentScreen());
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                updateTrackDisplay();
                 setPauseButtonImage();
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
@@ -371,9 +370,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
 
             PlayerTrackView ptv;
+
+            Log.i("asdf","NEW SCREEN INDEX IS " + newScreenIndex + " " + prevTrackId);
+
             if (newScreenIndex == 0 && prevTrackId != -1) {
                 final Track prevTrack = getAndCacheTrack(prevTrackId, newQueuePos -1);
                 if (prevTrack != null){
+                    Log.i("asdf","Creating previous track " + mTrackWorkspace.getCurrentScreen());
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(2);
                         mTrackWorkspace.removeViewFromBack();
@@ -382,6 +385,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     }
                     mTrackWorkspace.addViewToFront(ptv);
                     ptv.setTrack(prevTrack, mQueuePos - 1, false);
+                    Log.i("asdf","Created previous track " + mTrackWorkspace.getCurrentScreen());
                 }
 
             } else if (newScreenIndex == mTrackWorkspace.getChildCount() - 1 && nextTrackId != -1) {
@@ -389,11 +393,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (nextTrack != null){
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(0);
-                        mTrackWorkspace.removeViewFromFront();
+                        //mTrackWorkspace.removeViewFromFront();
                     } else {
                         ptv = new PlayerTrackView(this);
                     }
-                    mTrackWorkspace.addViewToBack(ptv);
+                    //mTrackWorkspace.addViewToBack(ptv);
                     ptv.setTrack(nextTrack, mQueuePos - 1, false);
                 }
 
@@ -424,7 +428,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     private void updateTrackDisplay() {
-
         if (mPlaybackService == null)
             return;
 

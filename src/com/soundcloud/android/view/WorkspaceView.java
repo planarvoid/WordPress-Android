@@ -1082,4 +1082,10 @@ public class WorkspaceView extends ViewGroup {
     public void removeViewFromBack() {
         removeViewAt(getChildCount() - 1);
     }
+
+    public void bringLastToFront(){
+        View v = getChildAt(getChildCount() -1);
+        super.bringChildToFront(v);
+        mCurrentScreen++;
+    }
 }
