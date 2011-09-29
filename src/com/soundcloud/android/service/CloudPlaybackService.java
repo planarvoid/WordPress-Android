@@ -1510,14 +1510,14 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnSeekCompleteListener seeklistener = new MediaPlayer.OnSeekCompleteListener() {
             public void onSeekComplete(MediaPlayer mp) {
-                if (!mIsStagefright) return;
-
-                if (!mMediaPlayer.isPlaying()) {
-                    mPlayer.setVolume(0);
-                    play();
-                    startAndFadeIn();
-                } else {
-                    assertBufferCheck();
+                if (mIsStagefright){
+                    if (!mMediaPlayer.isPlaying()) {
+                        mPlayer.setVolume(0);
+                        play();
+                        startAndFadeIn();
+                    } else {
+                        assertBufferCheck();
+                    }
                 }
 
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
