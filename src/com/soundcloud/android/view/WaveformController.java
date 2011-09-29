@@ -262,6 +262,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+                        waveformResult = BindResult.OK;
                         showWaveform();
                     }
                 });
