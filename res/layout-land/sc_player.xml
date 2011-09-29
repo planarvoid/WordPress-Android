@@ -8,34 +8,11 @@
                   android:layout_height="fill_parent"
                   android:orientation="vertical"
                   android:weightSum="11">
-        <FrameLayout android:id="@+id/info_bar_holder"
-                     android:background="@color/playerControlBackground"
-                     android:layout_width="fill_parent"
-                     android:layout_height="wrap_content">
-            <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
-                                                      android:layout_height="wrap_content"
-                                                      android:id="@+id/track_info_bar"/>
-        </FrameLayout>
-        <FrameLayout
-                android:layout_weight="8"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:background="@color/white">
-            <com.soundcloud.android.view.WaveformControllerLand
-                        android:id="@+id/waveform_controller"
+        <com.soundcloud.android.view.WorkspaceView
+                        android:id="@+id/track_view"
                         android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"/>
-            <ViewStub
-                    android:id="@+id/stub_unplayable_layout"
-                    android:inflatedId="@+id/unplayable_layout"
-                    android:layout="@layout/unplayable_layout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentBottom="true"/>
-            <View android:layout_width="fill_parent"
-                  android:layout_height="5dip"
-                  android:background="@drawable/drop_shadow_down"/>
-        </FrameLayout>
+                        android:layout_height="0dp"
+                        android:layout_weight="8"/>
         <FrameLayout android:layout_weight="3"
                      android:layout_width="fill_parent"
                      android:layout_height="0dp">

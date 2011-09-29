@@ -74,6 +74,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public Track mTrack;
     private int mPlayPos;
     private long mDuration;
+    private boolean mLandscape;
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
@@ -88,8 +89,14 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
+
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        mArtwork.setVisibility(View.INVISIBLE);
+        if (mArtwork != null){
+            mArtwork.setVisibility(View.INVISIBLE);
+        } else {
+            mLandscape = true;
+        }
+
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -193,13 +200,12 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             }
 
             if (changed) {
-                updateArtwork();
+                if (!mLandscape) updateArtwork();
                 mWaveformController.clearTrackComments();
 
                 if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
                     mPlayer.trackPage(mTrack.pageTrack());
                 }
-
 
                 if (mTrack.comments != null) {
                     setCurrentComments(true);
@@ -343,7 +349,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         if (mWaveformController.waveformResult == ImageLoader.BindResult.ERROR) {
             mWaveformController.updateTrack(mTrack);
         }
-        if (mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
+        if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
             updateArtwork();
         }
         if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
