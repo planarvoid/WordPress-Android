@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Env;
@@ -94,6 +95,7 @@ public class ResolveTaskTest {
                 action[0] = _action;
             }
             @Override public void onUrlError() {
+                fail("error");
             }
         };
         ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users:1234#show"), Env.LIVE, listener);

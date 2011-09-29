@@ -73,6 +73,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         return resolved;
     }
 
+    // http://soundcloud.pbworks.com/w/page/40109213/Client%20URL%20Scheme
     public static Uri resolveSoundCloudURI(Uri uri, Env env) {
         if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
