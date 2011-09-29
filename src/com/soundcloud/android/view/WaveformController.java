@@ -99,6 +99,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     int mode = TOUCH_MODE_NONE;
     private boolean mLandscape;
 
+    private long m5percentStamp;
+    private long m95percentStamp;
+
+    private boolean m5percentStampReached;
+    private boolean m95percentStampReached;
+
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -197,7 +203,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mDuration == 0)
             return;
 
-        mProgressBar.setProgress((int) (1000 * pos / mDuration));
+        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
+
+        if (!m5percentStampReached && pos > m5percentStamp && pos - m5percentStamp < 2000){
+             m5percentStampReached = true;
+        }
+
+        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < 2000){
+             m95percentStampReached = true;
+        }
 
         if (mLandscape && mode == TOUCH_MODE_NONE && mCurrentTopComments != null){
             Comment last = lastCommentBeforeTimestamp(pos);
@@ -229,15 +243,21 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
-        if (mPlayingTrack != track) {
+        final boolean changed = (mPlayingTrack != track);
+        mPlayingTrack = track;
+        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+
+        if (changed) {
+            m5percentStamp = (long) (mDuration*.05);
+            m5percentStampReached = false;
+            m95percentStamp = (long) (mDuration*.95);
+            m95percentStampReached = false;
+
             mOverlay.setVisibility(View.INVISIBLE);
             mProgressBar.setVisibility(View.INVISIBLE);
             mCurrentTime.setVisibility(View.INVISIBLE);
             ImageLoader.get(mPlayer).unbind(mOverlay);
         }
-
-        mPlayingTrack = track;
-        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
 
         if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
