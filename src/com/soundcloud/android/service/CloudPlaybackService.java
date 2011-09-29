@@ -178,6 +178,7 @@ public class CloudPlaybackService extends Service {
     protected boolean mHeadphonePluggedState;
 
     private StringBuilder mBuildPropMedia;
+    private static final int MINIMUM_SEEKABLE_SDK = 9;
 
     public CloudPlaybackService() {
     }
@@ -1263,7 +1264,7 @@ public class CloudPlaybackService extends Service {
     public boolean isSeekable() {
         synchronized (this) {
             return (mIsStagefright ||
-                    (Build.VERSION.SDK_INT > 8
+                    (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
                             && mPlayer != null
                             && mPlayer.isInitialized()
                             && !mPlayer.isAsyncOpening()
@@ -1280,7 +1281,7 @@ public class CloudPlaybackService extends Service {
     public long seek(long pos) {
         synchronized (this) {
             if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1306,7 +1307,7 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK)) {
 
                 if (pos <= 0) {
                     pos = 0;
