@@ -187,7 +187,7 @@ public class WorkspaceView extends ViewGroup {
     void handleScreenChangeCompletion(int currentScreen) {
         mCurrentScreen = currentScreen;
         View screen = getScreenAt(mCurrentScreen);
-        //screen.requestFocus();
+        screen.requestFocus();
         try {
             ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
                     new Class[]{int.class}, View.VISIBLE);
@@ -331,6 +331,7 @@ public class WorkspaceView extends ViewGroup {
 
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
+
             final View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
                 final int childWidth = child.getMeasuredWidth();

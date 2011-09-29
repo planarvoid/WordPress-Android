@@ -71,7 +71,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private ImageLoader.BindResult mCurrentAvatarBindResult;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
 
-    private Track mTrack;
+    public Track mTrack;
     private int mPlayPos;
     private long mDuration;
 

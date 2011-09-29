@@ -371,12 +371,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             PlayerTrackView ptv;
 
-            Log.i("asdf","NEW SCREEN INDEX IS " + newScreenIndex + " " + prevTrackId);
 
             if (newScreenIndex == 0 && prevTrackId != -1) {
                 final Track prevTrack = getAndCacheTrack(prevTrackId, newQueuePos -1);
                 if (prevTrack != null){
-                    Log.i("asdf","Creating previous track " + mTrackWorkspace.getCurrentScreen());
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(2);
                         mTrackWorkspace.removeViewFromBack();
@@ -384,8 +382,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                         ptv = new PlayerTrackView(this);
                     }
                     mTrackWorkspace.addViewToFront(ptv);
-                    ptv.setTrack(prevTrack, mQueuePos - 1, false);
-                    Log.i("asdf","Created previous track " + mTrackWorkspace.getCurrentScreen());
+                    ptv.setTrack(prevTrack, newQueuePos - 1, false);
+                    mTrackWorkspace.setCurrentScreenNow(1, false);
                 }
 
             } else if (newScreenIndex == mTrackWorkspace.getChildCount() - 1 && nextTrackId != -1) {
@@ -393,12 +391,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (nextTrack != null){
                     if (mTrackWorkspace.getChildCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getChildAt(0);
-                        //mTrackWorkspace.removeViewFromFront();
+                        mTrackWorkspace.removeViewFromFront();
                     } else {
                         ptv = new PlayerTrackView(this);
                     }
-                    //mTrackWorkspace.addViewToBack(ptv);
-                    ptv.setTrack(nextTrack, mQueuePos - 1, false);
+                    mTrackWorkspace.addViewToBack(ptv);
+                    ptv.setTrack(nextTrack, newQueuePos + 1, false);
+                    mTrackWorkspace.setCurrentScreenNow(1, false);
                 }
 
             }
