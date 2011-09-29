@@ -20,10 +20,15 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Params> {
     private CloudAPI api;
+
+    public UploadTask(CloudAPI api) {
+            this.api = api;
+    }
 
 
     // XXX get rid of this class, use Upload
@@ -84,7 +89,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
                                      map.get(com.soundcloud.api.Params.Track.TITLE).toString();
 
-                fileName = String.format("%s.%s", title, encode ? "ogg" : "mp4");
+                fileName = String.format("%s.%s", URLEncoder.encode(title.replace(" ", "_")), encode ? "ogg" : "mp4");
             } else {
                 fileName = file.getName();
             }
@@ -95,9 +100,6 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         }
     }
 
-    public UploadTask(CloudAPI api) {
-        this.api = api;
-    }
 
     @Override
     protected Params doInBackground(final Params... params) {
