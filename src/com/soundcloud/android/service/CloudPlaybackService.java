@@ -128,7 +128,7 @@ public class CloudPlaybackService extends Service {
     private static final int RELEASE_WAKELOCKS = 7;
     private static final int CLEAR_LAST_SEEK = 8;
     private static final int STREAM_EXCEPTION = 9;
-
+    private static final int CHECK_TRACK_EVENT = 10;
 
     private MultiPlayer mPlayer;
     private int mLoadPercent = 0;
@@ -179,6 +179,12 @@ public class CloudPlaybackService extends Service {
 
     private StringBuilder mBuildPropMedia;
     private static final int MINIMUM_SEEKABLE_SDK = 9;
+
+    private long m10percentStamp;
+    private long m95percentStamp;
+
+    private boolean m10percentStampReached;
+    private boolean m95percentStampReached;
 
     public CloudPlaybackService() {
     }
@@ -522,6 +528,14 @@ public class CloudPlaybackService extends Service {
         // new play data
         mPlayingData = track;
         ignoreBuffer = true;
+
+        m10percentStamp = (long) (mPlayingData.duration * .1);
+        m10percentStampReached = false;
+        m95percentStamp = (long) (mPlayingData.duration * .95);
+        m95percentStampReached = false;
+
+        getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY,
+                                    mPlayingData.getTrackEventLabel());
 
         setPlayingStatus();
 
@@ -1053,6 +1067,7 @@ public class CloudPlaybackService extends Service {
         }
 
         mIsSupposedToBePlaying = false;
+        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
         mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
         mBufferHandler.removeMessages(START_NEXT_TRACK);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -1387,6 +1402,10 @@ public class CloudPlaybackService extends Service {
         }
 
         public void start() {
+            Message msg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+            mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+            mMediaplayerHandler.sendMessageDelayed(msg, 1000);
+
             if (mMediaPlayer != null) mMediaPlayer.start();
         }
 
@@ -1565,8 +1584,11 @@ public class CloudPlaybackService extends Service {
                     mHandler.sendEmptyMessage(RELEASE_WAKELOCKS);
                 }
 
-                if (!mMediaplayerError)
+                if (!mMediaplayerError){
                     mHandler.sendEmptyMessage(TRACK_ENDED);
+                    getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_COMPLETE,
+                                    mPlayingData.getTrackEventLabel());
+                }
 
                 mMediaplayerError = false;
             }
@@ -1776,6 +1798,30 @@ public class CloudPlaybackService extends Service {
                 case CLEAR_LAST_SEEK:
                     mSeekPos = -1;
                     break;
+                case CHECK_TRACK_EVENT:
+                    if (mPlayingData != null) {
+                        final long pos = position();
+                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < 2000) {
+                            m10percentStampReached = true;
+                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TEN_PERCENT,
+                                    mPlayingData.getTrackEventLabel());
+                        }
+
+                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < 2000) {
+                            m95percentStampReached = true;
+                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.NINTY_FIVE_PERCENT,
+                                    mPlayingData.getTrackEventLabel());
+                        }
+                    }
+
+                    if (!m10percentStampReached || !m95percentStampReached) {
+                        Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.sendMessageDelayed(newMsg, 1000);
+                    }
+
+                    break;
+
                 default:
                     break;
             }

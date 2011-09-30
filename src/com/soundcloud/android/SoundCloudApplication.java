@@ -346,6 +346,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    public void trackEvent(String category, String action, String label) {
+        trackEvent(category, action, label, 0);
+    }
+
     public void trackEvent(String category, String action, String label, int value) {
         if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
             mTracker.trackEvent(category, action, label, value);
