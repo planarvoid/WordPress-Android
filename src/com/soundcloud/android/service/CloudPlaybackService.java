@@ -164,6 +164,8 @@ public class CloudPlaybackService extends Service {
 
     private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
+    private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
+
     private int mCurrentDownloadAttempts;
     private boolean ignoreBuffer;
     private boolean pausedForBuffering;
@@ -1404,7 +1406,7 @@ public class CloudPlaybackService extends Service {
         public void start() {
             Message msg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
             mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
-            mMediaplayerHandler.sendMessageDelayed(msg, 1000);
+            mMediaplayerHandler.sendMessageDelayed(msg, TRACK_EVENT_CHECK_DELAY);
 
             if (mMediaPlayer != null) mMediaPlayer.start();
         }
@@ -1801,13 +1803,14 @@ public class CloudPlaybackService extends Service {
                 case CHECK_TRACK_EVENT:
                     if (mPlayingData != null) {
                         final long pos = position();
-                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < 2000) {
+                        final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5); // account for lack of accuracy in actual delay between checks
+                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
                             m10percentStampReached = true;
                             getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TEN_PERCENT,
                                     mPlayingData.getTrackEventLabel());
                         }
 
-                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < 2000) {
+                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < window) {
                             m95percentStampReached = true;
                             getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.NINTY_FIVE_PERCENT,
                                     mPlayingData.getTrackEventLabel());
@@ -1817,7 +1820,7 @@ public class CloudPlaybackService extends Service {
                     if (!m10percentStampReached || !m95percentStampReached) {
                         Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
                         mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                        mMediaplayerHandler.sendMessageDelayed(newMsg, 1000);
+                        mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
                     }
 
                     break;
