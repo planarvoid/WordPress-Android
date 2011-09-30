@@ -50,7 +50,8 @@ public abstract class LazyRow extends FrameLayout {
     public void display(int position) {
         mCurrentPosition = position;
 
-        if (position == mAdapter.submenuIndex) {
+        // TODO : should not need a null check here, revisit this to see why npe occurs
+        if (position == mAdapter.submenuIndex && (findViewById(R.id.row_submenu) != null || findViewById(R.id.stub_submenu) != null)) {
             if (findViewById(R.id.row_submenu) != null) {
                 findViewById(R.id.row_submenu).setVisibility(View.VISIBLE);
             } else {
