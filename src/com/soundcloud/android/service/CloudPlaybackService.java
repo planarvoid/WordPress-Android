@@ -564,7 +564,6 @@ public class CloudPlaybackService extends Service {
 
             if (CloudUtils.checkThreadAlive(mDownloadThread)
                     && (continueId == null || mDownloadThread.getTrackId() != continueId)) {
-                mDownloadThread.interrupt();
                 mDownloadThread.stopDownload();
             }
         }
