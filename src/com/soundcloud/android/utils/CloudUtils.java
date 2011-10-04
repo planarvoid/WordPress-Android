@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.view.ScTabView;
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -25,6 +26,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,6 +65,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -757,5 +765,111 @@ public class CloudUtils {
         } else {
             return false;
         }
+    }
+
+    public static void drawBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arc, int arrowWidth, int arrowHeight, int arrowOffset){
+
+        /*
+             A ---- B
+           I          C
+           H ----G-E- D
+                 F
+
+         */
+
+        final boolean arrowLeft = arrowOffset <= width/2;
+
+        final int Ax = arc;
+        final int Ay = 0;
+        final int Bx = width - arc;
+        final int By = 0;
+        final int Cx = width;
+        final int Cy = arc;
+        final int Dx = width;
+        final int Dy = height;
+        final int Ex = arrowLeft ? arrowWidth + arrowOffset : arrowOffset;
+        final int Ey = height;
+        final int Fx = arrowOffset;
+        final int Fy = height + arrowHeight;
+        final int Gx = arrowLeft ? arrowOffset : arrowOffset - arrowWidth;
+        final int Gy = height;
+        final int Hx = 0;
+        final int Hy = height;
+        final int Ix = 0;
+        final int Iy = arc;
+
+        Path ctx = new Path();
+        ctx.moveTo(Ax, Ay);
+        ctx.lineTo(Bx, By);
+        ctx.arcTo(new RectF(Bx, By, Cx, Cy), 270, 90); //B-C arc
+
+        ctx.lineTo(Dx, Dy);
+
+        if (arrowWidth > 0){
+            ctx.lineTo(Ex, Ey);
+            ctx.lineTo(Fx, Fy);
+            ctx.lineTo(Gx, Gy);
+        }
+
+
+        ctx.lineTo(Hx, Hy);
+        ctx.lineTo(Ix, Iy);
+        ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
+        c.drawPath(ctx, bgPaint);
+
+        if (linePaint != null){
+            c.drawLine(arrowOffset,height,arrowOffset,height+arrowOffset,linePaint);
+        }
+    }
+
+    public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset){
+
+        /*
+             A ---- B
+           I          C
+           H ----G-E- D
+                 F
+
+         */
+
+        final boolean arrowLeft = arrowOffset <= width / 2;
+
+        final int Ax = 0;
+        final int Ay = 0;
+        final int Bx = width;
+        final int By = 0;
+        final int Cx = width;
+        final int Cy = height;
+        final int Dx = arrowLeft ? arrowWidth + arrowOffset : arrowOffset;
+        final int Dy = height;
+        final int Ex = arrowOffset;
+        final int Ey = height + arrowHeight;
+        final int Fx = arrowLeft ? arrowOffset : arrowOffset - arrowWidth;
+        final int Fy = height;
+        final int Gx = 0;
+        final int Gy = height;
+
+        Path ctx = new Path();
+        ctx.moveTo(Ax, Ay);
+        ctx.lineTo(Bx, By);
+        ctx.lineTo(Cx, Cy);
+
+        if (arrowWidth > 0) {
+            ctx.lineTo(Dx, Dy);
+            ctx.lineTo(Ex, Ey);
+            ctx.lineTo(Fx, Fy);
+        }
+
+        ctx.lineTo(Gx, Gy);
+        c.drawPath(ctx, bgPaint);
+        if (linePaint != null) {
+            c.drawLine(arrowOffset, height, arrowOffset, height + arrowOffset, linePaint);
+        }
+    }
+
+    public static boolean isConnectionException(Exception e){
+        return (e instanceof UnknownHostException
+                || e instanceof SocketException
+                || e instanceof JSONException);
     }
 }

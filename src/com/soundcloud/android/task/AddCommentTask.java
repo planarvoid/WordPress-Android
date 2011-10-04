@@ -1,29 +1,38 @@
 
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
+
+
     SoundCloudApplication mApplication;
-    AddCommentListener mAddCommentListener;
     com.soundcloud.android.model.Comment mAddComment;
 
     Exception mException;
     Request mRequest;
 
-    public AddCommentTask(SoundCloudApplication app, AddCommentListener addCommentListener) {
+    public AddCommentTask(SoundCloudApplication app) {
         mApplication = app;
-        mAddCommentListener = addCommentListener;
     }
 
     @Override
@@ -45,15 +54,21 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean success) {
-        if (mAddCommentListener != null) {
-            mAddCommentListener.onCommentAdd(success, mAddComment);
-            if (mException != null) mAddCommentListener.onException(mAddComment,mException);
-        }
-    }
+        if (success){
+            if (mApplication.getTrackFromCache(mAddComment.track_id) != null) {
+                final Track track = mApplication.getTrackFromCache(mAddComment.track_id);
+                if (track.comments == null) track.comments = new ArrayList<Comment>();
+                track.comments.add(mAddComment);
+            }
 
-    // Define our custom Listener interface
-    public interface AddCommentListener {
-        void onCommentAdd(boolean success, Comment c);
-        void onException(com.soundcloud.android.model.Comment c, Exception e);
+            Intent i = new Intent(Consts.IntentActions.COMMENT_ADDED);
+            i.putExtra("comment", mAddComment);
+            mApplication.sendBroadcast(i);
+
+        } else if (CloudUtils.isConnectionException(mException)) {
+            mApplication.sendBroadcast(new Intent(Consts.IntentActions.CONNECTION_ERROR));
+        }
+
+
     }
 }

@@ -2,10 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:id="@+id/comment_panel"
        android:layout_width="fill_parent"
-       android:layout_height="wrap_content"
-       android:paddingBottom="5dip"
-       android:paddingTop="5dip"
-       android:background="@color/playerControlAlphaBackground">
+       android:layout_height="wrap_content">
     <ImageView android:id="@+id/icon"
                android:layout_alignParentLeft="true"
                android:layout_alignParentTop="true"
@@ -14,14 +11,14 @@
                android:layout_marginLeft="@dimen/list_icon_margin_left"
                android:layout_marginRight="@dimen/list_icon_margin_right"
                android:background="@drawable/avatar_badge"
-               android:scaleType="centerCrop"/>
+               android:scaleType="center"/>
     <TableLayout android:id="@+id/comment_header"
                   android:layout_height="wrap_content"
                   android:layout_width="0dp"
-                  android:layout_alignParentRight="true"
+                  android:layout_toLeftOf="@+id/btn_close"
                   android:layout_alignTop="@id/icon"
+                  android:layout_marginRight="-20dip"
                   android:layout_toRightOf="@id/icon"
-                  android:layout_marginRight="@dimen/list_text_margin_right"
                   android:stretchColumns="1"
                   android:shrinkColumns="0">
         <TableRow>
@@ -43,6 +40,7 @@
         <TextView android:id="@+id/txt_elapsed"
                   android:text="Just now"
                   android:layout_alignBottom="@id/txt_username"
+                  android:layout_below="@id/btn_close"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/txt_comment_panel_created_at"
@@ -56,12 +54,43 @@
 
     <TextView android:id="@+id/txt_comment"
               android:layout_alignLeft="@id/comment_header"
-              android:layout_alignRight="@id/comment_header"
+              android:layout_toLeftOf="@+id/txt_read_on"
+              android:layout_alignWithParentIfMissing="true"
               android:layout_below="@id/comment_header"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
-              android:maxLines="2"
+              android:lines="2"
               android:ellipsize="marquee"
               style="@style/txt_comment_panel_body"
               android:text="it's always a blessing to hear the prince... the abbot... the rza... peace fam"/>
+
+    <ImageButton android:id="@+id/btn_close"
+                 android:background="@android:color/transparent"
+                 android:src="@drawable/ic_close_states"
+                 android:layout_alignParentRight="true"
+                 android:layout_alignParentTop="true"
+                 android:scaleType="center"
+                 android:paddingBottom="10dip"
+                 android:paddingTop="5dip"
+                 android:layout_marginTop="-5dip"
+                 android:paddingRight="10dip"
+                 android:layout_height="wrap_content"
+                 android:layout_width="wrap_content"
+                 android:paddingLeft="25dip"/>
+
+    <TextView android:id="@+id/txt_read_on"
+              android:layout_alignBottom="@id/txt_comment"
+              android:layout_marginBottom="-5dip"
+              android:paddingBottom="7dip"
+              android:paddingTop="5dip"
+              android:layout_marginTop="-5dip"
+              android:paddingRight="10dip"
+              android:paddingLeft="10dip"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentRight="true"
+              android:textColor="@drawable/txt_dark_states"
+              android:text="@string/comment_bubble_readon"
+              android:textSize="@dimen/comment_panel_created_at_size"
+              android:gravity="center"/>
 </merge>

@@ -39,7 +39,7 @@
                 <ImageButton android:id="@+id/btn_favorite"
                              android:layout_centerHorizontal="true"
                              style="@style/btn_sc_transparent"
-                             android:src="@drawable/ic_favorite_states"/>
+                             android:src="@drawable/ic_like_states_v1"/>
             </RelativeLayout>
             <RelativeLayout android:layout_width="0dp"
                             android:layout_weight="1"
@@ -47,7 +47,7 @@
                 <ImageButton android:id="@+id/btn_comment"
                              android:layout_centerHorizontal="true"
                              style="@style/btn_sc_transparent"
-                             android:src="@drawable/ic_comment_states"/>
+                             android:src="@drawable/ic_comment_states_v1"/>
             </RelativeLayout>
             <RelativeLayout android:layout_width="0dp"
                             android:layout_weight="1"
@@ -96,12 +96,6 @@
                       android:layout_below="@id/track_menu" android:layout_height="5dip"
                       android:background="@drawable/drop_shadow_down"/>
             </RelativeLayout>
-            <ViewStub
-                    android:id="@+id/stub_info"
-                    android:inflatedId="@+id/track_info"
-                    android:layout="@layout/track_info"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"/>
         </com.soundcloud.android.view.SafeViewFlipper>
         <FrameLayout android:layout_weight="1"
                      android:layout_width="fill_parent"

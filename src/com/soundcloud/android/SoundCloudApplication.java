@@ -10,6 +10,7 @@ import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.LruCache;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -61,7 +62,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
     public static final boolean REPORT_PLAYBACK_ERRORS = true;
-    public static final boolean REPORT_PLAYBACK_ERRORS_BUGSENSE = false;
+    public static final boolean REPORT_PLAYBACK_ERRORS_BUGSENSE = true;
     public static final boolean API_PRODUCTION = true;
 
     public static boolean DEV_MODE, BETA_MODE;
@@ -73,7 +74,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
+
     public boolean playerWaitForArtwork;
+    public Comment pendingComment;
 
     @Override
     public void onCreate() {

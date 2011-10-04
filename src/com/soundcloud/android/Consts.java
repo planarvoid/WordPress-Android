@@ -32,6 +32,11 @@ public final class Consts {
     public static final String SOUNDCLOUD_SCHEME = "http";
     public static final String SOUNDCLOUD_HOST = "soundcloud.com";
 
+    public interface IntentActions {
+        public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
+        public static final String COMMENT_ADDED = "com.soundcloud.android.commentadded";
+    }
+
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
@@ -39,6 +44,7 @@ public final class Consts {
         int DIALOG_RESET_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_LOGOUT = 7;
+        int DIALOG_ADD_COMMENT = 8;
     }
 
     public interface OptionsMenu {

@@ -20,7 +20,7 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
 
         Robolectric.addPendingHttpResponse(201, "OK");
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, null);
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         assertThat(task.doInBackground(c), equalTo(true));
     }
 
@@ -29,7 +29,7 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
 
         Robolectric.addPendingHttpResponse(400, "FAILZ");
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application, null);
+        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         assertThat(task.doInBackground(c), equalTo(false));
     }
 }
