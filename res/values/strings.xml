@@ -23,8 +23,6 @@
     <string name='list_header_tracks_by_tag'>Other tracks tagged with %s</string>
     <string name='list_header_tracks_by_genre'>Other tracks with the genre %s</string>
 
-    <string name='track_info_favoriters'>%d people favorited it</string>
-
     <plurals name='track_info_favoriters'>
         <item quantity='one'>1 person favorited it</item>
         <item quantity='other'>%d people favorited it</item>
