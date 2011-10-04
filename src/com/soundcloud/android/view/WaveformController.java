@@ -607,7 +607,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
-        } else if (input.view == mPlayerTouchBar) {
+        } else if (input.view == mPlayerTouchBar && mPlayer.isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
             if (mPlayer != null && mPlayer.isSeekable()) {
                 mLastAutoComment = null; //reset auto comment in case they seek backward
