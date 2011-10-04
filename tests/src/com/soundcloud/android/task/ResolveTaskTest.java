@@ -1,5 +1,6 @@
 package com.soundcloud.android.task;
 
+import android.net.Uri;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -11,7 +12,7 @@ import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.net.Uri;
+import static org.junit.Assert.fail;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -94,6 +95,7 @@ public class ResolveTaskTest {
                 action[0] = _action;
             }
             @Override public void onUrlError() {
+                fail("error");
             }
         };
         ResolveTask.resolveSoundCloudURI(Uri.parse("soundcloud:users:1234#show"), Env.LIVE, listener);

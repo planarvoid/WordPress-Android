@@ -75,9 +75,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.ref.WeakReference;
 
 /**
@@ -129,7 +127,7 @@ public class CloudPlaybackService extends Service {
     private static final int RELEASE_WAKELOCKS = 7;
     private static final int CLEAR_LAST_SEEK = 8;
     private static final int STREAM_EXCEPTION = 9;
-
+    private static final int CHECK_TRACK_EVENT = 10;
 
     private MultiPlayer mPlayer;
     private int mLoadPercent = 0;
@@ -165,6 +163,8 @@ public class CloudPlaybackService extends Service {
 
     private static final int MAX_DOWNLOAD_ATTEMPTS = 3;
 
+    private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
+
     private int mCurrentDownloadAttempts;
     private boolean ignoreBuffer;
     private boolean pausedForBuffering;
@@ -178,6 +178,15 @@ public class CloudPlaybackService extends Service {
     protected int plugState;
     protected boolean mHeadphonePluggedState;
     public boolean mAutoAdvance = true;
+
+    private StringBuilder mBuildPropMedia;
+    private static final int MINIMUM_SEEKABLE_SDK = 9;
+
+    private long m10percentStamp;
+    private long m95percentStamp;
+
+    private boolean m10percentStampReached;
+    private boolean m95percentStampReached;
 
     public CloudPlaybackService() {
     }
@@ -220,7 +229,29 @@ public class CloudPlaybackService extends Service {
         WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wm.createWifiLock("wifilock");
 
+        /*** create build.prop debug string **/
+        mBuildPropMedia = new StringBuilder();
+        File f = new File("/system/build.prop");
+        InputStream instream = null;
+        try {
+            instream = new BufferedInputStream(new FileInputStream(f));
+            String line;
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            while ((line = buffreader.readLine()) != null) {
+                if (line.contains("media.stagefright")) {
+                    mBuildPropMedia.append(line);
+                    mBuildPropMedia.append(" ");
+                }
+            }
+            instream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*** create build.prop debug string **/
+
+
         mIsStagefright = CloudUtils.isStagefright();
+
 
         // track information about used audio engine with GA
         getApp().trackPage(Consts.Tracking.AUDIO_ENGINE,
@@ -502,6 +533,14 @@ public class CloudPlaybackService extends Service {
         mPlayingData = track;
         ignoreBuffer = true;
 
+        m10percentStamp = (long) (mPlayingData.duration * .1);
+        m10percentStampReached = false;
+        m95percentStamp = (long) (mPlayingData.duration * .95);
+        m95percentStampReached = false;
+
+        getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY,
+                                    mPlayingData.getTrackEventLabel());
+
         setPlayingStatus();
 
         // tell the db we played it
@@ -527,7 +566,6 @@ public class CloudPlaybackService extends Service {
 
             if (CloudUtils.checkThreadAlive(mDownloadThread)
                     && (continueId == null || mDownloadThread.getTrackId() != continueId)) {
-                mDownloadThread.interrupt();
                 mDownloadThread.stopDownload();
             }
         }
@@ -1030,6 +1068,7 @@ public class CloudPlaybackService extends Service {
         }
 
         mIsSupposedToBePlaying = false;
+        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
         mBufferHandler.removeMessages(BUFFER_FILL_CHECK);
         mBufferHandler.removeMessages(START_NEXT_TRACK);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -1241,7 +1280,7 @@ public class CloudPlaybackService extends Service {
     public boolean isSeekable() {
         synchronized (this) {
             return (mIsStagefright ||
-                    (Build.VERSION.SDK_INT > 8
+                    (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
                             && mPlayer != null
                             && mPlayer.isInitialized()
                             && !mPlayer.isAsyncOpening()
@@ -1258,7 +1297,7 @@ public class CloudPlaybackService extends Service {
     public long seek(long pos) {
         synchronized (this) {
             if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1284,7 +1323,7 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (mPlayer != null && mPlayer.isInitialized() && mPlayingData != null && !mPlayer.isAsyncOpening()
-                    && (mIsStagefright || Build.VERSION.SDK_INT > 8)) {
+                    && (mIsStagefright || Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK)) {
 
                 if (pos <= 0) {
                     pos = 0;
@@ -1364,6 +1403,10 @@ public class CloudPlaybackService extends Service {
         }
 
         public void start() {
+            Message msg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+            mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+            mMediaplayerHandler.sendMessageDelayed(msg, TRACK_EVENT_CHECK_DELAY);
+
             if (mMediaPlayer != null) mMediaPlayer.start();
         }
 
@@ -1542,8 +1585,11 @@ public class CloudPlaybackService extends Service {
                     mHandler.sendEmptyMessage(RELEASE_WAKELOCKS);
                 }
 
-                if (!mMediaplayerError)
+                if (!mMediaplayerError){
                     mHandler.sendEmptyMessage(TRACK_ENDED);
+                    getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_COMPLETE,
+                                    mPlayingData.getTrackEventLabel());
+                }
 
                 mMediaplayerError = false;
             }
@@ -1577,10 +1623,10 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                if (isConnected() && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
                     if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                         SoundCloudApplication.handleSilentException("mp error",
-                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright));
+                                new MediaPlayerException(what, extra, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                     }
                     getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
                 }
@@ -1761,6 +1807,31 @@ public class CloudPlaybackService extends Service {
                 case CLEAR_LAST_SEEK:
                     mSeekPos = -1;
                     break;
+                case CHECK_TRACK_EVENT:
+                    if (mPlayingData != null) {
+                        final long pos = position();
+                        final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5); // account for lack of accuracy in actual delay between checks
+                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
+                            m10percentStampReached = true;
+                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TEN_PERCENT,
+                                    mPlayingData.getTrackEventLabel());
+                        }
+
+                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < window) {
+                            m95percentStampReached = true;
+                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.NINTY_FIVE_PERCENT,
+                                    mPlayingData.getTrackEventLabel());
+                        }
+                    }
+
+                    if (!m10percentStampReached || !m95percentStampReached) {
+                        Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
+                    }
+
+                    break;
+
                 default:
                     break;
             }
@@ -1825,7 +1896,7 @@ public class CloudPlaybackService extends Service {
 
                 if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                     SoundCloudApplication.handleSilentException("invalid status",
-                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright));
+                            new StatusException(thread.statusLine, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                 }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR,
@@ -1836,7 +1907,7 @@ public class CloudPlaybackService extends Service {
             } else if (thread.exception != null) {
                 if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                     SoundCloudApplication.handleSilentException("io exception",
-                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright));
+                            new PlaybackError(thread.exception, mCurrentNetworkInfo, mIsStagefright, mBuildPropMedia));
                 }
 
                 getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "ioexception");
@@ -2287,28 +2358,32 @@ public class CloudPlaybackService extends Service {
     static class PlaybackError extends Exception {
         private final NetworkInfo networkInfo;
         private final boolean isStageFright;
+        private final StringBuilder buildPropMedia;
 
-        PlaybackError(IOException ioException, NetworkInfo info, boolean isStageFright) {
+        PlaybackError(IOException ioException, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
             super(ioException);
             this.networkInfo = info;
             this.isStageFright = isStageFright;
+            this.buildPropMedia = buildPropMedia;
         }
 
         @Override
         public String getMessage() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.getMessage()).append(" ")
-              .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
-              .append(" ")
-              .append("isStageFrigqht: ").append(isStageFright);
+                    .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
+                    .append(" ")
+                    .append("isStageFright: ").append(isStageFright)
+                    .append(" ")
+                    .append("build.prop: ").append(buildPropMedia);
             return sb.toString();
         }
     }
 
     static class StatusException extends PlaybackError {
         private final StatusLine status;
-        public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright) {
-            super(null, info, isStageFright);
+        public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
+            super(null, info, isStageFright, buildPropMedia);
             this.status = status;
         }
         @Override
@@ -2324,8 +2399,8 @@ public class CloudPlaybackService extends Service {
 
     static class MediaPlayerException extends PlaybackError {
         final int code, extra;
-        MediaPlayerException(int code, int extra, NetworkInfo info, boolean isStageFright) {
-            super(null, info, isStageFright);
+        MediaPlayerException(int code, int extra, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
+            super(null, info, isStageFright, buildPropMedia);
             this.code = code;
             this.extra = extra;
         }

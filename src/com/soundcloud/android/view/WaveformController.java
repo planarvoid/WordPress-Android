@@ -241,7 +241,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
 
         setCurrentTime(pos);
-        mProgressBar.setProgress((int) (1000 * pos / mDuration));
+        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             final Comment last = lastCommentBeforeTimestamp(pos);
@@ -325,8 +325,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-
-        if (TextUtils.isEmpty(track.waveform_url)) {
+        if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform();

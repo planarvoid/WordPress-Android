@@ -23,7 +23,6 @@ public class SoundCloudDB {
 
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
-                    Log.i(TAG,"FOUND TRACK " + cursor.getCount() + " " + cursor.getColumnCount());
                     if (writeState == WriteState.update_only || writeState == WriteState.all)
                         contentResolver.update(Content.TRACKS, track.buildContentValues(), Tracks.ID
                                 + "='" + track.id + "'", null);

@@ -26,6 +26,7 @@ Clone and build it:
   * Build and sign: `mvn clean install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
   command with space to skip history)
   * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
+  * Release a beta with the same version code used in the release process
 
 ## Releasing betas
 

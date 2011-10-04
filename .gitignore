@@ -38,8 +38,6 @@ com.soundcloud.android_preferences.xml
 project/boot
 project/plugins/project/
 target
-lib_managed
-src_managed
 
 c2dm.credentials
 
