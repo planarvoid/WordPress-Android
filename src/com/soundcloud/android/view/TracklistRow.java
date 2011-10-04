@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.view;
 
+import android.util.Log;
+import android.widget.Toast;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
@@ -16,6 +18,8 @@ import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import com.soundcloud.android.view.quickaction.ActionItem;
+import com.soundcloud.android.view.quickaction.QuickAction;
 
 public class TracklistRow extends LazyRow {
     private Track mTrack;
@@ -35,6 +39,33 @@ public class TracklistRow extends LazyRow {
 
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
+
+        //create quickaction
+        final QuickAction quickAction = new QuickAction(_activity);
+
+        //dashboard action item
+        quickAction.addActionItem(new ActionItem(getResources().getDrawable(R.drawable.ic_submenu_play_states)));
+        quickAction.addActionItem(new ActionItem(getResources().getDrawable(R.drawable.ic_profile_states)));
+        quickAction.addActionItem(new ActionItem(getResources().getDrawable(R.drawable.ic_favorite_states)));
+        quickAction.addActionItem(new ActionItem(getResources().getDrawable(R.drawable.ic_comment_states)));
+        quickAction.addActionItem(new ActionItem(getResources().getDrawable(R.drawable.ic_share_states)));
+
+        quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+            @Override
+            public void onItemClick(int pos) {
+
+            }
+        });
+
+        if (mIcon != null) {
+            mIcon.setFocusable(false);
+            mIcon.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    quickAction.show(mIcon);
+                }
+            });
+        }
     }
 
     @Override
