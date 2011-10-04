@@ -156,11 +156,11 @@ object Mavenizer {
       pomPostProcess <<= (version) apply { (v) => { (node: scala.xml.Node) =>
         doPomPostProcess(node, "soundcloud-android", v)
       }},
-      makePomConfiguration <<= (artifactPath in makePom, pomExtra,
+      makePomConfiguration <<= (artifactPath in makePom, projectInfo, pomExtra,
                                 pomPostProcess, pomIncludeRepository,
                                 pomAllRepositories) {
-         (file, extra, process, include, all) =>
-          new MakePomConfiguration(file, Some(List(Configurations.Compile,
+         (file, minfo, extra, process, include, all) =>
+          new MakePomConfiguration(file, minfo, Some(List(Configurations.Compile,
                                                    Configurations.Provided,
                                                    Configurations.Test)), extra, process, include, all)
       },

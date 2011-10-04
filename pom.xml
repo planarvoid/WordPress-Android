@@ -144,7 +144,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0-filter-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

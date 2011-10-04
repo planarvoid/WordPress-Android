@@ -241,7 +241,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
 
         setCurrentTime(pos);
-        mProgressBar.setProgress((int) (1000 * pos / mDuration));
+        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             final Comment last = lastCommentBeforeTimestamp(pos);
@@ -325,8 +325,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-
-        if (TextUtils.isEmpty(track.waveform_url)) {
+        if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform();
@@ -608,7 +607,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
-        } else if (input.view == mPlayerTouchBar) {
+        } else if (input.view == mPlayerTouchBar && mPlayer.isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
             if (mPlayer != null && mPlayer.isSeekable()) {
                 mLastAutoComment = null; //reset auto comment in case they seek backward

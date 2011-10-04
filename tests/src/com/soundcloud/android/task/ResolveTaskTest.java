@@ -1,9 +1,9 @@
 package com.soundcloud.android.task;
 
+import android.net.Uri;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Env;
@@ -12,7 +12,7 @@ import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.net.Uri;
+import static org.junit.Assert.fail;
 
 
 @RunWith(DefaultTestRunner.class)
