@@ -144,7 +144,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0-filter-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -246,7 +246,7 @@
         <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
-            <version>1.0-RC5-SOUNDCLOUD</version>
+            <version>1.0-RC5-SNAPSHOT</version>
             <scope>test</scope>
             <classifier>jar-with-dependencies</classifier>
         </dependency>

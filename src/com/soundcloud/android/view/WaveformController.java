@@ -201,7 +201,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mDuration == 0)
             return;
 
-        mProgressBar.setProgress((int) (1000 * pos / mDuration));
+        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             Comment last = lastCommentBeforeTimestamp(pos);
@@ -241,15 +241,18 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             return;
         }
 
-        if (mPlayingTrack != track) {
+        final boolean changed = (mPlayingTrack != track);
+        mPlayingTrack = track;
+        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+
+        if (changed) {
+            mOverlay.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
+            mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
             ImageLoader.get(mPlayer).unbind(mOverlay);
         }
 
-        mPlayingTrack = track;
-        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
-        mCurrentTimeDisplay.setDuration(mDuration);
-
-        if (TextUtils.isEmpty(track.waveform_url)) {
+        if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform();
@@ -272,6 +275,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
+                        waveformResult = BindResult.OK;
                         showWaveform();
                     }
                 });

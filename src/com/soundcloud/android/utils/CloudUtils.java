@@ -73,7 +73,7 @@ import java.util.Locale;
 public class CloudUtils {
     private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
     private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
-    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE");
+    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
 
     public static File getCacheDir(Context c) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {

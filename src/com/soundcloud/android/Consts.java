@@ -112,6 +112,7 @@ public final class Consts {
     }
 
     public interface Tracking {
+        String LABEL_DOMAIN_PREFIX = "http://soundcloud.com/";
         interface Categories {
             String AUTH      = "auth";
             String CONNECT   = "connect";

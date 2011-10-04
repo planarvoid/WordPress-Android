@@ -1,7 +1,5 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -11,7 +9,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -46,7 +43,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
                 final Header location = response.getFirstHeader("Location");
                 if (location != null && location.getValue() != null) {
-                    listener.onUrlResolved(Uri.parse(location.getValue()));
+                    listener.onUrlResolved(Uri.parse(location.getValue()), null);
                 } else {
                     listener.onUrlError();
                 }
@@ -60,7 +57,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
     }
 
     public interface ResolveListener {
-        void onUrlResolved(Uri uri);
+        void onUrlResolved(Uri uri, String action);
         void onUrlError();
     }
 
@@ -68,7 +65,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         Uri resolved = resolveSoundCloudURI(uri, env);
         if (listener != null) {
             if (resolved != null) {
-                listener.onUrlResolved(resolved);
+                listener.onUrlResolved(resolved, uri.getFragment());
             } else {
                 listener.onUrlError();
             }
@@ -76,10 +73,11 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         return resolved;
     }
 
+    // http://soundcloud.pbworks.com/w/page/40109213/Client%20URL%20Scheme
     public static Uri resolveSoundCloudURI(Uri uri, Env env) {
         if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
             final String specific = uri.getSchemeSpecificPart();
-            final String[] components = specific.split("/", 2);
+            final String[] components = specific.split(":", 2);
             if (components != null && components.length == 2) {
                 final String type = components[0];
                 final String id = components[1];

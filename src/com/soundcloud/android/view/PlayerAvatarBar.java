@@ -134,7 +134,7 @@ public class PlayerAvatarBar extends View {
     }
 
     private void loadAvatar(final Comment c){
-        if (!CloudUtils.checkIconShouldLoad(c.user.avatar_url))
+        if (c == null || c.user == null || !CloudUtils.checkIconShouldLoad(c.user.avatar_url))
             return;
 
 
