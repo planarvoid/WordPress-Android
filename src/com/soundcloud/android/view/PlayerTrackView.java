@@ -576,9 +576,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 setFavoriteStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
-            mTrack.last_playback_error = -1;
-            hideUnplayable();
-            mWaveformController.showConnectingLayout();
+            onBuffering();
         } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
             mWaveformController.hideConnectingLayout();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
@@ -628,5 +626,11 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     public void onStop() {
         mWaveformController.onStop();
+    }
+
+    public void onBuffering() {
+        mTrack.last_playback_error = -1;
+        hideUnplayable();
+        mWaveformController.showConnectingLayout();
     }
 }

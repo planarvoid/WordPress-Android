@@ -482,6 +482,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mTrackWorkspace.setCurrentScreenNow(currentQueuePosition > 0 ? 1 : 0, false);
             }
 
+            if (mPlaybackService.isBuffering()){
+                getCurrentTrackView().onBuffering();
+            }
+
         } catch (RemoteException ignored) {}
 
     }

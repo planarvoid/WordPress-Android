@@ -988,6 +988,8 @@ public class CloudPlaybackService extends Service {
         }
 
         public void setDataSourceAsync(String path) {
+            return;
+            /*
             if (mMediaPlayer == null) refreshMediaplayer();
             mIsAsyncOpening = true;
 
@@ -1001,6 +1003,7 @@ public class CloudPlaybackService extends Service {
 
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
+
             } catch (IllegalStateException e) {
                 Log.e(TAG, "error", e);
                 mIsInitialized = false;
@@ -1008,6 +1011,7 @@ public class CloudPlaybackService extends Service {
                 Log.e(TAG, "error", e);
                 mIsInitialized = false;
             }
+            */
         }
 
         public boolean isInitialized() {
