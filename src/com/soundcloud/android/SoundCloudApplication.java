@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -114,7 +115,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
-                ScContentProvider.enableSyncing(account);
+                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
         }
 
@@ -262,7 +263,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        ScContentProvider.enableSyncing(account);
+        ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
         return created;
     }
 

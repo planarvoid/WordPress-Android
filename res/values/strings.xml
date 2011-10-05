@@ -1,0 +1,8 @@
+<resources xmlns:xliff="http://schemas.android.com/apk/res/android">
+
+    <string name='pref_notifications_frequency'>Notifications Frequency</string>
+    <string name='pref_notifications_frequency_description'>
+        Set the frequency between updates
+    </string>
+
+</resources>

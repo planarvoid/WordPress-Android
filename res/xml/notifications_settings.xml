@@ -9,6 +9,13 @@
                 android:summary="@string/pref_notifications_wifi_only_description"
                 android:key="notificationsWifiOnly"
                 android:defaultValue="false"/>
+    <ListPreference
+                android:title="@string/pref_notifications_frequency"
+                android:summary="@string/pref_notifications_frequency_description"
+                android:key="notificationsFrequency"
+                android:defaultValue="3600"
+                android:entries="@array/pref_notifications_frequency"
+                android:entryValues="@array/pref_notifications_frequency_values"/>
      <PreferenceCategory android:title="@string/pref_notifications_stream">
         <CheckBoxPreference
                 android:title="@string/pref_notifications_incoming"
