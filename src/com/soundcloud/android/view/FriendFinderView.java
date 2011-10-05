@@ -203,8 +203,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
 
-        setLazyListView(mFriendList, mAdapter,
-            Consts.ListId.LIST_USER_SUGGESTED, false).disableLongClickListener();
+        setLazyListView(mFriendList, mAdapter, Consts.ListId.LIST_USER_SUGGESTED, false);
 
         if (mFbConnected) {
             addFriendsSection();

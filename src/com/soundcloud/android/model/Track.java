@@ -170,6 +170,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         return user;
     }
 
+    public boolean isPublic() {
+        return sharing.contentEquals("public");
+    }
+
     public static class CreatedWith {
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;

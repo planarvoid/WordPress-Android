@@ -359,7 +359,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         final ScTabView followingsView = new ScTabView(this);
-        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
+        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true);
 
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -377,7 +377,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         final ScTabView followersView = new ScTabView(this);
-        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
+        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true);
 
         for (ScListView list : mLists){
             list.setFadingEdgeLength(0);

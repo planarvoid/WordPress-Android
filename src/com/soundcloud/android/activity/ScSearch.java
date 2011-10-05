@@ -145,13 +145,11 @@ public class ScSearch extends ScActivity {
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
             mTrackAdpWrapper.setRequest(Request.to(Endpoints.TRACKS).with("q", query));
             setListType(false);
-            mList.enableLongClickListener();
             mUserAdpWrapper.reset(false,false);
             trackPage(Consts.Tracking.SEARCH_TRACKS + query);
         } else {
             mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
             setListType(true);
-            mList.disableLongClickListener();
             mTrackAdpWrapper.reset(false,false);
             trackPage(Consts.Tracking.SEARCH_USERS + query);
         }
