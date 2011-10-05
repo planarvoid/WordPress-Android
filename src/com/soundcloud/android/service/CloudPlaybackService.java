@@ -32,6 +32,7 @@ import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
+import com.soundcloud.android.utils.play.StreamProxy;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
@@ -85,7 +86,7 @@ import java.lang.ref.WeakReference;
  */
 public class CloudPlaybackService extends Service {
 
-    private static final String TAG = "CloudPlaybackService";
+    public static final String TAG = "CloudPlaybackService";
 
     public static final int PLAYBACKSERVICE_STATUS = 1;
     public static final int BUFFER_CHECK = 0;
@@ -176,6 +177,7 @@ public class CloudPlaybackService extends Service {
     protected int batteryLevel;
     protected int plugState;
     protected boolean mHeadphonePluggedState;
+
     public boolean mAutoAdvance = true;
 
     private StringBuilder mBuildPropMedia;
@@ -186,6 +188,8 @@ public class CloudPlaybackService extends Service {
 
     private boolean m10percentStampReached;
     private boolean m95percentStampReached;
+
+    private StreamProxy proxy;
 
     public CloudPlaybackService() {
     }
@@ -227,29 +231,7 @@ public class CloudPlaybackService extends Service {
 
         WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wm.createWifiLock("wifilock");
-
-        /*** create build.prop debug string **/
-        mBuildPropMedia = new StringBuilder();
-        File f = new File("/system/build.prop");
-        InputStream instream = null;
-        try {
-            instream = new BufferedInputStream(new FileInputStream(f));
-            String line;
-            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
-            while ((line = buffreader.readLine()) != null) {
-                if (line.contains("media.stagefright")) {
-                    mBuildPropMedia.append(line);
-                    mBuildPropMedia.append(" ");
-                }
-            }
-            instream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        /*** create build.prop debug string **/
-
-
-        mIsStagefright = CloudUtils.isStagefright();
+        mIsStagefright =  false; // CloudUtils.isStagefright();
 
 
         // track information about used audio engine with GA
@@ -600,7 +582,9 @@ public class CloudPlaybackService extends Service {
             if (mPlayingData.isStreamable()) {
                 notifyChange(INITIAL_BUFFERING);
                 initialBuffering = true;
-                if (mIsStagefright) {
+                //if (mIsStagefright) {
+                // TODO : instead of isStagefright, isCachingEnabled
+                if (false) {
                     pausedForBuffering = initialBuffering = fillBuffer = true;
                     ignoreBuffer = false;
 
@@ -620,7 +604,9 @@ public class CloudPlaybackService extends Service {
                     // commit updated track (user played update only)
                     mPlayListManager.commitTrackToDb(mPlayingData);
                     // need to resolve stream url, because f***ing mediaplayer doesn't handle https
-                    setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
+
+                    mPlayer.setDataSourceAsync(mPlayingData.stream_url);
+                    //setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
                 }
             } else {
                 sendStreamException(0);
@@ -911,9 +897,10 @@ public class CloudPlaybackService extends Service {
 
         mCurrentDownloadAttempts = 0; //reset errors, user may be manually trying again after a download error
 
-        if (mPlayer != null && mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
-
-            if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
+        //if (mPlayer != null && mPlayer.isInitialized() && (!mIsStagefright || mPlayingData.filelength > 0)) {
+        if (mPlayer != null && mPlayer.isInitialized()) {
+             mPlayer.start();
+            /*if (!mIsStagefright || mPlayingData.getCache().length() > PLAYBACK_MARK) {
 
                 if (mIsStagefright)
                     if (mCurrentBuffer < PLAYBACK_MARK) {
@@ -937,7 +924,7 @@ public class CloudPlaybackService extends Service {
                 pausedForBuffering = true;
                 notifyChange(BUFFERING);
                 assertBufferCheck();
-            }
+            }*/
         } else {
             // must have been a playback error
             this.restart();
@@ -1369,11 +1356,12 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
-                if (mIsStagefright) {
-                    mPlayingPath = mPlayingData.getCache().getAbsolutePath();
-                } else {
-                    mPlayingPath = path;
+                if (proxy == null) {
+                    proxy = new StreamProxy(getApp());
+                    proxy.init();
+                    proxy.start();
                 }
+                mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
 
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
@@ -1434,6 +1422,7 @@ public class CloudPlaybackService extends Service {
             try {
                 return mMediaPlayer.getCurrentPosition();
             } catch (Exception e) {
+                Log.w(TAG, e);
                 return 0;
             }
 
