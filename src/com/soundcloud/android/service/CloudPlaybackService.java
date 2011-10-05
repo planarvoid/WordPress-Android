@@ -210,7 +210,10 @@ public class CloudPlaybackService extends Service {
         mAutoPause = true;
         final long resumeTime = mPlayListManager.reloadQueue();
         mPlayingData = mPlayListManager.getCurrentTrack();
-        mPlayingData.last_playback_position = resumeTime;
+        if (mPlayingData != null){
+            mPlayingData.last_playback_position = resumeTime;
+        }
+
     }
 
 

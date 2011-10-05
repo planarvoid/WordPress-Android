@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity;
 
+import android.preference.*;
+import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -7,11 +9,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +41,22 @@ public class NotificationSettings extends PreferenceActivity {
                 }
             }
         }
+
+        ListPreference recordingQuality = (ListPreference) findPreference("notificationsFrequency");
+        recordingQuality.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        final Account account = ((SoundCloudApplication) getApplication()).getAccount();
+                        if (account != null) {
+                            ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(NotificationSettings.this));
+                        }
+                        return true;
+                    }
+                }
+        );
+
+
     }
 
     private void checkSyncNecessary() {
@@ -59,7 +73,7 @@ public class NotificationSettings extends PreferenceActivity {
         if (account != null) {
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
-                ScContentProvider.enableSyncing(account);
+                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             } else if (!sync && autoSyncing){
                 ScContentProvider.disableSyncing(account);
             }

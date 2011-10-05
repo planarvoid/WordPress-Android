@@ -317,3 +317,10 @@ namespace :c2dm do
     puts post(ENV['REG_ID'], 'beta-version' => [versionCode, versionName].join(':'))
   end
 end
+
+namespace :lol do
+  task :fetch do
+    url = "http://lol.iriscouch.com/lolcatlizr/_design/lolcatlizr/_list/android/android?key=%22%22"
+    sh "curl #{url} > res/values/strings_lolcatlizr.xml"
+  end
+end
