@@ -451,6 +451,7 @@ public class CloudPlaybackService extends Service {
         i.putExtra("isPlaying", isPlaying());
         i.putExtra("isSupposedToBePlaying", isSupposedToBePlaying());
         i.putExtra("position",position());
+        i.putExtra("queuePosition",getQueuePosition());
         if (FAVORITE_SET.equals(what)) {
             i.putExtra("isFavorite", mPlayingData.user_favorite);
         }

@@ -45,12 +45,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private boolean mLandscape;
     private ImageButton mFavoriteButton;
 
-    private long mCurrentTrackId;
-
     private Track mPlayingTrack;
-    private int mQueuePos;
-
-    private TextView mFavoritersTxt;
 
     private boolean mWaveformLoaded;
 
@@ -113,7 +108,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             mCommentButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    toggleCommentMode(mQueuePos);
+                    toggleCommentMode(getCurrentTrackView().getPlayPosition());
                 }
             });
 
@@ -164,7 +159,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     private WaveformController getWaveformController(int playPos){
-        return ((PlayerTrackView) mTrackWorkspace.getChildAt(playPos)).getWaveformController();
+        return getTrackView(playPos).getWaveformController();
     }
 
     public ViewGroup getCommentHolder() {
@@ -332,9 +327,19 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int queuePos = intent.getIntExtra("queuePos", mTrackWorkspace.getCurrentScreen());
+            final int queuePos = intent.getIntExtra("queuePosition", -1);
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
+                final int currentQueuePosition = getCurrentTrackView().getPlayPosition();
+                if (getCurrentTrackView().getPlayPosition() != queuePos){
+                    if (queuePos == currentQueuePosition + 1){
+                        mTrackWorkspace.scrollRight();
+                    } else if (queuePos == currentQueuePosition - 1){
+                        mTrackWorkspace.scrollLeft();
+                    } else {
+                        updateTrackDisplay();
+                    }
+                }
                 setPauseButtonImage();
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
@@ -357,10 +362,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
+
         if (newScreen == null) return;
         try {
+            final int currentQueuePos = mPlaybackService.getQueuePosition();
             final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
-            if (newQueuePos != mQueuePos) {
+
+            if (newQueuePos != currentQueuePos) {
                 mPlaybackService.setQueuePosition(newQueuePos);
             }
 
@@ -438,13 +446,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 return;
             }
 
-            mQueuePos = mPlaybackService.getQueuePosition();
-            mPlayingTrack = getAndCacheTrack(trackId,mQueuePos);
+            final int currentQueuePosition = mPlaybackService.getQueuePosition();
+            mPlayingTrack = getAndCacheTrack(trackId,currentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
             int workspaceIndex = 0;
             final int queueLength = mPlaybackService.getQueueLength();
-            for (int pos = mQueuePos -1; pos < mQueuePos + 2; pos++){
+            for (int pos = currentQueuePosition -1; pos < currentQueuePosition + 2; pos++){
                 if (pos >= 0 && pos < queueLength){
                     PlayerTrackView ptv;
                     if (mTrackWorkspace.getChildCount() > workspaceIndex){
@@ -464,9 +472,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             if (first){
-                mTrackWorkspace.initWorkspace(mQueuePos > 0 ? 1 : 0);
+                mTrackWorkspace.initWorkspace(currentQueuePosition > 0 ? 1 : 0);
             } else {
-                mTrackWorkspace.setCurrentScreenNow(mQueuePos > 0 ? 1 : 0, false);
+                mTrackWorkspace.setCurrentScreenNow(currentQueuePosition > 0 ? 1 : 0, false);
             }
 
         } catch (RemoteException ignored) {}
