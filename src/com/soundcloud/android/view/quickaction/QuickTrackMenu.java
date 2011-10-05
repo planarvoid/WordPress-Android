@@ -3,6 +3,7 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -14,10 +15,9 @@ import com.soundcloud.android.utils.CloudUtils;
 
 public class QuickTrackMenu extends QuickAction {
 
-    View mPlayActionView;
-    View mShareActionView;
-    View mCommentActionView;
-
+    ActionItem mPlayActionItem;
+    ActionItem mShareActionItem;
+    ActionItem mCommentActionItem;
     ActionItem mFavoriteActionItem;
 
     private Drawable mFavoriteDrawable;
@@ -31,21 +31,24 @@ public class QuickTrackMenu extends QuickAction {
         mActivity = activity;
         mAdapter = tracklistAdapter;
 
-        mPlayActionView = addActionItem(new ActionItem(mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states)));
+        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states));
+        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_favorite_states));
+        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states));
+        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_share_states));
 
-        //dashboard action item
-        addActionItem(new ActionItem(mActivity.getResources().getDrawable(R.drawable.ic_profile_states)));
-        mFavoriteActionItem = new ActionItem(mActivity.getResources().getDrawable(R.drawable.ic_favorite_states));
+        addActionItem(mPlayActionItem);
+        addActionItem(new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_profile_states)));
         addActionItem(mFavoriteActionItem);
-        mCommentActionView = addActionItem(new ActionItem(mActivity.getResources().getDrawable(R.drawable.ic_comment_states)));
-        mShareActionView = addActionItem(new ActionItem(mActivity.getResources().getDrawable(R.drawable.ic_share_states)));
+        addActionItem(mCommentActionItem);
+        addActionItem(mShareActionItem);
     }
 
     public void show(View anchor, final Track track, final int itemPosition) {
 
-        mPlayActionView.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
-        mShareActionView.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
+        mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
+        mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
         mFavoriteActionItem.setIcon(track.user_favorite ? getFavoritedDrawable() : getFavoriteDrawable());
+
         setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(int pos) {

@@ -121,29 +121,10 @@ public class QuickAction extends PopupWindows {
 	 * 
 	 * @param action  {@link ActionItem}
 	 */
-	public View addActionItem(ActionItem action) {
-		
-		String title 	= action.getTitle();
-		Drawable icon 	= action.getIcon();
-		
-		View container	= (View) inflater.inflate(R.layout.quickaction_action_item, null);
-		
-		ImageView img 	= (ImageView) container.findViewById(R.id.iv_icon);
-		TextView text 	= (TextView) container.findViewById(R.id.tv_title);
-		
-		if (icon != null) 
-			img.setImageDrawable(icon);
-		else
-			img.setVisibility(View.GONE);
-		
-		if (title != null)
-			text.setText(title);
-		else
-			text.setVisibility(View.GONE);
-		
+	public void addActionItem(ActionItem actionItem) {
 		final int pos =  mChildPos;
 		
-		container.setOnClickListener(new OnClickListener() {
+		actionItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mListener != null) mListener.onItemClick(pos);
@@ -152,14 +133,12 @@ public class QuickAction extends PopupWindows {
 			}
 		});
 		
-		container.setFocusable(true);
-		container.setClickable(true);
+		actionItem.setFocusable(true);
+		actionItem.setClickable(true);
 			 
-		mTrack.addView(container, mChildPos);
+		mTrack.addView(actionItem, mChildPos);
 		
 		mChildPos++;
-
-        return container;
 	}
 	
 	/**

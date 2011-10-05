@@ -1,7 +1,14 @@
 package com.soundcloud.android.view.quickaction;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.Bitmap;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import com.soundcloud.android.R;
 
 /**
  * Action item, displayed as menu with icon and text.
@@ -9,42 +16,34 @@ import android.graphics.Bitmap;
  * @author Lorensius. W. L. T
  *
  */
-public class ActionItem {
-	private Drawable icon;
-	private Bitmap thumb;
-	private String title;
+public class ActionItem extends LinearLayout {
 	private boolean selected;
 	
-	/**
-	 * Constructor
-	 */
-	public ActionItem() {}
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param icon {@link Drawable} action icon
-	 */
-	public ActionItem(Drawable icon) {
-		this.icon = icon;
+
+    public ActionItem(Context context) {
+        super(context);
+           LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.quickaction_action_item, this);
+    }
+
+    public ActionItem(Context context, Drawable icon) {
+		this(context);
+        setIcon(icon);
 	}
-	
-	/**
+
+
+    /**
 	 * Set action title
 	 * 
 	 * @param title action title
 	 */
 	public void setTitle(String title) {
-		this.title = title;
-	}
-	
-	/**
-	 * Get action title
-	 * 
-	 * @return action title
-	 */
-	public String getTitle() {
-		return this.title;
+                if (title != null)
+                    ((TextView) findViewById(R.id.tv_title)).setText(title);
+                else
+                    ((TextView) findViewById(R.id.tv_title)).setVisibility(View.GONE);
+
 	}
 	
 	/**
@@ -53,15 +52,11 @@ public class ActionItem {
 	 * @param icon {@link Drawable} action icon
 	 */
 	public void setIcon(Drawable icon) {
-		this.icon = icon;
-	}
-	
-	/**
-	 * Get action icon
-	 * @return  {@link Drawable} action icon
-	 */
-	public Drawable getIcon() {
-		return this.icon;
+                        if (icon != null)
+                            ((ImageView) findViewById(R.id.iv_icon)).setImageDrawable(icon);
+                        else
+                            ((ImageView) findViewById(R.id.iv_icon)).setVisibility(View.GONE);
+
 	}
 	
 	/**
@@ -80,23 +75,5 @@ public class ActionItem {
 	 */
 	public boolean isSelected() {
 		return this.selected;
-	}
-
-	/**
-	 * Set thumb
-	 * 
-	 * @param thumb Thumb image
-	 */
-	public void setThumb(Bitmap thumb) {
-		this.thumb = thumb;
-	}
-	
-	/**
-	 * Get thumb image
-	 * 
-	 * @return Thumb image
-	 */
-	public Bitmap getThumb() {
-		return this.thumb;
 	}
 }
