@@ -86,7 +86,7 @@ public class RecordingTest {
         r.upload_status = 1;
         assertThat(
                 r.getStatus(res),
-                equalTo("\n\t\tUploading. You can check on progress in Notifications\n\t"));
+                equalTo("Uploading. You can check on progress in Notifications"));
     }
 
     @Test

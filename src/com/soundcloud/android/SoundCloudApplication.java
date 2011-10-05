@@ -1,7 +1,17 @@
 package com.soundcloud.android;
 
-import static android.content.pm.PackageManager.*;
-
+import android.accounts.*;
+import android.app.Activity;
+import android.app.Application;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.pm.PackageInfo;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.StrictMode;
+import android.text.TextUtils;
+import android.util.Log;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
@@ -17,40 +27,23 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
-import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
-import android.app.Activity;
-import android.app.Application;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.pm.PackageInfo;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.StrictMode;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.content.pm.PackageManager.*;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=7e726f95",
@@ -119,7 +112,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
-                ScContentProvider.enableSyncing(account);
+                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
         }
 
@@ -267,7 +260,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        ScContentProvider.enableSyncing(account);
+        ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
         return created;
     }
 

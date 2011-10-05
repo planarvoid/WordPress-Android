@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.util.regex.Matcher;
@@ -144,10 +145,6 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         return null;
-    }
-
-    public static void enableSyncing(Account account) {
-        enableSyncing(account, DEFAULT_POLL_FREQUENCY);
     }
 
     public static void enableSyncing(Account account, long pollFrequency) {
