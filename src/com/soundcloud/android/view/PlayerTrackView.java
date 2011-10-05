@@ -66,7 +66,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private int mViewWidth = 0;
     private int mTouchSlop;
 
-    private int mCurrentTrackError;
     private String mCurrentDurationString;
     private ImageLoader.BindResult mCurrentAvatarBindResult;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
@@ -202,6 +201,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             if (changed) {
                 if (!mLandscape) updateArtwork();
                 mWaveformController.clearTrackComments();
+                mWaveformController.setProgress(mTrack.last_playback_position);
 
                 if (mTrack.user != null && TextUtils.isEmpty(mTrack.user.username)) {
                     mPlayer.trackPage(mTrack.pageTrack());
@@ -217,10 +217,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                     onTrackInfoFlip();
                 }
 
-                if (mCurrentTrackError >= 0)
-                    return;
-
-                if (mTrack.isStreamable()) {
+                if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
                     hideUnplayable();
                 } else {
                     showUnplayable();
@@ -543,7 +540,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
         if (mTrack == null || mTrack.isStreamable()) {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                    .setText(mCurrentTrackError == 0 ? R.string.player_error : R.string.player_stream_error);
+                    .setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
         } else {
             ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
                     .setText(R.string.player_not_streamable);
@@ -568,7 +565,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
             if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                 hideUnplayable();
-                mCurrentTrackError = -1;
+                mTrack.last_playback_error = -1;
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
             }
@@ -579,7 +576,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 setFavoriteStatus();
             }
         } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
-            mCurrentTrackError = -1;
+            mTrack.last_playback_error = -1;
             hideUnplayable();
             mWaveformController.showConnectingLayout();
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
@@ -589,12 +586,12 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             mWaveformController.hideConnectingLayout();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
         } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
-            mCurrentTrackError = ScPlayer.PlayerError.PLAYBACK_ERROR;
+            mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             mWaveformController.hideConnectingLayout();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
-            mCurrentTrackError = ScPlayer.PlayerError.STREAM_ERROR;
+            mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             mWaveformController.hideConnectingLayout();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             showUnplayable();

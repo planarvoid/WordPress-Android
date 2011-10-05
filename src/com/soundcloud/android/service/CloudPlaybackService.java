@@ -139,8 +139,7 @@ public class CloudPlaybackService extends Service {
     private StoppableDownloadThread mDownloadThread;
     private boolean mMediaplayerError;
     private RemoteViews mNotificationView;
-    private long mResumeTime = -1;
-    private long mResumeId = -1;
+
     private WifiLock mWifiLock;
     private WakeLock mWakeLock;
     private int mServiceStartId = -1;
@@ -272,11 +271,9 @@ public class CloudPlaybackService extends Service {
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
         mAutoPause = true;
-        mResumeTime = mPlayListManager.reloadQueue();
+        final long resumeTime = mPlayListManager.reloadQueue();
         mPlayingData = mPlayListManager.getCurrentTrack();
-        if (mPlayingData != null && mResumeTime > 0){
-            mResumeId = mPlayingData.id;
-        }
+        mPlayingData.last_playback_position = resumeTime;
     }
 
 
@@ -741,12 +738,12 @@ public class CloudPlaybackService extends Service {
                 mCurrentBuffer = mPlayingData.getCache().length() - mPlayingData.filelength
                         * mPlayer.position() / getDuration();
 
-            } else if (mResumeId == mPlayingData.id && mResumeTime > -1) {
+            } else if (mPlayingData.last_playback_position > 0) {
                 // resume buffer measurement. if stream died due to lack of a
                 // buffer, measure the buffer from where we are supposed to
                 // resume
                 mCurrentBuffer = mPlayingData.getCache().length() - mPlayingData.filelength
-                        * mResumeTime / getDuration();
+                        * mPlayingData.last_playback_position / getDuration();
             } else {
                 // initial buffer measurement
                 mCurrentBuffer = mPlayingData.getCache().length();
@@ -922,12 +919,9 @@ public class CloudPlaybackService extends Service {
                     if (mCurrentBuffer < PLAYBACK_MARK) {
                         // we are not allowed to play from wherever we are
                         // mPlayer.seek(0);
-                    } else if (mPlayingData != null && mPlayingData.id == mResumeId
-                            && mResumeTime > -1) {
+                    } else if (mPlayingData != null && mPlayingData.last_playback_position > 0) {
                         // we are supposed to resume somewhere in the middle
-                        mPlayer.seek(mResumeTime, true);
-                        mResumeTime = -1;
-                        mResumeId = -1;
+                        mPlayer.seek(mPlayingData.last_playback_position, true);
                     }
 
                 mPlayer.start();
@@ -1035,6 +1029,7 @@ public class CloudPlaybackService extends Service {
 
     public void prev() {
         synchronized (this) {
+            if (mPlayListManager.getCurrentTrack() != null)
             if (mPlayListManager.prev())
                 openCurrent();
         }
@@ -1253,8 +1248,8 @@ public class CloudPlaybackService extends Service {
     public long position() {
         if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
-        } else if (mPlayingData != null && mResumeId == mPlayingData.id) {
-            return mResumeTime; // either -1 or a valid resume time
+        } else if (mPlayingData != null) {
+            return mPlayingData.last_playback_position; // either -1 or a valid resume time
         } else return 0;
     }
 
@@ -1305,10 +1300,10 @@ public class CloudPlaybackService extends Service {
                 }
 
                 return mPlayer.seek(pos);
-            } else if (mIsStagefright && pausedForBuffering && mResumeTime > -1 && pos < mResumeTime){
-                mResumeTime = pos;
+            } else if (mIsStagefright && pausedForBuffering && mPlayingData.last_playback_position > 0 && pos < mPlayingData.last_playback_position){
+                mPlayingData.last_playback_position = pos;
                 assertBufferCheck();
-                return mResumeTime;
+                return mPlayingData.last_playback_position;
             }
             return -1;
         }
@@ -1559,8 +1554,7 @@ public class CloudPlaybackService extends Service {
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - targetPosition > 3000) {
 
-                    mResumeId = mPlayingData.id;
-                    mResumeTime = targetPosition;
+                    mPlayingData.last_playback_position = targetPosition;
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
@@ -1587,7 +1581,9 @@ public class CloudPlaybackService extends Service {
                 }
 
                 if (!mMediaplayerError){
+                    if (mPlayingData != null) mPlayingData.last_playback_position = 0;
                     mHandler.sendEmptyMessage(TRACK_ENDED);
+
                     getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_COMPLETE,
                                     mPlayingData.getTrackEventLabel());
                 }
@@ -1609,10 +1605,8 @@ public class CloudPlaybackService extends Service {
                     }
                 }
 
-                if (mResumeId == mPlayingData.id) {
-                    mPlayer.seek(mResumeTime, true);
-                    mResumeTime = -1;
-                    mResumeId = -1;
+                if (mPlayingData.last_playback_position > 0) {
+                    mPlayer.seek(mPlayingData.last_playback_position, true);
                 }
 
                 notifyChange(BUFFERING_COMPLETE);
@@ -1811,6 +1805,7 @@ public class CloudPlaybackService extends Service {
                 case CHECK_TRACK_EVENT:
                     if (mPlayingData != null) {
                         final long pos = position();
+                        mPlayingData.last_playback_position = pos;
                         final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5); // account for lack of accuracy in actual delay between checks
                         if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
                             m10percentStampReached = true;
@@ -1825,11 +1820,9 @@ public class CloudPlaybackService extends Service {
                         }
                     }
 
-                    if (!m10percentStampReached || !m95percentStampReached) {
-                        Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
-                        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                        mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
-                    }
+                    Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+                    mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                    mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
 
                     break;
 

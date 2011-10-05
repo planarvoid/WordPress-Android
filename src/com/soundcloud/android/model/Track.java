@@ -138,6 +138,9 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     @JsonIgnore public boolean info_loaded;
     @JsonIgnore public boolean comments_loaded;
 
+    @JsonIgnore public int last_playback_error = -1;
+    @JsonIgnore public long last_playback_position;
+
     protected File mCacheFile;
     private CharSequence mElapsedTime;
 

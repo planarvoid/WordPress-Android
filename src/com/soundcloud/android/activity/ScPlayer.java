@@ -291,7 +291,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mIsPlaying = true;
             }
 
-            long queuePos = mPlaybackService.getQueuePosition();
             long pos = mPlaybackService.position();
             long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
 
@@ -407,7 +406,12 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ptv.setTrack(nextTrack, newQueuePos + 1, false);
                     mTrackWorkspace.setCurrentScreenNow(1, false);
                 }
+            }
 
+            for (int i = 0; i < mTrackWorkspace.getChildCount(); i++) {
+                if (i != mTrackWorkspace.getCurrentScreen()) {
+                    ((PlayerTrackView) mTrackWorkspace.getChildAt(i)).getWaveformController().reset();
+                }
             }
 
         } catch (RemoteException ignored) {
@@ -447,6 +451,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             final int currentQueuePosition = mPlaybackService.getQueuePosition();
+
             mPlayingTrack = getAndCacheTrack(trackId,currentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
