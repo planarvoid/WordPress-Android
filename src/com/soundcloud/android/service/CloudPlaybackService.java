@@ -95,7 +95,6 @@ public class CloudPlaybackService extends Service {
     public static final String ADD_FAVORITE = "com.soundcloud.android.addfavorite";
     public static final String REMOVE_FAVORITE = "com.soundcloud.android.removefavorite";
     public static final String SEEK_COMPLETE = "com.soundcloud.android.seekcomplete";
-    public static final String INITIAL_BUFFERING = "com.soundcloud.android.initialbuffering";
     public static final String BUFFERING = "com.soundcloud.android.buffering";
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
     public static final String SERVICECMD = "com.soundcloud.android.musicservicecommand";
@@ -147,7 +146,6 @@ public class CloudPlaybackService extends Service {
     private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
 
     private boolean pausedForBuffering;
-    private boolean initialBuffering;
     private NetworkInfo mCurrentNetworkInfo;
 
     protected int batteryLevel;
@@ -498,8 +496,8 @@ public class CloudPlaybackService extends Service {
             mChangeTracksThread = null;
 
             if (mPlayingData.isStreamable()) {
-                notifyChange(INITIAL_BUFFERING);
-                initialBuffering = true;
+                notifyChange(BUFFERING);
+                pausedForBuffering = true;
 
                 // commit updated track (user played update only)
                 mPlayListManager.commitTrackToDb(mPlayingData);
@@ -703,10 +701,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void gotoIdleState(boolean killBuffer) {
-        if (killBuffer) {
-            initialBuffering = false;
-            pausedForBuffering = false;
-        }
+        if (killBuffer) pausedForBuffering = false;
 
         mIsSupposedToBePlaying = false;
         mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
@@ -860,7 +855,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isBuffering() {
         synchronized (this) {
-            return pausedForBuffering || initialBuffering;
+            return pausedForBuffering;
         }
     }
 
@@ -1192,7 +1187,6 @@ public class CloudPlaybackService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
-                initialBuffering = false;
                 if (!mAutoPause) {
                     if (mIsSupposedToBePlaying) {
                         mPlayer.setVolume(0);

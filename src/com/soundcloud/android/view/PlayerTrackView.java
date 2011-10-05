@@ -575,11 +575,8 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 if (mFavoriteButton != null) mFavoriteButton.setEnabled(true);
                 setFavoriteStatus();
             }
-        } else if (action.equals(CloudPlaybackService.INITIAL_BUFFERING)) {
-            mTrack.last_playback_error = -1;
-            hideUnplayable();
-            mWaveformController.showConnectingLayout();
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
+            mTrack.last_playback_error = -1;
             hideUnplayable();
             mWaveformController.showConnectingLayout();
         } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
