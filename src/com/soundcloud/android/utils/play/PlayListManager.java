@@ -165,7 +165,7 @@ public class PlayListManager {
     }
 
     public long getTrackIdAt(int pos) {
-        if (pos >= 0 && pos < mPlayListLen - 1) {
+        if (pos >= 0 && pos < mPlayListLen) {
             return mPlayList[pos];
         }
         return -1;
