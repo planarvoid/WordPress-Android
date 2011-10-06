@@ -338,6 +338,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     }
                 }
                 setPauseButtonImage();
+                try {
+                    mPlayingTrack = mPlaybackService.getTrack();
+                } catch (RemoteException ignored) { }
+
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
                 getWaveformController(queuePos).setPlaybackStatus(false, intent.getLongExtra("position", 0));
