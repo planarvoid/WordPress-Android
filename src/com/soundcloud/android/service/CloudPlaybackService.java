@@ -1412,6 +1412,7 @@ public class CloudPlaybackService extends Service {
                     if (mAutoAdvance){
                         next();
                     } else {
+                        notifyChange(PLAYBACK_COMPLETE);
                         gotoIdleState();
                     }
                     break;
