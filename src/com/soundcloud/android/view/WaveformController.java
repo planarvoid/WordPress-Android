@@ -254,8 +254,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         lastProgressTimestamp = System.currentTimeMillis();
         lastTrackTime = pos;
-
-        setProgressInternal(pos);
+        if (mode != TOUCH_MODE_SEEK_DRAG){
+            setProgressInternal(pos);
+        }
     }
 
     protected void setProgressInternal(long pos) {

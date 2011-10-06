@@ -1095,11 +1095,7 @@ public class CloudPlaybackService extends Service {
             if (mPlayer == null) return -1;
             long maxSeek;
             if (!resumeSeek) {
-                if (mPlayingData.filelength <= 0) {
-                    return mPlayer.position();
-                } else {
-                    maxSeek = getDuration();
-                }
+                maxSeek = getDuration();
 
                 // don't go before the playhead if they are trying to seek
                 // beyond, just maintain their current position
