@@ -678,7 +678,6 @@ public class CloudPlaybackService extends Service {
 
     public void prev() {
         synchronized (this) {
-            if (mPlayListManager.getCurrentTrack() != null)
             if (mPlayListManager.prev())
                 openCurrent();
         }
