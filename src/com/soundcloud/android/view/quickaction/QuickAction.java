@@ -114,6 +114,24 @@ public class QuickAction extends PopupWindows {
 	 */
 	public void setOnActionItemClickListener(OnActionItemClickListener listener) {
 		mListener = listener;
+
+        for (int i = 0; i < mTrack.getChildCount(); i++){
+            final ActionItem actionItem = (ActionItem) mTrack.getChildAt(i);
+            if (mListener == null){
+                actionItem.setOnClickListener(null);
+            } else {
+                final int finalI = i;
+                actionItem.setOnClickListener( new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mListener.onItemClick(finalI);
+                        dismiss();
+                    }
+                }
+
+                );
+            }
+        }
 	}
 	
 	/**
@@ -128,14 +146,13 @@ public class QuickAction extends PopupWindows {
 			@Override
 			public void onClick(View v) {
 				if (mListener != null) mListener.onItemClick(pos);
-					
 				dismiss();
 			}
 		});
-		
+
 		actionItem.setFocusable(true);
 		actionItem.setClickable(true);
-			 
+
 		mTrack.addView(actionItem, mChildPos);
 		
 		mChildPos++;

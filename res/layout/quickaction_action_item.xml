@@ -1,12 +1,7 @@
-<LinearLayout
+<merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content" 
-	android:clickable="true"
-    android:gravity="center_horizontal"
-	android:focusable="true"
-	android:background="@drawable/quickaction_action_item_btn">
+	android:layout_height="wrap_content">
         	
 	<ImageView
 		android:id="@+id/iv_icon" 
@@ -27,4 +22,4 @@
 		android:textColor="#000"
         style="@android:style/TextAppearance.Small"/>
 									         
-</LinearLayout>         
+</merge>

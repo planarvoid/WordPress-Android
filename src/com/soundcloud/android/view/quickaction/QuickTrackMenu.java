@@ -23,6 +23,11 @@ public class QuickTrackMenu extends QuickAction {
 
     private Drawable mFavoriteDrawable;
     private Drawable mFavoritedDrawable;
+
+    private Drawable mPlayDrawable;
+    private Drawable mPauseDrawable;
+
+
     private ScActivity mActivity;
     private ITracklistAdapter mAdapter;
 
@@ -53,6 +58,9 @@ public class QuickTrackMenu extends QuickAction {
     public void show(View anchor, final Track track, final int itemPosition) {
 
         mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
+        mPlayActionItem.setIcon((track.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying())
+                ? getPauseDrawable() : getPlayDrawable());
+
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
         mFavoriteActionItem.setIcon(track.user_favorite ? getFavoritedDrawable() : getFavoriteDrawable());
 
@@ -61,18 +69,19 @@ public class QuickTrackMenu extends QuickAction {
             public void onItemClick(int pos) {
                 switch (pos) {
                     case 0:
-                        Intent intent = new Intent(mActivity, UserBrowser.class);
-                        intent.putExtra("userId", track.user.id);
-                        mActivity.startActivity(intent);
-                        break;
-
-                    case 1:
                         if (track.id == mAdapter.getPlayingId() && mAdapter.isPlaying()) {
                             mActivity.pause(false);
                         } else {
                             mActivity.playTrack(track.id, mAdapter.getData(), itemPosition, false);
                         }
                         break;
+
+                    case 1:
+                        Intent intent = new Intent(mActivity, UserBrowser.class);
+                        intent.putExtra("userId", track.user.id);
+                        mActivity.startActivity(intent);
+                        break;
+
                     case 2:
                         if (track.user_favorite) {
                             track.user_favorite = false;
@@ -102,6 +111,18 @@ public class QuickTrackMenu extends QuickAction {
         });
 
         show(anchor);
+    }
+
+     private Drawable getPauseDrawable() {
+        if (mPauseDrawable == null)
+            mPauseDrawable = mContext.getResources().getDrawable(R.drawable.ic_submenu_pause_states);
+        return mPauseDrawable;
+    }
+
+    private Drawable getPlayDrawable() {
+        if (mPlayDrawable == null)
+            mPlayDrawable = mContext.getResources().getDrawable(R.drawable.ic_submenu_play_states);
+        return mPlayDrawable;
     }
 
     private Drawable getFavoriteDrawable() {

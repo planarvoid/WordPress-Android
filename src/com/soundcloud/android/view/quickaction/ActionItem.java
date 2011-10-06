@@ -3,8 +3,12 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,6 +30,11 @@ public class ActionItem extends LinearLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.quickaction_action_item, this);
 
+        setClickable(true);
+        setFocusable(true);
+        setGravity(Gravity.CENTER_HORIZONTAL);
+        setBackgroundResource(R.drawable.quickaction_action_item_btn);
+
         findViewById(R.id.tv_title).setVisibility(View.GONE);
         findViewById(R.id.iv_icon).setVisibility(View.GONE);
     }
@@ -37,34 +46,34 @@ public class ActionItem extends LinearLayout {
 
 
     /**
-	 * Set action title
-	 * 
-	 * @param title action title
-	 */
-	public void setTitle(String title) {
-                if (title != null){
-                    ((TextView) findViewById(R.id.tv_title)).setText(title);
-                    findViewById(R.id.tv_title).setVisibility(View.VISIBLE);
-                }else
-                    findViewById(R.id.tv_title).setVisibility(View.GONE);
+     * Set action title
+     *
+     * @param title action title
+     */
+    public void setTitle(String title) {
+        if (title != null) {
+            ((TextView) findViewById(R.id.tv_title)).setText(title);
+            findViewById(R.id.tv_title).setVisibility(View.VISIBLE);
+        } else
+            findViewById(R.id.tv_title).setVisibility(View.GONE);
 
-	}
-	
-	/**
-	 * Set action icon
-	 * 
-	 * @param icon {@link Drawable} action icon
-	 */
-	public void setIcon(Drawable icon) {
-                        if (icon != null){
-                            ((ImageView) findViewById(R.id.iv_icon)).setImageDrawable(icon);
-                            findViewById(R.id.iv_icon).setVisibility(View.VISIBLE);
-                        }else
-                            findViewById(R.id.iv_icon).setVisibility(View.GONE);
+    }
 
-	}
-	
-	/**
+    /**
+     * Set action icon
+     *
+     * @param icon {@link Drawable} action icon
+     */
+    public void setIcon(Drawable icon) {
+        if (icon != null) {
+            ((ImageView) findViewById(R.id.iv_icon)).setImageDrawable(icon);
+            findViewById(R.id.iv_icon).setVisibility(View.VISIBLE);
+        } else
+            findViewById(R.id.iv_icon).setVisibility(View.GONE);
+
+    }
+
+    /**
 	 * Set selected flag;
 	 * 
 	 * @param selected Flag to indicate the item is selected
