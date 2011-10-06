@@ -495,6 +495,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
     public void setCommentMode(boolean mIsCommenting) {
+        getWaveformController().setCommentMode(mIsCommenting);
         if (mCommentButton != null) {
             if (mIsCommenting) {
                 mCommentButton.setImageResource(R.drawable.ic_commenting_states_v1);
