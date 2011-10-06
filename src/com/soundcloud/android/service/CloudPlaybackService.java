@@ -129,6 +129,8 @@ public class CloudPlaybackService extends Service {
     private Track mPlayingData;
     private boolean mMediaplayerError;
     private RemoteViews mNotificationView;
+    private long mResumeTime = -1;
+    private long mResumeId = -1;
 
     private WifiLock mWifiLock;
     private WakeLock mWakeLock;
@@ -208,10 +210,10 @@ public class CloudPlaybackService extends Service {
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 
         mAutoPause = true;
-        final long resumeTime = mPlayListManager.reloadQueue();
+        mResumeTime = mPlayListManager.reloadQueue();
         mPlayingData = mPlayListManager.getCurrentTrack();
-        if (mPlayingData != null){
-            mPlayingData.last_playback_position = resumeTime;
+        if (mPlayingData != null && mResumeTime > 0) {
+            mResumeId = mPlayingData.id;
         }
 
     }
@@ -890,8 +892,8 @@ public class CloudPlaybackService extends Service {
     public long position() {
         if (mPlayer != null && mPlayer.isInitialized()) {
             return mPlayer.position();
-        } else if (mPlayingData != null) {
-            return mPlayingData.last_playback_position; // either -1 or a valid resume time
+        } else if (mPlayingData != null && mResumeId == mPlayingData.id) {
+            return mResumeTime; // either -1 or a valid resume time
         } else return 0;
     }
 
@@ -1163,8 +1165,8 @@ public class CloudPlaybackService extends Service {
                 final long targetPosition = (mSeekPos == -1) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - targetPosition > 3000) {
-
-                    mPlayingData.last_playback_position = targetPosition;
+                    mResumeId = mPlayingData.id;
+                    mResumeTime = targetPosition;
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
@@ -1178,7 +1180,6 @@ public class CloudPlaybackService extends Service {
                 // This temporary wakelock is released when the RELEASE_WAKELOCK
                 // message is processed, but just in case, put a timeout on it.
                 if (!mMediaplayerError){
-                    if (mPlayingData != null) mPlayingData.last_playback_position = 0;
                     mHandler.sendEmptyMessage(TRACK_ENDED);
 
                     getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_COMPLETE,
@@ -1201,10 +1202,11 @@ public class CloudPlaybackService extends Service {
                     }
                 }
 
-                if (mPlayingData.last_playback_position > 0) {
-                    mPlayer.seek(mPlayingData.last_playback_position, true);
+                if (mResumeId == mPlayingData.id) {
+                    mPlayer.seek(mResumeTime, true);
+                    mResumeTime = -1;
+                    mResumeId = -1;
                 }
-
                 notifyChange(BUFFERING_COMPLETE);
             }
         };
@@ -1404,7 +1406,6 @@ public class CloudPlaybackService extends Service {
                 case CHECK_TRACK_EVENT:
                     if (mPlayingData != null) {
                         final long pos = position();
-                        mPlayingData.last_playback_position = pos;
                         final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5); // account for lack of accuracy in actual delay between checks
                         if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
                             m10percentStampReached = true;
@@ -1418,11 +1419,11 @@ public class CloudPlaybackService extends Service {
                                     mPlayingData.getTrackEventLabel());
                         }
                     }
-
-                    Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
-                    mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                    mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
-
+                    if (!m10percentStampReached || !m95percentStampReached) {
+                        Message newMsg = mMediaplayerHandler.obtainMessage(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                        mMediaplayerHandler.sendMessageDelayed(newMsg, TRACK_EVENT_CHECK_DELAY);
+                    }
                     break;
 
                 default:
