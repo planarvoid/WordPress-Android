@@ -328,7 +328,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 final int currentQueuePosition = getCurrentTrackView().getPlayPosition();
-                if (currentQueuePosition != queuePos){
+                if (getCurrentTrackView().getPlayPosition() != queuePos){
                     if (queuePos == currentQueuePosition + 1){
                         mTrackWorkspace.scrollRight();
                     } else if (queuePos == currentQueuePosition - 1){
@@ -375,7 +375,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             final long prevTrackId = newQueuePos > 0
                     ? mPlaybackService.getTrackIdAt(newQueuePos -1) : -1;
-            final long nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 1
+            final long nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 2
                     ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
 
             PlayerTrackView ptv;
