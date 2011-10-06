@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.view.animation.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -92,11 +93,19 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     int mode = TOUCH_MODE_NONE;
 
+    private PlayerTrackView mPlayerTrackView;
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
-    private boolean mShowingProgress;
+
+    // only allow smooth progress updates on 9 or greater because they have buffering events for proper displaying
+    public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
-    private PlayerTrackView mPlayerTrackView;
+    private boolean mShowingSmoothProgress;
+
+
+
+
+
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -169,15 +178,24 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     public void setPlaybackStatus(boolean isPlaying, long pos){
-        if (mShowingProgress != isPlaying){
-            mShowingProgress = isPlaying;
-            mHandler.removeCallbacks(mSmoothProgress);
+        if (mShowingSmoothProgress != isPlaying){
+            stopSmoothProgress();
             setProgress(pos);
-            if (isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
-                mHandler.postDelayed(mSmoothProgress, 0);
+            if (Build.VERSION.SDK_INT >= MINIMUM_SMOOTH_PROGRESS_SDK && isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
+                startSmoothProgress();
             }
         }
 
+    }
+
+    public void startSmoothProgress(){
+        mShowingSmoothProgress = true;
+        mHandler.postDelayed(mSmoothProgress, 0);
+    }
+
+    public void stopSmoothProgress(){
+        mShowingSmoothProgress = false;
+        mHandler.removeCallbacks(mSmoothProgress);
     }
 
     @Override
@@ -197,13 +215,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void reset(){
-        mHandler.removeCallbacks(mSmoothProgress);
+        stopSmoothProgress();
         hideConnectingLayout();
     }
 
     public void onStop() {
-        mHandler.removeCallbacks(mSmoothProgress);
-        mShowingProgress = false;
+        stopSmoothProgress();
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
@@ -284,6 +301,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    public boolean showingSmoothProgress(){
+        return  mShowingSmoothProgress;
+    }
+
 
     protected void autoShowComment(Comment c) {
         autoCloseComment();
@@ -306,7 +327,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mProgressPeriod = Math.max(MINIMUM_PROGRESS_PERIOD,mDuration/getWidth());
         if (mProgressPeriod >= ScPlayer.REFRESH_DELAY){
             // don't bother with the extra refreshes, will happen at the regular intervals anyways
-            mHandler.removeCallbacks(mSmoothProgress);
+            stopSmoothProgress();
         }
     }
 
@@ -323,7 +344,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mCurrentTimeDisplay.setDuration(mDuration);
 
         if (changed) {
-            mHandler.removeCallbacks(mSmoothProgress);
+            stopSmoothProgress();
             determineProgressInterval();
             ImageLoader.get(mPlayer).unbind(mOverlay);
             // TODO best place to do this?

@@ -382,6 +382,7 @@ public class CloudPlaybackService extends Service {
         i.putExtra("user", getUserName());
         i.putExtra("isPlaying", isPlaying());
         i.putExtra("isSupposedToBePlaying", isSupposedToBePlaying());
+        i.putExtra("isBuffering", isBuffering());
         i.putExtra("position",position());
         i.putExtra("queuePosition",getQueuePosition());
         if (FAVORITE_SET.equals(what)) {
@@ -501,8 +502,8 @@ public class CloudPlaybackService extends Service {
             mChangeTracksThread = null;
 
             if (mPlayingData.isStreamable()) {
-                notifyChange(BUFFERING);
                 pausedForBuffering = true;
+                notifyChange(BUFFERING);
 
                 // commit updated track (user played update only)
                 mPlayListManager.commitTrackToDb(mPlayingData);
@@ -987,6 +988,7 @@ public class CloudPlaybackService extends Service {
                     setOnCompletionListener(listener);
                     setOnErrorListener(errorListener);
                     setOnBufferingUpdateListener(bufferinglistener);
+                    setOnInfoListener(infolistener);
                 }
             };
         }
@@ -1140,6 +1142,27 @@ public class CloudPlaybackService extends Service {
             mHandler = handler;
         }
 
+        MediaPlayer.OnInfoListener infolistener = new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
+                switch (what) {
+                    case 701: //MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                        pausedForBuffering = true;
+                        notifyChange(BUFFERING);
+
+                        break;
+
+                    case 702: //MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                        pausedForBuffering = false;
+                        notifyChange(BUFFERING_COMPLETE);
+
+                    default:
+                        break;
+                }
+                return true;
+            }
+        };
+
         MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
                 mLoadPercent = percent;
@@ -1206,6 +1229,7 @@ public class CloudPlaybackService extends Service {
                     mResumeTime = -1;
                     mResumeId = -1;
                 }
+                pausedForBuffering = false;
                 notifyChange(BUFFERING_COMPLETE);
             }
         };

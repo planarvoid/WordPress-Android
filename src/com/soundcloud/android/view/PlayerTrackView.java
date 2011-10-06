@@ -563,6 +563,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public void handleStatusIntent(Intent intent) {
         String action = intent.getAction();
         if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+
             if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                 hideUnplayable();
                 mTrack.last_playback_error = -1;
@@ -604,14 +605,19 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
 
-    public void setProgress(long pos, int loadPercent) {
+    public void setProgress(long pos, int loadPercent, boolean showSmoothProgress) {
         if (pos >= 0 && mDuration > 0) {
-                mWaveformController.setProgress(pos);
-                mWaveformController.setSecondaryProgress(loadPercent * 10);
-            } else {
-                mWaveformController.setProgress(0);
-                mWaveformController.setSecondaryProgress(0);
-            }
+            mWaveformController.setProgress(pos);
+            mWaveformController.setSecondaryProgress(loadPercent * 10);
+        } else {
+            mWaveformController.setProgress(0);
+            mWaveformController.setSecondaryProgress(0);
+        }
+
+        // Start showing smooth progress if we already aren't
+        if (!mWaveformController.showingSmoothProgress() && showSmoothProgress){
+            mWaveformController.startSmoothProgress();
+        }
     }
 
     public void onRefresh() {

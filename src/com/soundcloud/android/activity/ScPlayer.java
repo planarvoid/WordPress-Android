@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import android.os.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
@@ -18,11 +19,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -296,7 +292,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             final PlayerTrackView ptv = getTrackView(mPlaybackService.getQueuePosition());
             if (ptv != null){
-                ptv.setProgress(pos, mPlaybackService.loadPercent());
+                ptv.setProgress(pos, mPlaybackService.loadPercent(),
+                        Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK ?
+                                (mPlaybackService.isPlaying() && !mPlaybackService.isBuffering()) : false);
             }
 
             // return the number of milliseconds until the next full second, so

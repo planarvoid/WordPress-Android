@@ -57,7 +57,7 @@ public class PlayListManager {
     public Track getTrackAt(int pos) {
         if (mPlayList != null && mPlayListLen > pos) {
             if (mPlayListCache != null) {
-                return mPlayListCache[pos];
+                return mPlayListCache[pos]; //TODO NPE GALORE, NOT SURE WHY YET WHY
             } else {
                 return SoundCloudDB.getTrackById(
                         mPlaybackService.getContentResolver(),
