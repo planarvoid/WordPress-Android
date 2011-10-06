@@ -43,7 +43,7 @@
               android:layout_width="1dip"
               android:id="@+id/vr_play_count"/>
         <ImageButton android:id="@+id/btn_favorite"
-                     android:layout_centerHorizontal="true"
+                     android:layout_centerInParent="true"
                      style="@style/btn_sc_transparent"
                      android:src="@drawable/ic_like_states"/>
     </RelativeLayout>
@@ -51,7 +51,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content">
         <ImageButton android:id="@+id/btn_comment"
-                     android:layout_centerHorizontal="true"
+                     android:layout_centerInParent="true"
                      style="@style/btn_sc_transparent"
                      android:src="@drawable/ic_comment_states"/>
     </RelativeLayout>
