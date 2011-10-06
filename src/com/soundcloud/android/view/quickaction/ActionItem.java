@@ -25,6 +25,9 @@ public class ActionItem extends LinearLayout {
            LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.quickaction_action_item, this);
+
+        findViewById(R.id.tv_title).setVisibility(View.GONE);
+        findViewById(R.id.iv_icon).setVisibility(View.GONE);
     }
 
     public ActionItem(Context context, Drawable icon) {
@@ -39,10 +42,11 @@ public class ActionItem extends LinearLayout {
 	 * @param title action title
 	 */
 	public void setTitle(String title) {
-                if (title != null)
+                if (title != null){
                     ((TextView) findViewById(R.id.tv_title)).setText(title);
-                else
-                    ((TextView) findViewById(R.id.tv_title)).setVisibility(View.GONE);
+                    findViewById(R.id.tv_title).setVisibility(View.VISIBLE);
+                }else
+                    findViewById(R.id.tv_title).setVisibility(View.GONE);
 
 	}
 	
@@ -52,10 +56,11 @@ public class ActionItem extends LinearLayout {
 	 * @param icon {@link Drawable} action icon
 	 */
 	public void setIcon(Drawable icon) {
-                        if (icon != null)
+                        if (icon != null){
                             ((ImageView) findViewById(R.id.iv_icon)).setImageDrawable(icon);
-                        else
-                            ((ImageView) findViewById(R.id.iv_icon)).setVisibility(View.GONE);
+                            findViewById(R.id.iv_icon).setVisibility(View.VISIBLE);
+                        }else
+                            findViewById(R.id.iv_icon).setVisibility(View.GONE);
 
 	}
 	

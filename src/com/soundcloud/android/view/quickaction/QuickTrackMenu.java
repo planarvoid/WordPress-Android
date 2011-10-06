@@ -16,6 +16,7 @@ import com.soundcloud.android.utils.CloudUtils;
 public class QuickTrackMenu extends QuickAction {
 
     ActionItem mPlayActionItem;
+    ActionItem mProfileActionItem;
     ActionItem mShareActionItem;
     ActionItem mCommentActionItem;
     ActionItem mFavoriteActionItem;
@@ -32,12 +33,18 @@ public class QuickTrackMenu extends QuickAction {
         mAdapter = tracklistAdapter;
 
         mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states));
+        //mPlayActionItem.setTitle("Play");
+        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
+        //mProfileActionItem.setTitle("Profile");
         mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_favorite_states));
+        //mFavoriteActionItem.setTitle("Favorite");
         mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states));
+        //mCommentActionItem.setTitle("Comment");
         mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_share_states));
+        //mShareActionItem.setTitle(("Share"));
 
         addActionItem(mPlayActionItem);
-        addActionItem(new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_profile_states)));
+        addActionItem(mProfileActionItem);
         addActionItem(mFavoriteActionItem);
         addActionItem(mCommentActionItem);
         addActionItem(mShareActionItem);
