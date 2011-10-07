@@ -129,9 +129,11 @@ public class TrackInfoBar extends RelativeLayout {
 
         if (!mTrack.isStreamable() && !mInactive) {
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main_inactive);
+            mTitle.invalidate();
             mInactive = true;
         } else if (mInactive){
             mTitle.setTextAppearance(getContext(), R.style.txt_list_main);
+            mTitle.invalidate();
             mInactive = false;
         }
 
