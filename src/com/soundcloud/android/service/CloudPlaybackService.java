@@ -17,10 +17,7 @@
 package com.soundcloud.android.service;
 
 import android.text.TextUtils;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.*;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -796,9 +793,21 @@ public class CloudPlaybackService extends Service {
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
+        SoundCloudDB.setTrackIsFavorite(getApp().getContentResolver(),trackId,isFavorite,getApp().getCurrentUserId());
+        if (getApp().getTrackFromCache(trackId) != null){
+            getApp().getTrackFromCache(trackId).user_favorite = isFavorite;
+        }
+
         if (mPlayingData.id == trackId && mPlayingData.user_favorite != isFavorite) {
             mPlayingData.user_favorite = isFavorite;
             notifyChange(FAVORITE_SET);
+        } else {
+            Intent i = new Intent(FAVORITE_SET);
+            i.putExtra("id", trackId);
+            i.putExtra("isFavorite", isFavorite);
+            sendBroadcast(i);
+            // Share this notification directly with our widgets
+            mAppWidgetProvider.notifyChange(this, FAVORITE_SET);
         }
     }
 

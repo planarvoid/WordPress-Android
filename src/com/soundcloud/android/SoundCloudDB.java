@@ -118,4 +118,12 @@ public class SoundCloudDB {
         if (cursor != null) cursor.close();
         return ret;
     }
+
+    public static void setTrackIsFavorite(ContentResolver contentResolver, long trackId, boolean isFavorite, long currentUserId){
+        Track t = SoundCloudDB.getTrackById(contentResolver, trackId, currentUserId);
+        if (t != null){
+            t.user_favorite = isFavorite;
+            SoundCloudDB.writeTrack(contentResolver,t, SoundCloudDB.WriteState.update_only,currentUserId);
+        }
+    }
 }

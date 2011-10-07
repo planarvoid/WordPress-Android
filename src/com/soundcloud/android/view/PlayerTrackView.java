@@ -45,11 +45,9 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     private ScPlayer mPlayer;
 
-    private ImageView mArtwork;
+    private ImageView mArtwork, mAvatar;
+    private ImageButton mFavoriteButton, mCommentButton;
     private ImageLoader.BindResult mCurrentArtBindResult;
-    private ImageButton mFavoriteButton;
-    private ImageView mAvatar;
-    private ImageButton mCommentButton;
 
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
@@ -140,16 +138,20 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                     toggleCommentMode();
                 }
             });
+
+            mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
+            mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    toggleFavorite();
+                }
+            });
         }
 
-        ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
+        ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setPlayerTrackView(this);
 
-        ProgressBar mProgress = (ProgressBar) findViewById(R.id.progress_bar);
-        mProgress.setMax(1000);
-        mProgress.setInterpolator(new AccelerateDecelerateInterpolator());
-
+        ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
         mTouchSlop = ViewConfiguration.get(mPlayer).getScaledTouchSlop();
 
     }
@@ -372,9 +374,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         if (mTrack == null)
             return;
 
-        if (mPlayer.toggleFavorite(mTrack)){
-            mFavoriteButton.setEnabled(false);
-        }
+        mPlayer.toggleFavorite(mTrack);
     }
 
 
@@ -574,7 +574,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra("id", -1)) {
                 mTrack.user_favorite = intent.getBooleanExtra("isFavorite", false);
-                if (mFavoriteButton != null) mFavoriteButton.setEnabled(true);
                 setFavoriteStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
