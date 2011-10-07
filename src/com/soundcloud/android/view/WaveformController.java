@@ -218,6 +218,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         stopSmoothProgress();
         hideConnectingLayout();
         setProgressInternal(0);
+        setSecondaryProgress(0);
     }
 
     public void onStop() {
