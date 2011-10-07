@@ -1013,6 +1013,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
     @Override
     protected void onResume() {
+        trackPage(Consts.Tracking.PLAYER);
+
         super.onResume();
 
         registerHeadphoneRemoteControl();
