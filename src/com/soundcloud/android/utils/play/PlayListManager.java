@@ -74,18 +74,38 @@ public class PlayListManager {
         if (mPlayPos == 0)
             return false;
 
-        mPlayPos--;
-        return true;
+        int newPos = mPlayPos -1;
+        Track newTrack = getTrackAt(newPos);
+        while (newPos > 0 && !newTrack.isStreamable()){
+            newPos--;
+            newTrack = getTrackAt(newPos);
+        }
 
+        if (newTrack.isStreamable()){
+            mPlayPos = newPos;
+            return true;
+        }
+
+        return false;
     }
 
     public Boolean next() {
         if (mPlayPos >= mPlayListLen - 1)
             return false;
 
-        mPlayPos++;
-        return true;
+        int newPos = mPlayPos + 1;
+        Track newTrack = getTrackAt(newPos);
+        while (newPos < mPlayListLen - 1 && !newTrack.isStreamable()){
+            newPos++;
+            newTrack = getTrackAt(newPos);
+        }
 
+        if (newTrack.isStreamable()){
+            mPlayPos = newPos;
+            return true;
+        }
+
+        return false;
     }
 
     public void oneShotTrack(Track track) {
