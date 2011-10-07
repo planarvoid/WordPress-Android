@@ -398,7 +398,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public boolean onTouch(View v, MotionEvent event) {
         try {
             // Fix scrolling inside workspace view
-            if (event.getAction() == MotionEvent.ACTION_MOVE && getParent() != null) {
+            if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
                 getParent().requestDisallowInterceptTouchEvent(true);
             }
             // history first
