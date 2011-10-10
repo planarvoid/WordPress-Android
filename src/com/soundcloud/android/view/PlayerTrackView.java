@@ -635,8 +635,10 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
     public void onBuffering() {
-        mTrack.last_playback_error = -1;
-        hideUnplayable();
-        mWaveformController.showConnectingLayout();
+        if (mTrack != null) {
+            mTrack.last_playback_error = -1;
+            hideUnplayable();
+            mWaveformController.showConnectingLayout();
+        }
     }
 }
