@@ -289,32 +289,29 @@ public class ScStreamStorage {
     }
 
     private void removeAllDataForKey(String key) {
-         if (key.length() == 0) return;
-         /*
-         remove all existing data from file system
-
-         https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L386
-          */
-
+        if (key.length() == 0) return;
+        removeCompleteDataForKey(key);
         removeIncompleteDataForKey(key);
     }
 
     private void removeIncompleteDataForKey(String key){
          if (key.length() == 0) return;
-        /*
-        remove all incomplete data from file system
 
-         https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L395
-          */
+        final File incompleteFile = incompleteFileForKey(key);
+        final File indexFile = incompleteIndexFileForKey(key);
+
+        if (incompleteFile.exists()) incompleteFile.delete();
+        if (indexFile.exists()) indexFile.delete();
+
+        mIncompleteIndexes.remove(key);
+        mIncompleteContentLengths.remove(key);
     }
 
     private void removeCompleteDataForKey(String key){
          if (key.length() == 0) return;
-        /*
-        remove all incomplete data from file system
 
-         https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L395
-          */
+        final File completeFile = completeFileForKey(key);
+        if (completeFile.exists()) completeFile.delete();
     }
 
     public byte[] getChunkData(ScStreamItem item, long chunkIndex) {
