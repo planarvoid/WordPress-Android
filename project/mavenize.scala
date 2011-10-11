@@ -51,7 +51,7 @@ object Mavenizer {
           <artifactId>maven-dependency-plugin</artifactId>
           <executions>
             <execution>
-              <phase>install</phase>
+              <phase>process-resources</phase>
               <goals>
                 <goal>copy-dependencies</goal>
               </goals>
