@@ -199,6 +199,7 @@ public class ScStreamLoader {
 
     private void updateLowPriorityQueue() {
         /*
+        TODO prefetching. Not sure how much we want to do yet
         migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L573
          */
     }
@@ -244,6 +245,7 @@ public class ScStreamLoader {
     private void countPlayForItem(ScStreamItem item) {
         if (item == null) return;
         /*
+        TODO request necessary range for a playcount
         migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L924
          */
     }
@@ -263,6 +265,23 @@ public class ScStreamLoader {
 
     }
 
+    private void fulfillPlayerCallbacks(){
+        ArrayList<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
+        for (PlayerCallback playerCallback : mPlayerCallbacks) {
+            ScStreamItem item = playerCallback.scStreamItem;
+            Range chunkRange = chunkRangeForByteRange(playerCallback.byteRange);
+            HashSet<Integer> missingIndexes = mStorage.getMissingChunksForItem(item, chunkRange);
+            if (missingIndexes.size() == 0) {
+                fulfilledCallbacks.add(playerCallback);
+            }
+        }
+
+        for (PlayerCallback playerCallback : fulfilledCallbacks) {
+            // TODO notify that data was loaded
+            mPlayerCallbacks.remove(playerCallback);
+        }
+    }
+
     private boolean isOnline() {
         if (mConnectivityListener == null) return false;
         mCurrentNetworkInfo = mConnectivityListener.getNetworkInfo();
@@ -274,7 +293,7 @@ public class ScStreamLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                   // process queues
+                   // TODO process queues
                     break;
             }
         }
