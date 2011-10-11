@@ -12,10 +12,10 @@ public class ScStreamItem {
     public boolean enabled;
 
     private String mURLHash;
-    private long mContentLength;
+    private int mContentLength;
 
 
-    public void setContentLength(long value){
+    public void setContentLength(int value){
         if (mContentLength == value) return;
 
         boolean reset = false;
@@ -29,7 +29,7 @@ public class ScStreamItem {
         */
     }
 
-    public long getContentLength(){
+    public int getContentLength(){
         return mContentLength;
     }
 

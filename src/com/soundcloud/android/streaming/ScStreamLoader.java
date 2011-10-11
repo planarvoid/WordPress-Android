@@ -1,59 +1,60 @@
 package com.soundcloud.android.streaming;
 
+import android.content.Context;
+import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.Range;
 
-import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class ScStreamLoader {
 
+    protected NetworkConnectivityListener mConnectivityListener;
+    private NetworkInfo mCurrentNetworkInfo;
+    protected static final int CONNECTIVITY_MSG = 0;
+
     private ScStreamStorage mStorage;
     private List<ScStreamItem> mItemsNeedingHeadRequests;
+    private List<ScStreamItem> mItemsNeedingPlayCountRequests;
 
-    private long chunkSize;
+    private int chunkSize;
     private ScStreamItem mCurrentItem;
-    private long mCurrentPosition;
+    private int mCurrentPosition;
 
     private HashSet<PlayerCallback> mPlayerCallbacks;
     private ArrayList<LoadingItem> mHighPriorityQueue;
     private ArrayList<LoadingItem> mLowPriorityQueue;
+    private boolean mHighPriorityConnection;
 
-    private class PlayerCallback {
-        ScStreamItem scStreamItem;
-        Range byteRange;
 
-        public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
-            this.scStreamItem = scStreamItem;
-            this.byteRange = byteRange;
-        }
-    }
-
-    private class LoadingItem {
-        ScStreamItem scStreamItem;
-        Set indexes;
-
-        public LoadingItem(ScStreamItem item) {
-            this.scStreamItem = item;
-        }
-
-        public LoadingItem(ScStreamItem scStreamItem, Set indexes) {
-            this(scStreamItem);
-            this.indexes = indexes;
-        }
-    }
-
-    public void initWithStorage(ScStreamStorage storage) {
+    public void initWithStorage(Context context, ScStreamStorage storage) {
         mStorage = storage;
         chunkSize = storage.chunkSize;
         mPlayerCallbacks = new HashSet<PlayerCallback>();
+
+        // setup connectivity listening
+        mConnectivityListener = new NetworkConnectivityListener();
+        mConnectivityListener.registerHandler(mConnHandler, CONNECTIVITY_MSG);
+        mConnectivityListener.startListening(context);
+
     }
 
-    private byte[] getDataForItem(ScStreamItem item, Range byteRange) {
+    public void cleanup(){
+        mConnectivityListener.stopListening();
+               mConnectivityListener.unregisterHandler(mConnHandler);
+               mConnectivityListener = null;
+
+    }
+
+    private ByteBuffer getDataForItem(ScStreamItem item, Range byteRange) {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + byteRange);
 
         Range chunkRange = chunkRangeForByteRange(byteRange);
-        Set<Long> missingChunksForRange = mStorage.getMissingChunksForItem(item, chunkRange);
+        Set<Integer> missingChunksForRange = mStorage.getMissingChunksForItem(item, chunkRange);
 
         //If the current item changes
         if (item != mCurrentItem) {
@@ -66,7 +67,7 @@ public class ScStreamLoader {
         }
 
         mCurrentItem = item;
-        mCurrentPosition = byteRange.start;
+        mCurrentPosition = byteRange.location;
 
         if (missingChunksForRange.size() > 0) {
             mPlayerCallbacks.add(new PlayerCallback(item, byteRange));
@@ -80,17 +81,72 @@ public class ScStreamLoader {
         }
     }
 
-    private byte[] fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
-        /*
-        migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L868
-         */
-        return new byte[0];
+    private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
+        Range actualRange = byteRange;
+        if (item.getContentLength() != 0){
+            actualRange = byteRange.intersection(new Range(0,item.getContentLength()));
+        }
+
+        if (actualRange == null){
+            Log.e(getClass().getSimpleName(), "Invalid range, outside content length. Requested range " + byteRange + " from item " + item);
+            return null;
+        }
+
+        Range chunkRange = chunkRangeForByteRange(actualRange);
+        byte[] data = new byte[(int) (chunkRange.length * chunkSize)];
+        final long end = chunkRange.location + chunkRange.length;
+        int writeIndex = 0;
+        for (long chunkIndex = chunkRange.location; chunkIndex < end; chunkIndex++){
+            byte[] chunkData = mStorage.getChunkData(item,chunkIndex);
+            if (chunkData == null) {
+                Log.e(getClass().getSimpleName(), "Error getting chunk data, aborting");
+                return null;
+            }
+            int i = 0;
+            while (i < chunkData.length){
+                data[writeIndex + i] = chunkData[i];
+                i++;
+            }
+            writeIndex += i;
+        }
+
+        if (data.length < actualRange.length){
+            return ByteBuffer.wrap(data, actualRange.location - (chunkRange.location * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
+        } else {
+            return ByteBuffer.wrap(data);
+        }
     }
 
     private void processQueues() {
-        /*
-        migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L722
-         */
+
+        if (!isOnline()) return;
+
+        if (mItemsNeedingHeadRequests.size() > 0){
+            for (ScStreamItem item : mItemsNeedingHeadRequests){
+                // start head connection for item
+            }
+            mItemsNeedingHeadRequests.clear();
+        }
+
+         if (mItemsNeedingPlayCountRequests.size() > 0){
+            for (ScStreamItem item : mItemsNeedingPlayCountRequests){
+                // start play count connection for item
+            }
+            mItemsNeedingPlayCountRequests.clear();
+        }
+
+        processHighPriorityQueue();
+        if (!mHighPriorityConnection){
+            processLowPriorityQueue();
+        }
+    }
+
+    private void processHighPriorityQueue() {
+
+    }
+
+    private void processLowPriorityQueue() {
+
     }
 
     private void updateLowPriorityQueue() {
@@ -99,9 +155,9 @@ public class ScStreamLoader {
          */
     }
 
-    private void addItem(ScStreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
+    private void addItem(ScStreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
         if (!item.enabled) {
-            Log.e("asdf", "Can't add chunks for %@: Item is disabled." + item.getURLHash());
+            Log.e(getClass().getSimpleName(), "Can't add chunks for %@: Item is disabled." + item.getURLHash());
             return;
         }
 
@@ -145,8 +201,8 @@ public class ScStreamLoader {
     }
 
     private Range chunkRangeForByteRange(Range byteRange) {
-        return new Range(byteRange.start / chunkSize,
-                (long) Math.ceil((double) ((byteRange.start % chunkSize) + byteRange.length) / (double) chunkSize));
+        return new Range(byteRange.location / chunkSize,
+                (int) Math.ceil((double) ((byteRange.location % chunkSize) + byteRange.length) / (double) chunkSize));
     }
 
     private void onDataReceived() {
@@ -157,5 +213,46 @@ public class ScStreamLoader {
     private void storeData(byte[] data, int chunk, ScStreamItem item) {
         Log.d(getClass().getSimpleName(), "");
 
+    }
+
+    private boolean isOnline() {
+        if (mConnectivityListener == null) return false;
+        mCurrentNetworkInfo = mConnectivityListener.getNetworkInfo();
+        return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
+    }
+
+    private Handler mConnHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case CONNECTIVITY_MSG:
+                   // process queues
+                    break;
+            }
+        }
+    };
+
+    private class PlayerCallback {
+        ScStreamItem scStreamItem;
+        Range byteRange;
+
+        public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
+            this.scStreamItem = scStreamItem;
+            this.byteRange = byteRange;
+        }
+    }
+
+    private class LoadingItem {
+        ScStreamItem scStreamItem;
+        Set indexes;
+
+        public LoadingItem(ScStreamItem item) {
+            this.scStreamItem = item;
+        }
+
+        public LoadingItem(ScStreamItem scStreamItem, Set indexes) {
+            this(scStreamItem);
+            this.indexes = indexes;
+        }
     }
 }

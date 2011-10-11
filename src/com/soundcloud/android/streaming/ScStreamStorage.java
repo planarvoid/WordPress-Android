@@ -1,24 +1,27 @@
 package com.soundcloud.android.streaming;
 
 import android.content.Context;
+import android.util.Log;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.Range;
 
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ScStreamStorage {
-    private static long DEFAULT_CHUNK_SIZE = 128*1024;
-    public long chunkSize;
+    private static int DEFAULT_CHUNK_SIZE = 128*1024;
+    public int chunkSize;
 
     private File mBaseDir;
     private File mCompleteDir;
     private File mIncompleteDir;
 
-    private Dictionary<String, Long>  mIncompleteContentLengths;
-    private Dictionary<String, HashSet<Long>> mIncompleteIndexes;
+    private Dictionary<String, Integer>  mIncompleteContentLengths;
+    private Dictionary<String, ArrayList<Integer>> mIncompleteIndexes;
 
     public void ScStreamStorage(Context context){
         mBaseDir = FileCache.getCacheDir(context);
@@ -36,14 +39,14 @@ public class ScStreamStorage {
         chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
-    public Set<Long> getMissingChunksForItem(ScStreamItem item, Range chunkRange) {
+    public HashSet<Integer> getMissingChunksForItem(ScStreamItem item, Range chunkRange) {
 
         resetDataIfNecessary(item);
         String key = item.getURLHash();
 
         //If the complete file exists
         if (completeFileForKey(key).exists()) {
-            return new HashSet<Long>();
+            return new HashSet<Integer>();
         }
 
         ensureMetadataIsLoadedForKey(key);
@@ -55,9 +58,9 @@ public class ScStreamStorage {
         }
 
         long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
-        final HashSet<Long> allIncompleteIndexes = mIncompleteIndexes.get(key);
-        HashSet<Long> missingIndexes = new HashSet<Long>();
-        for (Long chunk = chunkRange.start; chunk < chunkRange.end(); chunk++) {
+        final ArrayList<Integer> allIncompleteIndexes = mIncompleteIndexes.get(key);
+        HashSet<Integer> missingIndexes = new HashSet<Integer>();
+        for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
             if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk){
                 missingIndexes.add(chunk);
             }
@@ -68,7 +71,7 @@ public class ScStreamStorage {
     private void ensureMetadataIsLoadedForKey(String key) {
 
         //Return if already loaded
-        if (mIncompleteContentLengths.get(key) != null
+        if (mIncompleteContentLengths.get(key) != 0
                 && mIncompleteIndexes.get(key) != null) {
             return;
         }
@@ -82,12 +85,12 @@ public class ScStreamStorage {
         if (indexFile.exists()) {
             try {
                 DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
-                mIncompleteContentLengths.put(key, din.readLong());
+                mIncompleteContentLengths.put(key, din.readInt());
 
                 int count = (int) (indexFile.length() / 8) - 2;
-                HashSet<Long> indexes = new HashSet<Long>();
+                ArrayList<Integer> indexes = new ArrayList<Integer>();
                 for (int i = 0; i < count; i++) {
-                    indexes.add(din.readLong());
+                    indexes.add(din.readInt());
                 }
                 mIncompleteIndexes.put(key, indexes);
 
@@ -100,8 +103,7 @@ public class ScStreamStorage {
     private long contentLengthForKey(String key) {
         final File completeFile = completeFileForKey(key);
         if (completeFile.exists()) return completeFile.length();
-        if (mIncompleteContentLengths.get(key) != null) return mIncompleteContentLengths.get(key);
-        return 0;
+        return mIncompleteContentLengths.get(key);
     }
 
     private File completeFileForKey(String key){
@@ -147,4 +149,94 @@ public class ScStreamStorage {
          https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L395
           */
     }
+
+    public byte[] getChunkData(ScStreamItem item, long chunkIndex) {
+        resetDataIfNecessary(item);
+
+        final String key = item.getURLHash();
+        ensureMetadataIsLoadedForKey(key);
+
+        long savedContentLength = contentLengthForKey(key);
+
+        if (item.getContentLength() == 0) {
+            item.setContentLength((int) savedContentLength);
+        }
+
+        byte[] data = new byte[0];
+        try {
+            data = incompleteDataForChunk(item, chunkIndex);
+        } catch (IOException e) {
+            Log.e(getClass().getSimpleName(), "Error reading incomplete chunk data " + e.getMessage());
+        }
+        if (data != null) return data;
+
+        try {
+            data = completeDataForChunk(item, chunkIndex);
+        } catch (IOException e) {
+            Log.e(getClass().getSimpleName(), "Error reading incomplete chunk data " + e.getMessage());
+        }
+        if (data != null) return data;
+
+        return null;
+    }
+
+    private byte[] incompleteDataForChunk(ScStreamItem item, long chunkIndex) throws IOException {
+        final String key = item.getURLHash();
+        final ArrayList<Integer> indexArray = mIncompleteIndexes.get(key);
+
+        if (indexArray != null) {
+            if (!indexArray.contains(chunkIndex)) return null;
+            File chunkFile = incompleteFileForKey(key);
+
+            if (chunkFile.exists()){
+                int seekToChunkOffset = (int) (indexArray.indexOf(chunkIndex) * chunkSize);
+                int readLength = (int) chunkSize;
+                if (chunkIndex == numberOfChunksForKey(key)){
+                    readLength = (int) (contentLengthForKey(key) % chunkSize);
+                }
+                byte [] buffer = new byte[readLength];
+                InputStream in = null;
+                try {
+                    in = new BufferedInputStream(new FileInputStream(chunkFile));
+                    in.read(buffer,seekToChunkOffset,readLength);
+                }  finally {
+                    if (in != null) {
+                        in.close();
+                    }
+                }
+                return buffer;
+            }
+        }
+        return null;
+    }
+
+    private byte[] completeDataForChunk(ScStreamItem item, long chunkIndex) throws IOException {
+        final String key = item.getURLHash();
+        final File completeFile = completeFileForKey(key);
+        if (completeFile.exists()){
+            int seekToChunkOffset = (int) (chunkIndex * chunkSize);
+                int readLength = (int) chunkSize;
+                if (chunkIndex == numberOfChunksForKey(key)){
+                    readLength = (int) (contentLengthForKey(key) % chunkSize);
+                }
+                byte [] buffer = new byte[readLength];
+                InputStream in = null;
+                try {
+                    in = new BufferedInputStream(new FileInputStream(completeFile));
+                    in.read(buffer,seekToChunkOffset,readLength);
+                }  finally {
+                    if (in != null) {
+                        in.close();
+                    }
+                }
+                return buffer;
+        }
+        return null;
+    }
+
+    private long numberOfChunksForKey(String key) {
+        return (long) Math.ceil(contentLengthForKey(key) / chunkSize);
+    }
+
+
 }
