@@ -6,7 +6,9 @@ import static com.pivotallabs.greatexpectations.GreatExpectations.wrapped;
 
 /** @noinspection unchecked*/
 public class Expect {
-    public static <T, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(T actual) {
+
+    /** @noinspection TypeParameterExplicitlyExtendsObject*/
+    public static <T extends Object, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(T actual) {
         return wrapped(ObjectMatcher.class, actual);
     }
     public static BooleanMatcher<Boolean, ?> expect(boolean actual) {
