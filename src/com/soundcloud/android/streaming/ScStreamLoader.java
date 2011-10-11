@@ -11,6 +11,10 @@ import com.soundcloud.android.utils.Range;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class ScStreamLoader {
 
@@ -55,7 +59,7 @@ public class ScStreamLoader {
 
     }
 
-    private ByteBuffer getDataForItem(ScStreamItem item, Range byteRange) {
+    private PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + byteRange);
 
         Range chunkRange = chunkRangeForByteRange(byteRange);
@@ -74,6 +78,8 @@ public class ScStreamLoader {
         mCurrentItem = item;
         mCurrentPosition = byteRange.location;
 
+        PlayerCallback pc = new PlayerCallback(item,byteRange);
+
         if (missingChunksForRange.size() > 0) {
             mPlayerCallbacks.add(new PlayerCallback(item, byteRange));
             addItem(item, missingChunksForRange, mHighPriorityQueue);
@@ -82,8 +88,9 @@ public class ScStreamLoader {
             return null;
         } else {
             Log.d(getClass().getSimpleName(), "Serving item from storage");
-            return fetchStoredDataForItem(item, byteRange);
+            pc.setByteBuffer(fetchStoredDataForItem(item,byteRange));
         }
+        return pc;
     }
 
     private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
@@ -281,11 +288,7 @@ public class ScStreamLoader {
         }
 
         for (PlayerCallback playerCallback : fulfilledCallbacks) {
-            Intent i = new Intent(STREAM_ITEM_RANGE_LOADED);
-            i.getExtras().putParcelable("item",playerCallback.scStreamItem);
-            i.getExtras().putParcelable("range",playerCallback.byteRange);
-            mContext.sendBroadcast(i);
-
+            playerCallback.setByteBuffer(fetchStoredDataForItem(playerCallback.scStreamItem,playerCallback.byteRange));
             mPlayerCallbacks.remove(playerCallback);
         }
     }
@@ -307,13 +310,43 @@ public class ScStreamLoader {
         }
     };
 
-    private class PlayerCallback {
+    private class PlayerCallback implements Future<ByteBuffer>{
         ScStreamItem scStreamItem;
         Range byteRange;
+        ByteBuffer byteBuffer;
 
         public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
             this.scStreamItem = scStreamItem;
             this.byteRange = byteRange;
+        }
+
+        public void setByteBuffer(ByteBuffer byteBuffer){
+            this.byteBuffer = byteBuffer;
+        }
+
+        @Override
+        public boolean cancel(boolean b) {
+            return false;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public boolean isDone() {
+            return !(byteBuffer == null);
+        }
+
+        @Override
+        public ByteBuffer get() throws InterruptedException, ExecutionException {
+            return byteBuffer;
+        }
+
+        @Override
+        public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+            return byteBuffer;
         }
     }
 
