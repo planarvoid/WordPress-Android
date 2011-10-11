@@ -1,9 +1,18 @@
 package com.soundcloud.android.streaming;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.utils.CloudUtils;
 
-public class ScStreamItem {
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class ScStreamItem implements Parcelable {
 
     public static String SCStreamItemDidResetNotification = "SCStreamItemDidResetNotification";
 
@@ -49,5 +58,40 @@ public class ScStreamItem {
                     ", enabled:" + enabled +
                     "}";
         }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle data = new Bundle();
+        data.putString("URL", URL);
+        data.putString("redirectedURL", redirectedURL);
+        data.putString("URLHash", mURLHash);
+        data.putBoolean("enabled",enabled);
+        data.putInt("contentLength",mContentLength);
+        dest.writeBundle(data);
+    }
+
+    public ScStreamItem(Parcel in) {
+        Bundle data = in.readBundle(getClass().getClassLoader());
+        URL = data.getString("URL");
+        redirectedURL = data.getString("redirectedURL");
+        mURLHash = data.getString("URLHash");
+        enabled = data.getBoolean("enabled");
+        mContentLength = data.getInt("contentLength");
+    }
+
+    public static final Parcelable.Creator<ScStreamItem> CREATOR = new Parcelable.Creator<ScStreamItem>() {
+        public ScStreamItem createFromParcel(Parcel in) {
+            return new ScStreamItem(in);
+        }
+
+        public ScStreamItem[] newArray(int size) {
+            return new ScStreamItem[size];
+        }
+    };
 
 }
