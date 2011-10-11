@@ -29,6 +29,7 @@ public class ScStreamLoader {
     private ArrayList<LoadingItem> mHighPriorityQueue;
     private ArrayList<LoadingItem> mLowPriorityQueue;
     private boolean mHighPriorityConnection;
+    private boolean mLowPriorityConnection;
 
 
     public void initWithStorage(Context context, ScStreamStorage storage) {
@@ -142,11 +143,58 @@ public class ScStreamLoader {
     }
 
     private void processHighPriorityQueue() {
+        if (mHighPriorityConnection) return;
+        if (mHighPriorityQueue.size() == 0) return;
 
+        //Look if it is the current LowPriority Chunk.
+        if (mLowPriorityConnection) {
+            /*
+             TODO cancel low priority connection and re-add it to the queue
+             https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L789
+              */
+
+        }
+
+        for (LoadingItem highPriorityItem : mHighPriorityQueue) {
+            ScStreamItem item = highPriorityItem.scStreamItem;
+            if (!item.enabled) {
+                mHighPriorityQueue.remove(highPriorityItem);
+            } else if (item.getContentLength() != 0) {
+                /*
+                 TODO download chunk indexes in loading item
+                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L806
+                  */
+            } else {
+                /*
+                 TODO do a head request to get content length
+                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L818
+                  */
+            }
+
+        }
     }
 
     private void processLowPriorityQueue() {
+        if (mLowPriorityConnection) return;
+        if (mLowPriorityQueue.size() == 0) return;
 
+        for (LoadingItem highPriorityItem : mHighPriorityQueue) {
+            ScStreamItem item = highPriorityItem.scStreamItem;
+            if (!item.enabled) {
+                mHighPriorityQueue.remove(highPriorityItem);
+            } else if (item.getContentLength() != 0) {
+                /*
+                 TODO download chunk indexes in loading item
+                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L840
+                  */
+            } else {
+                /*
+                 TODO do a head request to get content length
+                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L851
+                  */
+            }
+
+        }
     }
 
     private void updateLowPriorityQueue() {
