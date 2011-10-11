@@ -47,7 +47,7 @@ public class TrackCache {
 
             Log.i(TAG, "Current Cache Size " + size + " (space left " + spaceLeft + ")");
 
-            if (size > Consts.TRACK_MAX_CACHE || spaceLeft < Consts.TRACK_MIN_CACHE) {
+            if (size > Consts.TRACK_MAX_CACHE || spaceLeft < Consts.TRACK_CACHE_MIN_FREE_SPACE) {
                 final long toTrim = Math.max(size - Consts.TRACK_MAX_CACHE, Math.abs(spaceLeft));
                 int j = 0;
                 long trimmed = 0;

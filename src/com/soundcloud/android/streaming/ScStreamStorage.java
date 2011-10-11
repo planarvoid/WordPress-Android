@@ -1,29 +1,36 @@
 package com.soundcloud.android.streaming;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.StatFs;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.Range;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ScStreamStorage {
     private static int DEFAULT_CHUNK_SIZE = 128*1024;
-    public int chunkSize;
+    private static int CLEANUP_INTERVAL = 10;
 
-    private File mBaseDir;
-    private File mCompleteDir;
-    private File mIncompleteDir;
+    public int chunkSize;
+    private Context mContext;
+
+    private File mBaseDir, mCompleteDir, mIncompleteDir;
+    private long mUsedSpace, mSpaceLeft;
 
     private Dictionary<String, Integer>  mIncompleteContentLengths;
     private Dictionary<String, ArrayList<Integer>> mIncompleteIndexes;
 
+    private ArrayList<String> mConvertingKeys;
+
     public void ScStreamStorage(Context context){
+
+        mContext = context;
         mBaseDir = FileCache.getCacheDir(context);
         mIncompleteDir = new File(mBaseDir,"Incomplete");
         mCompleteDir = new File(mBaseDir,"Incomplete");
@@ -37,6 +44,159 @@ public class ScStreamStorage {
         }
 
         chunkSize = DEFAULT_CHUNK_SIZE;
+
+        mConvertingKeys = new ArrayList<String>();
+    }
+
+    public void setData(byte[] data, int chunkIndex, ScStreamItem item) throws IOException {
+        final String key = item.getURLHash();
+
+        if (data == null) return;
+
+        if (item.getContentLength() == 0) {
+            Log.d(getClass().getSimpleName(), "Not Storing Data. Content Length is Zero.");
+            return;
+        }
+
+        setContentLength(key,item.getContentLength());
+
+        //Do not add to complete files
+        if (completeFileForKey(key).exists()) return;
+
+        //Prepare incomplete file
+        ensureMetadataIsLoadedForKey(key);
+
+        ArrayList<Integer> indexes = mIncompleteIndexes.get(key);
+        if (indexes == null) {
+            indexes = new ArrayList<Integer>();
+            mIncompleteIndexes.put(key, indexes);
+        }
+
+        //return if it's already in store
+        if (indexes.contains(chunkIndex)) return;
+
+        final File incompleteFile = incompleteFileForKey(key);
+        if (!incompleteFile.exists()) {
+            incompleteFile.createNewFile();
+        }
+
+        // always write chunk size even if it isn't a complete chunk (for offsetting I think)
+        if (data.length != chunkSize){
+            data = Arrays.copyOf(data,chunkSize);
+        }
+
+        FileOutputStream fos = new FileOutputStream(incompleteFile,true);
+        fos.write(data);
+        fos.close();
+
+        //Add Index and save it
+        indexes.add(chunkIndex);
+
+        File indexFile = new File(incompleteFileForKey(key) + "_index");
+        if (indexFile.exists()) {
+            indexFile.delete();
+        }
+
+        try {
+            DataOutputStream din = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+            din.writeInt(item.getContentLength());
+            for (Integer index : indexes) {
+                din.writeInt(index);
+            }
+            din.close();
+
+        } catch (IOException e) {
+            Log.e("asdf","Error writing to index file " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        if (indexes.size() == numberOfChunksForKey(key)){
+            mConvertingKeys.add(key);
+            new Thread() {
+                        @Override
+                        public void run() {
+                             /*
+                              TODO convert
+                              https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L275
+                               */
+                        }
+            }.start();
+
+        }
+
+        //Update the number of writes, cleanup if necessary
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final int currentCount = prefs.getInt("streamingWritesSinceCleanup", 0) + 1;
+        prefs.edit().putInt("streamingWritesSinceCleanup",currentCount).commit();
+
+        if (currentCount >= CLEANUP_INTERVAL) {
+            calculateFileMetrics();
+            cleanup();
+        }
+
+    }
+
+    private void cleanup() {
+
+        if (mConvertingKeys.size() > 0) {
+            Log.d(getClass().getSimpleName(), "Not doing storage cleanup, conversion is going on");
+            return;
+        }
+
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt("streamingWritesSinceCleanup",0).commit();
+
+        if (mUsedSpace <= Consts.TRACK_MAX_CACHE && mSpaceLeft >= Consts.TRACK_CACHE_MIN_FREE_SPACE) return;
+
+        ArrayList<File> files = new ArrayList<File>();
+        files.addAll(Arrays.asList(mIncompleteDir.listFiles()));
+        files.addAll(Arrays.asList(mCompleteDir.listFiles()));
+        Collections.sort(files,FileLastModifiedComparator.INSTANCE);
+
+        final long spaceToClean = Math.max(mUsedSpace - Consts.TRACK_MAX_CACHE, Consts.TRACK_CACHE_MIN_FREE_SPACE - mSpaceLeft);
+        int i = 0;
+        long cleanedSpace = 0;
+        while (i < files.size() && cleanedSpace < spaceToClean){
+            final File f = files.get(i);
+            final File parent = f.getParentFile();
+            cleanedSpace += f.length();
+            f.delete();
+            if (f.getParentFile().equals(mIncompleteDir)){
+                File indexFile = new File(f.getAbsolutePath() + "_index");
+                if (indexFile.exists()){
+                    cleanedSpace += indexFile.length();
+                    indexFile.delete();
+                }
+            }
+        }
+    }
+
+    private void calculateFileMetrics() {
+
+        StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
+        mSpaceLeft = fs.getBlockSize() * fs.getAvailableBlocks();
+
+        long currentlyUsedSpace = 0;
+        for (File f : mCompleteDir.listFiles()){
+            currentlyUsedSpace += f.length();
+        }
+        for (File f : mIncompleteDir.listFiles()){
+            currentlyUsedSpace += f.length();
+        }
+        mUsedSpace = currentlyUsedSpace;
+
+        Log.d(getClass().getSimpleName(),"[File Metrics] used: " + mUsedSpace + " , free: " + mSpaceLeft);
+    }
+
+    private void setContentLength(String key, int contentLength) {
+        if (TextUtils.isEmpty(key)){
+            Log.e(getClass().getSimpleName(),"No key provided for setting content length");
+        }
+        if (contentLength != contentLengthForKey(key)) {
+            if (contentLengthForKey(key) != 0) {
+                removeAllDataForKey(key);
+            }
+            mIncompleteContentLengths.put(key, contentLength);
+        }
     }
 
     public HashSet<Integer> getMissingChunksForItem(ScStreamItem item, Range chunkRange) {
@@ -117,7 +277,7 @@ public class ScStreamStorage {
     }
 
     private boolean resetDataIfNecessary(ScStreamItem item) {
-        String key = item.getURLHash();
+        final String key = item.getURLHash();
         if (item.getContentLength() != 0 &&
                 item.getContentLength() != getContentLengthForKey(key)) {
             removeAllDataForKey(key);
@@ -238,5 +398,12 @@ public class ScStreamStorage {
         return (long) Math.ceil(contentLengthForKey(key) / chunkSize);
     }
 
+    private static class FileLastModifiedComparator implements Comparator<File> {
+        static FileLastModifiedComparator INSTANCE = new FileLastModifiedComparator();
+        @Override
+        public int compare(File f1, File f2) {
+            return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+        }
+    }
 
 }
