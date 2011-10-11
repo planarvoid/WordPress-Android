@@ -2,6 +2,7 @@ package com.soundcloud.android.streaming;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -11,6 +12,7 @@ import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.Range;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class ScStreamStorage {
@@ -92,7 +94,7 @@ public class ScStreamStorage {
         //Add Index and save it
         indexes.add(chunkIndex);
 
-        File indexFile = new File(incompleteFileForKey(key) + "_index");
+        File indexFile = incompleteIndexFileForKey(key);
         if (indexFile.exists()) {
             indexFile.delete();
         }
@@ -112,15 +114,7 @@ public class ScStreamStorage {
 
         if (indexes.size() == numberOfChunksForKey(key)){
             mConvertingKeys.add(key);
-            new Thread() {
-                        @Override
-                        public void run() {
-                             /*
-                              TODO convert
-                              https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L275
-                               */
-                        }
-            }.start();
+           new ConvertFileToComplete(key, indexes).execute(new File[]{incompleteFile, completeFileForKey(key)});
 
         }
 
@@ -241,7 +235,7 @@ public class ScStreamStorage {
             return;
         }
 
-        File indexFile = new File(incompleteFileForKey(key) + "_index");
+        File indexFile = incompleteIndexFileForKey(key);
         if (indexFile.exists()) {
             try {
                 DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
@@ -273,6 +267,10 @@ public class ScStreamStorage {
 
     private File incompleteFileForKey(String key){
         return new File(mIncompleteDir,key);
+    }
+
+    private File incompleteIndexFileForKey(String key){
+        return new File(mIncompleteDir,key+"_index");
 
     }
 
@@ -302,6 +300,15 @@ public class ScStreamStorage {
     }
 
     private void removeIncompleteDataForKey(String key){
+         if (key.length() == 0) return;
+        /*
+        remove all incomplete data from file system
+
+         https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamStorage.m#L395
+          */
+    }
+
+    private void removeCompleteDataForKey(String key){
          if (key.length() == 0) return;
         /*
         remove all incomplete data from file system
@@ -403,6 +410,72 @@ public class ScStreamStorage {
         @Override
         public int compare(File f1, File f2) {
             return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+        }
+    }
+
+    private class ConvertFileToComplete extends AsyncTask<File,Integer,Boolean> {
+        private String mKey;
+        private long mContentLength;
+        private List<Integer> mIndexes;
+        public ConvertFileToComplete(String key, List<Integer> indexes){
+            mKey = key;
+            mIndexes = indexes;
+            mContentLength = contentLengthForKey(key);
+        }
+
+        @Override
+        protected Boolean doInBackground(File... params) {
+            File chunkFile = params[0];
+            File completeFile = params[1];
+
+            if (completeFile.exists()){
+                Log.e(getClass().getSimpleName(),"Complete file exists at path " + completeFile.getAbsolutePath());
+                return false;
+            }
+
+            FileOutputStream fos = null;
+            BufferedInputStream bin = null;
+
+            try {
+                fos = new FileOutputStream(completeFile, true);
+                bin = new BufferedInputStream(new FileInputStream(chunkFile));
+
+                completeFile.createNewFile();
+                byte[] buffer = new byte[chunkSize];
+
+                for (int chunkNumber = 0; chunkNumber < mIndexes.size(); chunkNumber++) {
+                    bin.read(buffer, mIndexes.indexOf(chunkNumber), chunkSize);
+                    if (chunkNumber == mIndexes.size() - 1) {
+                        fos.write(buffer, 0, (int) (mContentLength % chunkSize));
+                    } else {
+                        fos.write(buffer);
+                    }
+
+                }
+            } catch (IOException e) {
+                Log.e(getClass().getSimpleName(), "IO error during complete file creation");
+                e.printStackTrace();
+                return false;
+            } finally {
+                if (bin != null){
+                    try {bin.close();} catch (IOException e) {e.printStackTrace();}
+                }
+                if (fos != null){
+                    try {fos.close();} catch (IOException e) {e.printStackTrace();}
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public void onPostExecute(Boolean success){
+            if (true){
+                removeIncompleteDataForKey(mKey);
+            } else {
+                removeCompleteDataForKey(mKey);
+            }
+
+            mConvertingKeys.remove(mKey);
         }
     }
 
