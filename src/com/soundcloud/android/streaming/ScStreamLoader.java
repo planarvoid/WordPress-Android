@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
@@ -17,6 +18,7 @@ public class ScStreamLoader {
     private NetworkInfo mCurrentNetworkInfo;
     protected static final int CONNECTIVITY_MSG = 0;
 
+    private Context mContext;
     private ScStreamStorage mStorage;
     private List<ScStreamItem> mItemsNeedingHeadRequests;
     private List<ScStreamItem> mItemsNeedingPlayCountRequests;
@@ -30,9 +32,11 @@ public class ScStreamLoader {
     private ArrayList<LoadingItem> mLowPriorityQueue;
     private boolean mHighPriorityConnection;
     private boolean mLowPriorityConnection;
+    private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";;
 
 
-    public void initWithStorage(Context context, ScStreamStorage storage) {
+    public void ScStreamLoader(Context context, ScStreamStorage storage) {
+        mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
         mPlayerCallbacks = new HashSet<PlayerCallback>();
@@ -277,7 +281,11 @@ public class ScStreamLoader {
         }
 
         for (PlayerCallback playerCallback : fulfilledCallbacks) {
-            // TODO notify that data was loaded
+            Intent i = new Intent(STREAM_ITEM_RANGE_LOADED);
+            i.getExtras().putParcelable("item",playerCallback.scStreamItem);
+            i.getExtras().putParcelable("range",playerCallback.byteRange);
+            mContext.sendBroadcast(i);
+
             mPlayerCallbacks.remove(playerCallback);
         }
     }
