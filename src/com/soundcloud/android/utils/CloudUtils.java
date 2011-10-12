@@ -180,11 +180,18 @@ public class CloudUtils {
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (String aChildren : children) {
-                boolean success = deleteDir(new File(dir, aChildren));
-                if (!success) {
-                    return false;
+            File[] children = dir.listFiles();
+            if (children != null) {
+                for (File f : children) {
+                    boolean success;
+                    if (f.isDirectory()) {
+                         success = deleteDir(f);
+                    } else {
+                        success = deleteFile(f);
+                    }
+                    if (!success) {
+                        return false;
+                    }
                 }
             }
             // The directory is now empty so delete it
@@ -213,6 +220,25 @@ public class CloudUtils {
             return "";
         }
     }
+
+    public static String md5(InputStream f) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int n;
+            while ((n = f.read(buffer)) != -1) {
+                digest.update(buffer, 0, n);
+            }
+            return hexString(digest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "error", e);
+            return "";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     public static String hexString(byte[] bytes) {
         return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));

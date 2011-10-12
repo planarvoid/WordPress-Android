@@ -1,5 +1,7 @@
 package com.soundcloud.android.streaming;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -14,17 +16,23 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class ScStreamItem implements Parcelable {
 
-    public static String SCStreamItemDidResetNotification = "SCStreamItemDidResetNotification";
+    public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
 
-    public String URL;
+    public final String URL;
     public String redirectedURL;
     public boolean enabled;
 
+    private Context mContext;
     private String mURLHash;
-    private int mContentLength;
+    private long mContentLength;
 
+    public ScStreamItem(Context context, String URL) {
+        if (TextUtils.isEmpty(URL)) throw new IllegalArgumentException();
+        mContext = context;
+        this.URL = URL;
+    }
 
-    public void setContentLength(int value){
+    public void setContentLength(long value){
         if (mContentLength == value) return;
 
         boolean reset = false;
@@ -33,17 +41,23 @@ public class ScStreamItem implements Parcelable {
         }
         mContentLength = value;
 
+        if (reset){
+            Intent i = new Intent(SCStreamItemDidResetNotification);
+            i.getExtras().putParcelable("item",this);
+            mContext.sendBroadcast(i);
+        }
+
         /*
-        notify(new Intent("SCStreamItemDidResetNotification"));
+        TODO add reset listener to player
         */
     }
 
-    public int getContentLength(){
+    public long getContentLength(){
         return mContentLength;
     }
 
     public String getURLHash(){
-        if (TextUtils.isEmpty(mURLHash) && !TextUtils.isEmpty(URL)){
+        if (mURLHash == null) {
             mURLHash = CloudUtils.md5(URL);
         }
         return mURLHash;
@@ -71,7 +85,7 @@ public class ScStreamItem implements Parcelable {
         data.putString("redirectedURL", redirectedURL);
         data.putString("URLHash", mURLHash);
         data.putBoolean("enabled",enabled);
-        data.putInt("contentLength",mContentLength);
+        data.putLong("contentLength",mContentLength);
         dest.writeBundle(data);
     }
 
@@ -81,7 +95,7 @@ public class ScStreamItem implements Parcelable {
         redirectedURL = data.getString("redirectedURL");
         mURLHash = data.getString("URLHash");
         enabled = data.getBoolean("enabled");
-        mContentLength = data.getInt("contentLength");
+        mContentLength = data.getLong("contentLength");
     }
 
     public static final Parcelable.Creator<ScStreamItem> CREATOR = new Parcelable.Creator<ScStreamItem>() {
@@ -93,5 +107,4 @@ public class ScStreamItem implements Parcelable {
             return new ScStreamItem[size];
         }
     };
-
 }
