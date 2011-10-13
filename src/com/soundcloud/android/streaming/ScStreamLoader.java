@@ -40,7 +40,7 @@ public class ScStreamLoader {
     private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";;
 
 
-    public void ScStreamLoader(Context context, ScStreamStorage storage) {
+    public ScStreamLoader(Context context, ScStreamStorage storage) {
         mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
@@ -51,6 +51,9 @@ public class ScStreamLoader {
         mConnectivityListener.registerHandler(mConnHandler, CONNECTIVITY_MSG);
         mConnectivityListener.startListening(context);
 
+        mItemsNeedingHeadRequests = new ArrayList<ScStreamItem>();
+        mItemsNeedingPlayCountRequests = new ArrayList<ScStreamItem>();
+
     }
 
     public void cleanup(){
@@ -60,7 +63,7 @@ public class ScStreamLoader {
 
     }
 
-    private PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) throws IOException {
+    /* package */ PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) throws IOException {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + byteRange);
 
         Range chunkRange = chunkRangeForByteRange(byteRange);
@@ -86,7 +89,6 @@ public class ScStreamLoader {
             addItem(item, missingChunksForRange, mHighPriorityQueue);
             updateLowPriorityQueue();
             processQueues();
-            return null;
         } else {
             Log.d(getClass().getSimpleName(), "Serving item from storage");
             pc.setByteBuffer(fetchStoredDataForItem(item,byteRange));
@@ -94,7 +96,7 @@ public class ScStreamLoader {
         return pc;
     }
 
-    private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) throws IOException {
+    private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
         Range actualRange = byteRange;
         if (item.getContentLength() != 0){
             actualRange = byteRange.intersection(new Range(0, (int) item.getContentLength()));
@@ -106,6 +108,7 @@ public class ScStreamLoader {
         }
 
         Range chunkRange = chunkRangeForByteRange(actualRange);
+
         byte[] data = new byte[(int) (chunkRange.length * chunkSize)];
         final int end = chunkRange.location + chunkRange.length;
         int writeIndex = 0;
@@ -123,7 +126,7 @@ public class ScStreamLoader {
             writeIndex += i;
         }
 
-        if (data.length < actualRange.length){
+        if (actualRange.length < data.length){
             return ByteBuffer.wrap(data, actualRange.location - (chunkRange.location * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
         } else {
             return ByteBuffer.wrap(data);
@@ -267,17 +270,13 @@ public class ScStreamLoader {
                 (int) Math.ceil((double) ((byteRange.location % chunkSize) + byteRange.length) / (double) chunkSize));
     }
 
-    private void onDataReceived() {
-        Log.d(getClass().getSimpleName(), "");
-
+    /* package */ void storeData(byte[] data, int chunk, ScStreamItem item) {
+        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
+        mStorage.setData(data,chunk,item);
+        fulfillPlayerCallbacks();
     }
 
-    private void storeData(byte[] data, int chunk, ScStreamItem item) {
-        Log.d(getClass().getSimpleName(), "");
-
-    }
-
-    private void fulfillPlayerCallbacks() throws IOException {
+    private void fulfillPlayerCallbacks() {
         ArrayList<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
         for (PlayerCallback playerCallback : mPlayerCallbacks) {
             ScStreamItem item = playerCallback.scStreamItem;
@@ -289,8 +288,12 @@ public class ScStreamLoader {
         }
 
         for (PlayerCallback playerCallback : fulfilledCallbacks) {
-            playerCallback.setByteBuffer(fetchStoredDataForItem(playerCallback.scStreamItem,playerCallback.byteRange));
-            mPlayerCallbacks.remove(playerCallback);
+            ByteBuffer storedData = fetchStoredDataForItem(playerCallback.scStreamItem,playerCallback.byteRange);
+            if (storedData != null){
+                playerCallback.setByteBuffer(storedData);
+                mPlayerCallbacks.remove(playerCallback);
+            }
+
         }
     }
 
@@ -311,10 +314,11 @@ public class ScStreamLoader {
         }
     };
 
-    private class PlayerCallback implements Future<ByteBuffer>{
+    /* package */ class PlayerCallback implements Future<ByteBuffer>{
         ScStreamItem scStreamItem;
         Range byteRange;
         ByteBuffer byteBuffer;
+        boolean ready = false;
 
         public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
             this.scStreamItem = scStreamItem;
@@ -323,6 +327,10 @@ public class ScStreamLoader {
 
         public void setByteBuffer(ByteBuffer byteBuffer){
             this.byteBuffer = byteBuffer;
+            ready = true;
+            synchronized (this) {
+                notifyAll();
+            }
         }
 
         @Override
@@ -337,11 +345,16 @@ public class ScStreamLoader {
 
         @Override
         public boolean isDone() {
-            return !(byteBuffer == null);
+            return ready;
         }
 
         @Override
         public ByteBuffer get() throws InterruptedException, ExecutionException {
+            synchronized (this) {
+            while (!ready) {
+                try {wait(); } catch (InterruptedException e) { return null; }
+            }
+            }
             return byteBuffer;
         }
 

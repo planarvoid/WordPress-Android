@@ -51,7 +51,7 @@ public class ScStreamStorage {
         mConvertingKeys = new ArrayList<String>();
     }
 
-    public boolean setData(byte[] data, int chunkIndex, ScStreamItem item) throws IOException {
+    public boolean setData(byte[] data, int chunkIndex, ScStreamItem item) {
         if (data == null) return false;
         if (item.getContentLength() == 0) {
             Log.d(getClass().getSimpleName(), "Not Storing Data. Content Length is Zero.");
@@ -83,14 +83,26 @@ public class ScStreamStorage {
             data = Arrays.copyOf(data, chunkSize);
         }
 
-        FileOutputStream fos = new FileOutputStream(incompleteFile, true);
-        fos.write(data);
-        fos.close();
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(incompleteFile, true);
+            fos.write(data);
+            fos.close();
+        } catch (IOException e) {
+            Log.i(getClass().getSimpleName(), "Error storing chunk data ", e);
+            return false;
+        }
 
         //Add Index and save it
         indexes.add(chunkIndex);
 
-        writeIndex(item, indexes);
+        try {
+            writeIndex(item, indexes);
+        } catch (IOException e) {
+            Log.i(getClass().getSimpleName(), "Error storing index data ", e);
+            return false;
+        }
+
 
         if (indexes.size() == numberOfChunksForKey(item)){
             mConvertingKeys.add(key);
@@ -317,7 +329,7 @@ public class ScStreamStorage {
         if (completeFile.exists()) completeFile.delete();
     }
 
-    public byte[] getChunkData(ScStreamItem item, int chunkIndex) throws IOException {
+    public byte[] getChunkData(ScStreamItem item, int chunkIndex) {
         resetDataIfNecessary(item);
 
         final String key = item.getURLHash();
@@ -329,12 +341,20 @@ public class ScStreamStorage {
             item.setContentLength((int) savedContentLength);
         }
 
-        byte[] data = new byte[0];
+        byte[] data = null;
 
-        data = incompleteDataForChunk(item, chunkIndex);
+        try {
+            data = incompleteDataForChunk(item, chunkIndex);
+        } catch (IOException e) {
+            Log.i(getClass().getSimpleName(), "Error retrieving chunk data: ", e);
+        }
         if (data != null) return data;
 
-        data = completeDataForChunk(item, chunkIndex);
+        try{
+            data = completeDataForChunk(item, chunkIndex);
+        } catch (IOException e) {
+            Log.i(getClass().getSimpleName(), "Error retrieving chunk data: ", e);
+        }
         if (data != null) return data;
 
         return null;
@@ -365,6 +385,7 @@ public class ScStreamStorage {
                         raf.close();
                     }
                 }
+
                 return buffer;
             }
         }
@@ -386,7 +407,6 @@ public class ScStreamStorage {
             if (chunkIndex == totalChunks - 1) {
                 readLength = (int) (contentLengthForKey(key) % chunkSize);
             }
-
             byte[] buffer = new byte[readLength];
             RandomAccessFile raf = null;
             try {
