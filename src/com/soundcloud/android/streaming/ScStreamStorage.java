@@ -31,6 +31,10 @@ public class ScStreamStorage {
     private ArrayList<String> mConvertingKeys;
 
     public ScStreamStorage(Context context, File basedir) {
+        this(context,basedir,DEFAULT_CHUNK_SIZE);
+    }
+
+    public ScStreamStorage(Context context, File basedir, int chunkSize) {
         mContext = context;
         mBaseDir = basedir;
         mIncompleteDir = new File(mBaseDir,"Incomplete");
@@ -42,7 +46,7 @@ public class ScStreamStorage {
         mkdirs(mIncompleteDir);
         mkdirs(mCompleteDir);
 
-        chunkSize = DEFAULT_CHUNK_SIZE;
+        this.chunkSize = chunkSize;
 
         mConvertingKeys = new ArrayList<String>();
     }
@@ -87,7 +91,6 @@ public class ScStreamStorage {
         indexes.add(chunkIndex);
 
         writeIndex(item, indexes);
-
 
         if (indexes.size() == numberOfChunksForKey(item)){
             mConvertingKeys.add(key);
@@ -143,7 +146,6 @@ public class ScStreamStorage {
     /* package */ void calculateFileMetrics() {
 
         StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
-        Log.i(getClass().getName(), "" + fs.getFreeBlocks());
         mSpaceLeft = fs.getBlockSize() * fs.getAvailableBlocks();
 
         long currentlyUsedSpace = 0;
@@ -346,8 +348,6 @@ public class ScStreamStorage {
             if (!indexArray.contains(chunkIndex)) return null;
             File chunkFile = incompleteFileForKey(key);
 
-            Log.i(getClass().getSimpleName(),"Incomplete file is " + chunkFile.getAbsolutePath() + " " + chunkFile.exists());
-
             if (chunkFile.exists()){
                 int seekToChunkOffset = indexArray.indexOf(chunkIndex) * chunkSize;
                 int readLength = chunkSize;
@@ -375,24 +375,30 @@ public class ScStreamStorage {
         final String key = item.getURLHash();
         final File completeFile = completeFileForKey(key);
 
-        if (completeFile.exists()){
+        if (completeFile.exists()) {
+            final long totalChunks = numberOfChunksForKey(item);
+            if (chunkIndex >= totalChunks) {
+                Log.e(getClass().getSimpleName(), "Requested invalid chunk index. Requested index " + chunkIndex + " of size " + totalChunks);
+                return null;
+            }
             int seekToChunkOffset = (int) (chunkIndex * chunkSize);
-                int readLength = chunkSize;
-                if (chunkIndex == numberOfChunksForKey(item)){
-                    readLength = (int) (contentLengthForKey(key) % chunkSize);
+            int readLength = chunkSize;
+            if (chunkIndex == totalChunks - 1) {
+                readLength = (int) (contentLengthForKey(key) % chunkSize);
+            }
+
+            byte[] buffer = new byte[readLength];
+            RandomAccessFile raf = null;
+            try {
+                raf = new RandomAccessFile(completeFile, "r");
+                raf.seek(seekToChunkOffset);
+                raf.readFully(buffer, 0, readLength);
+            } finally {
+                if (raf != null) {
+                    raf.close();
                 }
-                byte [] buffer = new byte[readLength];
-                RandomAccessFile raf = null;
-                try {
-                    raf = new RandomAccessFile(completeFile,"r");
-                    raf.seek(seekToChunkOffset);
-                    raf.readFully(buffer,0,readLength);
-                }  finally {
-                    if (raf != null) {
-                        raf.close();
-                    }
-                }
-                return buffer;
+            }
+            return buffer;
         }
         return null;
     }

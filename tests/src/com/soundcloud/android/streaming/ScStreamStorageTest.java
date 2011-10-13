@@ -33,8 +33,33 @@ public class ScStreamStorageTest {
     @Before
     public void before() {
         CloudUtils.deleteDir(baseDir);
-        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir);
-        item = new ScStreamItem(DefaultTestRunner.application, "captainstorm.mp3");
+        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir, 1028);
+        item = new ScStreamItem(DefaultTestRunner.application, "fred.mp3");
+    }
+
+    private long mSampleContentLength;
+    private LinkedHashMap<Integer, byte[]> mSampleBuffers;
+    private ArrayList<Integer> mSampleChunkIndexes;
+
+    private long setupChunkArray() throws IOException {
+
+         InputStream inputStream = getClass().getResourceAsStream("fred.mp3");
+         mSampleContentLength = new File(getClass().getResource("fred.mp3").getFile()).length();
+
+         long chunks = 0;
+         mSampleBuffers = new LinkedHashMap<Integer, byte[]>();
+         mSampleChunkIndexes = new ArrayList<Integer>();
+         do {
+             byte[] buffer = new byte[storage.chunkSize];
+             if (inputStream.read(buffer) == -1) {
+                 break;
+             } else {
+                 mSampleBuffers.put((int) chunks, buffer);
+                 mSampleChunkIndexes.add((int) chunks);
+                 chunks++;
+             }
+         } while (true);
+        return chunks;
     }
 
     @Test
@@ -92,89 +117,90 @@ public class ScStreamStorageTest {
     }
 
      @Test
-     public void shouldTest() throws Exception {
+     public void shouldTestIncompleteSequentialWriting() throws Exception {
+         setupChunkArray();
+         item.setContentLength(mSampleContentLength);
 
-         InputStream inputStream = getClass().getResourceAsStream("captainstorm.mp3");
+         final int writing =  mSampleChunkIndexes.size() -1;
+         for (int i = 0; i < writing; i++) {
+             storage.setData(mSampleBuffers.get(i), i, item);
+         }
 
-         long contentLength = new File(getClass().getResource("captainstorm.mp3").getFile()).length();
+         for (int i = 0; i < writing; i++) {
+             assertNotNull(storage.getChunkData(item,i));
+         }
 
-         long chunks = 0;
-         LinkedHashMap<Integer, byte[]> buffers = new LinkedHashMap<Integer, byte[]>();
-         ArrayList<Integer> chunkArray = new ArrayList<Integer>();
-         do {
-             byte[] buffer = new byte[storage.chunkSize];
-             if (inputStream.read(buffer) == -1) {
-                 break;
-             } else {
-                 buffers.put((int) chunks, buffer);
-                 chunkArray.add((int) chunks);
-                 chunks++;
-             }
-         } while (true);
+         assertNull(storage.getChunkData(item,writing));
+     }
 
-         item.setContentLength(contentLength);
-         Collections.shuffle(chunkArray);
+    @Test
+     public void shouldTestIncompleteRandomWriting() throws Exception {
+         setupChunkArray();
+         item.setContentLength(mSampleContentLength);
+         Collections.shuffle(mSampleChunkIndexes);
 
-         for (Integer aChunkArray : chunkArray) {
-             storage.setData(buffers.get(aChunkArray), aChunkArray, item);
+         final int writing =  mSampleChunkIndexes.size() -1;
+         for (int i = 0; i < writing; i++) {
+             storage.setData(mSampleBuffers.get(mSampleChunkIndexes.get(i)), mSampleChunkIndexes.get(i), item);
+         }
+
+         for (int i = 0; i < writing; i++) {
+             assertNotNull(storage.getChunkData(item,mSampleChunkIndexes.get(i)));
+         }
+
+         assertNull(storage.getChunkData(item,mSampleChunkIndexes.get(writing)));
+     }
+
+    @Test
+     public void shouldTestCompleteSequentialWriting() throws Exception {
+         setupChunkArray();
+         item.setContentLength(mSampleContentLength);
+
+         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
+             storage.setData(mSampleBuffers.get(i), i, item);
+         }
+
+         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
+             assertNotNull(storage.getChunkData(item,i));
+         }
+
+         assertNull(storage.getChunkData(item,mSampleChunkIndexes.size()));
+     }
+
+    @Test
+     public void shouldTestCompleteRandomWriting() throws Exception {
+         setupChunkArray();
+         item.setContentLength(mSampleContentLength);
+         Collections.shuffle(mSampleChunkIndexes);
+
+         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
+             storage.setData(mSampleBuffers.get(mSampleChunkIndexes.get(i)), mSampleChunkIndexes.get(i), item);
+         }
+
+         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
+             assertNotNull(storage.getChunkData(item,mSampleChunkIndexes.get(i)));
+         }
+     }
+
+    @Test
+     public void shouldTestCompleteFileConstruction() throws Exception {
+         long chunks = setupChunkArray();
+
+         item.setContentLength(mSampleContentLength);
+         Collections.shuffle(mSampleChunkIndexes);
+
+         for (Integer aChunkArray : mSampleChunkIndexes) {
+             storage.setData(mSampleBuffers.get(aChunkArray), aChunkArray, item);
          }
 
          assertThat(storage.numberOfChunksForKey(item), is(chunks));
 
          File assembled = storage.completeFileForKey(item.getURLHash());
+         assertThat(mSampleContentLength, is(assembled.length()));
 
-         assertThat(contentLength, is(assembled.length()));
-
-         String original = CloudUtils.md5(getClass().getResourceAsStream("captainstorm.mp3"));
+         String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));
          assertThat(CloudUtils.md5(new FileInputStream(assembled)), equalTo(original));
-
-         assertThat(storage.getChunkData(item,2), equalTo(storage.completeDataForChunk(item,2)));
-
-
-//         assertThat(storage.getChunkData(item, chunkArray.get(0)), notNullValue());
-
-
-         /*
-         File dataOut = new File(System.getProperty("java.tmp.dir"), "tmp/streaming/captainstorm_data");
-         File indexOut = new File(System.getProperty("java.tmp.dir"), "tmp/streaming/captainstorm_index");
-         FileOutputStream dataFos = new FileOutputStream(dataOut, true);
-         DataOutputStream indexDos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexOut)));
-
-
-
-         for (int chunkIndex : chunkArray) {
-             fos.write();
-         }
-
-
-         System.out.print("chunks " + buffers.size());
-         System.out.print("length " + contentLength);
-
-         /*
-
-         out.mkdirs();
-
-
-
-         assertTrue(original.exists());
-         /*
-         try {
-
-                         bin = new BufferedInputStream(new FileInputStream(chunkFile));
-
-                         completeFile.createNewFile();
-                         byte[] buffer = new byte[chunkSize];
-
-                         for (int chunkNumber = 0; chunkNumber < mIndexes.size(); chunkNumber++) {
-                             bin.read(buffer, mIndexes.indexOf(chunkNumber), chunkSize);
-                             if (chunkNumber == mIndexes.size() - 1) {
-                                 fos.write(buffer, 0, (int) (mContentLength % chunkSize));
-                             } else {
-                                 fos.write(buffer);
-                             }
-
-                         }
-
-         */
      }
+
+
 }
