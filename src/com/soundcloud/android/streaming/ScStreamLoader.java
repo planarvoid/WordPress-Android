@@ -1,13 +1,23 @@
 package com.soundcloud.android.streaming;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.NetworkInfo;
+import android.net.http.AndroidHttpClient;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.Range;
+import com.soundcloud.api.CloudAPI;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,9 +45,15 @@ public class ScStreamLoader {
     private HashSet<PlayerCallback> mPlayerCallbacks;
     private ArrayList<LoadingItem> mHighPriorityQueue;
     private ArrayList<LoadingItem> mLowPriorityQueue;
-    private boolean mHighPriorityConnection;
+    private DataTask mHighPriorityConnection;
     private boolean mLowPriorityConnection;
-    private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";;
+    private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";
+
+    private Set<HeadTask> mHeadTasks;
+
+    private StreamHandler mDataHandler;
+    private StreamHandler mHeadHandler;
+    private Handler mResultHandler;
 
 
     public ScStreamLoader(Context context, ScStreamStorage storage) {
@@ -53,6 +69,20 @@ public class ScStreamLoader {
 
         mItemsNeedingHeadRequests = new ArrayList<ScStreamItem>();
         mItemsNeedingPlayCountRequests = new ArrayList<ScStreamItem>();
+
+        mHeadTasks = new HashSet<HeadTask>();
+
+        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        dataThread.start();
+        mDataHandler = new StreamHandler(dataThread.getLooper());
+
+        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        contentLengthThread.start();
+        mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
+
+
+        mResultHandler = new Handler(Looper.getMainLooper());
+
 
     }
 
@@ -135,6 +165,12 @@ public class ScStreamLoader {
 
     private void processQueues() {
 
+        if (mHighPriorityConnection != null){
+            if (!mHighPriorityConnection.executed) return;
+
+            mHighPriorityConnection = null;
+        }
+
         if (!isOnline()) return;
 
         if (mItemsNeedingHeadRequests.size() > 0){
@@ -152,17 +188,21 @@ public class ScStreamLoader {
         }
 
         processHighPriorityQueue();
-        if (!mHighPriorityConnection){
+        if (mHighPriorityConnection == null){
             processLowPriorityQueue();
         }
     }
 
     private void processHighPriorityQueue() {
-        if (mHighPriorityConnection) return;
+
         if (mHighPriorityQueue.size() == 0) return;
 
         //Look if it is the current LowPriority Chunk.
         if (mLowPriorityConnection) {
+            LoadingItem loadingItem = mHighPriorityQueue.get(0);
+            List<Integer> indexes = loadingItem.indexes;
+
+
             /*
              TODO cancel low priority connection and re-add it to the queue
              https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L789
@@ -175,6 +215,16 @@ public class ScStreamLoader {
             if (!item.enabled) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
+                Range chunkRange = new Range((Integer) highPriorityItem.indexes.get(0),1);
+                mHighPriorityConnection = startDataTask(item,chunkRange);
+                        /*
+                  highPriorityConnection = [[self startDataConnectionForItem:item range:chunkRange] retain];
+            if (highPriorityConnection) {
+                //If we have a connection, remove the chunk - it is taken care of and will be re-added in case of failure.
+                [self removeItem:item chunks:[NSIndexSet indexSetWithIndexesInRange:chunkRange] fromQueue:highPriorityQueue];
+                [self removeItem:item chunks:[NSIndexSet indexSetWithIndexesInRange:chunkRange] fromQueue:lowPriorityQueue];
+
+            }   */
                 /*
                  TODO download chunk indexes in loading item
                  https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L806
@@ -193,10 +243,10 @@ public class ScStreamLoader {
         if (mLowPriorityConnection) return;
         if (mLowPriorityQueue.size() == 0) return;
 
-        for (LoadingItem highPriorityItem : mHighPriorityQueue) {
-            ScStreamItem item = highPriorityItem.scStreamItem;
+        for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
+            ScStreamItem item = lowPriorityItem.scStreamItem;
             if (!item.enabled) {
-                mHighPriorityQueue.remove(highPriorityItem);
+                mHighPriorityQueue.remove(lowPriorityItem);
             } else if (item.getContentLength() != 0) {
                 /*
                  TODO download chunk indexes in loading item
@@ -366,15 +416,178 @@ public class ScStreamLoader {
 
     private class LoadingItem {
         ScStreamItem scStreamItem;
-        Set indexes;
+        List indexes;
 
         public LoadingItem(ScStreamItem item) {
             this.scStreamItem = item;
         }
 
-        public LoadingItem(ScStreamItem scStreamItem, Set indexes) {
+        public LoadingItem(ScStreamItem scStreamItem, List indexes) {
             this(scStreamItem);
             this.indexes = indexes;
         }
+
+        public int getWhat() {
+            return scStreamItem.URL.hashCode();
+        }
     }
+
+    private DataTask startDataTask(ScStreamItem item, Range chunkRange){
+        DataTask dt = new DataTask(item, new Range(chunkRange.location * chunkSize,chunkRange.length * chunkSize));
+        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
+        mDataHandler.sendMessage(msg);
+        return dt;
+    }
+
+    private class DataTask implements Runnable {
+        ScStreamItem mItem;
+        Range mByteRange;
+
+        AndroidHttpClient mClient;
+        HttpResponse mResponse;
+
+        public boolean executed = false;
+
+
+
+        public DataTask(ScStreamItem item){
+            mItem = item;
+            mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
+        }
+
+        public DataTask(ScStreamItem item, Range byteRange){
+            this(item);
+            mByteRange = byteRange;
+        }
+
+        protected HttpUriRequest buildRequest(){
+
+            boolean useRedirectedUrl = false;
+            if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)){
+                useRedirectedUrl = true;
+            }
+
+            final HttpGet method = new HttpGet(useRedirectedUrl ? mItem.redirectedURL :
+                    mItem.URL);
+
+            // method.setHeader("Range", "bytes=" + get + "-");
+
+            return null;
+        }
+
+        public boolean execute() {
+            try {
+                mResponse = mClient.execute(buildRequest());
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            executed = true;
+            return false;
+        }
+
+        @Override
+        public void run() {
+
+        }
+    }
+
+    private HeadTask startHeadTask(ScStreamItem item){
+        if (!item.enabled) {
+            Log.i(getClass().getSimpleName(), String.format("Can't start head for %s: Item is disabled." , item));
+            return null;
+        }
+        if (!isOnline()) {
+            mItemsNeedingHeadRequests.add(item);
+            return null;
+        }
+
+        for (HeadTask ht : mHeadTasks){
+            if (ht.getItem().equals(item)){
+                return null;
+            }
+        }
+
+        HeadTask ht = new HeadTask(item);
+
+        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),ht);
+        mHeadHandler.sendMessage(msg);
+
+        return ht;
+    }
+
+
+
+    private class HeadTask extends DataTask {
+        public HeadTask(ScStreamItem item) {
+            super(item);
+        }
+
+        @Override
+        protected HttpUriRequest buildRequest(){
+           return new HttpHead(mItem.redirectedURL);
+        }
+
+        @Override
+        public void run() {
+            if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.i(getClass().getSimpleName(), "invalid status received: " + mResponse.getStatusLine().toString());
+            } else {
+                mItem.setContentLength(getContentLength(mResponse));
+            }
+            mHeadTasks.remove(this);
+        }
+
+        private long getContentLength(HttpResponse resp) {
+            Header h = resp.getFirstHeader("Content-Length");
+            if (h != null) {
+                try {
+                    return Long.parseLong(h.getValue());
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            } else {
+                return -1;
+            }
+        }
+
+        public ScStreamItem getItem() {
+            return mItem;
+        }
+    }
+
+
+
+    // request pipeline
+    private class StreamHandler extends Handler {
+        public StreamHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            DataTask task = (DataTask) msg.obj;
+            if (task.execute()) {
+                mResultHandler.post(task);
+            }
+        }
+    }
+
+    private static boolean isWaiting(Handler handler) {
+        Looper looper = handler.getLooper();
+        Thread thread = looper.getThread();
+        Thread.State state = getThreadState(thread);
+        return state == Thread.State.WAITING || state == Thread.State.TIMED_WAITING;
+    }
+
+    private static Thread.State getThreadState(Thread t) {
+        try {
+            return t.getState();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Android 2.2.x seems to throw this exception occasionally
+            Log.w(ScStreamLoader.class.getSimpleName(), e);
+            return Thread.State.WAITING;
+        }
+    }
+
 }
