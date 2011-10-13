@@ -1,26 +1,22 @@
 package com.soundcloud.android.streaming;
 
 
-import android.util.Log;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
-import com.sun.corba.se.spi.orbutil.fsm.Input;
-import com.sun.servicetag.SystemEnvironment;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import android.app.Activity;
-import org.junit.matchers.JUnitMatchers;
 import org.junit.runner.RunWith;
 
-import javax.naming.Context;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
@@ -127,10 +123,10 @@ public class ScStreamStorageTest {
          }
 
          for (int i = 0; i < writing; i++) {
-             assertNotNull(storage.getChunkData(item,i));
+             assertNotNull(storage.getChunkData(item, i));
          }
 
-         assertNull(storage.getChunkData(item,writing));
+         assertNull(storage.getChunkData(item, writing));
      }
 
     @Test
