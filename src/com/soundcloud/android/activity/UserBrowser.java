@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -15,6 +16,7 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import com.google.android.imageloader.ImageLoader;
@@ -36,38 +38,35 @@ import com.soundcloud.android.view.*;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /** @noinspection unchecked*/
 public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener {
+    private User mUser;
+    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private ImageView mIcon;
+    private String mIconURL;
+    private ImageLoader.BindResult avatarResult;
 
+    private ScTabView mMyTracksView;
     private FrameLayout mDetailsView;
     private FriendFinderView mFriendFinderView;
-
-    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
-
     private ImageButton mFollowStateBtn;
     private Drawable mFollowDrawable, mUnfollowDrawable;
-
-    private String mIconURL;
-
     private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadDetailsTask;
     private boolean mUpdateInfo;
 
-    private User mUser;
-
-    private ImageLoader.BindResult avatarResult;
+    private CreateController mMessager;
 
     private List<Connection> mConnections;
-
     private Object mAdapterStates[];
 
     private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
-    private ScTabView mMyTracksView;
+
 
     public interface TabTags {
         String tracks = "tracks";
@@ -76,6 +75,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         String followings = "followings";
         String followers = "followers";
         String friend_finder = "friend_finder";
+        String privateMessage = "private_message";
     }
 
     @SuppressWarnings("unchecked")
@@ -184,20 +184,47 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (mMessager != null) mMessager.onStart();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+
+        if (mMessager != null) mMessager.onStop();
         FollowStatus.get().removeListener(this);
 
         mAdapterStates = new Object[mLists.size()];
         int i = 0;
         for (ScListView list : mLists) {
-            if (list.getWrapper() != null){
+            if (list.getWrapper() != null) {
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();
             }
             i++;
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mMessager != null) mMessager.onDestroy();
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        if (mMessager != null){
+            mMessager.onSaveInstanceState(state);
+        }
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        if (mMessager != null){
+            mMessager.onRestoreInstanceState(state);
+        }
+    }
+
 
     @Override
     public Object onRetainNonConfigurationInstance() {
@@ -309,6 +336,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView detailsView = new ScTabView(this);
         detailsView.addView(mDetailsView);
 
+
+        final ScTabView messagingView = new ScTabView(this);
+        ViewGroup messagingLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.sc_create, null);
+        messagingView.addView(messagingLayout);
+        mMessager = new CreateController(this,messagingLayout,null);
+        mMessager.setInstructionsText("Send a private message");
+
+
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
@@ -397,6 +432,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
+        mUserlistBrowser.addView(messagingView, "Message", TabTags.privateMessage);
+
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
         mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
         mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
@@ -481,7 +518,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
                 || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
@@ -652,6 +688,21 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }
                 }
         }
+    }
+
+    @Override
+    public void onCreateServiceBound() {
+        super.onCreateServiceBound();
+        if (mMessager != null) mMessager.onCreateServiceBound(mCreateService);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int which) {
+        Dialog created = null;
+        if (mMessager != null) {
+            created = mMessager.onCreateDialog(which);
+        }
+        return created == null ? super.onCreateDialog(which) : created;
     }
 
 }

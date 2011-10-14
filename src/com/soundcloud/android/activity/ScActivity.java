@@ -86,6 +86,10 @@ public abstract class ScActivity extends Activity {
         return (SoundCloudApplication) getApplication();
     }
 
+    public Handler getHandler(){
+        return mHandler;
+    }
+
     public boolean isConnected() {
         if (mIsConnected == null) {
             // mIsConnected not set yet
@@ -651,4 +655,8 @@ public abstract class ScActivity extends Activity {
             handleRecordingClick(recording);
         }
     };
+
+    public ICloudCreateService getCreateService() {
+        return mCreateService;
+    }
 }
