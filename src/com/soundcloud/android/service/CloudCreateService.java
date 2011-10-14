@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -60,47 +61,25 @@ public class CloudCreateService extends Service {
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
-
     private static WakeLock mWakeLock;
-
     private CloudRecorder mRecorder;
-
-    private File mRecordFile;
-
+    private File mRecordFile, mPlaybackFile;
     private boolean mRecording = false;
-
     private OggEncoderTask<Params, ?> mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
-
     private PendingIntent mRecordPendingIntent;
-
     private RemoteViews mUploadNotificationView;
-
-    private Notification mRecordNotification;
-    private Notification mUploadNotification;
-
-    private String mRecordEventTitle;
-    private String mRecordEventMessage;
-
+    private Notification mRecordNotification, mUploadNotification;
+    private String mRecordEventTitle, mRecordEventMessage, mPlaybackTitle;
     private NotificationManager nm;
-
     private int mServiceStartId = -1;
-
     private long mRecordStartTime;
-
     private int frameCount;
-
     private MediaPlayer mPlayer;
-    private File mPlaybackFile;
-
     private Uri mPlaybackLocal;
-
-    private String mPlaybackTitle;
-
     private Upload mCurrentUpload;
     private HashMap<Long,Upload> mUploadMap;
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -219,6 +198,12 @@ public class CloudCreateService extends Service {
                 }
             }
         };
+
+
+        if (isPlaying()){
+            stopPlayback();
+            mPlaybackFile = null;
+        }
 
         Intent i = (new Intent(Actions.RECORD))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

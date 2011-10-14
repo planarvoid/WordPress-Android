@@ -25,6 +25,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScUpload;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -40,12 +41,14 @@ import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.CloudUtils.showToast;
 
 public class CreateController {
 
     private ScActivity mActivity;
     private ICloudCreateService mCreateService;
     private Uri mIntentData, mRecordingUri;
+    private User mPrivateUser;
 
     private TextView txtInstructions, txtRecordStatus, mChrono;
     private ViewGroup mFileLayout;
@@ -77,9 +80,14 @@ public class CreateController {
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
     public CreateController(ScActivity c, ViewGroup vg, Intent intent) {
+        this(c,vg,intent, null);
+    }
+
+    public CreateController(ScActivity c, ViewGroup vg, Intent intent, User privateUser) {
 
         mActivity = c;
         mIntentData = intent != null ? intent.getData() : null;
+        mPrivateUser = privateUser;
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_stop_states);
@@ -201,12 +209,19 @@ public class CreateController {
                 }
             }
 
-            if (mCreateService.isRecording() && mRecordingUri == null) {
-                mCurrentState = CreateState.RECORD;
-                setRecordFile(new File(mCreateService.getRecordingPath()));
-                mActivity.getApp().setRecordListener(recListener);
-                mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
-            } else if (mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
+            boolean showRecording = false;
+            if (mCreateService.isRecording() && mRecordingUri == null){
+                long recUserId = getPrivateUserIdFromPath(mCreateService.getRecordingPath());
+                if ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id)) {
+                    mCurrentState = CreateState.RECORD;
+                    setRecordFile(new File(mCreateService.getRecordingPath()));
+                    mActivity.getApp().setRecordListener(recListener);
+                    mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
+                    showRecording = true;
+                }
+            }
+
+            if ( !showRecording && mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
                 mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(new File(mCreateService.getPlaybackPath()));
                 configurePlaybackInfo();
@@ -229,8 +244,16 @@ public class CreateController {
             mCurrentState = CreateState.IDLE_RECORD;
         }
 
-        if (mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
+        if (mPrivateUser == null && mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
         updateUi(takeAction);
+    }
+
+    private long getPrivateUserIdFromPath(String path){
+        if (path.indexOf("_") == -1){
+            return -1;
+        } else {
+            return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")-1));
+        }
     }
 
     public void onSaveInstanceState(Bundle state) {
@@ -381,7 +404,12 @@ public class CreateController {
             mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
         }
 
-        mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
+        if (mPrivateUser != null) {
+            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id + "." + mAudioProfile);
+        } else {
+            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
+        }
+
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;

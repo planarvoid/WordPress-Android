@@ -340,7 +340,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView messagingView = new ScTabView(this);
         ViewGroup messagingLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.sc_create, null);
         messagingView.addView(messagingLayout);
-        mMessager = new CreateController(this,messagingLayout,null);
+        mMessager = new CreateController(this,messagingLayout,null,mUser);
         mMessager.setInstructionsText("Send a private message");
 
 
