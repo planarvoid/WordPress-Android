@@ -216,8 +216,9 @@ public class CreateController {
             }
 
             if (mCreateService.isRecording() && mRecordingUri == null){
-                long recUserId = getPrivateUserIdFromPath(mCreateService.getRecordingPath());
-                if ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id)) {
+
+                if (shouldReactToRecording()) {
+                    Log.i("asdf","REACTING");
                     mCurrentState = CreateState.RECORD;
                     setRecordFile(new File(mCreateService.getRecordingPath()));
                     mActivity.getApp().setRecordListener(recListener);
@@ -225,12 +226,19 @@ public class CreateController {
                 } else {
                     mCurrentState = CreateState.IDLE_STANDBY;
                 }
-            } else if ( mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
-                mCurrentState = CreateState.PLAYBACK;
-                setRecordFile(new File(mCreateService.getPlaybackPath()));
-                configurePlaybackInfo();
-                startProgressThread();
-                takeAction = true;
+            } else if ( mCreateService.isPlayingBack()) {
+                //if (recordingId == mCreateService.getPlaybackLocalId())
+                Log.i("asdf","Recording ID " + recordingId);
+                Log.i("asdf","Local Playback ID " + mCreateService.getPlaybackLocalId());
+                if (shouldReactToPlayback()) {
+                    mCurrentState = CreateState.PLAYBACK;
+                    setRecordFile(new File(mCreateService.getPlaybackPath()));
+                    configurePlaybackInfo();
+                    startProgressThread();
+                    takeAction = true;
+                } else {
+                    mCurrentState = CreateState.IDLE_STANDBY;
+                }
             } else if (!mRecordDir.exists()) {
                 // can happen when there's no mounted sd card
                 btnAction.setEnabled(false);
@@ -258,6 +266,31 @@ public class CreateController {
                 checkUnsavedFiles();
         }
         updateUi(takeAction);
+    }
+
+    private boolean shouldReactToRecording(){
+        long recUserId = -1;
+        try {
+            recUserId = getPrivateUserIdFromPath(mCreateService.getRecordingPath());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        Log.i("asdf","REC USER ID " + recUserId + " " + (mPrivateUser != null ? mPrivateUser.id : "null"));
+        return ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id));
+    }
+
+     private boolean shouldReactToPlayback(){
+        long playbackUserId = -1;
+        try {
+            playbackUserId = getPrivateUserIdFromPath(mCreateService.getPlaybackPath());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+         Log.i("asdf","PLAYBACK USER ID " + playbackUserId);
+        return ((playbackUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && playbackUserId == mPrivateUser.id));
+
+
     }
 
     private long getPrivateUserIdFromPath(String path){
@@ -297,6 +330,7 @@ public class CreateController {
     private void onAction() {
         if (mCurrentState == CreateState.IDLE_STANDBY) {
             stopRecording();
+            stopPlayback();
             onCreateServiceBound(mCreateService);
         } else {
             switch (mCurrentState) {
@@ -730,7 +764,7 @@ public class CreateController {
             if (f.equals(mRecordFile)) continue; // ignore current file
 
             final long filePrivateUserId = getPrivateUserIdFromPath(f.getAbsolutePath());
-            if (mPrivateUser != null && filePrivateUserId != mPrivateUser.id) {
+            if (mPrivateUser != null && filePrivateUserId == mPrivateUser.id) {
                 setRecordFile(f);
                 break;
             };
@@ -795,10 +829,12 @@ public class CreateController {
             String action = intent.getAction();
             if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
-            } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE)) {
-                onPlaybackComplete();
-            } else if (action.equals(CloudCreateService.PLAYBACK_ERROR)) {
-                onPlaybackComplete(); // might be unknown errors, meriting proper error handling
+            } else if (shouldReactToPlayback()){
+                if (action.equals(CloudCreateService.PLAYBACK_COMPLETE)) {
+                    onPlaybackComplete();
+                } else if (action.equals(CloudCreateService.PLAYBACK_ERROR)) {
+                    onPlaybackComplete(); // might be unknown errors, meriting proper error handling
+                }
             }
         }
     };
