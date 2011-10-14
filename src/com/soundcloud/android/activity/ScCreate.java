@@ -75,7 +75,14 @@ public class ScCreate extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mCreateController.onResume();
         trackPage(Consts.Tracking.RECORD);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mCreateController.onPause();
     }
 
     @Override

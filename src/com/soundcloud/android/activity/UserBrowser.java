@@ -181,6 +181,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         trackCurrentScreen();
         super.onResume();
+        mMessager.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMessager.onPause();
     }
 
     @Override

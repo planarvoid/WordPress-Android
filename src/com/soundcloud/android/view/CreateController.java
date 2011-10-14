@@ -60,7 +60,7 @@ public class CreateController {
     private long mLastDisplayedTime,mDuration, mLastSeekEventTime;
     private int mAudioProfile;
     private String mRecordErrorMessage, mCurrentDurationString;
-    private boolean mSampleInterrupted;
+    private boolean mSampleInterrupted, mActive;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
@@ -71,7 +71,7 @@ public class CreateController {
             btn_rec_play_states_drawable;
 
     public enum CreateState {
-        IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
+        IDLE_STANDBY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
     }
 
     public static int REC_SAMPLE_RATE = 44100;
@@ -188,6 +188,12 @@ public class CreateController {
 
     public void onCreateServiceBound(ICloudCreateService createService) {
         mCreateService = createService;
+        if (mActive) configureState();
+
+    }
+
+    private void configureState(){
+        if (mCreateService == null) return;
 
         boolean takeAction = false;
         try {
@@ -209,7 +215,6 @@ public class CreateController {
                 }
             }
 
-            boolean showRecording = false;
             if (mCreateService.isRecording() && mRecordingUri == null){
                 long recUserId = getPrivateUserIdFromPath(mCreateService.getRecordingPath());
                 if ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id)) {
@@ -217,11 +222,10 @@ public class CreateController {
                     setRecordFile(new File(mCreateService.getRecordingPath()));
                     mActivity.getApp().setRecordListener(recListener);
                     mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
-                    showRecording = true;
+                } else {
+                    mCurrentState = CreateState.IDLE_STANDBY;
                 }
-            }
-
-            if ( !showRecording && mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
+            } else if ( mCreateService.isPlayingBack() && recordingId == mCreateService.getPlaybackLocalId()) {
                 mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(new File(mCreateService.getPlaybackPath()));
                 configurePlaybackInfo();
@@ -231,6 +235,11 @@ public class CreateController {
                 // can happen when there's no mounted sd card
                 btnAction.setEnabled(false);
             } else {
+
+                if (mRecordFile == null && mPrivateUser != null) {
+                    checkForUnusedPrivateFile();
+                }
+
                 if (mRecordFile != null) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     loadPlaybackTrack();
@@ -244,7 +253,10 @@ public class CreateController {
             mCurrentState = CreateState.IDLE_RECORD;
         }
 
-        if (mPrivateUser == null && mRecordDir != null && mRecordDir.exists()) checkUnsavedFiles();
+        if (!(mCurrentState == CreateState.RECORD || mCurrentState == CreateState.IDLE_STANDBY)
+                && mRecordDir != null && mRecordDir.exists() && mPrivateUser == null) {
+                checkUnsavedFiles();
+        }
         updateUi(takeAction);
     }
 
@@ -283,13 +295,18 @@ public class CreateController {
 
     /*** State Handling ***/
     private void onAction() {
-        switch (mCurrentState) {
-            case IDLE_RECORD:   mCurrentState = CreateState.RECORD; break;
-            case RECORD:        mCurrentState = CreateState.IDLE_PLAYBACK; break;
-            case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
-            case PLAYBACK:      mCurrentState = CreateState.IDLE_PLAYBACK; break;
+        if (mCurrentState == CreateState.IDLE_STANDBY) {
+            stopRecording();
+            onCreateServiceBound(mCreateService);
+        } else {
+            switch (mCurrentState) {
+                case IDLE_RECORD:   mCurrentState = CreateState.RECORD; break;
+                case RECORD:        mCurrentState = CreateState.IDLE_PLAYBACK; break;
+                case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
+                case PLAYBACK:      mCurrentState = CreateState.IDLE_PLAYBACK; break;
+            }
+            updateUi(true);
         }
-        updateUi(true);
     }
 
     private void updateUi(boolean takeAction) {
@@ -298,7 +315,11 @@ public class CreateController {
                 if (takeAction) {
                     stopPlayback();
                 }
-                if (!TextUtils.isEmpty(mRecordErrorMessage)) txtRecordStatus.setText(mRecordErrorMessage);
+                if (!TextUtils.isEmpty(mRecordErrorMessage)) {
+                    txtRecordStatus.setText(mRecordErrorMessage);
+                } else {
+                    txtRecordStatus.setText(null);
+                }
 
                 btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
@@ -307,6 +328,17 @@ public class CreateController {
                 mProgressBar.setVisibility(View.GONE);
                 mPowerGauge.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
+                break;
+
+            case IDLE_STANDBY:
+                btnAction.setImageDrawable(btn_rec_stop_states_drawable);
+                txtRecordStatus.setVisibility(View.VISIBLE);
+                mFileLayout.setVisibility(View.GONE);
+                mChrono.setVisibility(View.GONE);
+                mProgressBar.setVisibility(View.GONE);
+                mPowerGauge.setVisibility(View.GONE);
+                txtInstructions.setVisibility(View.VISIBLE);
+                txtRecordStatus.setText(mActivity.getString(R.string.recording_in_progress));
                 break;
 
             case RECORD:
@@ -651,7 +683,7 @@ public class CreateController {
                 return Recording.isRawFilename(name) || Recording.isCompressedFilename(name);
             }
         })) {
-            if (f.equals(mRecordFile)) continue; // ignore current file
+            if (f.equals(mRecordFile) || getPrivateUserIdFromPath(f.getAbsolutePath()) != -1) continue; // ignore current file
 
             cursor = mActivity.getContentResolver().query(DatabaseHelper.Content.RECORDINGS,
                     columns,
@@ -688,6 +720,25 @@ public class CreateController {
         }
     }
 
+    private void checkForUnusedPrivateFile() {
+        for (File f : mRecordDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return Recording.isRawFilename(name) || Recording.isCompressedFilename(name);
+            }
+        })) {
+            if (f.equals(mRecordFile)) continue; // ignore current file
+
+            final long filePrivateUserId = getPrivateUserIdFromPath(f.getAbsolutePath());
+            if (mPrivateUser != null && filePrivateUserId != mPrivateUser.id) {
+                setRecordFile(f);
+                break;
+            };
+
+
+        }
+    }
+
 
 
     /* package */ void setRecordFile(File f) {
@@ -713,6 +764,17 @@ public class CreateController {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         mActivity.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+    }
+
+    public void onPause() {
+        mActive = false;
+    }
+
+    public void onResume() {
+        if (mCreateService != null){
+            configureState();
+        }
+        mActive = true;
     }
 
     public void onStop() {
