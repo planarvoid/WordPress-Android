@@ -791,6 +791,7 @@ public class CreateController {
 
     public void onStart(){
         IntentFilter uploadFilter = new IntentFilter();
+        uploadFilter.addAction(CloudCreateService.RECORD_STARTED);
         uploadFilter.addAction(CloudCreateService.RECORD_ERROR);
         uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
         uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
@@ -827,7 +828,15 @@ public class CreateController {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(CloudCreateService.RECORD_ERROR)) {
+            if (action.equals(CloudCreateService.RECORD_STARTED) &&
+                    (mCurrentState == CreateState.IDLE_PLAYBACK || mCurrentState == CreateState.PLAYBACK)) {
+                // this will happen if recording starts from somewhere else. just reset as the player will have to be reloaded anyway
+                stopPlayback();
+                mRecordFile = null;
+                mCurrentState = CreateState.IDLE_RECORD;
+                updateUi(true);
+
+            } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
             } else if (shouldReactToPlayback()){
                 if (action.equals(CloudCreateService.PLAYBACK_COMPLETE)) {

@@ -52,6 +52,7 @@ import java.util.HashMap;
 public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
 
+    public static final String RECORD_STARTED      = "com.soundcloud.android.recordstarted";
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
     public static final String UPLOAD_STARTED    = "com.sound.android.fileuploadstarted";
     public static final String UPLOAD_PROGRESS    = "com.sound.android.fileuploadprogress";
@@ -176,6 +177,8 @@ public class CloudCreateService extends Service {
         mRecordFile = new File(path);
         frameCount = 0;
 
+        sendBroadcast(new Intent(RECORD_STARTED));
+
         mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
         mRecorder.setRecordService(CloudCreateService.this);
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
@@ -198,12 +201,6 @@ public class CloudCreateService extends Service {
                 }
             }
         };
-
-
-        if (isPlaying()){
-            stopPlayback();
-            mPlaybackFile = null;
-        }
 
         Intent i = (new Intent(Actions.RECORD))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
