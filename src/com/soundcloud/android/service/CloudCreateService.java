@@ -240,7 +240,7 @@ public class CloudCreateService extends Service {
     }
 
     public String getRecordingPath() {
-        return mRecordFile.getAbsolutePath();
+        return mRecordFile == null ? "" : mRecordFile.getAbsolutePath();
     }
 
     public void onRecordError(){
@@ -755,14 +755,20 @@ public class CloudCreateService extends Service {
 
     private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mp) {
-            sendBroadcast(new Intent(PLAYBACK_COMPLETE));
+            if (mPlaybackFile == null) return;
+            Intent i = new Intent(PLAYBACK_COMPLETE);
+            i.putExtra("path",mPlaybackFile.getAbsolutePath());
+            sendBroadcast(i);
             onPlaybackComplete();
         }
     };
 
     private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            sendBroadcast(new Intent(PLAYBACK_ERROR));
+            if (mPlaybackFile == null) return false;
+            Intent i = new Intent(PLAYBACK_ERROR);
+            i.putExtra("path",mPlaybackFile.getAbsolutePath());
+            sendBroadcast(i);
             onPlaybackComplete();
             return true;
         }

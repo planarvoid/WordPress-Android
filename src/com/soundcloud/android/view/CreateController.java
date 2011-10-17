@@ -71,7 +71,7 @@ public class CreateController {
             btn_rec_play_states_drawable;
 
     public enum CreateState {
-        IDLE_STANDBY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
+        IDLE_STANDBY_REC, IDLE_STANDBY_PLAY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
     }
 
     public static int REC_SAMPLE_RATE = 44100;
@@ -223,7 +223,7 @@ public class CreateController {
                     mActivity.getApp().setRecordListener(recListener);
                     mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
                 } else {
-                    mCurrentState = CreateState.IDLE_STANDBY;
+                    mCurrentState = CreateState.IDLE_STANDBY_REC;
                 }
             } else if ( mCreateService.isPlayingBack()) {
                 //if (recordingId == mCreateService.getPlaybackLocalId())
@@ -234,7 +234,7 @@ public class CreateController {
                     startProgressThread();
                     takeAction = true;
                 } else {
-                    mCurrentState = CreateState.IDLE_STANDBY;
+                    mCurrentState = CreateState.IDLE_STANDBY_PLAY;
                 }
             } else if (!mRecordDir.exists()) {
                 // can happen when there's no mounted sd card
@@ -258,7 +258,7 @@ public class CreateController {
             mCurrentState = CreateState.IDLE_RECORD;
         }
 
-        if (!(mCurrentState == CreateState.RECORD || mCurrentState == CreateState.IDLE_STANDBY)
+        if (!(mCurrentState == CreateState.RECORD || mCurrentState == CreateState.IDLE_STANDBY_REC || mCurrentState == CreateState.IDLE_STANDBY_PLAY)
                 && mRecordDir != null && mRecordDir.exists() && mPrivateUser == null) {
                 checkUnsavedFiles();
         }
@@ -266,24 +266,28 @@ public class CreateController {
     }
 
     private boolean shouldReactToRecording(){
-        long recUserId = -1;
+        boolean react = false;
         try {
-            recUserId = getPrivateUserIdFromPath(mCreateService.getRecordingPath());
+            react = shouldReactToPath(mCreateService.getRecordingPath());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id));
+        return react;
     }
 
-     private boolean shouldReactToPlayback(){
-        long playbackUserId = -1;
+    private boolean shouldReactToPlayback(){
+        boolean react = false;
         try {
-            playbackUserId = getPrivateUserIdFromPath(mCreateService.getPlaybackPath());
+            react = shouldReactToPath(mCreateService.getPlaybackPath());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        return react;
+    }
 
-        return ((playbackUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && playbackUserId == mPrivateUser.id));
+     private boolean shouldReactToPath(String path){
+        long userIdFromPath = userIdFromPath = getPrivateUserIdFromPath(path);
+        return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
 
 
     }
@@ -315,8 +319,10 @@ public class CreateController {
 
     /*** State Handling ***/
     private void onAction() {
-        if (mCurrentState == CreateState.IDLE_STANDBY) {
+        if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
             stopRecording();
+            configureState();
+        } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
             stopPlayback();
             onCreateServiceBound(mCreateService);
         } else {
@@ -351,7 +357,8 @@ public class CreateController {
                 txtInstructions.setVisibility(View.VISIBLE);
                 break;
 
-            case IDLE_STANDBY:
+            case IDLE_STANDBY_REC:
+            case IDLE_STANDBY_PLAY:
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
@@ -359,7 +366,8 @@ public class CreateController {
                 mProgressBar.setVisibility(View.GONE);
                 mPowerGauge.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
-                txtRecordStatus.setText(mActivity.getString(R.string.recording_in_progress));
+                txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
+                        mActivity.getString(R.string.recording_in_progress) : mActivity.getString(R.string.playback_in_progress));
                 break;
 
             case RECORD:
@@ -833,13 +841,15 @@ public class CreateController {
 
             } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
-            } else if (shouldReactToPlayback()){
-                if (action.equals(CloudCreateService.PLAYBACK_COMPLETE)) {
+            } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
+                if (shouldReactToPath(intent.getStringExtra("path"))) {
                     onPlaybackComplete();
-                } else if (action.equals(CloudCreateService.PLAYBACK_ERROR)) {
-                    onPlaybackComplete(); // might be unknown errors, meriting proper error handling
+                } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
+                    configureState();
                 }
             }
+
+
         }
     };
 

@@ -6,7 +6,10 @@
     </string>
 
     <string name='recording_in_progress'>
-        There is a recording in progress. Press stop to end the recording or select to the recording notification to view it.
+        Recording in progress. Press stop to end the recording or select to the recording notification to view it.
+    </string>
+    <string name='playback_in_progress'>
+        Playback in progress. Press stop to end the playback or select the playback notification to view it.
     </string>
 
 </resources>
