@@ -218,7 +218,6 @@ public class CreateController {
             if (mCreateService.isRecording() && mRecordingUri == null){
 
                 if (shouldReactToRecording()) {
-                    Log.i("asdf","REACTING");
                     mCurrentState = CreateState.RECORD;
                     setRecordFile(new File(mCreateService.getRecordingPath()));
                     mActivity.getApp().setRecordListener(recListener);
@@ -228,8 +227,6 @@ public class CreateController {
                 }
             } else if ( mCreateService.isPlayingBack()) {
                 //if (recordingId == mCreateService.getPlaybackLocalId())
-                Log.i("asdf","Recording ID " + recordingId);
-                Log.i("asdf","Local Playback ID " + mCreateService.getPlaybackLocalId());
                 if (shouldReactToPlayback()) {
                     mCurrentState = CreateState.PLAYBACK;
                     setRecordFile(new File(mCreateService.getPlaybackPath()));
@@ -275,7 +272,6 @@ public class CreateController {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        Log.i("asdf","REC USER ID " + recUserId + " " + (mPrivateUser != null ? mPrivateUser.id : "null"));
         return ((recUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && recUserId == mPrivateUser.id));
     }
 
@@ -287,18 +283,9 @@ public class CreateController {
             e.printStackTrace();
         }
 
-         Log.i("asdf","PLAYBACK USER ID " + playbackUserId);
         return ((playbackUserId == -1 && mPrivateUser == null) || (mPrivateUser != null && playbackUserId == mPrivateUser.id));
 
 
-    }
-
-    private long getPrivateUserIdFromPath(String path){
-        if (path.indexOf("_") == -1){
-            return -1;
-        } else {
-            return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")-1));
-        }
     }
 
     public void onSaveInstanceState(Bundle state) {
@@ -821,6 +808,14 @@ public class CreateController {
     public void onDestroy() {
         if (mActivity.getApp().getRecordListener() == recListener) {
             mActivity.getApp().setRecordListener(null);
+        }
+    }
+
+    public static long getPrivateUserIdFromPath(String path){
+        if (path.indexOf("_") == -1){
+            return -1;
+        } else {
+            return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")));
         }
     }
 

@@ -63,6 +63,11 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="com.soundcloud.android.action.MESSAGE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="com.soundcloud.android.action.PROFILE"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

@@ -21,6 +21,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
+import com.soundcloud.android.view.CreateController;
 import com.soundcloud.api.CloudAPI;
 
 import android.app.Notification;
@@ -202,9 +203,20 @@ public class CloudCreateService extends Service {
             }
         };
 
-        Intent i = (new Intent(Actions.RECORD))
+        final long messageRecipient = CreateController.getPrivateUserIdFromPath(path);
+
+        Intent i;
+        if (messageRecipient != -1) {
+            i = (new Intent(Actions.MESSAGE))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i.putExtra("recipient",messageRecipient);
+        } else {
+            i = (new Intent(Actions.RECORD))
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        }
+
 
         mRecordPendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
