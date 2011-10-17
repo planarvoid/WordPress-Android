@@ -87,8 +87,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     private void flipToCreate(){
-        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
+        mViewFlipper.setInAnimation(AnimUtils.inFromTopAnimation());
+        mViewFlipper.setOutAnimation(AnimUtils.outToBottomAnimation());
         mViewFlipper.showPrevious();
     }
 
@@ -127,10 +127,13 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     public void onSaveInstanceState(Bundle state) {
         state.putInt("privateMessagerCurrentIndex",mViewFlipper.indexOfChild(mViewFlipper.getCurrentView()));
         mCreateController.onSaveInstanceState(state);
+        mRecordingMetadata.onSaveInstanceState(state);
     }
 
     public void onRestoreInstanceState(Bundle state){
         mViewFlipper.setDisplayedChild(state.getInt("privateMessagerCurrentIndex"));
+        mCreateController.onRestoreInstanceState(state);
+        mRecordingMetadata.onRestoreInstanceState(state);
     }
 
     public void onCreateServiceBound(ICloudCreateService mCreateService) {
@@ -190,7 +193,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     public void setRecording(Uri recordingUri, boolean edit) {
         mRecording = Recording.fromUri(recordingUri, mActivity.getContentResolver());
         if (edit) {
-            mRecordingMetadata.setRecording(mRecording);
+            mRecordingMetadata.setRecording(mRecording, true);
             mViewFlipper.setDisplayedChild(1);
         } else {
             mCreateController.setRecordingUri(recordingUri);
