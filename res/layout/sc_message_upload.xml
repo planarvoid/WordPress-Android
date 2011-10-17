@@ -47,7 +47,7 @@
                           android:layout_alignParentBottom="false"
                           android:layout_centerInParent="true">
 
-                <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_reset"
+                <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_cancel"
                                                            android:text="@string/cancel"
                                                            android:layout_weight="1"
                                                            android:layout_width="0dp"
@@ -57,7 +57,7 @@
                                                            android:layout_marginRight="15dip"
                                                            idleText="#ff9e9e9e"/>
 
-                <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_save"
+                <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_upload"
                                                            android:text="@string/private_message_btn_send"
                                                            android:padding="15dip"
                                                            android:layout_weight="1"

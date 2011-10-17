@@ -15,7 +15,6 @@ import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LocationPicker;
-import com.soundcloud.android.activity.ScUpload;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.FoursquareVenueTask;
@@ -180,7 +179,7 @@ public class RecordingMetaData extends RelativeLayout{
     }
 
 
-    public void clearArtwork() {
+    private void clearArtwork() {
         mArtworkFile = null;
         mArtwork.setVisibility(View.GONE);
         if (mArtwork.getDrawable() instanceof BitmapDrawable) {
@@ -218,5 +217,9 @@ public class RecordingMetaData extends RelativeLayout{
 
     public void setDefaultImage() {
         setImage(getCurrentImageFile());
+    }
+
+    public void onDestroy(){
+        clearArtwork();
     }
 }

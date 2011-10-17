@@ -4,9 +4,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
@@ -14,29 +12,22 @@ import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.android.view.RecordingMetaData;
 import com.soundcloud.android.view.ShareUserHeader;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-import org.apache.commons.logging.Log;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -100,7 +91,7 @@ public class ScUpload extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mRecordingMetadata.clearArtwork();
+        mRecordingMetadata.onDestroy();
     }
 
     private void setPrivateShareEmails(String[] emails) {

@@ -151,10 +151,17 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         } else {
 
-            if (intent != null && intent.hasExtra("user")) {
-                loadUserByObject((User) intent.getParcelableExtra("user"));
-            } else if (intent != null && intent.hasExtra("userId")) {
-                loadUserById(intent.getLongExtra("userId", -1));
+            if (intent != null) {
+                if (intent.hasExtra("user")) {
+                    loadUserByObject((User) intent.getParcelableExtra("user"));
+                } else if (intent.hasExtra("userId")) {
+                    loadUserById(intent.getLongExtra("userId", -1));
+                } else {
+                    loadYou();
+                }
+                if (intent.hasExtra("recordingUri")) {
+                    mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")), intent.getBooleanExtra("edit", false));
+                }
             } else {
                 loadYou();
             }
@@ -638,9 +645,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             .setItems(curr_items, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
                     if (curr_items[item].equals(RECORDING_ITEMS[0])) {
-                        startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                        if (recording.private_user_id <= 0){
+                            startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                        } else {
+                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                                            .putExtra("edit",true)
+                                            .putExtra("recordingUri", recording.toUri().toString())
+                                            .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        }
+
                     } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                        startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+                        if (recording.private_user_id <= 0){
+                            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+                        } else {
+                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                                    .putExtra("edit", false)
+                                    .putExtra("recordingUri", recording.toUri().toString())
+                                    .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        }
+
+
+
                     } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                         startUpload(recording);
                     } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
@@ -684,6 +709,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }
                 }
+            default:
+                mMessager.onActivityResult(requestCode,resultCode,result);
         }
     }
 

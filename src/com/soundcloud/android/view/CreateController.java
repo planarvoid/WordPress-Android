@@ -22,6 +22,7 @@ import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScUpload;
 import com.soundcloud.android.model.Recording;
@@ -47,7 +48,7 @@ public class CreateController {
 
     private ScActivity mActivity;
     private ICloudCreateService mCreateService;
-    private Uri mIntentData, mRecordingUri;
+    private Uri mRecordingUri;
     private User mPrivateUser;
 
     private TextView txtInstructions, txtRecordStatus, mChrono;
@@ -88,7 +89,7 @@ public class CreateController {
     public CreateController(ScActivity c, ViewGroup vg, Intent intent, User privateUser) {
 
         mActivity = c;
-        mIntentData = intent != null ? intent.getData() : null;
+        mRecordingUri = intent != null ? intent.getData() : null;
         mPrivateUser = privateUser;
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
@@ -149,6 +150,10 @@ public class CreateController {
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
                     r.user_id = mActivity.getCurrentUserId();
+                    if (mPrivateUser != null){
+                        SoundCloudDB.writeUser(mActivity.getContentResolver(),mPrivateUser, SoundCloudDB.WriteState.all,mActivity.getCurrentUserId());
+                        r.private_user_id = mPrivateUser.id;
+                    }
 
                     try { // set duration because ogg files report incorrect
                           // duration in mediaplayer if playback is attempted
@@ -205,6 +210,11 @@ public class CreateController {
         mCreateListener = listener;
     }
 
+    public void setRecordingUri(Uri recordingUri){
+        mRecordingUri = recordingUri;
+        configureState();
+    }
+
     private void configureState(){
         if (mCreateService == null) return;
 
@@ -212,9 +222,9 @@ public class CreateController {
         try {
 
             long recordingId = 0;
-            if (mIntentData != null) {
-                recordingId = Long.valueOf(mIntentData.getLastPathSegment());
-                Cursor cursor = mActivity.getContentResolver().query(mIntentData,
+            if (mRecordingUri != null) {
+                recordingId = Long.valueOf(mRecordingUri.getLastPathSegment());
+                Cursor cursor = mActivity.getContentResolver().query(mRecordingUri,
                         new String[]{DatabaseHelper.Recordings.ID, DatabaseHelper.Recordings.AUDIO_PATH, DatabaseHelper.Recordings.AUDIO_PROFILE, DatabaseHelper.Recordings.DURATION},
                         null, null, null);
 
