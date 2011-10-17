@@ -224,6 +224,15 @@
         <item name="android:textStyle">italic</item>
     </style>
 
+    <style name="txt_private_message_metadata_title">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="txt_private_message_metadata_message">
+        <item name="android:textColor">#ff9e9e9e</item>
+        <item name="android:textSize">16sp</item>
+    </style>
 
     <style name="txt_player_time">
         <item name="android:layout_width">@dimen/player_time_width</item>

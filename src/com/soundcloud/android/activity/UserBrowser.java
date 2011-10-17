@@ -222,7 +222,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     public void onSaveInstanceState(Bundle state) {
         if (mMessager != null) mMessager.onSaveInstanceState(state);
+    }
 
+    public void onRestoreInstanceState(Bundle state) {
+        if (mMessager != null) mMessager.onRestoreInstanceState(state);
     }
 
     @Override

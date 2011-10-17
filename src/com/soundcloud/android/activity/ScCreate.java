@@ -58,7 +58,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class ScCreate extends ScActivity {
+public class ScCreate extends ScActivity implements CreateController.CreateListener {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
     private CreateController mCreateController;
@@ -70,6 +70,7 @@ public class ScCreate extends ScActivity {
 
         mCreateController = new CreateController(this,
                 (ViewGroup) getWindow().getDecorView().findViewById(android.R.id.content),getIntent());
+        mCreateController.setListener(this);
     }
 
     @Override
@@ -169,5 +170,15 @@ public class ScCreate extends ScActivity {
                     startActivity(intent);
                 }
         }
+    }
+
+    @Override
+    public void onSave(Uri recording) {
+        startActivity(new Intent(this, ScUpload.class).setData(recording));
+    }
+
+    @Override
+    public void onCancel() {
+        finish();
     }
 }

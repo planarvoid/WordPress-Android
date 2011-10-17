@@ -65,6 +65,8 @@ public class CreateController {
     private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
 
+    private CreateListener mCreateListener;
+
     private Drawable
             btn_rec_states_drawable,
             btn_rec_stop_states_drawable,
@@ -132,7 +134,6 @@ public class CreateController {
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                             Recording recording = Recording.fromUri(mRecordingUri, mActivity.getContentResolver());
                                             if (recording != null) recording.delete(mActivity.getContentResolver());
-                                            mActivity.finish();
                                         }
                                     })
                             .setNegativeButton(mActivity.getString(R.string.btn_no), null)
@@ -157,14 +158,22 @@ public class CreateController {
                     }
 
                     Uri newRecordingUri = mActivity.getContentResolver().insert(DatabaseHelper.Content.RECORDINGS, r.buildContentValues());
-                    mActivity.startActivity(new Intent(mActivity, ScUpload.class).setData(newRecordingUri));
                     mRecordingUri = null;
                     mRecordFile = null;
                     mCurrentState = CreateState.IDLE_RECORD;
+
+                    if (mCreateListener != null){
+                        mCreateListener.onSave(newRecordingUri);
+                    }
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
                     mActivity.startActivityForResult(new Intent(mActivity, ScUpload.class).setData(mRecordingUri), 0);
+
+                    if (mCreateListener != null){
+                        mCreateListener.onSave(mRecordingUri);
+                    }
                 }
+                updateUi(false);
             }
         });
 
@@ -190,6 +199,10 @@ public class CreateController {
         mCreateService = createService;
         if (mActive) configureState();
 
+    }
+
+    public void setListener(CreateListener listener){
+        mCreateListener = listener;
     }
 
     private void configureState(){
@@ -903,6 +916,11 @@ public class CreateController {
             default:
                 return null;
         }
+    }
+
+    public interface CreateListener {
+        void onSave(Uri recording);
+        void onCancel();
     }
 
 

@@ -152,4 +152,60 @@ public class AnimUtils {
         return outtoRight;
     }
 
+    public static Animation inFromTopAnimation() {
+        return inFromTopAnimation(new DecelerateInterpolator());
+    }
+
+    // for the next movement
+    public static Animation inFromTopAnimation(android.view.animation.Interpolator i) {
+        Animation inFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, -1.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f);
+        inFromBottom.setDuration(250);
+        inFromBottom.setInterpolator(i);
+        return inFromBottom;
+    }
+
+    public static Animation outToTopAnimation() {
+        return outToTopAnimation(new DecelerateInterpolator());
+    }
+
+    // for the next movement
+    public static Animation outToTopAnimation(android.view.animation.Interpolator i) {
+        Animation inFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, -1.0f);
+        inFromBottom.setDuration(250);
+        inFromBottom.setInterpolator(i);
+        return inFromBottom;
+    }
+
+    public static Animation inFromBottomAnimation() {
+        return inFromBottomAnimation(new DecelerateInterpolator());
+    }
+
+    // for the next movement
+    public static Animation inFromBottomAnimation(android.view.animation.Interpolator i) {
+        Animation inFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 1.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f);
+        inFromBottom.setDuration(250);
+        inFromBottom.setInterpolator(i);
+        return inFromBottom;
+    }
+
+    public static Animation outToBottomAnimation() {
+        return outToBottomAnimation(new DecelerateInterpolator());
+    }
+
+    // for the next movement
+    public static Animation outToBottomAnimation(android.view.animation.Interpolator i) {
+        Animation inFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 1.0f);
+        inFromBottom.setDuration(250);
+        inFromBottom.setInterpolator(i);
+        return inFromBottom;
+    }
+
 }// end class AnimationUtils

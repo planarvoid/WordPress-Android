@@ -65,7 +65,6 @@ public class RecordingMetaData extends RelativeLayout{
         mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
         CloudUtils.mkdirs(mImageDir);
 
-
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mWhatText = (EditText) findViewById(R.id.what);
         mWhereText = (TextView) findViewById(R.id.where);
@@ -78,6 +77,7 @@ public class RecordingMetaData extends RelativeLayout{
          mWhereText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mRecording == null) return;
                 Intent intent = new Intent(getContext(), LocationPicker.class);
                 intent.putExtra("name", ((TextView) v).getText().toString());
                 if (mRecording.longitude != 0) {
