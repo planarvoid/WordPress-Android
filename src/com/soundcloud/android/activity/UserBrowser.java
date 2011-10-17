@@ -181,13 +181,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         trackCurrentScreen();
         super.onResume();
-        mMessager.onResume();
+        if (mMessager != null) mMessager.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mMessager.onPause();
+        if (mMessager != null) mMessager.onPause();
     }
 
     @Override
@@ -221,15 +221,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     public void onSaveInstanceState(Bundle state) {
-        if (mMessager != null){
-            mMessager.onSaveInstanceState(state);
-        }
+        if (mMessager != null) mMessager.onSaveInstanceState(state);
+
     }
 
     public void onRestoreInstanceState(Bundle state) {
-        if (mMessager != null){
-            mMessager.onRestoreInstanceState(state);
-        }
+        if (mMessager != null) mMessager.onRestoreInstanceState(state);
+
     }
 
 
@@ -344,11 +342,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         detailsView.addView(mDetailsView);
 
 
-        final ScTabView messagingView = new ScTabView(this);
-        ViewGroup messagingLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.sc_create, null);
-        messagingView.addView(messagingLayout);
-        mMessager = new CreateController(this,messagingLayout,null,mUser);
-        mMessager.setInstructionsText("Send a private message");
+        final ScTabView messagingView = isMe() ? null : new ScTabView(this);
+        if (messagingView != null) {
+            ViewGroup messagingLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.sc_create, null);
+            messagingView.addView(messagingLayout);
+            mMessager = new CreateController(this, messagingLayout, null, mUser);
+            mMessager.setInstructionsText("Send a private message");
+        }
 
 
         // Tracks View
@@ -439,7 +439,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
-        mUserlistBrowser.addView(messagingView, "Message", TabTags.privateMessage);
+        if (messagingView != null) mUserlistBrowser.addView(messagingView, "Message", TabTags.privateMessage);
 
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
         mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
