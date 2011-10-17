@@ -11,5 +11,8 @@
     <string name='playback_in_progress'>
         Playback in progress. Press stop to end the playback or select the playback notification to view it.
     </string>
+    <string name='private_message_title'>
+        Send a private message
+    </string>
 
 </resources>

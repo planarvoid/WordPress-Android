@@ -59,7 +59,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private LoadUserTask mLoadDetailsTask;
     private boolean mUpdateInfo;
 
-    private CreateController mMessager;
+    private PrivateMessager mMessager;
 
     private List<Connection> mConnections;
     private Object mAdapterStates[];
@@ -225,12 +225,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     }
 
-    public void onRestoreInstanceState(Bundle state) {
-        if (mMessager != null) mMessager.onRestoreInstanceState(state);
-
-    }
-
-
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
@@ -342,14 +336,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         detailsView.addView(mDetailsView);
 
 
-        final ScTabView messagingView = isMe() ? null : new ScTabView(this);
-        if (messagingView != null) {
-            ViewGroup messagingLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.sc_create, null);
-            messagingView.addView(messagingLayout);
-            mMessager = new CreateController(this, messagingLayout, null, mUser);
-            mMessager.setInstructionsText("Send a private message");
-        }
-
+        mMessager = isMe() ? null : new PrivateMessager(this, mUser);
 
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
@@ -439,7 +426,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
-        if (messagingView != null) mUserlistBrowser.addView(messagingView, "Message", TabTags.privateMessage);
+        if (mMessager != null) mUserlistBrowser.addView(mMessager, "Message", TabTags.privateMessage);
 
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
         mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
