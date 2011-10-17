@@ -25,6 +25,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScUpload;
+import com.soundcloud.android.activity.tour.Record;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
@@ -172,13 +173,10 @@ public class CreateController {
                     }
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
-                    mActivity.startActivityForResult(new Intent(mActivity, ScUpload.class).setData(mRecordingUri), 0);
-
                     if (mCreateListener != null){
                         mCreateListener.onSave(mRecordingUri);
                     }
                 }
-                updateUi(false);
             }
         });
 
@@ -359,7 +357,7 @@ public class CreateController {
         }
     }
 
-    private void updateUi(boolean takeAction) {
+    void updateUi(boolean takeAction) {
         switch (mCurrentState) {
             case IDLE_RECORD:
                 if (takeAction) {

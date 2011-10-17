@@ -143,6 +143,17 @@ public class Recording extends ModelBase implements PageTrackable {
         }
     }
 
+    public static Recording fromPrivateUserId(long id, ContentResolver resolver) {
+        Cursor cursor = resolver.query(DatabaseHelper.Content.RECORDINGS, null, Recordings.PRIVATE_USER_ID + " = ?",
+                new String[]{Long.toString(id)}, null);
+
+        try {
+            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
     public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
         public Recording createFromParcel(Parcel in) {
             return new Recording(in);

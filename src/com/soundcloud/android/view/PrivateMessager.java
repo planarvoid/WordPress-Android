@@ -32,6 +32,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         super(activity);
 
         mUser = user;
+        mRecording = Recording.fromPrivateUserId(mUser.id,mActivity.getContentResolver());
 
         mViewFlipper = new ViewFlipper(activity);
         addView(mViewFlipper,new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
@@ -41,7 +42,6 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         mCreateController.setInstructionsText(activity.getString(R.string.private_message_title));
         mCreateController.setListener(this);
         mViewFlipper.addView(createLayout);
-
 
         ViewGroup uploadLayout = (ViewGroup) activity.getLayoutInflater().inflate(R.layout.sc_message_upload, null);
         mRecordingMetadata = (RecordingMetaData) uploadLayout.findViewById(R.id.metadata_layout);
@@ -136,11 +136,13 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
 
     @Override
     public void onSave(Uri recording) {
+
         mRecording = Recording.fromUri(recording,mActivity.getContentResolver());
         mRecordingMetadata.setRecording(mRecording);
         mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
         mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
         mViewFlipper.showNext();
+        mCreateController.updateUi(false);
     }
 
     private void mapFromRecording(final Recording recording) {
@@ -154,6 +156,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     @Override
     public void onCancel() {
         // ignore
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent result) {
@@ -182,11 +185,11 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
 
     public void setRecording(Uri recordingUri, boolean edit) {
         mRecording = Recording.fromUri(recordingUri, mActivity.getContentResolver());
+        mCreateController.setRecordingUri(recordingUri);
         if (edit) {
             mRecordingMetadata.setRecording(mRecording, true);
             mViewFlipper.setDisplayedChild(1);
         } else {
-            mCreateController.setRecordingUri(recordingUri);
             mViewFlipper.setDisplayedChild(0);
         }
     }
