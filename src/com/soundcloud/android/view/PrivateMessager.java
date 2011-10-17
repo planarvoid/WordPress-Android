@@ -5,17 +5,11 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.EmailPicker;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
@@ -80,10 +74,6 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                 }
             }
         });
-    }
-
-    public void setUser(User u){
-        mUser = u;
     }
 
     private void flipToCreate(){

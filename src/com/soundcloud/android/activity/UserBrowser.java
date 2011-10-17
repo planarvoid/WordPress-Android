@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import com.google.android.imageloader.ImageLoader;
@@ -174,6 +175,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mMyTracksView.onVisible();
         ((ScTabView) mUserlistBrowser.getCurrentWorkspaceView()).onVisible();
         loadDetails();
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     public void setTab(String tag) {
